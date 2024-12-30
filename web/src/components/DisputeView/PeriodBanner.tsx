@@ -4,6 +4,7 @@ import styled, { Theme, css, useTheme } from "styled-components";
 import { Periods } from "consts/periods";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 interface IContainer {
   isCard: boolean;
@@ -20,7 +21,7 @@ const Container = styled.div<IContainer>`
   align-items: center;
   gap: 8px;
   justify-content: space-between;
-  padding: 0 ${({ isCard }) => (isCard ? "24px" : responsiveSize(8, 24, 900))};
+  padding: 0 ${({ isCard }) => (isCard ? "16px" : "24px")};
   flex-shrink: 0;
   ${({ frontColor, backgroundColor, isCard }) => {
     return `
@@ -28,6 +29,12 @@ const Container = styled.div<IContainer>`
       ${isCard && `background-color: ${backgroundColor};`};
     `;
   }};
+
+  ${landscapeStyle(
+    () => css`
+      padding: 0 24px;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label<{ frontColor: string; withDot?: boolean; isCard?: boolean }>`

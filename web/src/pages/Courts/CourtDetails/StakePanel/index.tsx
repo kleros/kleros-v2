@@ -15,18 +15,20 @@ const Container = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 16px;
 
   ${landscapeStyle(
     () => css`
+      gap: 24px;
       flex-direction: column;
     `
   )};
 `;
 
-const LeftArea = styled.div`
+const StakingArea = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 24px;
 `;
 
 const TagArea = styled.div`
@@ -34,14 +36,12 @@ const TagArea = styled.div`
   gap: 10px;
 `;
 
-const StakeArea = styled(TagArea)`
-  margin-top: 28px;
-  flex-direction: column;
+const TextArea = styled.div`
+  color: ${({ theme }) => theme.primaryText};
 `;
 
-const TextArea = styled.div`
-  margin-top: 32px;
-  color: ${({ theme }) => theme.primaryText};
+const InputArea = styled(TagArea)`
+  flex-direction: column;
 `;
 
 const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "General Court" }) => {
@@ -57,19 +57,20 @@ const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "General Cour
   const isStaking = action === ActionType.stake;
   return (
     <Container>
-      <LeftArea>
+      <StakingArea>
         <TagArea>
           <Tag text="Stake" active={isActive} onClick={() => handleClick(ActionType.stake)} />
           <Tag text="Withdraw" active={!isActive} onClick={() => handleClick(ActionType.withdraw)} />
         </TagArea>
         <TextArea>
           <strong>{`${isStaking ? "Stake" : "Withdraw"} PNK`}</strong> {`${isStaking ? "to join the" : "from"}`}{" "}
-          {courtName} court
+          {courtName}
+          {courtName.toLowerCase().endsWith("court") || courtName.toLowerCase().startsWith("corte") ? null : " Court"}
         </TextArea>
-        <StakeArea>
+        <InputArea>
           <InputDisplay {...{ action, amount, setAmount }} />
-        </StakeArea>
-      </LeftArea>
+        </InputArea>
+      </StakingArea>
       <Simulator amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
     </Container>
   );

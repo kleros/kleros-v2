@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
@@ -13,7 +13,7 @@ import { useSpamEvidence } from "hooks/useSpamEvidence";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useEvidences } from "queries/useEvidences";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Divider } from "components/Divider";
 import EvidenceCard from "components/EvidenceCard";
@@ -26,9 +26,14 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-
   align-items: center;
-  padding: ${responsiveSize(16, 32)};
+  padding: 20px 16px 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`

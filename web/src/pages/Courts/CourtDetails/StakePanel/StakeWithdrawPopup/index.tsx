@@ -5,7 +5,6 @@ import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
 import Close from "svgs/icons/close.svg";
 
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { useSortitionModulePhase } from "hooks/useSortitionModule";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -112,8 +111,7 @@ interface IStakeWithdrawPopup {
 }
 
 const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup, steps, isSuccess, action }) => {
-  useLockOverlayScroll(true);
-  const { data: phase } = useSortitionModulePhase();
+  const { data: phase, isLoading } = useSortitionModulePhase();
 
   return (
     <Overlay onClick={closePopup}>
@@ -123,7 +121,7 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
           {steps && <CustomTimeline items={steps} />}
-          {phase !== Phases.staking ? (
+          {phase !== Phases.staking && !isLoading ? (
             <InfoContainer>
               <Divider />
               <StyledInfoCard

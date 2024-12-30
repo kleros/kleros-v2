@@ -1,9 +1,6 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
 
@@ -18,6 +15,10 @@ import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
 
@@ -29,8 +30,8 @@ const StyledCard = styled(Card)`
 const TopContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${responsiveSize(8, 24)};
-  gap: ${responsiveSize(4, 8)};
+  padding: 16px;
+  gap: 4px;
   overflow-wrap: break-word;
 
   > * {
@@ -44,19 +45,27 @@ const TopContent = styled.div`
     display: inline-block;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 20px 24px;
+    `
+  )}
 `;
 
 const IndexAndName = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 `;
 
 const Index = styled.p`
   display: inline-block;
+  color: ${({ theme }) => theme.secondaryText};
 `;
 
+const ReactMarkdownWrapper = styled.div``;
 const StyledReactMarkdown = styled(ReactMarkdown)`
   a {
     font-size: 16px;
@@ -75,12 +84,18 @@ const BottomShade = styled.div`
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 12px ${responsiveSize(8, 24)};
+  padding: 16px;
   > * {
     flex-basis: 1;
     flex-shrink: 0;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 12px 24px;
+    `
+  )}
 `;
 
 const BottomLeftContent = styled.div`
@@ -165,6 +180,7 @@ const MobileText = styled.span`
 `;
 
 const StyledInternalLink = styled(InternalLink)`
+  ${hoverShortTransitionTiming}
   display: flex;
   gap: ${responsiveSize(5, 6)};
   > svg {
@@ -173,7 +189,6 @@ const StyledInternalLink = styled(InternalLink)`
   }
 
   :hover svg {
-    transition: fill 0.1s;
     fill: ${({ theme }) => theme.secondaryBlue};
   }
 `;
@@ -215,12 +230,18 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
 
   return (
     <StyledCard>
-      <TopContent>
+      <TopContent dir="auto">
         <IndexAndName>
-          <Index>#{index}: </Index>
+          <Index>#{index}. </Index>
           <h3>{name}</h3>
         </IndexAndName>
-        {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}
+        {name && description ? (
+          <ReactMarkdownWrapper dir="auto">
+            <StyledReactMarkdown>{description}</StyledReactMarkdown>
+          </ReactMarkdownWrapper>
+        ) : (
+          <p>{evidence}</p>
+        )}
       </TopContent>
       <BottomShade>
         <BottomLeftContent>

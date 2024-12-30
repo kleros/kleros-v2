@@ -160,7 +160,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         totalCostMultiplier = _totalCostMultiplier;
     }
 
-    /// @dev Change the the time window within which evidence submissions and removals can be contested.
+    /// @dev Change the time window within which evidence submissions and removals can be contested.
     /// Ongoing moderations will start using the latest bondTimeout available after calling moderate() again.
     /// @param _bondTimeout Multiplier of arbitration fees that must be paid as fee stake. In basis points.
     function changeBondTimeout(uint256 _bondTimeout) external onlyGovernor {

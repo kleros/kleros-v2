@@ -1,5 +1,5 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
-import { PNK, KlerosCore, SortitionModule, RandomizerRNG, RandomizerMock } from "../../typechain-types";
+import { PNK, KlerosCore, SortitionModule, ChainlinkRNG, ChainlinkVRFCoordinatorV2Mock } from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -18,8 +18,8 @@ describe("Staking", async () => {
   let pnk: PNK;
   let core: KlerosCore;
   let sortition: SortitionModule;
-  let rng: RandomizerRNG;
-  let randomizer: RandomizerMock;
+  let rng: ChainlinkRNG;
+  let vrfCoordinator: ChainlinkVRFCoordinatorV2Mock;
 
   const deploy = async () => {
     ({ deployer } = await getNamedAccounts());
@@ -30,8 +30,8 @@ describe("Staking", async () => {
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
-    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-    randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
+    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
+    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
   };
 
   describe("When outside the Staking phase", async () => {
@@ -63,7 +63,7 @@ describe("Staking", async () => {
     };
 
     const reachStakingPhaseAfterDrawing = async () => {
-      await randomizer.relay(rng.target, 0, ethers.randomBytes(32));
+      await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
       await sortition.passPhase(); // Generating -> Drawing
       await core.draw(0, 5000);
       await sortition.passPhase(); // Drawing -> Staking
@@ -404,7 +404,7 @@ describe("Staking", async () => {
       for (let index = 0; index < lookahead; index++) {
         await network.provider.send("evm_mine");
       }
-      await randomizer.relay(rng.target, 0, ethers.randomBytes(32));
+      await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
       await sortition.passPhase(); // Generating -> Drawing
 
       await core.draw(0, 5000);

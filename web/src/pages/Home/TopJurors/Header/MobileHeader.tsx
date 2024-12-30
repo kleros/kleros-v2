@@ -13,15 +13,17 @@ const Container = styled.div`
   justify-content: space-between;
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
-  padding: 24px;
-  border 1px solid ${({ theme }) => theme.stroke};
+  padding: 16px;
+  border: 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   border-bottom: none;
   flex-wrap: wrap;
+
   ${landscapeStyle(
     () => css`
       display: none;
+      padding: 16px 24px;
     `
   )}
 `;

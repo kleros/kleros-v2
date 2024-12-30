@@ -12,7 +12,7 @@ import Tools from "./Tools";
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.klerosUIComponentsLightBackground};
-  padding: ${responsiveSize(32, 72)} ${responsiveSize(24, 132)} ${responsiveSize(76, 96)};
+  padding: ${responsiveSize(32, 72)} ${responsiveSize(8, 132)} ${responsiveSize(76, 96)};
   max-width: 1780px;
   margin: 0 auto;
 `;

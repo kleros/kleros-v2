@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useParams } from "react-router-dom";
@@ -33,10 +34,16 @@ const Container = styled.div`
   flex-direction: column;
   background-color: ${({ theme }) => theme.lightBlue};
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 16px;
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.mediumBlue};
   justify-content: center;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 20px;
+    `
+  )}
 `;
 
 const ItemsContainer = styled.div`

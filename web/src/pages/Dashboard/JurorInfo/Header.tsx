@@ -1,12 +1,11 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 import { useToggle } from "react-use";
 
 import XIcon from "svgs/socialmedia/x.svg";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
@@ -14,36 +13,25 @@ import { ExternalLink } from "components/ExternalLink";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  margin-bottom: ${responsiveSize(32, 48)};
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: ${responsiveSize(16, 24)};
   gap: 12px;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    `
-  )}
 `;
 
 const StyledTitle = styled.h1`
   margin-bottom: 0;
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const LinksContainer = styled.div`
   display: flex;
   color: ${({ theme }) => theme.primaryBlue};
   align-items: center;
-  gap: 24px;
+  gap: 8px ${responsiveSize(20, 24)};
   flex-wrap: wrap;
-
-  ${landscapeStyle(
-    () => css`
-      gap: 32px;
-    `
-  )}
 `;
 
 const StyledXIcon = styled(XIcon)`

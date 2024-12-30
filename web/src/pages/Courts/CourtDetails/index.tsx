@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
@@ -31,8 +31,9 @@ const Container = styled.div``;
 const CourtHeader = styled.h1`
   display: flex;
   flex-direction: row;
+  font-size: ${responsiveSize(20, 24)};
   justify-content: space-between;
-  gap: 24px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 16px;
 `;
@@ -58,11 +59,17 @@ const ButtonContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  padding: ${responsiveSize(16, 32)};
+  padding: 16px;
   margin-top: 12px;
   width: 100%;
   height: auto;
   min-height: 100px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px;
+    `
+  )}
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
@@ -77,14 +84,13 @@ const StakePanelAndStats = styled.div`
   flex-direction: row;
   justify-content: space-between;
   margin-top: 24px;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
 
   ${landscapeStyle(
     () => css`
       & > * {
-        flex: 1 1 calc(50% - 10px);
-        max-width: calc(50% - 10px);
+        flex: 1 1 calc(50% - 8px);
       }
     `
   )}
@@ -95,16 +101,15 @@ const CourtDetails: React.FC = () => {
   const { data: policy } = useCourtPolicy(id);
   const { data } = useCourtTree();
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
+  const navigate = useNavigate();
 
   const courtPath = getCourtsPath(data?.court, id);
 
-  const items = [];
-  items.push(
-    ...(courtPath?.map((node) => ({
+  const breadcrumbItems =
+    courtPath?.map((node) => ({
       text: node.name,
       value: node.id,
-    })) ?? [])
-  );
+    })) ?? [];
 
   return (
     <Container>
@@ -112,7 +117,13 @@ const CourtDetails: React.FC = () => {
         <CourtHeader>
           <CourtInfo>
             {policy ? policy.name : <StyledSkeleton width={200} />}
-            {items.length > 1 && items[0]?.value !== 1 ? <StyledBreadcrumb items={items} /> : null}
+            {breadcrumbItems.length > 1 ? (
+              <StyledBreadcrumb
+                items={breadcrumbItems}
+                clickable
+                callback={(courtId) => navigate(`/courts/${courtId}`)}
+              />
+            ) : null}
           </CourtInfo>
           <ButtonContainer>
             {!isProductionDeployment() && <ClaimPnkButton />}

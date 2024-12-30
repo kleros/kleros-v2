@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 
@@ -11,27 +12,28 @@ import LightButton from "components/LightButton";
 import { ExternalLink } from "components/ExternalLink";
 
 const Container = styled.div`
-  height: 122px;
+  height: 114px;
   width: 100%;
-  background-color: ${({ theme }) => theme.primaryPurple};
+  background-color: ${({ theme }) => (theme.name === "dark" ? theme.lightBlue : theme.primaryPurple)};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0 32px 8px 32px;
-  gap: 24px;
+  padding: 8px;
+  gap: 16px;
 
   ${landscapeStyle(
     () => css`
       height: 64px;
       flex-direction: row;
       justify-content: space-between;
-      padding-bottom: 0;
+      padding: 0 32px;
     `
   )}
 `;
 
 const StyledSecuredByKlerosLogo = styled(SecuredByKlerosLogo)`
+  ${hoverShortTransitionTiming}
   min-height: 24px;
 
   path {
@@ -40,7 +42,6 @@ const StyledSecuredByKlerosLogo = styled(SecuredByKlerosLogo)`
 
   :hover path {
     fill: ${({ theme }) => theme.white};
-    transition: fill 0.1s;
   }
 `;
 

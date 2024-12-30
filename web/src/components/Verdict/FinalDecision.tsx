@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
@@ -7,9 +7,9 @@ import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
-import { DEFAULT_CHAIN } from "consts/chains";
 import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
@@ -19,12 +19,13 @@ import { isUndefined } from "utils/index";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
-import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
-import AnswerDisplay from "./Answer";
 import { Divider } from "../Divider";
 import { StyledArrowLink } from "../StyledArrowLink";
+
+import AnswerDisplay from "./Answer";
+import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
 
 const Container = styled.div`
   width: 100%;
@@ -35,11 +36,14 @@ const JuryContainer = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 7px;
-
+  gap: 5px 7px;
+  flex: 1;
   h3 {
     line-height: 21px;
     margin-bottom: 0px;
+  }
+  > div {
+    flex: 1;
   }
 `;
 
@@ -48,17 +52,22 @@ const VerdictContainer = styled.div`
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  gap: ${responsiveSize(6, 8)};
+  gap: 8px;
 `;
 
 const JuryDecisionTag = styled.small`
   font-weight: 400;
-  line-height: 19px;
   color: ${({ theme }) => theme.secondaryText};
 `;
 
 const StyledDivider = styled(Divider)`
-  margin: ${responsiveSize(16, 24)} 0px;
+  margin: 16px 0px;
+
+  ${landscapeStyle(
+    () => css`
+      margin: 24px 0px;
+    `
+  )}
 `;
 
 const ReStyledArrowLink = styled(StyledArrowLink)`
@@ -99,7 +108,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
     if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return "Reveal your vote";
     if (isVotingPeriod && !isHiddenVotes && !hasVoted) return "Cast your vote";
     return "Check how the jury voted";
-  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes]);
+  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes, isDisconnected]);
 
   return (
     <Container>

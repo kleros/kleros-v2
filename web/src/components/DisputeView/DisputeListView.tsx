@@ -8,21 +8,18 @@ import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 
 const StyledListItem = styled(Card)`
+  ${hoverShortTransitionTiming}
   display: flex;
   flex-grow: 1;
   width: 100%;
   height: 82px;
-  transition: background-color 0.1s;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
-  }
 `;
 
 const ListContainer = styled.div`
@@ -40,11 +37,12 @@ const TitleContainer = styled.div<{ isLabel?: boolean }>`
   width: ${({ isLabel }) => (isLabel ? responsiveSize(150, 340, 900) : "fit-content")};
   h3 {
     margin: 0;
+    flex: 1;
   }
 `;
 const TruncatedTitle = ({ text, maxLength }) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
-  return <h3>{truncatedText}</h3>;
+  return <h3 dir="auto">{truncatedText}</h3>;
 };
 interface IDisputeListView {
   title: string;
@@ -64,7 +62,7 @@ const DisputeListView: React.FC<IDisputeListView> = (props) => {
   const { isDisconnected } = useAccount();
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
-      <StyledListItem>
+      <StyledListItem hover>
         <PeriodBanner isCard={false} id={parseInt(props?.disputeID ?? "0")} period={props.period} />
         <ListContainer>
           <TitleContainer isLabel={!isDisconnected}>

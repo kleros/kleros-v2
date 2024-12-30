@@ -27,14 +27,14 @@ const TitleContainer = styled.div`
 
 const Title = styled.h1`
   margin: 0px;
-  font-size: ${responsiveSize(16, 24)};
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const StyledPaperClip = styled(PaperClip)`
   width: ${responsiveSize(16, 24)};
   height: ${responsiveSize(16, 24)};
   path {
-    fill: ${({ theme }) => theme.primaryPurple};
+    fill: ${({ theme }) => theme.secondaryPurple}B0;
   }
 `;
 

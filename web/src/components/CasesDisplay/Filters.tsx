@@ -1,5 +1,7 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -19,15 +21,6 @@ const Container = styled.div`
   width: fit-content;
 `;
 
-const StyledGridIcon = styled(GridIcon)`
-  cursor: pointer;
-  transition: filter 0.2s ease;
-  fill: ${({ theme }) => theme.primaryBlue};
-  width: 16px;
-  height: 16px;
-  overflow: hidden;
-`;
-
 const IconsContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -35,13 +28,25 @@ const IconsContainer = styled.div`
   gap: 4px;
 `;
 
-const StyledListIcon = styled(ListIcon)`
+const BaseIconStyles = css`
+  ${hoverShortTransitionTiming}
   cursor: pointer;
-  transition: filter 0.2s ease;
   fill: ${({ theme }) => theme.primaryBlue};
   width: 16px;
   height: 16px;
   overflow: hidden;
+
+  :hover {
+    fill: ${({ theme }) => theme.secondaryBlue};
+  }
+`;
+
+const StyledGridIcon = styled(GridIcon)`
+  ${BaseIconStyles}
+`;
+
+const StyledListIcon = styled(ListIcon)`
+  ${BaseIconStyles}
 `;
 
 const Filters: React.FC = () => {

@@ -9,12 +9,13 @@ import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import CourtCard from "./CourtCard";
 import Header from "./Header";
 
 const Container = styled.div`
-  margin-top: 64px;
+  margin-top: ${responsiveSize(24, 48)};
 `;
 
 const CourtCardsContainer = styled.div`
@@ -31,7 +32,7 @@ const CourtCardsContainer = styled.div`
 `;
 
 const StyledLabel = styled.label`
-  font-size: 16px;
+  font-size: ${responsiveSize(14, 16)};
 `;
 
 const Courts: React.FC = () => {

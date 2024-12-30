@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import HeaderCoherence from "../Header/Coherence";
 import HeaderRewards from "../Header/Rewards";
@@ -13,22 +14,27 @@ import Rank from "./Rank";
 import Rewards from "./Rewards";
 
 const Container = styled.div`
+  ${hoverShortTransitionTiming}
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   width: 100%;
   background-color: ${({ theme }) => theme.whiteBackground};
-  padding: 16px 24px 24px 24px;
-  border 1px solid ${({ theme }) => theme.stroke};
+  padding: 8px 16px 12px;
+  border: 1px solid ${({ theme }) => theme.stroke};
   border-top: none;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
 
   ${landscapeStyle(
     () => css`
       display: none;
     `
   )}
+
+  :hover {
+    background-color: ${({ theme }) => theme.lightGrey}BB;
+  }
 `;
 
 const TopSide = styled.div`
@@ -50,7 +56,7 @@ const HeaderRewardsAndRewards = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 5px;
+  gap: 8px;
 `;
 
 const BottomSide = styled.div`
@@ -64,7 +70,7 @@ const HeaderCoherenceAndCoherence = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 5px;
+  gap: 8px;
 
   svg {
     margin-right: 0;

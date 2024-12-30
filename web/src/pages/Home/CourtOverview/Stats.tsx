@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -12,22 +12,29 @@ import JurorIcon from "svgs/icons/user.svg";
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
+import useIsDesktop from "hooks/useIsDesktop";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledCard = styled(Card)`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   width: auto;
   height: fit-content;
-  gap: 32px 0;
-  padding: ${responsiveSize(16, 32)};
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px 8px;
+  padding: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 24px;
+    `
+  )}
 `;
 
 const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
@@ -44,7 +51,7 @@ interface IStat {
 
 const stats: IStat[] = [
   {
-    title: "PNK staked",
+    title: "PNK Staked",
     coinId: 0,
     getText: (counters) => formatPNK(getLastOrZero(counters, "stakedPNK")),
     getSubtext: (counters, coinPrice) =>
@@ -53,7 +60,7 @@ const stats: IStat[] = [
     icon: PNKIcon,
   },
   {
-    title: "ETH Paid to jurors",
+    title: "ETH Paid",
     coinId: 1,
     getText: (counters) => formatETH(getLastOrZero(counters, "paidETH")),
     getSubtext: (counters, coinPrice) =>
@@ -62,7 +69,7 @@ const stats: IStat[] = [
     icon: EthereumIcon,
   },
   {
-    title: "PNK redistributed",
+    title: "PNK Redistributed",
     coinId: 0,
     getText: (counters) => formatPNK(getLastOrZero(counters, "redistributedPNK")),
     getSubtext: (counters, coinPrice) =>
@@ -71,7 +78,7 @@ const stats: IStat[] = [
     icon: PNKRedistributedIcon,
   },
   {
-    title: "Active jurors",
+    title: "Active Jurors",
     getText: (counters) => getLastOrZero(counters, "activeJurors"),
     color: "green",
     icon: JurorIcon,
@@ -88,6 +95,8 @@ const Stats = () => {
   const { data } = useHomePageContext();
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
+  const isDesktop = useIsDesktop();
+
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
@@ -99,7 +108,7 @@ const Stats = () => {
             {...{ title, color, icon }}
             text={data ? getText(data["counters"]) : <StyledSkeleton />}
             subtext={calculateSubtextRender(data ? data["counters"] : undefined, getSubtext, coinPrice)}
-            isSmallDisplay={false}
+            isSmallDisplay={!isDesktop}
           />
         );
       })}

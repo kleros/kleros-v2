@@ -13,7 +13,13 @@ import AppealHistory from "./AppealHistory";
 import Classic from "./Classic";
 
 const Container = styled.div`
-  padding: ${responsiveSize(16, 32)};
+  padding: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px;
+    `
+  )}
 `;
 
 export const AppealHeader = styled.div`
@@ -33,6 +39,7 @@ export const AppealHeader = styled.div`
 
 export const StyledTitle = styled.h1`
   margin: 0;
+  font-size: ${responsiveSize(18, 24)};
 `;
 
 const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }) => {

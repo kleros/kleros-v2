@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
@@ -10,7 +10,9 @@ import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useCourtDetails } from "queries/useCourtDetails";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { NumberInputField } from "components/NumberInputField";
 
@@ -29,8 +31,13 @@ const LabelArea = styled.div`
 `;
 
 const StyledLabel = styled.label`
+  ${hoverShortTransitionTiming}
   color: ${({ theme }) => theme.primaryBlue};
   cursor: pointer;
+
+  :hover {
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
 const InputArea = styled.div`
@@ -64,11 +71,13 @@ interface IInputDisplay {
 const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
 
   const { id } = useParams();
   const { balance, jurorBalance } = usePnkData({ courtId: id });
+  const { data: courtDetails } = useCourtDetails(id);
 
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
 
@@ -82,10 +91,18 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       setErrorMsg("Insufficient balance to stake this amount");
     } else if (!isStaking && jurorBalance && parsedAmount > jurorBalance[2]) {
       setErrorMsg("Insufficient staked amount to withdraw this amount");
+    } else if (
+      action === ActionType.stake &&
+      courtDetails &&
+      jurorBalance &&
+      parsedAmount !== 0n &&
+      jurorBalance[2] + parsedAmount < BigInt(courtDetails?.court?.minStake)
+    ) {
+      setErrorMsg(`Min Stake in court is: ${formatPNK(courtDetails?.court?.minStake)} PNK`);
     } else {
       setErrorMsg(undefined);
     }
-  }, [parsedAmount, isStaking, balance, jurorBalance]);
+  }, [parsedAmount, isStaking, balance, jurorBalance, action, courtDetails]);
 
   return (
     <>
@@ -108,8 +125,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
               setAmount(e);
             }}
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
-            message={errorMsg ?? undefined}
-            variant={!isUndefined(errorMsg) ? "error" : "info"}
+            message={isPopupOpen ? undefined : (errorMsg ?? undefined)}
+            variant={!isUndefined(errorMsg) && !isPopupOpen ? "error" : "info"}
             formatter={(number: string) => (number !== "" ? commify(roundNumberDown(Number(number))) : "")}
           />
           <EnsureChainContainer>
@@ -120,6 +137,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
                 action,
                 setAmount,
                 setErrorMsg,
+                isPopupOpen,
+                setIsPopupOpen,
               }}
             />
           </EnsureChainContainer>

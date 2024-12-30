@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
@@ -20,9 +22,11 @@ import { useAppealCost } from "queries/useAppealCost";
 
 const StyledTabs = styled(TabsComponent)`
   width: 100%;
+  margin-top: ${responsiveSize(10, 28)};
   > * {
     display: flex;
     flex-wrap: wrap;
+    font-size: ${responsiveSize(12, 16)};
     > svg {
       margin-right: 8px !important;
     }

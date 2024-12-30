@@ -1,22 +1,21 @@
 import React, { useMemo } from "react";
 import styled, { Theme } from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+
 import { Link } from "react-router-dom";
 
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-
 import { ArbitratorTypes, getArbitratorType } from "consts/index";
+
 import { isUndefined } from "utils/index";
+
+import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 
 const Container = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 16px;
-`;
-
-const StyledLink = styled(Link)`
-  min-height: 48px;
 `;
 
 const BadgeContainer = styled.div<{ backgroundColor: keyof Theme }>`
@@ -32,10 +31,13 @@ const BadgeText = styled.label`
 `;
 
 const StyledKlerosCourtLogo = styled(KlerosCourtLogo)`
+  ${hoverShortTransitionTiming}
+  max-height: 40px;
+  width: auto;
+
   &:hover {
     path {
       fill: ${({ theme }) => theme.white}BF;
-      transition: fill 0.1s;
     }
   }
 `;
@@ -61,9 +63,9 @@ const CourtBadge: React.FC = () => {
 const Logo: React.FC = () => (
   <Container>
     {" "}
-    <StyledLink to={"/"}>
+    <Link to={"/"}>
       <StyledKlerosCourtLogo />
-    </StyledLink>
+    </Link>
     <CourtBadge />
   </Container>
 );

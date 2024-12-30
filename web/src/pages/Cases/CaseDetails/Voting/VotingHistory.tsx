@@ -45,8 +45,9 @@ const Header = styled.div`
 
 const StyledTitle = styled.h1`
   margin-bottom: 0;
+  font-size: ${responsiveSize(18, 24)};
 `;
-
+const ReactMarkdownWrapper = styled.div``;
 const StyledReactMarkDown = styled(ReactMarkdown)`
   max-width: inherit;
   word-wrap: break-word;
@@ -94,7 +95,9 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           {isQuestion && (
             <>
               {disputeDetails.question ? (
-                <StyledReactMarkDown>{disputeDetails.question}</StyledReactMarkDown>
+                <ReactMarkdownWrapper dir="auto">
+                  <StyledReactMarkDown>{disputeDetails.question}</StyledReactMarkDown>
+                </ReactMarkdownWrapper>
               ) : (
                 <StyledReactMarkDown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</StyledReactMarkDown>
               )}
