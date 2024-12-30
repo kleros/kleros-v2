@@ -113,7 +113,7 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
             <AlertContainer>
               <AlertMessage
                 title="Hey there! Avoid missing a case"
-                msg="In order not to miss when you're drawn for cases, make sure to subscribe to notifications on Settings > Notifications"
+                msg="Make sure to subscribe to notifications on Settings > Notifications"
                 variant="info"
               />
             </AlertContainer>
