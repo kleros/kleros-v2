@@ -26,9 +26,12 @@ const tooltipMsg =
   "is coherent with the final ruling receive the Juror Rewards composed of " +
   "arbitration fees (ETH) + PNK redistribution between jurors.";
 
-const JurorRewards: React.FC = () => {
-  const { address } = useAccount();
-  const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
+interface IJurorRewards {
+  addressToQuery: `0x${string}`;
+}
+
+const JurorRewards: React.FC<IJurorRewards> = ({ addressToQuery }) => {
+  const { data } = useUserQuery(addressToQuery);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
 

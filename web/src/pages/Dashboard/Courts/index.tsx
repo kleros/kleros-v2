@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
-import { useAccount } from "wagmi";
+import { useSearchParams } from "react-router-dom";
 
 import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
@@ -35,12 +35,17 @@ const StyledLabel = styled.label`
   font-size: ${responsiveSize(14, 16)};
 `;
 
-const Courts: React.FC = () => {
-  const { address } = useAccount();
-  const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
+interface ICourts {
+  addressToQuery: `0x${string}`;
+}
+
+const Courts: React.FC<ICourts> = ({ addressToQuery }) => {
+  const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(addressToQuery);
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
-    args: [address as `0x${string}`, BigInt(1)],
+    args: [addressToQuery, BigInt(1)],
   });
+  const [searchParams] = useSearchParams();
+  const searchParamAddress = searchParams.get("address")?.toLowerCase();
   const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;
   const lockedStake = jurorBalance?.[1];
@@ -49,7 +54,9 @@ const Courts: React.FC = () => {
     <Container>
       <Header lockedStake={lockedStake ?? BigInt(0)} />
       {isLoading ? <Skeleton /> : null}
-      {!isStaked && !isLoading ? <StyledLabel>You are not staked in any court</StyledLabel> : null}
+      {!isStaked && !isLoading ? (
+        <StyledLabel>{searchParamAddress ? "They" : "You"} are not staked in any court</StyledLabel>
+      ) : null}
       {isStaked && !isLoading ? (
         <CourtCardsContainer>
           {stakeData?.jurorTokensPerCourts

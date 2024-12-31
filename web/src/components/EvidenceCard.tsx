@@ -138,7 +138,7 @@ const AccountContainer = styled.div`
   }
 `;
 
-const HoverStyle = css`
+const ExternalLinkHoverStyle = css`
   :hover {
     text-decoration: underline;
     color: ${({ theme }) => theme.primaryBlue};
@@ -154,12 +154,15 @@ const HoverStyle = css`
 `;
 
 const Address = styled.p`
-  ${HoverStyle}
   margin: 0;
+
+  :hover {
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
 const StyledExternalLink = styled(ExternalLink)`
-  ${HoverStyle}
+  ${ExternalLinkHoverStyle}
 `;
 
 const DesktopText = styled.span`
@@ -220,9 +223,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
-  const addressExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${sender}`;
-  }, [sender]);
+  const dashboardLink = `/dashboard/1/desc/all?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
     return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${transactionHash}`;
@@ -247,9 +248,9 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         <BottomLeftContent>
           <AccountContainer>
             <Identicon size="24" string={sender} />
-            <ExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+            <InternalLink to={dashboardLink}>
               <Address>{shortenAddress(sender)}</Address>
-            </ExternalLink>
+            </InternalLink>
           </AccountContainer>
           <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
             <label>{formatDate(Number(timestamp), true)}</label>
