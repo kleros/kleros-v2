@@ -1,14 +1,20 @@
 import React, { useState, useMemo } from "react";
 import styled, { css } from "styled-components";
+
 import { useNavigate } from "react-router-dom";
+
 import { Card, DropdownCascader, Searchbar } from "@kleros/ui-components-library";
+
+import { isKlerosUniversity } from "src/consts";
 import { isUndefined } from "utils/index";
+
 import { useCourtTree, rootCourtToItems } from "queries/useCourtTree";
+
 import { responsiveSize } from "styles/responsiveSize";
 import { landscapeStyle } from "styles/landscapeStyle";
+
 import { StyledSkeleton } from "components/StyledSkeleton";
 import StakeMaintenanceButtons from "./StakeMaintenanceButton";
-import { isKlerosUniversity } from "src/consts";
 
 const Container = styled.div`
   width: 100%;
