@@ -12,6 +12,7 @@ const votingHistoryQuery = graphql(`
     dispute(id: $disputeID) {
       id
       createdAt
+      transactionHash
       ruled
       rounds {
         nbVotes
@@ -29,6 +30,8 @@ const votingHistoryQuery = graphql(`
             ... on ClassicVote {
               commited
               justification {
+                transactionHash
+                timestamp
                 choice
                 reference
               }
