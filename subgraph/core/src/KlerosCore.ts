@@ -184,6 +184,8 @@ export function handleRuling(event: Ruling): void {
   const dispute = Dispute.load(disputeID.toString());
   if (!dispute) return;
   dispute.ruled = true;
+  dispute.rulingTransactionHash = event.transaction.hash.toHexString();
+  dispute.rulingTimestamp = event.block.timestamp;
   dispute.save();
   const court = Court.load(dispute.court);
   if (!court) return;

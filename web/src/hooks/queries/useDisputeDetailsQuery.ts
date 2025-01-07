@@ -34,6 +34,8 @@ const disputeDetailsQuery = graphql(`
       arbitrableChainId
       externalDisputeId
       templateId
+      rulingTimestamp
+      rulingTransactionHash
     }
   }
 `);

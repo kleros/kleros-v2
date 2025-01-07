@@ -160,6 +160,7 @@ type Dispute @entity {
   disputeID: BigInt!
   court: Court!
   createdAt: BigInt
+  transactionHash: String!
   arbitrated: Arbitrable!
   period: Period!
   ruled: Boolean!
@@ -180,6 +181,8 @@ type Dispute @entity {
   arbitrableChainId:BigInt
   externalDisputeId:BigInt
   templateId:BigInt
+  rulingTimestamp:BigInt
+  rulingTransactionHash:String
 }
 
 type PeriodIndexCounter @entity {
@@ -303,6 +306,8 @@ type ClassicJustification @entity {
   choice: BigInt!
   votes: [ClassicVote!]! @derivedFrom(field: "justification")
   reference: String!
+  transactionHash: String!
+  timestamp: BigInt!
 }
 
 type ClassicEvidenceGroup implements EvidenceGroup @entity {
