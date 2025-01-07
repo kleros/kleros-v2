@@ -14,6 +14,7 @@ import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
+import { getTxnExplorerLink } from "src/utils";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -226,7 +227,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   const dashboardLink = `/dashboard/1/desc/all?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${transactionHash}`;
+    return getTxnExplorerLink(transactionHash ?? "");
   }, [transactionHash]);
 
   return (
