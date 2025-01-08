@@ -33,15 +33,15 @@ const Container = styled.div`
 
 const JuryContainer = styled.div`
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
   align-items: center;
   gap: 5px 7px;
-  flex: 1;
+  flex-wrap: wrap;
+
   h3 {
     line-height: 21px;
     margin-bottom: 0px;
   }
+
   > div {
     flex: 1;
   }
