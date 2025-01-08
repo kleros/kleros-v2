@@ -25,6 +25,7 @@ import { Divider } from "components/Divider";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
 import Stats from "./Stats";
+import TopSearch from "./TopSearch";
 
 const Container = styled.div``;
 
@@ -113,6 +114,7 @@ const CourtDetails: React.FC = () => {
 
   return (
     <Container>
+      <TopSearch />
       <StyledCard>
         <CourtHeader>
           <CourtInfo>

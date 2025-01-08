@@ -7,7 +7,6 @@ import { responsiveSize } from "styles/responsiveSize";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import CourtDetails from "./CourtDetails";
-import TopSearch from "./TopSearch";
 
 const Container = styled.div`
   width: 100%;
@@ -26,7 +25,6 @@ const Container = styled.div`
 const Courts: React.FC = () => {
   return (
     <Container>
-      <TopSearch />
       <Routes>
         <Route path="/:id/*" element={<CourtDetails />} />
         <Route path="*" element={<Navigate to="1" replace />} />

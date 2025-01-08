@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Card, DropdownCascader, Searchbar } from "@kleros/ui-components-library";
 
@@ -12,9 +12,10 @@ import { useCourtTree, rootCourtToItems } from "queries/useCourtTree";
 
 import { responsiveSize } from "styles/responsiveSize";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
-import StakeMaintenanceButtons from "./StakeMaintenanceButton";
+import StakeMaintenanceButtons from "../StakeMaintenanceButton";
 
 const Container = styled.div`
   width: 100%;
@@ -57,6 +58,7 @@ const SearchResultsContainer = styled.div`
   position: absolute;
   margin-top: 45px;
   max-height: 400px;
+  border: 1px solid ${({ theme }) => theme.stroke};
   width: 100%;
   flex-direction: column;
   border-radius: 4px;
@@ -65,29 +67,54 @@ const SearchResultsContainer = styled.div`
   background-color: ${({ theme }) => theme.whiteBackground};
 `;
 
-const StyledCard = styled(Card)`
+const StyledCard = styled(Card)<{ selected: boolean }>`
+  ${hoverShortTransitionTiming}
   height: auto;
   width: 100%;
-  padding: 16px;
-  color: ${({ theme }) => theme.primaryText};
+  padding: ${({ selected }) => (selected ? "16px 13px" : "16px")};
   cursor: pointer;
+  border: none;
+  border-left: ${({ selected, theme }) => (selected ? `3px solid ${theme.primaryBlue}` : "none")};
+  background-color: ${({ selected, theme }) => (selected ? theme.mediumBlue : "transparent")};
+
+  :hover {
+    background-color: ${({ theme }) => theme.mediumBlue};
+  }
 `;
 
-function flattenCourts(court) {
-  return court ? [court, ...(court.children || []).flatMap(flattenCourts)] : [];
+const CourtParentSpan = styled.span`
+  color: ${({ theme }) => theme.secondaryText}EE;
+`;
+
+const CourtNameSpan = styled.span`
+  color: ${({ theme }) => theme.primaryText};
+`;
+
+function flattenCourts(court, parent = null) {
+  const current = {
+    ...court,
+    parentName: parent?.name ?? null,
+  };
+  const children = (court.children || []).flatMap((child) => flattenCourts(child, current));
+  return [current, ...children];
 }
 
 const TopSearch: React.FC = () => {
   const { data } = useCourtTree();
   const navigate = useNavigate();
+  const { id: currentCourtId } = useParams();
   const items = useMemo(() => !isUndefined(data) && [rootCourtToItems(data.court)], [data]);
   const isUniversity = isKlerosUniversity();
   const [search, setSearch] = useState("");
-  const filteredCourts = useMemo(
-    () =>
-      data?.court ? flattenCourts(data.court).filter((c) => c.name.toLowerCase().includes(search.toLowerCase())) : [],
-    [data, search]
-  );
+
+  const filteredCourts = useMemo(() => {
+    if (!data?.court) return [];
+    const courts = flattenCourts(data.court).filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+    const selectedCourt = courts.find((c) => c.id === currentCourtId);
+    if (!selectedCourt) return courts;
+
+    return [selectedCourt, ...courts.filter((c) => c.id !== currentCourtId)];
+  }, [data, search, currentCourtId]);
 
   return (
     <Container>
@@ -110,14 +137,15 @@ const TopSearch: React.FC = () => {
               <SearchResultsContainer>
                 {filteredCourts.map((court) => (
                   <StyledCard
-                    hover
                     key={court.id}
+                    selected={court.id === currentCourtId}
                     onClick={() => {
                       navigate(`/courts/${court.id}`);
                       setSearch("");
                     }}
                   >
-                    {court.name}
+                    {court.parentName && <CourtParentSpan>{court.parentName} / </CourtParentSpan>}
+                    <CourtNameSpan>{court.name}</CourtNameSpan>
                   </StyledCard>
                 ))}
               </SearchResultsContainer>
