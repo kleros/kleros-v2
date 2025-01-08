@@ -1,8 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { useAccount } from "wagmi";
-
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import { getUserLevelData } from "utils/userLevelCalculation";
@@ -39,9 +37,12 @@ const Card = styled(_Card)`
   )}
 `;
 
-const JurorInfo: React.FC = () => {
-  const { address } = useAccount();
-  const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
+interface IJurorInfo {
+  addressToQuery: `0x${string}`;
+}
+
+const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
+  const { data } = useUserQuery(addressToQuery);
   // TODO check graph schema
   const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
   const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
@@ -55,12 +56,12 @@ const JurorInfo: React.FC = () => {
       <Header
         levelTitle={userLevelData.title}
         levelNumber={userLevelData.level}
-        {...{ totalCoherentVotes, totalResolvedVotes }}
+        {...{ totalCoherentVotes, totalResolvedVotes, addressToQuery }}
       />
       <Card>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherence userLevelData={userLevelData} isMiniGuide={false} {...{ totalCoherentVotes, totalResolvedVotes }} />
-        <JurorRewards />
+        <Coherence isMiniGuide={false} {...{ userLevelData, totalCoherentVotes, totalResolvedVotes }} />
+        <JurorRewards {...{ addressToQuery }} />
       </Card>
     </Container>
   );
