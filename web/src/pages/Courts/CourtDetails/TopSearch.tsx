@@ -1,20 +1,23 @@
 import React, { useState, useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Card, DropdownCascader, Searchbar } from "@kleros/ui-components-library";
 
-import { isKlerosUniversity } from "src/consts";
 import { isUndefined } from "utils/index";
 
 import { useCourtTree, rootCourtToItems } from "queries/useCourtTree";
 
-import { responsiveSize } from "styles/responsiveSize";
-import { landscapeStyle } from "styles/landscapeStyle";
+import { isKlerosUniversity } from "src/consts";
+
 import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
+
 import StakeMaintenanceButtons from "../StakeMaintenanceButton";
 
 const Container = styled.div`
@@ -54,7 +57,7 @@ const StyledSearchbar = styled(Searchbar)`
   }
 `;
 
-const SearchResultsContainer = styled.div`
+const SearchResultsContainer = styled(OverlayScrollbarsComponent)`
   position: absolute;
   margin-top: 45px;
   max-height: 400px;
