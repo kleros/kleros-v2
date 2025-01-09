@@ -54,7 +54,7 @@ export const stats: IStat[] = [
       return `${formatPNK(stake)} PNK`;
     },
     getSubtext: (data, coinPrice) => {
-      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      const stake = (BigInt(data?.minStake) * BigInt(data?.alpha)) / BigInt(1e4);
       return formatUSD(Number(formatUnitsWei(stake)) * (coinPrice ?? 0));
     },
     color: "blue",

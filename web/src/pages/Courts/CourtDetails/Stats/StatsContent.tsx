@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import ChartIcon from "svgs/icons/chart.svg";
 
+import { Prices } from "hooks/useCoinPrice";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { isUndefined } from "utils/index";
 
@@ -50,7 +51,7 @@ const StyledCard = styled.div`
   gap: 20px 0;
 `;
 
-const StatsContent: React.FC<{ court: CourtDetailsQuery["court"]; pricesData: any; coinIds: string[] }> = ({
+const StatsContent: React.FC<{ court: CourtDetailsQuery["court"]; pricesData?: Prices; coinIds: string[] }> = ({
   court,
   pricesData,
   coinIds,

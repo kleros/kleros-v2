@@ -6,10 +6,14 @@ const fetchCoinPrices = async (...coinIds) => {
   return data.coins;
 };
 
+export type Prices = {
+  [coinId: string]: { price: number };
+};
+
 export const useCoinPrice = (coinIds: string[]) => {
   const isEnabled = coinIds !== undefined;
 
-  const { data: prices, isError } = useQuery({
+  const { data: prices, isError } = useQuery<Prices>({
     queryKey: [`coinPrice${coinIds}`],
     enabled: isEnabled,
     queryFn: async () => fetchCoinPrices(coinIds),
