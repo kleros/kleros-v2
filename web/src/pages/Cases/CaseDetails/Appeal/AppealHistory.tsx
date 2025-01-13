@@ -1,14 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
+import Skeleton from "react-loading-skeleton";
+
 import { useOptionsContext, useFundingContext } from "hooks/useClassicAppealContext";
 
 import HowItWorks from "components/HowItWorks";
 import Appeal from "components/Popup/MiniGuides/Appeal";
 
 import OptionCard from "./OptionCard";
-
-import { AppealHeader, StyledTitle } from ".";
+import { AppealHeader, StyledTitle } from "./index";
 
 const OptionsContainer = styled.div`
   display: grid;
@@ -26,7 +27,7 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
   const options = useOptionsContext();
   const { winningChoice, paidFees, fundedChoices } = useFundingContext();
 
-  return (
+  return options && options.length > 2 ? (
     <div>
       <AppealHeader>
         <StyledTitle>Appeal Results - Last Round</StyledTitle>
@@ -37,24 +38,20 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
         />
       </AppealHeader>
       <OptionsContainer>
-        {options ? (
-          options.map((option, index) => {
-            return (
-              <OptionCard
-                key={option + index}
-                text={option}
-                winner={index.toString() === winningChoice}
-                funding={BigInt(paidFees?.[index] ?? "0")}
-                required={fundedChoices?.includes(index.toString()) ? BigInt(paidFees?.[index] ?? "0") : undefined}
-                canBeSelected={false}
-              />
-            );
-          })
-        ) : (
-          <h2>Not in appeal period</h2>
-        )}
+        {options.map((option, index) => (
+          <OptionCard
+            key={option + index}
+            text={option}
+            winner={index.toString() === winningChoice}
+            funding={BigInt(paidFees?.[index] ?? "0")}
+            required={fundedChoices?.includes(index.toString()) ? BigInt(paidFees?.[index] ?? "0") : undefined}
+            canBeSelected={false}
+          />
+        ))}
       </OptionsContainer>
     </div>
+  ) : (
+    <Skeleton />
   );
 };
 export default AppealHistory;
