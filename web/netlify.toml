@@ -7,6 +7,6 @@ YARN_ENABLE_GLOBAL_CACHE = "true"
 # YARN_CACHE_FOLDER = "$HOME/.yarn_cache"
 # YARN_VERSION = "3.2.0"
 [build]
-command = "yarn workspace @kleros/kleros-v2-contracts install && yarn workspace @kleros/kleros-app install &&  yarn workspace @kleros/kleros-v2-web install && yarn workspace @kleros/kleros-v2-contracts build && yarn workspace @kleros/kleros-app build && yarn workspace @kleros/kleros-v2-web build-netlify"
+command = "yarn workspaces foreach -Rpt --from @kleros/kleros-v2-web install && yarn workspaces foreach -Ap --include @kleros/kleros-app --include @kleros/kleros-v2-contracts run build && yarn workspace @kleros/kleros-v2-web build-netlify"
 [functions]
 directory = "web/netlify/functions/"
