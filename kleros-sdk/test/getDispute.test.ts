@@ -12,6 +12,13 @@ describe("getDispute", () => {
   const mockCoreSubgraph = "https://api.thegraph.com/subgraphs/name/kleros/core";
   const mockDtrSubgraph = "https://api.thegraph.com/subgraphs/name/kleros/dtr";
 
+  const standardRefuseToArbitrateAnswer = {
+    id: "0x0",
+    title: "Refuse to Arbitrate / Invalid",
+    description: "Refuse to Arbitrate / Invalid",
+    reserved: true,
+  };
+
   const mockDisputeDetails = {
     dispute: {
       templateId: 1,
@@ -52,12 +59,7 @@ describe("getDispute", () => {
     });
 
     expect(result?.answers).toHaveLength(1);
-    expect(result?.answers[0]).toEqual({
-      id: "0x0",
-      title: "Refuse to Arbitrate / Invalid",
-      description: "Refuse to Arbitrate / Invalid",
-      reserved: true,
-    });
+    expect(result?.answers[0]).toEqual(standardRefuseToArbitrateAnswer);
   });
 
   it("should add Refuse to Arbitrate option when it doesn't exist in answers", async () => {
@@ -98,18 +100,14 @@ describe("getDispute", () => {
     });
 
     expect(result?.answers).toHaveLength(3);
-    expect(result?.answers[0]).toEqual({
-      id: "0x0",
-      title: "Refuse to Arbitrate / Invalid",
-      description: "Refuse to Arbitrate / Invalid",
-      reserved: true,
-    });
+    expect(result?.answers[0]).toEqual(standardRefuseToArbitrateAnswer);
     expect(result?.answers[1].id).toBe("0x1");
     expect(result?.answers[2].id).toBe("0x2");
   });
 
-  it("should not add Refuse to Arbitrate option when it already exists with id 0x0", async () => {
-    const mockTemplate = {
+  it("should overwrite existing answer with id 0x0 or 0x00", async () => {
+    // Test with 0x0
+    const mockTemplate0x0 = {
       disputeTemplate: {
         templateData: JSON.stringify({
           title: "Test Dispute",
@@ -118,8 +116,8 @@ describe("getDispute", () => {
           answers: [
             {
               id: "0x0",
-              title: "Refuse to Arbitrate / Invalid",
-              description: "Refuse to Arbitrate / Invalid",
+              title: "Custom Refuse Title",
+              description: "Custom Refuse Description",
               reserved: true,
             },
             {
@@ -138,21 +136,20 @@ describe("getDispute", () => {
     };
 
     vi.mocked(fetchDisputeDetails).mockResolvedValue(mockDisputeDetails);
-    vi.mocked(fetchDisputeTemplateFromId).mockResolvedValue(mockTemplate);
+    vi.mocked(fetchDisputeTemplateFromId).mockResolvedValue(mockTemplate0x0);
 
-    const result = await getDispute({
+    let result = await getDispute({
       disputeId: mockDisputeId,
       coreSubgraph: mockCoreSubgraph,
       dtrSubgraph: mockDtrSubgraph,
     });
 
     expect(result?.answers).toHaveLength(2);
-    expect(result?.answers[0].id).toBe("0x0");
+    expect(result?.answers[0]).toEqual(standardRefuseToArbitrateAnswer);
     expect(result?.answers[1].id).toBe("0x1");
-  });
 
-  it("should not add Refuse to Arbitrate option when it already exists with id 0x00", async () => {
-    const mockTemplate = {
+    // Test with 0x00
+    const mockTemplate0x00 = {
       disputeTemplate: {
         templateData: JSON.stringify({
           title: "Test Dispute",
@@ -180,18 +177,16 @@ describe("getDispute", () => {
       },
     };
 
-    vi.mocked(fetchDisputeDetails).mockResolvedValue(mockDisputeDetails);
-    vi.mocked(fetchDisputeTemplateFromId).mockResolvedValue(mockTemplate);
+    vi.mocked(fetchDisputeTemplateFromId).mockResolvedValue(mockTemplate0x00);
 
-    const result = await getDispute({
+    result = await getDispute({
       disputeId: mockDisputeId,
       coreSubgraph: mockCoreSubgraph,
       dtrSubgraph: mockDtrSubgraph,
     });
 
     expect(result?.answers).toHaveLength(2);
-    expect(result?.answers[0].id).toBe("0x00");
-    expect(result?.answers[0].title).toBe("Custom Refuse Title");
+    expect(result?.answers[0]).toEqual(standardRefuseToArbitrateAnswer);
     expect(result?.answers[1].id).toBe("0x1");
   });
 

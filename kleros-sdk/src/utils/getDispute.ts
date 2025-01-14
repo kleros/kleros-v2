@@ -56,18 +56,16 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
 
   const populatedTemplate = populateTemplate(templateData, data);
 
-  // Ensure Refuse to Arbitrate option exists
-  if (!populatedTemplate.answers?.some((answer) => answer.id && Number(answer.id) === 0)) {
-    populatedTemplate.answers = [
-      {
-        id: "0x0",
-        title: "Refuse to Arbitrate / Invalid",
-        description: "Refuse to Arbitrate / Invalid",
-        reserved: true,
-      },
-      ...(populatedTemplate.answers || []),
-    ];
-  }
+  // Filter out any existing answer with id 0 and add our standard Refuse to Arbitrate option
+  populatedTemplate.answers = [
+    {
+      id: "0x0",
+      title: "Refuse to Arbitrate / Invalid",
+      description: "Refuse to Arbitrate / Invalid",
+      reserved: true,
+    },
+    ...(populatedTemplate.answers?.filter((answer) => answer.id && Number(answer.id) !== 0) || []),
+  ];
 
   return populatedTemplate;
 };
