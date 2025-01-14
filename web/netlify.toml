@@ -7,8 +7,5 @@ YARN_ENABLE_GLOBAL_CACHE = "true"
 # YARN_CACHE_FOLDER = "$HOME/.yarn_cache"
 # YARN_VERSION = "3.2.0"
 
-[build]
-command = "yarn build:web:ci"
-
 [functions]
 directory = "web/netlify/functions/"
