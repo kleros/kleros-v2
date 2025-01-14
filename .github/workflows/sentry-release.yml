@@ -45,7 +45,7 @@ jobs:
           ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-
     
     - name: Set up Node.js
-      uses: actions/setup-node@2a017f350dbf6c4b6bb4508cc83809719115162e
+      uses: actions/setup-node@48b90677b6048efbc723b11a94acb950d3f1ac36
       with:
         node-version: 16
 
