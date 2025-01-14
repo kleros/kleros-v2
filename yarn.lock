@@ -5370,24 +5370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/kleros-app@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "@kleros/kleros-app@npm:2.0.2"
-  dependencies:
-    jose: "npm:^5.9.6"
-  peerDependencies:
-    "@tanstack/react-query": ^5.59.20
-    graphql: ^16.9.0
-    graphql-request: ^7.1.2
-    react: ^18.3.1
-    react-dom: ^18.3.1
-    viem: ^2.21.42
-    wagmi: ^2.13.0
-  checksum: 10/89cf0536fed4bbb887772daa529d7cad209cea0e5105bcd366fe5e4bc7c5c14fca21aa201ba4d848c7e8addd3fc4921ac54e237afe2a5b7224c9cd219f72e08b
-  languageName: node
-  linkType: hard
-
-"@kleros/kleros-app@workspace:kleros-app":
+"@kleros/kleros-app@workspace:^, @kleros/kleros-app@workspace:kleros-app":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-app@workspace:kleros-app"
   dependencies:
@@ -5417,7 +5400,7 @@ __metadata:
     react: ^18.3.1
     react-dom: ^18.3.1
     viem: ^2.21.42
-    wagmi: ^2.13.0
+    wagmi: ^2.13.5
   languageName: unknown
   linkType: soft
 
@@ -5607,7 +5590,7 @@ __metadata:
     typewriter-effect: "npm:^2.21.0"
     vanilla-jsoneditor: "npm:^0.21.6"
     viem: "npm:^2.21.50"
-    wagmi: "npm:^2.13.0"
+    wagmi: "npm:^2.13.5"
   languageName: unknown
   linkType: soft
 
@@ -5621,7 +5604,7 @@ __metadata:
     "@eslint/js": "npm:^9.15.0"
     "@graphql-codegen/cli": "npm:^5.0.3"
     "@graphql-codegen/client-preset": "npm:^4.5.1"
-    "@kleros/kleros-app": "npm:^2.0.2"
+    "@kleros/kleros-app": "workspace:^"
     "@kleros/kleros-sdk": "workspace:^"
     "@kleros/kleros-v2-contracts": "workspace:^"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
@@ -10967,27 +10950,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/connectors@npm:5.5.0, @wagmi/connectors@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "@wagmi/connectors@npm:5.5.0"
-  dependencies:
-    "@coinbase/wallet-sdk": "npm:4.2.3"
-    "@metamask/sdk": "npm:0.30.1"
-    "@safe-global/safe-apps-provider": "npm:0.18.4"
-    "@safe-global/safe-apps-sdk": "npm:9.1.0"
-    "@walletconnect/ethereum-provider": "npm:2.17.0"
-    cbw-sdk: "npm:@coinbase/wallet-sdk@3.9.3"
-  peerDependencies:
-    "@wagmi/core": 2.15.0
-    typescript: ">=5.0.4"
-    viem: 2.x
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10/fe8898bee0b3abb9f6b2aaa99a0f892c9e431ab99e3189bae028edc0f4edc799dfc326a82b5fd4e7893e900bc5af912ff8e648e7e18890d790713631719da906
-  languageName: node
-  linkType: hard
-
 "@wagmi/connectors@npm:5.5.3":
   version: 5.5.3
   resolution: "@wagmi/connectors@npm:5.5.3"
@@ -11009,23 +10971,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/core@npm:2.15.0, @wagmi/core@npm:^2.15.0":
-  version: 2.15.0
-  resolution: "@wagmi/core@npm:2.15.0"
+"@wagmi/connectors@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "@wagmi/connectors@npm:5.5.0"
   dependencies:
-    eventemitter3: "npm:5.0.1"
-    mipd: "npm:0.0.7"
-    zustand: "npm:5.0.0"
+    "@coinbase/wallet-sdk": "npm:4.2.3"
+    "@metamask/sdk": "npm:0.30.1"
+    "@safe-global/safe-apps-provider": "npm:0.18.4"
+    "@safe-global/safe-apps-sdk": "npm:9.1.0"
+    "@walletconnect/ethereum-provider": "npm:2.17.0"
+    cbw-sdk: "npm:@coinbase/wallet-sdk@3.9.3"
   peerDependencies:
-    "@tanstack/query-core": ">=5.0.0"
+    "@wagmi/core": 2.15.0
     typescript: ">=5.0.4"
     viem: 2.x
   peerDependenciesMeta:
-    "@tanstack/query-core":
-      optional: true
     typescript:
       optional: true
-  checksum: 10/b40ed089ddb23f7573e682105e41fe510f375e88612591dd841eefba06e2ffd0d2b2fdd8b1603d2c7e6aa4f70aa2bd94d12b6b578b3fe2c7abcb545ef24ff822
+  checksum: 10/fe8898bee0b3abb9f6b2aaa99a0f892c9e431ab99e3189bae028edc0f4edc799dfc326a82b5fd4e7893e900bc5af912ff8e648e7e18890d790713631719da906
   languageName: node
   linkType: hard
 
@@ -11046,6 +11009,26 @@ __metadata:
     typescript:
       optional: true
   checksum: 10/ed11530d329831c7e1f957ca17bc5633c5d2816ea24722b0ba6a7beb220d309f0264f54c0839dbc7f2f9c1683883435b8ead789ffcc388ffb61c41e2c72a6129
+  languageName: node
+  linkType: hard
+
+"@wagmi/core@npm:^2.15.0":
+  version: 2.15.0
+  resolution: "@wagmi/core@npm:2.15.0"
+  dependencies:
+    eventemitter3: "npm:5.0.1"
+    mipd: "npm:0.0.7"
+    zustand: "npm:5.0.0"
+  peerDependencies:
+    "@tanstack/query-core": ">=5.0.0"
+    typescript: ">=5.0.4"
+    viem: 2.x
+  peerDependenciesMeta:
+    "@tanstack/query-core":
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10/b40ed089ddb23f7573e682105e41fe510f375e88612591dd841eefba06e2ffd0d2b2fdd8b1603d2c7e6aa4f70aa2bd94d12b6b578b3fe2c7abcb545ef24ff822
   languageName: node
   linkType: hard
 
@@ -36015,25 +35998,6 @@ __metadata:
     wasm2wat: bin/wasm2wat
     wat2wasm: bin/wat2wasm
   checksum: 10/c4f486db9d91ffb2e22739ccc21458aba3a7dc50f2e5c885c90b2f8555538aa92c518c249afbc59b78e2e333e699ce19a9040e888a69d6bf38329b77d52cf3c6
-  languageName: node
-  linkType: hard
-
-"wagmi@npm:^2.13.0":
-  version: 2.13.0
-  resolution: "wagmi@npm:2.13.0"
-  dependencies:
-    "@wagmi/connectors": "npm:5.5.0"
-    "@wagmi/core": "npm:2.15.0"
-    use-sync-external-store: "npm:1.2.0"
-  peerDependencies:
-    "@tanstack/react-query": ">=5.0.0"
-    react: ">=18"
-    typescript: ">=5.0.4"
-    viem: 2.x
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10/68770f64d57be3c6367271a73a79a3c108e27ef5b106e47583c3dcd83e4746ee614e7006861574263dabafda233c43e876fcaeaf7260e4df75b5fe53ae41d8ec
   languageName: node
   linkType: hard
 
