@@ -5554,6 +5554,7 @@ __metadata:
     "@graphql-codegen/cli": "npm:^5.0.3"
     "@graphql-codegen/client-preset": "npm:^4.5.1"
     "@kleros/kleros-sdk": "workspace:^"
+    "@kleros/kleros-v2-contracts": "workspace:^"
     "@kleros/ui-components-library": "npm:^2.20.0"
     "@svgr/webpack": "npm:^8.1.0"
     "@tanstack/react-query": "npm:^5.61.0"
