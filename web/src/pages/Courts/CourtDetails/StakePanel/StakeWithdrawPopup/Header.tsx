@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
@@ -8,11 +9,15 @@ import { useAccount } from "wagmi";
 import Check from "svgs/icons/check-circle-outline.svg";
 
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { uncommify } from "utils/commify";
+import { commify, uncommify } from "utils/commify";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
-import QuantityToSimulate from "../Simulator/QuantityToSimulate";
+import { isUndefined } from "src/utils";
+
+import WithHelpTooltip from "components/WithHelpTooltip";
+
+import QuantityToSimulate, { Quantity, TextWithTooltipContainer } from "../Simulator/QuantityToSimulate";
 import { ActionType } from "../StakeWithdrawButton";
 
 const StakingMsgContainer = styled.div`
@@ -43,11 +48,17 @@ const CheckIcon = styled(Check)`
   height: 80px;
 `;
 
-const CourtName = styled.label``;
-
-const StyledQuantityToSimulate = styled(QuantityToSimulate)`
-  margin-top: 15px;
+const CourtName = styled.label`
+  margin-bottom: 15px;
 `;
+
+const QuantityContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`;
+
 interface IHeader {
   action: ActionType;
   amount: string;
@@ -63,6 +74,12 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   const jurorCurrentEffectiveStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
   const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
 
+  const effectiveStakeDisplay = !isUndefined(jurorCurrentEffectiveStake) ? (
+    `${commify(jurorCurrentEffectiveStake)} PNK`
+  ) : (
+    <Skeleton width={50} />
+  );
+
   const isWithdraw = action === ActionType.withdraw;
   const preStakeText = useMemo(() => (isWithdraw ? "withdrawing" : "staking"), [isWithdraw]);
   const postStakeText = useMemo(() => (isWithdraw ? "withdrew" : "staked"), [isWithdraw]);
@@ -73,8 +90,17 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
       <StakingMsg>{isSuccess ? `You successfully ${postStakeText}` : `You are ${preStakeText}`}</StakingMsg>
       <StakingAmount>{amount} PNK</StakingAmount>
       {courtDetails?.court?.name ? <CourtName>on {courtDetails.court.name}</CourtName> : null}
-      {isSuccess ? null : (
-        <StyledQuantityToSimulate
+      {isSuccess ? (
+        <QuantityContainer>
+          <Quantity>{effectiveStakeDisplay}</Quantity>
+          <TextWithTooltipContainer>
+            <WithHelpTooltip tooltipMsg="The stake is confirmed! It is standard procedure to delay the execution of a change in stakes if the phase of the arbitrator is not currently Staking. It'll be updated shortly.">
+              Current Stake
+            </WithHelpTooltip>
+          </TextWithTooltipContainer>{" "}
+        </QuantityContainer>
+      ) : (
+        <QuantityToSimulate
           {...{
             jurorCurrentEffectiveStake,
             jurorCurrentSpecificStake,

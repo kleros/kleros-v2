@@ -1,10 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useDebounce } from "react-use";
-
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
 
 import { isEmpty, isUndefined } from "utils/index";
@@ -39,6 +38,7 @@ const SearchBarContainer = styled.div`
 const StyledSearchbar = styled(Searchbar)`
   flex: 1;
   flex-basis: 310px;
+
   input {
     font-size: 16px;
     height: 45px;
@@ -53,16 +53,25 @@ const Search: React.FC = () => {
   const decodedFilter = decodeURIFilter(filter ?? "all");
   const { id: searchValue, ...filterObject } = decodedFilter;
   const [search, setSearch] = useState(searchValue ?? "");
+  const initialRenderRef = useRef(true);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   useDebounce(
     () => {
+      if (initialRenderRef.current && isEmpty(search)) {
+        initialRenderRef.current = false;
+        return;
+      }
+      initialRenderRef.current = false;
       const newFilters = isEmpty(search) ? { ...filterObject } : { ...filterObject, id: search };
       const encodedFilter = encodeURIFilter(newFilters);
-      navigate(`${location}/${page}/${order}/${encodedFilter}`);
+      navigate(`${location}/${page}/${order}/${encodedFilter}?${searchParams.toString()}`);
     },
     500,
     [search]
   );
+
   const { data: courtTreeData } = useCourtTree();
   const items = useMemo(() => {
     if (!isUndefined(courtTreeData)) {
@@ -82,7 +91,7 @@ const Search: React.FC = () => {
           onSelect={(value) => {
             const { court: _, ...filterWithoutCourt } = decodedFilter;
             const newFilter = value === "all" ? filterWithoutCourt : { ...decodedFilter, court: value.toString() };
-            navigate(`${location}/${page}/${order}/${encodeURIFilter(newFilter)}`);
+            navigate(`${location}/${page}/${order}/${encodeURIFilter(newFilter)}?${searchParams.toString()}`);
           }}
         />
       ) : (
@@ -90,6 +99,7 @@ const Search: React.FC = () => {
       )}
       <SearchBarContainer>
         <StyledSearchbar
+          dir="auto"
           type="text"
           placeholder="Search By ID"
           value={search}

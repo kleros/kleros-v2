@@ -3,7 +3,7 @@ import styled, { css, useTheme } from "styled-components";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
@@ -55,16 +55,17 @@ const Filters: React.FC = () => {
   const { ruled, period, ...filterObject } = decodeURIFilter(filter ?? "all");
   const navigate = useNavigate();
   const location = useRootPath();
+  const [searchParams] = useSearchParams();
 
   const handleStatusChange = (value: string | number) => {
     const parsedValue = JSON.parse(value as string);
     const encodedFilter = encodeURIFilter({ ...filterObject, ...parsedValue });
-    navigate(`${location}/1/${order}/${encodedFilter}`);
+    navigate(`${location}/1/${order}/${encodedFilter}?${searchParams.toString()}`);
   };
 
   const handleOrderChange = (value: string | number) => {
     const encodedFilter = encodeURIFilter({ ruled, period, ...filterObject });
-    navigate(`${location}/1/${value}/${encodedFilter}`);
+    navigate(`${location}/1/${value}/${encodedFilter}?${searchParams.toString()}`);
   };
 
   const { isList, setIsList } = useIsList();

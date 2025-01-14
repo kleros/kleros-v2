@@ -4,13 +4,15 @@ import styled, { css } from "styled-components";
 import { Card, CustomAccordion } from "@kleros/ui-components-library";
 
 import { Answer } from "context/NewDisputeContext";
+import { formatDate } from "utils/date";
 import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
 import { getVoteChoice } from "utils/getVoteChoice";
-import { isUndefined } from "utils/index";
+import { getTxnExplorerLink, isUndefined } from "utils/index";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 
+import { ExternalLink } from "components/ExternalLink";
 import InfoCard from "components/InfoCard";
 
 import AccordionTitle from "./AccordionTitle";
@@ -73,45 +75,60 @@ const AccordionContentContainer = styled.div`
   gap: 12px;
 `;
 
-const JustificationText = styled.div`
+const VotedText = styled.label`
   color: ${({ theme }) => theme.secondaryText};
   font-size: 16px;
-  line-height: 1.2;
-  &:before {
-    content: "Justification: ";
+  ::before {
+    content: "Voted: ";
     color: ${({ theme }) => theme.primaryText};
   }
 `;
 
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryText};
-  font-size: 16px;
+const JustificationText = styled(VotedText)`
+  line-height: 1.25;
+  ::before {
+    content: "Justification: ";
+  }
 `;
 
 const SecondaryTextLabel = styled.label`
   color: ${({ theme }) => theme.secondaryText};
   font-size: 16px;
+  flex: 1;
+`;
+
+const StyledInfoCard = styled(InfoCard)`
+  margin-top: 18.5px;
 `;
 
 const AccordionContent: React.FC<{
   choice?: string;
   answers: Answer[];
   justification: string;
-}> = ({ justification, choice, answers }) => (
-  <AccordionContentContainer>
-    {!isUndefined(choice) && (
-      <div>
-        <StyledLabel>Voted:&nbsp;</StyledLabel>
-        <SecondaryTextLabel>{getVoteChoice(parseInt(choice), answers)}</SecondaryTextLabel>
-      </div>
-    )}
-    {justification ? (
-      <JustificationText>{justification}</JustificationText>
-    ) : (
-      <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
-    )}
-  </AccordionContentContainer>
-);
+  timestamp?: string;
+  transactionHash?: string;
+}> = ({ justification, choice, answers, timestamp, transactionHash }) => {
+  const transactionExplorerLink = useMemo(() => {
+    return getTxnExplorerLink(transactionHash ?? "");
+  }, [transactionHash]);
+
+  return (
+    <AccordionContentContainer>
+      {!isUndefined(choice) && <VotedText dir="auto">{getVoteChoice(parseInt(choice), answers)}</VotedText>}
+
+      {justification ? (
+        <JustificationText dir="auto">{justification}</JustificationText>
+      ) : (
+        <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
+      )}
+      {!isUndefined(timestamp) && (
+        <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+          {formatDate(Number(timestamp), true)}
+        </ExternalLink>
+      )}
+    </AccordionContentContainer>
+  );
+};
 
 interface IVotesAccordion {
   drawnJurors: DrawnJuror[];
@@ -144,6 +161,8 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
                   justification={drawnJuror?.vote?.justification.reference ?? ""}
                   choice={drawnJuror.vote?.justification?.choice}
                   answers={answers}
+                  transactionHash={drawnJuror.transactionHash}
+                  timestamp={drawnJuror.timestamp}
                 />
               ),
             }
@@ -154,12 +173,7 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
 
   return (
     <>
-      {drawnJurors.length === 0 ? (
-        <>
-          <br />
-          <InfoCard msg="Jurors have not been drawn yet." />
-        </>
-      ) : null}
+      {drawnJurors.length === 0 ? <StyledInfoCard msg="Jurors have not been drawn yet." /> : null}
       <Container>
         {accordionItems.length > 0 ? <StyledAccordion items={accordionItems} /> : null}
         {drawnJurors.map(

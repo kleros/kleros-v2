@@ -15,16 +15,17 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ClaimPnkButton from "components/ClaimPnkButton";
+import { Divider } from "components/Divider";
 import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
 import ScrollTop from "components/ScrollTop";
 import { StyledSkeleton } from "components/StyledSkeleton";
-import { Divider } from "components/Divider";
 
 import Description from "./Description";
 import StakePanel from "./StakePanel";
 import Stats from "./Stats";
+import TopSearch from "./TopSearch";
 
 const Container = styled.div``;
 
@@ -113,6 +114,7 @@ const CourtDetails: React.FC = () => {
 
   return (
     <Container>
+      <TopSearch />
       <StyledCard>
         <CourtHeader>
           <CourtInfo>

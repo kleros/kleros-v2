@@ -1,10 +1,8 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
-
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
-import { ExternalLink } from "components/ExternalLink";
+import { InternalLink } from "components/InternalLink";
 
 const Container = styled.div`
   display: flex;
@@ -22,11 +20,11 @@ const Container = styled.div`
   }
 `;
 
-const StyledExternalLink = styled(ExternalLink)`
+const StyledInternalLink = styled(InternalLink)`
   :hover {
     label {
       cursor: pointer;
-      color: ${({ theme }) => theme.primaryBlue};
+      color: ${({ theme }) => theme.secondaryBlue};
     }
   }
 `;
@@ -36,16 +34,14 @@ interface IJurorTitle {
 }
 
 const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
-  const addressExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${address}`;
-  }, [address]);
+  const dashboardLink = `/dashboard/1/desc/all?address=${address}`;
 
   return (
     <Container>
       <IdenticonOrAvatar address={address} />
-      <StyledExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+      <StyledInternalLink to={dashboardLink}>
         <AddressOrName address={address} />
-      </StyledExternalLink>
+      </StyledInternalLink>
     </Container>
   );
 };
