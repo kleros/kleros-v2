@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@v2.10.1
+      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
       with:
         disable-sudo: true
         egress-policy: block
@@ -68,9 +68,7 @@ jobs:
           ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-
 
     - name: Install contracts dependencies
-      run: |
-        # TODO: re-enable hardened mode once the kleros-app resolution is fixed
-        YARN_ENABLE_HARDENED_MODE=0 yarn workspace @kleros/kleros-v2-contracts install
+      run: yarn workspace @kleros/kleros-v2-contracts install
 
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@8f1998e9878d786675189ef566a2e4bf24869773 # v1.2.0
