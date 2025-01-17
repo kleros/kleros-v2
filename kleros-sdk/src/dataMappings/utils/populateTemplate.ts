@@ -14,7 +14,7 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
   // Filter out any existing answer with id 0 and add our standard Refuse to Arbitrate option
   (dispute as DisputeDetails).answers = [
     RefuseToArbitrateAnswer,
-    ...((dispute as DisputeDetails).answers.filter((answer) => answer.id && Number(answer.id) !== 0) || []),
+    ...((dispute as DisputeDetails).answers.filter((answer) => answer.id && BigInt(answer.id) !== BigInt(0)) || []),
   ];
 
   return dispute;
