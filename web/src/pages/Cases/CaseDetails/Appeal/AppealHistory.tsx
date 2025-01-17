@@ -25,7 +25,7 @@ interface IAppealHistory {
 
 const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide }) => {
   const options = useOptionsContext();
-  const { winningChoice, paidFees, fundedChoices } = useFundingContext();
+  const { winningChoice, fundedChoices } = useFundingContext();
 
   return options && options.length > 2 ? (
     <div>
@@ -38,13 +38,13 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
         />
       </AppealHeader>
       <OptionsContainer>
-        {options.map((option, index) => (
+        {options?.map((option) => (
           <OptionCard
-            key={option + index}
-            text={option}
-            winner={index.toString() === winningChoice}
-            funding={BigInt(paidFees?.[index] ?? "0")}
-            required={fundedChoices?.includes(index.toString()) ? BigInt(paidFees?.[index] ?? "0") : undefined}
+            key={option.id}
+            text={option.title}
+            winner={option.id === winningChoice}
+            funding={BigInt(option.paidFee ?? 0)}
+            required={fundedChoices?.includes(option.id) ? BigInt(option.paidFee ?? 0) : undefined}
             canBeSelected={false}
           />
         ))}

@@ -11,18 +11,21 @@ import { getLocalRounds } from "utils/getLocalRounds";
 import { useAppealCost } from "queries/useAppealCost";
 import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
+import { Answer, DisputeDetails } from "@kleros/kleros-sdk";
 
+type Option = Answer & { paidFee?: string; funded?: boolean };
 interface ICountdownContext {
   loserSideCountdown?: number;
   winnerSideCountdown?: number;
 }
+
 const CountdownContext = createContext<ICountdownContext>({});
 
-const OptionsContext = createContext<string[] | undefined>(undefined);
+const OptionsContext = createContext<Option[] | undefined>(undefined);
 
 interface ISelectedOptionContext {
-  selectedOption: number | undefined;
-  setSelectedOption: (arg0: number) => void;
+  selectedOption: Option | undefined;
+  setSelectedOption: (arg0: Option) => void;
 }
 const SelectedOptionContext = createContext<ISelectedOptionContext>({
   selectedOption: undefined,
@@ -32,14 +35,13 @@ const SelectedOptionContext = createContext<ISelectedOptionContext>({
 
 interface IFundingContext {
   winningChoice: string | undefined;
-  paidFees: bigint[] | undefined;
   loserRequiredFunding: bigint | undefined;
   winnerRequiredFunding: bigint | undefined;
   fundedChoices: string[] | undefined;
 }
+
 const FundingContext = createContext<IFundingContext>({
   winningChoice: undefined,
-  paidFees: undefined,
   loserRequiredFunding: undefined,
   winnerRequiredFunding: undefined,
   fundedChoices: undefined,
@@ -51,17 +53,16 @@ export const ClassicAppealProvider: React.FC<{
   const { id } = useParams();
   const { data } = useClassicAppealQuery(id);
   const dispute = data?.dispute;
-  const paidFees = getPaidFees(data?.dispute);
   const winningChoice = getWinningChoice(data?.dispute);
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
-  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable as `0x${string}`);
   const { data: multipliers } = useDisputeKitClassicMultipliers();
-  const options = ["Refuse to Arbitrate"].concat(
-    disputeDetails?.answers?.map((answer: { title: string; description: string }) => {
-      return answer.title;
-    })
-  );
+
+  const [selectedOption, setSelectedOption] = useState<Option>();
+
+  const options = useMemo(() => getOptions(disputeDetails, data?.dispute), [disputeDetails, data]);
+
   const loserSideCountdown = useLoserSideCountdown(
     dispute?.lastPeriodChange,
     dispute?.court.timesPerPeriod[Periods.appeal],
@@ -81,7 +82,6 @@ export const ClassicAppealProvider: React.FC<{
     [appealCost, multipliers]
   );
   const fundedChoices = getFundedChoices(data?.dispute);
-  const [selectedOption, setSelectedOption] = useState<number | undefined>();
 
   return (
     <CountdownContext.Provider
@@ -94,12 +94,11 @@ export const ClassicAppealProvider: React.FC<{
           value={useMemo(
             () => ({
               winningChoice,
-              paidFees,
               loserRequiredFunding,
               winnerRequiredFunding,
               fundedChoices,
             }),
-            [winningChoice, paidFees, loserRequiredFunding, winnerRequiredFunding, fundedChoices]
+            [winningChoice, loserRequiredFunding, winnerRequiredFunding, fundedChoices]
           )}
         >
           <OptionsContext.Provider value={options}>{children}</OptionsContext.Provider>
@@ -126,9 +125,22 @@ const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
   return getLocalRounds(dispute.disputeKitDispute)[adjustedRoundIndex];
 };
 
-const getPaidFees = (dispute?: ClassicAppealQuery["dispute"]) => {
-  const currentLocalRound = getCurrentLocalRound(dispute);
-  return currentLocalRound?.paidFees.map((amount: string) => BigInt(amount));
+const getOptions = (dispute?: DisputeDetails, classicDispute?: ClassicAppealQuery["dispute"]) => {
+  if (!dispute) return [];
+  const currentLocalRound = getCurrentLocalRound(classicDispute);
+  const classicAnswers = currentLocalRound?.answers;
+
+  const options = dispute.answers.map((answer) => {
+    const classicAnswer = classicAnswers?.find((classicAnswer) => BigInt(classicAnswer.answerId) == BigInt(answer.id));
+    // converting hexadecimal id to stringified bigint to match id fomr subgraph
+    return {
+      ...answer,
+      id: BigInt(answer.id).toString(),
+      paidFee: classicAnswer?.paidFee ?? "0",
+      funded: classicAnswer?.funded ?? false,
+    };
+  });
+  return options;
 };
 
 const getFundedChoices = (dispute?: ClassicAppealQuery["dispute"]) => {

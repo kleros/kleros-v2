@@ -44,7 +44,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
   const [_, setSalt] = useLocalStorage(saltKey);
 
   const handleCommit = useCallback(
-    async (choice: number) => {
+    async (choice: bigint) => {
       const message = { message: saltKey };
       const rawSalt = !isUndefined(signingAccount)
         ? await signingAccount.signMessage(message)
@@ -56,12 +56,12 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       if (isUndefined(rawSalt)) return;
 
       const salt = keccak256(rawSalt);
-      setSalt(JSON.stringify({ salt, choice }));
+      setSalt(JSON.stringify({ salt, choice: choice.toString() }));
       const commit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(choice), BigInt(salt)]));
       const { request } = await simulateDisputeKitClassicCastCommit(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, commit],
       });
-      if (walletClient) {
+      if (walletClient && publicClient) {
         await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
           setIsOpen(status);
         });

@@ -73,7 +73,7 @@ const VoteStatus: React.FC<{
 
   return (
     <StyledLabel>
-      {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(parseInt(choice), answers)}</StyledSmall>}
+      {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(choice, answers)}</StyledSmall>}
     </StyledLabel>
   );
 };

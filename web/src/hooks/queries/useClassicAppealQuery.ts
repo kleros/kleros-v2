@@ -25,7 +25,12 @@ const classicAppealQuery = graphql(`
         localRounds {
           ... on ClassicRound {
             winningChoice
-            paidFees
+            answers {
+              answerId
+              count
+              paidFee
+              funded
+            }
             fundedChoices
             appealFeesDispersed
             totalFeeDispersed

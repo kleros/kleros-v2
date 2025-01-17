@@ -1,13 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
-import Skeleton from "react-loading-skeleton";
-
 import { Box } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
-import { useFundingContext, useOptionsContext } from "hooks/useClassicAppealContext";
+import { useOptionsContext } from "hooks/useClassicAppealContext";
 import { secondsToDayHourMinute } from "utils/date";
 import { isUndefined } from "utils/index";
 
@@ -56,7 +54,6 @@ const StageOneExplanation: React.FC = () => (
 );
 
 const StageTwoExplanation: React.FC = () => {
-  const { fundedChoices } = useFundingContext();
   const options = useOptionsContext();
   return (
     <div>
@@ -69,14 +66,8 @@ const StageTwoExplanation: React.FC = () => {
       </label>
       <label>
         {" "}
-        Following choice was funded in the stage 1 :{" "}
-        <small>
-          {!isUndefined(fundedChoices) && !isUndefined(options)
-            ? fundedChoices.map((choice) =>
-                isUndefined(options[choice]) ? <Skeleton key={choice} width={50} height={18} /> : options[choice]
-              )
-            : null}
-        </small>
+        Following choices were funded in the stage 1 :{" "}
+        <small>{options?.map((option) => (option?.funded ? option.title : null))}</small>
       </label>
     </div>
   );

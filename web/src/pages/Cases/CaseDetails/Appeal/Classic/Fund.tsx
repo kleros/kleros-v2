@@ -73,7 +73,7 @@ const useFundAppeal = (parsedAmount, insufficientBalance) => {
     query: {
       enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance,
     },
-    args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
+    args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
     value: parsedAmount,
   });
 
