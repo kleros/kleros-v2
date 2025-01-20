@@ -34,12 +34,12 @@ interface IJurorTitle {
 }
 
 const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
-  const dashboardLink = `/dashboard/1/desc/all?address=${address}`;
+  const profileLink = `/profile/1/desc/all?address=${address}`;
 
   return (
     <Container>
       <IdenticonOrAvatar address={address} />
-      <StyledInternalLink to={dashboardLink}>
+      <StyledInternalLink to={profileLink}>
         <AddressOrName address={address} />
       </StyledInternalLink>
     </Container>

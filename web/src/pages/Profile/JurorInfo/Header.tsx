@@ -87,7 +87,7 @@ const Header: React.FC<IHeader> = ({
   return (
     <Container>
       <StyledTitle>
-        Juror Dashboard -
+        Juror Profile -
         <Copiable copiableContent={addressToQuery} info="Copy Address">
           <StyledExternalLink to={addressExplorerLink} target="_blank" rel="noopener noreferrer">
             {shortenAddress(addressToQuery)}

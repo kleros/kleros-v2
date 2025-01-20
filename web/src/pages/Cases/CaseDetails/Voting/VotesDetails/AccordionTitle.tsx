@@ -88,13 +88,13 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
-  const dashboardLink = `/dashboard/1/desc/all?address=${juror}`;
+  const profileLink = `/profile/1/desc/all?address=${juror}`;
 
   return (
     <TitleContainer>
       <AddressContainer>
         <Identicon size="20" string={juror} />
-        <StyledInternalLink to={dashboardLink}>
+        <StyledInternalLink to={profileLink}>
           <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
         </StyledInternalLink>
       </AddressContainer>

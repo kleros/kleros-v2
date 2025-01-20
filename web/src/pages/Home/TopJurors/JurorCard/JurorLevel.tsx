@@ -5,7 +5,7 @@ import { getUserLevelData } from "utils/userLevelCalculation";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
+import PixelArt from "pages/Profile/JurorInfo/PixelArt";
 
 const Container = styled.div`
   display: flex;
