@@ -20,6 +20,8 @@ import "../proxy/Initializable.sol";
 contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //

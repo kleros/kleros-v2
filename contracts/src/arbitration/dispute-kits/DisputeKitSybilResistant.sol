@@ -24,6 +24,8 @@ interface IProofOfHumanity {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitSybilResistant is DisputeKitClassicBase {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //

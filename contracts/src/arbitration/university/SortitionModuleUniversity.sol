@@ -20,6 +20,8 @@ import "../../libraries/Constants.sol";
 /// @title SortitionModuleUniversity
 /// @dev An adapted version of the SortitionModule contract for educational purposes.
 contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable, Initializable {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //

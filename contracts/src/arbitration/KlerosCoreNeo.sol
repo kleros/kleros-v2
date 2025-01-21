@@ -15,6 +15,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 contract KlerosCoreNeo is KlerosCoreBase {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //

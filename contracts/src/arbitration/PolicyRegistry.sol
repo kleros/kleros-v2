@@ -7,6 +7,8 @@ import "../proxy/Initializable.sol";
 /// @title PolicyRegistry
 /// @dev A contract to maintain a policy for each court.
 contract PolicyRegistry is UUPSProxiable, Initializable {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *              Events               * //
     // ************************************* //

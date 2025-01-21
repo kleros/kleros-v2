@@ -148,6 +148,12 @@ abstract contract UUPSProxiable {
         return IMPLEMENTATION_SLOT;
     }
 
+    /**
+     * @notice Returns the version of the contract.
+     * @return Version string.
+     */
+    function version() external view virtual returns (string memory);
+
     // ************************************* //
     // *           Internal Views          * //
     // ************************************* //

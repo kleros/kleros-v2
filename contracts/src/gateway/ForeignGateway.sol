@@ -16,6 +16,8 @@ import "../libraries/Constants.sol";
 /// Foreign Gateway
 /// Counterpart of `HomeGateway`
 contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //

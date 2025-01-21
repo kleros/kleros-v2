@@ -16,6 +16,8 @@ import "../../proxy/Initializable.sol";
 
 /// @title Evidence Module
 contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //

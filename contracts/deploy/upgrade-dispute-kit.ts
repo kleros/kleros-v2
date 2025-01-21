@@ -14,7 +14,7 @@ const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnviro
   try {
     console.log("upgrading DisputeKitClassicNeo...");
     await deployUpgradable(deployments, "DisputeKitClassicNeo", {
-      newImplementation: "DisputeKitGated",
+      contract: "DisputeKitClassic",
       initializer: "initialize",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables

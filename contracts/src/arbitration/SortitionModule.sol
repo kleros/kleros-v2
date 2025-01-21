@@ -15,6 +15,8 @@ import {SortitionModuleBase, KlerosCore, RNG} from "./SortitionModuleBase.sol";
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
 contract SortitionModule is SortitionModuleBase {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
