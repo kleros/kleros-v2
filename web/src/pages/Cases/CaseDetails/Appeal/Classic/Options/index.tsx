@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import { useCountdownContext } from "hooks/useClassicAppealContext";
-import { isUndefined } from "utils/index";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -18,13 +17,20 @@ interface IOptions {
 }
 
 const Options: React.FC<IOptions> = ({ setAmount }) => {
-  const { loserSideCountdown } = useCountdownContext();
-  return !isUndefined(loserSideCountdown) ? (
+  const { loserSideCountdown, isLoading } = useCountdownContext();
+
+  return (
     <Container>
-      {loserSideCountdown > 0 ? <StageOne setAmount={setAmount} /> : <StageTwo setAmount={setAmount} />}
+      {!isLoading ? (
+        loserSideCountdown && loserSideCountdown > 0 ? (
+          <StageOne setAmount={setAmount} />
+        ) : (
+          <StageTwo setAmount={setAmount} />
+        )
+      ) : (
+        <StyledSkeleton />
+      )}
     </Container>
-  ) : (
-    <StyledSkeleton />
   );
 };
 
