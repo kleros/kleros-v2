@@ -39,10 +39,10 @@ const Container = styled.div`
 interface IDesktopCard {
   rank: number;
   address: string;
-  totalCoherentVotes: number;
-  totalResolvedVotes: number;
-  totalResolvedDisputes: number;
-  coherenceScore: number;
+  totalCoherentVotes: string;
+  totalResolvedVotes: string;
+  totalResolvedDisputes: string;
+  coherenceScore: string;
 }
 
 const DesktopCard: React.FC<IDesktopCard> = ({

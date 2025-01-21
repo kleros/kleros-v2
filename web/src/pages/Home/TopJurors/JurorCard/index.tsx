@@ -6,10 +6,10 @@ import MobileCard from "./MobileCard";
 interface IJurorCard {
   rank: number;
   address: `0x${string}`;
-  coherenceScore: number;
-  totalCoherentVotes: number;
-  totalResolvedVotes: number;
-  totalResolvedDisputes: number;
+  coherenceScore: string;
+  totalCoherentVotes: string;
+  totalResolvedVotes: string;
+  totalResolvedDisputes: string;
 }
 
 const JurorCard: React.FC<IJurorCard> = ({

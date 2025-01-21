@@ -11,9 +11,14 @@ const Container = styled.div`
   justify-content: center;
 `;
 
+const getPercent = (num: number, den: number): string => {
+  if (den === 0) return "0%";
+  return `${Math.floor((num * 100) / den)}%`;
+};
+
 interface ICoherence {
-  totalCoherentVotes: number;
-  totalResolvedVotes: number;
+  totalCoherentVotes: string;
+  totalResolvedVotes: string;
 }
 
 const Coherence: React.FC<ICoherence> = ({ totalCoherentVotes, totalResolvedVotes }) => {
@@ -21,11 +26,9 @@ const Coherence: React.FC<ICoherence> = ({ totalCoherentVotes, totalResolvedVote
 
   return (
     <Container>
-      <Tooltip text={coherenceRatio}>{getPercent(totalCoherentVotes, totalResolvedVotes)}</Tooltip>
+      <Tooltip text={coherenceRatio}>{getPercent(Number(totalCoherentVotes), Number(totalResolvedVotes))}</Tooltip>
     </Container>
   );
 };
-
-const getPercent = (num: number, den: number): string => `${Math.floor((num * 100) / den)}%`;
 
 export default Coherence;

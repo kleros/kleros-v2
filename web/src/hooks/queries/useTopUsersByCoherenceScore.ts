@@ -9,7 +9,7 @@ export type { TopUsersByCoherenceScoreQuery };
 
 const topUsersByCoherenceScoreQuery = graphql(`
   query TopUsersByCoherenceScore($first: Int!, $orderBy: User_orderBy, $orderDirection: OrderDirection) {
-    users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection) {
+    users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection, where: { totalResolvedVotes_gt: 0 }) {
       id
       coherenceScore
       totalCoherentVotes
