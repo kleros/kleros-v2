@@ -100,15 +100,7 @@ contract DisputeKitGated is DisputeKitClassicBase, UUPSProxiable {
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Checks that the chosen address satisfies certain conditions for being drawn.
-    /// Note that we don't check the minStake requirement here because of the implicit staking in parent courts.
-    /// minStake is checked directly during staking process however it's possible for the juror to get drawn
-    /// while having < minStake if it is later increased by governance.
-    /// This issue is expected and harmless since we check for insolvency anyway.
-    /// @param _round The round in which the juror is being drawn.
-    /// @param _coreDisputeID ID of the dispute in the core contract.
-    /// @param _juror Chosen address.
-    /// @return result Whether the address passes the check or not.
+    /// @inheritdoc DisputeKitClassicBase
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,
