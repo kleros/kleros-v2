@@ -22,7 +22,7 @@ const Options: React.FC<IOptions> = ({ setAmount }) => {
   return (
     <Container>
       {!isLoading ? (
-        loserSideCountdown && loserSideCountdown > 0 ? (
+        loserSideCountdown > 0 ? (
           <StageOne setAmount={setAmount} />
         ) : (
           <StageTwo setAmount={setAmount} />
