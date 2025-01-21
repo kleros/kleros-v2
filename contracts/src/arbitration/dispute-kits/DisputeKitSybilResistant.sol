@@ -8,9 +8,7 @@
 
 pragma solidity 0.8.24;
 
-import "./DisputeKitClassicBase.sol";
-import "../KlerosCore.sol";
-import "../../proxy/UUPSProxiable.sol";
+import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 interface IProofOfHumanity {
     /// @dev Return true if the submission is registered and not expired.
@@ -25,7 +23,7 @@ interface IProofOfHumanity {
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitSybilResistant is DisputeKitClassicBase, UUPSProxiable {
+contract DisputeKitSybilResistant is DisputeKitClassicBase {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //

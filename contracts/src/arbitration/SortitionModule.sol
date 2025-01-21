@@ -10,12 +10,11 @@
 
 pragma solidity 0.8.24;
 
-import "./SortitionModuleBase.sol";
-import "../proxy/UUPSProxiable.sol";
+import {SortitionModuleBase, KlerosCore, RNG} from "./SortitionModuleBase.sol";
 
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
-contract SortitionModule is SortitionModuleBase, UUPSProxiable {
+contract SortitionModule is SortitionModuleBase {
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //

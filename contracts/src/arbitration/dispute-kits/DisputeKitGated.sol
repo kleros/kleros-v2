@@ -8,9 +8,7 @@
 
 pragma solidity 0.8.24;
 
-import "./DisputeKitClassicBase.sol";
-import "../KlerosCore.sol";
-import "../../proxy/UUPSProxiable.sol";
+import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 interface IERC20OrERC721 {
     /// @dev Returns the number of tokens in `owner` account.
@@ -33,7 +31,7 @@ interface IERC1155 {
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitGated is DisputeKitClassicBase, UUPSProxiable {
+contract DisputeKitGated is DisputeKitClassicBase {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //

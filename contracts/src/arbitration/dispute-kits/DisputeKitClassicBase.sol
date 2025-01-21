@@ -8,9 +8,9 @@
 
 pragma solidity 0.8.24;
 
-import "../KlerosCore.sol";
-import "../interfaces/IDisputeKit.sol";
-import "../../proxy/Initializable.sol";
+import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../KlerosCore.sol";
+import {Initializable} from "../../proxy/Initializable.sol";
+import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 
 /// @title DisputeKitClassicBase
 /// Abstract Dispute kit classic implementation of the Kleros v1 features including:
@@ -18,7 +18,7 @@ import "../../proxy/Initializable.sol";
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-abstract contract DisputeKitClassicBase is IDisputeKit, Initializable {
+abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxiable {
     // ************************************* //
     // *             Structs               * //
     // ************************************* //

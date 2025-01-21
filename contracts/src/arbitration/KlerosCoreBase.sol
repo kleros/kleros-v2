@@ -12,13 +12,14 @@ import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
 import "../libraries/Constants.sol";
 
 /// @title KlerosCoreBase
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
-abstract contract KlerosCoreBase is IArbitratorV2, Initializable {
+abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
 
     // ************************************* //

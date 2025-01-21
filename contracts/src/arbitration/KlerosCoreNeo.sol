@@ -8,14 +8,13 @@
 
 pragma solidity 0.8.24;
 
-import "./KlerosCoreBase.sol";
-import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {KlerosCoreBase, IDisputeKit, ISortitionModule, IERC20, OnError, StakingResult} from "./KlerosCoreBase.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title KlerosCoreNeo
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
-contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable {
+contract KlerosCoreNeo is KlerosCoreBase {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
