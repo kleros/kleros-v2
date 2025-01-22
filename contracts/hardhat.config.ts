@@ -95,7 +95,7 @@ const config: HardhatUserConfig = {
     // Home chain ---------------------------------------------------------------------------------
     arbitrumSepolia: {
       chainId: 421614,
-      url: process.env.ARBITRUM_SEPOLIA_RPC ?? "https://sepolia-rollup.arbitrum.io/rpc",
+      url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts:
         (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
@@ -121,7 +121,7 @@ const config: HardhatUserConfig = {
     },
     arbitrumSepoliaDevnet: {
       chainId: 421614,
-      url: process.env.ARBITRUM_SEPOLIA_RPC ?? "https://sepolia-rollup.arbitrum.io/rpc",
+      url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts:
         (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
@@ -147,7 +147,7 @@ const config: HardhatUserConfig = {
     },
     arbitrum: {
       chainId: 42161,
-      url: "https://arb1.arbitrum.io/rpc",
+      url: process.env.ARBITRUM_RPC ?? `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,

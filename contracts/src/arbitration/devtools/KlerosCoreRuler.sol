@@ -13,6 +13,8 @@ import "../../libraries/Constants.sol";
 contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -164,7 +166,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }

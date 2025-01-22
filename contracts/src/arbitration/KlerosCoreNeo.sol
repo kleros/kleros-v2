@@ -8,15 +8,15 @@
 
 pragma solidity 0.8.24;
 
-import "./KlerosCoreBase.sol";
-import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {Initializable} from "../proxy/Initializable.sol";
+import {KlerosCoreBase, IDisputeKit, ISortitionModule, IERC20, OnError, StakingResult} from "./KlerosCoreBase.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title KlerosCoreNeo
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
-contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
+contract KlerosCoreNeo is KlerosCoreBase {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -28,7 +28,7 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
@@ -58,7 +58,7 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
         ISortitionModule _sortitionModuleAddress,
         IERC721 _jurorNft
     ) external reinitializer(2) {
-        super._initialize(
+        __KlerosCoreBase_initialize(
             _governor,
             _guardian,
             _pinakion,
