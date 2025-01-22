@@ -1,10 +1,6 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
 
@@ -18,6 +14,11 @@ import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
+import { getTxnExplorerLink } from "src/utils";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
@@ -30,7 +31,7 @@ const StyledCard = styled(Card)`
 const TopContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${responsiveSize(8, 20)} ${responsiveSize(8, 24)};
+  padding: 16px;
   gap: 4px;
   overflow-wrap: break-word;
 
@@ -45,19 +46,27 @@ const TopContent = styled.div`
     display: inline-block;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 20px 24px;
+    `
+  )}
 `;
 
 const IndexAndName = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 `;
 
 const Index = styled.p`
   display: inline-block;
+  color: ${({ theme }) => theme.secondaryText};
 `;
 
+const ReactMarkdownWrapper = styled.div``;
 const StyledReactMarkdown = styled(ReactMarkdown)`
   a {
     font-size: 16px;
@@ -76,12 +85,18 @@ const BottomShade = styled.div`
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 12px ${responsiveSize(8, 24)};
+  padding: 16px;
   > * {
     flex-basis: 1;
     flex-shrink: 0;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 12px 24px;
+    `
+  )}
 `;
 
 const BottomLeftContent = styled.div`
@@ -124,7 +139,7 @@ const AccountContainer = styled.div`
   }
 `;
 
-const HoverStyle = css`
+const ExternalLinkHoverStyle = css`
   :hover {
     text-decoration: underline;
     color: ${({ theme }) => theme.primaryBlue};
@@ -140,12 +155,15 @@ const HoverStyle = css`
 `;
 
 const Address = styled.p`
-  ${HoverStyle}
   margin: 0;
+
+  :hover {
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
 const StyledExternalLink = styled(ExternalLink)`
-  ${HoverStyle}
+  ${ExternalLinkHoverStyle}
 `;
 
 const DesktopText = styled.span`
@@ -206,30 +224,34 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
-  const addressExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${sender}`;
-  }, [sender]);
+  const dashboardLink = `/dashboard/1/desc/all?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${transactionHash}`;
+    return getTxnExplorerLink(transactionHash ?? "");
   }, [transactionHash]);
 
   return (
     <StyledCard>
-      <TopContent>
+      <TopContent dir="auto">
         <IndexAndName>
-          <Index>#{index}: </Index>
+          <Index>#{index}. </Index>
           <h3>{name}</h3>
         </IndexAndName>
-        {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}
+        {name && description ? (
+          <ReactMarkdownWrapper dir="auto">
+            <StyledReactMarkdown>{description}</StyledReactMarkdown>
+          </ReactMarkdownWrapper>
+        ) : (
+          <p>{evidence}</p>
+        )}
       </TopContent>
       <BottomShade>
         <BottomLeftContent>
           <AccountContainer>
             <Identicon size="24" string={sender} />
-            <ExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+            <InternalLink to={dashboardLink}>
               <Address>{shortenAddress(sender)}</Address>
-            </ExternalLink>
+            </InternalLink>
           </AccountContainer>
           <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
             <label>{formatDate(Number(timestamp), true)}</label>

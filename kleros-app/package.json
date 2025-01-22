@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-app",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Library for Kleros DApps with reusable abstractions and components.",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "homepage": "https://github.com/kleros/kleros-v2/tree/master/kleros-app#readme",
@@ -61,6 +61,6 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "viem": "^2.21.42",
-    "wagmi": "^2.13.0"
+    "wagmi": "^2.13.5"
   }
 }

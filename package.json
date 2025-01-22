@@ -25,7 +25,8 @@
     "web-devtools",
     "eslint-config",
     "prettier-config",
-    "tsconfig"
+    "tsconfig",
+    "kleros-app"
   ],
   "packageManager": "yarn@4.5.1",
   "volta": {
@@ -80,7 +81,9 @@
     "local-stack": "scripts/tmux-local-stack.sh",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
     "postinstall": "yarn check-prerequisites; husky install",
-    "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable"
+    "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable",
+    "build:web:ci": "yarn workspaces focus @kleros/kleros-v2-web && yarn workspaces foreach -Ap --include kleros-app --include contracts run build && yarn workspace @kleros/kleros-v2-web build-netlify",
+    "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-web-devtools build-netlify"
   },
   "alias": {
     "process": "process/browser.js",

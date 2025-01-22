@@ -1,27 +1,28 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import Identicon from "react-identicons";
 
 import { Answer } from "context/NewDisputeContext";
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
 import { shortenAddress } from "utils/shortenAddress";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { InternalLink } from "components/InternalLink";
 
 const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
-  gap: ${responsiveSize(8, 12)};
+  gap: 11px;
   flex-wrap: wrap;
   ${landscapeStyle(
     () => css`
       flex-direction: row;
       align-items: center;
+      gap: 12px;
     `
   )}
 `;
@@ -41,12 +42,11 @@ const StyledSmall = styled.small`
   font-size: 16px;
 `;
 
-const StyledA = styled.a`
+const StyledInternalLink = styled(InternalLink)`
   :hover {
-    text-decoration: underline;
     label {
       cursor: pointer;
-      color: ${({ theme }) => theme.primaryBlue};
+      color: ${({ theme }) => theme.secondaryBlue};
     }
   }
 `;
@@ -88,17 +88,15 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
-  const addressExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${juror}`;
-  }, [juror]);
+  const dashboardLink = `/dashboard/1/desc/all?address=${juror}`;
 
   return (
     <TitleContainer>
       <AddressContainer>
         <Identicon size="20" string={juror} />
-        <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+        <StyledInternalLink to={dashboardLink}>
           <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
-        </StyledA>
+        </StyledInternalLink>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
       <StyledLabel variant="secondaryPurple">

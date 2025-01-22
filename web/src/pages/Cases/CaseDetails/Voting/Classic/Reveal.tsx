@@ -34,6 +34,7 @@ const StyledButton = styled(Button)`
   margin: 16px auto;
 `;
 
+const ReactMarkdownWrapper = styled.div``;
 interface IReveal {
   arbitrable: `0x${string}`;
   voteIDs: string[];
@@ -100,7 +101,9 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
         <StyledInfoCard msg="Failed to commit on time." />
       ) : isRevealPeriod ? (
         <>
-          <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
+          <ReactMarkdownWrapper dir="auto">
+            <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
+          </ReactMarkdownWrapper>
           <JustificationArea {...{ justification, setJustification }} />
           <StyledButton
             variant="secondary"

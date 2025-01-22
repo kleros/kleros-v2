@@ -12,22 +12,22 @@ import LightButton from "components/LightButton";
 import { ExternalLink } from "components/ExternalLink";
 
 const Container = styled.div`
-  height: 122px;
+  height: 114px;
   width: 100%;
   background-color: ${({ theme }) => (theme.name === "dark" ? theme.lightBlue : theme.primaryPurple)};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0 32px 8px 32px;
-  gap: 24px;
+  padding: 8px;
+  gap: 16px;
 
   ${landscapeStyle(
     () => css`
       height: 64px;
       flex-direction: row;
       justify-content: space-between;
-      padding-bottom: 0;
+      padding: 0 32px;
     `
   )}
 `;

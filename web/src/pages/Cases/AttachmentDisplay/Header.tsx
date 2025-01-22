@@ -34,7 +34,7 @@ const StyledPaperClip = styled(PaperClip)`
   width: ${responsiveSize(16, 24)};
   height: ${responsiveSize(16, 24)};
   path {
-    fill: ${({ theme }) => theme.primaryPurple};
+    fill: ${({ theme }) => theme.secondaryPurple}B0;
   }
 `;
 
