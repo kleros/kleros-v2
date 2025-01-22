@@ -17,6 +17,7 @@ export type { CasesPageQuery, DisputeDetailsFragment };
 export const disputeFragment = graphql(`
   fragment DisputeDetails on Dispute {
     id
+    disputeID
     arbitrated {
       id
     }
@@ -34,7 +35,7 @@ export const disputeFragment = graphql(`
 
 const casesQueryWhere = graphql(`
   query CasesPageWhere($skip: Int, $where: Dispute_filter, $orderDirection: OrderDirection, $first: Int) {
-    disputes(first: $first, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection, where: $where) {
+    disputes(first: $first, skip: $skip, orderBy: disputeID, orderDirection: $orderDirection, where: $where) {
       ...DisputeDetails
     }
   }
@@ -42,7 +43,7 @@ const casesQueryWhere = graphql(`
 
 const casesQuery = graphql(`
   query CasesPage($skip: Int, $orderDirection: OrderDirection, $first: Int) {
-    disputes(first: $first, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection) {
+    disputes(first: $first, skip: $skip, orderBy: disputeID, orderDirection: $orderDirection) {
       ...DisputeDetails
     }
   }
@@ -51,7 +52,7 @@ const casesQuery = graphql(`
 const myCasesQuery = graphql(`
   query MyCases($id: ID!, $skip: Int, $orderDirection: OrderDirection) {
     user(id: $id) {
-      disputes(first: 3, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection) {
+      disputes(first: 3, skip: $skip, orderBy: disputeID, orderDirection: $orderDirection) {
         ...DisputeDetails
       }
     }
@@ -61,7 +62,7 @@ const myCasesQuery = graphql(`
 const myCasesQueryWhere = graphql(`
   query myCasesPageWhere($id: ID!, $skip: Int, $where: Dispute_filter, $orderDirection: OrderDirection) {
     user(id: $id) {
-      disputes(first: 3, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection, where: $where) {
+      disputes(first: 3, skip: $skip, orderBy: disputeID, orderDirection: $orderDirection, where: $where) {
         ...DisputeDetails
       }
     }
