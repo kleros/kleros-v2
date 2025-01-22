@@ -1,4 +1,4 @@
-import React, { useMemo, useState, createContext, useContext } from "react";
+import React, { useMemo, createContext, useContext, useState } from "react";
 
 import { useParams } from "react-router-dom";
 
@@ -7,6 +7,7 @@ import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useCountdown } from "hooks/useCountdown";
 import { getLocalRounds } from "utils/getLocalRounds";
+import { isUndefined } from "utils/index";
 
 import { useAppealCost } from "queries/useAppealCost";
 import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
@@ -15,6 +16,7 @@ import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMul
 interface ICountdownContext {
   loserSideCountdown?: number;
   winnerSideCountdown?: number;
+  isLoading?: boolean;
 }
 const CountdownContext = createContext<ICountdownContext>({});
 
@@ -73,6 +75,8 @@ export const ClassicAppealProvider: React.FC<{
     dispute?.court.timesPerPeriod[Periods.appeal]
   );
 
+  const isLoading = useMemo(() => isUndefined(dispute) || isUndefined(multipliers), [dispute, multipliers]);
+
   const { loserRequiredFunding, winnerRequiredFunding } = useMemo(
     () => ({
       loserRequiredFunding: getRequiredFunding(appealCost, multipliers?.loser_stake_multiplier),
@@ -85,7 +89,10 @@ export const ClassicAppealProvider: React.FC<{
 
   return (
     <CountdownContext.Provider
-      value={useMemo(() => ({ loserSideCountdown, winnerSideCountdown }), [loserSideCountdown, winnerSideCountdown])}
+      value={useMemo(
+        () => ({ loserSideCountdown, winnerSideCountdown, isLoading }),
+        [loserSideCountdown, winnerSideCountdown, isLoading]
+      )}
     >
       <SelectedOptionContext.Provider
         value={useMemo(() => ({ selectedOption, setSelectedOption }), [selectedOption, setSelectedOption])}
