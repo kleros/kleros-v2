@@ -10,15 +10,17 @@
 
 pragma solidity 0.8.24;
 
-import "./KlerosCore.sol";
-import "./interfaces/ISortitionModule.sol";
-import "./interfaces/IDisputeKit.sol";
-import "../rng/RNG.sol";
+import {KlerosCore} from "./KlerosCore.sol";
+import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
+import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {RNG} from "../rng/RNG.sol";
 import "../libraries/Constants.sol";
 
 /// @title SortitionModuleBase
 /// @dev A factory of trees that keeps track of staked values for sortition.
-abstract contract SortitionModuleBase is ISortitionModule {
+abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSProxiable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -89,14 +91,14 @@ abstract contract SortitionModuleBase is ISortitionModule {
     // *            Constructor            * //
     // ************************************* //
 
-    function _initialize(
+    function __SortitionModuleBase_initialize(
         address _governor,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
         uint256 _rngLookahead
-    ) internal {
+    ) internal onlyInitializing {
         governor = _governor;
         core = _core;
         minStakingTime = _minStakingTime;

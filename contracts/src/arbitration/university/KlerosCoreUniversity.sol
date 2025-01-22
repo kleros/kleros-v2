@@ -15,6 +15,8 @@ import {Initializable} from "../../proxy/Initializable.sol";
 contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -180,7 +182,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }

@@ -36,7 +36,7 @@ contract UpgradedByRewrite is UUPSProxiable, Initializable {
         ++counter;
     }
 
-    function version() external pure virtual returns (string memory) {
+    function version() external pure virtual override returns (string memory) {
         return "V1";
     }
 }
