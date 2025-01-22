@@ -8,6 +8,8 @@ import "./interfaces/IDisputeTemplateRegistry.sol";
 /// @title Dispute Template Registry
 /// @dev A contract to maintain a registry of dispute templates.
 contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Initializable {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -31,7 +33,7 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }

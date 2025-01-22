@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
 
-const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
 
   // fallback to hardhat node signers on local network
@@ -12,9 +12,9 @@ const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeE
   console.log("upgrading on %s with deployer %s", HomeChains[chainId], deployer);
 
   try {
-    console.log("upgrading SortitionModuleNeo...");
-    await deployUpgradable(deployments, "SortitionModuleNeo", {
-      newImplementation: "SortitionModuleNeo",
+    console.log("upgrading DisputeKitClassicNeo...");
+    await deployUpgradable(deployments, "DisputeKitClassicNeo", {
+      contract: "DisputeKitClassic",
       initializer: "initialize",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables
@@ -26,9 +26,9 @@ const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeE
   }
 };
 
-deployUpgradeSortitionModule.tags = ["Upgrade", "SortitionModule"];
-deployUpgradeSortitionModule.skip = async ({ network }) => {
+deployUpgradeDisputeKit.tags = ["Upgrade", "DisputeKit"];
+deployUpgradeDisputeKit.skip = async ({ network }) => {
   return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
-export default deployUpgradeSortitionModule;
+export default deployUpgradeDisputeKit;
