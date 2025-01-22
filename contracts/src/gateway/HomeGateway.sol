@@ -59,7 +59,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }

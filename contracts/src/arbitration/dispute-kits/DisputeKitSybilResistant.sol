@@ -36,7 +36,7 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
