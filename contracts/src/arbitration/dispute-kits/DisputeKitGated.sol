@@ -10,14 +10,15 @@ pragma solidity 0.8.24;
 
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
-interface IERC20OrERC721 {
+interface IBalanceHolder {
     /// @dev Returns the number of tokens in `owner` account.
+    /// @dev Compatible with ERC-20 and ERC-721.
     /// @param owner The address of the owner.
     /// @return balance The number of tokens in `owner` account.
     function balanceOf(address owner) external view returns (uint256 balance);
 }
 
-interface IERC1155 {
+interface IBalanceHolderERC1155 {
     /// @dev Returns the balance of an ERC-1155 token.
     /// @param account The address of the token holder
     /// @param id ID of the token
@@ -109,9 +110,9 @@ contract DisputeKitGated is DisputeKitClassicBase {
         if (!super._postDrawCheck(_round, _coreDisputeID, _juror)) return false;
 
         if (isERC1155) {
-            return IERC1155(tokenGate).balanceOf(_juror, tokenId) > 0;
+            return IBalanceHolderERC1155(tokenGate).balanceOf(_juror, tokenId) > 0;
         } else {
-            return IERC20OrERC721(tokenGate).balanceOf(_juror) > 0;
+            return IBalanceHolder(tokenGate).balanceOf(_juror) > 0;
         }
     }
 }
