@@ -8,23 +8,30 @@
 
 pragma solidity 0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
 import "../KlerosCore.sol";
 import "../interfaces/IDisputeKit.sol";
 import "../../proxy/UUPSProxiable.sol";
 import "../../proxy/Initializable.sol";
 
-interface IToken {
+interface IBalanceHolder {
     /// @dev Returns the number of tokens in `owner` account.
+    /// @dev Compatible with ERC-20 and ERC-721.
     /// @param owner The address of the owner.
     /// @return balance The number of tokens in `owner` account.
     function balanceOf(address owner) external view returns (uint256 balance);
 }
 
+interface IBalanceHolderERC1155 {
+    /// @dev Returns the balance of an ERC-1155 token.
+    /// @param account The address of the token holder
+    /// @param id ID of the token
+    /// @return The token balance
+    function balanceOf(address account, uint256 id) external view returns (uint256);
+}
+
 /// @title DisputeKitGated
 /// Dispute kit implementation adapted from DisputeKitClassic
-/// - a drawing system: proportional to staked PNK with a non-zero balance of `tokenGate`,
+/// - a drawing system: proportional to staked PNK with a non-zero balance of `tokenGate` where `tokenGate` is an ERC20, ERC721 or ERC1155
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
@@ -76,7 +83,9 @@ contract DisputeKitGated is IDisputeKit, Initializable, UUPSProxiable {
     KlerosCore public core; // The Kleros Core arbitrator
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
-    IToken public tokenGate; // The token used for gating access.
+    address public tokenGate; // The token used for gating access.
+    uint256 public tokenId; // Only used for ERC-1155
+    bool public isERC1155; // True if the tokenGate is an ERC-1155, false otherwise.
 
     // ************************************* //
     // *              Events               * //
@@ -161,10 +170,20 @@ contract DisputeKitGated is IDisputeKit, Initializable, UUPSProxiable {
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _tokenGate The token used for gating access.
-    function initialize(address _governor, KlerosCore _core, IToken _tokenGate) external reinitializer(1) {
+    /// @param _tokenId The token ID for ERC-1155 (ignored for other token types)
+    /// @param _isERC1155 Whether the token is ERC-1155
+    function initialize(
+        address _governor,
+        KlerosCore _core,
+        address _tokenGate,
+        uint256 _tokenId,
+        bool _isERC1155
+    ) external reinitializer(1) {
         governor = _governor;
         core = _core;
         tokenGate = _tokenGate;
+        tokenId = _tokenId;
+        isERC1155 = _isERC1155;
     }
 
     // ************************ //
@@ -202,10 +221,20 @@ contract DisputeKitGated is IDisputeKit, Initializable, UUPSProxiable {
         core = KlerosCore(_core);
     }
 
-    /// @dev Changes the `tokenGate` storage variable.
+    /// @dev Changes the `tokenGate` to an ERC-20 or ERC-721 token.
     /// @param _tokenGate The new value for the `tokenGate` storage variable.
-    function changeTokenGate(address _tokenGate) external onlyByGovernor {
-        tokenGate = IToken(_tokenGate);
+    function changeTokenGateERC20OrERC721(address _tokenGate) external onlyByGovernor {
+        tokenGate = _tokenGate;
+        isERC1155 = false;
+    }
+
+    /// @dev Changes the `tokenGate` to an ERC-1155 token.
+    /// @param _tokenGate The new value for the `tokenGate` storage variable.
+    /// @param _tokenId The new value for the `tokenId` storage variable.
+    function changeTokenGateERC1155(address _tokenGate, uint256 _tokenId) external onlyByGovernor {
+        tokenGate = _tokenGate;
+        tokenId = _tokenId;
+        isERC1155 = true;
     }
 
     // ************************************* //
@@ -630,10 +659,12 @@ contract DisputeKitGated is IDisputeKit, Initializable, UUPSProxiable {
             .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
             .pnkAtStakePerJuror;
         (uint256 totalStaked, uint256 totalLocked, , ) = core.sortitionModule().getJurorBalance(_juror, courtID);
-        if (totalStaked < totalLocked + lockedAmountPerJuror) {
-            return false;
+        if (totalStaked < totalLocked + lockedAmountPerJuror) return false;
+
+        if (isERC1155) {
+            return IBalanceHolderERC1155(tokenGate).balanceOf(_juror, tokenId) > 0;
         } else {
-            return tokenGate.balanceOf(_juror) > 0;
+            return IBalanceHolder(tokenGate).balanceOf(_juror) > 0;
         }
     }
 }
