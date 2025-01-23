@@ -1,21 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { request } from "graphql-request";
+import { gql, request } from "graphql-request";
 
 import { isKlerosNeo, isKlerosUniversity, isTestnetDeployment } from "src/consts";
-import { graphql } from "src/graphql";
 import { isUndefined } from "src/utils";
 
-const spamEvidenceQuery = graphql(`
-  query SpamEvidences($deployment: CourtV2Deployment!) {
-    courtv2EvidenceSpamsByDeployment(deployment: $deployment) {
-      disputeEvidenceIndex
-      dispute
+const spamEvidenceQuery = gql`
+  query SpamEvidences($deployment: CourtV2Deployment!, $evidenceGroupId: String!) {
+    courtv2EvidenceSpamsByGroupId(deployment: $deployment, evidenceGroupId: $evidenceGroupId) {
+      evidenceIds
     }
   }
-`);
+`;
 
 type SpamEvidences = {
-  courtv2EvidenceSpamsByDeployment: { disputeEvidenceIndex: string; dispute: string }[];
+  courtv2EvidenceSpamsByGroupId: { evidenceIds: string[] };
 };
 
 const getAtlasDeployment = () => {
@@ -31,10 +29,10 @@ const getAtlasDeployment = () => {
 };
 const atlasUri = import.meta.env.REACT_APP_ATLAS_URI;
 
-export const useSpamEvidence = () => {
-  const isEnabled = !isUndefined(atlasUri);
+export const useSpamEvidence = (evidenceGroupId: string) => {
+  const isEnabled = !isUndefined(atlasUri) && !isUndefined(evidenceGroupId);
 
-  const variables = { deployment: getAtlasDeployment() };
+  const variables = { deployment: getAtlasDeployment(), evidenceGroupId };
   return useQuery<SpamEvidences>({
     queryKey: [`evidenceSpamQuery`],
     enabled: isEnabled,
