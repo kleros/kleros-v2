@@ -1,7 +1,7 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { Answer, ClassicRound } from "../../generated/schema";
-import { ONE, ZERO } from "../utils";
+import { ZERO } from "../utils";
 
 export function createClassicRound(disputeID: string, numberOfChoices: BigInt, roundIndex: BigInt): void {
   const localDisputeID = `1-${disputeID}`;

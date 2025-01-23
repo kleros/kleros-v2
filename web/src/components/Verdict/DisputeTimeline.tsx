@@ -92,12 +92,10 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
     const dispute = disputeDetails?.dispute;
     if (dispute) {
       const rulingOverride = dispute.overridden;
-      const parsedDisputeFinalRuling = parseInt(dispute.currentRuling);
       const currentPeriodIndex = Periods[dispute.period];
 
       return localRounds?.reduce<TimelineItems>(
         (acc, { winningChoice }, index) => {
-          const parsedRoundChoice = parseInt(winningChoice);
           const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
           const roundTimeline = rounds?.[index].timeline;
 
