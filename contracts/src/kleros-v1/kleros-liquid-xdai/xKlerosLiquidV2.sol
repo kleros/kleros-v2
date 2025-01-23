@@ -16,6 +16,7 @@ import "../../gateway/interfaces/IForeignGateway.sol";
 /// @dev This contract is an adaption of Mainnet's KlerosLiquid (https://github.com/kleros/kleros/blob/69cfbfb2128c29f1625b3a99a3183540772fda08/contracts/kleros/KlerosLiquid.sol)
 /// for xDai chain. Notice that variables referring to ETH values in this contract, will hold the native token values of the chain on which xKlerosLiquid is deployed.
 /// When this contract gets deployed on xDai chain, ETH variables will hold xDai values.
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     // ************************************* //
     // *         Enums / Structs           * //

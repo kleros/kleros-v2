@@ -1,20 +1,16 @@
 import React from "react";
 import styled, { css, keyframes } from "styled-components";
 
-import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
+import { _TimelineItem1, AlertMessage, CustomTimeline } from "@kleros/ui-components-library";
 
 import Close from "svgs/icons/close.svg";
-
-import { useSortitionModulePhase } from "hooks/useSortitionModule";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
-import InfoCard from "components/InfoCard";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
-import { Phases } from "components/Phase";
 
 import { ActionType } from "../StakeWithdrawButton";
 
@@ -92,16 +88,10 @@ const StyledButton = styled(LightButton)`
   }
 `;
 
-const InfoContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-top: 8px;
+const AlertContainer = styled.div`
+  margin-top: 24px;
 `;
 
-const StyledInfoCard = styled(InfoCard)`
-  font-size: 14px;
-`;
 interface IStakeWithdrawPopup {
   action: ActionType;
   amount: string;
@@ -111,8 +101,6 @@ interface IStakeWithdrawPopup {
 }
 
 const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup, steps, isSuccess, action }) => {
-  const { data: phase, isLoading } = useSortitionModulePhase();
-
   return (
     <Overlay onClick={closePopup}>
       <Container onClick={(e) => e.stopPropagation()}>
@@ -121,13 +109,14 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
           {steps && <CustomTimeline items={steps} />}
-          {phase !== Phases.staking && !isLoading ? (
-            <InfoContainer>
-              <Divider />
-              <StyledInfoCard
-                msg={`The ${action === ActionType.stake ? "stake" : "withdraw"} might be delayed by ~1 hr.`}
+          {isSuccess && action === ActionType.stake ? (
+            <AlertContainer>
+              <AlertMessage
+                title="Hey there! Avoid missing a case"
+                msg="Make sure to subscribe to notifications on Settings > Notifications"
+                variant="info"
               />
-            </InfoContainer>
+            </AlertContainer>
           ) : null}
         </InnerContainer>
       </Container>

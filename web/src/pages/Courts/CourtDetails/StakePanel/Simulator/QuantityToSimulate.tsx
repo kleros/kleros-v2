@@ -17,7 +17,7 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const TextWithTooltipContainer = styled.div`
+export const TextWithTooltipContainer = styled.div`
   color: ${({ theme }) => theme.secondaryPurple};
   font-size: 14px;
 
@@ -29,7 +29,7 @@ const TextWithTooltipContainer = styled.div`
   }
 `;
 
-const Quantity = styled.p`
+export const Quantity = styled.p`
   font-size: 14px;
   color: ${({ theme }) => theme.primaryText};
   margin: 0;

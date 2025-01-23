@@ -16,10 +16,6 @@ contract NonUpgradeableMock {
     function increment() external {
         _counter++;
     }
-
-    function version() external pure virtual returns (string memory) {
-        return "NonUpgradeableMock 0.0.0";
-    }
 }
 
 contract UUPSUpgradeableMock is UUPSProxiable, NonUpgradeableMock {
