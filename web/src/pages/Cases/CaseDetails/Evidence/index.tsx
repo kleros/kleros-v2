@@ -8,18 +8,18 @@ import { Button } from "@kleros/ui-components-library";
 
 import DownArrow from "svgs/icons/arrow-down.svg";
 
-import { spamEvidencesIds } from "consts/index";
+import { useSpamEvidence } from "hooks/useSpamEvidence";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useEvidences } from "queries/useEvidences";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
+import { Divider } from "components/Divider";
 import EvidenceCard from "components/EvidenceCard";
 import { SkeletonEvidenceCard } from "components/StyledSkeleton";
 
 import EvidenceSearch from "./EvidenceSearch";
-import { Divider } from "components/Divider";
 
 const Container = styled.div`
   width: 100%;
@@ -85,6 +85,7 @@ const Evidence: React.FC = () => {
   const [search, setSearch] = useState<string>();
   const [debouncedSearch, setDebouncedSearch] = useState<string>();
   const [showSpam, setShowSpam] = useState(false);
+  const { data: spamEvidences } = useSpamEvidence(disputeData?.dispute?.externalDisputeId?.toString());
 
   const { data } = useEvidences(disputeData?.dispute?.externalDisputeId?.toString(), debouncedSearch);
 
@@ -99,57 +100,66 @@ const Evidence: React.FC = () => {
     latestEvidence.scrollIntoView({ behavior: "smooth" });
   }, [ref]);
 
+  const isSpam = useCallback(
+    (evidenceId: string) => {
+      return Boolean(spamEvidences?.courtv2EvidenceSpamsByGroupId.evidenceIds?.includes(evidenceId));
+    },
+    [spamEvidences]
+  );
+
   const evidences = useMemo(() => {
     if (!data?.evidences) return;
     const spamEvidences = data.evidences.filter((evidence) => isSpam(evidence.id));
     const realEvidences = data.evidences.filter((evidence) => !isSpam(evidence.id));
     return { realEvidences, spamEvidences };
-  }, [data]);
+  }, [data, isSpam]);
 
   return (
     <Container ref={ref}>
       <EvidenceSearch {...{ search, setSearch, evidenceGroup: disputeData?.dispute?.externalDisputeId }} />
       <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
       {evidences?.realEvidences ? (
-        evidences?.realEvidences.map(
-          ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
-            <EvidenceCard
-              key={timestamp}
-              index={parseInt(evidenceIndex)}
-              sender={sender?.id}
-              {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
-            />
-          )
-        )
+        <>
+          {evidences?.realEvidences.map(
+            ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
+              <EvidenceCard
+                key={timestamp}
+                index={parseInt(evidenceIndex)}
+                sender={sender?.id}
+                {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
+              />
+            )
+          )}
+          {spamEvidences && evidences?.spamEvidences.length !== 0 ? (
+            <>
+              <Divider />
+              {showSpam ? (
+                <>
+                  <SpamLabel onClick={() => setShowSpam(false)}>Hide spam</SpamLabel>
+                  {evidences?.spamEvidences.map(
+                    ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
+                      <EvidenceCard
+                        key={timestamp}
+                        index={parseInt(evidenceIndex)}
+                        sender={sender?.id}
+                        {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
+                      />
+                    )
+                  )}
+                </>
+              ) : (
+                <SpamLabel onClick={() => setShowSpam(true)}>Show likely spam</SpamLabel>
+              )}
+            </>
+          ) : null}
+        </>
       ) : (
         <SkeletonEvidenceCard />
       )}
-      {evidences?.spamEvidences.length !== 0 ? (
-        <>
-          <Divider />
-          {showSpam ? (
-            evidences?.spamEvidences.map(
-              ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
-                <EvidenceCard
-                  key={timestamp}
-                  index={parseInt(evidenceIndex)}
-                  sender={sender?.id}
-                  {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
-                />
-              )
-            )
-          ) : (
-            <SpamLabel onClick={() => setShowSpam(true)}>Show likely spam</SpamLabel>
-          )}
-        </>
-      ) : null}
+
       {data && data.evidences.length === 0 ? <StyledLabel>There is no evidence submitted yet</StyledLabel> : null}
     </Container>
   );
-};
-
-const isSpam = (id: string) => {
-  return spamEvidencesIds.includes(id);
 };
 
 export default Evidence;
