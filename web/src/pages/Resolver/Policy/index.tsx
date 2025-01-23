@@ -1,10 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { FileUploader } from "@kleros/ui-components-library";
 
-import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { useNewDisputeContext } from "context/NewDisputeContext";
+import useIsDesktop from "hooks/useIsDesktop";
+import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
+
+import { getFileUploaderMsg } from "src/utils";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -12,7 +16,6 @@ import { responsiveSize } from "styles/responsiveSize";
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
-import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 const Container = styled.div`
   display: flex;
@@ -38,19 +41,23 @@ const StyledLabel = styled.label`
 
 const StyledFileUploader = styled(FileUploader)`
   width: 84vw;
-  margin-bottom: ${responsiveSize(52, 32)};
+  margin-bottom: ${responsiveSize(150, 72)};
 
   ${landscapeStyle(
     () => css`
       width: ${responsiveSize(442, 700, 900)};
     `
   )}
+  small {
+    white-space: pre-line;
+    text-align: start;
+  }
 `;
 
 const Policy: React.FC = () => {
   const { disputeData, setDisputeData, setIsPolicyUploading } = useNewDisputeContext();
-  const { uploadFile } = useAtlasProvider();
-
+  const { uploadFile, roleRestrictions } = useAtlasProvider();
+  const isDesktop = useIsDesktop();
   const handleFileUpload = (file: File) => {
     setIsPolicyUploading(true);
     infoToast("Uploading Policy to IPFS");
@@ -78,8 +85,8 @@ const Policy: React.FC = () => {
       </StyledLabel>
       <StyledFileUploader
         callback={handleFileUpload}
-        variant="info"
-        msg="You can attach additional information as a PDF file. Important: the above description must reference the relevant parts of the file content."
+        variant={isDesktop ? "info" : undefined}
+        msg={`You can attach additional information as a PDF file. Important: the above description must reference the relevant parts of the file content.\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
       />
 
       <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />
