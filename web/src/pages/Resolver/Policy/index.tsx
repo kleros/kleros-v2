@@ -86,7 +86,7 @@ const Policy: React.FC = () => {
       <StyledFileUploader
         callback={handleFileUpload}
         variant={isDesktop ? "info" : undefined}
-        msg={`You can attach additional information as a PDF file. Important: the above description must reference the relevant parts of the file content.\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
+        msg={`You can attach additional information here. Important: the above description must reference the relevant parts of the file content.\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
       />
 
       <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />
