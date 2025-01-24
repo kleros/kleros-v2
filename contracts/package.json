@@ -55,6 +55,7 @@
     "populate:courts:devnet": "hardhat populate:courts --from v2_devnet  --network arbitrumSepoliaDevnet",
     "populate:courts:testnet": "hardhat populate:courts --from v2_testnet  --network arbitrumSepolia",
     "populate:courts:mainnetNeo": "hardhat populate:courts --core-type neo --from v2_mainnet_neo  --network arbitrum",
+    "populate:policiesUris": "scripts/setPoliciesURIs.sh config/policies.v2.{devnet,testnet,mainnet-neo}.json",
     "populate:policies:devnet": "hardhat populate:policy-registry --from v2_devnet --network arbitrumSepoliaDevnet",
     "populate:policies:testnet": "hardhat populate:policy-registry --from v2_testnet --network arbitrumSepolia",
     "populate:policies:mainnetNeo": "hardhat populate:policy-registry --core-type neo --from v2_mainnet_neo --network arbitrum",
