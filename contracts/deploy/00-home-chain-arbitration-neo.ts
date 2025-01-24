@@ -73,7 +73,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer,
       deployer,
       pnk.target,
-      ZeroAddress, // KlerosCore is configured later
+      ZeroAddress, // jurorProsecutionModule is not implemented yet
       disputeKit.address,
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],

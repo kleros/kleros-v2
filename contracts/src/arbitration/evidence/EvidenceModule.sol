@@ -16,6 +16,8 @@ import "../../proxy/Initializable.sol";
 
 /// @title Evidence Module
 contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -35,7 +37,7 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }

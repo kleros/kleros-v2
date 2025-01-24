@@ -10,18 +10,18 @@
 
 pragma solidity 0.8.24;
 
-import "./SortitionModuleBase.sol";
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
+import {SortitionModuleBase, KlerosCore, RNG} from "./SortitionModuleBase.sol";
 
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
-contract SortitionModule is SortitionModuleBase, UUPSProxiable, Initializable {
+contract SortitionModule is SortitionModuleBase {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
@@ -41,7 +41,7 @@ contract SortitionModule is SortitionModuleBase, UUPSProxiable, Initializable {
         RNG _rng,
         uint256 _rngLookahead
     ) external reinitializer(1) {
-        super._initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
+        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
     }
 
     // ************************************* //
