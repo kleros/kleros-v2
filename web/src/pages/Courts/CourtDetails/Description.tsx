@@ -21,6 +21,33 @@ const TextContainer = styled.div`
   p {
     word-break: break-word;
   }
+
+  li {
+    line-height: 1.5em;
+    margin-top: 0.5em;
+  }
+
+  h1 {
+    margin: 16px 0 16px 0;
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  h2 {
+    margin: 16px 0 16px 0;
+    font-size: 20px;
+    line-height: 24px;
+  }
+
+  h3 {
+    margin: 16px 0 16px 0;
+    font-size: 18px;
+    line-height: 20px;
+  }
+
+  a {
+    font-size: 16px;
+  }
 `;
 
 const StyledTabs = styled(Tabs)`
