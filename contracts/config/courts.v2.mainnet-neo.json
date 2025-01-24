@@ -448,7 +448,7 @@
     ]
   },
   {
-    "name": "Blockchain No Técnica",
+    "name": "Corte de Disputas de Consumo y Vecindad",
     "id": 29,
     "parent": 23,
     "hiddenVotes": false,
@@ -461,6 +461,22 @@
       216000,
       216000,
       216000
+    ]
+  },
+  {
+    "name": "Oracle Court",
+    "id": 30,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "5000000000000000000000",
+    "feeForJuror": "6900000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "31",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
     ]
   }
 ]
