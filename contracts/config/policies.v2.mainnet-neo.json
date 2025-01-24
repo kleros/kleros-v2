@@ -189,28 +189,28 @@
     "uri": "/ipfs/QmXAVumYfMmezMQSbhYn33iCFxwqLguRztz7HcJaLnX1Z4"
   },
   {
-    "name": "xDai Development Court",
+    "name": "Development Court",
     "purpose": "In this court, jurors will solve disputes involving the respect of specifications given by the client.",
     "rules": "### Example\nDeveloper does not respect indentation, does not name variables explicitly or has not made a clear file structure. In such cases, jurors should refuse the proposal made by the developer.",
     "requiredSkills": "This court requires a good level of familiarity with programming. Jurors who are not intermediate developers are advised to stake into this court only if they have some basics of low-level programming languages, ​​algorithmic and knowledge of good practices of development.",
     "court": 25,
-    "uri": "/ipfs/QmZ8gkBgHsomDpdJG6duJP2VN7u177NT7nsx2bjaLzJknN"
+    "uri": "/ipfs/QmfH2k1PmX4YufdZoAKwoGtdbjNZaxaTPdXB2uAs3rQsjh"
   },
   {
-    "name": "xDai Solidity Court",
+    "name": "Solidity Court",
     "purpose": "",
     "rules": "If the disputed code is of significant size (> 500 code lines), parties in the dispute should point out specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.",
     "requiredSkills": "This court requires a good level of solidity. Jurors who are not solidity intermediate developers are advised to stake into this court only if they also know how to make relatively simple contracts, know the main solidity hacks and can compute the complexity of simple functions.",
     "court": 26,
-    "uri": "/ipfs/QmNfeN8JW7GyawEQvsAuRAhm6aw5RpgJzYDKTPQGyPqvKA"
+    "uri": "/ipfs/QmPRckaaNLj9ycZH6otChTwbkDsBnhkNrXnarF5vD6rXKy"
   },
   {
-    "name": "xDai Javascript Court",
+    "name": "Javascript Court",
     "purpose": "",
     "rules": "If the disputed code is of significant size (> 700 code lines), parties in the dispute should point out specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.",
     "requiredSkills": "This court requires a good level of javascript. Jurors who are not javascript intermediate developers are advised to stake into this court only if they know the main frameworks/libraries (ExpressJs, React, EthersJs…) and be comfortable with testing, APIs or languages to interact with databases.",
     "court": 27,
-    "uri": "/ipfs/QmYdsdvqbbHKus5Y2djAkvTrtK8piPSmeM3WfPB9ntKk4K"
+    "uri": "/ipfs/QmS9JzVezbAioSXXcuQsMw31pNjg5jeaV8vtbpwY5cMG8b"
   },
   {
     "name": "Corte de Curación en Español",
