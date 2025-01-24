@@ -50,6 +50,7 @@ task("populate:courts", "Populates the courts and their parameters")
     "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo (default: auto depending on the network)",
     undefined
   )
+  .addOptionalParam("start", "The starting index for the courts to populate (default: 0)", 0, types.int)
   .addOptionalParam(
     "maxNumberOfCourts",
     "The maximum number of courts to populate (default: all)",
@@ -61,6 +62,7 @@ task("populate:courts", "Populates the courts and their parameters")
     "The type of core to use between base, neo, university (default: base)",
     Cores.BASE.toString()
   )
+  .addFlag("reverse", "Iterates the courts in reverse order, useful to increase minStake in the child courts first")
   .addFlag("forceV1ParametersToDev", "Use development values for the v1 courts parameters")
   .setAction(async (taskArgs, hre) => {
     const { getNamedAccounts, getChainId, ethers, network } = hre;
@@ -133,7 +135,7 @@ task("populate:courts", "Populates the courts and their parameters")
         break;
       }
       case Sources.V2_DEVNET: {
-        courtsV2 = courtsV2ArbitrumDevnet.map(parametersProductionToDev);
+        courtsV2 = courtsV2ArbitrumDevnet;
         break;
       }
       case Sources.V2_TESTNET: {
@@ -148,9 +150,16 @@ task("populate:courts", "Populates the courts and their parameters")
         throw new Error("Unknown source");
     }
 
-    const maxNumberOfCourts = taskArgs.maxNumberOfCourts; // set to undefined for all the courts
-    console.log("Keeping only the first %d courts", maxNumberOfCourts ?? courtsV2.length);
-    courtsV2 = courtsV2.slice(0, maxNumberOfCourts);
+    // Warning: the indices are NOT the court IDs, e.g. the forking court is not present in the config so the indices are shifted by 1
+    const start = taskArgs.start;
+    const end = taskArgs.maxNumberOfCourts ? start + taskArgs.maxNumberOfCourts : courtsV2.length;
+    console.log(`Keeping only the first ${end - start} courts, starting from ${start}`);
+    courtsV2 = courtsV2.slice(start, end);
+
+    if (taskArgs.reverse) {
+      console.log("Reversing the order of courts");
+      courtsV2.reverse();
+    }
 
     console.log("courtsV2 = %O", courtsV2);
 
