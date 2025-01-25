@@ -21,6 +21,33 @@ const TextContainer = styled.div`
   p {
     word-break: break-word;
   }
+
+  li {
+    line-height: 1.5em;
+    margin-top: 0.5em;
+  }
+
+  h1 {
+    margin: 16px 0 16px 0;
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  h2 {
+    margin: 16px 0 16px 0;
+    font-size: 20px;
+    line-height: 24px;
+  }
+
+  h3 {
+    margin: 16px 0 16px 0;
+    font-size: 18px;
+    line-height: 20px;
+  }
+
+  a {
+    font-size: 16px;
+  }
 `;
 
 const StyledTabs = styled(Tabs)`
@@ -35,9 +62,9 @@ const StyledTabs = styled(Tabs)`
 `;
 
 interface IPolicy {
-  description?: string;
+  purpose?: string;
   requiredSkills?: string;
-  summary?: string;
+  rules?: string;
 }
 
 const TABS = [
@@ -45,7 +72,7 @@ const TABS = [
     text: "Purpose",
     value: 0,
     path: "purpose",
-    isVisible: (policy: IPolicy) => !!policy?.description,
+    isVisible: (policy: IPolicy) => !!policy?.purpose,
   },
   {
     text: "Skills",
@@ -57,7 +84,7 @@ const TABS = [
     text: "Policy",
     value: 2,
     path: "policy",
-    isVisible: (policy: IPolicy) => !!policy?.summary,
+    isVisible: (policy: IPolicy) => !!policy?.rules,
   },
 ];
 
@@ -88,9 +115,9 @@ const Description: React.FC = () => {
           <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
           <TextContainer>
             <Routes>
-              <Route path="purpose" element={formatMarkdown(policy?.description)} />
+              <Route path="purpose" element={formatMarkdown(policy?.purpose)} />
               <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
-              <Route path="policy" element={formatMarkdown(policy?.summary)} />
+              <Route path="policy" element={formatMarkdown(policy?.rules)} />
               <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
             </Routes>
           </TextContainer>

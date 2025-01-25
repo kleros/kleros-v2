@@ -4,13 +4,13 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { useAtlasProvider, Roles } from "@kleros/kleros-app";
+import { Roles, useAtlasProvider } from "@kleros/kleros-app";
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 
 import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
 import { wrapWithToast, errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
-import { isEmpty } from "src/utils";
+import { getFileUploaderMsg, isEmpty } from "src/utils";
 
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
@@ -43,6 +43,7 @@ const StyledTextArea = styled(Textarea)`
 
 const StyledFileUploader = styled(FileUploader)`
   width: 100%;
+  margin-bottom: 50px;
 `;
 
 const ButtonArea = styled.div`
@@ -62,7 +63,7 @@ const SubmitEvidenceModal: React.FC<{
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File>();
-  const { uploadFile } = useAtlasProvider();
+  const { uploadFile, roleRestrictions } = useAtlasProvider();
 
   const isDisabled = useMemo(() => isSending || isEmpty(message), [isSending, message]);
 
@@ -98,7 +99,11 @@ const SubmitEvidenceModal: React.FC<{
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Your Arguments"
       />
-      <StyledFileUploader callback={(file: File) => setFile(file)} />
+      <StyledFileUploader
+        callback={(file: File) => setFile(file)}
+        msg={getFileUploaderMsg(Roles.Evidence, roleRestrictions)}
+        variant="info"
+      />
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <EnsureChain>
@@ -120,6 +125,7 @@ const constructEvidence = async (
   if (file) {
     infoToast("Uploading to IPFS");
     fileURI = await uploadFile(file, Roles.Evidence).catch((err) => {
+      // eslint-disable-next-line no-console
       console.log(err);
       errorToast(`Upload failed: ${err?.message}`);
       return null;

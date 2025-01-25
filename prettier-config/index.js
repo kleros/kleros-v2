@@ -13,6 +13,7 @@ module.exports = {
     {
       files: ["*.sol"],
       options: {
+        parser: "solidity-parse",
         printWidth: 120,
         tabWidth: 4,
         useTabs: false,
@@ -22,5 +23,5 @@ module.exports = {
       },
     },
   ],
-  plugins: [require("prettier-plugin-solidity")],
+  plugins: ["prettier-plugin-solidity"],
 };
