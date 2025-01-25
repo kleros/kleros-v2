@@ -101,7 +101,7 @@ const MobileCard: React.FC<IMobileCard> = ({
           <Rank rank={rank} />
           <JurorTitle address={address} />
         </RankAndTitle>
-        <JurorLevel {...{ coherenceScore, totalResolvedDisputes }} />
+        <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />
       </TopSide>
       <BottomSide>
         <HeaderRewardsAndRewards>

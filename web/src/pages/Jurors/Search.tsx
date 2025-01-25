@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useDebounce } from "react-use";
@@ -8,24 +8,8 @@ import { Searchbar } from "@kleros/ui-components-library";
 import { isEmpty } from "utils/index";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${responsiveSize(8, 16)};
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )}
-`;
-
 const StyledSearchbar = styled(Searchbar)`
-  flex: 1;
-  flex-basis: 310px;
+  width: 100%;
 
   input {
     font-size: 16px;
@@ -61,15 +45,13 @@ const Search: React.FC = () => {
   );
 
   return (
-    <Container>
-      <StyledSearchbar
-        dir="auto"
-        type="text"
-        placeholder="Search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-    </Container>
+    <StyledSearchbar
+      dir="auto"
+      type="text"
+      placeholder="Search"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
   );
 };
 

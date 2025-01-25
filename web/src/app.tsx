@@ -65,7 +65,7 @@ const App: React.FC = () => {
                           }
                         />
                         <Route
-                          path="jurors/*"
+                          path="jurors/:page/:order/:filter"
                           element={
                             <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
                               <Jurors />

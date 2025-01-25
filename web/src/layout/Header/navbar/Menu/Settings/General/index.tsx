@@ -1,12 +1,14 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { useAccount, useDisconnect } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { AddressOrName, ChainDisplay, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
+import { ChainDisplay } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
+import WalletAndProfile from "./WalletAndProfile";
+import { ISettings } from "../../../index";
 
 const Container = styled.div`
   display: flex;
@@ -33,22 +35,6 @@ const StyledChainContainer = styled.div`
   }
 `;
 
-const StyledAddressContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  > label {
-    color: ${({ theme }) => theme.primaryText};
-    font-size: 16px;
-    font-weight: 600;
-  }
-`;
-
-const StyledAvatarContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 12px;
-`;
-
 const StyledButton = styled.div`
   display: flex;
   justify-content: center;
@@ -67,29 +53,13 @@ const UserContainer = styled.div`
   gap: 12px;
 `;
 
-const StyledA = styled.a`
-  text-decoration: none;
-  label {
-    cursor: pointer;
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-
-  :hover {
-    text-decoration: underline;
-  }
-`;
-
 export const DisconnectWalletButton: React.FC = () => {
   const { disconnect } = useDisconnect();
   return <Button text={`Disconnect`} onClick={() => disconnect()} />;
 };
 
-const General: React.FC = () => {
-  const { address, chain } = useAccount();
-
-  const addressExplorerLink = useMemo(() => {
-    return `${chain?.blockExplorers?.default.url}/address/${address}`;
-  }, [address, chain]);
+const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
+  const { address } = useAccount();
 
   return (
     <EnsureChainContainer>
@@ -97,17 +67,10 @@ const General: React.FC = () => {
         <Container>
           {address && (
             <UserContainer>
-              <StyledAvatarContainer>
-                <IdenticonOrAvatar size="48" />
-              </StyledAvatarContainer>
-              <StyledAddressContainer>
-                <StyledA href={addressExplorerLink} rel="noreferrer" target="_blank">
-                  <AddressOrName />
-                </StyledA>
-              </StyledAddressContainer>
               <StyledChainContainer>
                 <ChainDisplay />
               </StyledChainContainer>
+              <WalletAndProfile {...{ toggleIsSettingsOpen }} />
               <StyledButton>
                 <DisconnectWalletButton />
               </StyledButton>

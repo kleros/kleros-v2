@@ -8,7 +8,7 @@ const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: ${responsiveSize(4, 8)};
+  margin-top: ${responsiveSize(12, 13)};
   margin-bottom: ${responsiveSize(16, 32)};
   justify-content: space-between;
 `;

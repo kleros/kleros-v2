@@ -54,7 +54,7 @@ const links = [
   { to: "/", text: "Home" },
   { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
-  { to: "/jurors", text: "Jurors" },
+  { to: "/jurors/1/desc/all", text: "Jurors" },
   { to: "/get-pnk", text: "Get PNK" },
 ];
 

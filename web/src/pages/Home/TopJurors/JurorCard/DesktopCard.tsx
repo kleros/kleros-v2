@@ -59,7 +59,7 @@ const DesktopCard: React.FC<IDesktopCard> = ({
       <JurorTitle address={address} />
       <Rewards address={address} />
       <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
-      <JurorLevel {...{ coherenceScore, totalResolvedDisputes }} />
+      <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />
     </Container>
   );
 };

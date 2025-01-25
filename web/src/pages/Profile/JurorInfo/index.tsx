@@ -14,6 +14,7 @@ import Coherence from "./Coherence";
 import Header from "./Header";
 import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
+import { getPercent } from "pages/Home/TopJurors/JurorCard/Coherence";
 
 const Container = styled.div``;
 
@@ -43,13 +44,11 @@ interface IJurorInfo {
 
 const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
   const { data } = useUserQuery(addressToQuery);
-  // TODO check graph schema
-  const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
   const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
   const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
   const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
-
-  const userLevelData = getUserLevelData(coherenceScore, totalResolvedDisputes);
+  const coherencePercentage = getPercent(Number(totalCoherentVotes), Number(totalResolvedVotes));
+  const userLevelData = getUserLevelData(coherencePercentage, totalResolvedDisputes);
 
   return (
     <Container>

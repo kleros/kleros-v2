@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { isUndefined } from "utils/index";
 
-import { useTopUsersByCoherenceScore } from "queries/useTopUsersByCoherenceScore";
+import { useJurorsByCoherenceScore } from "queries/useJurorsByCoherenceScore";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -40,7 +40,7 @@ export const StyledLabel = styled.label`
 `;
 
 const TopJurors: React.FC = () => {
-  const { data: queryJurors } = useTopUsersByCoherenceScore();
+  const { data: queryJurors } = useJurorsByCoherenceScore(0, 5, "coherenceScore", "desc");
 
   const topJurors = queryJurors?.users?.map((juror, index) => ({
     ...juror,

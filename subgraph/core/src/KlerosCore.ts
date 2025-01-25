@@ -18,13 +18,19 @@ import { createCourtFromEvent } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo, updateRoundTimeline } from "./entities/Round";
-import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
+import {
+  updateCases,
+  updateCasesAppealing,
+  updateCasesRuled,
+  updateCasesVoting,
+  updateTotalLeaderboardJurors,
+} from "./datapoint";
 import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
 import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { ClassicVote, Court, Dispute, Draw, Round, User } from "../generated/schema";
+import { ClassicVote, Counter, Court, Dispute, Draw, Round, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -141,6 +147,11 @@ export function handleNewPeriod(event: NewPeriod): void {
 
         const juror = ensureUser(draw.juror);
         juror.totalResolvedVotes = juror.totalResolvedVotes.plus(ONE);
+
+        // Increment totalLeaderboardJurors in the Counter entity if this is the first resolved vote for the juror
+        if (juror.totalResolvedVotes.equals(ONE)) {
+          updateTotalLeaderboardJurors(ONE, event.block.timestamp);
+        }
 
         // Since this is a ClassicVote entity, this will only work for the Classic DisputeKit (which has ID "1").
         const vote = ClassicVote.load(`${round.disputeKit}-${draw.id}`);
