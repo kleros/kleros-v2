@@ -58,7 +58,7 @@ const TopJurors: React.FC = () => {
     <Container>
       <Title>Top Jurors</Title>
       {!isUndefined(topJurors) && topJurors.length === 0 ? (
-        <StyledLabel>There are no jurors staked yet.</StyledLabel>
+        <StyledLabel>No jurors found</StyledLabel>
       ) : (
         <ListContainer>
           <Header />

@@ -68,7 +68,7 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
   return (
     <>
       {!isUndefined(jurors) && jurors.length === 0 ? (
-        <StyledLabel>There are no jurors staked yet.</StyledLabel>
+        <StyledLabel>No jurors found</StyledLabel>
       ) : (
         <>
           <ListContainer>
