@@ -47,8 +47,8 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
       ...juror,
       rank: searchValue ? undefined : jurorSkip + index + 1,
     }));
-    if (!searchValue && order === "asc") {
-      return baseJurors?.map((juror) => ({
+    if (!searchValue && order === "asc" && baseJurors) {
+      return baseJurors.map((juror) => ({
         ...juror,
         rank: totalLeaderboardJurors - (juror.rank || 0) + 1,
       }));
@@ -67,15 +67,29 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
 
   return (
     <>
-      {!isUndefined(jurors) && jurors.length === 0 ? (
-        <StyledLabel>No jurors found</StyledLabel>
-      ) : (
+      {isUndefined(totalLeaderboardJurors) ? (
         <>
           <ListContainer>
             <Header />
-            {!isUndefined(jurors)
-              ? jurors.map((juror) => <JurorCard key={juror.id} address={juror.id} {...juror} />)
-              : [...Array(jurorsPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
+            {[...Array(jurorsPerPage)].map((_, i) => (
+              <SkeletonDisputeListItem key={i} />
+            ))}
+          </ListContainer>
+          <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+        </>
+      ) : (
+        <>
+          <ListContainer>
+            {!isUndefined(jurors) && jurors.length === 0 ? (
+              <StyledLabel>No jurors found</StyledLabel>
+            ) : (
+              <>
+                <Header />
+                {!isUndefined(jurors)
+                  ? jurors.map((juror) => <JurorCard key={juror.id} address={juror.id} {...juror} />)
+                  : [...Array(jurorsPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
+              </>
+            )}
           </ListContainer>
           <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
         </>

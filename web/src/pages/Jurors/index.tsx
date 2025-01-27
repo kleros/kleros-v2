@@ -4,10 +4,7 @@ import styled, { css } from "styled-components";
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import Skeleton from "react-loading-skeleton";
 import { useAccount } from "wagmi";
-
-import { isUndefined } from "utils/index";
 
 import { useTotalLeaderboardJurors } from "queries/useTotalLeaderboardJurors";
 
@@ -58,18 +55,14 @@ const Jurors: React.FC = () => {
         <Header>
           <StyledTitle>Jurors Leaderboard</StyledTitle>
           {isConnected ? (
-            <StyledArrowLink to={"/profile/1/desc/all"}>
+            <StyledArrowLink to="/profile/1/desc/all">
               My Profile <ArrowIcon />
             </StyledArrowLink>
           ) : null}
         </Header>
         <Search />
         <StatsAndFilters totalJurors={totalLeaderboardJurors} />
-        {!isUndefined(totalLeaderboardJurors) && Number(totalLeaderboardJurors) > 0 ? (
-          <DisplayJurors totalLeaderboardJurors={Number(totalLeaderboardJurors)} />
-        ) : (
-          <Skeleton height={1000} />
-        )}
+        <DisplayJurors totalLeaderboardJurors={totalLeaderboardJurors} />
       </Container>
       <ScrollTop />
     </>
