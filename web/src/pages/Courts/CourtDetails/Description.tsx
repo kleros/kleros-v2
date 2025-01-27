@@ -17,32 +17,36 @@ const Container = styled.div`
 const TextContainer = styled.div`
   width: 100%;
   padding: 12px 0;
+`;
 
+const StyledReactMarkdown = styled(ReactMarkdown)`
   p {
     word-break: break-word;
   }
 
-  li {
-    line-height: 1.5em;
-    margin-top: 0.5em;
+  ul,
+  ol {
+    li + li {
+      margin-top: 8px;
+    }
   }
 
   h1 {
     margin: 16px 0 16px 0;
-    font-size: 24px;
-    line-height: 32px;
+    font-size: 20px;
+    line-height: 26px;
   }
 
   h2 {
     margin: 16px 0 16px 0;
     font-size: 20px;
-    line-height: 24px;
+    line-height: 26px;
   }
 
   h3 {
     margin: 16px 0 16px 0;
     font-size: 18px;
-    line-height: 20px;
+    line-height: 24px;
   }
 
   a {
@@ -128,6 +132,6 @@ const Description: React.FC = () => {
 };
 
 const formatMarkdown = (markdown?: string) =>
-  markdown ? <ReactMarkdown>{markdown.replace(/\n/g, "  \n")}</ReactMarkdown> : <StyledSkeleton />;
+  markdown ? <StyledReactMarkdown>{markdown.replace(/\n/g, "  \n")}</StyledReactMarkdown> : <StyledSkeleton />;
 
 export default Description;
