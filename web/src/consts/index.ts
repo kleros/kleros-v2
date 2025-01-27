@@ -7,6 +7,7 @@ export { ArbitratorTypes };
 export const ONE_BASIS_POINT = 10000n;
 
 export const REFETCH_INTERVAL = 5000;
+export const STALE_TIME = 1000;
 
 export const IPFS_GATEWAY = import.meta.env.REACT_APP_IPFS_GATEWAY || "https://cdn.kleros.link";
 export const HERMES_TELEGRAM_BOT_URL =
@@ -20,7 +21,7 @@ export const GIT_URL = `https://github.com/kleros/kleros-v2/tree/${gitCommitHash
 export const RELEASE_VERSION = version;
 
 // https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html#input.email.attrs.value.single
-// eslint-disable-next-line security/detect-unsafe-regex
+
 export const EMAIL_REGEX =
   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 export const TELEGRAM_REGEX = /^@\w{5,32}$/;

@@ -1,12 +1,13 @@
 import React, { useMemo, createContext, useContext } from "react";
 
+import { createBatchingExecutor } from "@graphql-tools/batch-execute";
+import { AsyncExecutor, ExecutionResult } from "@graphql-tools/utils";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
 import { request } from "graphql-request";
 
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { getGraphqlUrl } from "utils/getGraphqlUrl";
-
 interface IGraphqlBatcher {
   graphqlBatcher: Batcher<any, IQuery>;
 }
@@ -21,19 +22,37 @@ interface IQuery {
 
 const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
+const executor: AsyncExecutor = async ({ document, variables, extensions }) => {
+  console.log({ url: extensions.url });
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    const result = request(extensions.url, document, variables).then((res) => ({
+      data: res,
+    })) as Promise<ExecutionResult>;
+
+    return result;
+  } catch (error) {
+    console.error("Graph error: ", { error });
+    debounceErrorToast("Graph query error: failed to fetch data.");
+    return { data: {} };
+  }
+};
+
+const myBatchExec = createBatchingExecutor(executor);
+
 const fetcher = async (queries: IQuery[]) => {
-  const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
-    const url = getGraphqlUrl(isDisputeTemplate ?? false, chainId);
-    try {
-      return request(url, document, variables).then((result) => ({ id, result }));
-    } catch (error) {
-      console.error("Graph error: ", { error });
-      debounceErrorToast("Graph query error: failed to fetch data.");
-      return { id, result: {} };
-    }
-  });
-  const data = await Promise.all(promises);
-  return data;
+  const batchdata = await Promise.all(
+    queries.map(({ document, variables, isDisputeTemplate, chainId }) =>
+      myBatchExec({ document, variables, extensions: { url: getGraphqlUrl(isDisputeTemplate ?? false, chainId) } })
+    )
+  );
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
+  const processedData = batchdata.map((data, index) => ({ id: queries[index].id, result: data.data }));
+  return processedData;
 };
 
 const GraphqlBatcherProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {

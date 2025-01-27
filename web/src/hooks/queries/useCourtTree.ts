@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
+import { STALE_TIME } from "src/consts";
 import { graphql } from "src/graphql";
 import { CourtTreeQuery } from "src/graphql/graphql";
 export type { CourtTreeQuery };
@@ -39,6 +40,7 @@ export const useCourtTree = () => {
   const { graphqlBatcher } = useGraphqlBatcher();
   return useQuery<CourtTreeQuery>({
     queryKey: ["courtTreeQuery"],
+    staleTime: STALE_TIME,
     queryFn: async () =>
       await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: courtTreeQuery, variables: {} }),
   });
