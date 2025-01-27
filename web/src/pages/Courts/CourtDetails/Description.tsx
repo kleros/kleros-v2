@@ -33,14 +33,20 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
 
   h1 {
     margin: 16px 0 16px 0;
+    font-size: 20px;
+    line-height: 26px;
   }
 
   h2 {
     margin: 16px 0 16px 0;
+    font-size: 20px;
+    line-height: 26px;
   }
 
   h3 {
     margin: 16px 0 16px 0;
+    font-size: 18px;
+    line-height: 24px;
   }
 
   a {
