@@ -544,7 +544,7 @@ async function main() {
   // Skip some disputes
   disputes = filterDisputesToSkip(disputes);
   disputesWithoutJurors = filterDisputesToSkip(disputesWithoutJurors);
-  for (var dispute of disputes) {
+  for (const dispute of disputes) {
     logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
@@ -606,7 +606,7 @@ async function main() {
 
   logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
-  for (var dispute of disputes) {
+  for (const dispute of disputes) {
     // ----------------------------------------------- //
     //                  PASS PERIOD                    //
     // ----------------------------------------------- //
@@ -631,7 +631,7 @@ async function main() {
   );
   logger.info(`Disputes not fully executed: ${unprocessedDisputesInExecution.map((dispute) => dispute.id)}`);
 
-  for (var dispute of unprocessedDisputesInExecution) {
+  for (const dispute of unprocessedDisputesInExecution) {
     const { period } = await core.disputes(dispute.id);
     if (period !== 4n) {
       logger.info(`Skipping dispute #${dispute.id} because it is not in the execution period`);
