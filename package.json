@@ -17,7 +17,6 @@
   "private": true,
   "workspaces": [
     "bots",
-    "bot-pinner",
     "contracts",
     "kleros-sdk",
     "subgraph",
