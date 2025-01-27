@@ -1,3 +1,10 @@
+checks:
+  similar_code:
+    exclude_paths:
+      - "contracts/tests/"
+  complexity:
+    exclude_paths:
+      - "contracts/tests/"
 engines:
   tslint:
     enabled: true
@@ -7,3 +14,5 @@ engines:
 exclude_paths:
   - "web/src/graphql/generated.ts"
   - "contracts/deployments/"
+  - "contracts/config/"
+  - "kleros-sdk/config/"
