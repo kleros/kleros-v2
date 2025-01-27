@@ -36,8 +36,8 @@ const HeaderNotifs: React.FC = () => {
 const EnsureChainContainer = styled.div`
   display: flex;
   justify-content: center;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 `;
 
 const StyledSvg = styled.svg`

@@ -38,9 +38,10 @@ export const ReStyledArrowLink = styled(StyledArrowLink)`
 
 interface IJurorTitle {
   address: string;
+  showArrow?: boolean;
 }
 
-const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
+const JurorTitle: React.FC<IJurorTitle> = ({ address, showArrow = true }) => {
   const { isConnected, address: connectedAddress } = useAccount();
   const profileLink =
     isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
@@ -52,7 +53,7 @@ const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
       <IdenticonOrAvatar address={address} />
       <ReStyledArrowLink to={profileLink}>
         <AddressOrName address={address} />
-        <ArrowIcon />
+        {showArrow ? <ArrowIcon /> : null}
       </ReStyledArrowLink>
     </Container>
   );

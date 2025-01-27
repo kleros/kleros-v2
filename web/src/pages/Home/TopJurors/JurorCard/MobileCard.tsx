@@ -98,7 +98,7 @@ const MobileCard: React.FC<IMobileCard> = ({
     <Container>
       <TopSide>
         <RankAndTitle>
-          <Rank rank={rank} />
+          {rank ? <Rank rank={rank} /> : null}
           <JurorTitle address={address} />
         </RankAndTitle>
         <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />

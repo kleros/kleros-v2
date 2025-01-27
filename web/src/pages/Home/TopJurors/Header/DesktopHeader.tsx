@@ -6,6 +6,8 @@ import { useToggle } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import RankingIcon from "svgs/icons/ranking.svg";
+
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 
@@ -34,6 +36,12 @@ const Container = styled.div`
   )}
 `;
 
+const StyledRankingIcon = styled(RankingIcon)`
+  path {
+    fill: ${({ theme }) => theme.primaryText};
+  }
+`;
+
 const StyledLabel = styled.label`
   font-size: 16px;
 `;
@@ -48,7 +56,7 @@ export const DesktopHeader: React.FC = () => {
 
   return (
     <Container>
-      <StyledLabel>#</StyledLabel>
+      <StyledRankingIcon />
       <StyledLabel>Juror</StyledLabel>
       <Rewards />
       <Coherence />

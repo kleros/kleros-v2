@@ -12,6 +12,7 @@ import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 
 import Header from "./Header";
 import JurorCard from "./JurorCard";
+import JurorsLeaderboardButton from "components/JurorsLeaderboardButton";
 
 const Container = styled.div`
   margin-top: ${responsiveSize(24, 48)};
@@ -39,6 +40,12 @@ export const StyledLabel = styled.label`
   font-size: 16px;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  margin-top: 16px;
+  justify-content: center;
+`;
+
 const TopJurors: React.FC = () => {
   const { data: queryJurors } = useJurorsByCoherenceScore(0, 5, "coherenceScore", "desc");
 
@@ -60,6 +67,9 @@ const TopJurors: React.FC = () => {
             : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
         </ListContainer>
       )}
+      <ButtonContainer>
+        <JurorsLeaderboardButton />
+      </ButtonContainer>
     </Container>
   );
 };

@@ -38,7 +38,7 @@ const Search: React.FC = () => {
       initialRenderRef.current = false;
       const newFilters = isEmpty(search) ? { ...filterObject } : { ...filterObject, id: search };
       const encodedFilter = encodeURIFilter(newFilters);
-      navigate(`${location}/${page}/${order}/${encodedFilter}?${searchParams.toString()}`);
+      navigate(`${location}/1/${order}/${encodedFilter}?${searchParams.toString()}`);
     },
     500,
     [search]
@@ -48,7 +48,7 @@ const Search: React.FC = () => {
     <StyledSearchbar
       dir="auto"
       type="text"
-      placeholder="Search"
+      placeholder="Search by address"
       value={search}
       onChange={(e) => setSearch(e.target.value)}
     />

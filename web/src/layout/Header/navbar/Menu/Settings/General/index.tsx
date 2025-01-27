@@ -14,12 +14,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: 12px;
 `;
 
 const StyledChainContainer = styled.div`
   display: flex;
-  height: 34px;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
@@ -38,19 +36,20 @@ const StyledChainContainer = styled.div`
 const StyledButton = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 8px;
 `;
 
 const EnsureChainContainer = styled.div`
   display: flex;
   justify-content: center;
-  padding: 16px;
+  padding-top: 24px;
+  padding-bottom: 20px;
 `;
 
 const UserContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 `;
 
 export const DisconnectWalletButton: React.FC = () => {

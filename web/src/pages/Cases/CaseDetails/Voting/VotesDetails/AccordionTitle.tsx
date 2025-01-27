@@ -3,14 +3,12 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Identicon from "react-identicons";
-
 import { Answer } from "context/NewDisputeContext";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
-import { shortenAddress } from "utils/shortenAddress";
 
 import { InternalLink } from "components/InternalLink";
+import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
 
 const TitleContainer = styled.div`
   display: flex;
@@ -93,9 +91,8 @@ const AccordionTitle: React.FC<{
   return (
     <TitleContainer>
       <AddressContainer>
-        <Identicon size="20" string={juror} />
         <StyledInternalLink to={profileLink}>
-          <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
+          <JurorTitle address={juror} showArrow={false} />
         </StyledInternalLink>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />

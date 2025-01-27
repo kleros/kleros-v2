@@ -13,11 +13,11 @@ import { useTotalLeaderboardJurors } from "queries/useTotalLeaderboardJurors";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
+import { StyledArrowLink } from "components/StyledArrowLink";
+import ScrollTop from "components/ScrollTop";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
 import DisplayJurors from "./DisplayJurors";
-import { StyledArrowLink } from "components/StyledArrowLink";
-import ConnectWallet from "components/ConnectWallet";
 
 const Container = styled.div`
   width: 100%;
@@ -53,25 +53,26 @@ const Jurors: React.FC = () => {
   const { isConnected } = useAccount();
 
   return (
-    <Container>
-      <Header>
-        <StyledTitle>Jurors Leaderboard</StyledTitle>
-        {isConnected ? (
-          <StyledArrowLink to={"/profile/1/desc/all"}>
-            My Profile <ArrowIcon />
-          </StyledArrowLink>
+    <>
+      <Container>
+        <Header>
+          <StyledTitle>Jurors Leaderboard</StyledTitle>
+          {isConnected ? (
+            <StyledArrowLink to={"/profile/1/desc/all"}>
+              My Profile <ArrowIcon />
+            </StyledArrowLink>
+          ) : null}
+        </Header>
+        <Search />
+        <StatsAndFilters totalJurors={totalLeaderboardJurors} />
+        {!isUndefined(totalLeaderboardJurors) && Number(totalLeaderboardJurors) > 0 ? (
+          <DisplayJurors totalLeaderboardJurors={Number(totalLeaderboardJurors)} />
         ) : (
-          <ConnectWallet />
+          <Skeleton height={1000} />
         )}
-      </Header>
-      <Search />
-      <StatsAndFilters totalJurors={totalLeaderboardJurors} />
-      {!isUndefined(totalLeaderboardJurors) && Number(totalLeaderboardJurors) > 0 ? (
-        <DisplayJurors totalLeaderboardJurors={Number(totalLeaderboardJurors)} />
-      ) : (
-        <Skeleton height={1000} />
-      )}
-    </Container>
+      </Container>
+      <ScrollTop />
+    </>
   );
 };
 

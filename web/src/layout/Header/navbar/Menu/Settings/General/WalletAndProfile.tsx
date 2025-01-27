@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { hoverLongTransitionTiming } from "styles/commonStyles";
+
 import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { AddressOrName, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
@@ -8,6 +10,7 @@ import { StyledArrowLink } from "components/StyledArrowLink";
 import { ISettings } from "../../../index";
 
 const Container = styled.div`
+  ${hoverLongTransitionTiming}
   display: flex;
   justify-content: center;
   align-items: center;
@@ -20,6 +23,10 @@ const Container = styled.div`
     color: ${({ theme }) => theme.primaryText};
     font-size: 16px;
     font-weight: 600;
+  }
+
+  :hover {
+    background-color: ${({ theme }) => theme.lightBlue};
   }
 `;
 
