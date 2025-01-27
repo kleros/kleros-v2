@@ -38,12 +38,12 @@ const executor: AsyncExecutor = async ({ document, variables, extensions }) => {
   }
 };
 
-const myBatchExec = createBatchingExecutor(executor);
+const batchExec = createBatchingExecutor(executor);
 
 const fetcher = async (queries: IQuery[]) => {
   const batchdata = await Promise.all(
     queries.map(({ document, variables, isDisputeTemplate, chainId }) =>
-      myBatchExec({ document, variables, extensions: { url: getGraphqlUrl(isDisputeTemplate ?? false, chainId) } })
+      batchExec({ document, variables, extensions: { url: getGraphqlUrl(isDisputeTemplate ?? false, chainId) } })
     )
   );
 
