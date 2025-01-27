@@ -27,6 +27,7 @@ task("populate:policy-registry", "Populates the policy registry for each court")
     "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo (default: auto depending on the network)",
     undefined
   )
+  .addOptionalParam("start", "The starting index for the courts to populate (default: 0)", 0, types.int)
   .addOptionalParam(
     "maxNumberOfCourts",
     "The maximum number of courts to populate (default: all)",
@@ -94,9 +95,11 @@ task("populate:policy-registry", "Populates the policy registry for each court")
         return;
     }
 
-    const maxNumberOfCourts = taskArgs.maxNumberOfCourts; // set to undefined for all the courts
-    console.log("Keeping only the first %d courts", maxNumberOfCourts ?? policiesV2.length);
-    policiesV2 = policiesV2.slice(0, maxNumberOfCourts);
+    // Warning: the indices are NOT the court IDs, e.g. the forking court is not present in the config so the indices are shifted by 1
+    const start = taskArgs.start;
+    const end = taskArgs.maxNumberOfCourts ? start + taskArgs.maxNumberOfCourts : policiesV2.length;
+    console.log(`Keeping only the first ${end - start} courts, starting from ${start}`);
+    policiesV2 = policiesV2.slice(start, end);
 
     const policyRegistryDeployment = await deployments.get("PolicyRegistry");
     const policyRegistry = (await ethers.getContractAt(

@@ -3,6 +3,7 @@ import { Address } from "viem";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
+import { STALE_TIME } from "src/consts";
 import { graphql } from "src/graphql";
 import { UserQuery, Dispute_Filter, UserDisputeFilterQuery, UserDetailsFragment } from "src/graphql/graphql";
 export type { UserQuery, UserDetailsFragment };
@@ -58,6 +59,7 @@ export const useUserQuery = (address?: Address, where?: Dispute_Filter) => {
   return useQuery<UserQuery | UserDisputeFilterQuery>({
     queryKey: [`userQuery${address?.toLowerCase()}`],
     enabled: isEnabled,
+    staleTime: STALE_TIME,
     queryFn: async () =>
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),

@@ -20,6 +20,8 @@ import "../proxy/Initializable.sol";
 contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -57,7 +59,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }

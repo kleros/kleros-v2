@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
+import { STALE_TIME } from "src/consts";
 import { graphql } from "src/graphql";
 import { DisputeMaintenanceQuery } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
@@ -40,6 +41,7 @@ const useDisputeMaintenanceQuery = (id?: string) => {
   return useQuery<DisputeMaintenanceQuery>({
     queryKey: [`disputeMaintenanceQuery-${id}`],
     enabled: isEnabled,
+    staleTime: STALE_TIME,
     queryFn: async () =>
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),

@@ -8,19 +8,19 @@
 
 pragma solidity 0.8.24;
 
-import "./KlerosCoreBase.sol";
-import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {Initializable} from "../proxy/Initializable.sol";
+import {KlerosCoreBase, IDisputeKit, ISortitionModule, IERC20} from "./KlerosCoreBase.sol";
 
 /// @title KlerosCore
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
-contract KlerosCore is KlerosCoreBase, UUPSProxiable, Initializable {
+contract KlerosCore is KlerosCoreBase {
+    string public constant override version = "0.8.0";
+
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
@@ -48,7 +48,7 @@ contract KlerosCore is KlerosCoreBase, UUPSProxiable, Initializable {
         bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress
     ) external reinitializer(1) {
-        _initialize(
+        __KlerosCoreBase_initialize(
             _governor,
             _guardian,
             _pinakion,
