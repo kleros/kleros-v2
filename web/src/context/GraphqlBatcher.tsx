@@ -23,8 +23,6 @@ interface IQuery {
 const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
 const executor: AsyncExecutor = async ({ document, variables, extensions }) => {
-  console.log({ url: extensions.url });
-
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
