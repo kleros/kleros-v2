@@ -92,7 +92,7 @@ const AccordionTitle: React.FC<{
     <TitleContainer>
       <AddressContainer>
         <StyledInternalLink to={profileLink}>
-          <JurorTitle address={juror} showArrow={false} />
+          <JurorTitle address={juror} />
         </StyledInternalLink>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
