@@ -1,0 +1,7 @@
+# Default
+*                          @kleros/maintainers-court-v2-frontend
+contracts                  @jaybuidl
+
+# Owned by everyone
+yarn.lock                  @kleros/devs
+.gitignore                 @kleros/devs

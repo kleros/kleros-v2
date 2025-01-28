@@ -1,5 +1,6 @@
 [
   {
+    "name": "General Court",
     "id": 1,
     "parent": 0,
     "hiddenVotes": true,
@@ -15,13 +16,14 @@
     ]
   },
   {
+    "name": "Curation",
     "id": 2,
     "parent": 1,
     "hiddenVotes": false,
     "minStake": "200000000000000000000",
     "alpha": "3100",
     "feeForJuror": "10000000000000",
-    "jurorsForCourtJump": "30",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       43200,
       43200,
@@ -30,6 +32,7 @@
     ]
   },
   {
+    "name": "English Language",
     "id": 3,
     "parent": 1,
     "hiddenVotes": false,
@@ -37,6 +40,38 @@
     "alpha": "5000",
     "feeForJuror": "10000000000000",
     "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      43200,
+      43200,
+      43200,
+      43200
+    ]
+  },
+  {
+    "name": "Corte de Disputas de Consumo y Vecindad",
+    "id": 4,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "200000000000000000000",
+    "alpha": "5000",
+    "feeForJuror": "10000000000000",
+    "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      43200,
+      43200,
+      43200,
+      43200
+    ]
+  },
+  {
+    "name": "Oracle Court",
+    "id": 5,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "200000000000000000000",
+    "alpha": "5000",
+    "feeForJuror": "10000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       43200,
       43200,

@@ -8,7 +8,7 @@
   "license": "MIT",
   "type": "module",
   "volta": {
-    "node": "20.11.0",
+    "node": "20.18.2",
     "yarn": "4.5.1"
   },
   "scripts": {

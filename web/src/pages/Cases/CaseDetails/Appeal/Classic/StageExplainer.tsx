@@ -15,7 +15,7 @@ const StyledBox = styled(Box)`
   height: auto;
   width: 100%;
   padding: 16px 24px;
-  & > div > label {
+  & > div > p {
     display: block;
     margin-bottom: 4px;
   }
@@ -44,12 +44,12 @@ interface IStageExplainer {
 const StageOneExplanation: React.FC = () => (
   <div>
     {" "}
-    <label>
+    <p>
       Losing options can only be funded <small>before</small> the deadline.
-    </label>
-    <label>
+    </p>
+    <p>
       If no losing option is <small>fully funded</small> in time, the jury decision is maintained.
-    </label>
+    </p>
   </div>
 );
 
@@ -57,18 +57,18 @@ const StageTwoExplanation: React.FC = () => {
   const options = useOptionsContext();
   return (
     <div>
-      <label>
+      <p>
         Loser deadline has <small>finalized</small>, you can only fund the current winner.
-      </label>
-      <label>
+      </p>
+      <p>
         If the current winner is not fully funded in time, the option funded during the previous stage will be declared
         as the final winner.
-      </label>
-      <label>
+      </p>
+      <p>
         {" "}
         Following choices were funded in the stage 1 :{" "}
         <small>{options?.map((option) => (option?.funded ? option.title : null))}</small>
-      </label>
+      </p>
     </div>
   );
 };

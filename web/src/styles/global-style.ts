@@ -93,7 +93,7 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.primaryBlue};
     transition: color 0.1s;
   }
-  
+
   hr {
     opacity: 1;
     border: 1px solid ${({ theme }) => theme.stroke};
@@ -102,12 +102,14 @@ export const GlobalStyle = createGlobalStyle`
   svg, img {
     display: inline-block;
     vertical-align: middle;
-  visibility: visible;
-
+    visibility: visible;
   }
 
   ul, ol {
     li {
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
       color: ${({ theme }) => theme.primaryText};
     }
   }
