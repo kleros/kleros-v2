@@ -1,17 +1,22 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { Box, Steps } from "@kleros/ui-components-library";
 
+import HourglassIcon from "svgs/icons/hourglass.svg";
+
 import { Periods } from "consts/periods";
+import { useCountdownContext, useFundingContext } from "hooks/useClassicAppealContext";
 import { useCountdown } from "hooks/useCountdown";
 import useIsDesktop from "hooks/useIsDesktop";
 import { secondsToDayHourMinute } from "utils/date";
 
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { isUndefined } from "src/utils";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -43,17 +48,54 @@ const StyledSteps = styled(Steps)`
   )}
 `;
 
+const AppealBannerContainer = styled.div`
+  background-color: ${({ theme }) => theme.whiteBackground};
+  border-radius: 3px;
+  margin-top: 16px;
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  & > svg {
+    width: 14px;
+    fill: ${({ theme }) => theme.secondaryPurple};
+  }
+`;
+
 const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
 }> = ({ currentPeriodIndex, dispute }) => {
   const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.court.hiddenVotes);
   const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
+
   return (
     <TimeLineContainer>
       <StyledSteps horizontal {...{ items, currentItemIndex, currentPeriodIndex }} />
+      {currentPeriodIndex === Periods.appeal ? <AppealBanner /> : null}
     </TimeLineContainer>
   );
+};
+
+const AppealBanner: React.FC = () => {
+  const { loserSideCountdown, winnerSideCountdown } = useCountdownContext();
+  const { fundedChoices } = useFundingContext();
+
+  const text = useMemo(() => {
+    if (loserSideCountdown)
+      return `${secondsToDayHourMinute(loserSideCountdown)} left until losing options can be funded`;
+    // only show if loosing option was funded and winner needs funding, else no action is needed from user
+    if (winnerSideCountdown && !isUndefined(fundedChoices) && fundedChoices.length > 0)
+      return `${secondsToDayHourMinute(winnerSideCountdown)} left until winning option can be funded`;
+    return;
+  }, [loserSideCountdown, winnerSideCountdown, fundedChoices]);
+
+  return text ? (
+    <AppealBannerContainer>
+      <HourglassIcon /> <small>{text}</small>
+    </AppealBannerContainer>
+  ) : null;
 };
 
 const currentPeriodToCurrentItem = (currentPeriodIndex: number, hiddenVotes?: boolean): number => {
