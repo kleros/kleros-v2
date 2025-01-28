@@ -43,7 +43,7 @@ export const useJurorsByCoherenceScore = (
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: jurorsByCoherenceScoreQuery,
-        variables: { skip, first, orderBy, orderDirection, search },
+        variables: { skip, first, orderBy, orderDirection, search: search.toLowerCase() },
       }),
   });
 };

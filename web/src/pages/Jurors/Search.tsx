@@ -20,7 +20,7 @@ const StyledSearchbar = styled(Searchbar)`
 `;
 
 const Search: React.FC = () => {
-  const { page, order, filter } = useParams();
+  const { order, filter } = useParams();
   const location = useRootPath();
   const decodedFilter = decodeURIFilter(filter ?? "all");
   const { id: searchValue, ...filterObject } = decodedFilter;
