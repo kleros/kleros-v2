@@ -7,14 +7,12 @@ import { InternalLink } from "./InternalLink";
 
 const JurorsLeaderboardButton: React.FC = () => {
   return (
-    <>
-      <InternalLink to={"/jurors/1/desc/all"}>
-        <BlueIconTextButtonContainer>
-          <RankingIcon />
-          Jurors Leaderboard
-        </BlueIconTextButtonContainer>
-      </InternalLink>
-    </>
+    <InternalLink to={"/jurors/1/desc/all"}>
+      <BlueIconTextButtonContainer>
+        <RankingIcon />
+        Jurors Leaderboard
+      </BlueIconTextButtonContainer>
+    </InternalLink>
   );
 };
 

@@ -80,23 +80,21 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
           )}
         </>
       ) : (
-        <>
-          <ListContainer>
-            {!isUndefined(jurors) && jurors.length === 0 ? (
-              <StyledLabel>No jurors found</StyledLabel>
-            ) : (
-              <>
-                <Header />
-                {!isUndefined(jurors)
-                  ? jurors.map((juror) => <JurorCard key={juror.id} address={juror.id} {...juror} />)
-                  : [...Array(jurorsPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
-                {!searchValue && (
-                  <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
-                )}
-              </>
-            )}
-          </ListContainer>
-        </>
+        <ListContainer>
+          {!isUndefined(jurors) && jurors.length === 0 ? (
+            <StyledLabel>No jurors found</StyledLabel>
+          ) : (
+            <>
+              <Header />
+              {!isUndefined(jurors)
+                ? jurors.map((juror) => <JurorCard key={juror.id} address={juror.id} {...juror} />)
+                : [...Array(jurorsPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
+              {!searchValue && (
+                <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+              )}
+            </>
+          )}
+        </ListContainer>
       )}
     </>
   );
