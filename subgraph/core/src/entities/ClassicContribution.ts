@@ -1,12 +1,14 @@
 import { ClassicContribution } from "../../generated/schema";
 import { Contribution as ContributionEvent, Withdrawal } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { DISPUTEKIT_ID } from "../DisputeKitClassic";
+import { ensureUser } from "./User";
 
 export function ensureClassicContributionFromEvent<T>(event: T): ClassicContribution | null {
   if (!(event instanceof ContributionEvent) && !(event instanceof Withdrawal)) return null;
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreRoundIndex = event.params._coreRoundID.toString();
   const roundID = `${DISPUTEKIT_ID}-${coreDisputeID}-${coreRoundIndex}`;
+  ensureUser(event.params._contributor.toHexString());
   const contributor = event.params._contributor.toHexString();
   const choice = event.params._choice;
 
