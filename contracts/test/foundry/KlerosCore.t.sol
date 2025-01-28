@@ -3,9 +3,10 @@ pragma solidity 0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol"; // Import the console for logging
-import {KlerosCoreMock, KlerosCoreBase, IArbitratorV2} from "../../src/test/KlerosCoreMock.sol";
+import {KlerosCoreMock, KlerosCoreBase} from "../../src/test/KlerosCoreMock.sol";
+import {IArbitratorV2} from "../../src/arbitration/KlerosCoreBase.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
-import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
@@ -1326,7 +1327,7 @@ contract KlerosCoreTest is Test {
         uint256 nbChoices = 2;
         vm.prank(disputer);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.DisputeCreation(disputeID, nbChoices, newExtraData);
+        emit DisputeKitClassicBase.DisputeCreation(disputeID, nbChoices, newExtraData);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.DisputeCreation(disputeID, arbitrable);
         arbitrable.createDispute{value: 0.04 ether}("Action");
@@ -1592,7 +1593,7 @@ contract KlerosCoreTest is Test {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.CommitCast(disputeID, staker1, voteIDs, commit);
+        emit DisputeKitClassicBase.CommitCast(disputeID, staker1, voteIDs, commit);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         (, , , uint256 totalCommited, uint256 nbVoters, uint256 choiceCount) = disputeKit.getRoundInfo(disputeID, 0, 0);
@@ -1608,7 +1609,7 @@ contract KlerosCoreTest is Test {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.CommitCast(disputeID, staker1, voteIDs, commit);
+        emit DisputeKitClassicBase.CommitCast(disputeID, staker1, voteIDs, commit);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         (, , , totalCommited, nbVoters, choiceCount) = disputeKit.getRoundInfo(disputeID, 0, 0);
@@ -1913,7 +1914,7 @@ contract KlerosCoreTest is Test {
 
         vm.prank(crowdfunder1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.Contribution(disputeID, 0, 1, crowdfunder1, 0.21 ether);
+        emit DisputeKitClassicBase.Contribution(disputeID, 0, 1, crowdfunder1, 0.21 ether);
         disputeKit.fundAppeal{value: 0.21 ether}(disputeID, 1); // Fund the losing choice. Total cost will be 0.63 (0.21 + 0.21 * (20000/10000))
 
         assertEq(crowdfunder1.balance, 9.79 ether, "Wrong balance of the crowdfunder");
@@ -1922,9 +1923,9 @@ contract KlerosCoreTest is Test {
 
         vm.prank(crowdfunder1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.Contribution(disputeID, 0, 1, crowdfunder1, 0.42 ether);
+        emit DisputeKitClassicBase.Contribution(disputeID, 0, 1, crowdfunder1, 0.42 ether);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.ChoiceFunded(disputeID, 0, 1);
+        emit DisputeKitClassicBase.ChoiceFunded(disputeID, 0, 1);
         disputeKit.fundAppeal{value: 5 ether}(disputeID, 1); // Deliberately overpay to check reimburse
 
         assertEq(crowdfunder1.balance, 9.37 ether, "Wrong balance of the crowdfunder");
@@ -2117,7 +2118,7 @@ contract KlerosCoreTest is Test {
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitJump(disputeID, 1, newDkID, DISPUTE_KIT_CLASSIC);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.DisputeCreation(disputeID, 2, newExtraData);
+        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
@@ -2692,11 +2693,11 @@ contract KlerosCoreTest is Test {
         assertEq(address(disputeKit).balance, 1.04 ether, "Wrong balance of the DK");
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.Withdrawal(disputeID, 0, 1, crowdfunder1, 0.63 ether);
+        emit DisputeKitClassicBase.Withdrawal(disputeID, 0, 1, crowdfunder1, 0.63 ether);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 0, 1);
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.Withdrawal(disputeID, 0, 2, crowdfunder2, 0.41 ether);
+        emit DisputeKitClassicBase.Withdrawal(disputeID, 0, 2, crowdfunder2, 0.41 ether);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 0, 2);
 
         assertEq(crowdfunder1.balance, 10 ether, "Wrong balance of the crowdfunder1");
