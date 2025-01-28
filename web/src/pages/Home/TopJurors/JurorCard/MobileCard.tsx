@@ -80,7 +80,6 @@ const HeaderCoherenceAndCoherence = styled.div`
 interface IMobileCard {
   rank: number;
   address: string;
-  coherenceScore: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;
   totalResolvedDisputes: string;
@@ -89,7 +88,6 @@ interface IMobileCard {
 const MobileCard: React.FC<IMobileCard> = ({
   rank,
   address,
-  coherenceScore,
   totalCoherentVotes,
   totalResolvedVotes,
   totalResolvedDisputes,
