@@ -15,7 +15,7 @@ const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeE
     console.log("upgrading SortitionModuleNeo...");
     await deployUpgradable(deployments, "SortitionModuleNeo", {
       newImplementation: "SortitionModuleNeo",
-      initializer: "initialize",
+      initializer: "initialize3",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables
       args: [],
