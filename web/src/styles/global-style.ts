@@ -46,7 +46,7 @@ export const GlobalStyle = createGlobalStyle`
 
   h2 {
     margin: 0 0 16px 0;
-    font-weight: 600;
+    font-weight: 400;
     font-size: 24px;
     line-height: 32px;
     color: ${({ theme }) => theme.primaryText};
@@ -93,7 +93,7 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.primaryBlue};
     transition: color 0.1s;
   }
-  
+
   hr {
     opacity: 1;
     border: 1px solid ${({ theme }) => theme.stroke};
@@ -102,12 +102,14 @@ export const GlobalStyle = createGlobalStyle`
   svg, img {
     display: inline-block;
     vertical-align: middle;
-  visibility: visible;
-
+    visibility: visible;
   }
 
   ul, ol {
     li {
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
       color: ${({ theme }) => theme.primaryText};
     }
   }

@@ -17,7 +17,6 @@
   "private": true,
   "workspaces": [
     "bots",
-    "bot-pinner",
     "contracts",
     "kleros-sdk",
     "subgraph",
@@ -28,10 +27,10 @@
     "tsconfig",
     "kleros-app"
   ],
-  "packageManager": "yarn@4.5.1",
+  "packageManager": "yarn@4.6.0",
   "volta": {
-    "node": "20.11.0",
-    "yarn": "4.5.1"
+    "node": "20.18.2",
+    "yarn": "4.6.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.8.1",

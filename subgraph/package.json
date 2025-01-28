@@ -68,20 +68,17 @@
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
   "volta": {
-    "node": "20.11.0"
+    "node": "20.18.2"
   },
   "dependencies": {
-    "@graphprotocol/graph-ts": "^0.32.0"
+    "@graphprotocol/graph-ts": "^0.37.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.64.1",
+    "@graphprotocol/graph-cli": "^0.95.0",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "eslint": "^9.15.0",
     "gluegun": "^5.2.0",
     "matchstick-as": "0.6.0"
-  },
-  "dependenciesComments": {
-    "@graphprotocol/graph-cli": "pinned because of this issue: https://github.com/graphprotocol/graph-tooling/issues/1399#issuecomment-1676104540"
   }
 }
