@@ -22,11 +22,11 @@ interface IQuery {
 
 const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
-const executor: AsyncExecutor = async ({ document, variables, extensions }) => {
+const coreExecutor: AsyncExecutor = async ({ document, variables }) => {
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const result = request(extensions.url, document, variables).then((res) => ({
+    const result = request(getGraphqlUrl(false), document, variables).then((res) => ({
       data: res,
     })) as Promise<ExecutionResult>;
 
@@ -38,12 +38,37 @@ const executor: AsyncExecutor = async ({ document, variables, extensions }) => {
   }
 };
 
-const batchExec = createBatchingExecutor(executor);
+const dtrExecutor: AsyncExecutor = async ({ document, variables }) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    const result = request(getGraphqlUrl(true), document, variables).then((res) => ({
+      data: res,
+    })) as Promise<ExecutionResult>;
+
+    return result;
+  } catch (error) {
+    console.error("Graph error: ", { error });
+    debounceErrorToast("Graph query error: failed to fetch data.");
+    return { data: {} };
+  }
+};
+
+const coreBatchExec = createBatchingExecutor(coreExecutor);
+const dtrBatchExec = createBatchingExecutor(dtrExecutor);
 
 const fetcher = async (queries: IQuery[]) => {
   const batchdata = await Promise.all(
-    queries.map(({ document, variables, isDisputeTemplate, chainId }) =>
-      batchExec({ document, variables, extensions: { url: getGraphqlUrl(isDisputeTemplate ?? false, chainId) } })
+    queries.map(({ document, variables, isDisputeTemplate }) =>
+      isDisputeTemplate
+        ? dtrBatchExec({
+            document,
+            variables,
+          })
+        : coreBatchExec({
+            document,
+            variables,
+          })
     )
   );
 
