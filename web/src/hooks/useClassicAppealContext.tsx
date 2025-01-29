@@ -28,7 +28,7 @@ interface ISelectedOptionContext {
 }
 const SelectedOptionContext = createContext<ISelectedOptionContext>({
   selectedOption: undefined,
-  //eslint-disable-next-line @typescript-eslint/no-empty-function
+
   setSelectedOption: () => {},
 });
 
