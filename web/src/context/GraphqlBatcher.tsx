@@ -22,11 +22,11 @@ interface IQuery {
 
 const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
-const coreExecutor: AsyncExecutor = async ({ document, variables }) => {
+const fetch = async (url, document, variables) => {
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const result = request(getGraphqlUrl(false), document, variables).then((res) => ({
+    const result = request(url, document, variables).then((res) => ({
       data: res,
     })) as Promise<ExecutionResult>;
 
@@ -38,20 +38,12 @@ const coreExecutor: AsyncExecutor = async ({ document, variables }) => {
   }
 };
 
-const dtrExecutor: AsyncExecutor = async ({ document, variables }) => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    const result = request(getGraphqlUrl(true), document, variables).then((res) => ({
-      data: res,
-    })) as Promise<ExecutionResult>;
+const coreExecutor: AsyncExecutor = async ({ document, variables }) => {
+  return fetch(getGraphqlUrl(false), document, variables);
+};
 
-    return result;
-  } catch (error) {
-    console.error("Graph error: ", { error });
-    debounceErrorToast("Graph query error: failed to fetch data.");
-    return { data: {} };
-  }
+const dtrExecutor: AsyncExecutor = async ({ document, variables }) => {
+  return fetch(getGraphqlUrl(true), document, variables);
 };
 
 const coreBatchExec = createBatchingExecutor(coreExecutor);
