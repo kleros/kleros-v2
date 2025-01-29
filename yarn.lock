@@ -5404,7 +5404,7 @@ __metadata:
     react: ^18.3.1
     react-dom: ^18.3.1
     viem: ^2.21.42
-    wagmi: ^2.13.5
+    wagmi: ^2.14.0
   languageName: unknown
   linkType: soft
 
@@ -5591,7 +5591,7 @@ __metadata:
     typewriter-effect: "npm:^2.21.0"
     vanilla-jsoneditor: "npm:^0.21.6"
     viem: "npm:^2.21.50"
-    wagmi: "npm:^2.13.5"
+    wagmi: "npm:^2.14.0"
   languageName: unknown
   linkType: soft
 
@@ -5676,7 +5676,7 @@ __metadata:
     vite-plugin-node-polyfills: "npm:^0.21.0"
     vite-plugin-svgr: "npm:^4.3.0"
     vite-tsconfig-paths: "npm:^4.3.2"
-    wagmi: "npm:^2.13.5"
+    wagmi: "npm:^2.14.0"
   languageName: unknown
   linkType: soft
 
@@ -6208,12 +6208,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/sdk-install-modal-web@npm:0.31.1":
-  version: 0.31.1
-  resolution: "@metamask/sdk-install-modal-web@npm:0.31.1"
+"@metamask/sdk-install-modal-web@npm:0.31.5":
+  version: 0.31.5
+  resolution: "@metamask/sdk-install-modal-web@npm:0.31.5"
   dependencies:
     "@paulmillr/qr": "npm:^0.2.1"
-  checksum: 10/2599d8dd987ebececd8fe1d3c967c1d380a51ec26015558406048020789697ca66a5621002f7d104f4e832c9aa6b0cb28363fcb9e213d64fd3d80ff27f25907c
+  checksum: 10/42f3f4f9e81ee8cb381f5b0cf5497c1a4a72972eeddde806722d6f20d51d3f2a7903b72f8c2f72f1040af65342ff18a1f1a361976e85068a835a794614a7f624
   languageName: node
   linkType: hard
 
@@ -6253,15 +6253,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/sdk@npm:0.31.1":
-  version: 0.31.1
-  resolution: "@metamask/sdk@npm:0.31.1"
+"@metamask/sdk@npm:0.31.5":
+  version: 0.31.5
+  resolution: "@metamask/sdk@npm:0.31.5"
   dependencies:
     "@babel/runtime": "npm:^7.26.0"
     "@metamask/onboarding": "npm:^1.0.1"
     "@metamask/providers": "npm:16.1.0"
     "@metamask/sdk-communication-layer": "npm:0.31.0"
-    "@metamask/sdk-install-modal-web": "npm:0.31.1"
+    "@metamask/sdk-install-modal-web": "npm:0.31.5"
     "@paulmillr/qr": "npm:^0.2.1"
     bowser: "npm:^2.9.0"
     cross-fetch: "npm:^4.0.0"
@@ -6276,7 +6276,7 @@ __metadata:
     tslib: "npm:^2.6.0"
     util: "npm:^0.12.4"
     uuid: "npm:^8.3.2"
-  checksum: 10/9bc15de4cd0b9f5d2e8fe8876c117f2fabd570aaac09584ee73dd6ba5f3f753673e3aa3ae13e99545fe96c211a70b4146c1cd06045a180adbcf60571a13487dd
+  checksum: 10/3312d2dfff79c8cb4cb72e0dd992c6f92a284b5b3c6d3657f454c0c9adf93820be102c70b7d1b9c1b1e08a8f7ddad8a1ceaacc0c250917017339ee3b7115f051
   languageName: node
   linkType: hard
 
@@ -8097,6 +8097,16 @@ __metadata:
     "@safe-global/safe-apps-sdk": "npm:^9.1.0"
     events: "npm:^3.3.0"
   checksum: 10/252ccad3416f73e9fa5e7bdd074955ca6b81c55be89c3cd3e25a7cab9b01922cb9f9a02d2766dff15003908c7cccc47bc22f58dd2d4a65b504fd7870eabda41b
+  languageName: node
+  linkType: hard
+
+"@safe-global/safe-apps-provider@npm:0.18.5":
+  version: 0.18.5
+  resolution: "@safe-global/safe-apps-provider@npm:0.18.5"
+  dependencies:
+    "@safe-global/safe-apps-sdk": "npm:^9.1.0"
+    events: "npm:^3.3.0"
+  checksum: 10/0dcebbaf2564686629e705c62e3a679fb2b204a7c1a4970e76b1ce9bbc8444c2927083aaab73bd51ee16e29b8f33df6f919658a2c199aa2415b12ba957cd9310
   languageName: node
   linkType: hard
 
@@ -10673,24 +10683,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/connectors@npm:5.5.3":
-  version: 5.5.3
-  resolution: "@wagmi/connectors@npm:5.5.3"
+"@wagmi/connectors@npm:5.7.5":
+  version: 5.7.5
+  resolution: "@wagmi/connectors@npm:5.7.5"
   dependencies:
     "@coinbase/wallet-sdk": "npm:4.2.3"
-    "@metamask/sdk": "npm:0.31.1"
-    "@safe-global/safe-apps-provider": "npm:0.18.4"
+    "@metamask/sdk": "npm:0.31.5"
+    "@safe-global/safe-apps-provider": "npm:0.18.5"
     "@safe-global/safe-apps-sdk": "npm:9.1.0"
     "@walletconnect/ethereum-provider": "npm:2.17.0"
     cbw-sdk: "npm:@coinbase/wallet-sdk@3.9.3"
   peerDependencies:
-    "@wagmi/core": 2.15.2
+    "@wagmi/core": 2.16.3
     typescript: ">=5.0.4"
     viem: 2.x
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/bf2c58bb62be16387e3084f1bd2d7a9197e413626728b3bfc864c11de0eb0dfecd4637b23b1adc36a05b6570d81b31ef53a3ac107d2e2ded237db8fb17c1d8d2
+  checksum: 10/41962f2c07a2ba3dd30c5cb8379194a8321fbc906ed11814cf668f26a6f4e1ed47868b9a1b4d26a3224df9a8725d48c567b05c9a1ab85b83da6a5b9cd2cc0344
   languageName: node
   linkType: hard
 
@@ -10715,9 +10725,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/core@npm:2.15.2":
-  version: 2.15.2
-  resolution: "@wagmi/core@npm:2.15.2"
+"@wagmi/core@npm:2.16.3, @wagmi/core@npm:^2.16.3":
+  version: 2.16.3
+  resolution: "@wagmi/core@npm:2.16.3"
   dependencies:
     eventemitter3: "npm:5.0.1"
     mipd: "npm:0.0.7"
@@ -10731,7 +10741,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10/ed11530d329831c7e1f957ca17bc5633c5d2816ea24722b0ba6a7beb220d309f0264f54c0839dbc7f2f9c1683883435b8ead789ffcc388ffb61c41e2c72a6129
+  checksum: 10/3246b0f16ffdb1251113b8b34c3c7a98fc5d556caf1f7162a37610eccaf0e83864fed756ebbb88b5e3cd8589b90a3dd03fbad82d7179672a4a1d02494b59bdc3
   languageName: node
   linkType: hard
 
@@ -10752,26 +10762,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 10/b40ed089ddb23f7573e682105e41fe510f375e88612591dd841eefba06e2ffd0d2b2fdd8b1603d2c7e6aa4f70aa2bd94d12b6b578b3fe2c7abcb545ef24ff822
-  languageName: node
-  linkType: hard
-
-"@wagmi/core@npm:^2.16.3":
-  version: 2.16.3
-  resolution: "@wagmi/core@npm:2.16.3"
-  dependencies:
-    eventemitter3: "npm:5.0.1"
-    mipd: "npm:0.0.7"
-    zustand: "npm:5.0.0"
-  peerDependencies:
-    "@tanstack/query-core": ">=5.0.0"
-    typescript: ">=5.0.4"
-    viem: 2.x
-  peerDependenciesMeta:
-    "@tanstack/query-core":
-      optional: true
-    typescript:
-      optional: true
-  checksum: 10/3246b0f16ffdb1251113b8b34c3c7a98fc5d556caf1f7162a37610eccaf0e83864fed756ebbb88b5e3cd8589b90a3dd03fbad82d7179672a4a1d02494b59bdc3
   languageName: node
   linkType: hard
 
@@ -33559,7 +33549,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.4.0":
+"use-sync-external-store@npm:1.4.0, use-sync-external-store@npm:^1.4.0":
   version: 1.4.0
   resolution: "use-sync-external-store@npm:1.4.0"
   peerDependencies:
@@ -34261,13 +34251,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wagmi@npm:^2.13.5":
-  version: 2.13.5
-  resolution: "wagmi@npm:2.13.5"
+"wagmi@npm:^2.14.0":
+  version: 2.14.9
+  resolution: "wagmi@npm:2.14.9"
   dependencies:
-    "@wagmi/connectors": "npm:5.5.3"
-    "@wagmi/core": "npm:2.15.2"
-    use-sync-external-store: "npm:1.2.0"
+    "@wagmi/connectors": "npm:5.7.5"
+    "@wagmi/core": "npm:2.16.3"
+    use-sync-external-store: "npm:1.4.0"
   peerDependencies:
     "@tanstack/react-query": ">=5.0.0"
     react: ">=18"
@@ -34276,7 +34266,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/e37a79d8413abbebc10935956a8ec6696f02894501b235ec580e8855735fe04fd392ada964616aff0bbbc30190d5cb1f5319a70b99000f6061a05a78f458edbb
+  checksum: 10/cf9862e09edc6f713fe83802fb613028e5f78869fa52da3332271b30181d4b020f70f726a56912173efc808f3f165a54859688b5ebd3f30b3f1ba69a132576d6
   languageName: node
   linkType: hard
 

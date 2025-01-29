@@ -126,6 +126,6 @@
     "styled-components": "^5.3.3",
     "subgraph-status": "^1.2.3",
     "viem": "^2.21.54",
-    "wagmi": "^2.13.5"
+    "wagmi": "^2.14.0"
   }
 }
