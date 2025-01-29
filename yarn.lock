@@ -5397,6 +5397,7 @@ __metadata:
     vite: "npm:^5.4.11"
     vite-plugin-dts: "npm:^4.3.0"
     vite-plugin-node-polyfills: "npm:^0.22.0"
+    wagmi: "npm:^2.14.0"
   peerDependencies:
     "@tanstack/react-query": ^5.59.20
     graphql: ^16.9.0
