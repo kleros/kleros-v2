@@ -70,6 +70,7 @@ interface Evidence {
 
 type User @entity {
   id: ID! # address
+  userAddress: String!
   tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
   totalStake: BigInt!
   totalDelayed: BigInt!
@@ -238,6 +239,7 @@ type Counter @entity {
   casesVoting: BigInt!
   casesRuled: BigInt!
   casesAppealing: BigInt!
+  totalLeaderboardJurors: BigInt!
 }
 
 type FeeToken @entity {

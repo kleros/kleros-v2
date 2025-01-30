@@ -46,15 +46,13 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
   const [isAppealMiniGuideOpen, toggleAppealMiniGuide] = useToggle(false);
 
   return (
-    <ClassicAppealProvider>
-      <Container>
-        {Periods.appeal === currentPeriodIndex ? (
-          <Classic isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
-        ) : (
-          <AppealHistory isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
-        )}
-      </Container>
-    </ClassicAppealProvider>
+    <Container>
+      {Periods.appeal === currentPeriodIndex ? (
+        <Classic isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
+      ) : (
+        <AppealHistory isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
+      )}
+    </Container>
   );
 };
 

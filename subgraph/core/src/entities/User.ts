@@ -27,6 +27,7 @@ export function ensureUser(id: string): User {
 
 export function createUserFromAddress(id: string): User {
   const user = new User(id);
+  user.userAddress = id.toLowerCase();
   user.totalStake = ZERO;
   user.totalDelayed = ZERO;
   user.activeDisputes = ZERO;
