@@ -1,6 +1,9 @@
-import { Tooltip } from "@kleros/ui-components-library";
 import React from "react";
+
 import styled from "styled-components";
+import { Tooltip } from "@kleros/ui-components-library";
+
+import { getCoherencePercent } from "utils/getCoherencePercent";
 
 const Container = styled.div`
   display: flex;
@@ -12,8 +15,8 @@ const Container = styled.div`
 `;
 
 interface ICoherence {
-  totalCoherentVotes: number;
-  totalResolvedVotes: number;
+  totalCoherentVotes: string;
+  totalResolvedVotes: string;
 }
 
 const Coherence: React.FC<ICoherence> = ({ totalCoherentVotes, totalResolvedVotes }) => {
@@ -21,11 +24,11 @@ const Coherence: React.FC<ICoherence> = ({ totalCoherentVotes, totalResolvedVote
 
   return (
     <Container>
-      <Tooltip text={coherenceRatio}>{getPercent(totalCoherentVotes, totalResolvedVotes)}</Tooltip>
+      <Tooltip text={coherenceRatio}>
+        {getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes))}
+      </Tooltip>
     </Container>
   );
 };
-
-const getPercent = (num: number, den: number): string => `${Math.floor((num * 100) / den)}%`;
 
 export default Coherence;

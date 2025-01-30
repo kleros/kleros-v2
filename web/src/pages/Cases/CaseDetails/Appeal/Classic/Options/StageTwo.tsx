@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
@@ -31,31 +31,33 @@ interface IStageTwo {
 }
 
 const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
-  const { paidFees, winningChoice, winnerRequiredFunding, fundedChoices } = useFundingContext();
+  const { winningChoice, winnerRequiredFunding, fundedChoices } = useFundingContext();
   const { winnerSideCountdown } = useCountdownContext();
   const options = useOptionsContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
+  const choice = useMemo(() => options?.find((option) => option.id === winningChoice), [options, winningChoice]);
+
   useEffect(() => {
-    if (!isUndefined(winningChoice)) setSelectedOption(parseInt(winningChoice));
+    if (!isUndefined(choice)) setSelectedOption(choice);
     if (!isUndefined(winnerRequiredFunding)) setAmount(formatUnitsWei(winnerRequiredFunding));
-  }, [winnerRequiredFunding, winningChoice]);
+  }, [winnerRequiredFunding, choice]);
 
   return (
     <Container>
-      {!isUndefined(winningChoice) && !isUndefined(fundedChoices) && !isUndefined(paidFees) ? (
+      {!isUndefined(choice) && !isUndefined(fundedChoices) ? (
         <>
-          {fundedChoices.length > 0 && !fundedChoices.includes(winningChoice) ? (
+          {fundedChoices.length > 0 && !choice.funded ? (
             <>
               <StageExplainer stage={2} countdown={winnerSideCountdown} />
               <OptionsContainer>
                 <OptionCard
-                  text={options![winningChoice!]}
-                  selected={parseInt(winningChoice) === selectedOption}
+                  text={choice.title}
+                  selected={choice.id === selectedOption?.id}
                   winner={true}
-                  funding={paidFees![winningChoice!] ? BigInt(paidFees![winningChoice!]) : 0n}
+                  funding={BigInt(choice.paidFee ?? 0)}
                   required={winnerRequiredFunding!}
                   canBeSelected={false}
-                  onClick={() => setSelectedOption(parseInt(winningChoice!, 10))}
+                  onClick={() => setSelectedOption(choice)}
                 />
               </OptionsContainer>
             </>

@@ -2,8 +2,11 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { useToggle } from "react-use";
+import { useParams } from "react-router-dom";
 
 import { landscapeStyle } from "styles/landscapeStyle";
+
+import { decodeURIFilter } from "utils/uri";
 
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
@@ -34,9 +37,12 @@ const StyledLabel = styled.label`
 
 export const MobileHeader: React.FC = () => {
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
+  const { filter } = useParams();
+  const { id: searchValue } = decodeURIFilter(filter ?? "all");
+
   return (
     <Container>
-      <StyledLabel>Ranking</StyledLabel>
+      <StyledLabel>{!searchValue ? "Ranking" : "Jurors"}</StyledLabel>
       <HowItWorks
         isMiniGuideOpen={isJurorLevelsMiniGuideOpen}
         toggleMiniGuide={toggleJurorLevelsMiniGuide}

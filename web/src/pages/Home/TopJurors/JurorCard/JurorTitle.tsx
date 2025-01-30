@@ -1,8 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
+import ArrowIcon from "svgs/icons/arrow.svg";
+
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
-import { InternalLink } from "components/InternalLink";
+import { StyledArrowLink } from "components/StyledArrowLink";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   display: flex;
@@ -20,10 +23,14 @@ const Container = styled.div`
   }
 `;
 
-const StyledInternalLink = styled(InternalLink)`
+export const ReStyledArrowLink = styled(StyledArrowLink)`
+  label {
+    cursor: pointer;
+    color: ${({ theme }) => theme.primaryBlue};
+  }
+
   :hover {
     label {
-      cursor: pointer;
       color: ${({ theme }) => theme.secondaryBlue};
     }
   }
@@ -34,15 +41,21 @@ interface IJurorTitle {
 }
 
 const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
-  const dashboardLink = `/dashboard/1/desc/all?address=${address}`;
+  const { isConnected, address: connectedAddress } = useAccount();
+  const profileLink =
+    isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
+      ? "/profile/1/desc/all"
+      : `/profile/1/desc/all?address=${address}`;
 
   return (
     <Container>
       <IdenticonOrAvatar address={address} />
-      <StyledInternalLink to={dashboardLink}>
+      <ReStyledArrowLink to={profileLink}>
         <AddressOrName address={address} />
-      </StyledInternalLink>
+        <ArrowIcon />
+      </ReStyledArrowLink>
     </Container>
   );
 };
+
 export default JurorTitle;

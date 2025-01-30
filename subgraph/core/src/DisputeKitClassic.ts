@@ -14,6 +14,7 @@ import { ensureClassicContributionFromEvent } from "./entities/ClassicContributi
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import {
   createClassicRound,
+  ensureAnswer,
   updateChoiceFundingFromContributionEvent,
   updateCountsAndGetCurrentRuling,
 } from "./entities/ClassicRound";
@@ -101,10 +102,15 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
   const localRound = ClassicRound.load(roundID);
   if (!localRound) return;
 
+  const answer = ensureAnswer(roundID, choice);
+
   const currentFeeRewards = localRound.feeRewards;
-  const deltaFeeRewards = localRound.paidFees[choice.toI32()];
+  const deltaFeeRewards = answer.paidFee;
   localRound.feeRewards = currentFeeRewards.plus(deltaFeeRewards);
   localRound.fundedChoices = localRound.fundedChoices.concat([choice]);
+
+  answer.funded = true;
+  answer.save();
 
   if (localRound.fundedChoices.length > 1) {
     const disputeKitClassic = DisputeKitClassic.bind(event.address);

@@ -11,7 +11,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import { Element } from "./Element";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(24, 48)};
+  margin-top: ${responsiveSize(28, 48)};
 
   h1 {
     margin-bottom: ${responsiveSize(12, 24)};

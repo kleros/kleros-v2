@@ -15,6 +15,7 @@ const VARIABLES = [
   "casesVoting",
   "casesRuled",
   "casesAppealing",
+  "totalLeaderboardJurors",
 ];
 
 function updateDataPoint(delta: BigInt, timestamp: BigInt, variable: string): void {
@@ -43,6 +44,7 @@ function checkFirstDayActivity(): void {
     counter.casesVoting = ZERO;
     counter.casesRuled = ZERO;
     counter.casesAppealing = ZERO;
+    counter.totalLeaderboardJurors = ZERO;
     counter.save();
   }
 }
@@ -85,4 +87,8 @@ export function updateCasesRuled(delta: BigInt, timestamp: BigInt): void {
 
 export function updateCasesAppealing(delta: BigInt, timestamp: BigInt): void {
   updateDataPoint(delta, timestamp, "casesAppealing");
+}
+
+export function updateTotalLeaderboardJurors(delta: BigInt, timestamp: BigInt): void {
+  updateDataPoint(delta, timestamp, "totalLeaderboardJurors");
 }

@@ -18,7 +18,13 @@ import { createCourtFromEvent } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo, updateRoundTimeline } from "./entities/Round";
-import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
+import {
+  updateCases,
+  updateCasesAppealing,
+  updateCasesRuled,
+  updateCasesVoting,
+  updateTotalLeaderboardJurors,
+} from "./datapoint";
 import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
 import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
@@ -139,13 +145,23 @@ export function handleNewPeriod(event: NewPeriod): void {
         const draw = Draw.load(draws[j].id);
         if (!draw) continue;
 
+        const juror = ensureUser(draw.juror);
+        juror.totalResolvedVotes = juror.totalResolvedVotes.plus(ONE);
+
+        // Increment totalLeaderboardJurors in the Counter entity if this is the first resolved vote for the juror
+        if (juror.totalResolvedVotes.equals(ONE)) {
+          updateTotalLeaderboardJurors(ONE, event.block.timestamp);
+        }
+
         // Since this is a ClassicVote entity, this will only work for the Classic DisputeKit (which has ID "1").
         const vote = ClassicVote.load(`${round.disputeKit}-${draw.id}`);
 
-        if (!vote) continue;
-
-        const juror = ensureUser(draw.juror);
-        juror.totalResolvedVotes = juror.totalResolvedVotes.plus(ONE);
+        if (!vote) {
+          // Recalculate coherenceScore
+          juror.coherenceScore = computeCoherenceScore(juror.totalCoherentVotes, juror.totalResolvedVotes);
+          juror.save();
+          continue;
+        }
 
         if (vote.choice === null) continue;
 
@@ -155,9 +171,7 @@ export function handleNewPeriod(event: NewPeriod): void {
         }
 
         // Recalculate coherenceScore
-        if (juror.totalResolvedVotes.gt(ZERO)) {
-          juror.coherenceScore = computeCoherenceScore(juror.totalCoherentVotes, juror.totalResolvedVotes);
-        }
+        juror.coherenceScore = computeCoherenceScore(juror.totalCoherentVotes, juror.totalResolvedVotes);
 
         juror.save();
       }

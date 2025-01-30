@@ -80,16 +80,14 @@ const HeaderCoherenceAndCoherence = styled.div`
 interface IMobileCard {
   rank: number;
   address: string;
-  coherenceScore: number;
-  totalCoherentVotes: number;
-  totalResolvedVotes: number;
-  totalResolvedDisputes: number;
+  totalCoherentVotes: string;
+  totalResolvedVotes: string;
+  totalResolvedDisputes: string;
 }
 
 const MobileCard: React.FC<IMobileCard> = ({
   rank,
   address,
-  coherenceScore,
   totalCoherentVotes,
   totalResolvedVotes,
   totalResolvedDisputes,
@@ -98,10 +96,10 @@ const MobileCard: React.FC<IMobileCard> = ({
     <Container>
       <TopSide>
         <RankAndTitle>
-          <Rank rank={rank} />
+          {rank ? <Rank rank={rank} /> : null}
           <JurorTitle address={address} />
         </RankAndTitle>
-        <JurorLevel {...{ coherenceScore, totalResolvedDisputes }} />
+        <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />
       </TopSide>
       <BottomSide>
         <HeaderRewardsAndRewards>

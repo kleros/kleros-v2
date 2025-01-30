@@ -92,12 +92,10 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
     const dispute = disputeDetails?.dispute;
     if (dispute) {
       const rulingOverride = dispute.overridden;
-      const parsedDisputeFinalRuling = parseInt(dispute.currentRuling);
       const currentPeriodIndex = Periods[dispute.period];
 
       return localRounds?.reduce<TimelineItems>(
         (acc, { winningChoice }, index) => {
-          const parsedRoundChoice = parseInt(winningChoice);
           const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
           const roundTimeline = rounds?.[index].timeline;
 
@@ -105,7 +103,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           const answers = disputeData?.answers;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
-            party: isOngoing ? "Voting is ongoing" : getVoteChoice(parsedRoundChoice, answers),
+            party: isOngoing ? "Voting is ongoing" : getVoteChoice(winningChoice, answers),
             subtitle: isOngoing
               ? ""
               : `${formatDate(roundTimeline?.[Periods.vote])} / ${
@@ -124,10 +122,10 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
               rightSided: true,
               Icon: StyledClosedCircle,
             });
-          } else if (rulingOverride && parsedDisputeFinalRuling !== parsedRoundChoice) {
+          } else if (rulingOverride && dispute.currentRuling !== winningChoice) {
             acc.push({
               title: "Won by Appeal",
-              party: getVoteChoice(parsedDisputeFinalRuling, answers),
+              party: getVoteChoice(dispute.currentRuling, answers),
               subtitle: formatDate(roundTimeline?.[Periods.appeal]),
               rightSided: true,
               Icon: ClosedCaseIcon,
