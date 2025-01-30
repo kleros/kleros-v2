@@ -68,6 +68,8 @@ const SearchResultsContainer = styled(OverlayScrollbarsComponent)`
   overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 `;
 
 const StyledCard = styled(Card)<{ selected: boolean }>`
@@ -79,6 +81,7 @@ const StyledCard = styled(Card)<{ selected: boolean }>`
   border: none;
   border-left: ${({ selected, theme }) => (selected ? `3px solid ${theme.primaryBlue}` : "none")};
   background-color: ${({ selected, theme }) => (selected ? theme.mediumBlue : "transparent")};
+  border-radius: 0;
 
   :hover {
     background-color: ${({ theme }) => theme.mediumBlue};

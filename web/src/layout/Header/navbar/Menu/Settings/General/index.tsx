@@ -1,23 +1,23 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { useAccount, useDisconnect } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { AddressOrName, ChainDisplay, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
+import { ChainDisplay } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
+import WalletAndProfile from "./WalletAndProfile";
+import { ISettings } from "../../../index";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: 12px;
 `;
 
 const StyledChainContainer = styled.div`
   display: flex;
-  height: 34px;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
@@ -33,50 +33,23 @@ const StyledChainContainer = styled.div`
   }
 `;
 
-const StyledAddressContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  > label {
-    color: ${({ theme }) => theme.primaryText};
-    font-size: 16px;
-    font-weight: 600;
-  }
-`;
-
-const StyledAvatarContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 12px;
-`;
-
 const StyledButton = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 8px;
 `;
 
 const EnsureChainContainer = styled.div`
   display: flex;
   justify-content: center;
-  padding: 16px;
+  padding-top: 24px;
+  padding-bottom: 20px;
 `;
 
 const UserContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
-`;
-
-const StyledA = styled.a`
-  text-decoration: none;
-  label {
-    cursor: pointer;
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-
-  :hover {
-    text-decoration: underline;
-  }
+  gap: 16px;
 `;
 
 export const DisconnectWalletButton: React.FC = () => {
@@ -84,12 +57,8 @@ export const DisconnectWalletButton: React.FC = () => {
   return <Button text={`Disconnect`} onClick={() => disconnect()} />;
 };
 
-const General: React.FC = () => {
-  const { address, chain } = useAccount();
-
-  const addressExplorerLink = useMemo(() => {
-    return `${chain?.blockExplorers?.default.url}/address/${address}`;
-  }, [address, chain]);
+const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
+  const { address } = useAccount();
 
   return (
     <EnsureChainContainer>
@@ -97,17 +66,10 @@ const General: React.FC = () => {
         <Container>
           {address && (
             <UserContainer>
-              <StyledAvatarContainer>
-                <IdenticonOrAvatar size="48" />
-              </StyledAvatarContainer>
-              <StyledAddressContainer>
-                <StyledA href={addressExplorerLink} rel="noreferrer" target="_blank">
-                  <AddressOrName />
-                </StyledA>
-              </StyledAddressContainer>
               <StyledChainContainer>
                 <ChainDisplay />
               </StyledChainContainer>
+              <WalletAndProfile {...{ toggleIsSettingsOpen }} />
               <StyledButton>
                 <DisconnectWalletButton />
               </StyledButton>
