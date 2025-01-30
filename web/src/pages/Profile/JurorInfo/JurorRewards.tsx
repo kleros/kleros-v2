@@ -38,16 +38,14 @@ const JurorRewards: React.FC<IJurorRewards> = ({ addressToQuery }) => {
   const formattedRewards = getFormattedRewards(data, pricesData);
 
   return (
-    <>
-      <Container>
-        <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
-          <label> Juror Rewards </label>
-        </WithHelpTooltip>
-        {formattedRewards.map(({ token, amount, value }) => (
-          <TokenRewards key={token} {...{ token }} amount={amount} value={value} />
-        ))}
-      </Container>
-    </>
+    <Container>
+      <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
+        <label> Juror Rewards </label>
+      </WithHelpTooltip>
+      {formattedRewards.map(({ token, amount, value }) => (
+        <TokenRewards key={token} {...{ token }} amount={amount} value={value} />
+      ))}
+    </Container>
   );
 };
 

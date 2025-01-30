@@ -20,6 +20,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import InfoCard from "components/InfoCard";
 
 import JustificationArea from "./JustificationArea";
+import { Answer } from "@kleros/kleros-sdk";
 
 const Container = styled.div`
   width: 100%;
@@ -65,7 +66,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const handleReveal = useCallback(async () => {
     setIsSending(true);
     const { salt, choice } = isUndefined(storedSaltAndChoice)
-      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails.answers, commit)
+      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers, commit)
       : JSON.parse(storedSaltAndChoice);
     if (isUndefined(choice)) return;
     const { request } = await catchShortMessage(
@@ -73,7 +74,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
         args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
       })
     );
-    if (request && walletClient) {
+    if (request && walletClient && publicClient) {
       await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
         setIsOpen(status);
       });
@@ -102,7 +103,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
       ) : isRevealPeriod ? (
         <>
           <ReactMarkdownWrapper dir="auto">
-            <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
+            <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
           </ReactMarkdownWrapper>
           <JustificationArea {...{ justification, setJustification }} />
           <StyledButton
@@ -124,7 +125,7 @@ const getSaltAndChoice = async (
   signingAccount: PrivateKeyAccount | undefined,
   generateSigningAccount: () => Promise<PrivateKeyAccount | undefined> | undefined,
   saltKey: string,
-  answers: { title: string; description: string }[],
+  answers: Answer[],
   commit: string
 ) => {
   const message = { message: saltKey };
@@ -137,16 +138,15 @@ const getSaltAndChoice = async (
   if (isUndefined(rawSalt)) return;
   const salt = keccak256(rawSalt);
 
-  answers.unshift({ title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" });
-  const { choice } = answers.reduce<{ found: boolean; choice: number }>(
-    (acc, _, i) => {
+  const { choice } = answers.reduce<{ found: boolean; choice: bigint }>(
+    (acc, answer) => {
       if (acc.found) return acc;
-      const innerCommit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(i), BigInt(salt)]));
+      const innerCommit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(answer.id), BigInt(salt)]));
       if (innerCommit === commit) {
-        return { found: true, choice: i };
+        return { found: true, choice: BigInt(answer.id) };
       } else return acc;
     },
-    { found: false, choice: -1 }
+    { found: false, choice: BigInt(-1) }
   );
   return { salt, choice };
 };

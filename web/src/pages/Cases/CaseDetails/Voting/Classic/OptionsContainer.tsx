@@ -12,6 +12,7 @@ import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
 
 import JustificationArea from "./JustificationArea";
+import { Answer } from "@kleros/kleros-sdk";
 
 const MainContainer = styled.div`
   width: 100%;
@@ -41,7 +42,7 @@ const RefuseToArbitrateContainer = styled.div`
 
 interface IOptions {
   arbitrable: `0x${string}`;
-  handleSelection: (arg0: number) => Promise<void>;
+  handleSelection: (arg0: bigint) => Promise<void>;
   justification?: string;
   setJustification?: (arg0: string) => void;
 }
@@ -49,15 +50,15 @@ interface IOptions {
 const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justification, setJustification }) => {
   const { id } = useParams();
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
-  const [chosenOption, setChosenOption] = useState(-1);
+  const [chosenOption, setChosenOption] = useState(BigInt(-1));
   const [isSending, setIsSending] = useState(false);
 
   const onClick = useCallback(
-    async (id: number) => {
+    async (id: bigint) => {
       setIsSending(true);
       setChosenOption(id);
       await handleSelection(id);
-      setChosenOption(-1);
+      setChosenOption(BigInt(-1));
       setIsSending(false);
     },
     [handleSelection, setChosenOption, setIsSending]
@@ -66,19 +67,19 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   return id ? (
     <>
       <MainContainer dir="auto">
-        <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
+        <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
           <JustificationArea {...{ justification, setJustification }} />
         ) : null}
         <OptionsContainer>
-          {disputeDetails?.answers?.map((answer: { title: string; description: string }, i: number) => {
+          {disputeDetails?.answers?.map((answer: Answer) => {
             return (
               <EnsureChain key={answer.title}>
                 <Button
                   text={answer.title}
                   disabled={isSending}
-                  isLoading={chosenOption === i + 1}
-                  onClick={() => onClick(i + 1)}
+                  isLoading={chosenOption === BigInt(answer.id)}
+                  onClick={() => onClick(BigInt(answer.id))}
                 />
               </EnsureChain>
             );
@@ -91,8 +92,8 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
             variant="secondary"
             text="Refuse to Arbitrate"
             disabled={isSending}
-            isLoading={chosenOption === 0}
-            onClick={() => onClick(0)}
+            isLoading={chosenOption === BigInt(0)}
+            onClick={() => onClick(BigInt(0))}
           />
         </EnsureChain>
       </RefuseToArbitrateContainer>
