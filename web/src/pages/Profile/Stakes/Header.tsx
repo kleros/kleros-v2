@@ -2,7 +2,6 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { formatUnits } from "viem";
-import { useSearchParams } from "react-router-dom";
 
 import LockerIcon from "svgs/icons/locker.svg";
 
@@ -58,12 +57,10 @@ interface IHeader {
 
 const Header: React.FC<IHeader> = ({ lockedStake }) => {
   const formattedLockedStake = !isUndefined(lockedStake) && formatUnits(lockedStake, 18);
-  const [searchParams] = useSearchParams();
-  const searchParamAddress = searchParams.get("address")?.toLowerCase();
 
   return (
     <Container>
-      <StyledTitle>{searchParamAddress ? "Their" : "My"} Courts</StyledTitle>
+      <StyledTitle>Stakes</StyledTitle>
       {!isUndefined(lockedStake) ? (
         <LockedPnk>
           <StyledLockerIcon />

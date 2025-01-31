@@ -5,8 +5,8 @@ import { Card as _Card } from "@kleros/ui-components-library";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Coherence from "pages/Profile/JurorInfo/Coherence";
-import PixelArt from "pages/Profile/JurorInfo/PixelArt";
+import Coherence from "pages/Profile/JurorInfo/BottomContent/Coherence";
+import PixelArt from "pages/Profile/JurorInfo/BottomContent/PixelArt";
 
 import Template from "./MainStructureTemplate";
 import { Title, ParagraphsContainer, LeftContentContainer } from "./PageContentsTemplate";

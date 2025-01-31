@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useAccount } from "wagmi";
+
+import { DEFAULT_CHAIN, getChain } from "consts/chains";
+
 import ArrowIcon from "svgs/icons/arrow.svg";
+import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
-import { useAccount } from "wagmi";
 
 const Container = styled.div`
   display: flex;
@@ -36,26 +40,34 @@ export const ReStyledArrowLink = styled(StyledArrowLink)`
   }
 `;
 
-interface IJurorTitle {
+interface IJurorLink {
   address: string;
+  isInternalLink?: boolean;
 }
 
-const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
+const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true }) => {
   const { isConnected, address: connectedAddress } = useAccount();
   const profileLink =
     isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
       ? "/profile/1/desc/all"
       : `/profile/1/desc/all?address=${address}`;
+  const addressExplorerLink = useMemo(() => {
+    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${address}`;
+  }, [address]);
 
   return (
     <Container>
       <IdenticonOrAvatar address={address} />
-      <ReStyledArrowLink to={profileLink}>
+      <ReStyledArrowLink
+        to={isInternalLink ? profileLink : addressExplorerLink}
+        rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
+        target={`${isInternalLink ? "" : "_blank"}`}
+      >
         <AddressOrName address={address} />
-        <ArrowIcon />
+        {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
       </ReStyledArrowLink>
     </Container>
   );
 };
 
-export default JurorTitle;
+export default JurorLink;

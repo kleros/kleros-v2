@@ -6,7 +6,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { getUserLevelData } from "utils/userLevelCalculation";
 import { getCoherencePercent } from "utils/getCoherencePercent";
 
-import PixelArt from "pages/Profile/JurorInfo/PixelArt";
+import PixelArt from "pages/Profile/JurorInfo/BottomContent/PixelArt";
 
 const Container = styled.div`
   display: flex;

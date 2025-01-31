@@ -7,9 +7,9 @@ import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
-import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
+import JurorLink from "components/JurorLink";
 
 const Container = styled.div<{ renderRank?: boolean }>`
   ${hoverShortTransitionTiming}
@@ -57,7 +57,7 @@ const DesktopCard: React.FC<IDesktopCard> = ({
   return (
     <Container renderRank={renderRank}>
       {renderRank && <Rank rank={rank} />}
-      <JurorTitle address={address} />
+      <JurorLink address={address} />
       <Rewards address={address} />
       <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
       <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />

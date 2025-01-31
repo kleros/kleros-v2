@@ -11,31 +11,22 @@ import { useUserQuery } from "queries/useUser";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import Coherence from "./Coherence";
 import Header from "./Header";
-import JurorRewards from "./JurorRewards";
-import PixelArt from "./PixelArt";
+import BottomContent from "./BottomContent";
+import { Divider } from "components/Divider";
+import TopContent from "./TopContent";
 
 const Container = styled.div``;
 
 const Card = styled(_Card)`
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
 
-  gap: 40px;
+  gap: 24px;
   width: 100%;
   height: auto;
-  padding: 24px 0;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      gap: ${responsiveSize(24, 64)};
-      height: 236px;
-    `
-  )}
+  padding: 24px;
 `;
 
 interface IJurorInfo {
@@ -58,9 +49,9 @@ const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
         {...{ totalCoherentVotes, totalResolvedVotes, addressToQuery }}
       />
       <Card>
-        <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherence isMiniGuide={false} {...{ userLevelData, totalCoherentVotes, totalResolvedVotes }} />
-        <JurorRewards {...{ addressToQuery }} />
+        <TopContent address={addressToQuery} {...{ totalResolvedDisputes }} />
+        <Divider />
+        <BottomContent {...{ userLevelData, totalCoherentVotes, totalResolvedVotes, addressToQuery }} />
       </Card>
     </Container>
   );

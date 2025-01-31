@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 
 import styled, { css } from "styled-components";
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
@@ -6,19 +6,19 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+import { Tabs as TabsComponent } from "@kleros/ui-components-library";
 
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
 import { OrderDirection } from "src/graphql/graphql";
-
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
 import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
-import Courts from "./Courts";
 import JurorInfo from "./JurorInfo";
+import Stakes from "./Stakes";
 
 const Container = styled.div`
   width: 100%;
@@ -35,11 +35,16 @@ const Container = styled.div`
 `;
 
 const StyledCasesDisplay = styled(CasesDisplay)`
-  margin-top: ${responsiveSize(24, 48)};
+  margin-top: ${responsiveSize(24, 32)};
 
   .title {
     margin-bottom: ${responsiveSize(12, 24)};
   }
+`;
+
+const StyledTabs = styled(TabsComponent)`
+  width: 100%;
+  margin-top: ${responsiveSize(16, 32)};
 `;
 
 const ConnectWalletContainer = styled.div`
@@ -49,6 +54,12 @@ const ConnectWalletContainer = styled.div`
   align-items: center;
   color: ${({ theme }) => theme.primaryText};
 `;
+
+const TABS = [
+  { text: "Stakes", value: 0 },
+  { text: "Cases", value: 1 },
+  { text: "Votes", value: 2 },
+];
 
 const Profile: React.FC = () => {
   const { isConnected, address: connectedAddress } = useAccount();
@@ -75,25 +86,30 @@ const Profile: React.FC = () => {
     () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
     [totalCases, casesPerPage]
   );
+  const [currentTab, setCurrentTab] = useState(0);
 
   return (
     <Container>
       {isConnected || searchParamAddress ? (
         <>
           <JurorInfo {...{ addressToQuery }} />
-          <Courts {...{ addressToQuery }} />
-          <StyledCasesDisplay
-            title={`${searchParamAddress ? "Their" : "My"} Cases`}
-            disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
-            numberDisputes={totalCases}
-            numberClosedDisputes={totalResolvedCases}
-            totalPages={totalPages}
-            currentPage={pageNumber}
-            setCurrentPage={(newPage: number) =>
-              navigate(`${location}/${newPage}/${order}/${filter}?${searchParams.toString()}`)
-            }
-            {...{ casesPerPage }}
-          />
+          <StyledTabs currentValue={currentTab} items={TABS} callback={(n) => setCurrentTab(n)} />
+          {currentTab === 0 && <Stakes {...{ addressToQuery }} />}
+          {currentTab === 1 && (
+            <StyledCasesDisplay
+              title="Cases Drawn"
+              disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
+              numberDisputes={totalCases}
+              numberClosedDisputes={totalResolvedCases}
+              totalPages={totalPages}
+              currentPage={pageNumber}
+              setCurrentPage={(newPage: number) =>
+                navigate(`${location}/${newPage}/${order}/${filter}?${searchParams.toString()}`)
+              }
+              {...{ casesPerPage }}
+            />
+          )}
+          {currentTab === 2 && null}
         </>
       ) : (
         <ConnectWalletContainer>
