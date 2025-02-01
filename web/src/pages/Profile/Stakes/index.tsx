@@ -35,13 +35,13 @@ const StyledLabel = styled.label`
 `;
 
 interface IStakes {
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
-const Stakes: React.FC<IStakes> = ({ addressToQuery }) => {
-  const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(addressToQuery);
+const Stakes: React.FC<IStakes> = ({ searchParamAddress }) => {
+  const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(searchParamAddress);
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
-    args: [addressToQuery, BigInt(1)],
+    args: [searchParamAddress, BigInt(1)],
   });
   const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;

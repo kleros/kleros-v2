@@ -41,11 +41,11 @@ const tooltipMsg =
   "arbitration fees (ETH) + PNK redistribution between jurors.";
 
 interface IJurorRewards {
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
-const JurorRewards: React.FC<IJurorRewards> = ({ addressToQuery }) => {
-  const { data } = useUserQuery(addressToQuery);
+const JurorRewards: React.FC<IJurorRewards> = ({ searchParamAddress }) => {
+  const { data } = useUserQuery(searchParamAddress);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
 

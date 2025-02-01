@@ -21,10 +21,10 @@ const StyledCasesDisplay = styled(CasesDisplay)`
 `;
 
 interface ICases {
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
-const Cases: React.FC<ICases> = ({ addressToQuery }) => {
+const Cases: React.FC<ICases> = ({ searchParamAddress }) => {
   const { page, order, filter } = useParams();
   const [searchParams] = useSearchParams();
   const location = useRootPath();
@@ -35,13 +35,13 @@ const Cases: React.FC<ICases> = ({ addressToQuery }) => {
   const disputeSkip = casesPerPage * (pageNumber - 1);
   const decodedFilter = decodeURIFilter(filter ?? "all");
   const { data: disputesData } = useMyCasesQuery(
-    addressToQuery,
+    searchParamAddress,
     disputeSkip,
     decodedFilter,
     order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
   );
 
-  const { data: userData } = useUserQuery(addressToQuery, decodedFilter);
+  const { data: userData } = useUserQuery(searchParamAddress, decodedFilter);
   const totalCases = userData?.user?.disputes.length;
   const totalResolvedCases = parseInt(userData?.user?.totalResolvedDisputes);
   const totalPages = useMemo(

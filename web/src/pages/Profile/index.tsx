@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import styled, { css } from "styled-components";
@@ -69,7 +69,12 @@ const Profile: React.FC = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const searchParamAddress = searchParams.get("address")?.toLowerCase();
-  const addressToQuery = searchParamAddress || connectedAddress?.toLowerCase();
+
+  useEffect(() => {
+    if (isConnected && !searchParamAddress && connectedAddress) {
+      navigate(`${pathname}?address=${connectedAddress.toLowerCase()}`, { replace: true });
+    }
+  }, [isConnected, searchParamAddress, connectedAddress, pathname, navigate]);
 
   const handleTabChange = (tabIndex: number) => {
     const selectedTab = TABS[tabIndex];
@@ -80,17 +85,17 @@ const Profile: React.FC = () => {
 
   return (
     <Container>
-      {isConnected || searchParamAddress ? (
+      {searchParamAddress ? (
         <>
-          <JurorCard {...{ addressToQuery }} />
+          <JurorCard {...{ searchParamAddress }} />
           <StyledTabs
             currentValue={getTabIndex(pathname)}
             items={TABS}
             callback={(tabIndex: number) => handleTabChange(tabIndex)}
           />
           <Routes>
-            <Route path="stakes" element={<Stakes {...{ addressToQuery }} />} />
-            <Route path="cases/:page/:order/:filter" element={<Cases {...{ addressToQuery }} />} />
+            <Route path="stakes" element={<Stakes {...{ searchParamAddress }} />} />
+            <Route path="cases/:page/:order/:filter" element={<Cases {...{ searchParamAddress }} />} />
             <Route path="votes" element={<Votes />} />
             <Route
               path="*"
@@ -100,13 +105,13 @@ const Profile: React.FC = () => {
             />
           </Routes>
         </>
-      ) : (
+      ) : !isConnected ? (
         <ConnectWalletContainer>
           To see your profile, connect first
           <hr />
           <ConnectWallet />
         </ConnectWalletContainer>
-      )}
+      ) : null}
       <FavoriteCases />
       <ScrollTop />
     </Container>

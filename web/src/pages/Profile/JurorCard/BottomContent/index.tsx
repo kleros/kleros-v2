@@ -46,21 +46,21 @@ interface IBottomContent {
   userLevelData: ILevelCriteria;
   totalCoherentVotes: number;
   totalResolvedVotes: number;
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
 const BottomContent: React.FC<IBottomContent> = ({
   userLevelData,
   totalCoherentVotes,
   totalResolvedVotes,
-  addressToQuery,
+  searchParamAddress,
 }) => {
   return (
     <Container>
       <LeftContent>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
         <Coherence isMiniGuide={false} {...{ userLevelData, totalCoherentVotes, totalResolvedVotes }} />
-        <JurorRewards {...{ addressToQuery }} />
+        <JurorRewards {...{ searchParamAddress }} />
       </LeftContent>
       <StakingRewards />
     </Container>

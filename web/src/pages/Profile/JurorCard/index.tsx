@@ -27,11 +27,11 @@ const Card = styled(_Card)`
 `;
 
 interface IJurorCard {
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
-const JurorCard: React.FC<IJurorCard> = ({ addressToQuery }) => {
-  const { data } = useUserQuery(addressToQuery);
+const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
+  const { data } = useUserQuery(searchParamAddress);
   const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
   const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
   const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
@@ -43,12 +43,12 @@ const JurorCard: React.FC<IJurorCard> = ({ addressToQuery }) => {
       <Header
         levelTitle={userLevelData.title}
         levelNumber={userLevelData.level}
-        {...{ totalCoherentVotes, totalResolvedVotes, addressToQuery }}
+        {...{ totalCoherentVotes, totalResolvedVotes, searchParamAddress }}
       />
       <Card>
-        <TopContent address={addressToQuery} {...{ totalResolvedDisputes }} />
+        <TopContent address={searchParamAddress} {...{ totalResolvedDisputes }} />
         <Divider />
-        <BottomContent {...{ userLevelData, totalCoherentVotes, totalResolvedVotes, addressToQuery }} />
+        <BottomContent {...{ userLevelData, totalCoherentVotes, totalResolvedVotes, searchParamAddress }} />
       </Card>
     </Container>
   );

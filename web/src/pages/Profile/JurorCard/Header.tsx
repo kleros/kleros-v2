@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { useToggle } from "react-use";
-import { useSearchParams } from "react-router-dom";
 
 import XIcon from "svgs/socialmedia/x.svg";
 
@@ -52,7 +51,7 @@ interface IHeader {
   levelNumber: number;
   totalCoherentVotes: number;
   totalResolvedVotes: number;
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
 const Header: React.FC<IHeader> = ({
@@ -60,16 +59,13 @@ const Header: React.FC<IHeader> = ({
   levelNumber,
   totalCoherentVotes,
   totalResolvedVotes,
-  addressToQuery,
+  searchParamAddress,
 }) => {
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
-  const [searchParams] = useSearchParams();
-
   const coherencePercentage = parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
   const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherentVotes}/${totalResolvedVotes}\n\nBe a juror with me! ➡️ ${courtUrl}`;
   const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xPostText)}`;
-  const searchParamAddress = searchParams.get("address")?.toLowerCase();
 
   return (
     <Container>
