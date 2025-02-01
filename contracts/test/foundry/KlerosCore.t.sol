@@ -17,6 +17,7 @@ import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import "../../src/libraries/Constants.sol";
+import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/snapshot-proxy/KlerosCoreSnapshotProxy.sol";
 
 contract KlerosCoreTest is Test {
     event Initialized(uint64 version);
@@ -1277,6 +1278,33 @@ contract KlerosCoreTest is Test {
         vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
         vm.prank(governor);
         core.setStakeBySortitionModule(staker1, GENERAL_COURT, 1000, false);
+    }
+
+    function test_setStake_snapshotProxyCheck() public {
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 12346);
+
+        KlerosCoreSnapshotProxy snapshotProxy = new KlerosCoreSnapshotProxy(governor, IKlerosCore(address(core)));
+        assertEq(snapshotProxy.name(), "Staked Pinakion", "Wrong name of the proxy token");
+        assertEq(snapshotProxy.symbol(), "stPNK", "Wrong symbol of the proxy token");
+        assertEq(snapshotProxy.decimals(), 18, "Wrong decimals of the proxy token");
+        assertEq(snapshotProxy.governor(), msg.sender, "Wrong governor");
+        assertEq(address(snapshotProxy.core()), address(core), "Wrong core in snapshot proxy");
+        assertEq(snapshotProxy.balanceOf(staker1), 12346, "Wrong stPNK balance");
+
+        vm.prank(other);
+        vm.expectRevert(bytes("Access not allowed: Governor only."));
+        snapshotProxy.changeCore(IKlerosCore(other));
+        vm.prank(governor);
+        snapshotProxy.changeCore(IKlerosCore(other));
+        assertEq(address(snapshotProxy.core()), other, "Wrong core in snapshot proxy after change");
+
+        vm.prank(other);
+        vm.expectRevert(bytes("Access not allowed: Governor only."));
+        snapshotProxy.changeGovernor(other);
+        vm.prank(governor);
+        snapshotProxy.changeGovernor(other);
+        assertEq(snapshotProxy.governor(), other, "Wrong governor after change");
     }
 
     // *************************************** //
