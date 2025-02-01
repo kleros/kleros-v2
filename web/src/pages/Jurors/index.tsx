@@ -55,7 +55,7 @@ const Jurors: React.FC = () => {
         <Header>
           <StyledTitle>Jurors Leaderboard</StyledTitle>
           {isConnected ? (
-            <StyledArrowLink to="/profile/1/desc/all">
+            <StyledArrowLink to="/profile">
               My Profile <ArrowIcon />
             </StyledArrowLink>
           ) : null}

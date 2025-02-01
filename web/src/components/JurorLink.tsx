@@ -49,8 +49,8 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true }) => 
   const { isConnected, address: connectedAddress } = useAccount();
   const profileLink =
     isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
-      ? "/profile/1/desc/all"
-      : `/profile/1/desc/all?address=${address}`;
+      ? "/profile"
+      : `/profile/stakes?address=${address}`;
   const addressExplorerLink = useMemo(() => {
     return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${address}`;
   }, [address]);

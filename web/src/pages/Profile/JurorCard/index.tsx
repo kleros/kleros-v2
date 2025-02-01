@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
@@ -7,9 +7,6 @@ import { getUserLevelData } from "utils/userLevelCalculation";
 import { getCoherencePercent } from "utils/getCoherencePercent";
 
 import { useUserQuery } from "queries/useUser";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import Header from "./Header";
 import BottomContent from "./BottomContent";
@@ -29,11 +26,11 @@ const Card = styled(_Card)`
   padding: 24px;
 `;
 
-interface IJurorInfo {
+interface IJurorCard {
   addressToQuery: `0x${string}`;
 }
 
-const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
+const JurorCard: React.FC<IJurorCard> = ({ addressToQuery }) => {
   const { data } = useUserQuery(addressToQuery);
   const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
   const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
@@ -57,4 +54,4 @@ const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
   );
 };
 
-export default JurorInfo;
+export default JurorCard;

@@ -17,11 +17,12 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   width: auto;
-  gap: 24px;
+  gap: 12px;
 
   ${landscapeStyle(
     () => css`
       align-items: flex-start;
+      gap: 24px;
     `
   )}
 `;

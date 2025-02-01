@@ -25,7 +25,7 @@ const CourtCardsContainer = styled.div`
 
   ${landscapeStyle(
     () => css`
-      gap: 16px;
+      gap: 8px;
     `
   )}
 `;

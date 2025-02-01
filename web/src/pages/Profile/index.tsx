@@ -1,24 +1,22 @@
-import React, { useState, useMemo } from "react";
-
+import React from "react";
+import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from "react-router-dom";
+import { useAccount } from "wagmi";
 import styled, { css } from "styled-components";
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
 
-import { isUndefined } from "utils/index";
-import { decodeURIFilter, useRootPath } from "utils/uri";
-import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
-import { useUserQuery } from "queries/useUser";
-import { OrderDirection } from "src/graphql/graphql";
-import CasesDisplay from "components/CasesDisplay";
+import PnkIcon from "svgs/icons/pnk.svg";
+import DocIcon from "svgs/icons/doc.svg";
+import VotedIcon from "svgs/icons/voted-ballot.svg";
+
 import ConnectWallet from "components/ConnectWallet";
 import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
-import JurorInfo from "./JurorInfo";
+import JurorCard from "./JurorCard";
 import Stakes from "./Stakes";
+import Cases from "./Cases";
+import Votes from "./Votes";
 
 const Container = styled.div`
   width: 100%;
@@ -34,17 +32,17 @@ const Container = styled.div`
   )}
 `;
 
-const StyledCasesDisplay = styled(CasesDisplay)`
-  margin-top: ${responsiveSize(24, 32)};
-
-  .title {
-    margin-bottom: ${responsiveSize(12, 24)};
-  }
-`;
-
 const StyledTabs = styled(TabsComponent)`
   width: 100%;
   margin-top: ${responsiveSize(16, 32)};
+  > * {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: ${responsiveSize(14, 16)};
+    > svg {
+      margin-right: 8px !important;
+    }
+  }
 `;
 
 const ConnectWalletContainer = styled.div`
@@ -56,60 +54,51 @@ const ConnectWalletContainer = styled.div`
 `;
 
 const TABS = [
-  { text: "Stakes", value: 0 },
-  { text: "Cases", value: 1 },
-  { text: "Votes", value: 2 },
+  { text: "Stakes", value: 0, Icon: PnkIcon, path: "stakes" },
+  { text: "Cases", value: 1, Icon: DocIcon, path: "cases/1/desc/all" },
+  { text: "Votes", value: 2, Icon: VotedIcon, path: "votes" },
 ];
+
+const getTabIndex = (currentPath: string) => {
+  return TABS.findIndex((tab) => currentPath.includes(tab.path.split("/")[0]));
+};
 
 const Profile: React.FC = () => {
   const { isConnected, address: connectedAddress } = useAccount();
-  const { page, order, filter } = useParams();
   const [searchParams] = useSearchParams();
-  const location = useRootPath();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const searchParamAddress = searchParams.get("address")?.toLowerCase();
   const addressToQuery = searchParamAddress || connectedAddress?.toLowerCase();
-  const casesPerPage = 3;
-  const pageNumber = parseInt(page ?? "1");
-  const disputeSkip = casesPerPage * (pageNumber - 1);
-  const decodedFilter = decodeURIFilter(filter ?? "all");
-  const { data: disputesData } = useMyCasesQuery(
-    addressToQuery,
-    disputeSkip,
-    decodedFilter,
-    order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
-  );
-  const { data: userData } = useUserQuery(addressToQuery, decodedFilter);
-  const totalCases = userData?.user?.disputes.length;
-  const totalResolvedCases = parseInt(userData?.user?.totalResolvedDisputes);
-  const totalPages = useMemo(
-    () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
-    [totalCases, casesPerPage]
-  );
-  const [currentTab, setCurrentTab] = useState(0);
+
+  const handleTabChange = (tabIndex: number) => {
+    const selectedTab = TABS[tabIndex];
+    const basePath = `/profile/${selectedTab.path}`;
+    const queryParam = searchParamAddress ? `?address=${searchParamAddress}` : "";
+    navigate(`${basePath}${queryParam}`);
+  };
 
   return (
     <Container>
       {isConnected || searchParamAddress ? (
         <>
-          <JurorInfo {...{ addressToQuery }} />
-          <StyledTabs currentValue={currentTab} items={TABS} callback={(n) => setCurrentTab(n)} />
-          {currentTab === 0 && <Stakes {...{ addressToQuery }} />}
-          {currentTab === 1 && (
-            <StyledCasesDisplay
-              title="Cases Drawn"
-              disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
-              numberDisputes={totalCases}
-              numberClosedDisputes={totalResolvedCases}
-              totalPages={totalPages}
-              currentPage={pageNumber}
-              setCurrentPage={(newPage: number) =>
-                navigate(`${location}/${newPage}/${order}/${filter}?${searchParams.toString()}`)
+          <JurorCard {...{ addressToQuery }} />
+          <StyledTabs
+            currentValue={getTabIndex(pathname)}
+            items={TABS}
+            callback={(tabIndex: number) => handleTabChange(tabIndex)}
+          />
+          <Routes>
+            <Route path="stakes" element={<Stakes {...{ addressToQuery }} />} />
+            <Route path="cases/:page/:order/:filter" element={<Cases {...{ addressToQuery }} />} />
+            <Route path="votes" element={<Votes />} />
+            <Route
+              path="*"
+              element={
+                <Navigate to={`${searchParamAddress ? `stakes?address=${searchParamAddress}` : "stakes"}`} replace />
               }
-              {...{ casesPerPage }}
             />
-          )}
-          {currentTab === 2 && null}
+          </Routes>
         </>
       ) : (
         <ConnectWalletContainer>
