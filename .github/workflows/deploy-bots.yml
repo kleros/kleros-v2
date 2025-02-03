@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
       - uses: actions/setup-python@5f2af211d616f86005883b44826180b21abb4060
       - uses: aws-actions/setup-sam@12a6719db503425e98edcc798b6779590a450e8f
-      - uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a
+      - uses: aws-actions/configure-aws-credentials@4fc4975a852c8cd99761e2de1f4ba73402e44dd9
         with:
           aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_KEY }}
