@@ -71,7 +71,7 @@ jobs:
       run: yarn workspace @kleros/kleros-v2-contracts install
 
     - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@8f1998e9878d786675189ef566a2e4bf24869773 # v1.2.0
+      uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
 
     - name: Install lcov
       run: sudo apt-get install -y lcov
