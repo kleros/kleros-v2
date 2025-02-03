@@ -8,7 +8,6 @@ import { Card } from "@kleros/ui-components-library";
 
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
 import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
@@ -224,7 +223,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
-  const dashboardLink = `/dashboard/1/desc/all?address=${sender}`;
+  const profileLink = `/profile/1/desc/all?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
     return getTxnExplorerLink(transactionHash ?? "");
@@ -249,7 +248,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         <BottomLeftContent>
           <AccountContainer>
             <Identicon size="24" string={sender} />
-            <InternalLink to={dashboardLink}>
+            <InternalLink to={profileLink}>
               <Address>{shortenAddress(sender)}</Address>
             </InternalLink>
           </AccountContainer>

@@ -8,7 +8,13 @@ import { InternalLink } from "./InternalLink";
 const Container = styled.div`
   display: flex;
   gap: 8px;
-  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+`;
+
+const TitleContainer = styled.div`
+  display: flex;
+  gap: 8px;
 `;
 
 const SVGContainer = styled.div`
@@ -22,12 +28,12 @@ const SVGContainer = styled.div`
   }
 `;
 
-const TextContainer = styled.div`
+const ContentContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: center;
+  text-align: center;
 `;
 
 const StyledInternalLink = styled(InternalLink)`
@@ -49,9 +55,11 @@ export interface IExtraStatsDisplay {
 const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, courtId, text, content, icon: Icon, ...props }) => {
   return (
     <Container {...props}>
-      <SVGContainer>{<Icon />}</SVGContainer>
-      <TextContainer>
+      <TitleContainer>
+        <SVGContainer>{<Icon />}</SVGContainer>
         <label>{title}:</label>
+      </TitleContainer>
+      <ContentContainer>
         {content ? (
           content
         ) : (
@@ -59,7 +67,7 @@ const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, courtId, text,
             {!isUndefined(text) ? text : <StyledExtraStatTitleSkeleton />}
           </StyledInternalLink>
         )}
-      </TextContainer>
+      </ContentContainer>
     </Container>
   );
 };

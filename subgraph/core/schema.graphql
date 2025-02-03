@@ -63,12 +63,14 @@ interface Evidence {
   fileTypeExtension: String
 }
 
+
 ############
 # Entities #
 ############
 
 type User @entity {
   id: ID! # address
+  userAddress: String!
   tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
   totalStake: BigInt!
   totalDelayed: BigInt!
@@ -237,6 +239,7 @@ type Counter @entity {
   casesVoting: BigInt!
   casesRuled: BigInt!
   casesAppealing: BigInt!
+  totalLeaderboardJurors: BigInt!
 }
 
 type FeeToken @entity {
@@ -265,17 +268,25 @@ type ClassicDispute implements DisputeKitDispute @entity {
   extraData: Bytes!
 }
 
+type Answer @entity {
+  id: ID! # classicRound.id-answerId
+  answerId: BigInt!
+  count: BigInt!
+  paidFee: BigInt!
+  funded: Boolean!
+  localRound: ClassicRound! 
+}
+
 type ClassicRound implements DisputeKitRound @entity {
   id: ID! # disputeKit.id-coreDispute-dispute.rounds.length
   localDispute: DisputeKitDispute!
   votes: [Vote!]! @derivedFrom(field: "localRound")
+  answers: [Answer!]! @derivedFrom(field: "localRound")
 
   winningChoice: BigInt!
-  counts: [BigInt!]!
   tied: Boolean!
   totalVoted: BigInt!
   totalCommited: BigInt!
-  paidFees: [BigInt!]!
   contributions: [ClassicContribution!]! @derivedFrom(field: "localRound")
   feeRewards: BigInt!
   totalFeeDispersed: BigInt!

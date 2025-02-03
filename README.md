@@ -39,21 +39,11 @@
 | Package                       | Description                                                                                                                                                 |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **[bots](/bots)**             | Automation of the on-chain upkeep of the smart contracts. Anyone willing to spend some gas may run these bots and contribute to the upkeep operations.      |
-| **[bot-pinner](/bot-pinner)** | Replication and pinning of the IPFS content produced by the court, such as the pieces of evidence submitted in a case.                                      |
 | **[contracts](/contracts)**   | Smart contracts of the arbitration protocol.                                                                                                                |
+| **[kleros-app](/kleros-app)** | Library of React hooks and utilities shared by the Kleros frontend apps.                                                                                    |
 | **[kleros-sdk](/kleros-sdk)** | SDK which facilitates the creation of arbitrable applications, the interactions with the arbitrator, the rendering of the dispute and evidence information. |
 | **[subgraph](/subgraph)**     | The indexing layer.                                                                                                                                         |
 | **[web](/web)**               | The court frontend intended for the jurors and parties in a dispute.                                                                                        |
-
-## Toolchain:
-
-- Solidity 0.8
-- Hardhat
-- Ethers
-- Waffle
-- Typescript
-- Node 16
-- Yarn 3 without [PlugnPlay](https://yarnpkg.com/getting-started/migration/#switching-to-plugnplay)
 
 ## Contributing
 

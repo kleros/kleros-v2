@@ -33,14 +33,18 @@ export enum QuestionType {
 export const QuestionTypeSchema = z.nativeEnum(QuestionType);
 
 export const AnswerSchema = z.object({
-  id: z
-    .string()
-    .regex(/^0x[0-9a-fA-F]+$/)
-    .optional(),
+  id: z.string().regex(/^0x[0-9a-fA-F]+$/),
   title: z.string(),
   description: z.string(),
   reserved: z.boolean().optional(),
 });
+
+export const RefuseToArbitrateAnswer = {
+  id: "0x0",
+  title: "Refuse to Arbitrate / Invalid",
+  description: "Refuse to Arbitrate / Invalid",
+  reserved: true,
+};
 
 export const AttachmentSchema = z.object({
   label: z.string(),

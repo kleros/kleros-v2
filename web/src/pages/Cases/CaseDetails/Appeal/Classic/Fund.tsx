@@ -33,7 +33,7 @@ const StyledField = styled(Field)`
   &:before {
     position: absolute;
     content: "ETH";
-    right: 12px;
+    right: 32px;
     top: 50%;
     transform: translateY(-50%);
     color: ${({ theme }) => theme.primaryText};
@@ -73,7 +73,7 @@ const useFundAppeal = (parsedAmount, insufficientBalance) => {
     query: {
       enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance,
     },
-    args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
+    args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
     value: parsedAmount,
   });
 
@@ -112,8 +112,15 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(parsedAmount, insufficientBalance);
 
   const isFundDisabled = useMemo(
-    () => isDisconnected || isSending || !balance || insufficientBalance || Number(parsedAmount) <= 0 || isError,
-    [isDisconnected, isSending, balance, insufficientBalance, parsedAmount, isError]
+    () =>
+      isDisconnected ||
+      isSending ||
+      !balance ||
+      insufficientBalance ||
+      Number(parsedAmount) <= 0 ||
+      isError ||
+      isLoading,
+    [isDisconnected, isSending, balance, insufficientBalance, parsedAmount, isError, isLoading]
   );
 
   return needFund ? (

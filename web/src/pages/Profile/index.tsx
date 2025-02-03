@@ -50,7 +50,7 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const Dashboard: React.FC = () => {
+const Profile: React.FC = () => {
   const { isConnected, address: connectedAddress } = useAccount();
   const { page, order, filter } = useParams();
   const [searchParams] = useSearchParams();
@@ -97,7 +97,7 @@ const Dashboard: React.FC = () => {
         </>
       ) : (
         <ConnectWalletContainer>
-          To see your dashboard, connect first
+          To see your profile, connect first
           <hr />
           <ConnectWallet />
         </ConnectWalletContainer>
@@ -108,4 +108,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default Profile;

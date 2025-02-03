@@ -37,7 +37,7 @@ const StyledCard = styled(Card)`
   )}
 `;
 
-const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
+export const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
   src.length > 0 ? src.at(-1)?.[stat] : 0n.toString();
 
 interface IStat {

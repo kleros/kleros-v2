@@ -1,13 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
-import Skeleton from "react-loading-skeleton";
-
 import { Box } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
-import { useFundingContext, useOptionsContext } from "hooks/useClassicAppealContext";
+import { useOptionsContext } from "hooks/useClassicAppealContext";
 import { secondsToDayHourMinute } from "utils/date";
 import { isUndefined } from "utils/index";
 
@@ -17,7 +15,7 @@ const StyledBox = styled(Box)`
   height: auto;
   width: 100%;
   padding: 16px 24px;
-  & > div > label {
+  & > div > p {
     display: block;
     margin-bottom: 4px;
   }
@@ -46,38 +44,31 @@ interface IStageExplainer {
 const StageOneExplanation: React.FC = () => (
   <div>
     {" "}
-    <label>
+    <p>
       Losing options can only be funded <small>before</small> the deadline.
-    </label>
-    <label>
+    </p>
+    <p>
       If no losing option is <small>fully funded</small> in time, the jury decision is maintained.
-    </label>
+    </p>
   </div>
 );
 
 const StageTwoExplanation: React.FC = () => {
-  const { fundedChoices } = useFundingContext();
   const options = useOptionsContext();
   return (
     <div>
-      <label>
+      <p>
         Loser deadline has <small>finalized</small>, you can only fund the current winner.
-      </label>
-      <label>
+      </p>
+      <p>
         If the current winner is not fully funded in time, the option funded during the previous stage will be declared
         as the final winner.
-      </label>
-      <label>
+      </p>
+      <p>
         {" "}
-        Following choice was funded in the stage 1 :{" "}
-        <small>
-          {!isUndefined(fundedChoices) && !isUndefined(options)
-            ? fundedChoices.map((choice) =>
-                isUndefined(options[choice]) ? <Skeleton key={choice} width={50} height={18} /> : options[choice]
-              )
-            : null}
-        </small>
-      </label>
+        Following choices were funded in the stage 1 :{" "}
+        <small>{options?.map((option) => (option?.funded ? option.title : null))}</small>
+      </p>
     </div>
   );
 };

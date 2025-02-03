@@ -114,7 +114,7 @@ const AccordionContent: React.FC<{
 
   return (
     <AccordionContentContainer>
-      {!isUndefined(choice) && <VotedText dir="auto">{getVoteChoice(parseInt(choice), answers)}</VotedText>}
+      {!isUndefined(choice) && <VotedText dir="auto">{getVoteChoice(choice, answers)}</VotedText>}
 
       {justification ? (
         <JustificationText dir="auto">{justification}</JustificationText>
