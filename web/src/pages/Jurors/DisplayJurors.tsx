@@ -15,6 +15,7 @@ import JurorCard from "../Home/TopJurors/JurorCard";
 import { ListContainer, StyledLabel } from "../Home/TopJurors";
 import Header from "../Home/TopJurors/Header";
 import { decodeURIFilter } from "utils/uri";
+import { useScrollTop } from "hooks/useScrollTop";
 
 interface IDisplayJurors {
   totalLeaderboardJurors: number;
@@ -28,6 +29,7 @@ const StyledPagination = styled(StandardPagination)`
 
 const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => {
   const { page, order, filter } = useParams();
+  const scrollTop = useScrollTop();
   const { id: searchValue } = decodeURIFilter(filter ?? "all");
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
@@ -62,6 +64,7 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
   );
 
   const handlePageChange = (newPage: number) => {
+    scrollTop(true);
     navigate(`/jurors/${newPage}/${order}/${filter}`);
   };
 
