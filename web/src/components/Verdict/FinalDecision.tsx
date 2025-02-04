@@ -99,7 +99,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
     chainId: DEFAULT_CHAIN,
   });
   const currentRuling = Number(currentRulingArray?.[0]);
-  const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
+  const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling ?? 0));
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
   const buttonText = useMemo(() => {
