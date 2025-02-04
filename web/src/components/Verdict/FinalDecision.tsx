@@ -93,13 +93,14 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
-  const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({
+  const { data: currentRulingArray, isLoading: isLoadingCurrentRuling } = useReadKlerosCoreCurrentRuling({
     query: { refetchInterval: REFETCH_INTERVAL },
     args: [BigInt(id ?? 0)],
     chainId: DEFAULT_CHAIN,
   });
-  const currentRuling = Number(currentRulingArray?.[0]);
-  const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling ?? 0));
+  const currentRuling = Number(currentRulingArray?.[0] ?? 0);
+
+  const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling));
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
   const buttonText = useMemo(() => {
@@ -122,13 +123,21 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
         {ruled && (
           <JuryContainer>
             <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-            <AnswerDisplay {...{ answer, currentRuling }} />
+            {isLoadingCurrentRuling ? (
+              <Skeleton height={14} width={60} />
+            ) : (
+              <AnswerDisplay {...{ answer, currentRuling }} />
+            )}
           </JuryContainer>
         )}
         {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
           <JuryContainer>
             <JuryDecisionTag>This option is winning:</JuryDecisionTag>
-            <AnswerDisplay {...{ answer, currentRuling }} />
+            {isLoadingCurrentRuling ? (
+              <Skeleton height={14} width={60} />
+            ) : (
+              <AnswerDisplay {...{ answer, currentRuling }} />
+            )}
           </JuryContainer>
         )}
       </VerdictContainer>
