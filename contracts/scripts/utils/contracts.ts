@@ -7,23 +7,28 @@ import {
   DisputeTemplateRegistry,
   KlerosCore,
   KlerosCoreNeo,
+  KlerosCoreUniversity,
   PNK,
+  PolicyRegistry,
   RandomizerRNG,
   SortitionModule,
   SortitionModuleNeo,
+  SortitionModuleUniversity,
   TransactionBatcher,
 } from "../../typechain-types";
 
-export enum Cores {
-  BASE,
-  NEO,
-  UNIVERSITY,
-}
+export const Cores = {
+  BASE: "BASE",
+  NEO: "NEO",
+  UNIVERSITY: "UNIVERSITY",
+} as const;
 
-export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cores) => {
+export type Core = (typeof Cores)[keyof typeof Cores];
+
+export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Core) => {
   const { ethers } = hre;
-  let core: KlerosCore | KlerosCoreNeo;
-  let sortition: SortitionModule | SortitionModuleNeo;
+  let core: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
+  let sortition: SortitionModule | SortitionModuleNeo | SortitionModuleUniversity;
   let disputeKitClassic: DisputeKitClassic;
   let disputeResolver: DisputeResolver;
   switch (coreType) {
@@ -40,11 +45,16 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
       disputeResolver = (await ethers.getContract("DisputeResolver")) as DisputeResolver;
       break;
     case Cores.UNIVERSITY:
-      throw new Error("University core is not supported");
+      core = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
+      sortition = (await ethers.getContract("SortitionModuleUniversity")) as SortitionModuleUniversity;
+      disputeKitClassic = (await ethers.getContract("DisputeKitClassicUniversity")) as DisputeKitClassic;
+      disputeResolver = (await ethers.getContract("DisputeResolverUniversity")) as DisputeResolver;
+      break;
     default:
-      throw new Error("Invalid core type, must be one of base, neo");
+      throw new Error("Invalid core type, must be one of BASE, NEO, or UNIVERSITY");
   }
   const disputeTemplateRegistry = (await ethers.getContract("DisputeTemplateRegistry")) as DisputeTemplateRegistry;
+  const policyRegistry = (await ethers.getContract("PolicyRegistry")) as PolicyRegistry;
   const batcher = (await ethers.getContract("TransactionBatcher")) as TransactionBatcher;
   const chainlinkRng = await ethers.getContractOrNull<ChainlinkRNG>("ChainlinkRNG");
   const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>("RandomizerRNG");
@@ -56,6 +66,7 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     disputeKitClassic,
     disputeResolver,
     disputeTemplateRegistry,
+    policyRegistry,
     chainlinkRng,
     randomizerRng,
     blockHashRNG,

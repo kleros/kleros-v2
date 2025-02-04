@@ -6,11 +6,7 @@ const { bold } = print.colors;
 
 task("change-governor", "Changes the governor for all the contracts")
   .addPositionalParam("newGovernor", "The address of the new governor")
-  .addOptionalParam(
-    "coreType",
-    "The type of core to use between base, neo, university (default: base)",
-    Cores.BASE.toString()
-  )
+  .addOptionalParam("coreType", "The type of core to use between base, neo, university (default: base)", Cores.BASE)
   .setAction(async (taskArgs, hre) => {
     const newGovernor = taskArgs.newGovernor;
     print.highlight(`💣 Changing governor to ${bold(newGovernor)}`);
@@ -25,16 +21,22 @@ task("change-governor", "Changes the governor for all the contracts")
       return;
     }
 
-    let coreType = Cores.BASE;
-    coreType = Cores[taskArgs.coreType.toUpperCase() as keyof typeof Cores];
+    const coreType = Cores[taskArgs.coreType.toUpperCase() as keyof typeof Cores];
     if (coreType === undefined) {
       console.error("Invalid core type, must be one of base, neo, university");
       return;
     }
-    console.log("Using core type %s", Cores[coreType]);
+    console.log("Using core type %s", coreType);
 
-    const { core, disputeKitClassic, disputeResolver, disputeTemplateRegistry, chainlinkRng, randomizerRng } =
-      await getContracts(hre, coreType);
+    const {
+      core,
+      disputeKitClassic,
+      disputeResolver,
+      disputeTemplateRegistry,
+      policyRegistry,
+      chainlinkRng,
+      randomizerRng,
+    } = await getContracts(hre, coreType);
 
     const updateGovernor = async (contractName: string, contractInstance: any) => {
       print.info(`Changing governor for ${contractName}`);
@@ -54,12 +56,13 @@ task("change-governor", "Changes the governor for all the contracts")
     };
 
     // TODO: upgrade and add changeGovernor!
-    // await updateGovernor("Sortition", sortition)
+    // await updateGovernor("SortitionModule", sortition)
 
     await updateGovernor("KlerosCore", core);
     await updateGovernor("DisputeKitClassic", disputeKitClassic);
     await updateGovernor("DisputeResolver", disputeResolver);
     await updateGovernor("DisputeTemplateRegistry", disputeTemplateRegistry);
+    await updateGovernor("PolicyRegistry", policyRegistry);
     if (chainlinkRng) await updateGovernor("ChainlinkRNG", chainlinkRng);
     if (randomizerRng) await updateGovernor("RandomizerRNG", randomizerRng);
 
