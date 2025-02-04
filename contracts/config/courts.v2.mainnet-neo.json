@@ -478,5 +478,21 @@
       583200,
       388800
     ]
+  },
+  {
+    "name": "Automated Curation",
+    "id": 31,
+    "parent": 10,
+    "hiddenVotes": false,
+    "minStake": "2600000000000000000000",
+    "alpha": "290",
+    "feeForJuror": "170000000000000",
+    "jurorsForCourtJump": "3",
+    "timesPerPeriod": [
+      140400,
+      291600,
+      291600,
+      194400
+    ]
   }
 ]

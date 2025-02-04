@@ -78,5 +78,21 @@
       240,
       600
     ]
+  },
+  {
+    "name": "Automated Curation",
+    "id": 6,
+    "parent": 2,
+    "hiddenVotes": false,
+    "minStake": "2000000000000000000",
+    "alpha": "3100",
+    "feeForJuror": "100000000000",
+    "jurorsForCourtJump": "31",
+    "timesPerPeriod": [
+      120,
+      240,
+      240,
+      600
+    ]
   }
 ]
