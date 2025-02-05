@@ -17,6 +17,7 @@ require("./scripts/simulations/tasks");
 require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
 require("./scripts/changeGovernor");
+require("./scripts/getDisputeTemplate");
 
 dotenv.config();
 
