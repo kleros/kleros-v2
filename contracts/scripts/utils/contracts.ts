@@ -15,6 +15,7 @@ import {
   SortitionModuleNeo,
   SortitionModuleUniversity,
   TransactionBatcher,
+  KlerosCoreSnapshotProxy,
 } from "../../typechain-types";
 
 export const Cores = {
@@ -33,33 +34,34 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
   let disputeResolver: DisputeResolver;
   switch (coreType) {
     case Cores.NEO:
-      core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
-      sortition = (await ethers.getContract("SortitionModuleNeo")) as SortitionModuleNeo;
-      disputeKitClassic = (await ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
-      disputeResolver = (await ethers.getContract("DisputeResolverNeo")) as DisputeResolver;
+      core = await ethers.getContract<KlerosCoreNeo>("KlerosCoreNeo");
+      sortition = await ethers.getContract<SortitionModuleNeo>("SortitionModuleNeo");
+      disputeKitClassic = await ethers.getContract<DisputeKitClassic>("DisputeKitClassicNeo");
+      disputeResolver = await ethers.getContract<DisputeResolver>("DisputeResolverNeo");
       break;
     case Cores.BASE:
-      core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-      sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
-      disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-      disputeResolver = (await ethers.getContract("DisputeResolver")) as DisputeResolver;
+      core = await ethers.getContract<KlerosCore>("KlerosCore");
+      sortition = await ethers.getContract<SortitionModule>("SortitionModule");
+      disputeKitClassic = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+      disputeResolver = await ethers.getContract<DisputeResolver>("DisputeResolver");
       break;
     case Cores.UNIVERSITY:
-      core = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
-      sortition = (await ethers.getContract("SortitionModuleUniversity")) as SortitionModuleUniversity;
-      disputeKitClassic = (await ethers.getContract("DisputeKitClassicUniversity")) as DisputeKitClassic;
-      disputeResolver = (await ethers.getContract("DisputeResolverUniversity")) as DisputeResolver;
+      core = await ethers.getContract<KlerosCoreUniversity>("KlerosCoreUniversity");
+      sortition = await ethers.getContract<SortitionModuleUniversity>("SortitionModuleUniversity");
+      disputeKitClassic = await ethers.getContract<DisputeKitClassic>("DisputeKitClassicUniversity");
+      disputeResolver = await ethers.getContract<DisputeResolver>("DisputeResolverUniversity");
       break;
     default:
       throw new Error("Invalid core type, must be one of BASE, NEO, or UNIVERSITY");
   }
-  const disputeTemplateRegistry = (await ethers.getContract("DisputeTemplateRegistry")) as DisputeTemplateRegistry;
-  const policyRegistry = (await ethers.getContract("PolicyRegistry")) as PolicyRegistry;
-  const batcher = (await ethers.getContract("TransactionBatcher")) as TransactionBatcher;
+  const disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>("DisputeTemplateRegistry");
+  const policyRegistry = await ethers.getContract<PolicyRegistry>("PolicyRegistry");
+  const batcher = await ethers.getContract<TransactionBatcher>("TransactionBatcher");
   const chainlinkRng = await ethers.getContractOrNull<ChainlinkRNG>("ChainlinkRNG");
   const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>("RandomizerRNG");
   const blockHashRNG = await ethers.getContractOrNull<BlockHashRNG>("BlockHashRNG");
-  const pnk = (await ethers.getContract("PNK")) as PNK;
+  const pnk = await ethers.getContract<PNK>("PNK");
+  const snapshotProxy = await ethers.getContractOrNull<KlerosCoreSnapshotProxy>("KlerosCoreSnapshotProxy");
   return {
     core,
     sortition,
@@ -72,5 +74,6 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     blockHashRNG,
     pnk,
     batcher,
+    snapshotProxy,
   };
 };

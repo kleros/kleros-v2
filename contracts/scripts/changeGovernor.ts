@@ -36,6 +36,7 @@ task("change-governor", "Changes the governor for all the contracts")
       policyRegistry,
       chainlinkRng,
       randomizerRng,
+      snapshotProxy,
     } = await getContracts(hre, coreType);
 
     const updateGovernor = async (contractName: string, contractInstance: any) => {
@@ -63,6 +64,7 @@ task("change-governor", "Changes the governor for all the contracts")
     await updateGovernor("DisputeResolver", disputeResolver);
     await updateGovernor("DisputeTemplateRegistry", disputeTemplateRegistry);
     await updateGovernor("PolicyRegistry", policyRegistry);
+    await updateGovernor("KlerosCoreSnapshotProxy", snapshotProxy);
     if (chainlinkRng) await updateGovernor("ChainlinkRNG", chainlinkRng);
     if (randomizerRng) await updateGovernor("RandomizerRNG", randomizerRng);
 
