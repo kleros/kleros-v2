@@ -8,7 +8,7 @@
 
 pragma solidity 0.8.24;
 
-import {ISortitionModule} from "../arbitration/interfaces/ISortitionModule.sol";
+import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
 
 interface IKlerosCore {
     function sortitionModule() external view returns (ISortitionModule);
@@ -17,24 +17,40 @@ interface IKlerosCore {
 /// @title KlerosCoreSnapshotProxy
 /// Proxy contract for V2 that exposes staked PNK with balanceOf() function for Snapshot voting.
 contract KlerosCoreSnapshotProxy {
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
     IKlerosCore public core;
     address public governor;
-    string public name = "Staked Pinakion";
-    string public symbol = "stPNK";
-    uint8 public immutable decimals = 18;
+    string public constant name = "Staked Pinakion";
+    string public constant symbol = "stPNK";
+    uint8 public constant decimals = 18;
+
+    // ************************************* //
+    // *         Modifiers                 * //
+    // ************************************* //
 
     modifier onlyByGovernor() {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         _;
     }
 
+    // ************************************* //
+    // *         Constructor               * //
+    // ************************************* //
+
     /// @dev Constructor
-    /// @param _governor The govenor of the contract.
+    /// @param _governor The governor of the contract.
     /// @param _core KlerosCore to read the balance from.
     constructor(address _governor, IKlerosCore _core) {
         governor = _governor;
         core = _core;
     }
+
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
 
     /// @dev Changes the `governor` storage variable.
     /// @param _governor The new value for the `governor` storage variable.
@@ -47,6 +63,10 @@ contract KlerosCoreSnapshotProxy {
     function changeCore(IKlerosCore _core) external onlyByGovernor {
         core = _core;
     }
+
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
 
     /// @dev Returns the amount of PNK staked in KlerosV2 for a particular address.
     /// Note: Proxy doesn't need to differentiate between courts so we pass 0 as courtID.
