@@ -6,7 +6,6 @@ import { isUndefined } from "utils/index";
 import { StandardPagination } from "@kleros/ui-components-library";
 
 import { useJurorsByCoherenceScore } from "queries/useJurorsByCoherenceScore";
-import useIsDesktop from "hooks/useIsDesktop";
 
 import { OrderDirection } from "src/graphql/graphql";
 
@@ -15,6 +14,7 @@ import JurorCard from "../Home/TopJurors/JurorCard";
 import { ListContainer, StyledLabel } from "../Home/TopJurors";
 import Header from "../Home/TopJurors/Header";
 import { decodeURIFilter } from "utils/uri";
+import { useScrollTop } from "hooks/useScrollTop";
 
 interface IDisplayJurors {
   totalLeaderboardJurors: number;
@@ -28,10 +28,10 @@ const StyledPagination = styled(StandardPagination)`
 
 const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => {
   const { page, order, filter } = useParams();
+  const scrollTop = useScrollTop();
   const { id: searchValue } = decodeURIFilter(filter ?? "all");
   const navigate = useNavigate();
-  const isDesktop = useIsDesktop();
-  const jurorsPerPage = isDesktop ? 20 : 10;
+  const jurorsPerPage = 10;
   const currentPage = parseInt(page ?? "1");
   const jurorSkip = jurorsPerPage * (currentPage - 1);
   const { data: queryJurors } = useJurorsByCoherenceScore(
@@ -62,6 +62,7 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
   );
 
   const handlePageChange = (newPage: number) => {
+    scrollTop(true);
     navigate(`/jurors/${newPage}/${order}/${filter}`);
   };
 
