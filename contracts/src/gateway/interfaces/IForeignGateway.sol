@@ -1,11 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@jaybuidl, @shotaronowhere, @shalzz]
-/// @custom:reviewers: []
-/// @custom:auditors: []
-/// @custom:bounties: []
-/// @custom:deployments: []
-
 pragma solidity 0.8.24;
 
 import "../../arbitration/interfaces/IArbitratorV2.sol";

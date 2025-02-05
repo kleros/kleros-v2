@@ -1,11 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@epiqueras, @unknownunknown1]
-/// @custom:reviewers: []
-/// @custom:auditors: []
-/// @custom:bounties: []
-/// @custom:deployments: []
-
 pragma solidity 0.8.24;
 
 /// @title SortitionSumTreeFactory
