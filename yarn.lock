@@ -5568,7 +5568,7 @@ __metadata:
     "@typescript-eslint/utils": "npm:^8.15.0"
     "@wagmi/cli": "npm:^2.1.18"
     "@wagmi/connectors": "npm:^5.5.0"
-    "@wagmi/core": "npm:^2.15.0"
+    "@wagmi/core": "npm:^2.16.3"
     "@yornaath/batshit": "npm:^0.9.0"
     eslint: "npm:^9.15.0"
     eslint-config-next: "npm:^15.0.3"
@@ -5678,7 +5678,7 @@ __metadata:
     vite-plugin-node-polyfills: "npm:^0.21.0"
     vite-plugin-svgr: "npm:^4.3.0"
     vite-tsconfig-paths: "npm:^4.3.2"
-    wagmi: "npm:^2.14.0"
+    wagmi: "npm:^2.14.10"
   languageName: unknown
   linkType: soft
 
@@ -6170,25 +6170,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/sdk-communication-layer@npm:0.31.0":
-  version: 0.31.0
-  resolution: "@metamask/sdk-communication-layer@npm:0.31.0"
-  dependencies:
-    bufferutil: "npm:^4.0.8"
-    date-fns: "npm:^2.29.3"
-    debug: "npm:^4.3.4"
-    utf-8-validate: "npm:^5.0.2"
-    uuid: "npm:^8.3.2"
-  peerDependencies:
-    cross-fetch: ^4.0.0
-    eciesjs: "*"
-    eventemitter2: ^6.4.9
-    readable-stream: ^3.6.2
-    socket.io-client: ^4.5.1
-  checksum: 10/e5d2b1c5d50b5a92b20606941fb167a97bf6d9c41eac72e3c4b501ba545da5679e81b97bb1cbf9ff497ad30791057423c8f7841cd9d190ad53460916a224f757
-  languageName: node
-  linkType: hard
-
 "@metamask/sdk-communication-layer@npm:0.32.0":
   version: 0.32.0
   resolution: "@metamask/sdk-communication-layer@npm:0.32.0"
@@ -6226,15 +6207,6 @@ __metadata:
     react-native:
       optional: true
   checksum: 10/b1ea701706fcbb734c6e780bb3a28e4fe2cea99b8e03faf4330b0fe2682b0ec31d35c79fab4bd007584937d32602f4eb0f09ae1c1dd0fdec927de229014e1c6d
-  languageName: node
-  linkType: hard
-
-"@metamask/sdk-install-modal-web@npm:0.31.5":
-  version: 0.31.5
-  resolution: "@metamask/sdk-install-modal-web@npm:0.31.5"
-  dependencies:
-    "@paulmillr/qr": "npm:^0.2.1"
-  checksum: 10/42f3f4f9e81ee8cb381f5b0cf5497c1a4a72972eeddde806722d6f20d51d3f2a7903b72f8c2f72f1040af65342ff18a1f1a361976e85068a835a794614a7f624
   languageName: node
   linkType: hard
 
@@ -6280,33 +6252,6 @@ __metadata:
     react-dom:
       optional: true
   checksum: 10/a30e975de75493daefcd34eebf37ebbe13a9aa811cf5acb82f727742f86fdef3a051f9abd209478e0f9c65efa0d4ea5010d4efcdb0d5701c05e317172ac30dfc
-  languageName: node
-  linkType: hard
-
-"@metamask/sdk@npm:0.31.5":
-  version: 0.31.5
-  resolution: "@metamask/sdk@npm:0.31.5"
-  dependencies:
-    "@babel/runtime": "npm:^7.26.0"
-    "@metamask/onboarding": "npm:^1.0.1"
-    "@metamask/providers": "npm:16.1.0"
-    "@metamask/sdk-communication-layer": "npm:0.31.0"
-    "@metamask/sdk-install-modal-web": "npm:0.31.5"
-    "@paulmillr/qr": "npm:^0.2.1"
-    bowser: "npm:^2.9.0"
-    cross-fetch: "npm:^4.0.0"
-    debug: "npm:^4.3.4"
-    eciesjs: "npm:^0.4.11"
-    eth-rpc-errors: "npm:^4.0.3"
-    eventemitter2: "npm:^6.4.9"
-    obj-multiplex: "npm:^1.0.0"
-    pump: "npm:^3.0.0"
-    readable-stream: "npm:^3.6.2"
-    socket.io-client: "npm:^4.5.1"
-    tslib: "npm:^2.6.0"
-    util: "npm:^0.12.4"
-    uuid: "npm:^8.3.2"
-  checksum: 10/3312d2dfff79c8cb4cb72e0dd992c6f92a284b5b3c6d3657f454c0c9adf93820be102c70b7d1b9c1b1e08a8f7ddad8a1ceaacc0c250917017339ee3b7115f051
   languageName: node
   linkType: hard
 
@@ -10737,27 +10682,6 @@ __metadata:
   bin:
     wagmi: dist/esm/cli.js
   checksum: 10/3dbbc60dd149e9937e99f8e9a23990c0f9e41527481e36a8119f7f61238ce36a9c36c726368c43233f61a09bb8b3968872ffb7c6509e1b4f4c64cffc84be1905
-  languageName: node
-  linkType: hard
-
-"@wagmi/connectors@npm:5.7.5":
-  version: 5.7.5
-  resolution: "@wagmi/connectors@npm:5.7.5"
-  dependencies:
-    "@coinbase/wallet-sdk": "npm:4.2.3"
-    "@metamask/sdk": "npm:0.31.5"
-    "@safe-global/safe-apps-provider": "npm:0.18.5"
-    "@safe-global/safe-apps-sdk": "npm:9.1.0"
-    "@walletconnect/ethereum-provider": "npm:2.17.0"
-    cbw-sdk: "npm:@coinbase/wallet-sdk@3.9.3"
-  peerDependencies:
-    "@wagmi/core": 2.16.3
-    typescript: ">=5.0.4"
-    viem: 2.x
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10/41962f2c07a2ba3dd30c5cb8379194a8321fbc906ed11814cf668f26a6f4e1ed47868b9a1b4d26a3224df9a8725d48c567b05c9a1ab85b83da6a5b9cd2cc0344
   languageName: node
   linkType: hard
 
@@ -33954,26 +33878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wagmi@npm:^2.14.0":
-  version: 2.14.9
-  resolution: "wagmi@npm:2.14.9"
-  dependencies:
-    "@wagmi/connectors": "npm:5.7.5"
-    "@wagmi/core": "npm:2.16.3"
-    use-sync-external-store: "npm:1.4.0"
-  peerDependencies:
-    "@tanstack/react-query": ">=5.0.0"
-    react: ">=18"
-    typescript: ">=5.0.4"
-    viem: 2.x
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10/cf9862e09edc6f713fe83802fb613028e5f78869fa52da3332271b30181d4b020f70f726a56912173efc808f3f165a54859688b5ebd3f30b3f1ba69a132576d6
-  languageName: node
-  linkType: hard
-
-"wagmi@npm:^2.14.10":
+"wagmi@npm:^2.14.0, wagmi@npm:^2.14.10":
   version: 2.14.10
   resolution: "wagmi@npm:2.14.10"
   dependencies:
