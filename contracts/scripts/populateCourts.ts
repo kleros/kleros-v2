@@ -7,6 +7,8 @@ import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
 import courtsV2ArbitrumDevnet from "../config/courts.v2.devnet.json";
 import courtsV2MainnetNeo from "../config/courts.v2.mainnet-neo.json";
 import { isDevnet } from "../deploy/utils";
+import { execute } from "./utils/execution";
+import { getContracts, Cores } from "./utils/contracts";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -20,12 +22,6 @@ enum Sources {
   V2_DEVNET,
   V2_TESTNET,
   V2_MAINNET_NEO,
-}
-
-enum Cores {
-  BASE,
-  NEO,
-  UNIVERSITY,
 }
 
 type Court = {
@@ -57,11 +53,7 @@ task("populate:courts", "Populates the courts and their parameters")
     undefined,
     types.int
   )
-  .addOptionalParam(
-    "coreType",
-    "The type of core to use between base, neo, university (default: base)",
-    Cores.BASE.toString()
-  )
+  .addOptionalParam("coreType", "The type of core to use between base, neo, university (default: base)", Cores.BASE)
   .addFlag("reverse", "Iterates the courts in reverse order, useful to increase minStake in the child courts first")
   .addFlag("forceV1ParametersToDev", "Use development values for the v1 courts parameters")
   .setAction(async (taskArgs, hre) => {
@@ -90,13 +82,12 @@ task("populate:courts", "Populates the courts and their parameters")
     }
     console.log("Populating from source %s", Sources[from]);
 
-    let coreType = Cores.BASE;
-    coreType = Cores[taskArgs.coreType.toUpperCase() as keyof typeof Cores];
+    const coreType = Cores[taskArgs.coreType.toUpperCase() as keyof typeof Cores];
     if (coreType === undefined) {
       console.error("Invalid core type, must be one of base, neo, university");
       return;
     }
-    console.log("Using core type %s", Cores[coreType]);
+    console.log("Using core type %s", coreType);
 
     const truncateWei = (x: bigint) => (x / TEN_THOUSAND_GWEI) * TEN_THOUSAND_GWEI;
 
@@ -163,21 +154,7 @@ task("populate:courts", "Populates the courts and their parameters")
 
     console.log("courtsV2 = %O", courtsV2);
 
-    let core: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
-    switch (coreType) {
-      case Cores.UNIVERSITY:
-        console.log("Using KlerosCoreUniversity");
-        core = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
-        break;
-      case Cores.NEO:
-        console.log("Using KlerosCoreNeo");
-        core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
-        break;
-      default:
-        console.log("Using KlerosCore");
-        core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-        break;
-    }
+    const { core } = await getContracts(hre, coreType);
 
     for (const court of courtsV2) {
       const courtPresent = await core.courts(court.id).catch(() => {});
@@ -244,43 +221,49 @@ task("populate:courts", "Populates the courts and their parameters")
           continue;
         }
         try {
-          await core.changeCourtParameters(
-            court.id,
-            court.hiddenVotes,
-            court.minStake,
-            court.alpha,
-            court.feeForJuror,
-            court.jurorsForCourtJump,
-            [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]]
-          );
+          await core.changeCourtParameters
+            .populateTransaction(
+              court.id,
+              court.hiddenVotes,
+              court.minStake,
+              court.alpha,
+              court.feeForJuror,
+              court.jurorsForCourtJump,
+              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]]
+            )
+            .then(execute);
         } catch (error) {
           console.error("Error changing court parameters: %s", error);
         }
       } else {
         console.log("Court %d not found, creating it with", court.id, court);
         if (coreType === Cores.UNIVERSITY) {
-          await (core as KlerosCoreUniversity).createCourt(
-            court.parent,
-            court.hiddenVotes,
-            court.minStake,
-            court.alpha,
-            court.feeForJuror,
-            court.jurorsForCourtJump,
-            [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-            [DISPUTE_KIT_CLASSIC]
-          );
+          await (core as KlerosCoreUniversity).createCourt
+            .populateTransaction(
+              court.parent,
+              court.hiddenVotes,
+              court.minStake,
+              court.alpha,
+              court.feeForJuror,
+              court.jurorsForCourtJump,
+              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+              [DISPUTE_KIT_CLASSIC]
+            )
+            .then(execute);
         } else {
-          await (core as KlerosCore).createCourt(
-            court.parent,
-            court.hiddenVotes,
-            court.minStake,
-            court.alpha,
-            court.feeForJuror,
-            court.jurorsForCourtJump,
-            [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-            ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
-            [DISPUTE_KIT_CLASSIC]
-          );
+          await (core as KlerosCore).createCourt
+            .populateTransaction(
+              court.parent,
+              court.hiddenVotes,
+              court.minStake,
+              court.alpha,
+              court.feeForJuror,
+              court.jurorsForCourtJump,
+              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+              ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
+              [DISPUTE_KIT_CLASSIC]
+            )
+            .then(execute);
         }
       }
 
