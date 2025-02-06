@@ -73,7 +73,7 @@ if (!projectId) {
   throw new Error("WalletConnect project ID is not set in NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID environment variable.");
 }
 
-const wagmiAdapter = new WagmiAdapter({
+export const wagmiAdapter = new WagmiAdapter({
   networks: chains,
   projectId,
   transports,

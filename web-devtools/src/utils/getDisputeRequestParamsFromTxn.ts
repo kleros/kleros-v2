@@ -1,13 +1,13 @@
 import { getPublicClient } from "@wagmi/core";
 import { type GetTransactionReceiptReturnType, decodeEventLog, getEventSelector } from "viem";
 
-import { wagmiConfig } from "context/Web3Provider";
+import { wagmiAdapter } from "context/Web3Provider";
 import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { isUndefined } from "utils/isUndefined";
 
 export const getDisputeRequestParamsFromTxn = async (hash: `0x${string}`, chainId: number) => {
   try {
-    const publicClient = getPublicClient(wagmiConfig, { chainId });
+    const publicClient = getPublicClient(wagmiAdapter.wagmiConfig, { chainId });
     if (!publicClient) return;
     const txn: GetTransactionReceiptReturnType = await publicClient.getTransactionReceipt({
       hash,
