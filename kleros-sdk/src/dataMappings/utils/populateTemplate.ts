@@ -1,6 +1,6 @@
 import mustache from "mustache";
 import { DisputeDetails } from "./disputeDetailsTypes";
-import DisputeDetailsSchema from "./disputeDetailsSchema";
+import DisputeDetailsSchema, { RefuseToArbitrateAnswer } from "./disputeDetailsSchema";
 
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
   const render = mustache.render(mustacheTemplate, data);
@@ -10,6 +10,12 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
   if (!validation.success) {
     throw validation.error;
   }
+
+  // Filter out any existing answer with id 0 and add our standard Refuse to Arbitrate option
+  (dispute as DisputeDetails).answers = [
+    RefuseToArbitrateAnswer,
+    ...((dispute as DisputeDetails).answers.filter((answer) => answer.id && BigInt(answer.id) !== BigInt(0)) || []),
+  ];
 
   return dispute;
 };

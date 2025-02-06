@@ -5,8 +5,8 @@ import { Card as _Card } from "@kleros/ui-components-library";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Coherence from "pages/Dashboard/JurorInfo/Coherence";
-import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
+import Coherence from "pages/Profile/JurorInfo/Coherence";
+import PixelArt from "pages/Profile/JurorInfo/PixelArt";
 
 import Template from "./MainStructureTemplate";
 import { Title, ParagraphsContainer, LeftContentContainer } from "./PageContentsTemplate";
@@ -35,16 +35,16 @@ const leftPageContents = [
     title: "Juror Level 1: Pythagoras",
     paragraphs: [
       "Jurors are classified into distinct levels according to their performance starting from Level 1.",
-      "Level 1: Jurors with 0 cases arbitrated, OR Jurors with ≥ 1 case arbitrated with 0-70% of coherent votes.",
+      "Level 1: Jurors with ≥ 1 case arbitrated with 0-70% of coherent votes.",
     ],
   },
   {
     title: "Juror Level 2: Socrates",
-    paragraphs: ["Level 2: Jurors with ≥ 3 cases arbitrated with 70%-80% of coherent votes."],
+    paragraphs: ["Level 2: Jurors with ≥ 3 cases arbitrated with more than 70% coherent votes."],
   },
   {
     title: "Juror Level 3: Plato",
-    paragraphs: ["Level 3: Jurors with ≥ 7 cases arbitrated with 80%-90% of coherent votes."],
+    paragraphs: ["Level 3: Jurors with ≥ 7 cases arbitrated with more than 80% of coherent votes."],
   },
   {
     title: "Juror Level 4: Aristotle",

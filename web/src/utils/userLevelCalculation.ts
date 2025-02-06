@@ -2,24 +2,27 @@ interface ILevelCriteria {
   level: number;
   title: string;
   minDisputes: number;
-  minScore: number;
-  maxScore: number;
+  minCoherencePercentage: number;
+  maxCoherencePercentage: number;
 }
 
 const levelCriteria: ILevelCriteria[] = [
-  { level: 4, title: "Aristotle", minDisputes: 10, minScore: 91, maxScore: 100 },
-  { level: 3, title: "Plato", minDisputes: 7, minScore: 81, maxScore: 90 },
-  { level: 2, title: "Socrates", minDisputes: 3, minScore: 71, maxScore: 80 },
-  { level: 1, title: "Pythagoras", minDisputes: 0, minScore: 0, maxScore: 70 },
-  { level: 0, title: "Diogenes", minDisputes: 3, minScore: 0, maxScore: 49 },
+  { level: 4, title: "Aristotle", minDisputes: 10, minCoherencePercentage: 90, maxCoherencePercentage: 100 },
+  { level: 3, title: "Plato", minDisputes: 7, minCoherencePercentage: 80, maxCoherencePercentage: 100 },
+  { level: 2, title: "Socrates", minDisputes: 3, minCoherencePercentage: 70, maxCoherencePercentage: 100 },
+  { level: 1, title: "Pythagoras", minDisputes: 1, minCoherencePercentage: 0, maxCoherencePercentage: 70 },
+  { level: 0, title: "Diogenes", minDisputes: 3, minCoherencePercentage: 0, maxCoherencePercentage: 49 },
 ];
 
-export const getUserLevelData = (coherenceScore: number, totalResolvedDisputes: number) => {
+export const getUserLevelData = (coherencePercentage: string, totalResolvedDisputes: number) => {
+  const percentageToNumber = (percentage: string) => parseFloat(percentage.replace("%", ""));
+  const coherenceValue = percentageToNumber(coherencePercentage);
+
   for (const criteria of levelCriteria) {
     if (
       totalResolvedDisputes >= criteria.minDisputes &&
-      coherenceScore >= criteria.minScore &&
-      coherenceScore <= criteria.maxScore
+      coherenceValue >= criteria.minCoherencePercentage &&
+      coherenceValue <= criteria.maxCoherencePercentage
     ) {
       return criteria;
     }

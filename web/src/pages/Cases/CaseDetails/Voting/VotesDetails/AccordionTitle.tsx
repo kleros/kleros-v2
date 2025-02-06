@@ -3,14 +3,12 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Identicon from "react-identicons";
-
 import { Answer } from "context/NewDisputeContext";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
-import { shortenAddress } from "utils/shortenAddress";
 
 import { InternalLink } from "components/InternalLink";
+import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
 
 const TitleContainer = styled.div`
   display: flex;
@@ -73,7 +71,7 @@ const VoteStatus: React.FC<{
 
   return (
     <StyledLabel>
-      {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(parseInt(choice), answers)}</StyledSmall>}
+      {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(choice, answers)}</StyledSmall>}
     </StyledLabel>
   );
 };
@@ -88,14 +86,13 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
-  const dashboardLink = `/dashboard/1/desc/all?address=${juror}`;
+  const profileLink = `/profile/1/desc/all?address=${juror}`;
 
   return (
     <TitleContainer>
       <AddressContainer>
-        <Identicon size="20" string={juror} />
-        <StyledInternalLink to={dashboardLink}>
-          <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
+        <StyledInternalLink to={profileLink}>
+          <JurorTitle address={juror} />
         </StyledInternalLink>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />

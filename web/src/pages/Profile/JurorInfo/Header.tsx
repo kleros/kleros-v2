@@ -15,6 +15,7 @@ import { shortenAddress } from "utils/shortenAddress";
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 import { ExternalLink } from "components/ExternalLink";
+import JurorsLeaderboardButton from "components/JurorsLeaderboardButton";
 
 const Container = styled.div`
   display: flex;
@@ -87,7 +88,7 @@ const Header: React.FC<IHeader> = ({
   return (
     <Container>
       <StyledTitle>
-        Juror Dashboard -
+        Juror Profile -
         <Copiable copiableContent={addressToQuery} info="Copy Address">
           <StyledExternalLink to={addressExplorerLink} target="_blank" rel="noopener noreferrer">
             {shortenAddress(addressToQuery)}
@@ -95,6 +96,7 @@ const Header: React.FC<IHeader> = ({
         </Copiable>
       </StyledTitle>
       <LinksContainer>
+        <JurorsLeaderboardButton />
         <HowItWorks
           isMiniGuideOpen={isJurorLevelsMiniGuideOpen}
           toggleMiniGuide={toggleJurorLevelsMiniGuide}

@@ -6,6 +6,7 @@ import { Route, Routes, useParams, Navigate } from "react-router-dom";
 import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
+import { ClassicAppealProvider } from "hooks/useClassicAppealContext";
 import { VotingContextProvider } from "hooks/useVotingContext";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -58,32 +59,34 @@ const CaseDetails: React.FC = () => {
 
   return (
     <VotingContextProvider>
-      <Container>
-        <HeaderContainer>
-          <Header>
-            Case #{id} {id ? <CaseStarButton id={id} /> : null}
-          </Header>
+      <ClassicAppealProvider>
+        <Container>
+          <HeaderContainer>
+            <Header>
+              Case #{id} {id ? <CaseStarButton id={id} /> : null}
+            </Header>
 
-          <MaintenanceButtons />
-        </HeaderContainer>
-        <Timeline {...{ currentPeriodIndex, dispute }} />
-        <Tabs />
-        <StyledCard>
-          <Routes>
-            <Route
-              path="overview"
-              element={
-                <Overview currentPeriodIndex={currentPeriodIndex} courtID={dispute?.court.id} {...{ arbitrable }} />
-              }
-            />
-            <Route path="evidence" element={<Evidence />} />
-            <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
-            <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
-            <Route path="*" element={<Navigate to="overview" replace />} />
-          </Routes>
-        </StyledCard>
-        <ScrollTop />
-      </Container>
+            <MaintenanceButtons />
+          </HeaderContainer>
+          <Timeline {...{ currentPeriodIndex, dispute }} />
+          <Tabs />
+          <StyledCard>
+            <Routes>
+              <Route
+                path="overview"
+                element={
+                  <Overview currentPeriodIndex={currentPeriodIndex} courtID={dispute?.court.id} {...{ arbitrable }} />
+                }
+              />
+              <Route path="evidence" element={<Evidence />} />
+              <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
+              <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
+              <Route path="*" element={<Navigate to="overview" replace />} />
+            </Routes>
+          </StyledCard>
+          <ScrollTop />
+        </Container>
+      </ClassicAppealProvider>
     </VotingContextProvider>
   );
 };

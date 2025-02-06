@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import { getUserLevelData } from "utils/userLevelCalculation";
+import { getCoherencePercent } from "utils/getCoherencePercent";
 
 import { useUserQuery } from "queries/useUser";
 
@@ -43,13 +44,11 @@ interface IJurorInfo {
 
 const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
   const { data } = useUserQuery(addressToQuery);
-  // TODO check graph schema
-  const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
   const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
   const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
   const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
-
-  const userLevelData = getUserLevelData(coherenceScore, totalResolvedDisputes);
+  const coherencePercentage = getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes));
+  const userLevelData = getUserLevelData(coherencePercentage, totalResolvedDisputes);
 
   return (
     <Container>

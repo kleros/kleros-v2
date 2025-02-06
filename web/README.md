@@ -1,5 +1,5 @@
 <p align="center">
-  <b style="font-size: 32px;">Kleros Court v2</b>
+  <b style="font-size: 32px;">Kleros Court v2 </b>
 </p>
 
 <p align="center">

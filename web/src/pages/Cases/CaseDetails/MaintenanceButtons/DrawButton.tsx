@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { Link } from "react-router-dom";
+import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { Button, Field } from "@kleros/ui-components-library";
@@ -11,15 +13,13 @@ import { wrapWithToast } from "utils/wrapWithToast";
 
 import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
 
+import { isKlerosUniversity } from "src/consts";
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { Phases } from "components/Phase";
 
 import { IBaseMaintenanceButton } from ".";
-import { Link } from "react-router-dom";
-import { isKlerosUniversity } from "src/consts";
-import { isAddress } from "viem";
 
 const StyledButton = styled(Button)`
   width: 100%;

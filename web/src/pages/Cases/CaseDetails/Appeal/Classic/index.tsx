@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import AppealIcon from "svgs/icons/appeal.svg";
 
-import { useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
+import { useSelectedOptionContext } from "hooks/useClassicAppealContext";
 import { isUndefined } from "utils/index";
 
 import HowItWorks from "components/HowItWorks";
@@ -23,7 +23,6 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const { selectedOption } = useSelectedOptionContext();
-  const options = useOptionsContext();
 
   return (
     <>
@@ -34,7 +33,7 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
           popupType={PopupType.APPEAL}
           setIsOpen={setIsPopupOpen}
           setAmount={setAmount}
-          option={!isUndefined(options) && !isUndefined(selectedOption) ? options[selectedOption] : ""}
+          option={!isUndefined(selectedOption) ? selectedOption.title : ""}
           amount={amount}
         />
       )}
@@ -48,7 +47,7 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
       </AppealHeader>
       <label> The jury decision is appealed when two options are fully funded. </label>
       <Options setAmount={setAmount} />
-      <Fund amount={amount} setAmount={setAmount} setIsOpen={setIsPopupOpen} />
+      <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} />
     </>
   );
 };

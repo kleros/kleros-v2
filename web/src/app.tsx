@@ -14,8 +14,9 @@ import QueryClientProvider from "context/QueryClientProvider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
 const Home = lazy(() => import("./pages/Home"));
 const Cases = lazy(() => import("./pages/Cases"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Profile = lazy(() => import("./pages/Profile"));
 const Courts = lazy(() => import("./pages/Courts"));
+const Jurors = lazy(() => import("./pages/Jurors"));
 const DisputeResolver = lazy(() => import("./pages/Resolver"));
 const GetPnk = lazy(() => import("./pages/GetPnk"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -64,10 +65,18 @@ const App: React.FC = () => {
                           }
                         />
                         <Route
-                          path="dashboard/:page/:order/:filter"
+                          path="jurors/:page/:order/:filter"
                           element={
                             <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <Dashboard />
+                              <Jurors />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="profile/:page/:order/:filter"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <Profile />
                             </Suspense>
                           }
                         />

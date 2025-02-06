@@ -1,20 +1,17 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassic";
-import { ClassicRound } from "../../generated/schema";
-import { ONE, ZERO } from "../utils";
+import { Answer, ClassicRound } from "../../generated/schema";
+import { ZERO } from "../utils";
 
 export function createClassicRound(disputeID: string, numberOfChoices: BigInt, roundIndex: BigInt): void {
-  const choicesLength = numberOfChoices.plus(ONE);
   const localDisputeID = `1-${disputeID}`;
   const id = `${localDisputeID}-${roundIndex.toString()}`;
   const classicRound = new ClassicRound(id);
   classicRound.localDispute = localDisputeID;
   classicRound.winningChoice = ZERO;
-  classicRound.counts = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.tied = true;
   classicRound.totalVoted = ZERO;
   classicRound.totalCommited = ZERO;
-  classicRound.paidFees = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.feeRewards = ZERO;
   classicRound.appealFeesDispersed = false;
   classicRound.totalFeeDispersed = ZERO;
@@ -27,21 +24,31 @@ class CurrentRulingInfo {
   tied: boolean;
 }
 
+export function ensureAnswer(localRoundId: string, answerId: BigInt): Answer {
+  const id = `${localRoundId}-${answerId}`;
+  let answer = Answer.load(id);
+  if (answer) return answer;
+  answer = new Answer(id);
+  answer.answerId = answerId;
+  answer.count = ZERO;
+  answer.paidFee = ZERO;
+  answer.funded = false;
+  answer.localRound = localRoundId;
+  return answer;
+}
+
 export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt, delta: BigInt): CurrentRulingInfo {
   const round = ClassicRound.load(id);
   if (!round) return { ruling: ZERO, tied: false };
-  const choiceNum = choice.toI32();
-  const newChoiceCount = round.counts[choiceNum].plus(delta);
-  let newCounts: BigInt[] = [];
-  for (let i = 0; i < round.counts.length; i++) {
-    if (BigInt.fromI32(i).equals(choice)) {
-      newCounts.push(newChoiceCount);
-    } else {
-      newCounts.push(round.counts[i]);
-    }
-  }
-  round.counts = newCounts;
-  const currentWinningCount = round.counts[round.winningChoice.toI32()];
+  const answer = ensureAnswer(id, choice);
+
+  answer.count = answer.count.plus(delta);
+
+  const newChoiceCount = answer.count;
+
+  const winningAnswer = ensureAnswer(id, round.winningChoice);
+  const currentWinningCount = winningAnswer.count;
+
   if (choice.equals(round.winningChoice)) {
     if (round.tied) round.tied = false;
   } else {
@@ -53,6 +60,8 @@ export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt, delt
     }
   }
   round.totalVoted = round.totalVoted.plus(delta);
+
+  answer.save();
   round.save();
   return { ruling: round.winningChoice, tied: round.tied };
 }
@@ -68,15 +77,9 @@ export function updateChoiceFundingFromContributionEvent(event: Contribution): v
 
   const choice = event.params._choice;
   const amount = event.params._amount;
-  const currentPaidFees = classicRound.paidFees[choice.toI32()];
-  let newPaidFees: BigInt[] = [];
-  for (let i = 0; i < classicRound.paidFees.length; i++) {
-    if (BigInt.fromI32(i).equals(choice)) {
-      newPaidFees.push(currentPaidFees.plus(amount));
-    } else {
-      newPaidFees.push(classicRound.paidFees[i]);
-    }
-  }
-  classicRound.paidFees = newPaidFees;
+  const answer = ensureAnswer(roundID, choice);
+  answer.paidFee = answer.paidFee.plus(amount);
+
+  answer.save();
   classicRound.save();
 }

@@ -29,7 +29,7 @@ interface IStageOne {
 }
 
 const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
-  const { paidFees, winningChoice, loserRequiredFunding, winnerRequiredFunding, fundedChoices } = useFundingContext();
+  const { winningChoice, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
   const options = useOptionsContext();
   const { loserSideCountdown } = useCountdownContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
@@ -39,22 +39,21 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
       <StageExplainer countdown={loserSideCountdown} stage={1} />
       <label> Which option do you want to fund? </label>
       <OptionsContainer>
-        {!isUndefined(paidFees) &&
-          !isUndefined(winnerRequiredFunding) &&
+        {!isUndefined(winnerRequiredFunding) &&
           !isUndefined(loserRequiredFunding) &&
-          options?.map((answer: string, i: number) => {
-            const requiredFunding = i.toString() === winningChoice ? winnerRequiredFunding : loserRequiredFunding;
+          options?.map((option) => {
+            const requiredFunding = option.id === winningChoice ? winnerRequiredFunding : loserRequiredFunding;
             return (
               <OptionCard
-                key={answer}
-                text={answer}
-                selected={i === selectedOption}
-                winner={i.toString() === winningChoice}
-                funding={paidFees[i] ? BigInt(paidFees[i]) : 0n}
+                key={option.id}
+                text={option.title}
+                selected={option.id === selectedOption?.id}
+                winner={option.id === winningChoice}
+                funding={BigInt(option.paidFee ?? 0)}
                 required={requiredFunding}
-                canBeSelected={!fundedChoices?.includes(i.toString())}
+                canBeSelected={!option?.funded}
                 onClick={() => {
-                  setSelectedOption(i);
+                  setSelectedOption(option);
                   setAmount(formatUnitsWei(requiredFunding));
                 }}
               />
