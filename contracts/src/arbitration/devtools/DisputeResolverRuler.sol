@@ -1,10 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@unknownunknown1, @jaybuidl]
-/// @custom:reviewers: []
-/// @custom:auditors: []
-/// @custom:bounties: []
-
 import {DisputeResolver, IArbitratorV2, IDisputeTemplateRegistry} from "../arbitrables/DisputeResolver.sol";
 
 pragma solidity 0.8.24;

@@ -1,10 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@unknownunknown1, @jaybuidl]
-/// @custom:reviewers: []
-/// @custom:auditors: []
-/// @custom:bounties: []
-
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
 

@@ -133,11 +133,11 @@ const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
 };
 
 const getOptions = (dispute?: DisputeDetails, classicDispute?: ClassicAppealQuery["dispute"]) => {
-  if (!dispute) return [];
+  if (!dispute || Object.keys(dispute).length === 0) return [];
   const currentLocalRound = getCurrentLocalRound(classicDispute);
   const classicAnswers = currentLocalRound?.answers;
 
-  const options = dispute.answers.map((answer) => {
+  const options = dispute.answers?.map((answer) => {
     const classicAnswer = classicAnswers?.find((classicAnswer) => BigInt(classicAnswer.answerId) == BigInt(answer.id));
     // converting hexadecimal id to stringified bigint to match id fomr subgraph
     return {

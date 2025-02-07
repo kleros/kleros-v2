@@ -122,6 +122,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   console.log(`core.changeArbitrableWhitelist(${resolver.address}, true)`);
   await core.changeArbitrableWhitelist(resolver.address, true);
+
+  await deploy("KlerosCoreSnapshotProxy", {
+    from: deployer,
+    args: [deployer, core.target],
+    log: true,
+  });
 };
 
 deployArbitration.tags = ["ArbitrationNeo"];

@@ -10,6 +10,7 @@ import { ChainlinkRNG, DisputeKitClassic, KlerosCore } from "../typechain-types"
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
+  const { deploy } = deployments;
   const { ZeroAddress } = hre.ethers;
   const RNG_LOOKAHEAD = 20;
 
@@ -94,6 +95,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }
+
+  await deploy("KlerosCoreSnapshotProxy", {
+    from: deployer,
+    args: [deployer, core.target],
+    log: true,
+  });
 };
 
 deployArbitration.tags = ["Arbitration"];
