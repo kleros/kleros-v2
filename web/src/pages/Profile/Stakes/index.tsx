@@ -3,8 +3,6 @@ import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 
-import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
-
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -40,16 +38,14 @@ interface IStakes {
 
 const Stakes: React.FC<IStakes> = ({ searchParamAddress }) => {
   const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(searchParamAddress);
-  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
-    args: [searchParamAddress, BigInt(1)],
-  });
   const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;
-  const lockedStake = jurorBalance?.[1];
+  const totalStake = stakeData?.jurorTokensPerCourts?.[0]?.effectiveStake ?? "0";
+  const lockedStake = stakeData?.jurorTokensPerCourts?.[0]?.locked ?? "0";
 
   return (
     <Container>
-      <Header lockedStake={lockedStake ?? BigInt(0)} />
+      <Header {...{ totalStake, lockedStake }} />
       {isLoading ? <Skeleton /> : null}
       {!isStaked && !isLoading ? <StyledLabel>No stakes found</StyledLabel> : null}
       {isStaked && !isLoading ? (

@@ -1,14 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { formatUnits } from "viem";
 
+import PnkIcon from "svgs/icons/pnk.svg";
 import LockerIcon from "svgs/icons/locker.svg";
 
 import { isUndefined } from "utils/index";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import NumberDisplay from "components/NumberDisplay";
 
@@ -28,22 +29,33 @@ const Container = styled.div`
   )}
 `;
 
+const StakedPnk = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
 const LockedPnk = styled.div`
   display: flex;
-  flex-wrap: nowrap;
   gap: 8px;
-  justify-content: flex-start;
-
-  ${landscapeStyle(
-    () => css`
-      align-self: center;
-    `
-  )}
+  align-items: center;
 `;
 
 const StyledTitle = styled.h1`
   margin-bottom: 0;
   font-size: ${responsiveSize(20, 24)};
+`;
+
+const TotalStakeAndLockedPnk = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+`;
+
+const StyledPnkIcon = styled(PnkIcon)`
+  fill: ${({ theme }) => theme.secondaryPurple};
+  width: 14px;
 `;
 
 const StyledLockerIcon = styled(LockerIcon)`
@@ -52,24 +64,37 @@ const StyledLockerIcon = styled(LockerIcon)`
 `;
 
 interface IHeader {
-  lockedStake: bigint;
+  totalStake: string;
+  lockedStake: string;
 }
 
-const Header: React.FC<IHeader> = ({ lockedStake }) => {
-  const formattedLockedStake = !isUndefined(lockedStake) && formatUnits(lockedStake, 18);
+const Header: React.FC<IHeader> = ({ totalStake, lockedStake }) => {
+  const formattedTotalStake = formatUnits(BigInt(totalStake), 18);
+  const formattedLockedStake = formatUnits(BigInt(lockedStake), 18);
 
   return (
     <Container>
       <StyledTitle>Stakes</StyledTitle>
-      {!isUndefined(lockedStake) ? (
-        <LockedPnk>
-          <StyledLockerIcon />
-          <label> Locked Stake: </label>
-          <small>
-            <NumberDisplay value={formattedLockedStake.toString()} unit="PNK" />
-          </small>
-        </LockedPnk>
-      ) : null}
+      <TotalStakeAndLockedPnk>
+        {!isUndefined(totalStake) ? (
+          <StakedPnk>
+            <StyledPnkIcon />
+            <label> Total Stake: </label>
+            <small>
+              <NumberDisplay value={formattedTotalStake} unit="PNK" />
+            </small>
+          </StakedPnk>
+        ) : null}
+        {!isUndefined(lockedStake) ? (
+          <LockedPnk>
+            <StyledLockerIcon />
+            <label> Locked Stake: </label>
+            <small>
+              <NumberDisplay value={formattedLockedStake} unit="PNK" />
+            </small>
+          </LockedPnk>
+        ) : null}
+      </TotalStakeAndLockedPnk>
     </Container>
   );
 };

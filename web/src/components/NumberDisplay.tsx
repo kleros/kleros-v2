@@ -1,6 +1,8 @@
 import React from "react";
 
 import { Tooltip } from "@kleros/ui-components-library";
+
+import { commify } from "utils/commify";
 interface INumberDisplay {
   value: string | number;
   unit?: string;
@@ -31,7 +33,7 @@ const NumberDisplay: React.FC<INumberDisplay> = ({
   isCurrency = false,
 }) => {
   const parsedValue = Number(value);
-  const formattedValue = getFormattedValue(parsedValue, decimals);
+  const formattedValue = commify(getFormattedValue(parsedValue, decimals));
   const tooltipValue = isCurrency ? `${unit} ${value}` : `${value} ${unit}`;
   const displayUnit = showUnitInDisplay ? unit : "";
   const displayValue = isCurrency ? `${displayUnit} ${formattedValue}` : `${formattedValue} ${displayUnit}`;
