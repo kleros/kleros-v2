@@ -11,9 +11,10 @@ const Container = styled.div`
   display: flex;
   width: 100%;
   flex-direction: row;
-  gap: 16px;
+  gap: 8px 16px;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 
   small {
     height: 100%;

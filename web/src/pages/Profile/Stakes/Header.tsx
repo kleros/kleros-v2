@@ -55,7 +55,7 @@ const TotalStakeAndLockedPnk = styled.div`
 
 const StyledPnkIcon = styled(PnkIcon)`
   fill: ${({ theme }) => theme.secondaryPurple};
-  width: 14px;
+  width: 16px;
 `;
 
 const StyledLockerIcon = styled(LockerIcon)`
