@@ -27,7 +27,7 @@ import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestI
 import FetchFromIDInput from "./FetchFromIdInput";
 import CustomContextInputs from "./CustomContextInputs";
 import { debounceErrorToast } from "utils/debounceErrorToast";
-import { isEmpty } from "utils/isEmtpy";
+import { isEmpty } from "utils/isEmpty";
 
 const Container = styled.div`
   height: auto;
