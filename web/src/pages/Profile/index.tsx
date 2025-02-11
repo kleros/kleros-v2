@@ -54,9 +54,9 @@ const ConnectWalletContainer = styled.div`
 `;
 
 const TABS = [
-  { text: "Stakes", value: 0, Icon: PnkIcon, path: "stakes" },
+  { text: "Stakes", value: 0, Icon: PnkIcon, path: "stakes/1" },
   { text: "Cases", value: 1, Icon: DocIcon, path: "cases/1/desc/all" },
-  { text: "Votes", value: 2, Icon: VotedIcon, path: "votes" },
+  { text: "Votes", value: 2, Icon: VotedIcon, path: "votes/1/desc/all" },
 ];
 
 const getTabIndex = (currentPath: string) => {
@@ -94,13 +94,16 @@ const Profile: React.FC = () => {
             callback={(tabIndex: number) => handleTabChange(tabIndex)}
           />
           <Routes>
-            <Route path="stakes" element={<Stakes {...{ searchParamAddress }} />} />
+            <Route path="stakes/:page" element={<Stakes {...{ searchParamAddress }} />} />
             <Route path="cases/:page/:order/:filter" element={<Cases {...{ searchParamAddress }} />} />
-            <Route path="votes" element={<Votes />} />
+            <Route path="votes/:page/:order/:filter" element={<Votes {...{ searchParamAddress }} />} />
             <Route
               path="*"
               element={
-                <Navigate to={`${searchParamAddress ? `stakes?address=${searchParamAddress}` : "stakes"}`} replace />
+                <Navigate
+                  to={`${searchParamAddress ? `stakes/1?address=${searchParamAddress}` : "stakes/1"}`}
+                  replace
+                />
               }
             />
           </Routes>

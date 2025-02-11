@@ -20,7 +20,7 @@ const Container = styled.div`
   width: 100%;
   gap: 4px 16px;
   align-items: center;
-  margin-bottom: ${responsiveSize(16, 24)};
+  margin-bottom: 20px;
 
   ${landscapeStyle(
     () => css`
@@ -74,7 +74,7 @@ const Header: React.FC<IHeader> = ({ totalStake, lockedStake }) => {
 
   return (
     <Container>
-      <StyledTitle>Stakes</StyledTitle>
+      <StyledTitle>Current Stakes</StyledTitle>
       <TotalStakeAndLockedPnk>
         {!isUndefined(totalStake) ? (
           <StakedPnk>

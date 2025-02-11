@@ -86,7 +86,7 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
-  const profileLink = `/profile/stakes?address=${juror}`;
+  const profileLink = `/profile/stakes/1?address=${juror}`;
 
   return (
     <TitleContainer>
