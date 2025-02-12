@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 
-import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
+import { useAppKit, useAppKitState } from "@reown/appkit/react";
 import { useAccount, useSwitchChain } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -33,8 +33,8 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
 };
 
 const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { open } = useWeb3Modal();
-  const { open: isOpen } = useWeb3ModalState();
+  const { open } = useAppKit();
+  const { open: isOpen } = useAppKitState();
   return (
     <Button
       {...{ className }}

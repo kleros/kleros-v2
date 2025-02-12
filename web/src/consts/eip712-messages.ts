@@ -1,4 +1,3 @@
-import { arbitrumSepolia } from "viem/chains";
 import { DEFAULT_CHAIN } from "./chains";
 
 export default {
@@ -23,7 +22,7 @@ export default {
         telegram,
         nonce,
       },
-    } as const),
+    }) as const,
   signingAccount: (address: `0x${string}`, chainId: number = DEFAULT_CHAIN) =>
     ({
       account: address.toLowerCase() as `0x${string}`,
@@ -42,5 +41,5 @@ export default {
           "create a secret key for your account. This key is unrelated from your main Ethereum account and will " +
           "not be able to send any transactions.",
       },
-    } as const),
+    }) as const,
 };
