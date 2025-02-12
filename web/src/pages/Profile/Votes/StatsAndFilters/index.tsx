@@ -10,7 +10,7 @@ const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: ${responsiveSize(16, 32)};
+  margin-bottom: ${responsiveSize(4, 12)};
   justify-content: space-between;
 `;
 

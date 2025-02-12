@@ -36,7 +36,7 @@ interface IStakes {
 }
 
 const Stakes: React.FC<IStakes> = ({ searchParamAddress }) => {
-  const { data: currentStakeData, isLoading } = useJurorStakeDetailsQuery(searchParamAddress);
+  const { data: currentStakeData, isLoading: isCurrentStakeLoading } = useJurorStakeDetailsQuery(searchParamAddress);
   const { data: stakingHistoryData } = useStakingHistory(1, 0);
   const totalStake = currentStakeData?.jurorTokensPerCourts?.[0]?.effectiveStake ?? "0";
   const lockedStake = currentStakeData?.jurorTokensPerCourts?.[0]?.locked ?? "0";
@@ -44,7 +44,7 @@ const Stakes: React.FC<IStakes> = ({ searchParamAddress }) => {
 
   return (
     <Container>
-      <CurrentStakes {...{ totalStake, lockedStake, currentStakeData, isLoading }} />
+      <CurrentStakes {...{ totalStake, lockedStake, currentStakeData, isCurrentStakeLoading }} />
       <StakingHistory {...{ searchParamAddress, totalNumberStakingEvents }} />
     </Container>
   );

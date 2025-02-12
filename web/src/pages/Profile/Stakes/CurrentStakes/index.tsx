@@ -19,29 +19,33 @@ const Container = styled.div`
 
 const NoCurrentStakesLabel = styled.label`
   font-size: ${responsiveSize(14, 16)};
-  margin-bottom: 12px;
 `;
 
 interface ICurrentStakes {
   totalStake: string;
   lockedStake: string;
   currentStakeData: JurorStakeDetailsQuery | undefined;
-  isLoading: boolean;
+  isCurrentStakeLoading: boolean;
 }
 
-const CurrentStakes: React.FC<ICurrentStakes> = ({ totalStake, lockedStake, currentStakeData, isLoading }) => {
+const CurrentStakes: React.FC<ICurrentStakes> = ({
+  totalStake,
+  lockedStake,
+  currentStakeData,
+  isCurrentStakeLoading,
+}) => {
   const stakedCourts = currentStakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;
 
   return (
     <Container>
       <Header {...{ totalStake, lockedStake }} />
-      {!isStaked && !isLoading ? (
+      {!isStaked && !isCurrentStakeLoading ? (
         <NoCurrentStakesLabel>No stakes found</NoCurrentStakesLabel>
-      ) : isLoading ? (
+      ) : isCurrentStakeLoading ? (
         <Skeleton />
       ) : null}
-      {isStaked && !isLoading ? (
+      {isStaked && !isCurrentStakeLoading ? (
         <CourtCardsContainer>
           {currentStakeData?.jurorTokensPerCourts
             ?.filter(({ staked }) => staked > 0)

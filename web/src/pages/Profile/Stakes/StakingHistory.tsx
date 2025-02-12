@@ -27,6 +27,10 @@ const StyledTitle = styled.h1`
   margin-bottom: 20px;
 `;
 
+const NoHistoryLabel = styled.label`
+  font-size: ${responsiveSize(14, 16)};
+`;
+
 interface IStakingHistory {
   searchParamAddress: `0x${string}`;
   totalNumberStakingEvents: number;
@@ -38,7 +42,6 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress, totalNu
   const eventsPerPage = 10;
   const currentPage = parseInt(page ?? "1");
   const skip = (currentPage - 1) * eventsPerPage;
-
   const { data: stakingHistoryData, isLoading: isLoadingStakingHistory } = useStakingHistory(eventsPerPage, skip);
   const { data: courtTreeData, isLoading: isLoadingCourtTree } = useCourtTree();
   const stakingEvents = stakingHistoryData?.data?.userStakingEvents?.edges ?? [];
@@ -52,7 +55,9 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress, totalNu
     <Container>
       <StyledTitle>Staking History</StyledTitle>
       <CourtCardsContainer>
-        {isLoadingStakingHistory || isLoadingCourtTree ? (
+        {!isLoadingStakingHistory && totalNumberStakingEvents === 0 ? (
+          <NoHistoryLabel>No history found</NoHistoryLabel>
+        ) : isLoadingStakingHistory || isLoadingCourtTree ? (
           Array.from({ length: 10 }).map((_, index) => <Skeleton height={64} key={index} />)
         ) : (
           <>

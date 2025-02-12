@@ -9,6 +9,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRootPath } from "utils/uri";
 
 import StatsAndFilters from "./StatsAndFilters";
+import VoteCard from "./VoteCard";
 
 const Container = styled.div`
   display: flex;
@@ -26,6 +27,12 @@ const StyledPagination = styled(StandardPagination)`
   margin-top: 24px;
   margin-left: auto;
   margin-right: auto;
+`;
+
+const VotesCardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 interface IVotes {
@@ -49,6 +56,11 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
     <Container>
       <StyledTitle>Votes</StyledTitle>
       <StatsAndFilters totalVotes={10} votesPending={1} resolvedVotes={5} />
+      <VotesCardContainer>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <VoteCard />
+        ))}
+      </VotesCardContainer>
       <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
     </Container>
   );
