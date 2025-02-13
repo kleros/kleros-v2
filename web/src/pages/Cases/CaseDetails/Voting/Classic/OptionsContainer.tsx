@@ -60,7 +60,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
 
   // if RTA not found in dispute.answers, show RTA. shows RTA in case of invalid dispute too
   const showRTA = useMemo(
-    () => isUndefined(disputeDetails?.answers.find((answer) => BigInt(answer.id) === BigInt(0))),
+    () => isUndefined(disputeDetails?.answers?.find((answer) => BigInt(answer.id) === BigInt(0))),
     [disputeDetails]
   );
 
@@ -82,22 +82,24 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
           <JustificationArea {...{ justification, setJustification }} />
         ) : null}
-        <StyledEnsureChain>
-          <OptionsContainer>
-            {disputeDetails?.answers?.map((answer: Answer) => {
-              return (
-                <Tooltip text={answer.description} key={answer.title}>
-                  <Button
-                    text={answer.title}
-                    disabled={isSending}
-                    isLoading={chosenOption === BigInt(answer.id)}
-                    onClick={() => onClick(BigInt(answer.id))}
-                  />
-                </Tooltip>
-              );
-            })}
-          </OptionsContainer>
-        </StyledEnsureChain>
+        {isUndefined(disputeDetails?.answers) ? null : (
+          <StyledEnsureChain>
+            <OptionsContainer>
+              {disputeDetails?.answers?.map((answer: Answer) => {
+                return (
+                  <Tooltip text={answer.description} key={answer.title}>
+                    <Button
+                      text={answer.title}
+                      disabled={isSending}
+                      isLoading={chosenOption === BigInt(answer.id)}
+                      onClick={() => onClick(BigInt(answer.id))}
+                    />
+                  </Tooltip>
+                );
+              })}
+            </OptionsContainer>
+          </StyledEnsureChain>
+        )}
       </MainContainer>
       {showRTA ? (
         <RefuseToArbitrateContainer>
