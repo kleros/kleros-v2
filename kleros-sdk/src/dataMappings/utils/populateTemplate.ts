@@ -11,9 +11,18 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
     throw validation.error;
   }
 
-  // Filter out any existing answer with id 0 and add our standard Refuse to Arbitrate option
+  const templateRTAAnswer = (dispute as DisputeDetails).answers.find(
+    (answer) => answer.id && BigInt(answer.id) === BigInt(0)
+  );
+
+  const CustomRTA: DisputeDetails["answers"][number] = {
+    ...RefuseToArbitrateAnswer,
+    description: templateRTAAnswer?.description ?? RefuseToArbitrateAnswer.description,
+  };
+
+  // Filter out any existing answer with id 0 and add customised Refuse to Arbitrate option
   (dispute as DisputeDetails).answers = [
-    RefuseToArbitrateAnswer,
+    CustomRTA,
     ...((dispute as DisputeDetails).answers.filter((answer) => answer.id && BigInt(answer.id) !== BigInt(0)) || []),
   ];
 
