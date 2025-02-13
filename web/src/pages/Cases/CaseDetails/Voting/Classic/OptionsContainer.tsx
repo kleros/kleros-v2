@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 
-import { Button } from "@kleros/ui-components-library";
+import { Button, Tooltip } from "@kleros/ui-components-library";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { isUndefined } from "utils/index";
@@ -86,12 +86,14 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
           <OptionsContainer>
             {disputeDetails?.answers?.map((answer: Answer) => {
               return (
-                <Button
-                  text={answer.title}
-                  disabled={isSending}
-                  isLoading={chosenOption === BigInt(answer.id)}
-                  onClick={() => onClick(BigInt(answer.id))}
-                />
+                <Tooltip text={answer.description} key={answer.title}>
+                  <Button
+                    text={answer.title}
+                    disabled={isSending}
+                    isLoading={chosenOption === BigInt(answer.id)}
+                    onClick={() => onClick(BigInt(answer.id))}
+                  />
+                </Tooltip>
               );
             })}
           </OptionsContainer>
