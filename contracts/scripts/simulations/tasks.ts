@@ -85,7 +85,7 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
     const hiddenVotes = false as boolean;
     const timesPerPeriod = [300, 300, 300, 300] as [BigNumberish, BigNumberish, BigNumberish, BigNumberish];
     const sortitionSumTreeK = ethers.toBeHex(3);
-    const supportedDisputeKits = [1] as BigNumberish[]; // IDs of supported dispute kits
+    const supportedDisputeKits = [0] as BigNumberish[]; // IDs of supported dispute kits
     let courtID;
     try {
       const tx = await (

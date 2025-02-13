@@ -399,7 +399,7 @@ describe("Staking", async () => {
   describe("When outside the Staking phase", async () => {
     const createSubcourtStakeAndCreateDispute = async () => {
       expect(await sortition.phase()).to.be.equal(0); // Staking
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
+      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [0]); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));
@@ -734,7 +734,7 @@ describe("Staking", async () => {
     });
 
     it("Should unstake from all courts", async () => {
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
+      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [0]); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));
