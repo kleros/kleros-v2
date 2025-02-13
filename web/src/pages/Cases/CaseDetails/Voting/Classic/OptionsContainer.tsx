@@ -17,6 +17,8 @@ import { Answer } from "@kleros/kleros-sdk";
 const MainContainer = styled.div`
   width: 100%;
   height: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const OptionsContainer = styled.div`
@@ -40,6 +42,9 @@ const RefuseToArbitrateContainer = styled.div`
   justify-content: center;
 `;
 
+const StyledEnsureChain = styled(EnsureChain)`
+  align-self: center;
+`;
 interface IOptions {
   arbitrable: `0x${string}`;
   handleSelection: (arg0: bigint) => Promise<void>;
@@ -77,20 +82,20 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
           <JustificationArea {...{ justification, setJustification }} />
         ) : null}
-        <OptionsContainer>
-          {disputeDetails?.answers?.map((answer: Answer) => {
-            return (
-              <EnsureChain key={answer.title}>
+        <StyledEnsureChain>
+          <OptionsContainer>
+            {disputeDetails?.answers?.map((answer: Answer) => {
+              return (
                 <Button
                   text={answer.title}
                   disabled={isSending}
                   isLoading={chosenOption === BigInt(answer.id)}
                   onClick={() => onClick(BigInt(answer.id))}
                 />
-              </EnsureChain>
-            );
-          })}
-        </OptionsContainer>
+              );
+            })}
+          </OptionsContainer>
+        </StyledEnsureChain>
       </MainContainer>
       {showRTA ? (
         <RefuseToArbitrateContainer>
