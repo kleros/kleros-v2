@@ -657,9 +657,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             if (minJurors == 0) {
                 minJurors = DEFAULT_NB_OF_JURORS;
             }
-            if (disputeKitID == NULL_DISPUTE_KIT) {
-                disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
-            }
         } else {
             courtID = GENERAL_COURT;
             minJurors = DEFAULT_NB_OF_JURORS;

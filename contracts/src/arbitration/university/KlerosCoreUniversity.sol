@@ -214,9 +214,6 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         jurorProsecutionModule = _jurorProsecutionModule;
         sortitionModule = _sortitionModuleAddress;
 
-        // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a dispute kit is not supported.
-        disputeKits.push();
-
         // DISPUTE_KIT_CLASSIC
         disputeKits.push(_disputeKit);
 
@@ -341,7 +338,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         Court storage court = courts.push();
 
         for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
-            if (_supportedDisputeKits[i] == 0 || _supportedDisputeKits[i] >= disputeKits.length) {
+            if (_supportedDisputeKits[i] >= disputeKits.length) {
                 revert WrongDisputeKitIndex();
             }
             court.supportedDisputeKits[_supportedDisputeKits[i]] = true;
@@ -415,7 +412,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external onlyByGovernor {
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
             if (_enable) {
-                if (_disputeKitIDs[i] == 0 || _disputeKitIDs[i] >= disputeKits.length) {
+                if (_disputeKitIDs[i] >= disputeKits.length) {
                     revert WrongDisputeKitIndex();
                 }
                 _enableDisputeKit(_courtID, _disputeKitIDs[i], true);
@@ -1118,8 +1115,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             if (minJurors == 0) {
                 minJurors = DEFAULT_NB_OF_JURORS;
             }
-            if (disputeKitID == NULL_DISPUTE_KIT || disputeKitID >= disputeKits.length) {
-                disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
+            if (disputeKitID >= disputeKits.length) {
+                disputeKitID = DISPUTE_KIT_CLASSIC;
             }
         } else {
             courtID = GENERAL_COURT;

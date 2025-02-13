@@ -17,7 +17,7 @@ import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import "../../src/libraries/Constants.sol";
-import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/snapshot-proxy/KlerosCoreSnapshotProxy.sol";
+import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
 
 contract KlerosCoreTest is Test {
     event Initialized(uint64 version);
@@ -156,7 +156,7 @@ contract KlerosCoreTest is Test {
         assertEq(address(core.pinakion()), address(pinakion), "Wrong pinakion address");
         assertEq(core.jurorProsecutionModule(), jurorProsecutionModule, "Wrong jurorProsecutionModule address");
         assertEq(address(core.sortitionModule()), address(sortitionModule), "Wrong sortitionModule address");
-        assertEq(core.getDisputeKitsLength(), 2, "Wrong DK array length");
+        assertEq(core.getDisputeKitsLength(), 1, "Wrong DK array length");
         (
             uint96 courtParent,
             bool courtHiddenVotes,
@@ -197,19 +197,16 @@ contract KlerosCoreTest is Test {
             assertEq(courtTimesPerPeriod[i], timesPerPeriod[i], "Wrong times per period");
         }
 
-        assertEq(address(core.disputeKits(NULL_DISPUTE_KIT)), address(0), "Wrong address NULL_DISPUTE_KIT");
         assertEq(
             address(core.disputeKits(DISPUTE_KIT_CLASSIC)),
             address(disputeKit),
             "Wrong address DISPUTE_KIT_CLASSIC"
         );
-        assertEq(core.isSupported(FORKING_COURT, NULL_DISPUTE_KIT), false, "Forking court null dk should be false");
         assertEq(
             core.isSupported(FORKING_COURT, DISPUTE_KIT_CLASSIC),
             false,
             "Forking court classic dk should be false"
         );
-        assertEq(core.isSupported(GENERAL_COURT, NULL_DISPUTE_KIT), false, "General court null dk should be false");
         assertEq(core.isSupported(GENERAL_COURT, DISPUTE_KIT_CLASSIC), true, "General court classic dk should be true");
         assertEq(core.paused(), false, "Wrong paused value");
 
@@ -438,10 +435,10 @@ contract KlerosCoreTest is Test {
         core.addNewDisputeKit(newDK);
         vm.prank(governor);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitCreated(2, newDK);
+        emit KlerosCoreBase.DisputeKitCreated(1, newDK);
         core.addNewDisputeKit(newDK);
-        assertEq(address(core.disputeKits(2)), address(newDK), "Wrong address of new DK");
-        assertEq(core.getDisputeKitsLength(), 3, "Wrong DK array length");
+        assertEq(address(core.disputeKits(1)), address(newDK), "Wrong address of new DK");
+        assertEq(core.getDisputeKitsLength(), 2, "Wrong DK array length");
     }
 
     function test_createCourt() public {
@@ -449,7 +446,7 @@ contract KlerosCoreTest is Test {
         vm.prank(other);
         uint256[] memory supportedDK = new uint256[](2);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
-        supportedDK[1] = 2; // New DK is added below.
+        supportedDK[1] = 1; // New DK is added below.
         core.createCourt(
             GENERAL_COURT,
             true, // Hidden votes
@@ -506,21 +503,6 @@ contract KlerosCoreTest is Test {
         );
 
         uint256[] memory badSupportedDK = new uint256[](2);
-        badSupportedDK[0] = NULL_DISPUTE_KIT; // Include NULL_DK to check that it reverts
-        badSupportedDK[1] = DISPUTE_KIT_CLASSIC;
-        vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
-        vm.prank(governor);
-        core.createCourt(
-            GENERAL_COURT,
-            true, // Hidden votes
-            2000, // min stake
-            10000, // alpha
-            0.03 ether, // fee for juror
-            50, // jurors for jump
-            [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
-            abi.encode(uint256(4)), // Sortition extra data
-            badSupportedDK
-        );
 
         badSupportedDK[0] = DISPUTE_KIT_CLASSIC;
         badSupportedDK[1] = 2; // Check out of bounds index
@@ -543,7 +525,7 @@ contract KlerosCoreTest is Test {
         vm.prank(governor);
         core.addNewDisputeKit(newDK);
         badSupportedDK = new uint256[](1);
-        badSupportedDK[0] = 2; // Include only sybil resistant dk
+        badSupportedDK[0] = 1; // Include only sybil resistant dk
         vm.expectRevert(KlerosCoreBase.MustSupportDisputeKitClassic.selector);
         vm.prank(governor);
         core.createCourt(
@@ -562,7 +544,7 @@ contract KlerosCoreTest is Test {
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitEnabled(2, DISPUTE_KIT_CLASSIC, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(2, 2, true);
+        emit KlerosCoreBase.DisputeKitEnabled(2, 1, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.CourtCreated(
             2,
@@ -721,7 +703,7 @@ contract KlerosCoreTest is Test {
 
     function test_enableDisputeKits() public {
         DisputeKitSybilResistant newDK = new DisputeKitSybilResistant();
-        uint256 newDkID = 2;
+        uint256 newDkID = 1;
         vm.prank(governor);
         core.addNewDisputeKit(newDK);
 
@@ -733,12 +715,7 @@ contract KlerosCoreTest is Test {
 
         vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
         vm.prank(governor);
-        supportedDK[0] = NULL_DISPUTE_KIT;
-        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
-
-        vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
-        vm.prank(governor);
-        supportedDK[0] = 3; // Out of bounds
+        supportedDK[0] = 2; // Out of bounds
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
         vm.expectRevert(KlerosCoreBase.CannotDisableClassicDK.selector);
@@ -821,12 +798,12 @@ contract KlerosCoreTest is Test {
         core.addNewDisputeKit(disputeKit);
         core.addNewDisputeKit(disputeKit);
         core.addNewDisputeKit(disputeKit);
-        extraData = abi.encodePacked(uint256(50), uint256(41), uint256(6));
+        extraData = abi.encodePacked(uint256(50), uint256(41), uint256(5));
 
         (courtID, minJurors, disputeKitID) = core.extraDataToCourtIDMinJurorsDisputeKit(extraData);
         assertEq(courtID, GENERAL_COURT, "Wrong courtID"); // Value in extra data is out of scope so fall back
         assertEq(minJurors, 41, "Wrong minJurors");
-        assertEq(disputeKitID, 6, "Wrong disputeKitID");
+        assertEq(disputeKitID, 5, "Wrong disputeKitID");
     }
 
     // *************************************** //
@@ -1316,7 +1293,7 @@ contract KlerosCoreTest is Test {
         uint256 newFee = 0.01 ether;
         uint96 newCourtID = 2;
         uint256 newNbJurors = 4;
-        uint256 newDkID = 2;
+        uint256 newDkID = 1;
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         bytes memory newExtraData = abi.encodePacked(uint256(newCourtID), newNbJurors, newDkID);
@@ -2082,7 +2059,7 @@ contract KlerosCoreTest is Test {
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
 
         uint96 newCourtID = 2;
-        uint256 newDkID = 2;
+        uint256 newDkID = 1;
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         bytes memory newExtraData = abi.encodePacked(uint256(newCourtID), DEFAULT_NB_OF_JURORS, newDkID);
