@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import ReactMarkdown from "react-markdown";
@@ -53,6 +53,12 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   const [chosenOption, setChosenOption] = useState(BigInt(-1));
   const [isSending, setIsSending] = useState(false);
 
+  // if RTA not found in dispute.answers, show RTA. shows RTA in case of invalid dispute too
+  const showRTA = useMemo(
+    () => isUndefined(disputeDetails?.answers.find((answer) => BigInt(answer.id) === BigInt(0))),
+    [disputeDetails]
+  );
+
   const onClick = useCallback(
     async (id: bigint) => {
       setIsSending(true);
@@ -86,17 +92,19 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
           })}
         </OptionsContainer>
       </MainContainer>
-      <RefuseToArbitrateContainer>
-        <EnsureChain>
-          <Button
-            variant="secondary"
-            text="Refuse to Arbitrate"
-            disabled={isSending}
-            isLoading={chosenOption === BigInt(0)}
-            onClick={() => onClick(BigInt(0))}
-          />
-        </EnsureChain>
-      </RefuseToArbitrateContainer>
+      {showRTA ? (
+        <RefuseToArbitrateContainer>
+          <EnsureChain>
+            <Button
+              variant="secondary"
+              text="Refuse to Arbitrate"
+              disabled={isSending}
+              isLoading={chosenOption === BigInt(0)}
+              onClick={() => onClick(BigInt(0))}
+            />
+          </EnsureChain>
+        </RefuseToArbitrateContainer>
+      ) : null}
     </>
   ) : null;
 };
