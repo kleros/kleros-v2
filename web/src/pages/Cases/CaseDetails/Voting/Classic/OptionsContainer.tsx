@@ -13,6 +13,7 @@ import { EnsureChain } from "components/EnsureChain";
 
 import JustificationArea from "./JustificationArea";
 import { Answer } from "@kleros/kleros-sdk";
+import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
 
 const MainContainer = styled.div`
   width: 100%;
@@ -58,11 +59,11 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   const [chosenOption, setChosenOption] = useState(BigInt(-1));
   const [isSending, setIsSending] = useState(false);
 
-  // if RTA not found in dispute.answers, show RTA. shows RTA in case of invalid dispute too
-  const showRTA = useMemo(
-    () => isUndefined(disputeDetails?.answers?.find((answer) => BigInt(answer.id) === BigInt(0))),
-    [disputeDetails]
-  );
+  const updatedRTA = useMemo(() => {
+    const RTAFromTemplate = disputeDetails?.answers?.find((answer) => BigInt(answer.id) === BigInt(0));
+    if (!RTAFromTemplate) return RefuseToArbitrateAnswer;
+    return RTAFromTemplate;
+  }, [disputeDetails]);
 
   const onClick = useCallback(
     async (id: bigint) => {
@@ -86,7 +87,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
           <StyledEnsureChain>
             <OptionsContainer>
               {disputeDetails?.answers?.map((answer: Answer) => {
-                return (
+                return BigInt(answer.id) !== BigInt(0) ? (
                   <Tooltip text={answer.description} key={answer.title}>
                     <Button
                       text={answer.title}
@@ -95,25 +96,25 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
                       onClick={() => onClick(BigInt(answer.id))}
                     />
                   </Tooltip>
-                );
+                ) : null;
               })}
             </OptionsContainer>
           </StyledEnsureChain>
         )}
       </MainContainer>
-      {showRTA ? (
-        <RefuseToArbitrateContainer>
-          <EnsureChain>
+      <RefuseToArbitrateContainer>
+        <EnsureChain>
+          <Tooltip text={updatedRTA.description}>
             <Button
               variant="secondary"
-              text="Refuse to Arbitrate"
+              text={updatedRTA.title}
               disabled={isSending}
               isLoading={chosenOption === BigInt(0)}
               onClick={() => onClick(BigInt(0))}
             />
-          </EnsureChain>
-        </RefuseToArbitrateContainer>
-      ) : null}
+          </Tooltip>
+        </EnsureChain>
+      </RefuseToArbitrateContainer>
     </>
   ) : null;
 };
