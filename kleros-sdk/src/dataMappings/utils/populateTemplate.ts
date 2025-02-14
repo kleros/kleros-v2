@@ -11,11 +11,23 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
     throw validation.error;
   }
 
-  // Filter out any existing answer with id 0 and add our standard Refuse to Arbitrate option
-  (dispute as DisputeDetails).answers = [
-    RefuseToArbitrateAnswer,
-    ...((dispute as DisputeDetails).answers.filter((answer) => answer.id && BigInt(answer.id) !== BigInt(0)) || []),
-  ];
+  return findAndUpdateRTA(dispute);
+};
+
+// Filter out any existing answer with id 0 and add customised Refuse to Arbitrate option
+const findAndUpdateRTA = (dispute: DisputeDetails) => {
+  const templateRTAIndex = (dispute as DisputeDetails).answers.findIndex(
+    (answer) => answer.id && BigInt(answer.id) === BigInt(0)
+  );
+
+  if (templateRTAIndex !== -1) {
+    dispute.answers[templateRTAIndex] = {
+      ...RefuseToArbitrateAnswer,
+      description: dispute.answers[templateRTAIndex].description ?? RefuseToArbitrateAnswer.description,
+    };
+  } else {
+    dispute.answers = [RefuseToArbitrateAnswer, ...dispute.answers];
+  }
 
   return dispute;
 };
