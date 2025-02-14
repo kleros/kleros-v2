@@ -11,20 +11,23 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
     throw validation.error;
   }
 
-  const templateRTAAnswer = (dispute as DisputeDetails).answers.find(
+  return findAndUpdateRTA(dispute);
+};
+
+// Filter out any existing answer with id 0 and add customised Refuse to Arbitrate option
+const findAndUpdateRTA = (dispute: DisputeDetails) => {
+  const templateRTAIndex = (dispute as DisputeDetails).answers.findIndex(
     (answer) => answer.id && BigInt(answer.id) === BigInt(0)
   );
 
-  const CustomRTA: DisputeDetails["answers"][number] = {
-    ...RefuseToArbitrateAnswer,
-    description: templateRTAAnswer?.description ?? RefuseToArbitrateAnswer.description,
-  };
-
-  // Filter out any existing answer with id 0 and add customised Refuse to Arbitrate option
-  (dispute as DisputeDetails).answers = [
-    CustomRTA,
-    ...((dispute as DisputeDetails).answers.filter((answer) => answer.id && BigInt(answer.id) !== BigInt(0)) || []),
-  ];
+  if (templateRTAIndex !== -1) {
+    dispute.answers[templateRTAIndex] = {
+      ...RefuseToArbitrateAnswer,
+      description: dispute.answers[templateRTAIndex].description ?? RefuseToArbitrateAnswer.description,
+    };
+  } else {
+    dispute.answers = [RefuseToArbitrateAnswer, ...dispute.answers];
+  }
 
   return dispute;
 };
