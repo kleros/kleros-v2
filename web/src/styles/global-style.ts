@@ -124,4 +124,9 @@ export const GlobalStyle = createGlobalStyle`
   .hiddenCanvasElement{
     display: none;
   }
+
+  [class*="Toastify__toast-container"] {
+    top: unset;
+    padding-top: 20px !important;
+  }
 `;
