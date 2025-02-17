@@ -21,6 +21,7 @@ import InfoCard from "components/InfoCard";
 
 import JustificationArea from "./JustificationArea";
 import { Answer } from "@kleros/kleros-sdk";
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   width: 100%;
@@ -33,6 +34,10 @@ const StyledInfoCard = styled(InfoCard)`
 
 const StyledButton = styled(Button)`
   margin: 16px auto;
+`;
+
+const StyledEnsureChain = styled(EnsureChain)`
+  margin: 8px auto;
 `;
 
 const ReactMarkdownWrapper = styled.div``;
@@ -106,13 +111,15 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
             <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
           </ReactMarkdownWrapper>
           <JustificationArea {...{ justification, setJustification }} />
-          <StyledButton
-            variant="secondary"
-            text="Justify & Reveal"
-            disabled={isSending || isUndefined(disputeDetails)}
-            isLoading={isSending}
-            onClick={handleReveal}
-          />
+          <StyledEnsureChain>
+            <StyledButton
+              variant="secondary"
+              text="Justify & Reveal"
+              disabled={isSending || isUndefined(disputeDetails)}
+              isLoading={isSending}
+              onClick={handleReveal}
+            />
+          </StyledEnsureChain>
         </>
       ) : (
         <StyledInfoCard msg="Your vote was successfully commited, please wait until reveal period to reveal it." />
