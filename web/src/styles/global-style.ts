@@ -127,6 +127,6 @@ export const GlobalStyle = createGlobalStyle`
 
   [class*="Toastify__toast-container"] {
     top: unset;
-    padding-top: 20px;
+    padding-top: 20px !important;
   }
 `;
