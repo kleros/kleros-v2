@@ -1,16 +1,11 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { responsiveSize } from "styles/responsiveSize";
 
 import { useToggle } from "react-use";
-import { useSearchParams } from "react-router-dom";
-import { Copiable } from "@kleros/ui-components-library";
 
 import XIcon from "svgs/socialmedia/x.svg";
-
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
-import { shortenAddress } from "utils/shortenAddress";
 
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
@@ -51,18 +46,12 @@ const StyledLink = styled(ExternalLink)`
   gap: 8px;
 `;
 
-const StyledExternalLink = styled(ExternalLink)`
-  font-size: ${responsiveSize(18, 22)};
-  margin-left: ${responsiveSize(4, 8)};
-  font-weight: 600;
-`;
-
 interface IHeader {
   levelTitle: string;
   levelNumber: number;
   totalCoherentVotes: number;
   totalResolvedVotes: number;
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
 const Header: React.FC<IHeader> = ({
@@ -70,31 +59,17 @@ const Header: React.FC<IHeader> = ({
   levelNumber,
   totalCoherentVotes,
   totalResolvedVotes,
-  addressToQuery,
+  searchParamAddress,
 }) => {
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
-  const [searchParams] = useSearchParams();
-
   const coherencePercentage = parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
   const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherentVotes}/${totalResolvedVotes}\n\nBe a juror with me! ➡️ ${courtUrl}`;
   const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xPostText)}`;
-  const searchParamAddress = searchParams.get("address")?.toLowerCase();
-
-  const addressExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${addressToQuery}`;
-  }, [addressToQuery]);
 
   return (
     <Container>
-      <StyledTitle>
-        Juror Profile -
-        <Copiable copiableContent={addressToQuery} info="Copy Address">
-          <StyledExternalLink to={addressExplorerLink} target="_blank" rel="noopener noreferrer">
-            {shortenAddress(addressToQuery)}
-          </StyledExternalLink>
-        </Copiable>
-      </StyledTitle>
+      <StyledTitle>Juror Profile</StyledTitle>
       <LinksContainer>
         <JurorsLeaderboardButton />
         <HowItWorks

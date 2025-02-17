@@ -9,9 +9,9 @@ import HeaderRewards from "../Header/Rewards";
 
 import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
-import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
+import JurorLink from "components/JurorLink";
 
 const Container = styled.div`
   ${hoverShortTransitionTiming}
@@ -97,7 +97,7 @@ const MobileCard: React.FC<IMobileCard> = ({
       <TopSide>
         <RankAndTitle>
           {rank ? <Rank rank={rank} /> : null}
-          <JurorTitle address={address} />
+          <JurorLink address={address} />
         </RankAndTitle>
         <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />
       </TopSide>

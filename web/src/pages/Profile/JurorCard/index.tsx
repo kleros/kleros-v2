@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
@@ -8,42 +8,30 @@ import { getCoherencePercent } from "utils/getCoherencePercent";
 
 import { useUserQuery } from "queries/useUser";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
-import Coherence from "./Coherence";
 import Header from "./Header";
-import JurorRewards from "./JurorRewards";
-import PixelArt from "./PixelArt";
+import BottomContent from "./BottomContent";
+import { Divider } from "components/Divider";
+import TopContent from "./TopContent";
 
 const Container = styled.div``;
 
 const Card = styled(_Card)`
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
 
-  gap: 40px;
+  gap: 24px;
   width: 100%;
   height: auto;
-  padding: 24px 0;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      gap: ${responsiveSize(24, 64)};
-      height: 236px;
-    `
-  )}
+  padding: 24px;
 `;
 
-interface IJurorInfo {
-  addressToQuery: `0x${string}`;
+interface IJurorCard {
+  searchParamAddress: `0x${string}`;
 }
 
-const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
-  const { data } = useUserQuery(addressToQuery);
+const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
+  const { data } = useUserQuery(searchParamAddress);
   const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
   const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
   const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
@@ -55,15 +43,15 @@ const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
       <Header
         levelTitle={userLevelData.title}
         levelNumber={userLevelData.level}
-        {...{ totalCoherentVotes, totalResolvedVotes, addressToQuery }}
+        {...{ totalCoherentVotes, totalResolvedVotes, searchParamAddress }}
       />
       <Card>
-        <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherence isMiniGuide={false} {...{ userLevelData, totalCoherentVotes, totalResolvedVotes }} />
-        <JurorRewards {...{ addressToQuery }} />
+        <TopContent address={searchParamAddress} {...{ totalResolvedDisputes }} />
+        <Divider />
+        <BottomContent {...{ userLevelData, totalCoherentVotes, totalResolvedVotes, searchParamAddress }} />
       </Card>
     </Container>
   );
 };
 
-export default JurorInfo;
+export default JurorCard;
