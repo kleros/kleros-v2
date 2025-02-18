@@ -7,7 +7,7 @@ import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
 import courtsV2ArbitrumDevnet from "../config/courts.v2.devnet.json";
 import courtsV2MainnetNeo from "../config/courts.v2.mainnet-neo.json";
 import { isDevnet } from "../deploy/utils";
-import { execute } from "./utils/execution";
+import { execute, writeTransactionBatch } from "./utils/execution";
 import { getContracts, Cores } from "./utils/contracts";
 
 enum HomeChains {
@@ -269,4 +269,6 @@ task("populate:courts", "Populates the courts and their parameters")
 
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
+
+    writeTransactionBatch({ name: "populate-courts" });
   });

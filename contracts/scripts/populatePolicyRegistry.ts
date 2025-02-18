@@ -6,7 +6,7 @@ import policiesV2ArbitrumTestnet from "../config/policies.v2.testnet.json";
 import policiesV2ArbitrumDevnet from "../config/policies.v2.devnet.json";
 import policiesV2MainnetNeo from "../config/policies.v2.mainnet-neo.json";
 import { isDevnet } from "../deploy/utils";
-import { execute } from "./utils/execution";
+import { execute, writeTransactionBatch } from "./utils/execution";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -112,4 +112,6 @@ task("populate:policy-registry", "Populates the policy registry for each court")
       console.log("Populating policy for %s Court (%d): %s", policy.name, policy.court, policy.uri);
       await policyRegistry.setPolicy.populateTransaction(policy.court, policy.name, policy.uri).then(execute);
     }
+
+    writeTransactionBatch({ name: "populate-policy-registry" });
   });
