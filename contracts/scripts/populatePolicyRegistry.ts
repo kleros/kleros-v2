@@ -36,7 +36,7 @@ task("populate:policy-registry", "Populates the policy registry for each court")
     types.int
   )
   .setAction(async (taskArgs, hre) => {
-    const { deployments, getNamedAccounts, getChainId, ethers, network } = hre;
+    const { getNamedAccounts, getChainId, ethers, network } = hre;
 
     // fallback to hardhat node signers on local network
     const deployer = (await getNamedAccounts()).deployer ?? (await ethers.getSigners())[0].address;
@@ -102,11 +102,7 @@ task("populate:policy-registry", "Populates the policy registry for each court")
     console.log(`Keeping only the first ${end - start} courts, starting from ${start}`);
     policiesV2 = policiesV2.slice(start, end);
 
-    const policyRegistryDeployment = await deployments.get("PolicyRegistry");
-    const policyRegistry = (await ethers.getContractAt(
-      "PolicyRegistry",
-      policyRegistryDeployment.address
-    )) as PolicyRegistry;
+    const policyRegistry = await ethers.getContract<PolicyRegistry>("PolicyRegistry");
 
     for await (const policy of policiesV2) {
       console.log("Populating policy for %s Court (%d): %s", policy.name, policy.court, policy.uri);
