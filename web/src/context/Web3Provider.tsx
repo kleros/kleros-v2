@@ -1,10 +1,17 @@
 import React from "react";
 
-import { createWeb3Modal } from "@web3modal/wagmi/react";
-import { type Chain } from "viem";
-import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
-import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "wagmi/chains";
-import { walletConnect } from "wagmi/connectors";
+import {
+  mainnet,
+  arbitrumSepolia,
+  arbitrum,
+  gnosisChiado,
+  sepolia,
+  gnosis,
+  type AppKitNetwork,
+} from "@reown/appkit/networks";
+import { createAppKit } from "@reown/appkit/react";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { fallback, http, WagmiProvider, webSocket } from "wagmi";
 
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 
@@ -33,7 +40,7 @@ const alchemyToViemChain: Record<number, string> = {
 type AlchemyProtocol = "https" | "wss";
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/util/const.ts#L16-L18
-function alchemyURL(protocol: AlchemyProtocol, chainId: number): string {
+function alchemyURL(protocol: AlchemyProtocol, chainId: number | string): string {
   const network = alchemyToViemChain[chainId];
   if (!network) {
     throw new Error(`Unsupported chain ID: ${chainId}`);
@@ -41,7 +48,7 @@ function alchemyURL(protocol: AlchemyProtocol, chainId: number): string {
   return `${protocol}://${network}.g.alchemy.com/v2/${alchemyApiKey}`;
 }
 
-export const getChainRpcUrl = (protocol: AlchemyProtocol, chainId: number) => {
+export const getChainRpcUrl = (protocol: AlchemyProtocol, chainId: number | string) => {
   return alchemyURL(protocol, chainId);
 };
 
@@ -50,9 +57,9 @@ export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
 };
 
 export const getTransports = () => {
-  const alchemyTransport = (chain: Chain) =>
+  const alchemyTransport = (chain: AppKitNetwork) =>
     fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
-  const defaultTransport = (chain: Chain) =>
+  const defaultTransport = (chain: AppKitNetwork) =>
     fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
 
   return {
@@ -66,7 +73,7 @@ export const getTransports = () => {
   };
 };
 
-const chains = ALL_CHAINS as [Chain, ...Chain[]];
+const chains = ALL_CHAINS as [AppKitNetwork, ...AppKitNetwork[]];
 const transports = getTransports();
 
 const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID;
@@ -74,10 +81,10 @@ if (!projectId) {
   throw new Error("WalletConnect project ID is not set in WALLETCONNECT_PROJECT_ID environment variable.");
 }
 
-const wagmiConfig = createConfig({
-  chains,
+const wagmiAdapter = new WagmiAdapter({
+  networks: chains,
+  projectId,
   transports,
-  connectors: [walletConnect({ projectId, showQrModal: false })],
 });
 
 configureSDK({
@@ -87,18 +94,28 @@ configureSDK({
   },
 });
 
-createWeb3Modal({
-  wagmiConfig,
+createAppKit({
+  adapters: [wagmiAdapter],
+  networks: chains,
+  defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
   projectId,
-  defaultChain: isProduction ? arbitrum : arbitrumSepolia,
+  allowUnsupportedChain: true,
   themeVariables: {
     "--w3m-color-mix": lightTheme.primaryPurple,
     "--w3m-color-mix-strength": 20,
+    // overlay portal is at 9999
+    "--w3m-z-index": 10000,
+  },
+  features: {
+    // adding these here to toggle in futute if needed
+    // email: false,
+    // socials: false,
+    // onramp:false,
+    // swap: false
   },
 });
-
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <WagmiProvider config={wagmiConfig}> {children} </WagmiProvider>;
+  return <WagmiProvider config={wagmiAdapter.wagmiConfig}> {children} </WagmiProvider>;
 };
 
 export default Web3Provider;
