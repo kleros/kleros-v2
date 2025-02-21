@@ -73,7 +73,8 @@
     "@openzeppelin/contracts-upgradeable@npm:4.5.2": "npm:4.9.6",
     "@openzeppelin/contracts-upgradeable@npm:4.7.3": "npm:4.9.6",
     "@openzeppelin/contracts-upgradeable@npm:4.8.3": "npm:4.9.6",
-    "@openzeppelin/contracts-upgradeable@npm:4.9.3": "npm:4.9.6"
+    "@openzeppelin/contracts-upgradeable@npm:4.9.3": "npm:4.9.6",
+    "elliptic@npm:6.5.4": "npm:6.6.1"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
