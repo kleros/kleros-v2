@@ -5413,7 +5413,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-sdk@workspace:kleros-sdk"
   dependencies:
-    "@reality.eth/reality-eth-lib": "npm:^3.2.44"
+    "@reality.eth/reality-eth-lib": "npm:^3.2.60"
     "@types/mustache": "npm:^4.2.5"
     "@types/node": "npm:^20.17.6"
     "@urql/core": "npm:^5.0.8"
@@ -7611,20 +7611,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reality.eth/contracts@npm:^3.0.60":
-  version: 3.0.60
-  resolution: "@reality.eth/contracts@npm:3.0.60"
+"@reality.eth/contracts@npm:^3.0.76":
+  version: 3.0.76
+  resolution: "@reality.eth/contracts@npm:3.0.76"
   dependencies:
     ethers: "npm:^5.6.8"
-  checksum: 10/5a90340e20adf214f1f2c242e852fb74c48a10094db2be41bddfd403c8fce5c7d102fbf94a1a9ae76022f1dffae371db5213854e080a45b17182f6ce5138446d
+  checksum: 10/0a9135d9aa8943bc18d6b5870a7ed47b174e01571fc082b734071ceb3491ef24f085adaa90670d0e5e13586cf50a4da13c791f9bfed967af2a51c9f05c856262
   languageName: node
   linkType: hard
 
-"@reality.eth/reality-eth-lib@npm:^3.2.44":
-  version: 3.2.44
-  resolution: "@reality.eth/reality-eth-lib@npm:3.2.44"
+"@reality.eth/reality-eth-lib@npm:^3.2.60":
+  version: 3.2.60
+  resolution: "@reality.eth/reality-eth-lib@npm:3.2.60"
   dependencies:
-    "@reality.eth/contracts": "npm:^3.0.60"
+    "@reality.eth/contracts": "npm:^3.0.76"
     bignumber.js: "npm:^7.2.1"
     bn.js: "npm:^5.2.1"
     ethereumjs-abi: "npm:^0.6.5"
@@ -7632,7 +7632,7 @@ __metadata:
     isomorphic-dompurify: "npm:^0.23.0"
     marked: "npm:^4.1.1"
     sprintf-js: "npm:^1.1.1"
-  checksum: 10/4d63c9dff6d0f8088f6fd1a2fc09ca1a3aa1ebc476fea3788b8b28a65111680b7283258dc55d9e93ec28dfb28972b0e5fc2906627fb1620996c88e2b22d2ffe9
+  checksum: 10/fdf1a11458e4a3cb241c70f79d6899848ea2c1819859721d0023736937faf179c3886fa83024fa2a6f637d86b0b0296f239ebc4ffe66d08a28eca55942f2647b
   languageName: node
   linkType: hard
 
@@ -16416,21 +16416,6 @@ __metadata:
   version: 1.4.815
   resolution: "electron-to-chromium@npm:1.4.815"
   checksum: 10/84f59b76b1ac16fe1f359720bdaeadcbce34825a7e79e3551ceec6b52d4021e7bd8a56a2cfa4197ba353331df18d0bc2ab449e08c5599eb1b2a7aacaba56f711
-  languageName: node
-  linkType: hard
-
-"elliptic@npm:6.5.4":
-  version: 6.5.4
-  resolution: "elliptic@npm:6.5.4"
-  dependencies:
-    bn.js: "npm:^4.11.9"
-    brorand: "npm:^1.1.0"
-    hash.js: "npm:^1.0.0"
-    hmac-drbg: "npm:^1.0.1"
-    inherits: "npm:^2.0.4"
-    minimalistic-assert: "npm:^1.0.1"
-    minimalistic-crypto-utils: "npm:^1.0.1"
-  checksum: 10/2cd7ff4b69720dbb2ca1ca650b2cf889d1df60c96d4a99d331931e4fe21e45a7f3b8074e86618ca7e56366c4b6258007f234f9d61d9b0c87bbbc8ea990b99e94
   languageName: node
   linkType: hard
 
