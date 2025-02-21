@@ -354,6 +354,17 @@ type ClassicContribution implements Contribution @entity {
   rewardWithdrawn: Boolean!
 }
 
+type StakeSet @entity {
+  id: ID! # event.transaction.hash.toHex() + - + event.logIndex.toString()
+  address: Bytes!
+  courtID: BigInt!
+  stake: BigInt!
+  newTotalStake: BigInt!
+  blocknumber: BigInt!
+  timestamp: BigInt!
+  logIndex: BigInt!
+}
+
 type _Schema_
   @fulltext(
     name: "evidenceSearch"
