@@ -356,7 +356,7 @@ type ClassicContribution implements Contribution @entity {
 
 type StakeSet @entity {
   id: ID! # event.transaction.hash.toHex() + - + event.logIndex.toString()
-  address: Bytes!
+  address: String!
   courtID: BigInt!
   stake: BigInt!
   newTotalStake: BigInt!

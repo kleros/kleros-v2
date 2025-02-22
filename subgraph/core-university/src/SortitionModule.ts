@@ -1,10 +1,11 @@
-import { SortitionModule, StakeLocked, StakeSet } from "../generated/SortitionModule/SortitionModule";
+import { SortitionModule, StakeLocked, StakeSet as StakeSetEvent } from "../generated/SortitionModule/SortitionModule";
+import { StakeSet as StakeSetEntity, User } from "../generated/schema";
 
 import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { ensureUser } from "./entities/User";
 import { ZERO } from "./utils";
 
-export function handleStakeSet(event: StakeSet): void {
+export function handleStakeSet(event: StakeSetEvent): void {
   const jurorAddress = event.params._address.toHexString();
   ensureUser(jurorAddress);
   const courtID = event.params._courtID.toString();
@@ -12,7 +13,20 @@ export function handleStakeSet(event: StakeSet): void {
   updateJurorStake(jurorAddress, courtID.toString(), SortitionModule.bind(event.address), event.block.timestamp);
   //stake is updated instantly so no delayed amount, set delay amount to zero
   updateJurorDelayedStake(jurorAddress, courtID, ZERO);
+
+  const juror = User.load(jurorAddress);
+  if (!juror) return;
+  const stakeSet = new StakeSetEntity(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
+  stakeSet.address = jurorAddress;
+  stakeSet.courtID = event.params._courtID;
+  stakeSet.stake = event.params._amount;
+  stakeSet.newTotalStake = juror.totalStake;
+  stakeSet.blocknumber = event.block.number;
+  stakeSet.timestamp = event.block.timestamp;
+  stakeSet.logIndex = event.logIndex;
+  stakeSet.save();
 }
+
 export function handleStakeLocked(event: StakeLocked): void {
   // NOP
 }
