@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-sdk",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "SDK for Kleros version 2",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "homepage": "https://github.com/kleros/kleros-v2/tree/master/kleros-sdk#readme",
@@ -15,7 +15,7 @@
   ],
   "type": "commonjs",
   "volta": {
-    "node": "20.18.2"
+    "node": "20.18.3"
   },
   "publishConfig": {
     "access": "public",
@@ -43,7 +43,7 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@reality.eth/reality-eth-lib": "^3.2.44",
+    "@reality.eth/reality-eth-lib": "^3.2.60",
     "@urql/core": "^5.0.8",
     "mustache": "^4.2.0",
     "zod": "^3.23.8"

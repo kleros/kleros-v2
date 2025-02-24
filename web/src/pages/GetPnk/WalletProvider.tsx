@@ -2,12 +2,12 @@ import React, { useRef, type FC, type PropsWithChildren } from "react";
 
 import { useSyncWagmiConfig } from "@lifi/wallet-management";
 import { useAvailableChains } from "@lifi/widget";
+import { mainnet, arbitrumSepolia, arbitrum } from "@reown/appkit/networks";
+import { createAppKit } from "@reown/appkit/react";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { injected, walletConnect } from "@wagmi/connectors";
-import { createWeb3Modal } from "@web3modal/wagmi";
 import { createClient, http } from "viem";
-import { arbitrum, arbitrumSepolia, mainnet } from "viem/chains";
-import type { Config } from "wagmi";
-import { createConfig, WagmiProvider } from "wagmi";
+import { WagmiProvider } from "wagmi";
 
 import { isProductionDeployment } from "consts/index";
 
@@ -19,32 +19,36 @@ const connectors = [injected(), walletConnect({ projectId })];
 
 export const WalletProvider: FC<PropsWithChildren> = ({ children }) => {
   const { chains } = useAvailableChains();
-  const wagmi = useRef<Config>();
+  const adapter = useRef<WagmiAdapter>();
 
-  if (!wagmi.current) {
-    wagmi.current = createConfig({
-      chains: [mainnet],
+  if (!adapter.current) {
+    adapter.current = new WagmiAdapter({
+      networks: [mainnet],
+      projectId,
       client({ chain }) {
         return createClient({ chain, transport: http() });
       },
-      ssr: true,
     });
   }
 
-  useSyncWagmiConfig(wagmi.current, connectors, chains);
+  useSyncWagmiConfig(adapter.current.wagmiConfig, connectors, chains);
 
-  createWeb3Modal({
-    wagmiConfig: wagmi.current,
-    projectId,
-    defaultChain: isProductionDeployment() ? arbitrum : arbitrumSepolia,
+  createAppKit({
+    adapters: [adapter.current],
+    networks: [mainnet],
+    defaultNetwork: isProductionDeployment() ? arbitrum : arbitrumSepolia,
     allowUnsupportedChain: true,
+    projectId,
     themeVariables: {
       "--w3m-color-mix": lightTheme.primaryPurple,
       "--w3m-color-mix-strength": 20,
+      // overlay portal is at 9999
+      "--w3m-z-index": 10000,
     },
   });
+
   return (
-    <WagmiProvider config={wagmi.current} reconnectOnMount={false}>
+    <WagmiProvider config={adapter.current.wagmiConfig} reconnectOnMount={false}>
       {children}
     </WagmiProvider>
   );

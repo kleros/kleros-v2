@@ -17,7 +17,7 @@ jobs:
       version: ${{ steps.set-version.outputs.version }}
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@446798f8213ac2e75931c1b0769676d927801858 # v2.10.3
+      uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
       with:
         disable-sudo: true
         egress-policy: block
@@ -44,13 +44,13 @@ jobs:
         yarn set version 4.5.1
   
     - name: Setup Node.js environment
-      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+      uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
       with:
         node-version: 20.x   
         cache: yarn
   
     - name: Cache node modules
-      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
       env:
         cache-name: cache-node-modules
       with:
@@ -72,7 +72,7 @@ jobs:
       working-directory: web
 
     - name: Create Sentry release
-      uses: getsentry/action-release@f6dfa3d84a1c740b94aa45255c5e032b744a095d # v1.9.0
+      uses: getsentry/action-release@ffb64465339ef6fb868e2fc261318d78ae0ed8d9 # v1.10.5
       env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}

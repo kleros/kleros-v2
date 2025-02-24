@@ -1,14 +1,15 @@
 import React from "react";
 
-import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { type Chain } from "viem";
-import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
-import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "wagmi/chains";
-import { walletConnect } from "wagmi/connectors";
+import { fallback, http, WagmiProvider, webSocket } from "wagmi";
+import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "@reown/appkit/networks";
+
+import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 
 import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
-
+import { createAppKit } from "@reown/appkit/react";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { theme } from "styles/Theme";
 
 const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
@@ -72,24 +73,31 @@ if (!projectId) {
   throw new Error("WalletConnect project ID is not set in NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID environment variable.");
 }
 
-export const wagmiConfig = createConfig({
-  chains,
+export const wagmiAdapter = new WagmiAdapter({
+  networks: chains,
+  projectId,
   transports,
-  connectors: [walletConnect({ projectId })],
 });
 
-createWeb3Modal({
-  wagmiConfig,
+configureSDK({
+  client: {
+    chain: isProduction ? arbitrum : arbitrumSepolia,
+    transport: transports[isProduction ? arbitrum.id : arbitrumSepolia.id],
+  },
+});
+
+createAppKit({
+  adapters: [wagmiAdapter],
+  networks: chains,
+  defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
   projectId,
-  defaultChain: isProduction ? arbitrum : arbitrumSepolia,
   themeVariables: {
     "--w3m-color-mix": theme.klerosUIComponentsPrimaryPurple,
     "--w3m-color-mix-strength": 20,
   },
 });
-
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <WagmiProvider config={wagmiConfig}> {children} </WagmiProvider>;
+  return <WagmiProvider config={wagmiAdapter.wagmiConfig}> {children} </WagmiProvider>;
 };
 
 export default Web3Provider;

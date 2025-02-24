@@ -1,12 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@fnanni-0]
-/// @custom:reviewers: []
-/// @custom:auditors: []
-/// @custom:bounties: []
-/// @custom:deployments: []
-/// @custom:tools: []
-
 pragma solidity 0.8.24;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
