@@ -457,7 +457,7 @@
     "alpha": "5000",
     "jurorsForCourtJump": "15",
     "timesPerPeriod": [
-      108000,
+      21600,
       216000,
       216000,
       216000
