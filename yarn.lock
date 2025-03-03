@@ -5723,7 +5723,7 @@ __metadata:
     react-use: "npm:^17.5.1"
     rimraf: "npm:^6.0.1"
     styled-components: "npm:^5.3.3"
-    subgraph-status: "npm:^1.2.3"
+    subgraph-status: "npm:^1.2.4"
     typescript: "npm:^5.6.3"
     viem: "npm:^2.21.54"
     vite: "npm:^5.4.11"
@@ -31542,9 +31542,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"subgraph-status@npm:^1.2.3":
-  version: 1.2.3
-  resolution: "subgraph-status@npm:1.2.3"
+"subgraph-status@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "subgraph-status@npm:1.2.4"
   dependencies:
     react-slick: "npm:^0.30.2"
     slick-carousel: "npm:^1.8.1"
@@ -31554,7 +31554,7 @@ __metadata:
     "@types/react-dom": ^18.3.0
     react: ^18.3.1
     react-dom: ^18.3.1
-  checksum: 10/a125ec618073493026a29e9120a1fc73f8a3ad36b24815fe2f4ecd65f8cefa8b19d5bc072ee3f9b72172436c783fc918f6f13b396dddb935c5e70a3bd748888d
+  checksum: 10/8088ec7440f5d2811fae8b6520f531c60f41a786384a874005646240d22570601a359e5681912ae125aa81e1208f9e2e7c359ca1c81ab92363bbf27688b880bb
   languageName: node
   linkType: hard
 

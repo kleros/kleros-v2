@@ -121,7 +121,7 @@
     "react-toastify": "^9.1.3",
     "react-use": "^17.5.1",
     "styled-components": "^5.3.3",
-    "subgraph-status": "^1.2.3",
+    "subgraph-status": "^1.2.4",
     "viem": "^2.21.54",
     "wagmi": "^2.13.5"
   }
