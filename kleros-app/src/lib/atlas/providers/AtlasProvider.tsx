@@ -2,7 +2,7 @@ import React, { useMemo, createContext, useContext, useState, useCallback, useEf
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
 import { decodeJwt } from "jose";
-import { useAccount, useChainId, useSignMessage } from "wagmi";
+import { useAccount, useChainId, useSignMessage, type Config } from "wagmi";
 import {
   createMessage,
   getNonce,
@@ -53,11 +53,12 @@ const Context = createContext<IAtlasProvider | undefined>(undefined);
 interface AtlasConfig {
   uri: string;
   product: Products;
+  wagmiConfig: Config;
 }
 
 export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.ReactNode }> = ({ children, config }) => {
-  const { address } = useAccount();
-  const chainId = useChainId();
+  const { address } = useAccount({ config: config.wagmiConfig });
+  const chainId = useChainId({ config: config.wagmiConfig });
   const queryClient = useQueryClient();
 
   const [authToken, setAuthToken] = useSessionStorage<string | undefined>("authToken", undefined);
@@ -66,7 +67,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
-  const { signMessageAsync } = useSignMessage();
+  const { signMessageAsync } = useSignMessage({ config: config.wagmiConfig });
 
   const atlasGqlClient = useMemo(() => {
     const headers = authToken

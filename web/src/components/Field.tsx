@@ -67,6 +67,7 @@ const LinkContainer = styled.div`
 const StyledInternalLink = styled(InternalLink)`
   text-wrap: auto;
   justify-content: end;
+  line-height: 1.25;
 `;
 
 type FieldContainerProps = {

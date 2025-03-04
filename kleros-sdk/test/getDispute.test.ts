@@ -105,7 +105,14 @@ describe("getDispute", () => {
     expect(result?.answers[2].id).toBe("0x2");
   });
 
-  it("should overwrite existing answer with id 0x0 or 0x00", async () => {
+  it("should only overwrite existing answer with id 0x0 or 0x00's title and not overwrite description", async () => {
+    const customRTAAnswer = {
+      id: "0x0",
+      title: "Custom Refuse Title",
+      description: "Custom Refuse Description",
+      reserved: true,
+    };
+
     // Test with 0x0
     const mockTemplate0x0 = {
       disputeTemplate: {
@@ -114,12 +121,7 @@ describe("getDispute", () => {
           description: "Test Description",
           question: "Test Question",
           answers: [
-            {
-              id: "0x0",
-              title: "Custom Refuse Title",
-              description: "Custom Refuse Description",
-              reserved: true,
-            },
+            customRTAAnswer,
             {
               id: "0x1",
               title: "Yes",
@@ -145,7 +147,8 @@ describe("getDispute", () => {
     });
 
     expect(result?.answers).toHaveLength(2);
-    expect(result?.answers[0]).toEqual(standardRefuseToArbitrateAnswer);
+    expect(result?.answers[0].title).toEqual(standardRefuseToArbitrateAnswer.title);
+    expect(result?.answers[0].description).toEqual(customRTAAnswer.description);
     expect(result?.answers[1].id).toBe("0x1");
 
     // Test with 0x00
@@ -156,12 +159,7 @@ describe("getDispute", () => {
           description: "Test Description",
           question: "Test Question",
           answers: [
-            {
-              id: "0x00",
-              title: "Custom Refuse Title",
-              description: "Custom Refuse Description",
-              reserved: true,
-            },
+            customRTAAnswer,
             {
               id: "0x1",
               title: "Yes",
@@ -186,7 +184,8 @@ describe("getDispute", () => {
     });
 
     expect(result?.answers).toHaveLength(2);
-    expect(result?.answers[0]).toEqual(standardRefuseToArbitrateAnswer);
+    expect(result?.answers[0].title).toEqual(standardRefuseToArbitrateAnswer.title);
+    expect(result?.answers[0].description).toEqual(customRTAAnswer.description);
     expect(result?.answers[1].id).toBe("0x1");
   });
 
