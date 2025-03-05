@@ -1142,7 +1142,6 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     error DisputeKitOnly();
     error SortitionModuleOnly();
     error UnsuccessfulCall();
-    error InvalidDisputKitParent();
     error MinStakeLowerThanParentCourt();
     error UnsupportedDisputeKit();
     error InvalidForkingCourtAsParent();

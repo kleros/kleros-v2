@@ -507,7 +507,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @return The stake of the juror in the court.
     function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256) {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint treeIndex = tree.IDsToNodeIndexes[_ID];
+        uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
         if (treeIndex == 0) {
             return 0;
         }
