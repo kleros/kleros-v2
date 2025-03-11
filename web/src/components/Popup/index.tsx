@@ -239,6 +239,9 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   const closePopup = () => {
     setIsOpen(false);
     resetValue();
+    // dispute data is cleared, so if popup is closed the preview will show empty,
+    // instead redirect to start point.
+    if (popupType === PopupType.DISPUTE_CREATED) navigate("/resolver");
   };
 
   return (
