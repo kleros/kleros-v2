@@ -16,7 +16,7 @@ describe("DisputeKitClassic", async () => {
   it("Kleros Core initialization", async () => {
     const events = await core.queryFilter(core.filters.DisputeKitCreated());
     expect(events.length).to.equal(1);
-    expect(events[0].args._disputeKitID).to.equal(1);
+    expect(events[0].args._disputeKitID).to.equal(0);
     expect(events[0].args._disputeKitAddress).to.equal(disputeKit.target);
 
     // Reminder: the Forking court will be added which will break these expectations.
@@ -30,12 +30,12 @@ describe("DisputeKitClassic", async () => {
     expect(events2[0].args._feeForJuror).to.equal(ethers.parseUnits("0.1", 18));
     expect(events2[0].args._jurorsForCourtJump).to.equal(256);
     expect(events2[0].args._timesPerPeriod).to.deep.equal([0, 0, 0, 10]);
-    expect(events2[0].args._supportedDisputeKits).to.deep.equal([1]);
+    expect(events2[0].args._supportedDisputeKits).to.deep.equal([0]);
 
     const events3 = await core.queryFilter(core.filters.DisputeKitEnabled());
     expect(events3.length).to.equal(1);
     expect(events3[0].args._courtID).to.equal(1);
-    expect(events3[0].args._disputeKitID).to.equal(1);
+    expect(events3[0].args._disputeKitID).to.equal(0);
     expect(events3[0].args._enable).to.equal(true);
   });
 
