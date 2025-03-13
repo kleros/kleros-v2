@@ -29,7 +29,7 @@
   ],
   "packageManager": "yarn@4.6.0",
   "volta": {
-    "node": "20.18.2",
+    "node": "20.18.3",
     "yarn": "4.6.0"
   },
   "devDependencies": {
@@ -57,10 +57,10 @@
     "minimatch@npm:3.0.4": "npm:3.0.8",
     "minimatch@npm:^3.0.4": "npm:3.0.8",
     "nanoid^3.3.1": "npm:3.3.4",
-    "node-fetch": "npm:2.6.7",
+    "node-fetch": "npm:node-fetch@2.7.0",
     "underscore@npm^3.0.4": "npm:1.12.1",
     "eth-sig-util@npm:^1.4.2": "npm:3.0.0",
-    "fast-xml-parser": "npm:4.2.5",
+    "fast-xml-parser": "npm:fast-xml-parser@4.5.2",
     "@babel/traverse:^7.22.5": "npm:7.23.6",
     "yargs-unparser@npm:1.6.0": "npm:1.6.4",
     "dompurify@npm:^2.4.0": "npm:2.5.7",
@@ -74,7 +74,8 @@
     "@openzeppelin/contracts-upgradeable@npm:4.7.3": "npm:4.9.6",
     "@openzeppelin/contracts-upgradeable@npm:4.8.3": "npm:4.9.6",
     "@openzeppelin/contracts-upgradeable@npm:4.9.3": "npm:4.9.6",
-    "elliptic@npm:6.5.4": "npm:6.6.1"
+    "elliptic@npm:6.5.4": "npm:6.6.1",
+    "word-wrap@npm:~1.2.3": "npm:1.2.5"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",

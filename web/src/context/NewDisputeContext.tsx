@@ -60,7 +60,7 @@ interface INewDisputeContext {
   setIsPolicyUploading: (isPolicyUploading: boolean) => void;
 }
 
-const initialDisputeData: IDisputeData = {
+const getInitialDisputeData = (): IDisputeData => ({
   numberOfJurors: 3,
   title: "",
   description: "",
@@ -72,7 +72,9 @@ const initialDisputeData: IDisputeData = {
   ],
   aliasesArray: [{ name: "", address: "", id: "1" }],
   version: "1.0",
-};
+});
+
+const initialDisputeData = getInitialDisputeData();
 
 const NewDisputeContext = createContext<INewDisputeContext | undefined>(undefined);
 
@@ -92,7 +94,8 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
 
   const resetDisputeData = useCallback(() => {
-    setDisputeData(initialDisputeData);
+    const freshData = getInitialDisputeData();
+    setDisputeData(freshData);
   }, [setDisputeData]);
 
   const contextValues = useMemo(
