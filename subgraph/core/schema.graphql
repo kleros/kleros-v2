@@ -354,9 +354,9 @@ type ClassicContribution implements Contribution @entity {
   rewardWithdrawn: Boolean!
 }
 
-type StakeSet @entity {
+type StakeSet @entity(immutable: true) {
   id: ID! # event.transaction.hash.toHex() + - + event.logIndex.toString()
-  address: String!
+  juror: User!
   courtID: BigInt!
   stake: BigInt!
   newTotalStake: BigInt!
