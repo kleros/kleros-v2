@@ -149,6 +149,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - JurorTokensPerCourt
+        - StakeSet
       abis:
         - name: SortitionModule
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
