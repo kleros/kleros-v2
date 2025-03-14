@@ -50,7 +50,7 @@ jobs:
         cache: yarn
   
     - name: Cache node modules
-      uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
+      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
       env:
         cache-name: cache-node-modules
       with:
@@ -72,7 +72,7 @@ jobs:
       working-directory: web
 
     - name: Create Sentry release
-      uses: getsentry/action-release@ffb64465339ef6fb868e2fc261318d78ae0ed8d9 # v1.10.5
+      uses: getsentry/action-release@a74facf8a080ecbdf1cb355f16743530d712abb7 # v1.11.0
       env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
