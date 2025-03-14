@@ -19,6 +19,7 @@ import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
 import Courts from "./Courts";
 import JurorInfo from "./JurorInfo";
+import StakingRewardsClaimModal from "./StakingRewardsClaimModal";
 
 const Container = styled.div`
   width: 100%;
@@ -94,6 +95,7 @@ const Profile: React.FC = () => {
             }
             {...{ casesPerPage }}
           />
+          <StakingRewardsClaimModal />
         </>
       ) : (
         <ConnectWalletContainer>
