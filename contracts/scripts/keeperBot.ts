@@ -1,18 +1,9 @@
-import {
-  PNK,
-  RandomizerRNG,
-  BlockHashRNG,
-  SortitionModule,
-  KlerosCore,
-  KlerosCoreNeo,
-  SortitionModuleNeo,
-  DisputeKitClassic,
-  ChainlinkRNG,
-} from "../typechain-types";
+import hre from "hardhat";
+import { toBigInt, BigNumberish, getNumber, BytesLike } from "ethers";
+import { SortitionModule, SortitionModuleNeo } from "../typechain-types";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import { toBigInt, BigNumberish, getNumber } from "ethers";
-import hre = require("hardhat");
+import { Cores, getContracts as getContractsForCoreType } from "./utils/contracts";
 
 let request: <T>(url: string, query: string) => Promise<T>; // Workaround graphql-request ESM import
 const { ethers } = hre;
@@ -44,29 +35,12 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
 const logger = loggerFactory.createLogger(loggerOptions);
 
 const getContracts = async () => {
-  let core: KlerosCore | KlerosCoreNeo;
-  let sortition: SortitionModule | SortitionModuleNeo;
-  let disputeKitClassic: DisputeKitClassic;
   const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
-  switch (coreType) {
-    case Cores.NEO:
-      core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
-      sortition = (await ethers.getContract("SortitionModuleNeo")) as SortitionModuleNeo;
-      disputeKitClassic = (await ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
-      break;
-    case Cores.BASE:
-      core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-      sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
-      disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-      break;
-    default:
-      throw new Error("Invalid core type, must be one of base, neo");
+  if (coreType === Cores.UNIVERSITY) {
+    throw new Error("University is not supported yet");
   }
-  const chainlinkRng = await ethers.getContractOrNull<ChainlinkRNG>("ChainlinkRNG");
-  const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>("RandomizerRNG");
-  const blockHashRNG = await ethers.getContractOrNull<BlockHashRNG>("BlockHashRNG");
-  const pnk = (await ethers.getContract("PNK")) as PNK;
-  return { core, sortition, chainlinkRng, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
+  const contracts = await getContractsForCoreType(hre, coreType);
+  return { ...contracts, sortition: contracts.sortition as SortitionModule | SortitionModuleNeo };
 };
 
 type Contribution = {
@@ -87,17 +61,13 @@ type Dispute = {
 };
 
 type CustomError = {
+  data: BytesLike;
   reason: string;
   code: string;
   errorArgs: any[];
   errorName: string;
   errorSignature: string;
 };
-
-enum Cores {
-  BASE,
-  NEO,
-}
 
 enum Phase {
   STAKING = "staking",
@@ -185,7 +155,7 @@ const handleError = (e: any) => {
 const isRngReady = async () => {
   const { chainlinkRng, randomizerRng, blockHashRNG, sortition } = await getContracts();
   const currentRng = await sortition.rng();
-  if (currentRng === chainlinkRng?.target) {
+  if (currentRng === chainlinkRng?.target && chainlinkRng !== null) {
     const requestID = await chainlinkRng.lastRequestId();
     const n = await chainlinkRng.randomNumbers(requestID);
     if (Number(n) === 0) {
@@ -195,7 +165,7 @@ const isRngReady = async () => {
       logger.info(`ChainlinkRNG is ready: ${n.toString()}`);
       return true;
     }
-  } else if (currentRng === randomizerRng?.target) {
+  } else if (currentRng === randomizerRng?.target && randomizerRng !== null) {
     const requestID = await randomizerRng.lastRequestId();
     const n = await randomizerRng.randomNumbers(requestID);
     if (Number(n) === 0) {
@@ -205,7 +175,7 @@ const isRngReady = async () => {
       logger.info(`RandomizerRNG is ready: ${n.toString()}`);
       return true;
     }
-  } else if (currentRng === blockHashRNG?.target) {
+  } else if (currentRng === blockHashRNG?.target && blockHashRNG !== null) {
     const requestBlock = await sortition.randomNumberRequestBlock();
     const lookahead = await sortition.rngLookahead();
     const n = await blockHashRNG.receiveRandomness.staticCall(requestBlock + lookahead);
@@ -229,7 +199,8 @@ const passPhase = async () => {
     await sortition.passPhase.staticCall();
   } catch (e) {
     const error = e as CustomError;
-    logger.info(`passPhase: not ready yet because of ${error?.reason ?? error?.errorName ?? error?.code}`);
+    const errorDescription = sortition.interface.parseError(error.data)?.signature;
+    logger.info(`passPhase: not ready yet because of ${errorDescription}`);
     return success;
   }
   const before = getNumber(await sortition.phase());
@@ -254,11 +225,8 @@ const passPeriod = async (dispute: { id: string }) => {
     await core.passPeriod.staticCall(dispute.id);
   } catch (e) {
     const error = e as CustomError;
-    logger.info(
-      `passPeriod: not ready yet for dispute ${dispute.id} because of error ${
-        error?.reason ?? error?.errorName ?? error?.code
-      }`
-    );
+    const errorDescription = core.interface.parseError(error.data)?.signature;
+    logger.info(`passPeriod: not ready yet for dispute ${dispute.id} because of error ${errorDescription}`);
     return success;
   }
   const before = (await core.disputes(dispute.id)).period;
@@ -544,7 +512,7 @@ async function main() {
   // Skip some disputes
   disputes = filterDisputesToSkip(disputes);
   disputesWithoutJurors = filterDisputesToSkip(disputesWithoutJurors);
-  for (var dispute of disputes) {
+  for (const dispute of disputes) {
     logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
@@ -567,7 +535,7 @@ async function main() {
     }
     if (await isPhaseDrawing()) {
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
-      for (dispute of disputesWithoutJurors) {
+      for (const dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
           logger.info("Max drawing time passed");
           break;
@@ -606,7 +574,7 @@ async function main() {
 
   logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
-  for (var dispute of disputes) {
+  for (const dispute of disputes) {
     // ----------------------------------------------- //
     //                  PASS PERIOD                    //
     // ----------------------------------------------- //
@@ -631,7 +599,7 @@ async function main() {
   );
   logger.info(`Disputes not fully executed: ${unprocessedDisputesInExecution.map((dispute) => dispute.id)}`);
 
-  for (var dispute of unprocessedDisputesInExecution) {
+  for (const dispute of unprocessedDisputesInExecution) {
     const { period } = await core.disputes(dispute.id);
     if (period !== 4n) {
       logger.info(`Skipping dispute #${dispute.id} because it is not in the execution period`);

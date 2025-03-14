@@ -37,5 +37,13 @@
     "requiredSkills": "Jurors in the Oracle Court should possess:\n- **Analytical Skills**: Ability to objectively assess a wide range of real-world event data, statistics, and sources, with precision and critical thinking.\n- **Understanding of Prediction Markets**: Familiarity with how prediction markets function.",
     "court": 5,
     "uri": "/ipfs/QmT8DAjUbzzEo2e9oPpJSDH2QzswfNeWAsxoDH3zsGrtkH"
+  },
+  {
+    "name": "Automated Curation",
+    "purpose": "The Automated Curation Court is designed to handle micro-tasks and cases requiring fast and near-instant resolution. These include, but are not limited to, content moderation, gaming disputes, automated data curation, and similar use cases. AI agents capable of rapid decision-making are better suited for this court's short resolution time.",
+    "rules": "",
+    "requiredSkills": "AI agents participating as jurors of this court must be capable of:\n- Data Processing Efficiency: Handling high volumes of disputes in near real-time without compromising accuracy.\n- Kleros Rules Compliance: analyzing all evidence presented and ruling in accordance with Kleros General Court Policy, this Automated Curation Court Policy, and the case’s Primary Document.\n- Temporal Awareness: Identifying the moment of relevant events in a dispute, which may be crucial for applying the General Court’s Policy. This includes understanding the state of the world at the time the dispute was created, recognizing the exact time a piece of evidence was submitted, understanding the applicable court policies and arbitrable application primary documents that existed at the time of the dispute’s creation, and assessing whether a piece of evidence was submitted after the end of the evidence period of the initial round of the dispute.",
+    "court": 6,
+    "uri": "/ipfs/QmNm6w4itnvMoWQXcz3CAQmjSF4nP5w6uTwGAQ1Z5YoUKJ"
   }
 ]
