@@ -5469,7 +5469,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/vea-contracts": "npm:^0.4.0"
+    "@kleros/vea-contracts": "npm:^0.6.0"
     "@logtail/pino": "npm:^0.5.0"
     "@nomicfoundation/hardhat-chai-matchers": "npm:^2.0.8"
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
@@ -5734,10 +5734,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/vea-contracts@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@kleros/vea-contracts@npm:0.4.0"
-  checksum: 10/6e60eddf4f0bc9e687ddb83d634d800c75dc6bdd41be9f8904876f977dce2f661e183c4b3fc19d773d61b4b1d94fd4639c63d355d30e91f16f42d931a46dcbd5
+"@kleros/vea-contracts@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@kleros/vea-contracts@npm:0.6.0"
+  checksum: 10/1dafd94620d3392c2e00e09e7d1ca923007143f8625b4b584411a7b49404ae5630e870d3e260685964d37ccb9c4c4ab406523b8ec4dd9f89bcf6099a4f5976ec
   languageName: node
   linkType: hard
 
