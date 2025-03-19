@@ -3,6 +3,9 @@ import { Hex, stringToHex, hexToString } from "viem";
 import crypto from "crypto";
 import "isomorphic-fetch";
 
+/** Time in seconds to wait before the message can be decrypted */
+const DECRYPTION_DELAY = 120; // 2 minutes
+
 interface ShutterApiMessageData {
   eon: number;
   identity: string;
@@ -88,44 +91,44 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
  * @returns Promise with the decryption key data
  */
 async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKeyData> {
+  console.log(`Fetching decryption key for identity: ${identity}`);
+
+  const response = await fetch(`https://shutter-api.shutter.network/api/get_decryption_key?identity=${identity}`, {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+    },
+  });
+
+  // Get the response text
+  const responseText = await response.text();
+
+  // Try to parse the error response even if the request failed
+  let jsonResponse;
   try {
-    console.log(`Fetching decryption key for identity: ${identity}`);
-
-    const response = await fetch(`https://shutter-api.shutter.network/api/get_decryption_key?identity=${identity}`, {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-      },
-    });
-
-    // Log the response status
-    console.log(`API response status: ${response.status}`);
-
-    // Get the response text
-    const responseText = await response.text();
-
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}: ${responseText}`);
-    }
-
-    // Parse the JSON response
-    let jsonResponse: ShutterDecryptionKeyResponse;
-    try {
-      jsonResponse = JSON.parse(responseText);
-    } catch (error) {
-      throw new Error(`Failed to parse API response as JSON: ${responseText}`);
-    }
-
-    // Check if we have the message data
-    if (!jsonResponse.message) {
-      throw new Error(`API response missing message data: ${JSON.stringify(jsonResponse)}`);
-    }
-
-    return jsonResponse.message;
+    jsonResponse = JSON.parse(responseText);
   } catch (error) {
-    console.error("Error fetching decryption key:", error);
-    throw error;
+    throw new Error(`Failed to parse API response as JSON: ${responseText}`);
   }
+
+  // Handle the "too early" error case specifically
+  if (!response.ok) {
+    if (jsonResponse?.description?.includes("timestamp not reached yet")) {
+      throw new Error(
+        `Cannot decrypt yet: The decryption timestamp has not been reached.\n` +
+          `Please wait at least ${DECRYPTION_DELAY} seconds after encryption before attempting to decrypt.\n` +
+          `Error details: ${jsonResponse.description}`
+      );
+    }
+    throw new Error(`API request failed with status ${response.status}: ${responseText}`);
+  }
+
+  // Check if we have the message data
+  if (!jsonResponse.message) {
+    throw new Error(`API response missing message data: ${JSON.stringify(jsonResponse)}`);
+  }
+
+  return jsonResponse.message;
 }
 
 /**
@@ -161,7 +164,7 @@ function generateRandomBytes32(): `0x${string}` {
  */
 async function encrypt(message: string): Promise<string> {
   // Set decryption timestamp
-  const decryptionTimestamp = Math.floor(Date.now() / 1000) + 120;
+  const decryptionTimestamp = Math.floor(Date.now() / 1000) + DECRYPTION_DELAY;
 
   // Fetch encryption data from Shutter API
   console.log(`Fetching encryption data for decryption at timestamp ${decryptionTimestamp}...`);
@@ -193,32 +196,27 @@ async function encrypt(message: string): Promise<string> {
  * @returns Promise with the decrypted message
  */
 async function decrypt(encryptedMessage: string): Promise<string> {
-  try {
-    // Extract the identity from the encrypted message
-    // TODO: In a real implementation, you would need to store and retrieve the identity
-    // used for encryption. For now, we'll need to pass it as an additional parameter
-    // or store it alongside the encrypted message.
-    const identity = process.argv[4]; // Temporary solution: pass identity as an additional argument
-    if (!identity) {
-      throw new Error("Please provide the identity used for encryption as the third argument");
-    }
-
-    // Fetch the decryption key
-    const decryptionKeyData = await fetchDecryptionKey(identity);
-    console.log("Decryption key:", decryptionKeyData.decryption_key);
-
-    // Ensure the decryption key is properly formatted
-    const decryptionKey = ensureHexString(decryptionKeyData.decryption_key);
-
-    // Decrypt the message
-    const decryptedHexMessage = await shutterDecrypt(encryptedMessage, decryptionKey);
-
-    // Convert the decrypted hex message back to a string
-    return hexToString(decryptedHexMessage as `0x${string}`);
-  } catch (error) {
-    console.error("Error during decryption:", error);
-    throw error;
+  // Extract the identity from the encrypted message
+  // TODO: In a real implementation, you would need to store and retrieve the identity
+  // used for encryption. For now, we'll need to pass it as an additional parameter
+  // or store it alongside the encrypted message.
+  const identity = process.argv[4]; // Temporary solution: pass identity as an additional argument
+  if (!identity) {
+    throw new Error("Please provide the identity used for encryption as the third argument");
   }
+
+  // Fetch the decryption key
+  const decryptionKeyData = await fetchDecryptionKey(identity);
+  console.log("Decryption key:", decryptionKeyData.decryption_key);
+
+  // Ensure the decryption key is properly formatted
+  const decryptionKey = ensureHexString(decryptionKeyData.decryption_key);
+
+  // Decrypt the message
+  const decryptedHexMessage = await shutterDecrypt(encryptedMessage, decryptionKey);
+
+  // Convert the decrypted hex message back to a string
+  return hexToString(decryptedHexMessage as `0x${string}`);
 }
 
 async function main() {
