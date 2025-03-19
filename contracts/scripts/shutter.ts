@@ -1,5 +1,5 @@
-import { encryptData } from "@shutter-network/shutter-sdk";
-import { Hex, stringToHex } from "viem";
+import { encryptData, decrypt as shutterDecrypt } from "@shutter-network/shutter-sdk";
+import { Hex, stringToHex, hexToString } from "viem";
 import crypto from "crypto";
 import "isomorphic-fetch";
 
@@ -16,6 +16,17 @@ interface ShutterApiResponse {
   error?: string;
 }
 
+interface ShutterDecryptionKeyData {
+  decryption_key: string;
+  identity: string;
+  decryption_timestamp: number;
+}
+
+interface ShutterDecryptionKeyResponse {
+  message: ShutterDecryptionKeyData;
+  error?: string;
+}
+
 /**
  * Fetches encryption data from the Shutter API
  * @param decryptionTimestamp Unix timestamp when decryption should be possible
@@ -25,13 +36,20 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
   try {
     console.log(`Sending request to Shutter API with decryption timestamp: ${decryptionTimestamp}`);
 
+    // Generate a random identity prefix
+    const identityPrefix = generateRandomBytes32();
+    console.log(`Generated identity prefix: ${identityPrefix}`);
+
     const response = await fetch("https://shutter-api.shutter.network/api/register_identity", {
       method: "POST",
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ decryptionTimestamp }),
+      body: JSON.stringify({
+        decryptionTimestamp,
+        identityPrefix,
+      }),
     });
 
     // Log the response status
@@ -65,6 +83,52 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
 }
 
 /**
+ * Fetches the decryption key from the Shutter API
+ * @param identity The identity used for encryption
+ * @returns Promise with the decryption key data
+ */
+async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKeyData> {
+  try {
+    console.log(`Fetching decryption key for identity: ${identity}`);
+
+    const response = await fetch(`https://shutter-api.shutter.network/api/get_decryption_key?identity=${identity}`, {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+      },
+    });
+
+    // Log the response status
+    console.log(`API response status: ${response.status}`);
+
+    // Get the response text
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}: ${responseText}`);
+    }
+
+    // Parse the JSON response
+    let jsonResponse: ShutterDecryptionKeyResponse;
+    try {
+      jsonResponse = JSON.parse(responseText);
+    } catch (error) {
+      throw new Error(`Failed to parse API response as JSON: ${responseText}`);
+    }
+
+    // Check if we have the message data
+    if (!jsonResponse.message) {
+      throw new Error(`API response missing message data: ${JSON.stringify(jsonResponse)}`);
+    }
+
+    return jsonResponse.message;
+  } catch (error) {
+    console.error("Error fetching decryption key:", error);
+    throw error;
+  }
+}
+
+/**
  * Ensures a string is a valid hex string with 0x prefix
  * @param hexString The hex string to validate
  * @returns The validated hex string with 0x prefix
@@ -80,46 +144,134 @@ function ensureHexString(hexString: string | undefined): `0x${string}` {
 }
 
 /**
- * Generates a random sigma value (32 bytes)
- * @returns Random sigma as a hex string with 0x prefix
+ * Generates a random 32 bytes
+ * @returns Random 32 bytes as a hex string with 0x prefix
  */
-function generateRandomSigma(): `0x${string}` {
+function generateRandomBytes32(): `0x${string}` {
   return ("0x" +
     crypto
       .getRandomValues(new Uint8Array(32))
       .reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")) as Hex;
 }
 
+/**
+ * Encrypts a message using the Shutter API
+ * @param message The message to encrypt
+ * @returns Promise with the encrypted commitment
+ */
+async function encrypt(message: string): Promise<string> {
+  // Set decryption timestamp
+  const decryptionTimestamp = Math.floor(Date.now() / 1000) + 120;
+
+  // Fetch encryption data from Shutter API
+  console.log(`Fetching encryption data for decryption at timestamp ${decryptionTimestamp}...`);
+  const shutterData = await fetchShutterData(decryptionTimestamp);
+
+  // Extract the eon key and identity from the response and ensure they have the correct format
+  const eonKeyHex = ensureHexString(shutterData.eon_key);
+  const identityHex = ensureHexString(shutterData.identity);
+
+  // Message to encrypt
+  const msgHex = stringToHex(message);
+
+  // Generate a random sigma
+  const sigmaHex = generateRandomBytes32();
+
+  console.log("Eon Key:", eonKeyHex);
+  console.log("Identity:", identityHex);
+  console.log("Sigma:", sigmaHex);
+
+  // Encrypt the message
+  const encryptedCommitment = await encryptData(msgHex, identityHex, eonKeyHex, sigmaHex);
+
+  return encryptedCommitment;
+}
+
+/**
+ * Decrypts a message using the Shutter API
+ * @param encryptedMessage The encrypted message to decrypt
+ * @returns Promise with the decrypted message
+ */
+async function decrypt(encryptedMessage: string): Promise<string> {
+  try {
+    // Extract the identity from the encrypted message
+    // TODO: In a real implementation, you would need to store and retrieve the identity
+    // used for encryption. For now, we'll need to pass it as an additional parameter
+    // or store it alongside the encrypted message.
+    const identity = process.argv[4]; // Temporary solution: pass identity as an additional argument
+    if (!identity) {
+      throw new Error("Please provide the identity used for encryption as the third argument");
+    }
+
+    // Fetch the decryption key
+    const decryptionKeyData = await fetchDecryptionKey(identity);
+    console.log("Decryption key:", decryptionKeyData.decryption_key);
+
+    // Ensure the decryption key is properly formatted
+    const decryptionKey = ensureHexString(decryptionKeyData.decryption_key);
+
+    // Decrypt the message
+    const decryptedHexMessage = await shutterDecrypt(encryptedMessage, decryptionKey);
+
+    // Convert the decrypted hex message back to a string
+    return hexToString(decryptedHexMessage as `0x${string}`);
+  } catch (error) {
+    console.error("Error during decryption:", error);
+    throw error;
+  }
+}
+
 async function main() {
   try {
-    // Set decryption timestamp (e.g., 24 hours from now)
-    const decryptionTimestamp = Math.floor(Date.now() / 1000) + 86400; // 24 hours from now
+    const command = process.argv[2]?.toLowerCase();
 
-    // Fetch encryption data from Shutter API
-    console.log(`Fetching encryption data for decryption at timestamp ${decryptionTimestamp}...`);
-    const shutterData = await fetchShutterData(decryptionTimestamp);
+    if (!command) {
+      console.error(`
+Usage: yarn ts-node shutter.ts <command> [arguments]
 
-    // Extract the eon key and identity from the response and ensure they have the correct format
-    const eonKeyHex = ensureHexString(shutterData.eon_key);
-    const identityHex = ensureHexString(shutterData.identity);
+Commands:
+  encrypt <message>              Encrypt a message
+  decrypt <message> <identity>   Decrypt a message (requires the identity used during encryption)
 
-    // Message to encrypt
-    const msgHex = stringToHex("my very secret vote");
+Examples:
+  yarn ts-node shutter.ts encrypt "my secret message"
+  yarn ts-node shutter.ts decrypt "encrypted-data" "0x1234..."`);
+      process.exit(1);
+    }
 
-    // Generate a random sigma
-    const sigmaHex = generateRandomSigma();
-
-    console.log("Eon Key:", eonKeyHex);
-    console.log("Identity:", identityHex);
-    console.log("Sigma:", sigmaHex);
-
-    // Encrypt the message
-    const encryptedCommitment = await encryptData(msgHex, identityHex, eonKeyHex, sigmaHex);
-
-    // Print the encrypted commitment
-    console.log("Encrypted Commitment:", encryptedCommitment);
+    switch (command) {
+      case "encrypt": {
+        const message = process.argv[3];
+        if (!message) {
+          console.error("Error: Missing message to encrypt");
+          console.error("Usage: yarn ts-node shutter.ts encrypt <message>");
+          process.exit(1);
+        }
+        const encryptedCommitment = await encrypt(message);
+        console.log("\nEncrypted Commitment:", encryptedCommitment);
+        break;
+      }
+      case "decrypt": {
+        const [encryptedMessage, identity] = [process.argv[3], process.argv[4]];
+        if (!encryptedMessage || !identity) {
+          console.error("Error: Missing required arguments for decrypt");
+          console.error("Usage: yarn ts-node shutter.ts decrypt <encrypted-message> <identity>");
+          console.error("Note: The identity is the one returned during encryption");
+          process.exit(1);
+        }
+        const decryptedMessage = await decrypt(encryptedMessage);
+        console.log("\nDecrypted Message:", decryptedMessage);
+        break;
+      }
+      default: {
+        console.error(`Error: Unknown command '${command}'`);
+        console.error("Valid commands are: encrypt, decrypt");
+        process.exit(1);
+      }
+    }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("\nError:", error);
+    process.exit(1);
   }
 }
 
