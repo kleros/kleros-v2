@@ -1,6 +1,9 @@
 import React from "react";
 
 import { Tooltip } from "@kleros/ui-components-library";
+
+import { commify } from "utils/commify";
+
 interface INumberDisplay {
   value: string | number;
   unit?: string;
@@ -19,7 +22,7 @@ const getFormattedValue = (value: number, decimals: number) => {
       return `> -0.${"0".repeat(decimals - 1)}1`;
     }
   }
-  return withFixedDecimals;
+  return commify(withFixedDecimals);
 };
 
 const NumberDisplay: React.FC<INumberDisplay> = ({
@@ -32,7 +35,7 @@ const NumberDisplay: React.FC<INumberDisplay> = ({
 }) => {
   const parsedValue = Number(value);
   const formattedValue = getFormattedValue(parsedValue, decimals);
-  const tooltipValue = isCurrency ? `${unit} ${value}` : `${value} ${unit}`;
+  const tooltipValue = isCurrency ? `${unit} ${commify(value)}` : `${commify(value)} ${unit}`;
   const displayUnit = showUnitInDisplay ? unit : "";
   const displayValue = isCurrency ? `${displayUnit} ${formattedValue}` : `${formattedValue} ${displayUnit}`;
   return (

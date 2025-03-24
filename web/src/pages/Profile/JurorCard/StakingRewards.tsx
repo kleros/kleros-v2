@@ -6,12 +6,13 @@ import { Box as _Box, Button } from "@kleros/ui-components-library";
 import { EnsureChain } from "components/EnsureChain";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import TokenRewards from "./TokenRewards";
+// import TokenRewards from "./TokenRewards";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  gap: 4px;
 `;
 
 const Box = styled(_Box)`
@@ -46,20 +47,28 @@ const ClaimPNK: React.FC = () => {
 
 const tooltipMsg =
   "Staking Rewards are the rewards won by staking your PNK on a court during " +
-  "the Kleros' Jurors incentive program.";
+  "the Kleros' Jurors incentive program. This will start as soon as the " +
+  "corresponding KIP (Kleros Improvement Proposal) goes into effect.";
 
-const Coherence: React.FC = () => {
+const StakingRewards: React.FC = () => {
   return (
+    // <Container>
+    //   <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
+    //     <label>
+    //       Staking Rewards: <small>APY 6%</small>
+    //     </label>
+    //     Coming soon
+    //   </WithHelpTooltip>
+    //   <TokenRewards token="PNK" amount="10,000" value="8,783" />
+    //   <ClaimPNK />
+    // </Container>
     <Container>
       <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
-        <label>
-          Staking Rewards: <small>APY 6%</small>
-        </label>
+        <label>Staking Rewards</label>
       </WithHelpTooltip>
-      <TokenRewards token="PNK" amount="10,000" value="8,783" />
-      <ClaimPNK />
+      <label>Coming soon</label>
     </Container>
   );
 };
 
-export default Coherence;
+export default StakingRewards;

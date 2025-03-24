@@ -1,7 +1,7 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import { useAccount } from "wagmi";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -10,14 +10,28 @@ import { getFormattedRewards } from "utils/jurorRewardConfig";
 import { useUserQuery } from "queries/useUser";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
-
-import TokenRewards from "./TokenRewards";
+import TokenRewards from "../TokenRewards";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   width: auto;
+  gap: 12px;
+
+  ${landscapeStyle(
+    () => css`
+      align-items: flex-start;
+      gap: 24px;
+    `
+  )}
+`;
+
+const TokenRewardsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 16px;
 `;
 
 const tooltipMsg =
@@ -27,11 +41,11 @@ const tooltipMsg =
   "arbitration fees (ETH) + PNK redistribution between jurors.";
 
 interface IJurorRewards {
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
-const JurorRewards: React.FC<IJurorRewards> = ({ addressToQuery }) => {
-  const { data } = useUserQuery(addressToQuery);
+const JurorRewards: React.FC<IJurorRewards> = ({ searchParamAddress }) => {
+  const { data } = useUserQuery(searchParamAddress);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
 
@@ -42,9 +56,11 @@ const JurorRewards: React.FC<IJurorRewards> = ({ addressToQuery }) => {
       <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
         <label> Juror Rewards </label>
       </WithHelpTooltip>
-      {formattedRewards.map(({ token, amount, value }) => (
-        <TokenRewards key={token} {...{ token }} amount={amount} value={value} />
-      ))}
+      <TokenRewardsContainer>
+        {formattedRewards.map(({ token, amount, value }) => (
+          <TokenRewards key={token} {...{ token }} amount={amount} value={value} />
+        ))}
+      </TokenRewardsContainer>
     </Container>
   );
 };
