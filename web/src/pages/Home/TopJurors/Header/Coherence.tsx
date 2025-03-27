@@ -35,7 +35,7 @@ const Coherence: React.FC = () => {
 
   return (
     <Container>
-      <WithHelpTooltip place={isDesktop ? "top" : "left"} tooltipMsg={coherentVotesTooltipMsg}></WithHelpTooltip>
+      <WithHelpTooltip place={isDesktop ? "top" : "right"} tooltipMsg={coherentVotesTooltipMsg}></WithHelpTooltip>
     </Container>
   );
 };

@@ -1,7 +1,8 @@
-import { Tooltip } from "@kleros/ui-components-library";
 import React from "react";
 
 import styled from "styled-components";
+
+import { Tooltip } from "@kleros/ui-components-library";
 
 const Container = styled.div`
   display: flex;
@@ -10,6 +11,7 @@ const Container = styled.div`
   color: ${({ theme }) => theme.primaryText};
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: 2px;
 `;
 
 interface IScore {

@@ -12,6 +12,7 @@ const Container = styled.div`
   color: ${({ theme }) => theme.primaryText};
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: 2px;
 `;
 
 interface ICoherence {

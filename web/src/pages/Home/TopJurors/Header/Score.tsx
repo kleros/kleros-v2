@@ -33,7 +33,7 @@ const Score: React.FC = () => {
 
   return (
     <Container>
-      <WithHelpTooltip place={isDesktop ? "top" : "left"} tooltipMsg={scoreTooltipMsg}></WithHelpTooltip>
+      <WithHelpTooltip place={isDesktop ? "top" : "right"} tooltipMsg={scoreTooltipMsg}></WithHelpTooltip>
     </Container>
   );
 };
