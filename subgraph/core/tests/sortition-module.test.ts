@@ -10,8 +10,9 @@ describe("Describe event", () => {
   beforeAll(() => {
     let courtId = BigInt.fromI32(1);
     let amount = BigInt.fromI32(1000);
+    let amountAllCourts = BigInt.fromI32(1000);
     let jurorAddress = Address.fromString("0x922911F4f80a569a4425fa083456239838F7F003");
-    let newStakeSetEvent = createStakeSetEvent(jurorAddress, courtId, amount);
+    let newStakeSetEvent = createStakeSetEvent(jurorAddress, courtId, amount, amountAllCourts);
     handleStakeSet(newStakeSetEvent);
   });
 

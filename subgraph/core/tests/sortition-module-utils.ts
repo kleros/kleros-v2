@@ -88,7 +88,12 @@ export function createStakeLockedEvent(_address: Address, _relativeAmount: BigIn
   return stakeLockedEvent;
 }
 
-export function createStakeSetEvent(_address: Address, _courtID: BigInt, _amount: BigInt): StakeSet {
+export function createStakeSetEvent(
+  _address: Address,
+  _courtID: BigInt,
+  _amount: BigInt,
+  _amountAllCourts: BigInt
+): StakeSet {
   let stakeSetEvent = newMockEvent();
 
   stakeSetEvent.parameters = new Array();
@@ -96,6 +101,9 @@ export function createStakeSetEvent(_address: Address, _courtID: BigInt, _amount
   stakeSetEvent.parameters.push(new ethereum.EventParam("_address", ethereum.Value.fromAddress(_address)));
   stakeSetEvent.parameters.push(new ethereum.EventParam("_courtID", ethereum.Value.fromUnsignedBigInt(_courtID)));
   stakeSetEvent.parameters.push(new ethereum.EventParam("_amount", ethereum.Value.fromUnsignedBigInt(_amount)));
+  stakeSetEvent.parameters.push(
+    new ethereum.EventParam("_amountAllCourts", ethereum.Value.fromUnsignedBigInt(_amountAllCourts))
+  );
 
   return stakeSetEvent;
 }
