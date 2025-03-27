@@ -47,7 +47,17 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *              Events               * //
     // ************************************* //
 
-    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
+    /// @notice Emitted when a juror stakes in a court.
+    /// @param _address The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _amount The amount of tokens staked in the court.
+    /// @param _amountAllCourts The amount of tokens staked in all courts.
+    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _amountAllCourts);
+
+    /// @notice Emitted when a juror's stake is locked.
+    /// @param _address The address of the juror.
+    /// @param _relativeAmount The amount of tokens locked.
+    /// @param _unlock Whether the stake is locked or unlocked.
     event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unlock);
 
     // ************************************* //
@@ -163,7 +173,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
                 (currentCourtID, , , , , , ) = core.courts(currentCourtID);
             }
         }
-        emit StakeSet(_account, _courtID, _newStake);
+        emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
         return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
 

@@ -113,7 +113,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(3000))
+            .withArgs(deployer, 2, PNK(3000), PNK(5000))
             .to.not.emit(sortition, "StakeDelayedNotTransferred")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferred")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferredWithdrawn");
@@ -179,7 +179,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes by withdrawing PNK and reducing the stakes", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(1000));
+            .withArgs(deployer, 2, PNK(1000), PNK(3000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(3000),
             PNK(300), // we're the only juror so we are drawn 3 times
@@ -266,7 +266,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes but the stakes should remain the same", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(2000));
+            .withArgs(deployer, 2, PNK(2000), PNK(4000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(4000),
             PNK(300), // we're the only juror so we are drawn 3 times
@@ -355,7 +355,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes but the stakes should remain the same", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(2000))
+            .withArgs(deployer, 2, PNK(2000), PNK(4000))
             .to.not.emit(sortition, "StakeDelayedNotTransferred")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferred")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferredWithdrawn");

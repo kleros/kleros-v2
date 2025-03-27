@@ -17,7 +17,7 @@ import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import "../../src/libraries/Constants.sol";
-import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/snapshot-proxy/KlerosCoreSnapshotProxy.sol";
+import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
 
 contract KlerosCoreTest is Test {
     event Initialized(uint64 version);
@@ -861,7 +861,7 @@ contract KlerosCoreTest is Test {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1001);
+        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1001, 1001);
         core.setStake(GENERAL_COURT, 1001);
 
         (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
@@ -887,7 +887,7 @@ contract KlerosCoreTest is Test {
         // Increase stake one more time to verify the correct behavior
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 2000);
+        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 2000, 2000);
         core.setStake(GENERAL_COURT, 2000);
 
         (totalStaked, totalLocked, stakedInCourt, nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
@@ -1197,7 +1197,7 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.balanceOf(address(core)), 1800, "Wrong token balance of the core");
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1800);
+        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1800, 1800);
         sortitionModule.executeDelayedStakes(20); // Deliberately ask for more iterations than needed
 
         assertEq(sortitionModule.delayedStakeWriteIndex(), 3, "Wrong delayedStakeWriteIndex");
@@ -2402,9 +2402,9 @@ contract KlerosCoreTest is Test {
         uint256 governorTokenBalance = pinakion.balanceOf(governor);
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, newCourtID, 0);
+        emit SortitionModuleBase.StakeSet(staker1, newCourtID, 0, 19000);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0);
+        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0, 0);
         core.execute(disputeID, 0, 3);
 
         assertEq(pinakion.balanceOf(address(core)), 0, "Wrong token balance of the core");
