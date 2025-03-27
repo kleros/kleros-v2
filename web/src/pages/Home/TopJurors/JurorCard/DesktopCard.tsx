@@ -26,7 +26,9 @@ const Container = styled.div<{ renderRank?: boolean }>`
     landscapeStyle(
       () => css`
         display: grid;
-        grid-template-columns: ${renderRank ? `min-content 1fr 0.8fr 1fr 1.6fr 1fr` : `1fr 0.8fr 1fr 1.6fr 1fr`};
+        grid-template-columns: ${renderRank
+          ? `min-content minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`
+          : `minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`};
         column-gap: ${responsiveSize(12, 24, 900)};
       `
     )}
