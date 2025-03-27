@@ -24,8 +24,8 @@ const Coherence: React.FC<ICoherence> = ({ totalCoherentVotes, totalResolvedVote
 
   return (
     <Container>
-      <Tooltip text={coherenceRatio}>
-        {getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes))}
+      <Tooltip text={getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes))}>
+        {coherenceRatio}
       </Tooltip>
     </Container>
   );

@@ -16,6 +16,7 @@ import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 
 import Coherence from "./Coherence";
 import Rewards from "./Rewards";
+import Score from "./Score";
 
 const Container = styled.div<{ renderIcon?: boolean }>`
   display: none;
@@ -31,10 +32,8 @@ const Container = styled.div<{ renderIcon?: boolean }>`
     landscapeStyle(
       () => css`
         display: grid;
-        grid-template-columns: ${renderIcon
-          ? `min-content repeat(3, ${responsiveSize(160, 180, 900)}) auto`
-          : `repeat(3, ${responsiveSize(160, 180, 900)}) auto`};
-        column-gap: ${responsiveSize(12, 28, 900)};
+        grid-template-columns: ${renderIcon ? `min-content 1fr 0.8fr 1fr 1.6fr 1fr` : `1fr 0.8fr 1fr 1.6fr 1fr`};
+        column-gap: ${responsiveSize(12, 24, 900)};
         align-items: center;
       `
     )}
@@ -65,8 +64,9 @@ export const DesktopHeader: React.FC = () => {
     <Container renderIcon={renderIcon}>
       {renderIcon ? <StyledRankingIcon /> : null}
       <StyledLabel>Juror</StyledLabel>
-      <Rewards />
+      <Score />
       <Coherence />
+      <Rewards />
       <HowItWorksContainer>
         <HowItWorks
           isMiniGuideOpen={isJurorLevelsMiniGuideOpen}

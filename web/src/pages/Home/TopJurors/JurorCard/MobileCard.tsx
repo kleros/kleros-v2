@@ -82,7 +82,7 @@ interface IMobileCard {
   address: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;
-  totalResolvedDisputes: string;
+  coherenceScore: string;
 }
 
 const MobileCard: React.FC<IMobileCard> = ({
@@ -90,7 +90,7 @@ const MobileCard: React.FC<IMobileCard> = ({
   address,
   totalCoherentVotes,
   totalResolvedVotes,
-  totalResolvedDisputes,
+  coherenceScore,
 }) => {
   return (
     <Container>
@@ -99,7 +99,7 @@ const MobileCard: React.FC<IMobileCard> = ({
           {rank ? <Rank rank={rank} /> : null}
           <JurorTitle address={address} />
         </RankAndTitle>
-        <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />
+        <JurorLevel coherenceScore={Number(coherenceScore)} />
       </TopSide>
       <BottomSide>
         <HeaderRewardsAndRewards>
