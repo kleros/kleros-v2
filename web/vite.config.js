@@ -8,6 +8,7 @@ export default defineConfig({
   build: {
     outDir: "../dist",
     rollupOptions: {
+      external: ["@reown/appkit-adapter-wagmi", "@lifi/widget", "@lifi/wallet-management"],
       onwarn: (warning, warn) => {
         if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
           return;
