@@ -149,7 +149,6 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - JurorTokensPerCourt
-        - StakeSet
       abis:
         - name: SortitionModule
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
@@ -162,6 +161,6 @@ dataSources:
           handler: handleStakeDelayedNotTransferred
         - event: StakeLocked(indexed address,uint256,bool)
           handler: handleStakeLocked
-        - event: StakeSet(indexed address,uint256,uint256)
+        - event: StakeSet(indexed address,uint256,uint256,uint256)
           handler: handleStakeSet
       file: ./src/SortitionModule.ts
