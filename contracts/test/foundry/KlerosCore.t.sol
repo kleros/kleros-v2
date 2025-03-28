@@ -1010,7 +1010,7 @@ contract KlerosCoreTest is Test {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeDelayedAlreadyTransferred(staker1, GENERAL_COURT, 1500);
+        emit SortitionModuleBase.StakeDelayedAlreadyTransferredDeposited(staker1, GENERAL_COURT, 1500);
         core.setStake(GENERAL_COURT, 1500);
 
         uint256 delayedStakeId = sortitionModule.delayedStakeWriteIndex();

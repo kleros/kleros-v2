@@ -1,33 +1,33 @@
 import { newMockEvent } from "matchstick-as";
 import { ethereum, BigInt, Address } from "@graphprotocol/graph-ts";
 import {
-  StakeDelayedAlreadyTransferred,
+  StakeDelayedAlreadyTransferredDeposited,
   StakeDelayedAlreadyTransferredWithdrawn,
   StakeDelayedNotTransferred,
   StakeLocked,
   StakeSet,
 } from "../generated/SortitionModule/SortitionModule";
 
-export function createStakeDelayedAlreadyTransferredEvent(
+export function createStakeDelayedAlreadyTransferredDepositedEvent(
   _address: Address,
   _courtID: BigInt,
   _amount: BigInt
-): StakeDelayedAlreadyTransferred {
-  let stakeDelayedAlreadyTransferredEvent: StakeDelayedAlreadyTransferred = newMockEvent();
+): StakeDelayedAlreadyTransferredDeposited {
+  let stakeDelayedAlreadyTransferredDepositedEvent: StakeDelayedAlreadyTransferredDeposited = newMockEvent();
 
-  stakeDelayedAlreadyTransferredEvent.parameters = new Array();
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters = new Array();
 
-  stakeDelayedAlreadyTransferredEvent.parameters.push(
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters.push(
     new ethereum.EventParam("_address", ethereum.Value.fromAddress(_address))
   );
-  stakeDelayedAlreadyTransferredEvent.parameters.push(
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters.push(
     new ethereum.EventParam("_courtID", ethereum.Value.fromUnsignedBigInt(_courtID))
   );
-  stakeDelayedAlreadyTransferredEvent.parameters.push(
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters.push(
     new ethereum.EventParam("_amount", ethereum.Value.fromUnsignedBigInt(_amount))
   );
 
-  return stakeDelayedAlreadyTransferredEvent;
+  return stakeDelayedAlreadyTransferredDepositedEvent;
 }
 
 export function createStakeDelayedAlreadyTransferredWithdrawnEvent(
