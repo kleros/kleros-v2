@@ -1,33 +1,33 @@
 import { newMockEvent } from "matchstick-as";
 import { ethereum, BigInt, Address } from "@graphprotocol/graph-ts";
 import {
-  StakeDelayedAlreadyTransferred,
+  StakeDelayedAlreadyTransferredDeposited,
   StakeDelayedAlreadyTransferredWithdrawn,
   StakeDelayedNotTransferred,
   StakeLocked,
   StakeSet,
 } from "../generated/SortitionModule/SortitionModule";
 
-export function createStakeDelayedAlreadyTransferredEvent(
+export function createStakeDelayedAlreadyTransferredDepositedEvent(
   _address: Address,
   _courtID: BigInt,
   _amount: BigInt
-): StakeDelayedAlreadyTransferred {
-  let stakeDelayedAlreadyTransferredEvent: StakeDelayedAlreadyTransferred = newMockEvent();
+): StakeDelayedAlreadyTransferredDeposited {
+  let stakeDelayedAlreadyTransferredDepositedEvent: StakeDelayedAlreadyTransferredDeposited = newMockEvent();
 
-  stakeDelayedAlreadyTransferredEvent.parameters = new Array();
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters = new Array();
 
-  stakeDelayedAlreadyTransferredEvent.parameters.push(
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters.push(
     new ethereum.EventParam("_address", ethereum.Value.fromAddress(_address))
   );
-  stakeDelayedAlreadyTransferredEvent.parameters.push(
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters.push(
     new ethereum.EventParam("_courtID", ethereum.Value.fromUnsignedBigInt(_courtID))
   );
-  stakeDelayedAlreadyTransferredEvent.parameters.push(
+  stakeDelayedAlreadyTransferredDepositedEvent.parameters.push(
     new ethereum.EventParam("_amount", ethereum.Value.fromUnsignedBigInt(_amount))
   );
 
-  return stakeDelayedAlreadyTransferredEvent;
+  return stakeDelayedAlreadyTransferredDepositedEvent;
 }
 
 export function createStakeDelayedAlreadyTransferredWithdrawnEvent(
@@ -88,7 +88,12 @@ export function createStakeLockedEvent(_address: Address, _relativeAmount: BigIn
   return stakeLockedEvent;
 }
 
-export function createStakeSetEvent(_address: Address, _courtID: BigInt, _amount: BigInt): StakeSet {
+export function createStakeSetEvent(
+  _address: Address,
+  _courtID: BigInt,
+  _amount: BigInt,
+  _amountAllCourts: BigInt
+): StakeSet {
   let stakeSetEvent = newMockEvent();
 
   stakeSetEvent.parameters = new Array();
@@ -96,6 +101,9 @@ export function createStakeSetEvent(_address: Address, _courtID: BigInt, _amount
   stakeSetEvent.parameters.push(new ethereum.EventParam("_address", ethereum.Value.fromAddress(_address)));
   stakeSetEvent.parameters.push(new ethereum.EventParam("_courtID", ethereum.Value.fromUnsignedBigInt(_courtID)));
   stakeSetEvent.parameters.push(new ethereum.EventParam("_amount", ethereum.Value.fromUnsignedBigInt(_amount)));
+  stakeSetEvent.parameters.push(
+    new ethereum.EventParam("_amountAllCourts", ethereum.Value.fromUnsignedBigInt(_amountAllCourts))
+  );
 
   return stakeSetEvent;
 }
