@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 
+import HeaderScore from "../Header/Score";
 import HeaderCoherence from "../Header/Coherence";
 import HeaderRewards from "../Header/Rewards";
 
@@ -12,6 +13,7 @@ import JurorLevel from "./JurorLevel";
 import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
+import Score from "./Score";
 
 const Container = styled.div`
   ${hoverShortTransitionTiming}
@@ -49,32 +51,40 @@ const TopSide = styled.div`
 const RankAndTitle = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 8px;
-`;
-
-const HeaderRewardsAndRewards = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+  align-items: center;
   gap: 8px;
 `;
 
 const BottomSide = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
+  gap: 8px;
+`;
+
+const HeaderScoreAndScore = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 `;
 
 const HeaderCoherenceAndCoherence = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
   gap: 8px;
+`;
 
-  svg {
-    margin-right: 0;
-  }
+const HeaderRewardsAndRewards = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 `;
 
 interface IMobileCard {
@@ -82,7 +92,7 @@ interface IMobileCard {
   address: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;
-  totalResolvedDisputes: string;
+  coherenceScore: string;
 }
 
 const MobileCard: React.FC<IMobileCard> = ({
@@ -90,26 +100,30 @@ const MobileCard: React.FC<IMobileCard> = ({
   address,
   totalCoherentVotes,
   totalResolvedVotes,
-  totalResolvedDisputes,
+  coherenceScore,
 }) => {
   return (
     <Container>
       <TopSide>
         <RankAndTitle>
-          {rank ? <Rank rank={rank} /> : null}
-          <JurorTitle address={address} />
+          {rank ? <Rank {...{ rank }} /> : null}
+          <JurorTitle {...{ address }} />
         </RankAndTitle>
-        <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />
+        <JurorLevel coherenceScore={Number(coherenceScore)} />
       </TopSide>
       <BottomSide>
-        <HeaderRewardsAndRewards>
-          <HeaderRewards />
-          <Rewards address={address} />
-        </HeaderRewardsAndRewards>
+        <HeaderScoreAndScore>
+          <HeaderScore />
+          <Score {...{ coherenceScore }} />
+        </HeaderScoreAndScore>
         <HeaderCoherenceAndCoherence>
           <HeaderCoherence />
           <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
         </HeaderCoherenceAndCoherence>
+        <HeaderRewardsAndRewards>
+          <HeaderRewards />
+          <Rewards {...{ address }} />
+        </HeaderRewardsAndRewards>
       </BottomSide>
     </Container>
   );

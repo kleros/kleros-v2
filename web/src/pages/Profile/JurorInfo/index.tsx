@@ -4,7 +4,6 @@ import styled, { css } from "styled-components";
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import { getUserLevelData } from "utils/userLevelCalculation";
-import { getCoherencePercent } from "utils/getCoherencePercent";
 
 import { useUserQuery } from "queries/useUser";
 
@@ -46,9 +45,8 @@ const JurorInfo: React.FC<IJurorInfo> = ({ addressToQuery }) => {
   const { data } = useUserQuery(addressToQuery);
   const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
   const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
-  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
-  const coherencePercentage = getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes));
-  const userLevelData = getUserLevelData(coherencePercentage, totalResolvedDisputes);
+  const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
+  const userLevelData = getUserLevelData(coherenceScore);
 
   return (
     <Container>

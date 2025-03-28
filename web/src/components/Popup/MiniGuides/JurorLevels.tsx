@@ -32,63 +32,72 @@ const Card = styled(_Card)`
 
 const leftPageContents = [
   {
+    title: "Juror Level 0: Diogenes",
+    paragraphs: [
+      "Coherence Score below 25.",
+      "This level is for new jurors or those frequently voting incoherently. A few coherent votes can help climb out of this level quickly.",
+    ],
+  },
+  {
     title: "Juror Level 1: Pythagoras",
     paragraphs: [
-      "Jurors are classified into distinct levels according to their performance starting from Level 1.",
-      "Level 1: Jurors with ≥ 1 case arbitrated with 0-70% of coherent votes.",
+      "Coherence Score between 25 and 49.",
+      "Jurors here are gaining experience and starting to build voting reliability.",
     ],
   },
   {
     title: "Juror Level 2: Socrates",
-    paragraphs: ["Level 2: Jurors with ≥ 3 cases arbitrated with more than 70% coherent votes."],
+    paragraphs: [
+      "Coherence Score between 50 and 69.",
+      "Mid-tier performance. Jurors at this level have demonstrated reasonable consistency in coherent voting.",
+    ],
   },
   {
     title: "Juror Level 3: Plato",
-    paragraphs: ["Level 3: Jurors with ≥ 7 cases arbitrated with more than 80% of coherent votes."],
+    paragraphs: [
+      "Coherence Score between 70 and 89.",
+      "Reliable jurors with a consistent track record of coherent votes. Just a few more coherent votes away from reaching the top.",
+    ],
   },
   {
     title: "Juror Level 4: Aristotle",
-    paragraphs: ["Level 4: Jurors with ≥ 10 cases arbitrated with more than 90% of coherent votes."],
-  },
-  {
-    title: "Juror Level 0: Diogenes",
     paragraphs: [
-      "There's a level for the low-performance/lazy jurors. Level 0: Jurors with ≥ 3 cases arbitrated" +
-        " with less than 50% of coherent votes.",
+      "Coherence Score between 90 and 100.",
+      "Top-tier jurors with excellent coherence. Trusted members of the platform.",
     ],
   },
 ];
 
 const userLevelData = [
   {
+    level: 0,
+    title: "Diogenes",
+    totalCoherentVotes: 2,
+    totalResolvedVotes: 10,
+  },
+  {
     level: 1,
     title: "Pythagoras",
     totalCoherentVotes: 6,
-    totalResolvedVotes: 10,
+    totalResolvedVotes: 12,
   },
   {
     level: 2,
     title: "Socrates",
-    totalCoherentVotes: 7,
-    totalResolvedVotes: 10,
+    totalCoherentVotes: 22,
+    totalResolvedVotes: 34,
   },
   {
     level: 3,
     title: "Plato",
-    totalCoherentVotes: 8,
-    totalResolvedVotes: 10,
+    totalCoherentVotes: 52,
+    totalResolvedVotes: 65,
   },
   {
     level: 4,
     title: "Aristotle",
-    totalCoherentVotes: 9,
-    totalResolvedVotes: 10,
-  },
-  {
-    level: 0,
-    title: "Diogenes",
-    totalCoherentVotes: 3,
-    totalResolvedVotes: 10,
+    totalCoherentVotes: 90,
+    totalResolvedVotes: 90,
   },
 ];
 
