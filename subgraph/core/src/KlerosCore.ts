@@ -23,6 +23,7 @@ import {
   updateCasesAppealing,
   updateCasesRuled,
   updateCasesVoting,
+  updateCourtCumulativeMetric,
   updateTotalLeaderboardJurors,
 } from "./datapoint";
 import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
@@ -81,9 +82,11 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   const court = Court.load(courtID);
   if (!court) return;
   court.numberDisputes = court.numberDisputes.plus(ONE);
+  updateCourtCumulativeMetric(courtID, ONE, event.block.timestamp, "numberDisputes");
 
   const roundInfo = contract.getRoundInfo(disputeID, ZERO);
   court.numberVotes = court.numberVotes.plus(roundInfo.nbVotes);
+  updateCourtCumulativeMetric(courtID, roundInfo.nbVotes, event.block.timestamp, "numberVotes");
 
   court.save();
   createDisputeFromEvent(event);
@@ -225,6 +228,7 @@ export function handleAppealDecision(event: AppealDecision): void {
   if (!court) return;
 
   court.numberVotes = court.numberVotes.plus(roundInfo.nbVotes);
+  updateCourtCumulativeMetric(courtID, roundInfo.nbVotes, event.block.timestamp, "numberVotes");
   court.save();
 
   createRoundFromRoundInfo(KlerosCore.bind(event.address), disputeID, newRoundIndex, roundInfo);

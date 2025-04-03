@@ -242,6 +242,15 @@ type Counter @entity {
   totalLeaderboardJurors: BigInt!
 }
 
+type CourtCounter @entity {
+  id: ID! # court.id-timestamp
+  court: Court!
+  numberDisputes: BigInt!
+  numberVotes: BigInt!
+  effectiveStake: BigInt!
+  timestamp: BigInt!
+}
+
 type FeeToken @entity {
   id: ID! # The address of the ERC20 token.
   accepted: Boolean!
