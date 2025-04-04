@@ -32,19 +32,22 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
       }
       print.info(`Upgrading ${contractName}...`);
 
-      // await deployUpgradable(deployments, contractName, {
-      //   newImplementation: contractName,
-      //   initializer,
-      //   from: deployer,
-      //   args, // Warning: do not reinitialize existing state variables, only the new ones
-      // });
+      await deployUpgradable(deployments, contractName, {
+        newImplementation: contractName,
+        initializer,
+        from: deployer,
+        args, // Warning: do not reinitialize existing state variables, only the new ones
+      });
+
+      print.info(`Verifying ${contractName} on Etherscan...`);
+      await hre.run("etherscan-verify", { contractName: `${contractName}_Implementation` });
     } catch (err) {
       console.error(err);
       throw err;
     }
   };
 
-  await upgrade(disputeKitClassic, "initializer2", []);
+  await upgrade(disputeKitClassic, "initialize2", []);
   await upgrade(disputeTemplateRegistry, "initialize2", []);
   await upgrade(evidence, "initialize2", []);
   await upgrade(core, "initialize3", []);

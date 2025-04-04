@@ -16,7 +16,7 @@ const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeE
     const { sortition: contractName } = await getContractNamesFromNetwork(hre);
     console.log(`upgrading ${contractName}...`);
     await deployUpgradable(deployments, contractName, {
-      newImplementation: contractName,
+      contract: contractName,
       initializer: "initialize3",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables

@@ -16,7 +16,7 @@ const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnviro
     const { disputeKitClassic: contractName } = await getContractNamesFromNetwork(hre);
     console.log(`upgrading ${contractName}...`);
     await deployUpgradable(deployments, contractName, {
-      newImplementation: contractName,
+      contract: contractName,
       initializer: "initialize2",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables
