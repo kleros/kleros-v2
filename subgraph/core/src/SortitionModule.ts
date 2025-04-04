@@ -1,6 +1,6 @@
 import {
   SortitionModule,
-  StakeDelayedAlreadyTransferred,
+  StakeDelayedAlreadyTransferredDeposited,
   StakeDelayedAlreadyTransferredWithdrawn,
   StakeDelayedNotTransferred,
   StakeLocked,
@@ -11,7 +11,7 @@ import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorToken
 import { ensureUser } from "./entities/User";
 import { ZERO } from "./utils";
 
-export function handleStakeDelayedAlreadyTransferred(event: StakeDelayedAlreadyTransferred): void {
+export function handleStakeDelayedAlreadyTransferredDeposited(event: StakeDelayedAlreadyTransferredDeposited): void {
   updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);
 }
 
@@ -32,4 +32,5 @@ export function handleStakeSet(event: StakeSet): void {
   //stake is updated instantly so no delayed amount, set delay amount to zero
   updateJurorDelayedStake(jurorAddress, courtID, ZERO);
 }
+
 export function handleStakeLocked(event: StakeLocked): void {}

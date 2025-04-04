@@ -4,7 +4,6 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { getUserLevelData } from "utils/userLevelCalculation";
-import { getCoherencePercent } from "utils/getCoherencePercent";
 
 import PixelArt from "pages/Profile/JurorInfo/PixelArt";
 
@@ -40,14 +39,11 @@ const StyledLabel = styled.label`
 `;
 
 interface IJurorLevel {
-  totalCoherentVotes: string;
-  totalResolvedVotes: string;
-  totalResolvedDisputes: string;
+  coherenceScore: number;
 }
 
-const JurorLevel: React.FC<IJurorLevel> = ({ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }) => {
-  const coherencePercentage = getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes));
-  const userLevelData = getUserLevelData(coherencePercentage, Number(totalResolvedDisputes));
+const JurorLevel: React.FC<IJurorLevel> = ({ coherenceScore }) => {
+  const userLevelData = getUserLevelData(coherenceScore);
   const level = userLevelData.level;
 
   return (

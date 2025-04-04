@@ -58,6 +58,10 @@ contract SortitionModuleNeo is SortitionModuleBase {
         maxTotalStaked = _maxTotalStaked;
     }
 
+    function initialize3() external reinitializer(3) {
+        // NOP
+    }
+
     // ************************************* //
     // *             Governance            * //
     // ************************************* //

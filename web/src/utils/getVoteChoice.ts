@@ -1,5 +1,6 @@
 import { Answer } from "@kleros/kleros-sdk";
 import { isUndefined } from ".";
+import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
 
 export const getVoteChoice = (vote: string, answers: Answer[]) => {
   // answer.id is hexadecimal number
@@ -8,6 +9,6 @@ export const getVoteChoice = (vote: string, answers: Answer[]) => {
   if (!isUndefined(selectedAnswer)) {
     return selectedAnswer.title;
   } else {
-    return `Answer 0x${vote}`;
+    return BigInt(vote) === BigInt(0) ? RefuseToArbitrateAnswer.title : `Answer 0x${vote}`;
   }
 };

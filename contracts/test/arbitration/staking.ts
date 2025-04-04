@@ -87,7 +87,7 @@ describe("Staking", async () => {
           await pnk.approve(core.target, PNK(1000));
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
           await expect(core.setStake(2, PNK(3000)))
-            .to.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .withArgs(deployer, 2, PNK(3000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(5000), 0, PNK(2000), 2]); // stake does not change
         });
@@ -113,9 +113,9 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(3000))
+            .withArgs(deployer, 2, PNK(3000), PNK(5000))
             .to.not.emit(sortition, "StakeDelayedNotTransferred")
-            .to.not.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.not.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferredWithdrawn");
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(5000),
@@ -179,7 +179,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes by withdrawing PNK and reducing the stakes", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(1000));
+            .withArgs(deployer, 2, PNK(1000), PNK(3000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(3000),
             PNK(300), // we're the only juror so we are drawn 3 times
@@ -266,7 +266,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes but the stakes should remain the same", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(2000));
+            .withArgs(deployer, 2, PNK(2000), PNK(4000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(4000),
             PNK(300), // we're the only juror so we are drawn 3 times
@@ -304,7 +304,7 @@ describe("Staking", async () => {
           await pnk.approve(core.target, PNK(1000));
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
           await expect(core.setStake(2, PNK(3000)))
-            .to.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .withArgs(deployer, 2, PNK(3000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(5000), 0, PNK(2000), 2]); // stake does not change
         });
@@ -355,9 +355,9 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes but the stakes should remain the same", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(2000))
+            .withArgs(deployer, 2, PNK(2000), PNK(4000))
             .to.not.emit(sortition, "StakeDelayedNotTransferred")
-            .to.not.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.not.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferredWithdrawn");
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(4000),

@@ -95,7 +95,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
       ) : null}
 
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
-        <ExternalLink href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
+        <ExternalLink to={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
         </ExternalLink>
       )}

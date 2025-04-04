@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   font-size: 12px !important;
   &::before {
-    content: "Coherent\u00a0Votes";
+    content: "Score";
   }
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;
@@ -24,19 +24,17 @@ const Container = styled.div`
   )}
 `;
 
-const coherentVotesTooltipMsg =
-  "This is the ratio of coherent votes made by a juror: " +
-  "the number in the left is the number of times where the juror " +
-  "voted coherently and the number in the right is the total number of times " +
-  "the juror voted. Hover to see the percentage of coherent votes.";
+const scoreTooltipMsg =
+  "A score from 0 to 100 reflecting coherent voting, smoothed " +
+  "to prevent jurors with low vote counts from ranking too high.";
 
-const Coherence: React.FC = () => {
+const Score: React.FC = () => {
   const isDesktop = useIsDesktop();
 
   return (
     <Container>
-      <WithHelpTooltip place={isDesktop ? "top" : "right"} tooltipMsg={coherentVotesTooltipMsg}></WithHelpTooltip>
+      <WithHelpTooltip place={isDesktop ? "top" : "right"} tooltipMsg={scoreTooltipMsg}></WithHelpTooltip>
     </Container>
   );
 };
-export default Coherence;
+export default Score;

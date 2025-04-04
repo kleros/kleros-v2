@@ -153,14 +153,14 @@ dataSources:
         - name: SortitionModule
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
       eventHandlers:
-        - event: StakeDelayedAlreadyTransferred(indexed address,uint256,uint256)
-          handler: handleStakeDelayedAlreadyTransferred
+        - event: StakeDelayedAlreadyTransferredDeposited(indexed address,uint256,uint256)
+          handler: handleStakeDelayedAlreadyTransferredDeposited
         - event: StakeDelayedAlreadyTransferredWithdrawn(indexed address,indexed uint96,uint256)
           handler: handleStakeDelayedAlreadyTransferredWithdrawn
         - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
           handler: handleStakeDelayedNotTransferred
         - event: StakeLocked(indexed address,uint256,bool)
           handler: handleStakeLocked
-        - event: StakeSet(indexed address,uint256,uint256)
+        - event: StakeSet(indexed address,uint256,uint256,uint256)
           handler: handleStakeSet
       file: ./src/SortitionModule.ts

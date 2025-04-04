@@ -10,6 +10,7 @@ import JurorLevel from "./JurorLevel";
 import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
+import Score from "./Score";
 
 const Container = styled.div<{ renderRank?: boolean }>`
   ${hoverShortTransitionTiming}
@@ -26,9 +27,9 @@ const Container = styled.div<{ renderRank?: boolean }>`
       () => css`
         display: grid;
         grid-template-columns: ${renderRank
-          ? `min-content repeat(3, ${responsiveSize(160, 180, 900)}) auto`
-          : `repeat(3, ${responsiveSize(160, 180, 900)}) auto`};
-        column-gap: ${responsiveSize(12, 28, 900)};
+          ? `min-content minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`
+          : `minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`};
+        column-gap: ${responsiveSize(12, 24, 900)};
       `
     )}
 
@@ -40,17 +41,17 @@ const Container = styled.div<{ renderRank?: boolean }>`
 interface IDesktopCard {
   rank?: number;
   address: string;
+  coherenceScore: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;
-  totalResolvedDisputes: string;
 }
 
 const DesktopCard: React.FC<IDesktopCard> = ({
   rank,
   address,
+  coherenceScore,
   totalCoherentVotes,
   totalResolvedVotes,
-  totalResolvedDisputes,
 }) => {
   const renderRank = !!rank;
 
@@ -58,9 +59,10 @@ const DesktopCard: React.FC<IDesktopCard> = ({
     <Container renderRank={renderRank}>
       {renderRank && <Rank rank={rank} />}
       <JurorTitle address={address} />
-      <Rewards address={address} />
+      <Score coherenceScore={coherenceScore} />
       <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
-      <JurorLevel {...{ totalCoherentVotes, totalResolvedVotes, totalResolvedDisputes }} />
+      <Rewards address={address} />
+      <JurorLevel coherenceScore={Number(coherenceScore)} />
     </Container>
   );
 };

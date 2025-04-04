@@ -62,7 +62,7 @@ const Jurors: React.FC = () => {
     chainId: DEFAULT_CHAIN,
   });
 
-  const arbitrationFee = formatETH(data ?? BigInt(0), 5);
+  const arbitrationFee = formatETH(data ?? BigInt(0), 18);
 
   useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
