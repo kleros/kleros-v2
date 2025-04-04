@@ -4,15 +4,22 @@ import { IDisputeTemplateRegistry } from "../typechain-types";
 
 task("get-dispute-template", "Gets a dispute template by ID")
   .addPositionalParam("templateId", "The ID of the template to query")
-  .setAction(async function ({ templateId }: { templateId: string }, hre: HardhatRuntimeEnvironment) {
+  .setAction(async ({ templateId }: { templateId: string }, hre: HardhatRuntimeEnvironment) => {
     const { ethers } = hre;
 
     // Get the contract instance
     const disputeTemplateRegistry = await ethers.getContract<IDisputeTemplateRegistry>("DisputeTemplateRegistry");
 
     // Query the events
-    const filter = disputeTemplateRegistry.filters.DisputeTemplate(BigInt(templateId));
-    const events = await disputeTemplateRegistry.queryFilter(filter);
+    let events;
+    try {
+      const filter = disputeTemplateRegistry.filters.DisputeTemplate(BigInt(templateId));
+      events = await disputeTemplateRegistry.queryFilter(filter);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`Failed to query events for template ID ${templateId}:`, errorMessage);
+      return;
+    }
 
     if (events.length === 0) {
       console.log(`No template found with ID ${templateId}`);

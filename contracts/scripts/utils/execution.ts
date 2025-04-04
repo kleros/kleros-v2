@@ -50,6 +50,7 @@ export function writeTransactionBatch({ name, outputPath = "tx-batch.json" }: { 
   try {
     const templateObject = template({ name, transactions });
     fs.writeFileSync(outputPath, JSON.stringify(templateObject, null, 2));
+    transactions.length = 0;
     console.log(`Transaction batch written to ${outputPath}`);
     console.log(`The batch can be submitted to the Safe app at: ${transactionBuilderUrl}`);
   } catch (error) {

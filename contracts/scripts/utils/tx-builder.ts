@@ -1,11 +1,12 @@
-// Transaction batch example: https://github.com/safe-global/safe-wallet-monorepo/blob/8bbf3b82edc347b70a038629cd9afd45eb1ed38a/apps/web/cypress/fixtures/test-working-batch.json
+import { arbitrum } from "viem/chains";
 
 const governor = "0x66e8DE9B42308c6Ca913D1EE041d6F6fD037A57e";
 const deployer = "0xf1C7c037891525E360C59f708739Ac09A7670c59";
 
+// Transaction batch example: https://github.com/safe-global/safe-wallet-monorepo/blob/8bbf3b82edc347b70a038629cd9afd45eb1ed38a/apps/web/cypress/fixtures/test-working-batch.json
 export const template = ({ name, transactions }: { name: string; transactions: BuilderTransaction[] }) => ({
   version: "1.0",
-  chainId: "42161", // Arbitrum One
+  chainId: arbitrum.id.toString(),
   createdAt: Date.now(),
   meta: {
     name,

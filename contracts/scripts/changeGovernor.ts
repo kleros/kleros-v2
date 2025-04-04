@@ -1,6 +1,7 @@
 import { task } from "hardhat/config";
 import { prompt, print } from "gluegun";
 import { Cores, getContracts } from "./utils/contracts";
+import { isAddress } from "viem";
 
 const { bold } = print.colors;
 
@@ -9,6 +10,9 @@ task("change-governor", "Changes the governor for all the contracts")
   .addOptionalParam("coreType", "The type of core to use between base, neo, university (default: base)", Cores.BASE)
   .setAction(async (taskArgs, hre) => {
     const newGovernor = taskArgs.newGovernor;
+    if (!isAddress(newGovernor)) {
+      throw new Error("Invalid governor address provided");
+    }
     print.highlight(`💣 Changing governor to ${bold(newGovernor)}`);
 
     const { confirm } = await prompt.ask({

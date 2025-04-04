@@ -237,33 +237,37 @@ task("populate:courts", "Populates the courts and their parameters")
         }
       } else {
         console.log("Court %d not found, creating it with", court.id, court);
-        if (coreType === Cores.UNIVERSITY) {
-          await (core as KlerosCoreUniversity).createCourt
-            .populateTransaction(
-              court.parent,
-              court.hiddenVotes,
-              court.minStake,
-              court.alpha,
-              court.feeForJuror,
-              court.jurorsForCourtJump,
-              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-              [DISPUTE_KIT_CLASSIC]
-            )
-            .then(execute);
-        } else {
-          await (core as KlerosCore).createCourt
-            .populateTransaction(
-              court.parent,
-              court.hiddenVotes,
-              court.minStake,
-              court.alpha,
-              court.feeForJuror,
-              court.jurorsForCourtJump,
-              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-              ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
-              [DISPUTE_KIT_CLASSIC]
-            )
-            .then(execute);
+        try {
+          if (coreType === Cores.UNIVERSITY) {
+            await (core as KlerosCoreUniversity).createCourt
+              .populateTransaction(
+                court.parent,
+                court.hiddenVotes,
+                court.minStake,
+                court.alpha,
+                court.feeForJuror,
+                court.jurorsForCourtJump,
+                [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+                [DISPUTE_KIT_CLASSIC]
+              )
+              .then(execute);
+          } else {
+            await (core as KlerosCore).createCourt
+              .populateTransaction(
+                court.parent,
+                court.hiddenVotes,
+                court.minStake,
+                court.alpha,
+                court.feeForJuror,
+                court.jurorsForCourtJump,
+                [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+                ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
+                [DISPUTE_KIT_CLASSIC]
+              )
+              .then(execute);
+          }
+        } catch (error) {
+          console.error(`Failed to create court ${court.id}: ${error}`);
         }
       }
 
