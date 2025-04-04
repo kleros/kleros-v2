@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
+import { getContractNamesFromNetwork } from "../scripts/utils/contracts";
 
 const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
@@ -12,9 +13,10 @@ const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeE
   console.log("upgrading on %s with deployer %s", HomeChains[chainId], deployer);
 
   try {
-    console.log("upgrading SortitionModuleNeo...");
-    await deployUpgradable(deployments, "SortitionModuleNeo", {
-      newImplementation: "SortitionModuleNeo",
+    const { sortition: contractName } = await getContractNamesFromNetwork(hre);
+    console.log(`upgrading ${contractName}...`);
+    await deployUpgradable(deployments, contractName, {
+      newImplementation: contractName,
       initializer: "initialize3",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables

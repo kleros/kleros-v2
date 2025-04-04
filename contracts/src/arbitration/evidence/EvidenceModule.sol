@@ -41,6 +41,10 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
         governor = _governor;
     }
 
+    function initialize2() external reinitializer(2) {
+        // NOP
+    }
+
     // ************************ //
     // *      Governance      * //
     // ************************ //

@@ -56,6 +56,10 @@ contract KlerosCore is KlerosCoreBase {
         );
     }
 
+    function initialize3() external reinitializer(3) {
+        // NOP
+    }
+
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
