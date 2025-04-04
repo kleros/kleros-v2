@@ -44,6 +44,10 @@ contract SortitionModule is SortitionModuleBase {
         __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
     }
 
+    function initialize3() external reinitializer(3) {
+        // NOP
+    }
+
     // ************************************* //
     // *             Governance            * //
     // ************************************* //

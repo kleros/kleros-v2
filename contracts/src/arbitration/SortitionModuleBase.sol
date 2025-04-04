@@ -152,6 +152,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // *             Governance            * //
     // ************************************* //
 
+    /// @dev Changes the governor of the contract.
+    /// @param _governor The new governor.
+    function changeGovernor(address _governor) external onlyByGovernor {
+        governor = _governor;
+    }
+
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
     function changeMinStakingTime(uint256 _minStakingTime) external onlyByGovernor {
