@@ -418,6 +418,2240 @@ export default {
         },
       ],
     },
+    ChainlinkRNG: {
+      address: "0x6c40D7F5d5bE3492fe9EF70e4eCb2BD773c12AF8",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_sortitionModule",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_vrfCoordinator",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "_keyHash",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "_subscriptionId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint16",
+              name: "_requestConfirmations",
+              type: "uint16",
+            },
+            {
+              internalType: "uint32",
+              name: "_callbackGasLimit",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "have",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "want",
+              type: "address",
+            },
+          ],
+          name: "OnlyCoordinatorCanFulfill",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "have",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "coordinator",
+              type: "address",
+            },
+          ],
+          name: "OnlyOwnerOrCoordinator",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroAddress",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "vrfCoordinator",
+              type: "address",
+            },
+          ],
+          name: "CoordinatorSet",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "from",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "OwnershipTransferRequested",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "from",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "OwnershipTransferred",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "randomWord",
+              type: "uint256",
+            },
+          ],
+          name: "RequestFulfilled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "RequestSent",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "acceptOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "callbackGasLimit",
+          outputs: [
+            {
+              internalType: "uint32",
+              name: "",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint32",
+              name: "_callbackGasLimit",
+              type: "uint32",
+            },
+          ],
+          name: "changeCallbackGasLimit",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "_keyHash",
+              type: "bytes32",
+            },
+          ],
+          name: "changeKeyHash",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint16",
+              name: "_requestConfirmations",
+              type: "uint16",
+            },
+          ],
+          name: "changeRequestConfirmations",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_sortitionModule",
+              type: "address",
+            },
+          ],
+          name: "changeSortitionModule",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_subscriptionId",
+              type: "uint256",
+            },
+          ],
+          name: "changeSubscriptionId",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_vrfCoordinator",
+              type: "address",
+            },
+          ],
+          name: "changeVrfCoordinator",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "keyHash",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "lastRequestId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "randomNumbers",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "number",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "randomWords",
+              type: "uint256[]",
+            },
+          ],
+          name: "rawFulfillRandomWords",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "receiveRandomness",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "randomNumber",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "requestConfirmations",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "",
+              type: "uint16",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "requestRandomness",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_vrfCoordinator",
+          outputs: [
+            {
+              internalType: "contract IVRFCoordinatorV2Plus",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_vrfCoordinator",
+              type: "address",
+            },
+          ],
+          name: "setCoordinator",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "sortitionModule",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "subscriptionId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "transferOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+    },
+    ChainlinkVRFCoordinator: {
+      address: "0x5CE8D5A2BC84beb22a398CCA51996F7930313D61",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "blockhashStore",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "internalBalance",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "externalBalance",
+              type: "uint256",
+            },
+          ],
+          name: "BalanceInvariantViolated",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "blockNum",
+              type: "uint256",
+            },
+          ],
+          name: "BlockhashNotInStore",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "coordinatorAddress",
+              type: "address",
+            },
+          ],
+          name: "CoordinatorAlreadyRegistered",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "coordinatorAddress",
+              type: "address",
+            },
+          ],
+          name: "CoordinatorNotRegistered",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedToSendNative",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedToTransferLink",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint32",
+              name: "have",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "want",
+              type: "uint32",
+            },
+          ],
+          name: "GasLimitTooBig",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "gasPrice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "maxGas",
+              type: "uint256",
+            },
+          ],
+          name: "GasPriceExceeded",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "IncorrectCommitment",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "IndexOutOfRange",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InsufficientBalance",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidCalldata",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+          ],
+          name: "InvalidConsumer",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidExtraArgsTag",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int256",
+              name: "linkWei",
+              type: "int256",
+            },
+          ],
+          name: "InvalidLinkWeiPrice",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint8",
+              name: "premiumPercentage",
+              type: "uint8",
+            },
+            {
+              internalType: "uint8",
+              name: "max",
+              type: "uint8",
+            },
+          ],
+          name: "InvalidPremiumPercentage",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint16",
+              name: "have",
+              type: "uint16",
+            },
+            {
+              internalType: "uint16",
+              name: "min",
+              type: "uint16",
+            },
+            {
+              internalType: "uint16",
+              name: "max",
+              type: "uint16",
+            },
+          ],
+          name: "InvalidRequestConfirmations",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidSubscription",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "LinkAlreadySet",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint32",
+              name: "flatFeeLinkDiscountPPM",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "flatFeeNativePPM",
+              type: "uint32",
+            },
+          ],
+          name: "LinkDiscountTooHigh",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "LinkNotSet",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "have",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "max",
+              type: "uint32",
+            },
+          ],
+          name: "MsgDataTooBig",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "proposedOwner",
+              type: "address",
+            },
+          ],
+          name: "MustBeRequestedOwner",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "MustBeSubOwner",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NoCorrespondingRequest",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "keyHash",
+              type: "bytes32",
+            },
+          ],
+          name: "NoSuchProvingKey",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint32",
+              name: "have",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "want",
+              type: "uint32",
+            },
+          ],
+          name: "NumWordsTooBig",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OnlyCallableFromLink",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "PaymentTooLarge",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "PendingRequestExists",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "keyHash",
+              type: "bytes32",
+            },
+          ],
+          name: "ProvingKeyAlreadyRegistered",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Reentrant",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "TooManyConsumers",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "minimumRequestConfirmations",
+              type: "uint16",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "maxGasLimit",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "stalenessSeconds",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "gasAfterPaymentCalculation",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "fallbackWeiPerUnitLink",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "fulfillmentFlatFeeNativePPM",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "fulfillmentFlatFeeLinkDiscountPPM",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint8",
+              name: "nativePremiumPercentage",
+              type: "uint8",
+            },
+            {
+              indexed: false,
+              internalType: "uint8",
+              name: "linkPremiumPercentage",
+              type: "uint8",
+            },
+          ],
+          name: "ConfigSet",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "coordinatorAddress",
+              type: "address",
+            },
+          ],
+          name: "CoordinatorDeregistered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "coordinatorAddress",
+              type: "address",
+            },
+          ],
+          name: "CoordinatorRegistered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "fallbackWeiPerUnitLink",
+              type: "int256",
+            },
+          ],
+          name: "FallbackWeiPerUnitLinkUsed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "FundsRecovered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "newCoordinator",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+          ],
+          name: "MigrationCompleted",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "NativeFundsRecovered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "from",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "OwnershipTransferRequested",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "from",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "OwnershipTransferred",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "keyHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "maxGas",
+              type: "uint64",
+            },
+          ],
+          name: "ProvingKeyDeregistered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "keyHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "maxGas",
+              type: "uint64",
+            },
+          ],
+          name: "ProvingKeyRegistered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "outputSeed",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint96",
+              name: "payment",
+              type: "uint96",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "nativePayment",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "success",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "onlyPremium",
+              type: "bool",
+            },
+          ],
+          name: "RandomWordsFulfilled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "keyHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "preSeed",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "minimumRequestConfirmations",
+              type: "uint16",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "callbackGasLimit",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "numWords",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "extraArgs",
+              type: "bytes",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+          ],
+          name: "RandomWordsRequested",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amountLink",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amountNative",
+              type: "uint256",
+            },
+          ],
+          name: "SubscriptionCanceled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+          ],
+          name: "SubscriptionConsumerAdded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+          ],
+          name: "SubscriptionConsumerRemoved",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "SubscriptionCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "oldBalance",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "newBalance",
+              type: "uint256",
+            },
+          ],
+          name: "SubscriptionFunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "oldNativeBalance",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "newNativeBalance",
+              type: "uint256",
+            },
+          ],
+          name: "SubscriptionFundedWithNative",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "from",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "SubscriptionOwnerTransferRequested",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "from",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "SubscriptionOwnerTransferred",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "BLOCKHASH_STORE",
+          outputs: [
+            {
+              internalType: "contract BlockhashStoreInterface",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LINK",
+          outputs: [
+            {
+              internalType: "contract LinkTokenInterface",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LINK_NATIVE_FEED",
+          outputs: [
+            {
+              internalType: "contract AggregatorV3Interface",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "MAX_CONSUMERS",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "",
+              type: "uint16",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "MAX_NUM_WORDS",
+          outputs: [
+            {
+              internalType: "uint32",
+              name: "",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "MAX_REQUEST_CONFIRMATIONS",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "",
+              type: "uint16",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "acceptOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+          ],
+          name: "acceptSubscriptionOwnerTransfer",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+          ],
+          name: "addConsumer",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "cancelSubscription",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "createSubscription",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "deregisterMigratableCoordinator",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256[2]",
+              name: "publicProvingKey",
+              type: "uint256[2]",
+            },
+          ],
+          name: "deregisterProvingKey",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256[2]",
+                  name: "pk",
+                  type: "uint256[2]",
+                },
+                {
+                  internalType: "uint256[2]",
+                  name: "gamma",
+                  type: "uint256[2]",
+                },
+                {
+                  internalType: "uint256",
+                  name: "c",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "s",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "seed",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "uWitness",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256[2]",
+                  name: "cGammaWitness",
+                  type: "uint256[2]",
+                },
+                {
+                  internalType: "uint256[2]",
+                  name: "sHashWitness",
+                  type: "uint256[2]",
+                },
+                {
+                  internalType: "uint256",
+                  name: "zInv",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct VRF.Proof",
+              name: "proof",
+              type: "tuple",
+            },
+            {
+              components: [
+                {
+                  internalType: "uint64",
+                  name: "blockNum",
+                  type: "uint64",
+                },
+                {
+                  internalType: "uint256",
+                  name: "subId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint32",
+                  name: "callbackGasLimit",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "numWords",
+                  type: "uint32",
+                },
+                {
+                  internalType: "address",
+                  name: "sender",
+                  type: "address",
+                },
+                {
+                  internalType: "bytes",
+                  name: "extraArgs",
+                  type: "bytes",
+                },
+              ],
+              internalType: "struct VRFTypes.RequestCommitmentV2Plus",
+              name: "rc",
+              type: "tuple",
+            },
+            {
+              internalType: "bool",
+              name: "onlyPremium",
+              type: "bool",
+            },
+          ],
+          name: "fulfillRandomWords",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "payment",
+              type: "uint96",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+          ],
+          name: "fundSubscriptionWithNative",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "startIndex",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "maxCount",
+              type: "uint256",
+            },
+          ],
+          name: "getActiveSubscriptionIds",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "ids",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+          ],
+          name: "getSubscription",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "balance",
+              type: "uint96",
+            },
+            {
+              internalType: "uint96",
+              name: "nativeBalance",
+              type: "uint96",
+            },
+            {
+              internalType: "uint64",
+              name: "reqCount",
+              type: "uint64",
+            },
+            {
+              internalType: "address",
+              name: "subOwner",
+              type: "address",
+            },
+            {
+              internalType: "address[]",
+              name: "consumers",
+              type: "address[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256[2]",
+              name: "publicKey",
+              type: "uint256[2]",
+            },
+          ],
+          name: "hashOfKey",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "newCoordinator",
+              type: "address",
+            },
+          ],
+          name: "migrate",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "onTokenTransfer",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+          ],
+          name: "ownerCancelSubscription",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+          ],
+          name: "pendingRequestExists",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "recoverFunds",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "recoverNativeFunds",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "registerMigratableCoordinator",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256[2]",
+              name: "publicProvingKey",
+              type: "uint256[2]",
+            },
+            {
+              internalType: "uint64",
+              name: "maxGas",
+              type: "uint64",
+            },
+          ],
+          name: "registerProvingKey",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+          ],
+          name: "removeConsumer",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              components: [
+                {
+                  internalType: "bytes32",
+                  name: "keyHash",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "uint256",
+                  name: "subId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint16",
+                  name: "requestConfirmations",
+                  type: "uint16",
+                },
+                {
+                  internalType: "uint32",
+                  name: "callbackGasLimit",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "numWords",
+                  type: "uint32",
+                },
+                {
+                  internalType: "bytes",
+                  name: "extraArgs",
+                  type: "bytes",
+                },
+              ],
+              internalType: "struct VRFV2PlusClient.RandomWordsRequest",
+              name: "req",
+              type: "tuple",
+            },
+          ],
+          name: "requestRandomWords",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "subId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "requestSubscriptionOwnerTransfer",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_config",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "minimumRequestConfirmations",
+              type: "uint16",
+            },
+            {
+              internalType: "uint32",
+              name: "maxGasLimit",
+              type: "uint32",
+            },
+            {
+              internalType: "bool",
+              name: "reentrancyLock",
+              type: "bool",
+            },
+            {
+              internalType: "uint32",
+              name: "stalenessSeconds",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "gasAfterPaymentCalculation",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "fulfillmentFlatFeeNativePPM",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "fulfillmentFlatFeeLinkDiscountPPM",
+              type: "uint32",
+            },
+            {
+              internalType: "uint8",
+              name: "nativePremiumPercentage",
+              type: "uint8",
+            },
+            {
+              internalType: "uint8",
+              name: "linkPremiumPercentage",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_currentSubNonce",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_fallbackWeiPerUnitLink",
+          outputs: [
+            {
+              internalType: "int256",
+              name: "",
+              type: "int256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "s_provingKeyHashes",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          name: "s_provingKeys",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "exists",
+              type: "bool",
+            },
+            {
+              internalType: "uint64",
+              name: "maxGas",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "s_requestCommitments",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_totalBalance",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "",
+              type: "uint96",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_totalNativeBalance",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "",
+              type: "uint96",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint16",
+              name: "minimumRequestConfirmations",
+              type: "uint16",
+            },
+            {
+              internalType: "uint32",
+              name: "maxGasLimit",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "stalenessSeconds",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "gasAfterPaymentCalculation",
+              type: "uint32",
+            },
+            {
+              internalType: "int256",
+              name: "fallbackWeiPerUnitLink",
+              type: "int256",
+            },
+            {
+              internalType: "uint32",
+              name: "fulfillmentFlatFeeNativePPM",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "fulfillmentFlatFeeLinkDiscountPPM",
+              type: "uint32",
+            },
+            {
+              internalType: "uint8",
+              name: "nativePremiumPercentage",
+              type: "uint8",
+            },
+            {
+              internalType: "uint8",
+              name: "linkPremiumPercentage",
+              type: "uint8",
+            },
+          ],
+          name: "setConfig",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "link",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "linkNativeFeed",
+              type: "address",
+            },
+          ],
+          name: "setLINKAndLINKNativeFeed",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "to",
+              type: "address",
+            },
+          ],
+          name: "transferOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "recipient",
+              type: "address",
+            },
+          ],
+          name: "withdraw",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "recipient",
+              type: "address",
+            },
+          ],
+          name: "withdrawNative",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+    },
     DAI: {
       address: "0x593e89704D285B0c3fbF157c7CF2537456CE64b5",
       abi: [
@@ -1503,6 +3737,16 @@ export default {
               name: "_voteID",
               type: "uint256",
             },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
           name: "getDegreeOfCoherence",
           outputs: [
@@ -1664,6 +3908,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -1706,6 +3957,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -1721,6 +3985,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -3684,7 +5961,7 @@ export default {
       ],
     },
     DisputeKitClassicUniversity: {
-      address: "0xDaE66157D72Baa099cd63a833c353776206feea4",
+      address: "0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5",
       abi: [
         {
           stateMutability: "payable",
@@ -4348,6 +6625,16 @@ export default {
             {
               internalType: "uint256",
               name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
               type: "uint256",
             },
           ],
@@ -4623,7 +6910,7 @@ export default {
       ],
     },
     DisputeKitClassicUniversity_Implementation: {
-      address: "0xf36fa321Bb64b6E39f5DA3dbb053ccE63D077f8B",
+      address: "0x87e863b94d2CB79A8aB53bD87Dc4A10E11C0918B",
       abi: [
         {
           inputs: [],
@@ -5284,6 +7571,16 @@ export default {
             {
               internalType: "uint256",
               name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
               type: "uint256",
             },
           ],
@@ -5543,7 +7840,7 @@ export default {
       ],
     },
     DisputeKitClassicUniversity_Proxy: {
-      address: "0xDaE66157D72Baa099cd63a833c353776206feea4",
+      address: "0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5",
       abi: [
         {
           inputs: [
@@ -5572,7 +7869,7 @@ export default {
       ],
     },
     DisputeKitClassic_Implementation: {
-      address: "0x692CC78F2570181FFB99297965FeAA8352ab12E8",
+      address: "0xCb9621470b3081f7164445bd8522F8A6c5Bfe3fa",
       abi: [
         {
           inputs: [],
@@ -6235,6 +8532,16 @@ export default {
               name: "_voteID",
               type: "uint256",
             },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
           name: "getDegreeOfCoherence",
           outputs: [
@@ -6396,6 +8703,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -6438,6 +8752,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -6453,6 +8780,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -7406,7 +9746,7 @@ export default {
       ],
     },
     DisputeResolverUniversity: {
-      address: "0x88d793dA6e88Ebd58136A1e1483cc4cf0D915ca4",
+      address: "0x2Aa1a94307E772BeE42E9EfbD137b1053F1fCfd4",
       abi: [
         {
           inputs: [
@@ -7851,6 +10191,13 @@ export default {
         },
         {
           inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "proxiableUUID",
           outputs: [
             {
@@ -7923,6 +10270,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -7941,7 +10301,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Implementation: {
-      address: "0xE00A43d3c3321A0e210F2F8bE2F3F75eC8a4951E",
+      address: "0x03D29FE2bDd759613B92C190e2991036b2939Ff1",
       abi: [
         {
           inputs: [],
@@ -8088,6 +10448,13 @@ export default {
         },
         {
           inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "proxiableUUID",
           outputs: [
             {
@@ -8157,6 +10524,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
       ],
@@ -8322,6 +10702,13 @@ export default {
         },
         {
           inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "proxiableUUID",
           outputs: [
             {
@@ -8370,6 +10757,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -8388,7 +10788,7 @@ export default {
       ],
     },
     EvidenceModule_Implementation: {
-      address: "0x05AD81f245209b7f91885fd96e57c9da90554824",
+      address: "0x6C255c01E6547f6C9ed98E7f3d9BB3eF9a347C52",
       abi: [
         {
           inputs: [],
@@ -8516,6 +10916,13 @@ export default {
         },
         {
           inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "proxiableUUID",
           outputs: [
             {
@@ -8561,6 +10968,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
       ],
@@ -8627,22 +11047,12 @@ export default {
         },
         {
           inputs: [],
-          name: "ArraysLengthMismatch",
-          type: "error",
-        },
-        {
-          inputs: [],
           name: "CannotDisableClassicDK",
           type: "error",
         },
         {
           inputs: [],
           name: "CommitPeriodNotPassed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "DepthLevelMax",
           type: "error",
         },
         {
@@ -8683,6 +11093,11 @@ export default {
         {
           inputs: [],
           name: "GovernorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "GuardianOrGovernorOnly",
           type: "error",
         },
         {
@@ -8743,7 +11158,27 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingFailed",
+          name: "StakingInTooManyCourts",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingLessThanCourtMinStake",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingNotPossibeInThisCourt",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingZeroWhenNoStake",
           type: "error",
         },
         {
@@ -8774,6 +11209,11 @@ export default {
         },
         {
           inputs: [],
+          name: "UnstakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "UnsuccessfulCall",
           type: "error",
         },
@@ -8785,6 +11225,16 @@ export default {
         {
           inputs: [],
           name: "VotePeriodNotPassed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenNotPausedOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenPausedOnly",
           type: "error",
         },
         {
@@ -8854,9 +11304,9 @@ export default {
           inputs: [
             {
               indexed: true,
-              internalType: "uint256",
+              internalType: "uint96",
               name: "_courtID",
-              type: "uint256",
+              type: "uint96",
             },
             {
               indexed: true,
@@ -9201,12 +11651,18 @@ export default {
             },
             {
               indexed: false,
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "_period",
               type: "uint8",
             },
           ],
           name: "NewPeriod",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Paused",
           type: "event",
         },
         {
@@ -9281,6 +11737,12 @@ export default {
             },
           ],
           name: "TokenAndETHShift",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Unpaused",
           type: "event",
         },
         {
@@ -9511,6 +11973,19 @@ export default {
             },
           ],
           name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_guardian",
+              type: "address",
+            },
+          ],
+          name: "changeGuardian",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -9836,7 +12311,7 @@ export default {
               type: "address",
             },
             {
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "period",
               type: "uint8",
             },
@@ -10078,7 +12553,7 @@ export default {
                   type: "uint256",
                 },
               ],
-              internalType: "struct KlerosCore.Round",
+              internalType: "struct KlerosCoreBase.Round",
               name: "",
               type: "tuple",
             },
@@ -10119,10 +12594,28 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "guardian",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
               name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_guardian",
               type: "address",
             },
             {
@@ -10167,6 +12660,13 @@ export default {
             },
           ],
           name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "initialize3",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -10238,6 +12738,26 @@ export default {
           name: "passPeriod",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "pause",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "paused",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -10326,6 +12846,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "unpause",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -10341,6 +12868,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -17345,8 +19885,139 @@ export default {
         },
       ],
     },
+    KlerosCoreSnapshotProxy: {
+      address: "0x9300D415af6e747ADe3C6cbA09a3b3CD5fb0c091",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract IKlerosCore",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+          ],
+          name: "balanceOf",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "totalStaked",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IKlerosCore",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          name: "changeCore",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "core",
+          outputs: [
+            {
+              internalType: "contract IKlerosCore",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "decimals",
+          outputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "name",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "symbol",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
     KlerosCoreUniversity: {
-      address: "0x10BaAFDe8B4d3164CA781571e2F1513317f57980",
+      address: "0x5AB37F38778Bc175852fA353056591D91c744ce6",
       abi: [
         {
           stateMutability: "payable",
@@ -17514,7 +20185,22 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingFailed",
+          name: "StakingInTooManyCourts",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingLessThanCourtMinStake",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingNotPossibeInThisCourt",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingTransferFailed",
           type: "error",
         },
         {
@@ -17541,6 +20227,11 @@ export default {
             },
           ],
           name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UnstakingTransferFailed",
           type: "error",
         },
         {
@@ -19154,7 +21845,7 @@ export default {
       ],
     },
     KlerosCoreUniversity_Implementation: {
-      address: "0x8466ab62E7c923e8F2E61d0358C495676D6F939b",
+      address: "0xF74DaBfC5F5dbdBD07636637204d9C35326D2906",
       abi: [
         {
           inputs: [],
@@ -19319,7 +22010,22 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingFailed",
+          name: "StakingInTooManyCourts",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingLessThanCourtMinStake",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingNotPossibeInThisCourt",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingTransferFailed",
           type: "error",
         },
         {
@@ -19346,6 +22052,11 @@ export default {
             },
           ],
           name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UnstakingTransferFailed",
           type: "error",
         },
         {
@@ -20943,7 +23654,7 @@ export default {
       ],
     },
     KlerosCoreUniversity_Proxy: {
-      address: "0x10BaAFDe8B4d3164CA781571e2F1513317f57980",
+      address: "0x5AB37F38778Bc175852fA353056591D91c744ce6",
       abi: [
         {
           inputs: [
@@ -20972,7 +23683,7 @@ export default {
       ],
     },
     KlerosCore_Implementation: {
-      address: "0x91a373BBdE0532F86410682F362e2Cf685e95085",
+      address: "0xF5609e6F10fd25aCb4ddAF14874aD4BaF1956827",
       abi: [
         {
           inputs: [],
@@ -21001,22 +23712,12 @@ export default {
         },
         {
           inputs: [],
-          name: "ArraysLengthMismatch",
-          type: "error",
-        },
-        {
-          inputs: [],
           name: "CannotDisableClassicDK",
           type: "error",
         },
         {
           inputs: [],
           name: "CommitPeriodNotPassed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "DepthLevelMax",
           type: "error",
         },
         {
@@ -21057,6 +23758,11 @@ export default {
         {
           inputs: [],
           name: "GovernorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "GuardianOrGovernorOnly",
           type: "error",
         },
         {
@@ -21117,7 +23823,27 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingFailed",
+          name: "StakingInTooManyCourts",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingLessThanCourtMinStake",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingNotPossibeInThisCourt",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingZeroWhenNoStake",
           type: "error",
         },
         {
@@ -21148,6 +23874,11 @@ export default {
         },
         {
           inputs: [],
+          name: "UnstakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "UnsuccessfulCall",
           type: "error",
         },
@@ -21159,6 +23890,16 @@ export default {
         {
           inputs: [],
           name: "VotePeriodNotPassed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenNotPausedOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenPausedOnly",
           type: "error",
         },
         {
@@ -21228,9 +23969,9 @@ export default {
           inputs: [
             {
               indexed: true,
-              internalType: "uint256",
+              internalType: "uint96",
               name: "_courtID",
-              type: "uint256",
+              type: "uint96",
             },
             {
               indexed: true,
@@ -21575,12 +24316,18 @@ export default {
             },
             {
               indexed: false,
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "_period",
               type: "uint8",
             },
           ],
           name: "NewPeriod",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Paused",
           type: "event",
         },
         {
@@ -21655,6 +24402,12 @@ export default {
             },
           ],
           name: "TokenAndETHShift",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Unpaused",
           type: "event",
         },
         {
@@ -21885,6 +24638,19 @@ export default {
             },
           ],
           name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_guardian",
+              type: "address",
+            },
+          ],
+          name: "changeGuardian",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -22210,7 +24976,7 @@ export default {
               type: "address",
             },
             {
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "period",
               type: "uint8",
             },
@@ -22452,7 +25218,7 @@ export default {
                   type: "uint256",
                 },
               ],
-              internalType: "struct KlerosCore.Round",
+              internalType: "struct KlerosCoreBase.Round",
               name: "",
               type: "tuple",
             },
@@ -22493,10 +25259,28 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "guardian",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
               name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_guardian",
               type: "address",
             },
             {
@@ -22541,6 +25325,13 @@ export default {
             },
           ],
           name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "initialize3",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -22612,6 +25403,26 @@ export default {
           name: "passPeriod",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "pause",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "paused",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -22700,6 +25511,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "unpause",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -22715,6 +25533,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
       ],
@@ -23969,6 +26800,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -24042,6 +26880,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -24060,7 +26911,7 @@ export default {
       ],
     },
     PolicyRegistry_Implementation: {
-      address: "0xAA637C9E2831614158d7eB193D03af4a7223C56E",
+      address: "0xda6Da4CCb1EA9aD670A1380De84c5dD4aef87adf",
       abi: [
         {
           inputs: [],
@@ -24200,6 +27051,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize2",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -24270,6 +27128,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
       ],
@@ -25068,7 +27939,7 @@ export default {
               type: "uint256",
             },
           ],
-          name: "StakeDelayedAlreadyTransferred",
+          name: "StakeDelayedAlreadyTransferredDeposited",
           type: "event",
         },
         {
@@ -25167,6 +28038,12 @@ export default {
               name: "_amount",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountAllCourts",
+              type: "uint256",
+            },
           ],
           name: "StakeSet",
           type: "event",
@@ -25185,29 +28062,16 @@ export default {
           type: "event",
         },
         {
-          inputs: [],
-          name: "DEFAULT_K",
-          outputs: [
+          inputs: [
             {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
+              internalType: "address",
+              name: "_governor",
+              type: "address",
             },
           ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "MAX_STAKE_PATHS",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -25528,6 +28392,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize3",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -25550,7 +28421,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -25587,12 +28458,12 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "jurorAccount",
               type: "address",
             },
             {
               internalType: "uint96",
-              name: "",
+              name: "courtId",
               type: "uint96",
             },
           ],
@@ -25834,9 +28705,9 @@ export default {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "succeeded",
-              type: "bool",
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
             },
           ],
           stateMutability: "nonpayable",
@@ -25924,6 +28795,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -28007,7 +30891,7 @@ export default {
       ],
     },
     SortitionModuleUniversity: {
-      address: "0xBEEb15EF1DEf96c569c97A703E649B0251ceFB04",
+      address: "0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79",
       abi: [
         {
           stateMutability: "payable",
@@ -28351,7 +31235,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -28500,9 +31384,9 @@ export default {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "succeeded",
-              type: "bool",
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
             },
           ],
           stateMutability: "nonpayable",
@@ -28576,7 +31460,7 @@ export default {
       ],
     },
     SortitionModuleUniversity_Implementation: {
-      address: "0xaA2833b174D4e29ae2aFc0b11dF9160EDB28BF9d",
+      address: "0x5CAD621D69E0535422aCFaCC0017bC32beC7A486",
       abi: [
         {
           inputs: [],
@@ -28917,7 +31801,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -29066,9 +31950,9 @@ export default {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "succeeded",
-              type: "bool",
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
             },
           ],
           stateMutability: "nonpayable",
@@ -29126,7 +32010,7 @@ export default {
       ],
     },
     SortitionModuleUniversity_Proxy: {
-      address: "0xBEEb15EF1DEf96c569c97A703E649B0251ceFB04",
+      address: "0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79",
       abi: [
         {
           inputs: [
@@ -29155,7 +32039,7 @@ export default {
       ],
     },
     SortitionModule_Implementation: {
-      address: "0xBC82B29e5aE8a749D82b7919118Ab7C0D41fA3D3",
+      address: "0x45129beB9B84BFb07bA885085C1D60437494a93f",
       abi: [
         {
           inputs: [],
@@ -29252,7 +32136,7 @@ export default {
               type: "uint256",
             },
           ],
-          name: "StakeDelayedAlreadyTransferred",
+          name: "StakeDelayedAlreadyTransferredDeposited",
           type: "event",
         },
         {
@@ -29351,6 +32235,12 @@ export default {
               name: "_amount",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountAllCourts",
+              type: "uint256",
+            },
           ],
           name: "StakeSet",
           type: "event",
@@ -29369,29 +32259,16 @@ export default {
           type: "event",
         },
         {
-          inputs: [],
-          name: "DEFAULT_K",
-          outputs: [
+          inputs: [
             {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
+              internalType: "address",
+              name: "_governor",
+              type: "address",
             },
           ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "MAX_STAKE_PATHS",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -29712,6 +32589,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize3",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -29734,7 +32618,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -29771,12 +32655,12 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "jurorAccount",
               type: "address",
             },
             {
               internalType: "uint96",
-              name: "",
+              name: "courtId",
               type: "uint96",
             },
           ],
@@ -30018,9 +32902,9 @@ export default {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "succeeded",
-              type: "bool",
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
             },
           ],
           stateMutability: "nonpayable",
@@ -30108,6 +32992,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
       ],
@@ -30611,7 +33508,7 @@ export default {
       ],
     },
     VeaInboxArbToEthDevnet: {
-      address: "0x77e95F54032f467eC45c48C6affc203f93858783",
+      address: "0xF6C5640de593fEf76129F1F1A863F7ddc65776C9",
       abi: [
         {
           inputs: [
@@ -30852,7 +33749,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "epoch",
               type: "uint256",
             },
           ],
@@ -30875,6 +33772,832 @@ export default {
               internalType: "address",
               name: "",
               type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
+    VeaInboxArbToEthTestnet: {
+      address: "0xE12daFE59Bc3A996362d54b37DFd2BA9279cAd06",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epochPeriod",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "_veaOutboxArbToEth",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_nodeData",
+              type: "bytes",
+            },
+          ],
+          name: "MessageSent",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_snapshot",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "_count",
+              type: "uint64",
+            },
+          ],
+          name: "SnapshotSaved",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_epochSent",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_ticketId",
+              type: "bytes32",
+            },
+          ],
+          name: "SnapshotSent",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "count",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_timestamp",
+              type: "uint256",
+            },
+          ],
+          name: "epochAt",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochFinalized",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochNow",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochPeriod",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "saveSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_to",
+              type: "address",
+            },
+            {
+              internalType: "bytes4",
+              name: "_fnSelector",
+              type: "bytes4",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "sendMessage",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              components: [
+                {
+                  internalType: "bytes32",
+                  name: "stateRoot",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "address",
+                  name: "claimer",
+                  type: "address",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampClaimed",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "blocknumberVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "enum Party",
+                  name: "honest",
+                  type: "uint8",
+                },
+                {
+                  internalType: "address",
+                  name: "challenger",
+                  type: "address",
+                },
+              ],
+              internalType: "struct Claim",
+              name: "_claim",
+              type: "tuple",
+            },
+          ],
+          name: "sendSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          name: "snapshots",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "veaOutboxArbToEth",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
+    VeaInboxArbToGnosisDevnet: {
+      address: "0xF6286b9C6c7F1B33Ea976FA43434027c7b8421A7",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epochPeriod",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "_routerArbToGnosis",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_nodeData",
+              type: "bytes",
+            },
+          ],
+          name: "MessageSent",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_snapshot",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "_count",
+              type: "uint64",
+            },
+          ],
+          name: "SnapshotSaved",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_epochSent",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_ticketId",
+              type: "bytes32",
+            },
+          ],
+          name: "SnapshotSent",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "count",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_timestamp",
+              type: "uint256",
+            },
+          ],
+          name: "epochAt",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochFinalized",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochNow",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochPeriod",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "routerArbToGnosis",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "saveSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_to",
+              type: "address",
+            },
+            {
+              internalType: "bytes4",
+              name: "_fnSelector",
+              type: "bytes4",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "sendMessage",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_gasLimit",
+              type: "uint256",
+            },
+            {
+              components: [
+                {
+                  internalType: "bytes32",
+                  name: "stateRoot",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "address",
+                  name: "claimer",
+                  type: "address",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampClaimed",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "blocknumberVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "enum Party",
+                  name: "honest",
+                  type: "uint8",
+                },
+                {
+                  internalType: "address",
+                  name: "challenger",
+                  type: "address",
+                },
+              ],
+              internalType: "struct Claim",
+              name: "_claim",
+              type: "tuple",
+            },
+          ],
+          name: "sendSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          name: "snapshots",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
+    VeaInboxArbToGnosisTestnet: {
+      address: "0x62403e9Fbac618301175C89fb21920e4FF235A6a",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epochPeriod",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "_routerArbToGnosis",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_nodeData",
+              type: "bytes",
+            },
+          ],
+          name: "MessageSent",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_snapshot",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "_count",
+              type: "uint64",
+            },
+          ],
+          name: "SnapshotSaved",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_epochSent",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_ticketId",
+              type: "bytes32",
+            },
+          ],
+          name: "SnapshotSent",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "count",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_timestamp",
+              type: "uint256",
+            },
+          ],
+          name: "epochAt",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochFinalized",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochNow",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochPeriod",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "routerArbToGnosis",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "saveSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_to",
+              type: "address",
+            },
+            {
+              internalType: "bytes4",
+              name: "_fnSelector",
+              type: "bytes4",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "sendMessage",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_gasLimit",
+              type: "uint256",
+            },
+            {
+              components: [
+                {
+                  internalType: "bytes32",
+                  name: "stateRoot",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "address",
+                  name: "claimer",
+                  type: "address",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampClaimed",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "blocknumberVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "enum Party",
+                  name: "honest",
+                  type: "uint8",
+                },
+                {
+                  internalType: "address",
+                  name: "challenger",
+                  type: "address",
+                },
+              ],
+              internalType: "struct Claim",
+              name: "_claim",
+              type: "tuple",
+            },
+          ],
+          name: "sendSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          name: "snapshots",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
             },
           ],
           stateMutability: "view",
