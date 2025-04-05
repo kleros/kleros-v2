@@ -44,7 +44,7 @@ const InputArea = styled(TagArea)`
   flex-direction: column;
 `;
 
-const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "General Court" }) => {
+const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "Unknown Court" }) => {
   const [amount, setAmount] = useState("");
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
