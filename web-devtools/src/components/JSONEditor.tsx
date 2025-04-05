@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
-import { JSONEditor as Editor } from "vanilla-jsoneditor";
+import { createJSONEditor, type JSONEditorPropsOptional, JsonEditor } from "vanilla-jsoneditor";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -35,14 +35,13 @@ const Container = styled.div`
 
 const JSONEditor = (props: any) => {
   const refContainer = useRef<HTMLDivElement | null>(null);
-  const refEditor = useRef<Editor | null>(null);
+  const refEditor = useRef<JsonEditor | null>(null);
+  const refPrevProps = useRef<JSONEditorPropsOptional>(props);
 
   useEffect(() => {
-    refEditor.current = new Editor({
-      target: refContainer.current!,
-      props: {
-        ...props,
-      },
+    refEditor.current = createJSONEditor({
+      target: refContainer.current as HTMLDivElement,
+      props,
     });
 
     return () => {
@@ -53,12 +52,25 @@ const JSONEditor = (props: any) => {
     };
   }, []);
 
+  // update props
   useEffect(() => {
     if (refEditor.current) {
-      refEditor.current.updateProps(props);
+      const changedProps = filterUnchangedProps(props, refPrevProps.current);
+      refEditor.current.updateProps(changedProps);
+      refPrevProps.current = props;
     }
   }, [props]);
 
   return <Container ref={refContainer} className={props.className}></Container>;
 };
+
+function filterUnchangedProps(
+  props: JSONEditorPropsOptional,
+  prevProps: JSONEditorPropsOptional
+): JSONEditorPropsOptional {
+  return Object.fromEntries(
+    Object.entries(props).filter(([key, value]) => value !== prevProps[key as keyof JSONEditorPropsOptional])
+  );
+}
+
 export default JSONEditor;
