@@ -1,7 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
-import { createJSONEditor, type JSONEditorPropsOptional, JsonEditor } from "vanilla-jsoneditor";
+import {
+  createJSONEditor,
+  type JSONEditorPropsOptional,
+  type JsonEditor as VanillaJsonEditor,
+} from "vanilla-jsoneditor";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -35,7 +39,7 @@ const Container = styled.div`
 
 const JSONEditor = (props: any) => {
   const refContainer = useRef<HTMLDivElement | null>(null);
-  const refEditor = useRef<JsonEditor | null>(null);
+  const refEditor = useRef<VanillaJsonEditor | null>(null);
   const refPrevProps = useRef<JSONEditorPropsOptional>(props);
 
   useEffect(() => {
