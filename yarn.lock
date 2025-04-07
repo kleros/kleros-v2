@@ -5531,6 +5531,7 @@ __metadata:
     eslint: "npm:^9.15.0"
     ethereumjs-util: "npm:^7.1.5"
     ethers: "npm:^6.13.5"
+    gluegun: "npm:^5.2.0"
     graphql: "npm:^16.9.0"
     graphql-request: "npm:^7.1.2"
     hardhat: "npm:2.22.19"
