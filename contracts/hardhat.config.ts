@@ -17,6 +17,7 @@ require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
 require("./scripts/changeGovernor");
 require("./scripts/getDisputeTemplate");
+require("./scripts/compareStorageLayout");
 
 dotenv.config();
 
@@ -24,9 +25,15 @@ const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.24",
     settings: {
+      // viaIR: true,
       optimizer: {
         enabled: true,
         runs: 100,
+      },
+      outputSelection: {
+        "*": {
+          "*": ["storageLayout"],
+        },
       },
     },
   },
