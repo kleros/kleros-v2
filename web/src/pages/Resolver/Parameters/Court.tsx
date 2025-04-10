@@ -52,7 +52,7 @@ const AlertMessageContainer = styled.div`
 const Court: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const { data } = useCourtTree();
-  const items = useMemo(() => !isUndefined(data) && [rootCourtToItems(data.court)], [data]);
+  const items = useMemo(() => !isUndefined(data?.court) && [rootCourtToItems(data.court)], [data]);
 
   const handleWrite = (courtId: string) => {
     setDisputeData({ ...disputeData, courtId: courtId });

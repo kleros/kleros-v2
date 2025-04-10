@@ -51,6 +51,10 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
         governor = _governor;
     }
 
+    function initialize2() external reinitializer(2) {
+        // NOP
+    }
+
     // ************************************* //
     // *            Governance             * //
     // ************************************* //

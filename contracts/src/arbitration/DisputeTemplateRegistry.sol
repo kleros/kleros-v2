@@ -44,6 +44,10 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
         governor = _governor;
     }
 
+    function initialize2() external reinitializer(2) {
+        // NOP
+    }
+
     // ************************ //
     // *      Governance      * //
     // ************************ //
