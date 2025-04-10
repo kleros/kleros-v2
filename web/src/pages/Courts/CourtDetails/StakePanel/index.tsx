@@ -44,7 +44,7 @@ const InputArea = styled(TagArea)`
   flex-direction: column;
 `;
 
-const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "Unknown Court" }) => {
+const StakePanel: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
   const [amount, setAmount] = useState("");
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
@@ -65,7 +65,7 @@ const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "Unknown Cour
         <TextArea>
           <strong>{`${isStaking ? "Stake" : "Withdraw"} PNK`}</strong> {`${isStaking ? "to join the" : "from"}`}{" "}
           {courtName}
-          {courtName.toLowerCase().endsWith("court") || courtName.toLowerCase().startsWith("corte") ? null : " Court"}
+          {courtName?.toLowerCase().endsWith("court") || courtName?.toLowerCase().startsWith("corte") ? null : " Court"}
         </TextArea>
         <InputArea>
           <InputDisplay {...{ action, amount, setAmount }} />
