@@ -163,7 +163,7 @@ dataSources:
           handler: handleStakeDelayedAlreadyTransferredDeposited
           # FIX: temporarily indexing old event name
         - event: StakeDelayedAlreadyTransferred(indexed address,uint256,uint256)
-          handler: handleStakeDelayedAlreadyTransferredDeposited
+          handler: handleStakeDelayedAlreadyTransferred
         - event: StakeDelayedAlreadyTransferredWithdrawn(indexed address,indexed uint96,uint256)
           handler: handleStakeDelayedAlreadyTransferredWithdrawn
         - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
