@@ -55,9 +55,6 @@ task("compare-storage", "Compare storage layout between deployed and modified co
 
       const report = getStorageUpgradeReport(originalLayout, updatedLayout, validationOptions);
 
-      print.info(`\n${bold("Storage Layout Analysis:")}`);
-      print.info("=".repeat(100));
-
       if (report.ok) {
         print.success("✓ No storage layout incompatibilities found");
         return;

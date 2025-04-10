@@ -5559,7 +5559,7 @@ __metadata:
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
     "@nomiclabs/hardhat-solhint": "npm:^4.0.1"
     "@openzeppelin/contracts": "npm:^5.2.0"
-    "@openzeppelin/upgrades-core": "npm:^1.41.0"
+    "@openzeppelin/upgrades-core": "npm:^1.42.2"
     "@typechain/ethers-v6": "npm:^0.5.1"
     "@typechain/hardhat": "npm:^9.1.0"
     "@types/chai": "npm:^4.3.20"
@@ -7402,7 +7402,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/upgrades-core@npm:^1.24.1, @openzeppelin/upgrades-core@npm:^1.41.0":
+"@openzeppelin/upgrades-core@npm:^1.24.1":
   version: 1.41.0
   resolution: "@openzeppelin/upgrades-core@npm:1.41.0"
   dependencies:
@@ -7419,6 +7419,26 @@ __metadata:
   bin:
     openzeppelin-upgrades-core: dist/cli/cli.js
   checksum: 10/fb8b6c11326f71809dd07b2b451daf037d99cc8c6748ca82b47fe4573314ca4c037f872945c7f02b072cb9af4309e56323ba3a1b754ecfaaaa480ee4e416280c
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/upgrades-core@npm:^1.42.2":
+  version: 1.42.2
+  resolution: "@openzeppelin/upgrades-core@npm:1.42.2"
+  dependencies:
+    "@nomicfoundation/slang": "npm:^0.18.3"
+    cbor: "npm:^10.0.0"
+    chalk: "npm:^4.1.0"
+    compare-versions: "npm:^6.0.0"
+    debug: "npm:^4.1.1"
+    ethereumjs-util: "npm:^7.0.3"
+    minimatch: "npm:^9.0.5"
+    minimist: "npm:^1.2.7"
+    proper-lockfile: "npm:^4.1.1"
+    solidity-ast: "npm:^0.4.51"
+  bin:
+    openzeppelin-upgrades-core: dist/cli/cli.js
+  checksum: 10/7000c7cf6822eab2b8a927acc1f09b769004667644e389ae582cd4f87f74433cdd3bc80477f95990d40bb60c15b85e61e5ad4cd47e0e7e70c4e5cbef6cbad10c
   languageName: node
   linkType: hard
 
@@ -13373,6 +13393,15 @@ __metadata:
   version: 2.4.0
   resolution: "case-sensitive-paths-webpack-plugin@npm:2.4.0"
   checksum: 10/8187f4a6d9c1342a62e76466d4f2ed53e6c0ea73fdbf7779751538f2abe49738bfd16b43592367f00f37fdd593accf92162c1043c016dd6d9ccb55180b6b5fa7
+  languageName: node
+  linkType: hard
+
+"cbor@npm:^10.0.0":
+  version: 10.0.3
+  resolution: "cbor@npm:10.0.3"
+  dependencies:
+    nofilter: "npm:^3.0.2"
+  checksum: 10/ff33c3404c3acc8afc448163a7b32eea39f4f99d641ac496352a6830256617a0b1d49b2862746b6b150e8931b6f6da10572d78c28af3a64b6836881c33c5d942
   languageName: node
   linkType: hard
 
@@ -25091,7 +25120,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nofilter@npm:^3.1.0":
+"nofilter@npm:^3.0.2, nofilter@npm:^3.1.0":
   version: 3.1.0
   resolution: "nofilter@npm:3.1.0"
   checksum: 10/f63d87231dfda4b783db17d75b15aac948f78e65f4f1043096ef441147f6667ff74cd4b3f57ada5dbe240be282d3e9838558ac863a66cb04ef25fff7b2b4be4e

@@ -3,6 +3,9 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
 import { getContractNamesFromNetwork } from "../scripts/utils/contracts";
+import { print, prompt } from "gluegun";
+
+const { bold } = print.colors;
 
 const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
@@ -14,7 +17,20 @@ const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnviro
 
   try {
     const { disputeKitClassic: contractName } = await getContractNamesFromNetwork(hre);
-    console.log(`upgrading ${contractName}...`);
+    print.highlight(`🔍 Validating upgrade of ${bold(contractName)}`);
+    await hre.run("compare-storage", { contract: contractName });
+    print.newline();
+    print.highlight(`💣 Upgrading ${bold(contractName)}`);
+    const { confirm } = await prompt.ask({
+      type: "confirm",
+      name: "confirm",
+      message: "Are you sure you want to proceed?",
+    });
+    if (!confirm) {
+      print.info("Operation cancelled by user.");
+      return;
+    }
+    print.info(`Upgrading ${contractName}...`);
     await deployUpgradable(deployments, contractName, {
       contract: contractName,
       initializer: "initialize2",

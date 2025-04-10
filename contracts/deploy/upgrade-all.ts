@@ -20,6 +20,9 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
 
   const upgrade = async (contractName: string, initializer: string, args: any[]) => {
     try {
+      print.highlight(`🔍 Validating upgrade of ${bold(contractName)}`);
+      await hre.run("compare-storage", { contract: contractName });
+      print.newline();
       print.highlight(`💣 Upgrading ${bold(contractName)}`);
       const { confirm } = await prompt.ask({
         type: "confirm",
@@ -27,7 +30,7 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
         message: "Are you sure you want to proceed?",
       });
       if (!confirm) {
-        console.log("Operation cancelled by user.");
+        print.info("Operation cancelled by user.");
         return;
       }
       print.info(`Upgrading ${contractName}...`);
