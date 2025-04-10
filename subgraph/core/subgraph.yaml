@@ -8,9 +8,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-sepolia
     source:
-      address: "0xA54e7A16d7460e38a8F324eF46782FB520d58CE8"
+      address: "0x4838e31E0ea315232c431598110FE677cAF2D6E6"
       abi: KlerosCore
-      startBlock: 3638878
+      startBlock: 141215236
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -33,7 +33,7 @@ dataSources:
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
           # FIX: temporarily point to the abi with event addition.
-          file: ./temp-abis/KlerosCore.json
+          file: ./abi-migrations/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -68,9 +68,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-sepolia
     source:
-      address: "0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da"
+      address: "0x31d067405184d7FaA64b0834511cBcFAF32CdC4b"
       abi: PolicyRegistry
-      startBlock: 3084568
+      startBlock: 141215158
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -88,9 +88,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-sepolia
     source:
-      address: "0x9426F127116C3652A262AE1eA48391AC8F44D35b"
+      address: "0x2246821E1313A93e2F8CdF7a3422d078f560b457"
       abi: DisputeKitClassic
-      startBlock: 3638835
+      startBlock: 141215195
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -105,7 +105,7 @@ dataSources:
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
           # FIX: temporarily point to abi with event addition
-          file: ./temp-abis/KlerosCore.json
+          file: ./abi-migrations/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -124,9 +124,9 @@ dataSources:
     name: EvidenceModule
     network: arbitrum-sepolia
     source:
-      address: "0x57fd453FB0d16f8ca174E7386102D7170E17Be09"
+      address: "0x990f44d19a5F46889801B31bf58e0536fBECf27C"
       abi: EvidenceModule
-      startBlock: 3638735
+      startBlock: 141215177
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -145,9 +145,9 @@ dataSources:
     name: SortitionModule
     network: arbitrum-sepolia
     source:
-      address: "0x19cb28BAB40C3585955798f5EEabd71Eec14471C"
+      address: "0xb34651b65A40553C444c6F0D27286C80ec34fbfD"
       abi: SortitionModule
-      startBlock: 3638850
+      startBlock: 141215215
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -157,7 +157,7 @@ dataSources:
       abis:
         - name: SortitionModule
           # FIX: temporarily point to abi with event addition
-          file: ./temp-abis/SortitionModule.json
+          file: ./abi-migrations/SortitionModule.json
       eventHandlers:
         - event: StakeDelayedAlreadyTransferredDeposited(indexed address,uint256,uint256)
           handler: handleStakeDelayedAlreadyTransferredDeposited
