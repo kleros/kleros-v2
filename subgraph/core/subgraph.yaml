@@ -33,7 +33,7 @@ dataSources:
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
           # FIX: temporarily point to the abi with event addition.
-          file: ./abis/KlerosCore.json
+          file: ./temp-abis/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -105,7 +105,7 @@ dataSources:
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
           # FIX: temporarily point to abi with event addition
-          file: ./abis/KlerosCore.json
+          file: ./temp-abis/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -157,7 +157,7 @@ dataSources:
       abis:
         - name: SortitionModule
           # FIX: temporarily point to abi with event addition
-          file: ./abis/SortitionModule.json
+          file: ./temp-abis/SortitionModule.json
       eventHandlers:
         - event: StakeDelayedAlreadyTransferredDeposited(indexed address,uint256,uint256)
           handler: handleStakeDelayedAlreadyTransferredDeposited
