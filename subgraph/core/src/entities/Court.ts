@@ -32,6 +32,35 @@ export function updateEffectiveStake(courtID: string): void {
   }
 }
 
+// This function calculates the "effective" numberStakedJurors, which is the specific numberStakedJurors
+// of the current court + the specific numberStakedJurors of all of its children courts
+export function updateEffectiveNumberStakedJurors(courtID: string): void {
+  let court = Court.load(courtID);
+  if (!court) return;
+
+  while (court) {
+    let totalJurors = court.numberStakedJurors;
+
+    const childrenCourts = court.children.load();
+
+    for (let i = 0; i < childrenCourts.length; i++) {
+      const childCourt = Court.load(childrenCourts[i].id);
+      if (childCourt) {
+        totalJurors = totalJurors.plus(childCourt.effectiveNumberStakedJurors);
+      }
+    }
+
+    court.effectiveNumberStakedJurors = totalJurors;
+    court.save();
+
+    if (court.parent && court.parent !== null) {
+      court = Court.load(court.parent as string);
+    } else {
+      break;
+    }
+  }
+}
+
 export function createCourtFromEvent(event: CourtCreated): void {
   const court = new Court(event.params._courtID.toString());
   court.hiddenVotes = event.params._hiddenVotes;
@@ -48,6 +77,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
   court.numberAppealingDisputes = ZERO;
   court.numberVotes = ZERO;
   court.numberStakedJurors = ZERO;
+  court.effectiveNumberStakedJurors = ZERO;
   court.stake = ZERO;
   court.effectiveStake = ZERO;
   court.delayedStake = ZERO;

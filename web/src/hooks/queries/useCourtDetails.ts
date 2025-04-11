@@ -17,6 +17,7 @@ const courtDetailsQuery = graphql(`
       numberClosedDisputes
       numberAppealingDisputes
       numberStakedJurors
+      effectiveNumberStakedJurors
       numberVotes
       stake
       effectiveStake

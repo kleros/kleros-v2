@@ -81,7 +81,7 @@ export const stats: IStat[] = [
   },
   {
     title: "Active Jurors",
-    getText: (data) => data?.numberStakedJurors,
+    getText: (data) => data?.effectiveNumberStakedJurors,
     color: "green",
     icon: StyledJurorIcon,
   },

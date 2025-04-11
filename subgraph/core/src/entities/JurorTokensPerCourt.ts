@@ -4,7 +4,7 @@ import { updateActiveJurors, getDelta, updateStakedPNK, updateCourtStateVariable
 import { ensureUser } from "./User";
 import { ONE, ZERO } from "../utils";
 import { SortitionModule } from "../../generated/SortitionModule/SortitionModule";
-import { updateEffectiveStake } from "./Court";
+import { updateEffectiveNumberStakedJurors, updateEffectiveStake } from "./Court";
 
 export function ensureJurorTokensPerCourt(jurorAddress: string, courtID: string): JurorTokensPerCourt {
   const id = `${jurorAddress}-${courtID}`;
@@ -93,6 +93,7 @@ export function updateJurorStake(
   juror.save();
   court.save();
   updateEffectiveStake(courtID);
+  updateEffectiveNumberStakedJurors(courtID);
   updateJurorEffectiveStake(jurorAddress, courtID);
   updateCourtStateVariable(courtID, court.effectiveStake, timestamp, "effectiveStake");
 }
