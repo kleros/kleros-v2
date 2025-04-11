@@ -1,16 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { isUndefined } from "utils/index";
-
 import { graphql } from "src/graphql";
 import { HomePageBlockQuery } from "src/graphql/graphql";
-import useGenesisBlock from "../useGenesisBlock";
-export type { HomePageBlockQuery };
 
 const homePageBlockQuery = graphql(`
-  query HomePageBlock($blockNumber: Int) {
-    presentCourts: courts(orderBy: id, orderDirection: asc) {
+  query HomePageBlock($pastTimestamp: BigInt) {
+    presentCourts: courts(orderBy: id, orderDirection: asc, first: 1000) {
       id
       parent {
         id
@@ -21,21 +17,25 @@ const homePageBlockQuery = graphql(`
       feeForJuror
       effectiveStake
     }
-    pastCourts: courts(orderBy: id, orderDirection: asc, block: { number: $blockNumber }) {
-      id
-      parent {
+    pastCourts: courtCounters(
+      where: { timestamp_lte: $pastTimestamp }
+      orderBy: timestamp
+      orderDirection: desc
+      first: 1000
+    ) {
+      court {
         id
       }
-      name
       numberDisputes
       numberVotes
-      feeForJuror
       effectiveStake
+      timestamp
     }
   }
 `);
 
 type Court = HomePageBlockQuery["presentCourts"][number];
+type CourtCounter = HomePageBlockQuery["pastCourts"][number];
 type CourtWithTree = Court & {
   numberDisputes: number;
   numberVotes: number;
@@ -58,66 +58,62 @@ export type HomePageBlockStats = {
   courts: CourtWithTree[];
 };
 
-export const useHomePageBlockQuery = (blockNumber: number | undefined, allTime: boolean) => {
-  const genesisBlock = useGenesisBlock();
-  const isEnabled = !isUndefined(blockNumber) || allTime || !isUndefined(genesisBlock);
-  const { graphqlBatcher } = useGraphqlBatcher();
-
-  return useQuery<HomePageBlockStats>({
-    queryKey: [`homePageBlockQuery${blockNumber}-${allTime}`],
-    enabled: isEnabled,
-    staleTime: Infinity,
-    queryFn: async () => {
-      const targetBlock = Math.max(blockNumber!, genesisBlock!);
-      const data = await graphqlBatcher.fetch({
-        id: crypto.randomUUID(),
-        document: homePageBlockQuery,
-        variables: { blockNumber: targetBlock },
-      });
-
-      return processData(data, allTime);
-    },
-  });
-};
+const getCourtMostDisputes = (courts: CourtWithTree[]) =>
+  courts.toSorted((a, b) => b.numberDisputes - a.numberDisputes)[0];
+const getCourtBestDrawingChances = (courts: CourtWithTree[]) =>
+  courts.toSorted((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
+const getBestExpectedRewardCourt = (courts: CourtWithTree[]) =>
+  courts.toSorted((a, b) => b.treeExpectedRewardPerPnk - a.treeExpectedRewardPerPnk)[0];
 
 const processData = (data: HomePageBlockQuery, allTime: boolean) => {
-  const presentCourts = data.presentCourts;
+  const presentCourts = [...data.presentCourts].sort((a, b) => Number(a.id) - Number(b.id));
   const pastCourts = data.pastCourts;
-  const processedCourts: CourtWithTree[] = Array(presentCourts.length);
-  const processed = new Set();
 
-  const processCourt = (id: number): CourtWithTree => {
-    if (processed.has(id)) return processedCourts[id];
+  const presentCourtsMap = new Map(presentCourts.map((c) => [c.id, c]));
+  const pastCourtsMap = new Map<string, CourtCounter>();
+  if (!allTime) {
+    for (const pastCourt of pastCourts) {
+      const courtId = pastCourt.court.id;
+      if (!pastCourtsMap.has(courtId)) {
+        pastCourtsMap.set(courtId, pastCourt);
+      }
+    }
+  }
 
-    processed.add(id);
-    const court =
-      !allTime && id < data.pastCourts.length
-        ? addTreeValuesWithDiff(presentCourts[id], pastCourts[id])
-        : addTreeValues(presentCourts[id]);
-    const parentIndex = court.parent ? Number(court.parent.id) - 1 : 0;
+  const processedCourtsMap = new Map<string, CourtWithTree>();
+  const processCourt = (courtId: string): CourtWithTree => {
+    if (processedCourtsMap.has(courtId)) return processedCourtsMap.get(courtId)!;
 
-    if (id === parentIndex) {
-      processedCourts[id] = court;
-      return court;
+    const court = presentCourtsMap.get(courtId)!;
+    const pastCourt = pastCourtsMap.get(courtId);
+
+    const courtWithTree = !allTime && pastCourt ? addTreeValuesWithDiff(court, pastCourt) : addTreeValues(court);
+
+    const parentId = court.parent?.id;
+    if (!parentId || courtId === parentId) {
+      processedCourtsMap.set(courtId, courtWithTree);
+      return courtWithTree;
     }
 
-    processedCourts[id] = {
-      ...court,
-      treeNumberDisputes: court.treeNumberDisputes + processCourt(parentIndex).treeNumberDisputes,
-      treeNumberVotes: court.treeNumberVotes + processCourt(parentIndex).treeNumberVotes,
-      treeVotesPerPnk: court.treeVotesPerPnk + processCourt(parentIndex).treeVotesPerPnk,
-      treeDisputesPerPnk: court.treeDisputesPerPnk + processCourt(parentIndex).treeDisputesPerPnk,
-      treeExpectedRewardPerPnk: court.treeExpectedRewardPerPnk + processCourt(parentIndex).treeExpectedRewardPerPnk,
+    const parentCourt = processCourt(parentId);
+    const fullTreeCourt: CourtWithTree = {
+      ...courtWithTree,
+      treeNumberDisputes: courtWithTree.treeNumberDisputes + parentCourt.treeNumberDisputes,
+      treeNumberVotes: courtWithTree.treeNumberVotes + parentCourt.treeNumberVotes,
+      treeVotesPerPnk: courtWithTree.treeVotesPerPnk + parentCourt.treeVotesPerPnk,
+      treeDisputesPerPnk: courtWithTree.treeDisputesPerPnk + parentCourt.treeDisputesPerPnk,
+      treeExpectedRewardPerPnk: courtWithTree.treeExpectedRewardPerPnk + parentCourt.treeExpectedRewardPerPnk,
     };
 
-    return processedCourts[id];
+    processedCourtsMap.set(courtId, fullTreeCourt);
+    return fullTreeCourt;
   };
 
   for (const court of presentCourts.toReversed()) {
-    processCourt(Number(court.id) - 1);
+    processCourt(court.id);
   }
 
-  processedCourts.reverse();
+  const processedCourts = [...processedCourtsMap.values()].sort((a, b) => Number(a.id) - Number(b.id));
 
   return {
     mostDisputedCourt: getCourtMostDisputes(processedCourts),
@@ -148,21 +144,41 @@ const addTreeValues = (court: Court): CourtWithTree => {
   };
 };
 
-const addTreeValuesWithDiff = (presentCourt: Court, pastCourt: Court): CourtWithTree => {
+const addTreeValuesWithDiff = (presentCourt: Court, pastCourt: CourtCounter | undefined): CourtWithTree => {
   const presentCourtWithTree = addTreeValues(presentCourt);
-  const pastCourtWithTree = addTreeValues(pastCourt);
-  const diffNumberVotes = presentCourtWithTree.numberVotes - pastCourtWithTree.numberVotes;
-  const diffNumberDisputes = presentCourtWithTree.numberDisputes - pastCourtWithTree.numberDisputes;
-  const avgEffectiveStake = (presentCourtWithTree.effectiveStake + pastCourtWithTree.effectiveStake) / 2n;
+
+  if (!pastCourt) {
+    console.warn(`Missing snapshot for court ${presentCourt.id}, falling back to live`);
+    return presentCourtWithTree;
+  }
+
+  const pastNumberVotes = Number(pastCourt.numberVotes);
+  const pastNumberDisputes = Number(pastCourt.numberDisputes);
+  const pastEffectiveStake = BigInt(pastCourt.effectiveStake);
+
+  const diffNumberVotes = presentCourtWithTree.numberVotes - pastNumberVotes;
+  const diffNumberDisputes = presentCourtWithTree.numberDisputes - pastNumberDisputes;
+
+  const hasLiveActivity = presentCourtWithTree.numberDisputes > 0 || presentCourtWithTree.numberVotes > 0;
+  const hasSnapshotActivity = diffNumberDisputes > 0 || diffNumberVotes > 0;
+
+  if (!hasSnapshotActivity && hasLiveActivity) {
+    console.warn(`Snapshot shows no delta for court ${presentCourt.id}, using live`);
+    return presentCourtWithTree;
+  }
+
+  const avgEffectiveStake = (presentCourtWithTree.effectiveStake + pastEffectiveStake) / 2n;
   const votesPerPnk = diffNumberVotes / (Number(avgEffectiveStake) / 1e18) || 0;
   const disputesPerPnk = diffNumberDisputes / (Number(avgEffectiveStake) / 1e18) || 0;
   const expectedRewardPerPnk = votesPerPnk * (Number(presentCourt.feeForJuror) / 1e18);
+
   return {
     ...presentCourt,
-    numberDisputes: presentCourtWithTree.numberDisputes - pastCourtWithTree.numberDisputes,
-    treeNumberDisputes: presentCourtWithTree.treeNumberDisputes - pastCourtWithTree.treeNumberDisputes,
+    numberDisputes: diffNumberDisputes,
+    treeNumberDisputes: diffNumberDisputes,
     numberVotes: diffNumberVotes,
-    treeNumberVotes: presentCourtWithTree.treeNumberVotes - pastCourtWithTree.treeNumberVotes,
+    treeNumberVotes: diffNumberVotes,
+    feeForJuror: presentCourtWithTree.feeForJuror,
     effectiveStake: avgEffectiveStake,
     votesPerPnk,
     treeVotesPerPnk: votesPerPnk,
@@ -173,9 +189,21 @@ const addTreeValuesWithDiff = (presentCourt: Court, pastCourt: Court): CourtWith
   };
 };
 
-const getCourtMostDisputes = (courts: CourtWithTree[]) =>
-  courts.toSorted((a: CourtWithTree, b: CourtWithTree) => b.numberDisputes - a.numberDisputes)[0];
-const getCourtBestDrawingChances = (courts: CourtWithTree[]) =>
-  courts.toSorted((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
-const getBestExpectedRewardCourt = (courts: CourtWithTree[]) =>
-  courts.toSorted((a, b) => b.treeExpectedRewardPerPnk - a.treeExpectedRewardPerPnk)[0];
+export const useHomePageBlockQuery = (pastTimestamp: bigint | undefined, allTime: boolean) => {
+  const { graphqlBatcher } = useGraphqlBatcher();
+  const isEnabled = !isUndefined(pastTimestamp) || allTime;
+
+  return useQuery<HomePageBlockStats>({
+    queryKey: [`homePageBlockQuery${pastTimestamp?.toString()}-${allTime}`],
+    enabled: isEnabled,
+    staleTime: Infinity,
+    queryFn: async () => {
+      const data = await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: homePageBlockQuery,
+        variables: { pastTimestamp: allTime ? "0" : pastTimestamp?.toString() },
+      });
+      return processData(data, allTime);
+    },
+  });
+};

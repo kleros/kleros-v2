@@ -1,6 +1,6 @@
 import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { Court, JurorTokensPerCourt } from "../../generated/schema";
-import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
+import { updateActiveJurors, getDelta, updateStakedPNK, updateCourtStateVariable } from "../datapoint";
 import { ensureUser } from "./User";
 import { ONE, ZERO } from "../utils";
 import { SortitionModule } from "../../generated/SortitionModule/SortitionModule";
@@ -94,6 +94,7 @@ export function updateJurorStake(
   court.save();
   updateEffectiveStake(courtID);
   updateJurorEffectiveStake(jurorAddress, courtID);
+  updateCourtStateVariable(courtID, court.effectiveStake, timestamp, "effectiveStake");
 }
 
 export function updateJurorDelayedStake(jurorAddress: string, courtID: string, amount: BigInt): void {
