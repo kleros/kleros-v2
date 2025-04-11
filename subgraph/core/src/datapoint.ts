@@ -102,7 +102,7 @@ export function updateCourtCumulativeMetric(courtId: string, delta: BigInt, time
     currentCounter.numberDisputes = ZERO;
     currentCounter.numberVotes = ZERO;
     currentCounter.effectiveStake = ZERO;
-    currentCounter.timestamp = timestamp;
+    currentCounter.timestamp = ZERO;
   }
   if (metric === "numberDisputes") {
     currentCounter.numberDisputes = currentCounter.numberDisputes.plus(delta);
@@ -140,7 +140,7 @@ export function updateCourtStateVariable(courtId: string, newValue: BigInt, time
     currentCounter.numberDisputes = ZERO;
     currentCounter.numberVotes = ZERO;
     currentCounter.effectiveStake = newValue;
-    currentCounter.timestamp = timestamp;
+    currentCounter.timestamp = ZERO;
   } else {
     if (variable === "effectiveStake") {
       currentCounter.effectiveStake = newValue;

@@ -6,7 +6,7 @@ import { HomePageBlockQuery } from "src/graphql/graphql";
 
 const homePageBlockQuery = graphql(`
   query HomePageBlock($pastTimestamp: BigInt) {
-    presentCourts: courts(orderBy: id, orderDirection: asc) {
+    presentCourts: courts(orderBy: id, orderDirection: asc, first: 1000) {
       id
       parent {
         id
@@ -17,13 +17,19 @@ const homePageBlockQuery = graphql(`
       feeForJuror
       effectiveStake
     }
-    pastCourts: courtCounters(where: { timestamp_lte: $pastTimestamp }, orderBy: timestamp, orderDirection: desc) {
+    pastCourts: courtCounters(
+      where: { timestamp_lte: $pastTimestamp }
+      orderBy: timestamp
+      orderDirection: desc
+      first: 1000
+    ) {
       court {
         id
       }
       numberDisputes
       numberVotes
       effectiveStake
+      timestamp
     }
   }
 `);
@@ -53,16 +59,17 @@ export type HomePageBlockStats = {
 };
 
 const getCourtMostDisputes = (courts: CourtWithTree[]) =>
-  courts.toSorted((a: CourtWithTree, b: CourtWithTree) => b.numberDisputes - a.numberDisputes)[0];
+  courts.toSorted((a, b) => b.numberDisputes - a.numberDisputes)[0];
 const getCourtBestDrawingChances = (courts: CourtWithTree[]) =>
   courts.toSorted((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
 const getBestExpectedRewardCourt = (courts: CourtWithTree[]) =>
   courts.toSorted((a, b) => b.treeExpectedRewardPerPnk - a.treeExpectedRewardPerPnk)[0];
 
 const processData = (data: HomePageBlockQuery, allTime: boolean) => {
-  const presentCourts = data.presentCourts;
+  const presentCourts = [...data.presentCourts].sort((a, b) => Number(a.id) - Number(b.id));
   const pastCourts = data.pastCourts;
 
+  const presentCourtsMap = new Map(presentCourts.map((c) => [c.id, c]));
   const pastCourtsMap = new Map<string, CourtCounter>();
   if (!allTime) {
     for (const pastCourt of pastCourts) {
@@ -73,41 +80,40 @@ const processData = (data: HomePageBlockQuery, allTime: boolean) => {
     }
   }
 
-  const processedCourts: CourtWithTree[] = Array(presentCourts.length);
-  const processed = new Set<number>();
+  const processedCourtsMap = new Map<string, CourtWithTree>();
+  const processCourt = (courtId: string): CourtWithTree => {
+    if (processedCourtsMap.has(courtId)) return processedCourtsMap.get(courtId)!;
 
-  const processCourt = (id: number): CourtWithTree => {
-    if (processed.has(id)) return processedCourts[id];
+    const court = presentCourtsMap.get(courtId)!;
+    const pastCourt = pastCourtsMap.get(courtId);
 
-    processed.add(id);
-    const court = presentCourts[id];
-    const pastCourt = pastCourtsMap.get(court.id);
     const courtWithTree = !allTime && pastCourt ? addTreeValuesWithDiff(court, pastCourt) : addTreeValues(court);
-    const parentIndex = court.parent ? Number(court.parent.id) - 1 : 0;
 
-    if (id === parentIndex) {
-      processedCourts[id] = courtWithTree;
+    const parentId = court.parent?.id;
+    if (!parentId || courtId === parentId) {
+      processedCourtsMap.set(courtId, courtWithTree);
       return courtWithTree;
     }
 
-    processedCourts[id] = {
+    const parentCourt = processCourt(parentId);
+    const fullTreeCourt: CourtWithTree = {
       ...courtWithTree,
-      treeNumberDisputes: courtWithTree.treeNumberDisputes + processCourt(parentIndex).treeNumberDisputes,
-      treeNumberVotes: courtWithTree.treeNumberVotes + processCourt(parentIndex).treeNumberVotes,
-      treeVotesPerPnk: courtWithTree.treeVotesPerPnk + processCourt(parentIndex).treeVotesPerPnk,
-      treeDisputesPerPnk: courtWithTree.treeDisputesPerPnk + processCourt(parentIndex).treeDisputesPerPnk,
-      treeExpectedRewardPerPnk:
-        courtWithTree.treeExpectedRewardPerPnk + processCourt(parentIndex).treeExpectedRewardPerPnk,
+      treeNumberDisputes: courtWithTree.treeNumberDisputes + parentCourt.treeNumberDisputes,
+      treeNumberVotes: courtWithTree.treeNumberVotes + parentCourt.treeNumberVotes,
+      treeVotesPerPnk: courtWithTree.treeVotesPerPnk + parentCourt.treeVotesPerPnk,
+      treeDisputesPerPnk: courtWithTree.treeDisputesPerPnk + parentCourt.treeDisputesPerPnk,
+      treeExpectedRewardPerPnk: courtWithTree.treeExpectedRewardPerPnk + parentCourt.treeExpectedRewardPerPnk,
     };
 
-    return processedCourts[id];
+    processedCourtsMap.set(courtId, fullTreeCourt);
+    return fullTreeCourt;
   };
 
   for (const court of presentCourts.toReversed()) {
-    processCourt(Number(court.id) - 1);
+    processCourt(court.id);
   }
 
-  processedCourts.reverse();
+  const processedCourts = [...processedCourtsMap.values()].sort((a, b) => Number(a.id) - Number(b.id));
 
   return {
     mostDisputedCourt: getCourtMostDisputes(processedCourts),
@@ -140,16 +146,32 @@ const addTreeValues = (court: Court): CourtWithTree => {
 
 const addTreeValuesWithDiff = (presentCourt: Court, pastCourt: CourtCounter | undefined): CourtWithTree => {
   const presentCourtWithTree = addTreeValues(presentCourt);
-  const pastNumberVotes = pastCourt ? Number(pastCourt.numberVotes) : 0;
-  const pastNumberDisputes = pastCourt ? Number(pastCourt.numberDisputes) : 0;
-  const pastEffectiveStake = pastCourt ? BigInt(pastCourt.effectiveStake) : BigInt(0);
+
+  if (!pastCourt) {
+    console.warn(`Missing snapshot for court ${presentCourt.id}, falling back to live`);
+    return presentCourtWithTree;
+  }
+
+  const pastNumberVotes = Number(pastCourt.numberVotes);
+  const pastNumberDisputes = Number(pastCourt.numberDisputes);
+  const pastEffectiveStake = BigInt(pastCourt.effectiveStake);
 
   const diffNumberVotes = presentCourtWithTree.numberVotes - pastNumberVotes;
   const diffNumberDisputes = presentCourtWithTree.numberDisputes - pastNumberDisputes;
+
+  const hasLiveActivity = presentCourtWithTree.numberDisputes > 0 || presentCourtWithTree.numberVotes > 0;
+  const hasSnapshotActivity = diffNumberDisputes > 0 || diffNumberVotes > 0;
+
+  if (!hasSnapshotActivity && hasLiveActivity) {
+    console.warn(`Snapshot shows no delta for court ${presentCourt.id}, using live`);
+    return presentCourtWithTree;
+  }
+
   const avgEffectiveStake = (presentCourtWithTree.effectiveStake + pastEffectiveStake) / 2n;
   const votesPerPnk = diffNumberVotes / (Number(avgEffectiveStake) / 1e18) || 0;
   const disputesPerPnk = diffNumberDisputes / (Number(avgEffectiveStake) / 1e18) || 0;
   const expectedRewardPerPnk = votesPerPnk * (Number(presentCourt.feeForJuror) / 1e18);
+
   return {
     ...presentCourt,
     numberDisputes: diffNumberDisputes,
