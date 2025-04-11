@@ -74,8 +74,8 @@ export const stats: IStat[] = [
   {
     title: "PNK Staked",
     coinId: 0,
-    getText: (data) => `${formatPNK(data?.stake)} PNK`,
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.stake)) * (coinPrice ?? 0)),
+    getText: (data) => `${formatPNK(data?.effectiveStake)} PNK`,
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.effectiveStake)) * (coinPrice ?? 0)),
     color: "green",
     icon: PNKIcon,
   },

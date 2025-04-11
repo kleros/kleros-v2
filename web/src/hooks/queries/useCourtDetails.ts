@@ -19,6 +19,7 @@ const courtDetailsQuery = graphql(`
       numberStakedJurors
       numberVotes
       stake
+      effectiveStake
       paidETH
       paidPNK
       timesPerPeriod
