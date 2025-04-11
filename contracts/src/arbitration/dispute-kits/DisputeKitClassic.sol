@@ -29,6 +29,10 @@ contract DisputeKitClassic is DisputeKitClassicBase {
         __DisputeKitClassicBase_initialize(_governor, _core);
     }
 
+    function initialize2() external reinitializer(2) {
+        // NOP
+    }
+
     // ************************ //
     // *      Governance      * //
     // ************************ //

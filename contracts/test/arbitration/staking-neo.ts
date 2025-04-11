@@ -155,7 +155,7 @@ describe("Staking", async () => {
       const arbitrationCost = ETH(0.5);
       expect(await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost }))
         .to.emit(core, "DisputeCreation")
-        .withArgs(1, resolver.target);
+        .withArgs(0, resolver.target);
     });
   });
 

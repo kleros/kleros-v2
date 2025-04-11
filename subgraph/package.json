@@ -1,7 +1,7 @@
 {
   "name": "@kleros/kleros-v2-subgraph",
-  "version": "0.14.0",
-  "drtVersion": "0.11.0",
+  "version": "0.14.3",
+  "drtVersion": "0.12.0",
   "license": "MIT",
   "scripts": {
     "update:core:arbitrum-sepolia-devnet": "./scripts/update.sh arbitrumSepoliaDevnet arbitrum-sepolia core/subgraph.yaml",
@@ -72,10 +72,10 @@
     "node": "20.18.3"
   },
   "dependencies": {
-    "@graphprotocol/graph-ts": "^0.37.0"
+    "@graphprotocol/graph-ts": "^0.38.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.95.0",
+    "@graphprotocol/graph-cli": "^0.96.0",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "eslint": "^9.15.0",

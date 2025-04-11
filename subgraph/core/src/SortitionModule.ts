@@ -1,5 +1,6 @@
 import {
   SortitionModule,
+  StakeDelayedAlreadyTransferred,
   StakeDelayedAlreadyTransferredDeposited,
   StakeDelayedAlreadyTransferredWithdrawn,
   StakeDelayedNotTransferred,
@@ -10,6 +11,11 @@ import {
 import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { ensureUser } from "./entities/User";
 import { ZERO } from "./utils";
+
+// FIX: temporarily adding this handler for old event name "StakeDelayedAlreadyTransferred", delete when deploying new fresh-address contract.
+export function handleStakeDelayedAlreadyTransferred(event: StakeDelayedAlreadyTransferred): void {
+  updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);
+}
 
 export function handleStakeDelayedAlreadyTransferredDeposited(event: StakeDelayedAlreadyTransferredDeposited): void {
   updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);

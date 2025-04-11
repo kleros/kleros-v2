@@ -210,6 +210,10 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         );
     }
 
+    function initialize2() external reinitializer(2) {
+        // NOP
+    }
+
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
