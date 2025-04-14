@@ -32,30 +32,16 @@ export function createJurorTokensPerCourt(jurorAddress: string, courtID: string)
   return jurorTokens;
 }
 
-export function updateJurorEffectiveStake(jurorAddress: string, courtID: string): void {
+export function updateJurorEffectiveStake(jurorAddress: string, courtID: string, delta: BigInt): void {
   let court = Court.load(courtID);
-  if (!court) {
-    return;
-  }
+  if (!court) return;
 
   while (court) {
     const jurorTokensPerCourt = ensureJurorTokensPerCourt(jurorAddress, court.id);
-    let totalStake = jurorTokensPerCourt.staked;
-    const childrenCourts = court.children.load();
-
-    for (let i = 0; i < childrenCourts.length; i++) {
-      const childCourtID = childrenCourts[i].id;
-      const childCourt = Court.load(childCourtID);
-      if (childCourt) {
-        const childJurorTokensPerCourt = ensureJurorTokensPerCourt(jurorAddress, childCourt.id);
-        totalStake = totalStake.plus(childJurorTokensPerCourt.effectiveStake);
-      }
-    }
-
-    jurorTokensPerCourt.effectiveStake = totalStake;
+    jurorTokensPerCourt.effectiveStake = jurorTokensPerCourt.effectiveStake.plus(delta);
     jurorTokensPerCourt.save();
 
-    if (court.parent && court.parent !== null) {
+    if (court.parent) {
       court = Court.load(court.parent as string);
     } else {
       break;
@@ -92,9 +78,9 @@ export function updateJurorStake(
   updateActiveJurors(activeJurorsDelta, timestamp);
   juror.save();
   court.save();
-  updateEffectiveStake(courtID);
-  updateEffectiveNumberStakedJurors(courtID);
-  updateJurorEffectiveStake(jurorAddress, courtID);
+  updateEffectiveStake(courtID, stakeDelta);
+  updateJurorEffectiveStake(jurorAddress, courtID, stakeDelta);
+  updateEffectiveNumberStakedJurors(courtID, stakedJurorsDelta);
   updateCourtStateVariable(courtID, court.effectiveStake, timestamp, "effectiveStake");
 }
 

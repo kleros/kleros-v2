@@ -5,59 +5,25 @@ import { ZERO } from "../utils";
 
 // This function calculates the "effective" stake, which is the specific stake
 // of the current court + the specific stake of all of its children courts
-export function updateEffectiveStake(courtID: string): void {
+export function updateEffectiveStake(courtID: string, delta: BigInt): void {
   let court = Court.load(courtID);
   if (!court) return;
-
-  while (court) {
-    let totalStake = court.stake;
-
-    const childrenCourts = court.children.load();
-
-    for (let i = 0; i < childrenCourts.length; i++) {
-      const childCourt = Court.load(childrenCourts[i].id);
-      if (childCourt) {
-        totalStake = totalStake.plus(childCourt.effectiveStake);
-      }
-    }
-
-    court.effectiveStake = totalStake;
-    court.save();
-
-    if (court.parent && court.parent !== null) {
-      court = Court.load(court.parent as string);
-    } else {
-      break;
-    }
+  court.effectiveStake = court.effectiveStake.plus(delta);
+  court.save();
+  if (court.parent) {
+    updateEffectiveStake(court.parent as string, delta);
   }
 }
 
 // This function calculates the "effective" numberStakedJurors, which is the specific numberStakedJurors
 // of the current court + the specific numberStakedJurors of all of its children courts
-export function updateEffectiveNumberStakedJurors(courtID: string): void {
+export function updateEffectiveNumberStakedJurors(courtID: string, delta: BigInt): void {
   let court = Court.load(courtID);
   if (!court) return;
-
-  while (court) {
-    let totalJurors = court.numberStakedJurors;
-
-    const childrenCourts = court.children.load();
-
-    for (let i = 0; i < childrenCourts.length; i++) {
-      const childCourt = Court.load(childrenCourts[i].id);
-      if (childCourt) {
-        totalJurors = totalJurors.plus(childCourt.effectiveNumberStakedJurors);
-      }
-    }
-
-    court.effectiveNumberStakedJurors = totalJurors;
-    court.save();
-
-    if (court.parent && court.parent !== null) {
-      court = Court.load(court.parent as string);
-    } else {
-      break;
-    }
+  court.effectiveNumberStakedJurors = court.effectiveNumberStakedJurors.plus(delta);
+  court.save();
+  if (court.parent) {
+    updateEffectiveNumberStakedJurors(court.parent as string, delta);
   }
 }
 
