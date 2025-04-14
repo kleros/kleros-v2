@@ -575,7 +575,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             dispute.period = Period.appeal;
             emit AppealPossible(_disputeID, dispute.arbitrated);
         } else if (dispute.period == Period.appeal) {
-            if (block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]) {
+            if (
+                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                !disputeKits[round.disputeKitID].appealFundingIsFinished(_disputeID)
+            ) {
                 revert AppealPeriodNotPassed();
             }
             dispute.period = Period.execution;
