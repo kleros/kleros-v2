@@ -88,11 +88,11 @@ const Chart: React.FC = () => {
 
   const processedStakedPNKData = courtsChartData?.reduce(
     (accData: StakedPNKByCourtsChartData, current) => {
-      if (BigInt(current.stake) > 0) {
+      if (BigInt(current.effectiveStake) > 0) {
         return {
           labels: [...accData.labels, current.name ?? ""],
-          stakes: [...accData.stakes, parseFloat(formatUnits(current.stake, 18))],
-          totalStake: accData.totalStake + parseFloat(formatUnits(current.stake, 18)),
+          stakes: [...accData.stakes, parseFloat(formatUnits(current.effectiveStake, 18))],
+          totalStake: accData.totalStake + parseFloat(formatUnits(current.effectiveStake, 18)),
         };
       }
       return accData;
