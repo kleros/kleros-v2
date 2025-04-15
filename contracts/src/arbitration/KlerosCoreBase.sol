@@ -1101,7 +1101,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         if (_result == StakingResult.StakingTransferFailed) revert StakingTransferFailed();
         if (_result == StakingResult.UnstakingTransferFailed) revert UnstakingTransferFailed();
         if (_result == StakingResult.CannotStakeInMoreCourts) revert StakingInTooManyCourts();
-        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibeInThisCourt();
+        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibleInThisCourt();
         if (_result == StakingResult.CannotStakeLessThanMinStake) revert StakingLessThanCourtMinStake();
         if (_result == StakingResult.CannotStakeZeroWhenNoStake) revert StakingZeroWhenNoStake();
     }
@@ -1155,7 +1155,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
     error StakingInTooManyCourts();
-    error StakingNotPossibeInThisCourt();
+    error StakingNotPossibleInThisCourt();
     error StakingLessThanCourtMinStake();
     error StakingTransferFailed();
     error UnstakingTransferFailed();

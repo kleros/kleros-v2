@@ -842,12 +842,12 @@ contract KlerosCoreTest is Test {
         vm.prank(governor);
         core.unpause();
 
-        vm.expectRevert(KlerosCoreBase.StakingNotPossibeInThisCourt.selector);
+        vm.expectRevert(KlerosCoreBase.StakingNotPossibleInThisCourt.selector);
         vm.prank(staker1);
         core.setStake(FORKING_COURT, 1000);
 
         uint96 badCourtID = 2;
-        vm.expectRevert(KlerosCoreBase.StakingNotPossibeInThisCourt.selector);
+        vm.expectRevert(KlerosCoreBase.StakingNotPossibleInThisCourt.selector);
         vm.prank(staker1);
         core.setStake(badCourtID, 1000);
 
