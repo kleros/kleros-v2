@@ -11,7 +11,7 @@ const homePageQuery = graphql(`
     disputes(first: 3) {
       id
     }
-    counters(where: { id_gt: $timeframe }) {
+    counters(first: 1000, where: { id_gt: $timeframe }) {
       id
       stakedPNK
       paidETH
@@ -19,7 +19,7 @@ const homePageQuery = graphql(`
       activeJurors
       cases
     }
-    courts(orderBy: id, orderDirection: asc) {
+    courts(first: 1000, orderBy: id, orderDirection: asc) {
       id
       name
       numberDisputes
