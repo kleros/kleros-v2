@@ -25,6 +25,7 @@ const homePageQuery = graphql(`
       numberDisputes
       feeForJuror
       effectiveStake
+      stake
     }
   }
 `);

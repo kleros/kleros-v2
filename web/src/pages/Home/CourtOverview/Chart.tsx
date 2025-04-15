@@ -92,7 +92,7 @@ const Chart: React.FC = () => {
         return {
           labels: [...accData.labels, current.name ?? ""],
           stakes: [...accData.stakes, parseFloat(formatUnits(current.effectiveStake, 18))],
-          totalStake: accData.totalStake + parseFloat(formatUnits(current.effectiveStake, 18)),
+          totalStake: accData.totalStake + parseFloat(formatUnits(current.stake, 18)),
         };
       }
       return accData;
