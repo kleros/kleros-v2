@@ -517,12 +517,32 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     }
 
     /// @dev Returns true if all of the jurors have cast their votes for the last round.
+    /// Note that this function is to be called directly by the core contract and is not for off-chain usage.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @return Whether all of the jurors have cast their votes for the last round.
     function areVotesAllCast(uint256 _coreDisputeID) external view override returns (bool) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        return round.totalVoted == round.votes.length;
+
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        (, bool hiddenVotes, , , , , ) = core.courts(courtID);
+        uint256 expectedTotalVoted = hiddenVotes ? round.totalCommitted : round.votes.length;
+
+        return round.totalVoted == expectedTotalVoted;
+    }
+
+    /// @dev Returns true if the appeal funding is finished prematurely (e.g. when losing side didn't fund).
+    /// Note that this function is to be called directly by the core contract and is not for off-chain usage.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @return Whether the appeal funding is finished.
+    function isAppealFunded(uint256 _coreDisputeID) external view override returns (bool) {
+        (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
+
+        uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
+        // Uses block.timestamp from the current tx when called by the core contract.
+        return (fundedChoices.length == 0 &&
+            block.timestamp - appealPeriodStart >=
+            ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT);
     }
 
     /// @dev Returns true if the specified voter was active in this round.
