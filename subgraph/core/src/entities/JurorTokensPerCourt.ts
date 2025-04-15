@@ -4,7 +4,7 @@ import { updateActiveJurors, getDelta, updateStakedPNK, updateCourtStateVariable
 import { ensureUser } from "./User";
 import { ONE, ZERO } from "../utils";
 import { SortitionModule } from "../../generated/SortitionModule/SortitionModule";
-import { updateEffectiveNumberStakedJurors, updateEffectiveStake } from "./Court";
+import { updateEffectiveStake } from "./Court";
 
 export function ensureJurorTokensPerCourt(jurorAddress: string, courtID: string): JurorTokensPerCourt {
   const id = `${jurorAddress}-${courtID}`;
@@ -36,16 +36,22 @@ export function updateJurorEffectiveStake(jurorAddress: string, courtID: string,
   let court = Court.load(courtID);
   if (!court) return;
 
-  while (court) {
-    const jurorTokensPerCourt = ensureJurorTokensPerCourt(jurorAddress, court.id);
-    jurorTokensPerCourt.effectiveStake = jurorTokensPerCourt.effectiveStake.plus(delta);
-    jurorTokensPerCourt.save();
+  const jurorTokensPerCourt = ensureJurorTokensPerCourt(jurorAddress, court.id);
+  const previousEffectiveStake = jurorTokensPerCourt.effectiveStake;
+  const newEffectiveStake = previousEffectiveStake.plus(delta);
 
-    if (court.parent) {
-      court = Court.load(court.parent as string);
-    } else {
-      break;
-    }
+  if (previousEffectiveStake.equals(ZERO) && newEffectiveStake.gt(ZERO)) {
+    court.effectiveNumberStakedJurors = court.effectiveNumberStakedJurors.plus(ONE);
+  } else if (previousEffectiveStake.gt(ZERO) && newEffectiveStake.equals(ZERO)) {
+    court.effectiveNumberStakedJurors = court.effectiveNumberStakedJurors.minus(ONE);
+  }
+
+  jurorTokensPerCourt.effectiveStake = newEffectiveStake;
+  jurorTokensPerCourt.save();
+  court.save();
+
+  if (court.parent) {
+    updateJurorEffectiveStake(jurorAddress, court.parent as string, delta);
   }
 }
 
@@ -80,7 +86,6 @@ export function updateJurorStake(
   court.save();
   updateEffectiveStake(courtID, stakeDelta);
   updateJurorEffectiveStake(jurorAddress, courtID, stakeDelta);
-  updateEffectiveNumberStakedJurors(courtID, stakedJurorsDelta);
   updateCourtStateVariable(courtID, court.effectiveStake, timestamp, "effectiveStake");
 }
 

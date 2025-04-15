@@ -8,22 +8,12 @@ import { ZERO } from "../utils";
 export function updateEffectiveStake(courtID: string, delta: BigInt): void {
   let court = Court.load(courtID);
   if (!court) return;
+
   court.effectiveStake = court.effectiveStake.plus(delta);
   court.save();
+
   if (court.parent) {
     updateEffectiveStake(court.parent as string, delta);
-  }
-}
-
-// This function calculates the "effective" numberStakedJurors, which is the specific numberStakedJurors
-// of the current court + the specific numberStakedJurors of all of its children courts
-export function updateEffectiveNumberStakedJurors(courtID: string, delta: BigInt): void {
-  let court = Court.load(courtID);
-  if (!court) return;
-  court.effectiveNumberStakedJurors = court.effectiveNumberStakedJurors.plus(delta);
-  court.save();
-  if (court.parent) {
-    updateEffectiveNumberStakedJurors(court.parent as string, delta);
   }
 }
 
