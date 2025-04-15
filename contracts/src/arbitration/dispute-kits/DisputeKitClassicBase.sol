@@ -535,7 +535,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// Note that this function is to be called directly by the core contract and is not for off-chain usage.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @return Whether the appeal funding is finished.
-    function appealFundingIsFinished(uint256 _coreDisputeID) external view override returns (bool) {
+    function isAppealFunded(uint256 _coreDisputeID) external view override returns (bool) {
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
 
         uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);

@@ -95,7 +95,7 @@ interface IDisputeKit {
     /// @dev Returns true if the appeal funding is finished prematurely (e.g. when losing side didn't fund).
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @return Whether the appeal funding is finished.
-    function appealFundingIsFinished(uint256 _coreDisputeID) external view returns (bool);
+    function isAppealFunded(uint256 _coreDisputeID) external view returns (bool);
 
     /// @dev Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
