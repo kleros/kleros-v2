@@ -152,7 +152,7 @@
     },
     {
       "inputs": [],
-      "name": "StakingNotPossibeInThisCourt",
+      "name": "StakingNotPossibleInThisCourt",
       "type": "error"
     },
     {
