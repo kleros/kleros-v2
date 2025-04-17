@@ -8,5 +8,9 @@ export * as devnetViem from "./devnet.viem";
 export * as mainnetViem from "./mainnet.viem";
 export * as testnetViem from "./testnet.viem";
 
+// Typechain-types
+export * from "../typechain-types";
+
+// Contracts getters
 export { getContracts as getContractsEthers } from "./contractsEthers";
 export { getContracts as getContractsViem } from "./contractsViem";

@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+shopt -s extglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -20,24 +22,46 @@ trap _finally EXIT
 
 #--------------------------------------
 
-yarn version $1
+if [[ "$PWD" != */contracts ]]; then
+    echo "Error: This script must be run from the contracts directory"
+    exit 1
+fi
 
+# Recompile the contracts
+yarn clean
+yarn build
+
+# Rebuild the typechain without mocks
+rm -rf artifacts/src/**/*[mM]ock*
+find artifacts/src -name "*.dbg.json" -type f -delete
+rm -rf typechain-types
+yarn typechain --out-dir typechain-types --glob 'artifacts/src/**/*.json' --target ethers-v6
+
+# Generate the viem artifacts
 yarn viem:generate-devnet
 yarn viem:generate-testnet
 yarn viem:generate-mainnet
+
+# Generate the Hardhat artifacts
 yarn export:devnet
 yarn export:testnet
 yarn export:mainnet
 
+# Build the dist
 rm -rf dist
 mkdir dist
+yarn build:all
 
-yarn tsc --project tsconfig-release.json --outDir ./dist
+# Copy the README and contracts
 cp -pr README.md src/ dist/ 
+
+# Remove unwanted files
 rm -rf dist/config
 rm -rf dist/deploy
 rm -rf dist/scripts
 rm -rf dist/test
+rm -rf dist/**/mock
+rm -rf dist/**/*Mock*
 rm -rf dist/hardhat.config*
 rm -rf dist/deployments/**/solcInputs
 rm -rf dist/deployments/localhost
@@ -45,6 +69,10 @@ rm -rf dist/deployments/hardhat
 rm -rf dist/deployments/hardhat.viem.ts
 jq 'del(.scripts.prepare)' package.json > dist/package.json
 
+# Bump the version
+yarn version $1
+
+# Publish the package
 cd dist
-npm publish
+npm publish --dry-run
 cd -

@@ -1,5 +1,5 @@
 import { Config, defineConfig } from "@wagmi/cli";
-import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
+import IHomeGateway from "./artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
 import { getAbi, readArtifacts, merge } from "./scripts/wagmiHelpers";
 
 const getConfig = async (): Promise<Config> => {

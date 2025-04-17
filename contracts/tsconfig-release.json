@@ -4,7 +4,6 @@
     "declaration": true
   },
   "include": [
-    "./src",
     "./typechain-types",
     "./deployments"
   ],

@@ -1,65 +1,107 @@
 import { arbitrum, arbitrumSepolia } from "viem/chains";
-import { disputeTemplateRegistryConfig as devnetDtrConfig, klerosCoreConfig as devnetCoreConfig } from "./devnet.viem";
 import {
-  disputeTemplateRegistryConfig as mainnetDtrConfig,
-  klerosCoreNeoConfig as mainnetCoreConfig,
-} from "./mainnet.viem";
-import { type PublicClient, type WalletClient } from "viem";
+  klerosCoreConfig as devnetCoreConfig,
+  sortitionModuleConfig as devnetSortitionConfig,
+  disputeKitClassicConfig as devnetDkcConfig,
+  disputeResolverConfig as devnetDrConfig,
+  disputeTemplateRegistryConfig as devnetDtrConfig,
+  evidenceModuleConfig as devnetEvidenceConfig,
+  policyRegistryConfig as devnetPolicyRegistryConfig,
+  transactionBatcherConfig as devnetBatcherConfig,
+  chainlinkRngConfig as devnetChainlinkRngConfig,
+  blockHashRngConfig as devnetBlockHashRngConfig,
+  pnkConfig as devnetPnkConfig,
+  klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
+  klerosCoreUniversityConfig as devnetCoreUniversityConfig,
+  sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
+  disputeKitClassicUniversityConfig as devnetDkcUniversityConfig,
+  disputeResolverUniversityConfig as devnetDrUniversityConfig,
+  klerosCoreUniversityProxyConfig as devnetCoreUniversityProxyConfig,
+} from "./devnet.viem";
+import { type PublicClient, type WalletClient, getContract } from "viem";
 
-export const Cores = {
-  BASE: "BASE",
-  NEO: "NEO",
-  UNIVERSITY: "UNIVERSITY",
+const deployments = {
+  devnet: {
+    chainId: arbitrumSepolia.id,
+  },
+  university: {
+    chainId: arbitrumSepolia.id,
+  },
+  testnet: {
+    chainId: arbitrumSepolia.id,
+  },
+  mainnetNeo: {
+    chainId: arbitrum.id,
+  },
 } as const;
 
-export type Core = (typeof Cores)[keyof typeof Cores];
+type DeploymentName = keyof typeof deployments;
+
+type ContractConfig = {
+  address: Record<number, `0x${string}`>;
+  abi: readonly any[];
+};
+
+type ContractConfigs = {
+  klerosCore?: {
+    address: `0x${string}`;
+    abi: readonly any[];
+  };
+};
+
+function getAddress(config: ContractConfig, chainId: number): `0x${string}` {
+  const address = config.address[chainId];
+  if (!address) throw new Error(`No address found for chainId ${chainId}`);
+  return address;
+}
+
+export const getConfigs = ({ deployment }: { deployment: DeploymentName }): ContractConfigs => {
+  const { chainId } = deployments[deployment];
+  let contractConfigs: ContractConfigs = {};
+  switch (deployment) {
+    case "devnet":
+      contractConfigs = {
+        klerosCore: {
+          address: getAddress(devnetCoreConfig, chainId),
+          abi: devnetCoreConfig.abi,
+        },
+      };
+      break;
+    default:
+      throw new Error(`Unsupported deployment: ${deployment}`);
+  }
+  return contractConfigs;
+};
 
 export const getContracts = ({
   publicClient,
   walletClient,
-  chainId,
-  coreType,
+  deployment,
 }: {
   publicClient: PublicClient;
   walletClient?: WalletClient;
-  chainId: number;
-  coreType: Core;
+  deployment: DeploymentName;
 }) => {
-  throw new Error("Not implemented");
-  switch (chainId) {
-    case arbitrum.id:
-      return {
-        disputeTemplateRegistry: {
-          address: mainnetDtrConfig.address[chainId],
-          publicClient,
-          walletClient,
-          abi: mainnetDtrConfig.abi,
-        },
-        klerosCore: {
-          address: mainnetCoreConfig.address[chainId],
-          publicClient,
-          walletClient,
-          abi: mainnetCoreConfig.abi,
-        },
-      };
-    case arbitrumSepolia.id:
-      return {
-        disputeTemplateRegistry: {
-          address: devnetDtrConfig.address[chainId],
-          publicClient,
-          walletClient,
-          abi: devnetDtrConfig.abi,
-        },
-        klerosCore: {
-          address: devnetCoreConfig.address[chainId],
-          publicClient,
-          walletClient,
-          abi: devnetCoreConfig.abi,
-        },
-      };
+  const clientConfig = {
+    client: {
+      public: publicClient,
+      wallet: walletClient,
+    },
+  };
+  let klerosCore;
+  switch (deployment) {
+    case "devnet":
+      const contractConfigs = getConfigs({ deployment });
+      if (!contractConfigs.klerosCore) throw new Error("KlerosCore config not found");
+      klerosCore = getContract({
+        ...contractConfigs.klerosCore,
+        ...clientConfig,
+      });
+      break;
     default:
-      throw new Error(`Unsupported chainId: ${chainId}`);
+      throw new Error(`Unsupported deployment: ${deployment}`);
   }
+  return {
+    klerosCore,
+  };
 };
-
-// TODO: do the same for Viem ?
