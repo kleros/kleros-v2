@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import { arbitrum, arbitrumSepolia } from "viem/chains";
 import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
@@ -83,34 +82,7 @@ import {
   SortitionModuleNeo,
   SortitionModuleNeo__factory,
 } from "../typechain-types";
-
-const deployments = {
-  devnet: {
-    chainId: arbitrumSepolia.id,
-  },
-  university: {
-    chainId: arbitrumSepolia.id,
-  },
-  testnet: {
-    chainId: arbitrumSepolia.id,
-  },
-  mainnetNeo: {
-    chainId: arbitrum.id,
-  },
-} as const;
-
-type DeploymentName = keyof typeof deployments;
-
-type ContractConfig = {
-  address: Record<number, `0x${string}`>;
-  abi: readonly any[];
-};
-
-function getAddress(config: ContractConfig, chainId: number): `0x${string}` {
-  const address = config.address[chainId];
-  if (!address) throw new Error(`No address found for chainId ${chainId}`);
-  return address;
-}
+import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 
 type CommonFactoriesConfigs = {
   dkcConfig: ContractConfig;

@@ -87,7 +87,7 @@ const neoContractMapping: ContractMapping = {
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
 
-describe("getContracts", () => {
+describe("getContractsEthers", () => {
   // Use real providers for each network
   const arbitrumSepoliaProvider = new ethers.JsonRpcProvider("https://sepolia-rollup.arbitrum.io/rpc");
   const arbitrumProvider = new ethers.JsonRpcProvider("https://arb1.arbitrum.io/rpc");

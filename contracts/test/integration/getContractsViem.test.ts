@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { createPublicClient, createWalletClient, http, Address } from "viem";
+import { createPublicClient, http } from "viem";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { getContracts } from "../../deployments/contractsViem";
 import { getActualAddress } from "../utils/getActualAddress";
@@ -68,7 +68,7 @@ const neoContractMapping: ContractMapping = {
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
 
-describe("getContracts", () => {
+describe("getContractsViem", () => {
   // Create Viem clients for testing
   const arbitrumSepoliaClient = createPublicClient({
     chain: arbitrumSepolia,

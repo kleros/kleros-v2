@@ -2,7 +2,7 @@
 
 shopt -s extglob
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 #--------------------------------------
 # Error handling
@@ -11,7 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 set -Ee
 function _catch {
     # Don't propagate to outer shell
-    exit 0 
+    exit 0
 }
 function _finally {
     # TODO: rollback version bump
@@ -26,6 +26,9 @@ if [[ "$PWD" != */contracts ]]; then
     echo "Error: This script must be run from the contracts directory"
     exit 1
 fi
+
+# Bump the version
+yarn version $1
 
 # Recompile the contracts
 yarn clean
@@ -53,7 +56,7 @@ mkdir dist
 yarn build:all
 
 # Copy the README and contracts
-cp -pr README.md src/ dist/ 
+cp -pr README.md src/ dist/
 
 # Remove unwanted files
 rm -rf dist/config
@@ -67,12 +70,9 @@ rm -rf dist/deployments/**/solcInputs
 rm -rf dist/deployments/localhost
 rm -rf dist/deployments/hardhat
 rm -rf dist/deployments/hardhat.viem.ts
-jq 'del(.scripts.prepare)' package.json > dist/package.json
-
-# Bump the version
-yarn version $1
+jq 'del(.scripts.prepare)' package.json >dist/package.json
 
 # Publish the package
 cd dist
-npm publish --dry-run
+npm publish
 cd -

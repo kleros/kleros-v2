@@ -1,4 +1,5 @@
-import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { type PublicClient, type WalletClient, getContract } from "viem";
+import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
@@ -46,34 +47,18 @@ import {
   pnkConfig as mainnetPnkConfig,
   klerosCoreSnapshotProxyConfig as mainnetSnapshotProxyConfig,
 } from "./mainnet.viem";
-import { type PublicClient, type WalletClient, getContract } from "viem";
-
-const deployments = {
-  devnet: {
-    chainId: arbitrumSepolia.id,
-  },
-  university: {
-    chainId: arbitrumSepolia.id,
-  },
-  testnet: {
-    chainId: arbitrumSepolia.id,
-  },
-  mainnetNeo: {
-    chainId: arbitrum.id,
-  },
-} as const;
-
-type DeploymentName = keyof typeof deployments;
-
-type ContractConfig = {
-  address: Record<number, `0x${string}`>;
-  abi: readonly any[];
-};
 
 type ContractInstance = {
   address: `0x${string}`;
   abi: readonly any[];
 };
+
+function getContractConfig({ config, chainId }: { config: ContractConfig; chainId: number }): ContractInstance {
+  return {
+    address: getAddress(config, chainId),
+    abi: config.abi,
+  };
+}
 
 type ContractInstances = {
   klerosCore: ContractInstance;
@@ -90,19 +75,6 @@ type ContractInstances = {
   pnk: ContractInstance;
   klerosCoreSnapshotProxy: ContractInstance;
 };
-
-function getAddress(config: ContractConfig, chainId: number): `0x${string}` {
-  const address = config.address[chainId];
-  if (!address) throw new Error(`No address found for chainId ${chainId}`);
-  return address;
-}
-
-function getContractConfig({ config, chainId }: { config: ContractConfig; chainId: number }): ContractInstance {
-  return {
-    address: getAddress(config, chainId),
-    abi: config.abi,
-  };
-}
 
 function getCommonConfigs({
   chainId,
