@@ -17,7 +17,6 @@ import {
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkcUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
-  klerosCoreUniversityProxyConfig as devnetCoreUniversityProxyConfig,
 } from "./devnet.viem";
 import {
   klerosCoreConfig as testnetCoreConfig,
