@@ -27,6 +27,11 @@ export const Cores = {
 
 export type Core = (typeof Cores)[keyof typeof Cores];
 
+/**
+ * Get contract names by specifying the coreType (BASE, NEO, UNIVERSITY).
+ * @param coreType - Core type
+ * @returns Contract names
+ */
 export const getContractNames = (coreType: Core) => {
   const coreSpecificNames = {
     [Cores.NEO]: {
@@ -65,34 +70,34 @@ export const getContractNames = (coreType: Core) => {
   };
 };
 
+/**
+ * Get contracts by specifying the coreType (BASE, NEO, UNIVERSITY).
+ * @param hre - Hardhat runtime environment
+ * @param coreType - Core type
+ * @returns Contracts
+ */
 export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Core) => {
   const { ethers } = hre;
   let core: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
   let sortition: SortitionModule | SortitionModuleNeo | SortitionModuleUniversity;
-  let disputeKitClassic: DisputeKitClassic;
-  let disputeResolver: DisputeResolver;
   switch (coreType) {
     case Cores.NEO:
       core = await ethers.getContract<KlerosCoreNeo>(getContractNames(coreType).core);
       sortition = await ethers.getContract<SortitionModuleNeo>(getContractNames(coreType).sortition);
-      disputeKitClassic = await ethers.getContract<DisputeKitClassic>(getContractNames(coreType).disputeKitClassic);
-      disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
       break;
     case Cores.BASE:
       core = await ethers.getContract<KlerosCore>(getContractNames(coreType).core);
       sortition = await ethers.getContract<SortitionModule>(getContractNames(coreType).sortition);
-      disputeKitClassic = await ethers.getContract<DisputeKitClassic>(getContractNames(coreType).disputeKitClassic);
-      disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
       break;
     case Cores.UNIVERSITY:
       core = await ethers.getContract<KlerosCoreUniversity>(getContractNames(coreType).core);
       sortition = await ethers.getContract<SortitionModuleUniversity>(getContractNames(coreType).sortition);
-      disputeKitClassic = await ethers.getContract<DisputeKitClassic>(getContractNames(coreType).disputeKitClassic);
-      disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
       break;
     default:
       throw new Error("Invalid core type, must be one of BASE, NEO, or UNIVERSITY");
   }
+  const disputeKitClassic = await ethers.getContract<DisputeKitClassic>(getContractNames(coreType).disputeKitClassic);
+  const disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
   const disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>(
     getContractNames(coreType).disputeTemplateRegistry
   );
@@ -123,6 +128,11 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
   };
 };
 
+/**
+ * Get contracts by inferring the coreType (BASE, NEO, UNIVERSITY) from the network, most convenient for most cases.
+ * @param hre - Hardhat runtime environment
+ * @returns Contracts
+ */
 export const getContractsFromNetwork = async (hre: HardhatRuntimeEnvironment) => {
   const { network } = hre;
   if (network.name === "arbitrumSepoliaDevnet" || network.name === "arbitrumSepolia") {
@@ -134,6 +144,11 @@ export const getContractsFromNetwork = async (hre: HardhatRuntimeEnvironment) =>
   }
 };
 
+/**
+ * Get contract names by inferring the coreType (BASE, NEO, UNIVERSITY) from the network, most convenient for most cases.
+ * @param hre - Hardhat runtime environment
+ * @returns Contract names
+ */
 export const getContractNamesFromNetwork = async (hre: HardhatRuntimeEnvironment) => {
   const { network } = hre;
   if (network.name === "arbitrumSepoliaDevnet" || network.name === "arbitrumSepolia") {
