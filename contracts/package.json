@@ -1,8 +1,44 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.8.1",
+  "version": "0.9.3",
   "description": "Smart contracts for Kleros version 2",
-  "main": "typechain-types/index.ts",
+  "main": "./cjs/deployments/index.js",
+  "module": "./esm/deployments/index.js",
+  "types": "./types/deployments/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/deployments/index.d.ts",
+      "import": "./esm/deployments/index.js",
+      "require": "./cjs/deployments/index.js",
+      "default": "./esm/deployments/index.js"
+    },
+    "./cjs/deployments": {
+      "types": "./types/deployments/index.d.ts",
+      "require": "./cjs/deployments/index.js",
+      "default": "./cjs/deployments/index.js"
+    },
+    "./esm/deployments": {
+      "types": "./types/deployments/index.d.ts",
+      "import": "./esm/deployments/index.js",
+      "default": "./esm/deployments/index.js"
+    }
+  },
+  "files": [
+    "types",
+    "esm",
+    "cjs",
+    "arbitration",
+    "gateway",
+    "kleros-v1",
+    "libraries",
+    "proxy",
+    "rng",
+    "token",
+    "utils",
+    "typechain-types",
+    "deployments",
+    "index.ts"
+  ],
   "repository": "git@github.com:kleros/kleros-v2.git",
   "homepage": "https://github.com/kleros/kleros-v2/tree/master/contracts#readme",
   "author": "Kleros",
@@ -64,10 +100,10 @@
     "release:minor": "scripts/publish.sh minor",
     "release:major": "scripts/publish.sh major",
     "tenderly-verify": "hardhat tenderly:verify",
-    "build:all": "yarn rimraf ./dist && yarn build:cjs && yarn build:esm && yarn build:types",
-    "build:cjs": "tsc --project tsconfig.json --module commonjs --outDir ./dist/cjs && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
-    "build:esm": "tsc --project tsconfig.json --module es2020 --outDir ./dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
-    "build:types": "tsc --project tsconfig.json --module esnext --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap"
+    "build:all": "rm -rf ./dist && yarn build:cjs && yarn build:esm && yarn build:types",
+    "build:cjs": "tsc --project tsconfig-release.json --module CommonJS --moduleResolution Node --outDir ./dist/cjs && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
+    "build:esm": "tsc --project tsconfig-release.json --module NodeNext --moduleResolution NodeNext --outDir ./dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
+    "build:types": "tsc --project tsconfig-release.json --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap"
   },
   "devDependencies": {
     "@defi-wonderland/natspec-smells": "^1.1.5",
@@ -84,6 +120,7 @@
     "@types/chai": "^4.3.20",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.17.6",
+    "@types/sinon": "^17.0.4",
     "@wagmi/cli": "^2.2.0",
     "abitype": "^0.10.3",
     "chai": "^4.5.0",
@@ -109,6 +146,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-solidity": "^1.4.2",
     "shelljs": "^0.8.5",
+    "sinon": "^20.0.0",
     "solhint-plugin-prettier": "^0.1.0",
     "solidity-coverage": "^0.8.13",
     "ts-node": "^10.9.2",
