@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Smart contracts for Kleros version 2",
   "main": "./cjs/deployments/index.js",
   "module": "./esm/deployments/index.js",
@@ -10,6 +10,16 @@
       "types": "./types/deployments/index.d.ts",
       "import": "./esm/deployments/index.js",
       "require": "./cjs/deployments/index.js",
+      "default": "./esm/deployments/index.js"
+    },
+    "./cjs/deployments": {
+      "types": "./types/deployments/index.d.ts",
+      "require": "./cjs/deployments/index.js",
+      "default": "./cjs/deployments/index.js"
+    },
+    "./esm/deployments": {
+      "types": "./types/deployments/index.d.ts",
+      "import": "./esm/deployments/index.js",
       "default": "./esm/deployments/index.js"
     }
   },

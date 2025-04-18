@@ -38,7 +38,7 @@ yarn build
 rm -rf artifacts/src/**/*[mM]ock*
 find artifacts/src -name "*.dbg.json" -type f -delete
 rm -rf typechain-types
-yarn typechain --out-dir typechain-types --glob 'artifacts/src/**/*.json' --target ethers-v6
+yarn typechain --out-dir typechain-types --glob 'artifacts/src/**/*.json' --target ethers-v6 --node16-modules
 
 # Generate the viem artifacts
 yarn viem:generate-devnet
