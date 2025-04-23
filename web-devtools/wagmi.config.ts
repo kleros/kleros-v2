@@ -8,9 +8,9 @@ import { type Chain } from "viem";
 import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
 
 import IArbitrableV2 from "../contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
-import * as devnetViem from "../contracts/dist/cjs/deployments/devnet.viem";
-import * as mainnetViem from "../contracts/dist/cjs/deployments/mainnet.viem";
-import * as testnetViem from "../contracts/dist/cjs/deployments/testnet.viem";
+import * as devnetViem from "../contracts/deployments/devnet.viem";
+import * as mainnetViem from "../contracts/deployments/mainnet.viem";
+import * as testnetViem from "../contracts/deployments/testnet.viem";
 
 import { ArbitratorTypes, getArbitratorType } from "./src/consts/arbitratorTypes";
 
