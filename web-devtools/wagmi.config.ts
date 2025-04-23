@@ -4,7 +4,7 @@ import { parse, join } from "path";
 import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import { type Chain } from "viem";
+import { type Chain, type Abi } from "viem";
 import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
 
 import IArbitrableV2 from "../contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
@@ -71,7 +71,7 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
         address: {
           [chain.id]: jsonContent.address as `0x{string}`,
         },
-        abi: jsonContent.abi,
+        abi: jsonContent.abi as Abi,
       });
     }
   }
@@ -115,11 +115,11 @@ const getConfig = async (): Promise<Config> => {
       ...deploymentContracts,
       {
         name: "IHomeGateway",
-        abi: arbitratorContracts.iHomeGatewayAbi,
+        abi: arbitratorContracts.iHomeGatewayAbi as Abi,
       },
       {
         name: "IArbitrableV2",
-        abi: IArbitrableV2.abi,
+        abi: IArbitrableV2.abi as Abi,
       },
     ],
     plugins: [react(), actions()],
