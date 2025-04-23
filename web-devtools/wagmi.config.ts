@@ -4,23 +4,17 @@ import { parse, join } from "path";
 import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import { type Chain, type Abi } from "viem";
+import { type Chain } from "viem";
 import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
 
-import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" with { type: "json" };
-import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" with { type: "json" };
+import IArbitrableV2 from "../contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
+import * as devnetViem from "../contracts/dist/cjs/deployments/devnet.viem";
+import * as mainnetViem from "../contracts/dist/cjs/deployments/mainnet.viem";
+import * as testnetViem from "../contracts/dist/cjs/deployments/testnet.viem";
 
 import { ArbitratorTypes, getArbitratorType } from "./src/consts/arbitratorTypes";
 
 dotenv.config();
-
-type ArtifactPartial = {
-  abi: Abi;
-};
-
-const getAbi = (artifact: any) => {
-  return (artifact as ArtifactPartial).abi;
-};
 
 const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardhatChainName?: string) => {
   const artifactSuffix =
@@ -92,18 +86,22 @@ const getConfig = async (): Promise<Config> => {
 
   let viemNetwork: string;
   let hardhatNetwork: string;
+  let arbitratorContracts;
   switch (deployment) {
     case "devnet":
       viemNetwork = "arbitrumSepolia";
       hardhatNetwork = "arbitrumSepoliaDevnet";
+      arbitratorContracts = devnetViem;
       break;
     case "testnet":
       viemNetwork = "arbitrumSepolia";
       hardhatNetwork = "arbitrumSepolia";
+      arbitratorContracts = testnetViem;
       break;
     case "mainnet":
       viemNetwork = "arbitrum";
       hardhatNetwork = "arbitrum";
+      arbitratorContracts = mainnetViem;
       break;
     default:
       throw new Error(`Unknown deployment ${deployment}`);
@@ -117,11 +115,11 @@ const getConfig = async (): Promise<Config> => {
       ...deploymentContracts,
       {
         name: "IHomeGateway",
-        abi: getAbi(IHomeGateway),
+        abi: arbitratorContracts.iHomeGatewayAbi,
       },
       {
         name: "IArbitrableV2",
-        abi: getAbi(IArbitrableV2),
+        abi: IArbitrableV2.abi,
       },
     ],
     plugins: [react(), actions()],
