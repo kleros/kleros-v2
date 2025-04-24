@@ -4,7 +4,7 @@ import crypto from "crypto";
 import "isomorphic-fetch";
 
 /** Time in seconds to wait before the message can be decrypted */
-const DECRYPTION_DELAY = 120; // 2 minutes
+export const DECRYPTION_DELAY = 20;
 
 interface ShutterApiMessageData {
   eon: number;
@@ -160,9 +160,9 @@ function generateRandomBytes32(): `0x${string}` {
 /**
  * Encrypts a message using the Shutter API
  * @param message The message to encrypt
- * @returns Promise with the encrypted commitment
+ * @returns Promise with the encrypted commitment and identity
  */
-async function encrypt(message: string): Promise<string> {
+export async function encrypt(message: string): Promise<{ encryptedCommitment: string; identity: string }> {
   // Set decryption timestamp
   const decryptionTimestamp = Math.floor(Date.now() / 1000) + DECRYPTION_DELAY;
 
@@ -187,24 +187,16 @@ async function encrypt(message: string): Promise<string> {
   // Encrypt the message
   const encryptedCommitment = await encryptData(msgHex, identityHex, eonKeyHex, sigmaHex);
 
-  return encryptedCommitment;
+  return { encryptedCommitment, identity: identityHex };
 }
 
 /**
  * Decrypts a message using the Shutter API
  * @param encryptedMessage The encrypted message to decrypt
+ * @param identity The identity used for encryption
  * @returns Promise with the decrypted message
  */
-async function decrypt(encryptedMessage: string): Promise<string> {
-  // Extract the identity from the encrypted message
-  // TODO: In a real implementation, you would need to store and retrieve the identity
-  // used for encryption. For now, we'll need to pass it as an additional parameter
-  // or store it alongside the encrypted message.
-  const identity = process.argv[4]; // Temporary solution: pass identity as an additional argument
-  if (!identity) {
-    throw new Error("Please provide the identity used for encryption as the third argument");
-  }
-
+export async function decrypt(encryptedMessage: string, identity: string): Promise<string> {
   // Fetch the decryption key
   const decryptionKeyData = await fetchDecryptionKey(identity);
   console.log("Decryption key:", decryptionKeyData.decryption_key);
@@ -228,8 +220,8 @@ async function main() {
 Usage: yarn ts-node shutter.ts <command> [arguments]
 
 Commands:
-  encrypt <message>              Encrypt a message
-  decrypt <message> <identity>   Decrypt a message (requires the identity used during encryption)
+  encrypt <message>                        Encrypt a message
+  decrypt <encrypted message> <identity>   Decrypt a message (requires the identity used during encryption)
 
 Examples:
   yarn ts-node shutter.ts encrypt "my secret message"
@@ -245,8 +237,9 @@ Examples:
           console.error("Usage: yarn ts-node shutter.ts encrypt <message>");
           process.exit(1);
         }
-        const encryptedCommitment = await encrypt(message);
+        const { encryptedCommitment, identity } = await encrypt(message);
         console.log("\nEncrypted Commitment:", encryptedCommitment);
+        console.log("Identity:", identity);
         break;
       }
       case "decrypt": {
@@ -257,7 +250,7 @@ Examples:
           console.error("Note: The identity is the one returned during encryption");
           process.exit(1);
         }
-        const decryptedMessage = await decrypt(encryptedMessage);
+        const decryptedMessage = await decrypt(encryptedMessage, identity);
         console.log("\nDecrypted Message:", decryptedMessage);
         break;
       }
@@ -273,5 +266,7 @@ Examples:
   }
 }
 
-// Execute the main function
-main();
+// Execute if run directly
+if (require.main === module) {
+  main();
+}
