@@ -19,38 +19,15 @@
  *    - the _coreDisputeID: just use 0 for now.
  **/
 
-import { createPublicClient, createWalletClient, http, Hex, decodeEventLog, Log, getContract } from "viem";
+import { createPublicClient, createWalletClient, http, Hex, decodeEventLog, getContract } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { hardhat } from "viem/chains";
 import { encrypt, decrypt, DECRYPTION_DELAY } from "./shutter";
-import dotenv from "dotenv";
 import { abi as DisputeKitShutterPoCAbi } from "../deployments/localhost/DisputeKitShutterPoC.json";
-
-// Load environment variables
-dotenv.config();
+import crypto from "crypto";
 
 // Constants
 const SEPARATOR = "␟"; // U+241F
-
-// Validate environment variables
-if (!process.env.PRIVATE_KEY) throw new Error("PRIVATE_KEY environment variable is required");
-
-/**
- * Split a hex string into bytes32 chunks
- */
-function splitToBytes32(hex: string): Hex[] {
-  // Remove 0x prefix if present
-  const cleanHex = hex.startsWith("0x") ? hex.slice(2) : hex;
-
-  // Split into chunks of 64 characters (32 bytes)
-  const chunks: Hex[] = [];
-  for (let i = 0; i < cleanHex.length; i += 64) {
-    const chunk = `0x${cleanHex.slice(i, i + 64)}` as Hex;
-    chunks.push(chunk);
-  }
-
-  return chunks;
-}
 
 // Store encrypted votes for later decryption
 interface EncryptedVote {
@@ -58,24 +35,26 @@ interface EncryptedVote {
   identity: Hex;
   timestamp: number;
   voteId: bigint;
+  salt: Hex;
 }
 
 const encryptedVotes: EncryptedVote[] = [];
 
-// Initialize Viem clients
+const PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as const;
+
+const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3" as const;
+
+const transport = http();
 const publicClient = createPublicClient({
   chain: hardhat,
-  transport: http(),
+  transport,
 });
-
-const PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as Hex;
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3" as const;
 
 const account = privateKeyToAccount(PRIVATE_KEY);
 const walletClient = createWalletClient({
   account,
   chain: hardhat,
-  transport: http(),
+  transport,
 });
 
 const disputeKit = getContract({
@@ -85,46 +64,57 @@ const disputeKit = getContract({
 });
 
 /**
- * Cast an encrypted commit for a vote
+ * Generate a random salt
  */
-export async function castCommit({
-  disputeId,
-  voteId,
+function generateSalt(): Hex {
+  return ("0x" + crypto.randomBytes(32).toString("hex")) as Hex;
+}
+
+/**
+ * Cast a commit on-chain
+ */
+async function castCommit({
+  coreDisputeID,
+  voteIDs,
   choice,
   justification,
 }: {
-  disputeId: bigint;
-  voteId: bigint;
+  coreDisputeID: bigint;
+  voteIDs: bigint[];
   choice: bigint;
   justification: string;
 }) {
   try {
     // Create message with U+241F separator
-    const message = `${disputeId}${SEPARATOR}${voteId}${SEPARATOR}${choice}${SEPARATOR}${justification}`;
+    const message = `${coreDisputeID}${SEPARATOR}${voteIDs[0]}${SEPARATOR}${choice}${SEPARATOR}${justification}`;
 
-    // Encrypt the message
+    // Encrypt the message using shutter.ts
     const { encryptedCommitment, identity } = await encrypt(message);
 
-    // Split encrypted commitment into bytes32 chunks
-    const commitmentChunks = splitToBytes32(encryptedCommitment);
-    console.log("Commitment chunks:", commitmentChunks);
+    // Generate salt and compute hash
+    const salt = generateSalt();
+    const commitHash = await disputeKit.read.hashVote([coreDisputeID, voteIDs[0], choice, justification, salt]);
 
     // Cast the commit on-chain
-    const hash = await disputeKit.write.castCommit([disputeId, [voteId], encryptedCommitment as Hex, identity as Hex]);
+    const txHash = await disputeKit.write.castCommit([coreDisputeID, voteIDs, commitHash, identity as Hex]);
+
+    // Wait for transaction to be mined
+    await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+    // Watch for CommitCast event
+    const events = await disputeKit.getEvents.CommitCast();
+    console.log("CommitCast event:", (events[0] as any).args);
 
     // Store encrypted vote for later decryption
     encryptedVotes.push({
       encryptedCommitment,
       identity: identity as Hex,
       timestamp: Math.floor(Date.now() / 1000),
-      voteId,
+      voteId: voteIDs[0],
+      salt,
     });
 
-    // Watch for CommitCast event
-    const events = await disputeKit.getEvents.CommitCast();
-    console.log("CommitCast event:", (events[0] as any).args);
-
-    return { encryptedCommitment, identity };
+    return { commitHash, identity, salt };
   } catch (error) {
     console.error("Error in castCommit:", error);
     throw error;
@@ -140,28 +130,27 @@ export async function autoVote() {
       const currentTime = Math.floor(Date.now() / 1000);
 
       // Find votes ready for decryption
-      const readyVotes = encryptedVotes.filter((vote) => currentTime - vote.timestamp >= DECRYPTION_DELAY);
-      console.log("Ready votes:", readyVotes);
+      const readyVotes = encryptedVotes.filter((vote) => currentTime - vote.timestamp >= DECRYPTION_DELAY + 10);
 
       for (const vote of readyVotes) {
         try {
-          console.log("Decrypting vote:", vote);
-
           // Attempt to decrypt the vote
           const decryptedMessage = await decrypt(vote.encryptedCommitment, vote.identity);
-          console.log("Decrypted message:", decryptedMessage);
 
           // Parse the decrypted message
-          const [, , choice, justification] = decryptedMessage.split(SEPARATOR);
+          const [coreDisputeID, , choice, justification] = decryptedMessage.split(SEPARATOR);
 
           // Cast the vote on-chain
-          const hash = await disputeKit.write.castVote([
-            BigInt(0),
+          const txHash = await disputeKit.write.castVote([
+            BigInt(coreDisputeID),
             [vote.voteId],
             BigInt(choice),
             justification,
-            vote.identity,
+            vote.salt,
           ]);
+
+          // Wait for transaction to be mined
+          await publicClient.waitForTransactionReceipt({ hash: txHash });
 
           // Watch for VoteCast event
           const events = await disputeKit.getEvents.VoteCast();
@@ -190,8 +179,8 @@ async function main() {
   try {
     // Cast an encrypted commit
     await castCommit({
-      disputeId: BigInt(0),
-      voteId: BigInt(0),
+      coreDisputeID: BigInt(0),
+      voteIDs: [BigInt(0)],
       choice: BigInt(2),
       justification: "This is my vote justification",
     });

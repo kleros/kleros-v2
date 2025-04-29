@@ -6,13 +6,11 @@ import "hardhat/console.sol";
 contract DisputeKitShutterPoC {
     struct Vote {
         address account; // The address of the juror.
-        bytes commit; // The commit of the juror. For courts with hidden votes.
-        bytes32 identity; // The Shutter identity.
+        bytes32 commitHash; // The hash of the encrypted message + salt
         uint256 choice; // The choice of the juror.
         bool voted; // True if the vote has been cast.
     }
 
-    address public revealer;
     Vote[] public votes;
     uint256 public winningChoice; // The choice with the most votes. Note that in the case of a tie, it is the choice that reached the tied number of votes first.
     mapping(uint256 => uint256) public counts; // The sum of votes for each choice in the form `counts[choice]`.
@@ -24,7 +22,7 @@ contract DisputeKitShutterPoC {
         uint256 indexed _coreDisputeID,
         address indexed _juror,
         uint256[] _voteIDs,
-        bytes _commit,
+        bytes32 _commitHash,
         bytes32 _identity
     );
 
@@ -37,28 +35,44 @@ contract DisputeKitShutterPoC {
     );
 
     constructor() {
-        revealer = msg.sender;
         address juror = msg.sender;
-        votes.push(Vote({account: juror, commit: bytes(""), identity: bytes32(0), choice: 0, voted: false}));
+        votes.push(Vote({account: juror, commitHash: bytes32(0), choice: 0, voted: false}));
+    }
+
+    /**
+     * @dev Computes the hash of a vote using ABI encoding
+     * @param _coreDisputeID The ID of the core dispute
+     * @param _voteID The ID of the vote
+     * @param _choice The choice being voted for
+     * @param _justification The justification for the vote
+     * @param _salt A random salt for commitment
+     * @return bytes32 The hash of the encoded vote parameters
+     */
+    function hashVote(
+        uint256 _coreDisputeID,
+        uint256 _voteID,
+        uint256 _choice,
+        string memory _justification,
+        bytes32 _salt
+    ) public pure returns (bytes32) {
+        bytes32 justificationHash = keccak256(bytes(_justification));
+        return keccak256(abi.encode(_coreDisputeID, _voteID, _choice, justificationHash, _salt));
     }
 
     function castCommit(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
-        bytes calldata _commit,
+        bytes32 _commitHash,
         bytes32 _identity
     ) external {
-        // Store the commitment and identity for each voteID
+        // Store the commitment hash for each voteID
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            console.log("votes[_voteIDs[i]].account:", votes[_voteIDs[i]].account);
-            console.log("msg.sender:", msg.sender);
             require(votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
-            votes[_voteIDs[i]].commit = _commit;
-            votes[_voteIDs[i]].identity = _identity;
+            votes[_voteIDs[i]].commitHash = _commitHash;
         }
 
         totalCommitted += _voteIDs.length;
-        emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commit, _identity);
+        emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commitHash, _identity);
     }
 
     function castVote(
@@ -66,15 +80,16 @@ contract DisputeKitShutterPoC {
         uint256[] calldata _voteIDs,
         uint256 _choice,
         string memory _justification,
-        bytes32 _identity
+        bytes32 _salt
     ) external {
         require(_voteIDs.length > 0, "No voteID provided");
-        require(revealer == msg.sender, "The caller has to own the vote.");
-        // TODO: what happens if hiddenVotes are not enabled?
-        for (uint256 i = 0; i < _voteIDs.length; i++) {
-            // Not useful to check the identity here?
-            require(votes[_voteIDs[i]].identity == _identity, "The identity has to match the commitment.");
 
+        // TODO: what happens if hiddenVotes are not enabled?
+
+        for (uint256 i = 0; i < _voteIDs.length; i++) {
+            // Verify the commitment hash
+            bytes32 computedHash = hashVote(_coreDisputeID, _voteIDs[i], _choice, _justification, _salt);
+            require(votes[_voteIDs[i]].commitHash == computedHash, "The commitment hash does not match.");
             require(!votes[_voteIDs[i]].voted, "Vote already cast.");
             votes[_voteIDs[i]].choice = _choice;
             votes[_voteIDs[i]].voted = true;
