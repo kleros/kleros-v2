@@ -1,25 +1,4 @@
-/**
- * TODO:
- * The goal is to automatically decrypt each encrypted voteID previously cast as encrypted commitments, and cast them as votes.
- * - modify shutter.ts encrypt() to return {encryptedCommitment, identity}
- * - implement shutterAutoVote.ts that:
- *   - provides a castCommit() function which
- *     - calls shutter.ts encrypt() with the message "disputeId␟voteId␟choice␟justification" with `U+241F` as separator
- *     - calls the DisputeKitShutterPoC.castCommit() function with the encryptedCommitment, voteId, choice and justification
- *     - retrieve the DisputeKitShutterPoC.CommitCast event and log its parameters
- *   - provides an autoVote() function which
- *     - runs continuously as a loop, waking up every 30 seconds
- *     - upon wake up, retrieve the details of the previously encrypted messages (and corresponding identities) which have not yet been decrypted and have been encrypted for more than shutter.ts `DECRYPTION_DELAY`.
- *     - for each of these messages, call shutter.ts decrypt() with the identity and the encryptedCommitment
- *     - if the decryption is successful, call the DisputeKitShutterPoC.castVote() function with the voteId, choice and justification
- *     - if the decryption is not successful, log an error
- *     - if the castVote() function was called, retrieve the DisputeKitShutterPoC.VoteCast event and log its parameters
- * - shutterAutoVote.ts needs to know:
- *    - the _voteIDs: they start from 0 and go up to DisputeKitShutterPoC.maxVoteIDs()
- *    - the _coreDisputeID: just use 0 for now.
- **/
-
-import { createPublicClient, createWalletClient, http, Hex, decodeEventLog, getContract } from "viem";
+import { createPublicClient, createWalletClient, http, Hex, getContract } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { hardhat } from "viem/chains";
 import { encrypt, decrypt, DECRYPTION_DELAY } from "./shutter";
