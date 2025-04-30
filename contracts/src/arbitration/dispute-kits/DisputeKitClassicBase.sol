@@ -238,7 +238,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// `n` is the number of votes.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
-    /// @param _commit The commitment hash.
+    /// @param _commit The commit. Note that justification string is a part of the commit.
     function castCommit(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
@@ -283,14 +283,13 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         (, bool hiddenVotes, , , , , ) = core.courts(courtID);
-        bytes32 voteHash = hashVote(_choice, _salt, _justification);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
             require(
-                !hiddenVotes || round.votes[_voteIDs[i]].commit == voteHash,
-                "The vote hash must match the commitment in courts with hidden votes."
+                !hiddenVotes || round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _salt)),
+                "The commit must match the choice in courts with hidden votes."
             );
             require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
             round.votes[_voteIDs[i]].choice = _choice;
@@ -435,22 +434,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
-
-    /**
-     * @dev Computes the hash of a vote using ABI encoding
-     * @dev The unused parameters may be used by overriding contracts.
-     * @param _choice The choice being voted for
-     * @param _justification The justification for the vote
-     * @param _salt A random salt for commitment
-     * @return bytes32 The hash of the encoded vote parameters
-     */
-    function hashVote(
-        uint256 _choice,
-        uint256 _salt,
-        string memory _justification
-    ) public pure virtual returns (bytes32) {
-        return keccak256(abi.encodePacked(_choice, _salt));
-    }
 
     function getFundedChoices(uint256 _coreDisputeID) public view returns (uint256[] memory fundedChoices) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
