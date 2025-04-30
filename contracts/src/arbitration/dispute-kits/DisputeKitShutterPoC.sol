@@ -108,8 +108,4 @@ contract DisputeKitShutterPoC {
         }
         emit VoteCast(_coreDisputeID, msg.sender, _voteIDs, _choice, _justification);
     }
-
-    function maxVoteIDs() public view returns (uint256) {
-        return votes.length - 1;
-    }
 }
