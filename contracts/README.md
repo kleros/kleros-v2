@@ -79,6 +79,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [DAIFaucet](https://sepolia.arbiscan.io/address/0xB5b39A1bcD2D7097A8824B3cC18Ebd2dFb0D9B5E)
 - [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x2246821E1313A93e2F8CdF7a3422d078f560b457), [implementation](https://sepolia.arbiscan.io/address/0xc51Ac08b07832Cf9b51Ff9E9dd3E85a3D205ff24)
 - [DisputeKitClassicUniversity: proxy](https://sepolia.arbiscan.io/address/0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5), [implementation](https://sepolia.arbiscan.io/address/0x87e863b94d2CB79A8aB53bD87Dc4A10E11C0918B)
+- [DisputeKitShutter: proxy](https://sepolia.arbiscan.io/address/0x09F3d00B995186D76Af9AA8627D06351d0d9f950), [implementation](https://sepolia.arbiscan.io/address/0x56b95cD6fd660c6E631c65C0d0F62B33A093D9a4)
 - [DisputeResolver](https://sepolia.arbiscan.io/address/0x524C5541f440204E0B4577334c439277018F971f)
 - [DisputeResolverRuler](https://sepolia.arbiscan.io/address/0x199893232ECC74cC7898B24b5Ff58d613029f6B7)
 - [DisputeResolverUniversity](https://sepolia.arbiscan.io/address/0x2Aa1a94307E772BeE42E9EfbD137b1053F1fCfd4)
