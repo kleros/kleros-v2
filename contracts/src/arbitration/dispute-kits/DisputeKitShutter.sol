@@ -12,7 +12,7 @@ import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 /// - an appeal system: fund 2 choices only, vote on any choice.
 /// Added functionality: an Shutter-specific event emitted when a vote is cast.
 contract DisputeKitShutter is DisputeKitClassicBase {
-    string public constant override version = "0.9.0";
+    string public constant override version = "0.9.1";
 
     // ************************************* //
     // *              Events               * //
@@ -21,7 +21,8 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     /// @dev Emitted when a vote is cast.
     /// @param _commit The commitment hash.
     /// @param _identity The Shutter identity used for encryption.
-    event CommitCastShutter(bytes32 indexed _commit, bytes32 _identity);
+    /// @param _encryptedVote The Shutter encrypted vote.
+    event CommitCastShutter(bytes32 indexed _commit, bytes32 _identity, bytes _encryptedVote);
 
     // ************************************* //
     // *            Constructor            * //
@@ -37,6 +38,10 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     /// @param _core The KlerosCore arbitrator.
     function initialize(address _governor, KlerosCore _core) external reinitializer(1) {
         __DisputeKitClassicBase_initialize(_governor, _core);
+    }
+
+    function initialize2() external reinitializer(2) {
+        // NOP
     }
 
     // ************************ //
@@ -61,14 +66,16 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     /// @param _voteIDs The IDs of the votes.
     /// @param _commit The commitment hash including the justification.
     /// @param _identity The Shutter identity used for encryption.
+    /// @param _encryptedVote The Shutter encrypted vote.
     function castCommitShutter(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit,
-        bytes32 _identity
+        bytes32 _identity,
+        bytes calldata _encryptedVote
     ) external notJumped(_coreDisputeID) {
         this.castCommit(_coreDisputeID, _voteIDs, _commit);
-        emit CommitCastShutter(_commit, _identity);
+        emit CommitCastShutter(_commit, _identity, _encryptedVote);
     }
 
     // ************************************* //
