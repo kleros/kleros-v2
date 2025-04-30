@@ -5587,7 +5587,6 @@ __metadata:
     hardhat-tracer: "npm:^3.1.0"
     hardhat-watcher: "npm:^2.5.0"
     isomorphic-fetch: "npm:^3.0.0"
-    node-fetch: "npm:^3.3.2"
     pino: "npm:^8.21.0"
     pino-pretty: "npm:^10.3.1"
     prettier: "npm:^3.3.3"

@@ -140,7 +140,6 @@
     "hardhat-gas-reporter": "^2.2.2",
     "hardhat-tracer": "^3.1.0",
     "hardhat-watcher": "^2.5.0",
-    "node-fetch": "^3.3.2",
     "pino": "^8.21.0",
     "pino-pretty": "^10.3.1",
     "prettier": "^3.3.3",
