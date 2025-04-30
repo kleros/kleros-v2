@@ -6,7 +6,7 @@ import "hardhat/console.sol";
 contract DisputeKitShutterPoC {
     struct Vote {
         address account; // The address of the juror.
-        bytes32 commitHash; // The hash of the encrypted message + salt
+        bytes32 commit; // The hash of the encrypted message + salt
         uint256 choice; // The choice of the juror.
         bool voted; // True if the vote has been cast.
     }
@@ -22,7 +22,7 @@ contract DisputeKitShutterPoC {
         uint256 indexed _coreDisputeID,
         address indexed _juror,
         uint256[] _voteIDs,
-        bytes32 _commitHash,
+        bytes32 _commit,
         bytes32 _identity
     );
 
@@ -36,64 +36,55 @@ contract DisputeKitShutterPoC {
 
     constructor() {
         address juror = msg.sender;
-        votes.push(Vote({account: juror, commitHash: bytes32(0), choice: 0, voted: false}));
-        votes.push(Vote({account: juror, commitHash: bytes32(0), choice: 0, voted: false}));
-        votes.push(Vote({account: juror, commitHash: bytes32(0), choice: 0, voted: false}));
+        votes.push(Vote({account: juror, commit: bytes32(0), choice: 0, voted: false}));
+        votes.push(Vote({account: juror, commit: bytes32(0), choice: 0, voted: false}));
+        votes.push(Vote({account: juror, commit: bytes32(0), choice: 0, voted: false}));
     }
 
     /**
      * @dev Computes the hash of a vote using ABI encoding
-     * @param _coreDisputeID The ID of the core dispute
-     * @param _voteIDs Array of vote IDs
      * @param _choice The choice being voted for
      * @param _justification The justification for the vote
      * @param _salt A random salt for commitment
      * @return bytes32 The hash of the encoded vote parameters
      */
-    function hashVote(
-        uint256 _coreDisputeID,
-        uint256[] calldata _voteIDs,
-        uint256 _choice,
-        string memory _justification,
-        bytes32 _salt
-    ) public pure returns (bytes32) {
+    function hashVote(uint256 _choice, bytes32 _salt, string memory _justification) public pure returns (bytes32) {
         bytes32 justificationHash = keccak256(bytes(_justification));
-        bytes32 voteIDsHash = keccak256(abi.encodePacked(_voteIDs));
-        return keccak256(abi.encode(_coreDisputeID, voteIDsHash, _choice, justificationHash, _salt));
+        return keccak256(abi.encode(_choice, _salt, justificationHash));
     }
 
     function castCommit(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
-        bytes32 _commitHash,
+        bytes32 _commit,
         bytes32 _identity
     ) external {
         // Store the commitment hash for each voteID
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             require(votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
-            votes[_voteIDs[i]].commitHash = _commitHash;
+            votes[_voteIDs[i]].commit = _commit;
         }
 
         totalCommitted += _voteIDs.length;
-        emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commitHash, _identity);
+        emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commit, _identity);
     }
 
     function castVote(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         uint256 _choice,
-        string memory _justification,
-        bytes32 _salt
+        bytes32 _salt,
+        string memory _justification
     ) external {
         require(_voteIDs.length > 0, "No voteID provided");
 
         // TODO: what happens if hiddenVotes are not enabled?
 
         // Verify the commitment hash for all votes at once
-        bytes32 computedHash = hashVote(_coreDisputeID, _voteIDs, _choice, _justification, _salt);
+        bytes32 computedHash = hashVote(_choice, _salt, _justification);
 
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            require(votes[_voteIDs[i]].commitHash == computedHash, "The commitment hash does not match.");
+            require(votes[_voteIDs[i]].commit == computedHash, "The commitment hash does not match.");
             require(!votes[_voteIDs[i]].voted, "Vote already cast.");
             votes[_voteIDs[i]].choice = _choice;
             votes[_voteIDs[i]].voted = true;

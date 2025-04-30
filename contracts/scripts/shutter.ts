@@ -3,8 +3,8 @@ import { Hex, stringToHex, hexToString } from "viem";
 import crypto from "crypto";
 import "isomorphic-fetch";
 
-/** Time in seconds to wait before the message can be decrypted */
-export const DECRYPTION_DELAY = 20;
+// Time in seconds to wait before the message can be decrypted
+export const DECRYPTION_DELAY = 5;
 
 interface ShutterApiMessageData {
   eon: number;
@@ -23,11 +23,6 @@ interface ShutterDecryptionKeyData {
   decryption_key: string;
   identity: string;
   decryption_timestamp: number;
-}
-
-interface ShutterDecryptionKeyResponse {
-  message: ShutterDecryptionKeyData;
-  error?: string;
 }
 
 /**

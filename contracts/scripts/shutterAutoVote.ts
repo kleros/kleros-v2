@@ -10,6 +10,7 @@ const SEPARATOR = "␟"; // U+241F
 
 // Store encrypted votes for later decryption
 type EncryptedVote = {
+  coreDisputeID: bigint;
   encryptedCommitment: string;
   identity: Hex;
   timestamp: number;
@@ -52,20 +53,8 @@ function generateSalt(): Hex {
 /**
  * Encodes vote parameters into a message string with separators
  */
-function encode({
-  coreDisputeID,
-  voteIDs,
-  choice,
-  justification,
-  salt,
-}: {
-  coreDisputeID: bigint;
-  voteIDs: bigint[];
-  choice: bigint;
-  justification: string;
-  salt: Hex;
-}): string {
-  return `${coreDisputeID}${SEPARATOR}${voteIDs.join(",")}${SEPARATOR}${choice}${SEPARATOR}${justification}${SEPARATOR}${salt}`;
+function encode({ choice, salt, justification }: { choice: bigint; salt: Hex; justification: string }): string {
+  return `${choice}${SEPARATOR}${salt}${SEPARATOR}${justification}`;
 }
 
 /**
@@ -74,13 +63,11 @@ function encode({
  * @returns Object containing the decoded components
  */
 function decode(message: string) {
-  const [coreDisputeID, voteIDsStr, choice, justification, salt] = message.split(SEPARATOR);
+  const [choice, salt, justification] = message.split(SEPARATOR);
   return {
-    coreDisputeID,
-    voteIDs: voteIDsStr.split(",").map((id) => BigInt(id)),
-    choice,
-    justification,
+    choice: BigInt(choice),
     salt,
+    justification,
   };
 }
 
@@ -104,18 +91,16 @@ async function castCommit({
 
     // Encode the vote parameters into a message
     const message = encode({
-      coreDisputeID,
-      voteIDs,
       choice,
-      justification,
       salt,
+      justification,
     });
 
     // Encrypt the message using shutter.ts
     const { encryptedCommitment, identity } = await encrypt(message);
 
     // Compute hash using all vote IDs
-    const commitHash = await disputeKit.read.hashVote([coreDisputeID, voteIDs, choice, justification, salt]);
+    const commitHash = await disputeKit.read.hashVote([choice, salt, justification]);
 
     // Cast the commit on-chain
     const txHash = await disputeKit.write.castCommit([coreDisputeID, voteIDs, commitHash, identity as Hex]);
@@ -129,6 +114,7 @@ async function castCommit({
 
     // Store encrypted vote for later decryption
     encryptedVotes.push({
+      coreDisputeID,
       encryptedCommitment,
       identity: identity as Hex,
       timestamp: Math.floor(Date.now() / 1000),
@@ -150,9 +136,10 @@ export async function autoVote() {
   while (true) {
     try {
       const currentTime = Math.floor(Date.now() / 1000);
+      const sleep = DECRYPTION_DELAY + 10;
 
       // Find votes ready for decryption
-      const readyVotes = encryptedVotes.filter((vote) => currentTime - vote.timestamp >= DECRYPTION_DELAY + 10);
+      const readyVotes = encryptedVotes.filter((vote) => currentTime - vote.timestamp >= sleep);
 
       for (const vote of readyVotes) {
         try {
@@ -160,15 +147,15 @@ export async function autoVote() {
           const decryptedMessage = await decrypt(vote.encryptedCommitment, vote.identity);
 
           // Decode the decrypted message
-          const { coreDisputeID, voteIDs, choice, justification, salt } = decode(decryptedMessage);
+          const { choice, salt, justification } = decode(decryptedMessage);
 
           // Cast the vote on-chain
           const txHash = await disputeKit.write.castVote([
-            BigInt(coreDisputeID),
-            voteIDs,
-            BigInt(choice),
-            justification,
+            vote.coreDisputeID,
+            vote.voteIDs,
+            choice,
             salt,
+            justification,
           ]);
 
           // Wait for transaction to be mined
@@ -186,9 +173,8 @@ export async function autoVote() {
         }
       }
 
-      // Sleep for 30 seconds
-      console.log("Sleeping for 30 seconds");
-      await new Promise((resolve) => setTimeout(resolve, 30000));
+      console.log(`Sleeping for ${sleep} seconds`);
+      await new Promise((resolve) => setTimeout(resolve, sleep * 1000));
     } catch (error) {
       console.error("Error in autoVote loop:", error);
       // Continue the loop even if there's an error
