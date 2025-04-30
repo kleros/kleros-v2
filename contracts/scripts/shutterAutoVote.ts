@@ -1,5 +1,5 @@
 import { createPublicClient, createWalletClient, http, Hex, getContract } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import { mnemonicToAccount } from "viem/accounts";
 import { hardhat } from "viem/chains";
 import { encrypt, decrypt, DECRYPTION_DELAY } from "./shutter";
 import { abi as DisputeKitShutterPoCAbi } from "../deployments/localhost/DisputeKitShutterPoC.json";
@@ -9,19 +9,20 @@ import crypto from "crypto";
 const SEPARATOR = "␟"; // U+241F
 
 // Store encrypted votes for later decryption
-interface EncryptedVote {
+type EncryptedVote = {
   encryptedCommitment: string;
   identity: Hex;
   timestamp: number;
-  voteId: bigint;
+  voteIDs: bigint[];
   salt: Hex;
-}
+};
 
 const encryptedVotes: EncryptedVote[] = [];
 
-const PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as const;
+const disputeKitAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" as const;
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3" as const;
+const MNEMONIC = "test test test test test test test test test test test junk";
+const account = mnemonicToAccount(MNEMONIC);
 
 const transport = http();
 const publicClient = createPublicClient({
@@ -29,7 +30,6 @@ const publicClient = createPublicClient({
   transport,
 });
 
-const account = privateKeyToAccount(PRIVATE_KEY);
 const walletClient = createWalletClient({
   account,
   chain: hardhat,
@@ -37,7 +37,7 @@ const walletClient = createWalletClient({
 });
 
 const disputeKit = getContract({
-  address: CONTRACT_ADDRESS,
+  address: disputeKitAddress,
   abi: DisputeKitShutterPoCAbi,
   client: { public: publicClient, wallet: walletClient },
 });
@@ -47,6 +47,41 @@ const disputeKit = getContract({
  */
 function generateSalt(): Hex {
   return ("0x" + crypto.randomBytes(32).toString("hex")) as Hex;
+}
+
+/**
+ * Encodes vote parameters into a message string with separators
+ */
+function encode({
+  coreDisputeID,
+  voteIDs,
+  choice,
+  justification,
+  salt,
+}: {
+  coreDisputeID: bigint;
+  voteIDs: bigint[];
+  choice: bigint;
+  justification: string;
+  salt: Hex;
+}): string {
+  return `${coreDisputeID}${SEPARATOR}${voteIDs.join(",")}${SEPARATOR}${choice}${SEPARATOR}${justification}${SEPARATOR}${salt}`;
+}
+
+/**
+ * Decodes a message string into its component parts
+ * @param message The message to decode
+ * @returns Object containing the decoded components
+ */
+function decode(message: string) {
+  const [coreDisputeID, voteIDsStr, choice, justification, salt] = message.split(SEPARATOR);
+  return {
+    coreDisputeID,
+    voteIDs: voteIDsStr.split(",").map((id) => BigInt(id)),
+    choice,
+    justification,
+    salt,
+  };
 }
 
 /**
@@ -64,15 +99,23 @@ async function castCommit({
   justification: string;
 }) {
   try {
-    // Create message with U+241F separator
-    const message = `${coreDisputeID}${SEPARATOR}${voteIDs[0]}${SEPARATOR}${choice}${SEPARATOR}${justification}`;
+    // Generate salt first
+    const salt = generateSalt();
+
+    // Encode the vote parameters into a message
+    const message = encode({
+      coreDisputeID,
+      voteIDs,
+      choice,
+      justification,
+      salt,
+    });
 
     // Encrypt the message using shutter.ts
     const { encryptedCommitment, identity } = await encrypt(message);
 
-    // Generate salt and compute hash
-    const salt = generateSalt();
-    const commitHash = await disputeKit.read.hashVote([coreDisputeID, voteIDs[0], choice, justification, salt]);
+    // Compute hash using all vote IDs
+    const commitHash = await disputeKit.read.hashVote([coreDisputeID, voteIDs, choice, justification, salt]);
 
     // Cast the commit on-chain
     const txHash = await disputeKit.write.castCommit([coreDisputeID, voteIDs, commitHash, identity as Hex]);
@@ -89,7 +132,7 @@ async function castCommit({
       encryptedCommitment,
       identity: identity as Hex,
       timestamp: Math.floor(Date.now() / 1000),
-      voteId: voteIDs[0],
+      voteIDs,
       salt,
     });
 
@@ -116,16 +159,16 @@ export async function autoVote() {
           // Attempt to decrypt the vote
           const decryptedMessage = await decrypt(vote.encryptedCommitment, vote.identity);
 
-          // Parse the decrypted message
-          const [coreDisputeID, , choice, justification] = decryptedMessage.split(SEPARATOR);
+          // Decode the decrypted message
+          const { coreDisputeID, voteIDs, choice, justification, salt } = decode(decryptedMessage);
 
           // Cast the vote on-chain
           const txHash = await disputeKit.write.castVote([
             BigInt(coreDisputeID),
-            [vote.voteId],
+            voteIDs,
             BigInt(choice),
             justification,
-            vote.salt,
+            salt,
           ]);
 
           // Wait for transaction to be mined
@@ -139,7 +182,7 @@ export async function autoVote() {
           const index = encryptedVotes.indexOf(vote);
           if (index > -1) encryptedVotes.splice(index, 1);
         } catch (error) {
-          console.error(`Error processing vote ${vote.voteId}:`, error);
+          console.error(`Error processing vote ${vote.voteIDs.join(",")}:`, error);
         }
       }
 
@@ -158,9 +201,9 @@ async function main() {
   try {
     // Cast an encrypted commit
     await castCommit({
-      coreDisputeID: BigInt(0),
-      voteIDs: [BigInt(0)],
-      choice: BigInt(2),
+      coreDisputeID: 0n,
+      voteIDs: [0n, 1n, 2n],
+      choice: 2n,
       justification: "This is my vote justification",
     });
 

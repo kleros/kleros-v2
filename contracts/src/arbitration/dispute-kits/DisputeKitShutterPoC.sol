@@ -37,12 +37,14 @@ contract DisputeKitShutterPoC {
     constructor() {
         address juror = msg.sender;
         votes.push(Vote({account: juror, commitHash: bytes32(0), choice: 0, voted: false}));
+        votes.push(Vote({account: juror, commitHash: bytes32(0), choice: 0, voted: false}));
+        votes.push(Vote({account: juror, commitHash: bytes32(0), choice: 0, voted: false}));
     }
 
     /**
      * @dev Computes the hash of a vote using ABI encoding
      * @param _coreDisputeID The ID of the core dispute
-     * @param _voteID The ID of the vote
+     * @param _voteIDs Array of vote IDs
      * @param _choice The choice being voted for
      * @param _justification The justification for the vote
      * @param _salt A random salt for commitment
@@ -50,13 +52,14 @@ contract DisputeKitShutterPoC {
      */
     function hashVote(
         uint256 _coreDisputeID,
-        uint256 _voteID,
+        uint256[] calldata _voteIDs,
         uint256 _choice,
         string memory _justification,
         bytes32 _salt
     ) public pure returns (bytes32) {
         bytes32 justificationHash = keccak256(bytes(_justification));
-        return keccak256(abi.encode(_coreDisputeID, _voteID, _choice, justificationHash, _salt));
+        bytes32 voteIDsHash = keccak256(abi.encodePacked(_voteIDs));
+        return keccak256(abi.encode(_coreDisputeID, voteIDsHash, _choice, justificationHash, _salt));
     }
 
     function castCommit(
@@ -86,9 +89,10 @@ contract DisputeKitShutterPoC {
 
         // TODO: what happens if hiddenVotes are not enabled?
 
+        // Verify the commitment hash for all votes at once
+        bytes32 computedHash = hashVote(_coreDisputeID, _voteIDs, _choice, _justification, _salt);
+
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            // Verify the commitment hash
-            bytes32 computedHash = hashVote(_coreDisputeID, _voteIDs[i], _choice, _justification, _salt);
             require(votes[_voteIDs[i]].commitHash == computedHash, "The commitment hash does not match.");
             require(!votes[_voteIDs[i]].voted, "Vote already cast.");
             votes[_voteIDs[i]].choice = _choice;
