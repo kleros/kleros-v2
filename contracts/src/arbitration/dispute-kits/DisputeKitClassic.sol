@@ -29,7 +29,7 @@ contract DisputeKitClassic is DisputeKitClassicBase {
         __DisputeKitClassicBase_initialize(_governor, _core);
     }
 
-    function initialize2() external reinitializer(2) {
+    function initialize3() external reinitializer(3) {
         // NOP
     }
 
