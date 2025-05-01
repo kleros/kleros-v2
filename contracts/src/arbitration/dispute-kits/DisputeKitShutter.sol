@@ -12,7 +12,7 @@ import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 /// - an appeal system: fund 2 choices only, vote on any choice.
 /// Added functionality: an Shutter-specific event emitted when a vote is cast.
 contract DisputeKitShutter is DisputeKitClassicBase {
-    string public constant override version = "0.9.1";
+    string public constant override version = "0.9.2";
 
     // ************************************* //
     // *              Events               * //
@@ -40,7 +40,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         __DisputeKitClassicBase_initialize(_governor, _core);
     }
 
-    function initialize2() external reinitializer(2) {
+    function initialize4() external reinitializer(4) {
         // NOP
     }
 
@@ -74,7 +74,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         bytes32 _identity,
         bytes calldata _encryptedVote
     ) external notJumped(_coreDisputeID) {
-        this.castCommit(_coreDisputeID, _voteIDs, _commit);
+        _castCommit(_coreDisputeID, _voteIDs, _commit);
         emit CommitCastShutter(_commit, _identity, _encryptedVote);
     }
 

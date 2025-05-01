@@ -239,11 +239,15 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _commit The commitment hash.
-    function castCommit(
+    function castCommit(uint256 _coreDisputeID, uint256[] calldata _voteIDs, bytes32 _commit) external {
+        _castCommit(_coreDisputeID, _voteIDs, _commit);
+    }
+
+    function _castCommit(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit
-    ) external notJumped(_coreDisputeID) {
+    ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.commit, "The dispute should be in Commit period.");
         require(_commit != bytes32(0), "Empty commit.");
@@ -272,7 +276,17 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _choice,
         uint256 _salt,
         string memory _justification
-    ) external notJumped(_coreDisputeID) {
+    ) external {
+        _castVote(_coreDisputeID, _voteIDs, _choice, _salt, _justification);
+    }
+
+    function _castVote(
+        uint256 _coreDisputeID,
+        uint256[] calldata _voteIDs,
+        uint256 _choice,
+        uint256 _salt,
+        string memory _justification
+    ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
