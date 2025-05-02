@@ -103,6 +103,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
+  await core.enableDisputeKits(1, [2], true); // enable disputeKitShutter on the General Court
 
   await deploy("KlerosCoreSnapshotProxy", {
     from: deployer,
