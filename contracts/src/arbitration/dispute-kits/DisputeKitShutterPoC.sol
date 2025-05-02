@@ -23,7 +23,8 @@ contract DisputeKitShutterPoC {
         address indexed _juror,
         uint256[] _voteIDs,
         bytes32 _commit,
-        bytes32 _identity
+        bytes32 _identity,
+        bytes _encryptedVote
     );
 
     event VoteCast(
@@ -57,7 +58,8 @@ contract DisputeKitShutterPoC {
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit,
-        bytes32 _identity
+        bytes32 _identity,
+        bytes calldata _encryptedVote
     ) external {
         // Store the commitment hash for each voteID
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -66,7 +68,7 @@ contract DisputeKitShutterPoC {
         }
 
         totalCommitted += _voteIDs.length;
-        emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commit, _identity);
+        emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commit, _identity, _encryptedVote);
     }
 
     function castVote(

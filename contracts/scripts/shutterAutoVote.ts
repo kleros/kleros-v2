@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, http, Hex, getContract } from "viem";
+import { createPublicClient, createWalletClient, http, Hex, getContract, Address, decodeEventLog } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
 import { hardhat } from "viem/chains";
 import { encrypt, decrypt, DECRYPTION_DELAY } from "./shutter";
@@ -11,11 +11,10 @@ const SEPARATOR = "␟"; // U+241F
 // Store encrypted votes for later decryption
 type EncryptedVote = {
   coreDisputeID: bigint;
-  encryptedCommitment: string;
+  juror: Address;
   identity: Hex;
+  encryptedVote: string;
   timestamp: number;
-  voteIDs: bigint[];
-  salt: Hex;
 };
 
 const encryptedVotes: EncryptedVote[] = [];
@@ -42,6 +41,15 @@ const disputeKit = getContract({
   abi: DisputeKitShutterPoCAbi,
   client: { public: publicClient, wallet: walletClient },
 });
+
+type CommitCastEventArgs = {
+  _coreDisputeID: bigint;
+  _juror: Address;
+  _voteIDs: bigint[];
+  _commit: Hex;
+  _identity: Hex;
+  _encryptedVote: string;
+};
 
 /**
  * Generate a random salt
@@ -97,13 +105,19 @@ async function castCommit({
     });
 
     // Encrypt the message using shutter.ts
-    const { encryptedCommitment, identity } = await encrypt(message);
+    const { encryptedCommitment: encryptedVote, identity } = await encrypt(message);
 
     // Compute hash using all vote IDs
     const commitHash = await disputeKit.read.hashVote([choice, salt, justification]);
 
     // Cast the commit on-chain
-    const txHash = await disputeKit.write.castCommit([coreDisputeID, voteIDs, commitHash, identity as Hex]);
+    const txHash = await disputeKit.write.castCommit([
+      coreDisputeID,
+      voteIDs,
+      commitHash,
+      identity as Hex,
+      encryptedVote,
+    ]);
 
     // Wait for transaction to be mined
     await publicClient.waitForTransactionReceipt({ hash: txHash });
@@ -115,11 +129,10 @@ async function castCommit({
     // Store encrypted vote for later decryption
     encryptedVotes.push({
       coreDisputeID,
-      encryptedCommitment,
+      juror: account.address,
       identity: identity as Hex,
+      encryptedVote,
       timestamp: Math.floor(Date.now() / 1000),
-      voteIDs,
-      salt,
     });
 
     return { commitHash, identity, salt };
@@ -143,8 +156,26 @@ export async function autoVote() {
 
       for (const vote of readyVotes) {
         try {
+          // Retrieve the CommitCast event
+          const filter = await publicClient.createContractEventFilter({
+            abi: DisputeKitShutterPoCAbi,
+            eventName: "CommitCast",
+            args: [vote.coreDisputeID, vote.juror],
+          });
+          let events = await publicClient.getLogs(filter);
+          if (events.length !== 1) {
+            throw new Error("No CommitCast event found");
+          }
+          const { args } = decodeEventLog({
+            abi: DisputeKitShutterPoCAbi,
+            eventName: "CommitCast",
+            topics: events[0].topics,
+            data: events[0].data,
+          });
+          const commitCast = args as unknown as CommitCastEventArgs; // Workaround getLogs type inference issue
+
           // Attempt to decrypt the vote
-          const decryptedMessage = await decrypt(vote.encryptedCommitment, vote.identity);
+          const decryptedMessage = await decrypt(commitCast._encryptedVote, commitCast._identity);
 
           // Decode the decrypted message
           const { choice, salt, justification } = decode(decryptedMessage);
@@ -152,7 +183,7 @@ export async function autoVote() {
           // Cast the vote on-chain
           const txHash = await disputeKit.write.castVote([
             vote.coreDisputeID,
-            vote.voteIDs,
+            commitCast._voteIDs,
             choice,
             salt,
             justification,
@@ -162,14 +193,14 @@ export async function autoVote() {
           await publicClient.waitForTransactionReceipt({ hash: txHash });
 
           // Watch for VoteCast event
-          const events = await disputeKit.getEvents.VoteCast();
+          events = await disputeKit.getEvents.VoteCast();
           console.log("VoteCast event:", (events[0] as any).args);
 
           // Remove the processed vote
           const index = encryptedVotes.indexOf(vote);
           if (index > -1) encryptedVotes.splice(index, 1);
         } catch (error) {
-          console.error(`Error processing vote ${vote.voteIDs.join(",")}:`, error);
+          console.error(`Error processing vote for identity ${vote.identity}:`, error);
         }
       }
 
