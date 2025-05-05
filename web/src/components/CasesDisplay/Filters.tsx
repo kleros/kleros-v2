@@ -79,7 +79,10 @@ const Filters: React.FC = () => {
         items={[
           { value: JSON.stringify({}), text: "All Cases", dot: theme.primaryText },
           { value: JSON.stringify({ ruled: false }), text: "In Progress", dot: theme.primaryBlue },
-          { value: JSON.stringify({ period: "appeal" }), text: "Appeal", dot: theme.tint },
+          { value: JSON.stringify({ period: "evidence" }), text: "Submitting Evidence", dot: theme.primaryBlue },
+          { value: JSON.stringify({ period: "commit" }), text: "Committing Vote", dot: theme.primaryBlue },
+          { value: JSON.stringify({ period: "vote" }), text: "Voting", dot: theme.primaryBlue },
+          { value: JSON.stringify({ period: "appeal" }), text: "Crowdfunding Appeal", dot: theme.tint },
           { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
         ]}
         defaultValue={JSON.stringify({ ruled, period })}
