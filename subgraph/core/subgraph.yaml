@@ -121,6 +121,42 @@ dataSources:
           handler: handleCommitCast
       file: ./src/DisputeKitClassic.ts
   - kind: ethereum
+    name: DisputeKitShutter
+    network: arbitrum-sepolia
+    source:
+      address: "0x09F3d00B995186D76Af9AA8627D06351d0d9f950"
+      abi: DisputeKitShutter
+      startBlock: 148194178
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitShutter
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitShutter.json
+        - name: KlerosCore
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
     name: EvidenceModule
     network: arbitrum-sepolia
     source:

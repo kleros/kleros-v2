@@ -9,7 +9,15 @@ import {
   CommitCast,
 } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { KlerosCore } from "../generated/KlerosCore/KlerosCore";
-import { ClassicDispute, ClassicJustification, ClassicRound, ClassicVote, Dispute } from "../generated/schema";
+import {
+  ClassicDispute,
+  ClassicJustification,
+  ClassicRound,
+  ClassicVote,
+  Dispute,
+  DisputeKit,
+  Round,
+} from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import {
@@ -19,23 +27,31 @@ import {
   updateCountsAndGetCurrentRuling,
 } from "./entities/ClassicRound";
 import { ensureClassicVote } from "./entities/ClassicVote";
-import { ONE, ZERO } from "./utils";
-
-export const DISPUTEKIT_ID = "1";
+import { ONE, ZERO, extractDisputeKitIDFromExtraData } from "./utils";
 
 export function handleDisputeCreation(event: DisputeCreation): void {
   const disputeID = event.params._coreDisputeID.toString();
-  createClassicDisputeFromEvent(event);
+  const disputeKitID = extractDisputeKitIDFromExtraData(event.params._extraData);
+  createClassicDisputeFromEvent(event, disputeKitID);
   const numberOfChoices = event.params._numberOfChoices;
-  createClassicRound(disputeID, numberOfChoices, ZERO);
+  createClassicRound(disputeID, numberOfChoices, ZERO, disputeKitID);
 }
 
 export function handleCommitCast(event: CommitCast): void {
-  const coreDisputeID = event.params._coreDisputeID;
-  const coreDispute = Dispute.load(coreDisputeID.toString());
-  const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
+  const coreDisputeID = event.params._coreDisputeID.toString();
+  const coreDispute = Dispute.load(coreDisputeID);
+  if (!coreDispute) return;
+
+  const coreCurrentRound = Round.load(coreDispute.currentRound);
+  if (!coreCurrentRound) return;
+
+  const disputeKitID = coreCurrentRound.disputeKit;
+
+  const classicDisputeID = `${disputeKitID}-${coreDisputeID}`;
+
   const classicDispute = ClassicDispute.load(classicDisputeID);
-  if (!classicDispute || !coreDispute) return;
+  if (!classicDispute) return;
+
   const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
   const voteIDs = event.params._voteIDs;
   for (let i = 0; i < voteIDs.length; i++) {
@@ -55,9 +71,18 @@ export function handleVoteCast(event: VoteCast): void {
   const juror = event.params._juror.toHexString();
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreDispute = Dispute.load(coreDisputeID);
-  const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
+  if (!coreDispute) return;
+
+  const coreCurrentRound = Round.load(coreDispute.currentRound);
+  if (!coreCurrentRound) return;
+
+  const disputeKitID = coreCurrentRound.disputeKit;
+
+  const classicDisputeID = `${disputeKitID}-${coreDisputeID}`;
+
   const classicDispute = ClassicDispute.load(classicDisputeID);
-  if (!classicDispute || !coreDispute) return;
+  if (!classicDispute) return;
+
   const choice = event.params._choice;
   const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
   const voteIDs = event.params._voteIDs;
@@ -70,6 +95,7 @@ export function handleVoteCast(event: VoteCast): void {
   justification.transactionHash = event.transaction.hash.toHexString();
   justification.timestamp = event.block.timestamp;
   justification.save();
+
   const currentRulingInfo = updateCountsAndGetCurrentRuling(
     currentLocalRoundID,
     choice,
@@ -78,6 +104,7 @@ export function handleVoteCast(event: VoteCast): void {
   coreDispute.currentRuling = currentRulingInfo.ruling;
   coreDispute.tied = currentRulingInfo.tied;
   coreDispute.save();
+
   let classicVote: ClassicVote;
   for (let i = 0; i < voteIDs.length; i++) {
     classicVote = ensureClassicVote(currentLocalRoundID, juror, voteIDs[i], coreDispute);
@@ -97,7 +124,16 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreRoundIndex = event.params._coreRoundID.toString();
   const choice = event.params._choice;
-  const roundID = `${DISPUTEKIT_ID}-${coreDisputeID}-${coreRoundIndex}`;
+
+  const coreDispute = Dispute.load(coreDisputeID);
+  if (!coreDispute) return;
+
+  const roundId = `${coreDisputeID}-${coreRoundIndex}`;
+  const coreRound = Round.load(roundId);
+  if (!coreRound) return;
+  const disputeKitID = coreRound.disputeKit;
+
+  const roundID = `${disputeKitID}-${coreDisputeID}-${coreRoundIndex}`;
 
   const localRound = ClassicRound.load(roundID);
   if (!localRound) return;
@@ -123,13 +159,13 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
 
     localRound.feeRewards = localRound.feeRewards.minus(appealCost);
 
-    const localDispute = ClassicDispute.load(`${DISPUTEKIT_ID}-${coreDisputeID}`);
+    const localDispute = ClassicDispute.load(`${disputeKitID}-${coreDisputeID}`);
     if (!localDispute) return;
     const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
     const numberOfChoices = localDispute.numberOfChoices;
     localDispute.currentLocalRoundIndex = newRoundIndex;
     localDispute.save();
-    createClassicRound(coreDisputeID, numberOfChoices, newRoundIndex);
+    createClassicRound(coreDisputeID, numberOfChoices, newRoundIndex, disputeKitID);
   }
 
   localRound.save();
@@ -144,7 +180,16 @@ export function handleWithdrawal(event: Withdrawal): void {
   // check if all appeal fees have been withdrawn
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreRoundIndex = event.params._coreRoundID.toString();
-  const roundID = `${DISPUTEKIT_ID}-${coreDisputeID}-${coreRoundIndex}`;
+
+  const coreDispute = Dispute.load(coreDisputeID);
+  if (!coreDispute) return;
+
+  const roundId = `${coreDisputeID}-${coreRoundIndex}`;
+  const coreRound = Round.load(roundId);
+  if (!coreRound) return;
+  const disputeKitID = coreRound.disputeKit;
+
+  const roundID = `${disputeKitID}-${coreDisputeID}-${coreRoundIndex}`;
 
   const localRound = ClassicRound.load(roundID);
   if (!localRound) return;
