@@ -153,17 +153,15 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     const numberOfRounds = klerosCore.getNumberOfRounds(BigInt.fromString(coreDisputeID));
     const roundInfo = klerosCore.getRoundInfo(BigInt.fromString(coreDisputeID), numberOfRounds.minus(ONE));
     const appealCost = roundInfo.totalFeesForJurors;
-    const currentDisputeKitID = roundInfo.disputeKitID;
 
     localRound.feeRewards = localRound.feeRewards.minus(appealCost);
 
-    const newRoundInfo = klerosCore.getRoundInfo(BigInt.fromString(coreDisputeID), numberOfRounds);
-    const newDisputeKitID = newRoundInfo.disputeKitID;
+    const newDisputeKitID = roundInfo.disputeKitID;
 
     const localDispute = ClassicDispute.load(`${disputeKitID}-${coreDisputeID}`);
     if (!localDispute) return;
 
-    if (currentDisputeKitID === newDisputeKitID) {
+    if (BigInt.fromString(disputeKitID) === newDisputeKitID) {
       const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
       const numberOfChoices = localDispute.numberOfChoices;
       localDispute.currentLocalRoundIndex = newRoundIndex;
