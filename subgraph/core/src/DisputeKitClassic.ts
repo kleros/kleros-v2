@@ -9,15 +9,7 @@ import {
   CommitCast,
 } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { KlerosCore } from "../generated/KlerosCore/KlerosCore";
-import {
-  ClassicDispute,
-  ClassicJustification,
-  ClassicRound,
-  ClassicVote,
-  Dispute,
-  DisputeKit,
-  Round,
-} from "../generated/schema";
+import { ClassicDispute, ClassicJustification, ClassicRound, ClassicVote, Dispute, Round } from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import {
@@ -27,14 +19,19 @@ import {
   updateCountsAndGetCurrentRuling,
 } from "./entities/ClassicRound";
 import { ensureClassicVote } from "./entities/ClassicVote";
-import { ONE, ZERO, extractDisputeKitIDFromExtraData } from "./utils";
+import { ONE, extractDisputeKitIDFromExtraData } from "./utils";
 
 export function handleDisputeCreation(event: DisputeCreation): void {
   const disputeID = event.params._coreDisputeID.toString();
   const disputeKitID = extractDisputeKitIDFromExtraData(event.params._extraData);
-  createClassicDisputeFromEvent(event, disputeKitID);
-  const numberOfChoices = event.params._numberOfChoices;
-  createClassicRound(disputeID, numberOfChoices, ZERO, disputeKitID);
+
+  const disputeKitClassic = DisputeKitClassic.bind(event.address);
+  const klerosCore = KlerosCore.bind(disputeKitClassic.core());
+  const totalRounds = klerosCore.getNumberOfRounds(event.params._coreDisputeID);
+  const newRoundIndex = totalRounds.minus(ONE);
+
+  createClassicDisputeFromEvent(event, disputeKitID, newRoundIndex);
+  createClassicRound(disputeID, event.params._numberOfChoices, newRoundIndex, disputeKitID);
 }
 
 export function handleCommitCast(event: CommitCast): void {
@@ -156,16 +153,23 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     const numberOfRounds = klerosCore.getNumberOfRounds(BigInt.fromString(coreDisputeID));
     const roundInfo = klerosCore.getRoundInfo(BigInt.fromString(coreDisputeID), numberOfRounds.minus(ONE));
     const appealCost = roundInfo.totalFeesForJurors;
+    const currentDisputeKitID = roundInfo.disputeKitID;
 
     localRound.feeRewards = localRound.feeRewards.minus(appealCost);
 
+    const newRoundInfo = klerosCore.getRoundInfo(BigInt.fromString(coreDisputeID), numberOfRounds);
+    const newDisputeKitID = newRoundInfo.disputeKitID;
+
     const localDispute = ClassicDispute.load(`${disputeKitID}-${coreDisputeID}`);
     if (!localDispute) return;
-    const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
-    const numberOfChoices = localDispute.numberOfChoices;
-    localDispute.currentLocalRoundIndex = newRoundIndex;
-    localDispute.save();
-    createClassicRound(coreDisputeID, numberOfChoices, newRoundIndex, disputeKitID);
+
+    if (currentDisputeKitID === newDisputeKitID) {
+      const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
+      const numberOfChoices = localDispute.numberOfChoices;
+      localDispute.currentLocalRoundIndex = newRoundIndex;
+      localDispute.save();
+      createClassicRound(coreDisputeID, numberOfChoices, newRoundIndex, disputeKitID);
+    }
   }
 
   localRound.save();
