@@ -43,7 +43,12 @@ const SubmitDisputeButton: React.FC = () => {
   }, [userBalance, disputeData]);
 
   // TODO: decide which dispute kit to use
-  const { data: submitCaseConfig, error } = useSimulateDisputeResolverCreateDisputeForTemplate({
+  const {
+    data: submitCaseConfig,
+    error,
+    isLoading: isLoadingConfig,
+    isError,
+  } = useSimulateDisputeResolverCreateDisputeForTemplate({
     query: {
       enabled: !insufficientBalance && isTemplateValid(disputeTemplate),
     },
@@ -59,8 +64,14 @@ const SubmitDisputeButton: React.FC = () => {
   const { writeContractAsync: submitCase } = useWriteDisputeResolverCreateDisputeForTemplate();
 
   const isButtonDisabled = useMemo(
-    () => isSubmittingCase || !isTemplateValid(disputeTemplate) || isBalanceLoading || insufficientBalance,
-    [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate]
+    () =>
+      isError ||
+      isSubmittingCase ||
+      !isTemplateValid(disputeTemplate) ||
+      isBalanceLoading ||
+      insufficientBalance ||
+      isLoadingConfig,
+    [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate, isLoadingConfig, isError]
   );
 
   const errorMsg = useMemo(() => {
@@ -79,9 +90,9 @@ const SubmitDisputeButton: React.FC = () => {
           <StyledButton
             text="Submit the case"
             disabled={isButtonDisabled}
-            isLoading={(isSubmittingCase || isBalanceLoading) && !insufficientBalance}
+            isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
             onClick={() => {
-              if (submitCaseConfig) {
+              if (submitCaseConfig && publicClient) {
                 setIsSubmittingCase(true);
                 wrapWithToast(async () => await submitCase(submitCaseConfig.request), publicClient)
                   .then((res) => {
@@ -120,7 +131,7 @@ const SubmitDisputeButton: React.FC = () => {
   );
 };
 
-const isTemplateValid = (disputeTemplate: IDisputeTemplate) => {
+export const isTemplateValid = (disputeTemplate: IDisputeTemplate) => {
   const areVotingOptionsFilled =
     disputeTemplate.question !== "" &&
     disputeTemplate.answers.every((answer) => answer.title !== "" && answer.description !== "");

@@ -1,11 +1,14 @@
-import React, { createContext, useState, useContext, useMemo, useCallback } from "react";
+import React, { createContext, useState, useContext, useMemo, useCallback, useEffect } from "react";
 
+import { useLocation } from "react-router-dom";
 import { Address } from "viem";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isEmpty, isUndefined } from "utils/index";
+
+export const MIN_DISPUTE_BATCH_SIZE = 2;
 
 export type Answer = {
   id: string;
@@ -58,6 +61,10 @@ interface INewDisputeContext {
   setIsSubmittingCase: (isSubmittingCase: boolean) => void;
   isPolicyUploading: boolean;
   setIsPolicyUploading: (isPolicyUploading: boolean) => void;
+  isBatchCreation: boolean;
+  setIsBatchCreation: (isBatchCreation: boolean) => void;
+  batchSize: number;
+  setBatchSize: (batchSize?: number) => void;
 }
 
 const getInitialDisputeData = (): IDisputeData => ({
@@ -90,13 +97,26 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [disputeData, setDisputeData] = useLocalStorage<IDisputeData>("disputeData", initialDisputeData);
   const [isSubmittingCase, setIsSubmittingCase] = useState<boolean>(false);
   const [isPolicyUploading, setIsPolicyUploading] = useState<boolean>(false);
+  const [isBatchCreation, setIsBatchCreation] = useState<boolean>(false);
+  const [batchSize, setBatchSize] = useLocalStorage<number>("disputeBatchSize", MIN_DISPUTE_BATCH_SIZE);
 
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
+  const location = useLocation();
 
   const resetDisputeData = useCallback(() => {
     const freshData = getInitialDisputeData();
     setDisputeData(freshData);
-  }, [setDisputeData]);
+    setBatchSize(MIN_DISPUTE_BATCH_SIZE);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Cleanup function to clear local storage when user leaves the route
+    if (location.pathname.includes("/resolver")) return;
+
+    resetDisputeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   const contextValues = useMemo(
     () => ({
@@ -108,8 +128,23 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setIsSubmittingCase,
       isPolicyUploading,
       setIsPolicyUploading,
+      isBatchCreation,
+      setIsBatchCreation,
+      batchSize,
+      setBatchSize,
     }),
-    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading, setDisputeData]
+    [
+      disputeData,
+      disputeTemplate,
+      resetDisputeData,
+      isSubmittingCase,
+      isPolicyUploading,
+      setDisputeData,
+      isBatchCreation,
+      setIsBatchCreation,
+      batchSize,
+      setBatchSize,
+    ]
   );
 
   return <NewDisputeContext.Provider value={contextValues}>{children}</NewDisputeContext.Provider>;
