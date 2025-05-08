@@ -8,7 +8,7 @@ import {KlerosCoreBase, IDisputeKit, ISortitionModule, IERC20} from "./KlerosCor
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 contract KlerosCore is KlerosCoreBase {
-    string public constant override version = "0.8.0";
+    string public constant override version = "0.9.3";
 
     // ************************************* //
     // *            Constructor            * //
@@ -56,7 +56,7 @@ contract KlerosCore is KlerosCoreBase {
         );
     }
 
-    function initialize3() external reinitializer(3) {
+    function initialize4() external reinitializer(4) {
         // NOP
     }
 

@@ -24,7 +24,7 @@ library SafeERC20 {
 
     /// @dev Calls transfer() without reverting.
     /// @param _token Token to transfer.
-    /// @param _to Recepient address.
+    /// @param _to Recipient address.
     /// @param _value Amount transferred.
     /// @return Whether transfer succeeded or not.
     function safeTransfer(IERC20 _token, address _to, uint256 _value) internal returns (bool) {
@@ -35,7 +35,7 @@ library SafeERC20 {
     /// @dev Calls transferFrom() without reverting.
     /// @param _token Token to transfer.
     /// @param _from Sender address.
-    /// @param _to Recepient address.
+    /// @param _to Recipient address.
     /// @param _value Amount transferred.
     /// @return Whether transfer succeeded or not.
     function safeTransferFrom(IERC20 _token, address _from, address _to, uint256 _value) internal returns (bool) {

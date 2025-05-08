@@ -649,9 +649,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         address _juror
     ) internal view virtual returns (bool result) {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        uint256 lockedAmountPerJuror = core
-            .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
-            .pnkAtStakePerJuror;
+        uint256 lockedAmountPerJuror = core.getPnkAtStakePerJuror(
+            _coreDisputeID,
+            core.getNumberOfRounds(_coreDisputeID) - 1
+        );
         (uint256 totalStaked, uint256 totalLocked, , ) = core.sortitionModule().getJurorBalance(_juror, courtID);
         result = totalStaked >= totalLocked + lockedAmountPerJuror;
 
