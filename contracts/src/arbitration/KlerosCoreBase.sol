@@ -985,6 +985,36 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         return disputes[_disputeID].rounds[_round];
     }
 
+    function getRoundWithoutDrawnJurors(
+        uint256 _disputeID,
+        uint256 _round
+    )
+        external
+        view
+        returns (
+            uint256 pnkAtStakePerJuror,
+            uint256 totalFeesForJurors,
+            uint256 nbVotes,
+            uint256 repartitions,
+            uint256 pnkPenalties,
+            uint256 sumFeeRewardPaid,
+            uint256 sumPnkRewardPaid,
+            IERC20 feeToken,
+            uint256 drawIterations
+        )
+    {
+        Round storage round = disputes[_disputeID].rounds[_round];
+        pnkAtStakePerJuror = round.pnkAtStakePerJuror;
+        totalFeesForJurors = round.totalFeesForJurors;
+        nbVotes = round.nbVotes;
+        repartitions = round.repartitions;
+        pnkPenalties = round.pnkPenalties;
+        sumFeeRewardPaid = round.sumFeeRewardPaid;
+        sumPnkRewardPaid = round.sumPnkRewardPaid;
+        feeToken = round.feeToken;
+        drawIterations = round.drawIterations;
+    }
+
     function getNumberOfRounds(uint256 _disputeID) external view returns (uint256) {
         return disputes[_disputeID].rounds.length;
     }
