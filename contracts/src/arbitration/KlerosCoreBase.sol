@@ -985,6 +985,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         return disputes[_disputeID].rounds[_round];
     }
 
+    function getPnkAtStakePerJuror(uint256 _disputeID, uint256 _round) external view returns (uint256) {
+        return disputes[_disputeID].rounds[_round].pnkAtStakePerJuror;
+    }
+
     function getNumberOfRounds(uint256 _disputeID) external view returns (uint256) {
         return disputes[_disputeID].rounds.length;
     }
