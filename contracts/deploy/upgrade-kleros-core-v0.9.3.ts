@@ -7,7 +7,7 @@ import { print, prompt } from "gluegun";
 
 const { bold } = print.colors;
 
-const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
 
   // fallback to hardhat node signers on local network
@@ -16,7 +16,7 @@ const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnviro
   console.log("upgrading on %s with deployer %s", HomeChains[chainId], deployer);
 
   try {
-    const { disputeKitClassic: contractName } = await getContractNamesFromNetwork(hre);
+    const { core: contractName } = await getContractNamesFromNetwork(hre);
     print.highlight(`🔍 Validating upgrade of ${bold(contractName)}`);
     await hre.run("compare-storage", { contract: contractName });
     print.newline();
@@ -33,7 +33,7 @@ const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnviro
     print.info(`Upgrading ${contractName}...`);
     await deployUpgradable(deployments, contractName, {
       contract: contractName,
-      initializer: "initialize2",
+      initializer: "initialize4",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables
       args: [],
@@ -44,9 +44,9 @@ const deployUpgradeDisputeKit: DeployFunction = async (hre: HardhatRuntimeEnviro
   }
 };
 
-deployUpgradeDisputeKit.tags = ["Upgrade", "DisputeKit"];
-deployUpgradeDisputeKit.skip = async ({ network }) => {
+deployUpgradeKlerosCore.tags = ["Upgrade", "KlerosCore"];
+deployUpgradeKlerosCore.skip = async ({ network }) => {
   return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
-export default deployUpgradeDisputeKit;
+export default deployUpgradeKlerosCore;
