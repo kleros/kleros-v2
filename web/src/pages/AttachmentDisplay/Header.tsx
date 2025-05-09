@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -64,23 +64,12 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const Header: React.FC = () => {
+const Header: React.FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const location = useLocation();
 
   const handleReturn = () => {
     navigate(-1);
   };
-
-  let title = "";
-  if (location.pathname.includes("policy")) {
-    title = `Policy - Case #${id}`;
-  } else if (location.pathname.includes("evidence")) {
-    title = "Attached File";
-  } else if (location.pathname.includes("attachment")) {
-    title = `Attachment - Case #${id}`;
-  }
 
   return (
     <Container>

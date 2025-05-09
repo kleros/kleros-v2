@@ -112,7 +112,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     // Cleanup function to clear local storage when user leaves the route
-    if (location.pathname.includes("/resolver")) return;
+    if (location.pathname.includes("/resolver") || location.pathname.includes("/attachment")) return;
 
     resetDisputeData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
