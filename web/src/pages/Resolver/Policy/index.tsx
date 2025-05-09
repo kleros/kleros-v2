@@ -114,7 +114,7 @@ const Policy: React.FC = () => {
         msg={`You can attach additional information here. Important: the above description must reference the relevant parts of the file content.\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
       />
       {!isUndefined(disputeData.policyURI) ? (
-        <StyledInternalLink to={`/attachment/?title=${"Policy File"}&&url=${getIpfsUrl(disputeData.policyURI)}`}>
+        <StyledInternalLink to={`/attachment/?title=${"Policy File"}&url=${getIpfsUrl(disputeData.policyURI)}`}>
           <StyledPolicyIcon />
           Inspect the uploaded policy
         </StyledInternalLink>
