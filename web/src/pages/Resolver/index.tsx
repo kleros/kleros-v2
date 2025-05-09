@@ -17,6 +17,7 @@ import ScrollTop from "components/ScrollTop";
 
 import Description from "./Briefing/Description";
 import Title from "./Briefing/Title";
+import Landing from "./Landing";
 import Category from "./Parameters/Category";
 import Court from "./Parameters/Court";
 import Jurors from "./Parameters/Jurors";
@@ -79,6 +80,7 @@ const DisputeResolver: React.FC = () => {
   const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);
   const { isConnected } = useAccount();
   const isPreviewPage = location.pathname.includes("/preview");
+  const isLandingPage = location.pathname.includes("/create");
 
   return (
     <Wrapper>
@@ -87,7 +89,7 @@ const DisputeResolver: React.FC = () => {
         {isConnected ? (
           <StyledEnsureAuth>
             <MiddleContentContainer>
-              {isConnected && !isPreviewPage ? (
+              {isConnected && !isPreviewPage && !isLandingPage ? (
                 <HowItWorksAndTimeline>
                   <HowItWorks
                     isMiniGuideOpen={isDisputeResolverMiniGuideOpen}
@@ -98,7 +100,8 @@ const DisputeResolver: React.FC = () => {
                 </HowItWorksAndTimeline>
               ) : null}
               <Routes>
-                <Route index element={<Navigate to="title" replace />} />
+                <Route index element={<Navigate to="create" replace />} />
+                <Route path="/create/*" element={<Landing />} />
                 <Route path="/title/*" element={<Title />} />
                 <Route path="/description/*" element={<Description />} />
                 <Route path="/court/*" element={<Court />} />
