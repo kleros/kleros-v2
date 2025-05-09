@@ -2,8 +2,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import ReactMarkdown from "react-markdown";
-import { Routes, Route, Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
-
+import { Routes, Route, Navigate, useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Tabs } from "@kleros/ui-components-library";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -97,38 +96,34 @@ const Description: React.FC = () => {
   const { data: policy } = useCourtPolicy(id);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : "";
   const currentPathName = location.pathname.split("/").at(-1);
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
   const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
 
-  const handleTabChange = (index: number) => {
-    navigate(TABS[index].path);
+  const handleTabChange = (i: number) => {
+    navigate(`${TABS[i].path}${suffix}`);
   };
-
   useEffect(() => {
     if (currentPathName && !filteredTabs.map((t) => t.path).includes(currentPathName) && filteredTabs.length > 0) {
-      navigate(filteredTabs[0].path, { replace: true });
+      navigate(`${filteredTabs[0].path}${suffix}`, { replace: true });
     }
-  }, [policy, currentPathName, filteredTabs, navigate]);
-
-  return (
-    <>
-      {policy ? (
-        <Container id="description">
-          <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
-          <TextContainer>
-            <Routes>
-              <Route path="purpose" element={formatMarkdown(policy?.purpose)} />
-              <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
-              <Route path="policy" element={formatMarkdown(policy?.rules)} />
-              <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
-            </Routes>
-          </TextContainer>
-        </Container>
-      ) : null}
-    </>
-  );
+  }, [policy, currentPathName, filteredTabs, navigate, suffix]);
+  return policy ? (
+    <Container id="description">
+      <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
+      <TextContainer>
+        <Routes>
+          <Route path="purpose" element={formatMarkdown(policy?.purpose)} />
+          <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
+          <Route path="policy" element={formatMarkdown(policy?.rules)} />
+          <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
+        </Routes>
+      </TextContainer>
+    </Container>
+  ) : null;
 };
 
 const formatMarkdown = (markdown?: string) =>
