@@ -33,7 +33,7 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
     print.info(`Upgrading ${contractName}...`);
     await deployUpgradable(deployments, contractName, {
       contract: contractName,
-      initializer: "initialize3",
+      initializer: "initialize4",
       from: deployer,
       // Warning: do not reinitialize everything, only the new variables
       args: [],
