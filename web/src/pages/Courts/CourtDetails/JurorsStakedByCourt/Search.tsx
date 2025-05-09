@@ -29,15 +29,15 @@ const Search: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const initial = searchParams.get("topSearch") ?? "";
+  const initial = searchParams.get("jurorStakedSearch") ?? "";
   const [value, setValue] = useState(initial);
   useDebounce(
     () => {
       const params = new URLSearchParams(searchParams);
       if (isEmpty(value)) {
-        params.delete("topSearch");
+        params.delete("jurorStakedSearch");
       } else {
-        params.set("topSearch", value);
+        params.set("jurorStakedSearch", value);
       }
       navigate(`${pathname}?${params.toString()}`, { replace: true });
     },

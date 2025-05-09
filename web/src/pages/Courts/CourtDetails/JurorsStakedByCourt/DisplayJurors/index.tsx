@@ -34,7 +34,7 @@ const PER_PAGE = 30;
 const DisplayJurors: React.FC = () => {
   const { id: courtId, order } = useParams();
   const [searchParams] = useSearchParams();
-  const searchValue = searchParams.get("topSearch") ?? "";
+  const searchValue = searchParams.get("jurorStakedSearch") ?? "";
   const [page, setPage] = useState(0);
   const skip = page * PER_PAGE;
   const { data, isFetching } = useTopStakedJurorsByCourt(

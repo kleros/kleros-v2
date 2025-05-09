@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   return (
     <Container>
       <StyledLabel>Juror</StyledLabel>
-      <StyledLabel>Stake</StyledLabel>
+      <StyledLabel>PNK Staked</StyledLabel>
     </Container>
   );
 };

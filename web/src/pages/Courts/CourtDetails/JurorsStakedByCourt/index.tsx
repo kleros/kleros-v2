@@ -15,11 +15,11 @@ const Title = styled.h1`
   font-size: ${responsiveSize(20, 24)};
 `;
 
-const TopJurorsStakedByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
+const JurorsStakedByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
   return (
     <Container>
       <Title>
-        Top Jurors Staked in {courtName}
+        Jurors Staked in {courtName}
         {courtName?.toLowerCase().endsWith("court") || courtName?.toLowerCase().startsWith("corte") ? null : " Court"}
       </Title>
       <Search />
@@ -28,4 +28,4 @@ const TopJurorsStakedByCourt: React.FC<{ courtName: string | undefined }> = ({ c
   );
 };
 
-export default TopJurorsStakedByCourt;
+export default JurorsStakedByCourt;
