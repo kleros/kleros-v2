@@ -41,8 +41,8 @@ export const useTopStakedJurorsByCourt = (
 ) => {
   const { graphqlBatcher } = useGraphqlBatcher();
   return useQuery<TopStakedJurorsByCourtQuery>({
-    queryKey: ["JurorsByCoherenceScore", courtId, skip, first, orderBy, orderDirection, search],
-    staleTime: Infinity,
+    queryKey: ["TopStakedJurorsByCourt", courtId, skip, first, orderBy, orderDirection, search],
+    staleTime: 10 * 60 * 1000,
     queryFn: () =>
       graphqlBatcher.fetch({
         id: crypto.randomUUID(),
