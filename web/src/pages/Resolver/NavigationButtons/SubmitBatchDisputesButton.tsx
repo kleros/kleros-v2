@@ -82,37 +82,35 @@ const SubmitBatchDisputesButton: React.FC = () => {
   }, [error, insufficientBalance]);
 
   return (
-    <>
-      <EnsureChain>
-        <div>
-          <StyledButton
-            text="Submit cases"
-            disabled={isButtonDisabled}
-            isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
-            onClick={() => {
-              if (batchConfig && publicClient) {
-                setIsSubmittingCase(true);
-                wrapWithToast(async () => await executeBatch(batchConfig), publicClient)
-                  .then((res) => {
-                    if (res.status && !isUndefined(res.result)) {
-                      resetDisputeData();
-                      navigate("/cases/display/1/desc/all");
-                    }
-                  })
-                  .finally(() => {
-                    setIsSubmittingCase(false);
-                  });
-              }
-            }}
-          />
-          {errorMsg && (
-            <ErrorButtonMessage>
-              <ClosedCircleIcon /> {errorMsg}
-            </ErrorButtonMessage>
-          )}
-        </div>
-      </EnsureChain>
-    </>
+    <EnsureChain>
+      <div>
+        <StyledButton
+          text="Submit cases"
+          disabled={isButtonDisabled}
+          isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
+          onClick={() => {
+            if (batchConfig && publicClient) {
+              setIsSubmittingCase(true);
+              wrapWithToast(async () => await executeBatch(batchConfig), publicClient)
+                .then((res) => {
+                  if (res.status && !isUndefined(res.result)) {
+                    resetDisputeData();
+                    navigate("/cases/display/1/desc/all");
+                  }
+                })
+                .finally(() => {
+                  setIsSubmittingCase(false);
+                });
+            }
+          }}
+        />
+        {errorMsg && (
+          <ErrorButtonMessage>
+            <ClosedCircleIcon /> {errorMsg}
+          </ErrorButtonMessage>
+        )}
+      </div>
+    </EnsureChain>
   );
 };
 

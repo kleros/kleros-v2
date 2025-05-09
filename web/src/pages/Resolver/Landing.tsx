@@ -113,7 +113,7 @@ const Landing: React.FC = () => {
         label="Duplicate an exiting case."
         type="number"
         onInput={(e) => {
-          const value = e.currentTarget.value.replace(/[^0-9]/g, "");
+          const value = e.currentTarget.value.replace(/\D/g, "");
 
           e.currentTarget.value = value;
           return e;
