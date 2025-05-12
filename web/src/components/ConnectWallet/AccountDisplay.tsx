@@ -16,7 +16,6 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: auto;
-  align-items: flex-start;
   gap: 8px;
   align-items: center;
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -101,10 +100,8 @@ const ChainConnectionContainer = styled.div`
 
 const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`
   align-items: center;
-  svg {
-    width: ${({ size }) => size + "px"};
-    height: ${({ size }) => size + "px"};
-  }
+  width: ${({ size }) => size + "px"} !important;
+  height: ${({ size }) => size + "px"} !important;
 `;
 
 const StyledAvatar = styled.img<{ size: `${number}` }>`
@@ -115,12 +112,16 @@ const StyledAvatar = styled.img<{ size: `${number}` }>`
   height: ${({ size }) => size + "px"};
 `;
 
+const StyledSmallLabel = styled.label`
+  font-size: 14px !important;
+`;
+
 interface IIdenticonOrAvatar {
   size?: `${number}`;
   address?: `0x${string}`;
 }
 
-export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "16", address: propAddress }) => {
+export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "20", address: propAddress }) => {
   const { address: defaultAddress } = useAccount();
   const address = propAddress || defaultAddress;
 
@@ -142,9 +143,10 @@ export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "16", a
 
 interface IAddressOrName {
   address?: `0x${string}`;
+  smallDisplay?: boolean;
 }
 
-export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }) => {
+export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress, smallDisplay }) => {
   const { address: defaultAddress } = useAccount();
   const address = propAddress || defaultAddress;
 
@@ -153,7 +155,9 @@ export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }
     chainId: 1,
   });
 
-  return <label>{data ?? (isAddress(address!) ? shortenAddress(address) : address)}</label>;
+  const content = data ?? (isAddress(address!) ? shortenAddress(address) : address);
+
+  return smallDisplay ? <StyledSmallLabel>{content}</StyledSmallLabel> : <label>{content}</label>;
 };
 
 export const ChainDisplay: React.FC = () => {
@@ -166,7 +170,7 @@ const AccountDisplay: React.FC = () => {
   return (
     <Container>
       <AccountContainer>
-        <IdenticonOrAvatar size="32" />
+        <IdenticonOrAvatar size="20" />
         <AddressOrName />
       </AccountContainer>
       <ChainConnectionContainer>

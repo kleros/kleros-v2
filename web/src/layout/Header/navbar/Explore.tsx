@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Link, useLocation } from "react-router-dom";
+import { useAccount } from "wagmi";
 
 import { useOpenContext } from "../MobileHeader";
 
@@ -50,14 +51,6 @@ const StyledLink = styled(Link)<{ isActive: boolean; isMobileNavbar?: boolean }>
   )};
 `;
 
-const links = [
-  { to: "/", text: "Home" },
-  { to: "/cases/display/1/desc/all", text: "Cases" },
-  { to: "/courts", text: "Courts" },
-  { to: "/jurors/1/desc/all", text: "Jurors" },
-  { to: "/get-pnk", text: "Get PNK" },
-];
-
 interface IExplore {
   isMobileNavbar?: boolean;
 }
@@ -65,20 +58,34 @@ interface IExplore {
 const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
   const location = useLocation();
   const { toggleIsOpen } = useOpenContext();
+  const { isConnected, address } = useAccount();
+
+  const navLinks = useMemo(() => {
+    const base = [
+      { to: "/", text: "Home" },
+      { to: "/cases/display/1/desc/all", text: "Cases" },
+      { to: "/courts", text: "Courts" },
+      { to: "/jurors/1/desc/all", text: "Jurors" },
+      { to: "/get-pnk", text: "Get PNK" },
+    ];
+    if (isConnected && address) {
+      base.push({ to: `/profile/1/desc/all?address=${address}`, text: "My Profile" });
+    }
+    return base;
+  }, [isConnected, address]);
 
   return (
     <Container>
       <Title>Explore</Title>
-      {links.map(({ to, text }) => (
-        <StyledLink
-          key={text}
-          onClick={toggleIsOpen}
-          isActive={to === "/" ? location.pathname === "/" : location.pathname.split("/")[1] === to.split("/")[1]}
-          {...{ to, isMobileNavbar }}
-        >
-          {text}
-        </StyledLink>
-      ))}
+      {navLinks.map(({ to, text }) => {
+        const pathBase = to.split("?")[0];
+        const isActive = pathBase === "/" ? location.pathname === "/" : location.pathname.startsWith(pathBase);
+        return (
+          <StyledLink key={text} onClick={toggleIsOpen} isActive={isActive} {...{ to, isMobileNavbar }}>
+            {text}
+          </StyledLink>
+        );
+      })}
     </Container>
   );
 };

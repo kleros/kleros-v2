@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import ArrowIcon from "svgs/icons/arrow.svg";
+import ArrowSvg from "svgs/icons/arrow.svg";
 
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
@@ -23,7 +23,7 @@ const Container = styled.div`
   }
 `;
 
-export const ReStyledArrowLink = styled(StyledArrowLink)`
+export const ReStyledArrowLink = styled(StyledArrowLink)<{ smallDisplay?: boolean }>`
   label {
     cursor: pointer;
     color: ${({ theme }) => theme.primaryBlue};
@@ -34,13 +34,23 @@ export const ReStyledArrowLink = styled(StyledArrowLink)`
       color: ${({ theme }) => theme.secondaryBlue};
     }
   }
+
+  ${({ smallDisplay }) =>
+    smallDisplay &&
+    `
+    > svg {
+      height: 14.5px;
+      width: 14.5px;
+    }
+  `}
 `;
 
 interface IJurorTitle {
   address: string;
+  smallDisplay?: boolean;
 }
 
-const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
+const JurorTitle: React.FC<IJurorTitle> = ({ address, smallDisplay }) => {
   const { isConnected, address: connectedAddress } = useAccount();
   const profileLink =
     isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
@@ -49,10 +59,10 @@ const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
 
   return (
     <Container>
-      <IdenticonOrAvatar address={address} />
-      <ReStyledArrowLink to={profileLink}>
-        <AddressOrName address={address} />
-        <ArrowIcon />
+      <IdenticonOrAvatar {...{ address }} />
+      <ReStyledArrowLink to={profileLink} {...{ smallDisplay }}>
+        <AddressOrName {...{ address, smallDisplay }} />
+        <ArrowSvg />
       </ReStyledArrowLink>
     </Container>
   );

@@ -25,6 +25,7 @@ import Description from "./Description";
 import StakePanel from "./StakePanel";
 import Stats from "./Stats";
 import TopSearch from "./TopSearch";
+import JurorsStakedByCourt from "./JurorsStakedByCourt";
 
 const Container = styled.div``;
 
@@ -147,6 +148,7 @@ const CourtDetails: React.FC = () => {
         <Description />
       </StyledCard>
       <LatestCases filters={{ court: id }} />
+      <JurorsStakedByCourt {...{ courtName }} />
       <ScrollTop />
     </Container>
   );
