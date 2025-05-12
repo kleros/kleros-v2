@@ -15,7 +15,7 @@ export const BlueIconTextButtonContainer = styled.div`
   }
 
   label {
-    margin-top: 2px;
+    margin-top: 1px;
     color: ${({ theme }) => theme.primaryBlue};
   }
 
