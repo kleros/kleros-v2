@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import { useOpenContext } from "../MobileHeader";
@@ -57,8 +57,9 @@ interface IExplore {
 
 const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { toggleIsOpen } = useOpenContext();
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
 
   const navLinks = useMemo(() => {
     const base = [
@@ -68,24 +69,31 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
       { to: "/jurors/1/desc/all", text: "Jurors" },
       { to: "/get-pnk", text: "Get PNK" },
     ];
-    if (isConnected && address) {
-      base.push({ to: `/profile/1/desc/all?address=${address}`, text: "My Profile" });
+    if (isConnected) {
+      base.push({ to: "/profile/1/desc/all", text: "My Profile" });
     }
     return base;
-  }, [isConnected, address]);
+  }, [isConnected]);
+
+  const currentSeg = useMemo(() => location.pathname.split("/")[1] || "", [location.pathname]);
+  const ownsProfile = !searchParams.get("address");
+
+  const getIsActive = (to: string) => {
+    const path = to.split("?")[0];
+    if (path === "/") return location.pathname === "/";
+    const targetSeg = path.split("/")[1] || "";
+    if (targetSeg !== currentSeg) return false;
+    return targetSeg !== "profile" || ownsProfile;
+  };
 
   return (
     <Container>
       <Title>Explore</Title>
-      {navLinks.map(({ to, text }) => {
-        const pathBase = to.split("?")[0];
-        const isActive = pathBase === "/" ? location.pathname === "/" : location.pathname.startsWith(pathBase);
-        return (
-          <StyledLink key={text} onClick={toggleIsOpen} isActive={isActive} {...{ to, isMobileNavbar }}>
-            {text}
-          </StyledLink>
-        );
-      })}
+      {navLinks.map(({ to, text }) => (
+        <StyledLink key={text} onClick={toggleIsOpen} isActive={getIsActive(to)} {...{ to, isMobileNavbar }}>
+          {text}
+        </StyledLink>
+      ))}
     </Container>
   );
 };
