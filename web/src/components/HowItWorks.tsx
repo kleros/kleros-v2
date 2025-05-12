@@ -15,7 +15,7 @@ const HowItWorks: React.FC<IHowItWorks> = ({ isMiniGuideOpen, toggleMiniGuide, M
     <>
       <BlueIconTextButtonContainer onClick={toggleMiniGuide}>
         <BookOpenIcon />
-        How it works
+        <label>How it works</label>
       </BlueIconTextButtonContainer>
       {isMiniGuideOpen && <MiniGuideComponent toggleMiniGuide={toggleMiniGuide} />}
     </>
