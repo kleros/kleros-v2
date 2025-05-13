@@ -140,6 +140,8 @@ dataSources:
       abis:
         - name: DisputeKitShutter
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitShutter.json
+        - name: DisputeKitClassic # Testing for Alchemy
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
           # FIX: temporarily point to abi with event addition
           file: ./abi-migrations/KlerosCore.json
