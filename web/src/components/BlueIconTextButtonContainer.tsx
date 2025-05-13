@@ -5,6 +5,7 @@ export const BlueIconTextButtonContainer = styled.div`
   ${hoverShortTransitionTiming}
   display: flex;
   align-items: center;
+  text-align: center;
   font-size: 14px;
   font-weight: 400;
   gap: 8px;

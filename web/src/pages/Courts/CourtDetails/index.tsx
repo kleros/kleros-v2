@@ -8,6 +8,8 @@ import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
 import { isProductionDeployment } from "consts/index";
 
+import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
+
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -147,7 +149,11 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <Description />
       </StyledCard>
-      <LatestCases filters={{ court: id }} />
+      <LatestCases
+        {...{ courtName }}
+        title={`Latest Cases in ${getDescriptiveCourtName(courtName)}`}
+        filters={{ court: id }}
+      />
       <JurorsStakedByCourt {...{ courtName }} />
       <ScrollTop />
     </Container>
