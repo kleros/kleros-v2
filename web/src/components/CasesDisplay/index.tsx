@@ -55,8 +55,8 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   totalPages,
 }) => {
   const location = useLocation();
-  const { isConnected, address } = useAccount();
-  const profileLink = isConnected && address ? `/profile/1/desc/all?address=${address}` : null;
+  const { isConnected } = useAccount();
+  const profileLink = isConnected ? `/profile/1/desc/all` : null;
 
   return (
     <div {...{ className }}>
