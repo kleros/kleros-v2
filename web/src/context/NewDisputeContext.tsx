@@ -47,6 +47,7 @@ interface IDisputeData extends IDisputeTemplate {
   numberOfJurors: number;
   arbitrationCost?: string;
   aliasesArray?: AliasArray[];
+  disputeKitId?: number;
 }
 
 interface INewDisputeContext {
@@ -71,6 +72,7 @@ const getInitialDisputeData = (): IDisputeData => ({
     { title: "", id: "2", description: "" },
   ],
   aliasesArray: [{ name: "", address: "", id: "1" }],
+  disputeKitId: 1,
   version: "1.0",
 });
 
@@ -117,7 +119,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
 const constructDisputeTemplate = (disputeData: IDisputeData) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { courtId, numberOfJurors, arbitrationCost, ...baseTemplate } = disputeData;
+  const { courtId, numberOfJurors, arbitrationCost, disputeKitId, ...baseTemplate } = disputeData;
 
   if (!isUndefined(baseTemplate.aliasesArray)) {
     baseTemplate.aliasesArray = baseTemplate.aliasesArray.filter((item) => item.address !== "" && item.isValid);

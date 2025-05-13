@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { AlertMessage, DropdownCascader } from "@kleros/ui-components-library";
+import { AlertMessage, DropdownCascader, DropdownSelect } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
@@ -14,6 +14,7 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
+import { isKlerosNeo, isKlerosUniversity, isTestnetDeployment } from "src/consts";
 
 const Container = styled.div`
   display: flex;
@@ -49,14 +50,37 @@ const AlertMessageContainer = styled.div`
   margin-top: 24px;
 `;
 
+const StyledDropdownSelect = styled(DropdownSelect)`
+  width: 84vw;
+  margin-top: 24px;
+  ${landscapeStyle(
+    () => css`
+      width: ${responsiveSize(442, 700, 900)};
+    `
+  )}
+`;
+
 const Court: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const { data } = useCourtTree();
   const items = useMemo(() => !isUndefined(data?.court) && [rootCourtToItems(data.court)], [data]);
 
-  const handleWrite = (courtId: string) => {
-    setDisputeData({ ...disputeData, courtId: courtId });
+  const disputeKitOptions = useMemo(() => {
+    if (isKlerosUniversity()) return [{ text: "Classic Dispute Kit", value: 1 }];
+    if (isKlerosNeo()) return [{ text: "Classic Dispute Kit", value: 1 }];
+    if (isTestnetDeployment()) return [{ text: "Classic Dispute Kit", value: 1 }];
+    const options = [{ text: "Classic Dispute Kit", value: 1 }];
+    if (disputeData.courtId === "1") options.push({ text: "Shutter Dispute Kit", value: 2 });
+    return options;
+  }, [disputeData.courtId]);
+
+  const handleCourtWrite = (courtId: string) => {
+    const newDisputeKitId = courtId === "1" ? (disputeData.disputeKitId ?? 1) : 1;
+    setDisputeData({ ...disputeData, courtId, disputeKitId: newDisputeKitId });
   };
+
+  const handleDisputeKitChange = (newValue: string | number) =>
+    setDisputeData({ ...disputeData, disputeKitId: Number(newValue) });
 
   return (
     <Container>
@@ -64,13 +88,18 @@ const Court: React.FC = () => {
       {items ? (
         <StyledDropdownCascader
           items={items}
-          onSelect={(path: string | number) => typeof path === "string" && handleWrite(path.split("/").pop()!)}
+          onSelect={(path: string | number) => typeof path === "string" && handleCourtWrite(path.split("/").pop()!)}
           placeholder="Select Court"
           value={`/courts/${disputeData.courtId}`}
         />
       ) : (
         <StyledSkeleton width={240} height={42} />
       )}
+      <StyledDropdownSelect
+        defaultValue={disputeData.disputeKitId ?? 1}
+        items={disputeKitOptions}
+        callback={handleDisputeKitChange}
+      />
       <AlertMessageContainer>
         <AlertMessage
           title="Check the courts available beforehand"
@@ -82,4 +111,5 @@ const Court: React.FC = () => {
     </Container>
   );
 };
+
 export default Court;
