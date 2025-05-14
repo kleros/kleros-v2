@@ -42,7 +42,6 @@ const SubmitDisputeButton: React.FC = () => {
     return userBalance && userBalance.value < arbitrationCost;
   }, [userBalance, disputeData]);
 
-  // TODO: decide which dispute kit to use
   const {
     data: submitCaseConfig,
     error,
@@ -53,7 +52,11 @@ const SubmitDisputeButton: React.FC = () => {
       enabled: !insufficientBalance && isTemplateValid(disputeTemplate),
     },
     args: [
-      prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors ?? "", 1),
+      prepareArbitratorExtradata(
+        disputeData.courtId ?? "1",
+        disputeData.numberOfJurors ?? "",
+        disputeData.disputeKitId ?? 1
+      ),
       JSON.stringify(disputeTemplate),
       "",
       BigInt(disputeTemplate.answers.length),
