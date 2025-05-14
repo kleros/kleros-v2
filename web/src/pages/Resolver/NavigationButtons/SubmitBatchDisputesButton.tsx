@@ -85,7 +85,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
     <EnsureChain>
       <div>
         <StyledButton
-          text="Submit cases"
+          text="Create cases"
           disabled={isButtonDisabled}
           isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
           onClick={() => {
