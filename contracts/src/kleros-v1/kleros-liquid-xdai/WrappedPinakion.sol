@@ -146,7 +146,7 @@ contract WrappedPinakion is Initializable {
 
     /// @notice Moves `_amount` tokens from the caller's account to `_recipient`.
     /// @param _recipient The entity receiving the funds.
-    /// @param _amount The amount to tranfer in base units.
+    /// @param _amount The amount to transfer in base units.
     /// @return True on success.
     function transfer(address _recipient, uint256 _amount) public returns (bool) {
         if (isContract(controller)) {
