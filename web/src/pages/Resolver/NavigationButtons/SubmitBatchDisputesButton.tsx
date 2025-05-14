@@ -49,8 +49,11 @@ const SubmitBatchDisputesButton: React.FC = () => {
       address: disputeResolverAddress[chainId ?? DEFAULT_CHAIN],
       functionName: "createDisputeForTemplate",
       args: [
-        // TODO: decide which dispute kit to use
-        prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors ?? 3, 1),
+        prepareArbitratorExtradata(
+          disputeData.courtId ?? "1",
+          disputeData.numberOfJurors ?? 3,
+          disputeData.disputeKitId ?? 1
+        ),
         JSON.stringify(disputeTemplate),
         "",
         BigInt(disputeTemplate.answers.length),

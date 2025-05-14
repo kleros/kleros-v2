@@ -14,6 +14,9 @@ const roundDetailsQuery = graphql(`
         id
       }
       nbVotes
+      disputeKit {
+        id
+      }
     }
   }
 `);

@@ -108,8 +108,9 @@ const Landing: React.FC = () => {
       question: populatedDispute.question,
       courtId: roundData.round?.court.id,
       numberOfJurors: roundData.round?.nbVotes,
+      disputeKitId: parseInt(roundData.round?.disputeKit.id ?? "1", 10),
       answers,
-      aliasesArray,
+      aliasesArray: aliasesArray ?? disputeData.aliasesArray,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [populatedDispute, roundData, isInvalidDispute]);
