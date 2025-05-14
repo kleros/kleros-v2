@@ -46,15 +46,21 @@ const StyledXIcon = styled(XIcon)`
   fill: ${({ theme }) => theme.primaryBlue};
 `;
 
-const StyledLink = styled(ExternalLink)`
-  display: flex;
-  gap: 8px;
-`;
-
-const StyledExternalLink = styled(ExternalLink)`
+const StyledJurorExternalLink = styled(ExternalLink)`
   font-size: ${responsiveSize(18, 22)};
   margin-left: ${responsiveSize(4, 8)};
   font-weight: 600;
+`;
+
+const StyledShareExternalLink = styled(ExternalLink)`
+  display: flex;
+  gap: 6px;
+`;
+
+const StyledShareLabel = styled.label`
+  margin-top: 1px;
+  color: ${({ theme }) => theme.primaryBlue};
+  cursor: pointer;
 `;
 
 interface IHeader {
@@ -90,9 +96,9 @@ const Header: React.FC<IHeader> = ({
       <StyledTitle>
         Juror Profile -
         <Copiable copiableContent={addressToQuery} info="Copy Address">
-          <StyledExternalLink to={addressExplorerLink} target="_blank" rel="noopener noreferrer">
+          <StyledJurorExternalLink to={addressExplorerLink} target="_blank" rel="noopener noreferrer">
             {shortenAddress(addressToQuery)}
-          </StyledExternalLink>
+          </StyledJurorExternalLink>
         </Copiable>
       </StyledTitle>
       <LinksContainer>
@@ -103,9 +109,10 @@ const Header: React.FC<IHeader> = ({
           MiniGuideComponent={JurorLevels}
         />
         {totalResolvedVotes > 0 && !searchParamAddress ? (
-          <StyledLink to={xShareUrl} target="_blank" rel="noreferrer">
-            <StyledXIcon /> <span>Share your juror score</span>
-          </StyledLink>
+          <StyledShareExternalLink to={xShareUrl} target="_blank" rel="noreferrer">
+            <StyledXIcon />
+            <StyledShareLabel>Share your juror score</StyledShareLabel>
+          </StyledShareExternalLink>
         ) : null}
       </LinksContainer>
     </Container>

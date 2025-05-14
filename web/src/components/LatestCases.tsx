@@ -11,6 +11,7 @@ import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
 
 import { Dispute_Filter } from "../graphql/graphql";
+import AllCasesButton from "./AllCasesButton";
 
 const Container = styled.div`
   margin-top: ${responsiveSize(28, 48)};
@@ -29,18 +30,34 @@ const DisputeContainer = styled.div`
   gap: var(--gap);
 `;
 
-const LatestCases: React.FC<{ filters?: Dispute_Filter }> = ({ filters }) => {
+const ButtonContainer = styled.div`
+  display: flex;
+  margin-top: 16px;
+  justify-content: center;
+`;
+
+interface ILatestCases {
+  title?: string;
+  filters?: Dispute_Filter;
+  courtName?: string;
+}
+
+const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters, courtName }) => {
   const { data } = useCasesQuery(0, 3, filters);
   const disputes: DisputeDetailsFragment[] = useMemo(() => data?.disputes as DisputeDetailsFragment[], [data]);
+  const courtId = typeof filters?.court === "string" ? filters?.court : undefined;
 
   return isUndefined(disputes) || disputes.length > 0 ? (
     <Container>
-      <Title>Latest Cases</Title>
+      <Title>{title}</Title>
       <DisputeContainer>
         {isUndefined(disputes)
           ? Array.from({ length: 3 }).map((_, index) => <SkeletonDisputeCard key={index} />)
           : disputes.map((dispute) => <DisputeView key={dispute.id} {...dispute} overrideIsList />)}
       </DisputeContainer>
+      <ButtonContainer>
+        <AllCasesButton {...{ courtId, courtName }} />
+      </ButtonContainer>
     </Container>
   ) : null;
 };

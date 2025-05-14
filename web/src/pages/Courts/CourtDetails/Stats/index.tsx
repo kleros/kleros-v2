@@ -16,7 +16,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import StatsContent from "./StatsContent";
 
 const Container = styled.div`
-  padding: 12px 24px;
+  padding: 0 24px 12px 24px;
 `;
 
 const Header = styled.h3`
