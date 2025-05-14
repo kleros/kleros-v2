@@ -32,7 +32,8 @@ dataSources:
         - name: DisputeKitClassic
           file: ../../contracts/deployments/arbitrum/DisputeKitClassicNeo.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrum/KlerosCoreNeo.json
+          # FIX: temporarily point to the abi with event addition.
+          file: ./abi-migrations/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -43,6 +44,9 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
+        - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
+          handler: handleCourtCreated
+          # FIX: This is support for old signature
         - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
           handler: handleCourtCreated
         - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
@@ -151,10 +155,14 @@ dataSources:
         - JurorTokensPerCourt
       abis:
         - name: SortitionModule
-          file: ../../contracts/deployments/arbitrum/SortitionModuleNeo.json
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/SortitionModule.json
       eventHandlers:
         - event: StakeDelayedAlreadyTransferredDeposited(indexed address,uint256,uint256)
           handler: handleStakeDelayedAlreadyTransferredDeposited
+          # FIX: temporarily indexing old event name
+        - event: StakeDelayedAlreadyTransferred(indexed address,uint256,uint256)
+          handler: handleStakeDelayedAlreadyTransferred
         - event: StakeDelayedAlreadyTransferredWithdrawn(indexed address,indexed uint96,uint256)
           handler: handleStakeDelayedAlreadyTransferredWithdrawn
         - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
@@ -162,5 +170,8 @@ dataSources:
         - event: StakeLocked(indexed address,uint256,bool)
           handler: handleStakeLocked
         - event: StakeSet(indexed address,uint256,uint256,uint256)
+          handler: handleStakeSet
+          # FIX: old stake set signature
+        - event: StakeSet(indexed address,uint256,uint256)
           handler: handleStakeSet
       file: ./src/SortitionModule.ts
