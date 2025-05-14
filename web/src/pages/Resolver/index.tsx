@@ -99,7 +99,6 @@ const DisputeResolver: React.FC = () => {
   const { isVerified } = useAtlasProvider();
   const { isConnected } = useAccount();
   const isPreviewPage = location.pathname.includes("/preview");
-  const isLandingPage = location.pathname.includes("/create");
 
   return (
     <Wrapper>
@@ -114,7 +113,7 @@ const DisputeResolver: React.FC = () => {
         {isConnected ? (
           <StyledEnsureAuth buttonText="Sign in to start">
             <MiddleContentContainer>
-              {isConnected && !isPreviewPage && !isLandingPage ? (
+              {isConnected && !isPreviewPage ? (
                 <HowItWorksAndTimeline>
                   <HowItWorks
                     isMiniGuideOpen={isDisputeResolverMiniGuideOpen}

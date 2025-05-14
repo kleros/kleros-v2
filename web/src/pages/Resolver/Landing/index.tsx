@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { useNavigate } from "react-router-dom";
@@ -17,15 +17,13 @@ import { isUndefined } from "src/utils";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import { Divider } from "components/Divider";
-import LabeledInput from "components/LabeledInput";
+import Header from "../Header";
 
-import Header from "./Header";
+import CreationCard, { CreationMethod } from "./CreationCard";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
   align-items: center;
   width: 84vw;
 
@@ -34,38 +32,55 @@ const Container = styled.div`
       width: ${responsiveSize(442, 700, 900)};
 
       padding-bottom: 240px;
-      gap: 48px;
     `
   )}
 `;
 
-const ErrorMsg = styled.small`
-  font-size: 16px;
-  color: ${({ theme }) => theme.error};
+const CardContainer = styled.div`
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
 `;
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
+  const [creationMethod, setCreationMethod] = useState<CreationMethod>(CreationMethod.Scratch);
 
   const [disputeID, setDisputeID] = useState<string>();
   const [debouncedDisputeID, setDebouncedDisputeID] = useState<string>();
   const { disputeData, setDisputeData } = useNewDisputeContext();
   useDebounce(() => setDebouncedDisputeID(disputeID), 500, [disputeID]);
 
-  const { data: dispute } = useDisputeDetailsQuery(debouncedDisputeID);
+  const { data: dispute, isLoading: isLoadingDispute } = useDisputeDetailsQuery(debouncedDisputeID);
   const {
     data: populatedDispute,
     isError: isErrorPopulatedDisputeQuery,
-    isLoading,
+    isLoading: isPopulatingDispute,
   } = usePopulatedDisputeData(debouncedDisputeID, dispute?.dispute?.arbitrated.id as `0x${string}`);
 
   // we want the genesis round's court and numberOfJurors
-  const { data: roundData, isError: isErrorRoundQuery } = useRoundDetailsQuery(debouncedDisputeID, 0);
+  const {
+    data: roundData,
+    isError: isErrorRoundQuery,
+    isLoading: isLoadingRound,
+  } = useRoundDetailsQuery(debouncedDisputeID, 0);
 
-  const isInvalidDispute =
-    !isLoading &&
-    !isUndefined(populatedDispute) &&
-    (isErrorRoundQuery || isErrorPopulatedDisputeQuery || Object.keys(populatedDispute).length === 0);
+  const isLoading = useMemo(
+    () => isLoadingDispute || isPopulatingDispute || isLoadingRound,
+    [isLoadingDispute, isPopulatingDispute, isLoadingRound]
+  );
+
+  const isInvalidDispute = useMemo(() => {
+    if (isUndefined(debouncedDisputeID) || isLoading) return false;
+    if (dispute?.dispute === null) return true;
+    if (!isUndefined(populatedDispute)) {
+      return isErrorRoundQuery || isErrorPopulatedDisputeQuery || Object.keys(populatedDispute).length === 0;
+    }
+    return false;
+  }, [debouncedDisputeID, isLoading, populatedDispute, isErrorRoundQuery, isErrorPopulatedDisputeQuery, dispute]);
 
   useEffect(() => {
     if (isUndefined(populatedDispute) || isUndefined(roundData) || isInvalidDispute) return;
@@ -96,31 +111,35 @@ const Landing: React.FC = () => {
       answers,
       aliasesArray,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [populatedDispute, roundData, isInvalidDispute]);
 
-  const showContinueButton =
-    !isUndefined(disputeData) && !isUndefined(populatedDispute) && !isInvalidDispute && !isUndefined(roundData);
   return (
     <Container>
       <Header text="Create a case" />
-      <Button text="Create from Scratch" onClick={() => navigate("/resolver/title")} />
+      <CardContainer>
+        <CreationCard
+          cardMethod={CreationMethod.Scratch}
+          selectedMethod={creationMethod}
+          {...{ disputeID, setDisputeID, setCreationMethod, isInvalidDispute }}
+        />
+        <CreationCard
+          cardMethod={CreationMethod.Duplicate}
+          selectedMethod={creationMethod}
+          {...{ disputeID, setDisputeID, setCreationMethod, isInvalidDispute }}
+        />
+      </CardContainer>
 
-      <Divider />
-      <LabeledInput
-        value={disputeID}
-        onChange={(e) => setDisputeID(e.target.value)}
-        placeholder="Dispute ID"
-        label="Duplicate an exiting case."
-        type="number"
-        onInput={(e) => {
-          const value = e.currentTarget.value.replace(/\D/g, "");
-
-          e.currentTarget.value = value;
-          return e;
-        }}
+      <Button
+        text="Next"
+        isLoading={isLoading}
+        disabled={
+          isLoading ||
+          isInvalidDispute ||
+          (creationMethod === CreationMethod.Duplicate && isUndefined(debouncedDisputeID))
+        }
+        onClick={() => navigate("/resolver/title")}
       />
-      {isInvalidDispute ? <ErrorMsg>Error loading dispute data. Please use another dispute.</ErrorMsg> : null}
-      {showContinueButton ? <Button small text="Continue" onClick={() => navigate("/resolver/title")} /> : null}
     </Container>
   );
 };
