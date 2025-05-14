@@ -981,18 +981,34 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         (ruling, tied, overridden) = disputeKit.currentRuling(_disputeID);
     }
 
+    /// @dev Gets the round info for a specified dispute and round.
+    /// @dev This function must not be called from a non-view function because it returns a dynamic array which might be very large, theoretically exceeding the block gas limit.
+    /// @param _disputeID The ID of the dispute.
+    /// @param _round The round to get the info for.
+    /// @return round The round info.
     function getRoundInfo(uint256 _disputeID, uint256 _round) external view returns (Round memory) {
         return disputes[_disputeID].rounds[_round];
     }
 
+    /// @dev Gets the PNK at stake per juror for a specified dispute and round.
+    /// @param _disputeID The ID of the dispute.
+    /// @param _round The round to get the info for.
+    /// @return pnkAtStakePerJuror The PNK at stake per juror.
     function getPnkAtStakePerJuror(uint256 _disputeID, uint256 _round) external view returns (uint256) {
         return disputes[_disputeID].rounds[_round].pnkAtStakePerJuror;
     }
 
+    /// @dev Gets the number of rounds for a specified dispute.
+    /// @param _disputeID The ID of the dispute.
+    /// @return The number of rounds.
     function getNumberOfRounds(uint256 _disputeID) external view returns (uint256) {
         return disputes[_disputeID].rounds.length;
     }
 
+    /// @dev Checks if a given dispute kit is supported by a given court.
+    /// @param _courtID The ID of the court to check the support for.
+    /// @param _disputeKitID The ID of the dispute kit to check the support for.
+    /// @return Whether the dispute kit is supported or not.
     function isSupported(uint96 _courtID, uint256 _disputeKitID) external view returns (bool) {
         return courts[_courtID].supportedDisputeKits[_disputeKitID];
     }
