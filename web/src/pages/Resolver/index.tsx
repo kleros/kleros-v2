@@ -36,6 +36,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 32px;
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: ${responsiveSize(24, 32)};
@@ -78,7 +79,7 @@ const MiddleContentContainer = styled.div`
 `;
 
 const Heading = styled.h1`
-  margin: 0 0 0 32px;
+  margin: 0;
   font-size: 24px;
   font-weight: 600;
   color: ${({ theme }) => theme.primaryText};
@@ -87,7 +88,7 @@ const Heading = styled.h1`
 
 const Paragraph = styled.p`
   padding: 0;
-  margin-bottom: 32px;
+  margin: 0;
   font-size: 16px;
   text-align: center;
   color: ${({ theme }) => theme.secondaryText};
