@@ -156,7 +156,7 @@ export function handleNewPeriod(event: NewPeriod): void {
           updateTotalLeaderboardJurors(ONE, event.block.timestamp);
         }
 
-        // Since this is a ClassicVote entity, this will only work for the Classic DisputeKit (which has ID "1").
+        // Since this is a ClassicVote entity, this will only work for the ClassicDisputeKit and ShutterDisputeKit.
         const vote = ClassicVote.load(`${round.disputeKit}-${draw.id}`);
 
         if (!vote) {
