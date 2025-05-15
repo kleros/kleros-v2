@@ -1,12 +1,9 @@
 {
   "abi": [
     {
-      "stateMutability": "payable",
-      "type": "fallback"
-    },
-    {
-      "stateMutability": "payable",
-      "type": "receive"
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     },
     {
       "inputs": [],
@@ -21,6 +18,11 @@
     {
       "inputs": [],
       "name": "AppealPeriodNotPassed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ArbitrableNotWhitelisted",
       "type": "error"
     },
     {
@@ -116,6 +118,11 @@
     },
     {
       "inputs": [],
+      "name": "NotEligibleForStaking",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "NotEvidencePeriod",
       "type": "error"
     },
@@ -147,6 +154,16 @@
     {
       "inputs": [],
       "name": "StakingLessThanCourtMinStake",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "StakingMoreThanMaxStakePerJuror",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "StakingMoreThanMaxTotalStaked",
       "type": "error"
     },
     {
@@ -884,6 +901,25 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "arbitrableWhitelist",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bytes",
           "name": "_extraData",
           "type": "bytes"
@@ -938,6 +974,24 @@
         }
       ],
       "name": "changeAcceptedFeeTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_arbitrable",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_allowed",
+          "type": "bool"
+        }
+      ],
+      "name": "changeArbitrableWhitelist",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1030,6 +1084,19 @@
         }
       ],
       "name": "changeGuardian",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC721",
+          "name": "_jurorNft",
+          "type": "address"
+        }
+      ],
+      "name": "changeJurorNft",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1537,6 +1604,30 @@
           "type": "uint256"
         }
       ],
+      "name": "getPnkAtStakePerJuror",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_round",
+          "type": "uint256"
+        }
+      ],
       "name": "getRoundInfo",
       "outputs": [
         {
@@ -1701,6 +1792,11 @@
           "internalType": "contract ISortitionModule",
           "name": "_sortitionModuleAddress",
           "type": "address"
+        },
+        {
+          "internalType": "contract IERC721",
+          "name": "_jurorNft",
+          "type": "address"
         }
       ],
       "name": "initialize",
@@ -1753,6 +1849,19 @@
           "internalType": "bool",
           "name": "",
           "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "jurorNft",
+      "outputs": [
+        {
+          "internalType": "contract IERC721",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -1926,22 +2035,6 @@
       ],
       "stateMutability": "view",
       "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_implementation",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "_data",
-          "type": "bytes"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
     }
   ]
 }

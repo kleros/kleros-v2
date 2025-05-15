@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 import { responsiveSize } from "styles/responsiveSize";
+
+import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
+
 import Search from "./Search";
 import DisplayJurors from "./DisplayJurors";
 
@@ -18,10 +21,7 @@ const Title = styled.h1`
 const JurorsStakedByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
   return (
     <Container>
-      <Title>
-        Jurors Staked in {courtName}
-        {courtName?.toLowerCase().endsWith("court") || courtName?.toLowerCase().startsWith("corte") ? null : " Court"}
-      </Title>
+      <Title>Jurors Staked in {getDescriptiveCourtName(courtName)}</Title>
       <Search />
       <DisplayJurors />
     </Container>

@@ -10,7 +10,7 @@ const JurorsLeaderboardButton: React.FC = () => {
     <InternalLink to={"/jurors/1/desc/all"}>
       <BlueIconTextButtonContainer>
         <RankingIcon />
-        Jurors Leaderboard
+        <label>Jurors Leaderboard</label>
       </BlueIconTextButtonContainer>
     </InternalLink>
   );
