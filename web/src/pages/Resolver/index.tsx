@@ -107,7 +107,7 @@ const DisputeResolver: React.FC = () => {
       <Container>
         {!isConnected || !isVerified ? (
           <>
-            <Heading>Justise as a Service</Heading>
+            <Heading>Justice as a Service</Heading>
             <Paragraph>You send your disputes. Kleros sends back decisions.</Paragraph>
           </>
         ) : null}

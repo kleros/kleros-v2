@@ -94,6 +94,7 @@
     "@reown/appkit-adapter-wagmi": "^1.7.1",
     "@sentry/react": "^7.120.0",
     "@sentry/tracing": "^7.120.0",
+    "@shutter-network/shutter-sdk": "^0.0.1",
     "@solana/wallet-adapter-react": "^0.15.36",
     "@solana/web3.js": "^1.98.0",
     "@tanstack/react-query": "^5.69.0",
