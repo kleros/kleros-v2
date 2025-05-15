@@ -71,13 +71,13 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
     <Container>
       <StyledP>Policy documents:</StyledP>
       {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-        <StyledInternalLink to={`attachment/?url=${getIpfsUrl(attachment.uri)}`}>
+        <StyledInternalLink to={`/attachment/?title=${"Case Policy"}&url=${getIpfsUrl(attachment.uri)}`}>
           <StyledPaperclipIcon />
           {attachment.label ?? "Attachment"}
         </StyledInternalLink>
       ) : null}
       {isUndefined(disputePolicyURI) ? null : (
-        <StyledInternalLink to={`policy/attachment/?url=${getIpfsUrl(disputePolicyURI)}`}>
+        <StyledInternalLink to={`/attachment/?title=${"Dispute Policy"}&url=${getIpfsUrl(disputePolicyURI)}`}>
           <StyledPolicyIcon />
           Dispute Policy
         </StyledInternalLink>

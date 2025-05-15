@@ -17,20 +17,24 @@ import { Divider } from "components/Divider";
 
 import NavigationButtons from "../NavigationButtons";
 
+import BatchCreationCard from "./BatchCreationCard";
+
 const Container = styled.div`
   width: 100%;
   padding: 0px ${responsiveSize(10, 130)};
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 16px;
 `;
 
 const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   min-height: 100px;
-  margin-bottom: ${responsiveSize(130, 70)};
+  position: relative;
 `;
+
 const PreviewContainer = styled.div`
   width: 100%;
   height: auto;
@@ -52,6 +56,15 @@ const Header = styled.h2`
   )}
 `;
 
+const Overlay = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+`;
+
 const Preview: React.FC = () => {
   const { disputeData, disputeTemplate } = useNewDisputeContext();
   const { data: courtPolicy } = useCourtPolicy(disputeData.courtId);
@@ -61,6 +74,7 @@ const Preview: React.FC = () => {
     <Container>
       <Header>Preview</Header>
       <StyledCard>
+        <Overlay />
         <PreviewContainer>
           <DisputeContext disputeDetails={disputeTemplate} />
           <Divider />
@@ -76,6 +90,7 @@ const Preview: React.FC = () => {
         </PreviewContainer>
         <Policies disputePolicyURI={disputeTemplate.policyURI} courtId={disputeData.courtId} />
       </StyledCard>
+      <BatchCreationCard />
       <NavigationButtons prevRoute="/resolver/policy" />
     </Container>
   );
