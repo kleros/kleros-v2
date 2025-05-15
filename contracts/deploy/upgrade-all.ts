@@ -50,7 +50,7 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
     }
   };
 
-  await upgrade(disputeKitClassic, "initialize5", []);
+  await upgrade(disputeKitClassic, "initialize6", []);
   await upgrade(disputeTemplateRegistry, "initialize2", []);
   await upgrade(evidence, "initialize2", []);
   await upgrade(core, "initialize4", []);

@@ -35,7 +35,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [ChainlinkRNG](https://sepolia.arbiscan.io/address/0xAd5cCc93429e3A977c273cEeD106Ef16A69EAf79)
 - [DAI](https://sepolia.arbiscan.io/address/0xc34aeFEa232956542C5b2f2EE55fD5c378B35c03)
 - [DAIFaucet](https://sepolia.arbiscan.io/address/0x1Fa58B52326488D62A406E71DBaD839560e810fF)
-- [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x0c38f115D001d3b5bBec5e8D44f78C7B61A27D94), [implementation](https://sepolia.arbiscan.io/address/0xdE697727BF5d72bbA1d854F95EC27D6e9D33baF6)
+- [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x0c38f115D001d3b5bBec5e8D44f78C7B61A27D94), [implementation](https://sepolia.arbiscan.io/address/0xBed62D71A93c7E4415dF9b32B9A8116CeEd23b28)
 - [DisputeResolver](https://sepolia.arbiscan.io/address/0xed31bEE8b1F7cE89E93033C0d3B2ccF4cEb27652)
 - [DisputeTemplateRegistry: proxy](https://sepolia.arbiscan.io/address/0xe763d31Cb096B4bc7294012B78FC7F148324ebcb), [implementation](https://sepolia.arbiscan.io/address/0xf97791DA66e0A8Ff8Ee4908872CfCAcc641829Ec)
 - [EvidenceModule: proxy](https://sepolia.arbiscan.io/address/0xA88A9a25cE7f1d8b3941dA3b322Ba91D009E1397), [implementation](https://sepolia.arbiscan.io/address/0xC4e64e6E949936a18269937FC1e18cb11E3db14D)
