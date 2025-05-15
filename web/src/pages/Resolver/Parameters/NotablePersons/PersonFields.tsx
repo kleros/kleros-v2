@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import { usePublicClient } from "wagmi";
@@ -44,6 +44,7 @@ const PersonFields: React.FC = () => {
   const publicClient = usePublicClient({ chainId: 1 });
 
   const debounceValidateAddress = (address: string, key: number) => {
+    if (isUndefined(publicClient)) return;
     // Clear the existing timer
     if (validationTimerRef.current) {
       clearTimeout(validationTimerRef.current);
@@ -59,6 +60,22 @@ const PersonFields: React.FC = () => {
       setDisputeData({ ...disputeData, aliasesArray: updatedAliases });
     }, 500);
   };
+
+  // in case of duplicate creation flow, aliasesArray will already be populated.
+  // validating addresses in case it is
+  useEffect(() => {
+    if (disputeData.aliasesArray && publicClient) {
+      disputeData.aliasesArray.map(async (alias, key) => {
+        const isValid = await validateAddress(alias.address, publicClient);
+        const updatedAliases = disputeData.aliasesArray;
+        if (isUndefined(updatedAliases) || isUndefined(updatedAliases[key])) return;
+        updatedAliases[key].isValid = isValid;
+
+        setDisputeData({ ...disputeData, aliasesArray: updatedAliases });
+      });
+    }
+  }, []);
+
   const handleAliasesWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
     const key = parseInt(event.target.id.replace(/\D/g, ""), 10) - 1;
     const aliases = disputeData.aliasesArray;
@@ -68,7 +85,7 @@ const PersonFields: React.FC = () => {
     setDisputeData({ ...disputeData, aliasesArray: aliases });
 
     //since resolving ens is async, we update asynchronously too with debounce
-    event.target.name === "address" && debounceValidateAddress(event.target.value, key);
+    if (event.target.name === "address") debounceValidateAddress(event.target.value, key);
   };
 
   const showError = (alias: AliasArray) => {

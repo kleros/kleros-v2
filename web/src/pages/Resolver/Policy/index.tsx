@@ -4,15 +4,20 @@ import styled, { css } from "styled-components";
 import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { FileUploader } from "@kleros/ui-components-library";
 
+import PolicyIcon from "svgs/icons/policy.svg";
+
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import useIsDesktop from "hooks/useIsDesktop";
+import { getIpfsUrl } from "utils/getIpfsUrl";
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
-import { getFileUploaderMsg } from "src/utils";
+import { getFileUploaderMsg, isUndefined } from "src/utils";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import { InternalLink } from "components/InternalLink";
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
@@ -54,6 +59,25 @@ const StyledFileUploader = styled(FileUploader)`
   }
 `;
 
+const StyledPolicyIcon = styled(PolicyIcon)`
+  width: 16px;
+  fill: ${({ theme }) => theme.primaryBlue};
+`;
+
+const StyledInternalLink = styled(InternalLink)`
+  ${hoverShortTransitionTiming}
+  display: flex;
+  gap: 4px;
+  align-self: flex-start;
+  margin-bottom: 32px;
+  margin-top: 32px;
+  &:hover {
+    svg {
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
+  }
+`;
+
 const Policy: React.FC = () => {
   const { disputeData, setDisputeData, setIsPolicyUploading } = useNewDisputeContext();
   const { uploadFile, roleRestrictions } = useAtlasProvider();
@@ -83,12 +107,18 @@ const Policy: React.FC = () => {
         criteria, a contract stating the rights and duties of the parties, or any set of pre-defined rules that are
         relevant to jurors' decision-making.
       </StyledLabel>
+
       <StyledFileUploader
         callback={handleFileUpload}
         variant={isDesktop ? "info" : undefined}
         msg={`You can attach additional information here. Important: the above description must reference the relevant parts of the file content.\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
       />
-
+      {!isUndefined(disputeData.policyURI) ? (
+        <StyledInternalLink to={`/attachment/?title=${"Policy File"}&url=${getIpfsUrl(disputeData.policyURI)}`}>
+          <StyledPolicyIcon />
+          Inspect the uploaded policy
+        </StyledInternalLink>
+      ) : null}
       <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />
     </Container>
   );

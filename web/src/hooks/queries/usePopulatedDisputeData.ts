@@ -5,8 +5,8 @@ import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActio
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 
-import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { DEFAULT_CHAIN } from "consts/chains";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
 
