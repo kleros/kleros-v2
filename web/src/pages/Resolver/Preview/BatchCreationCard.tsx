@@ -164,13 +164,15 @@ const BatchCreationCard: React.FC = () => {
               <Info>
                 <Label>Total cost:</Label>
                 <Value>{formatETH(BigInt(disputeData.arbitrationCost ?? 0) * BigInt(localBatchSize))} ETH </Value>
-                <Label>
-                  ~
-                  {formatUSD(
-                    Number(formatUnitsWei(BigInt(disputeData.arbitrationCost ?? 0) * BigInt(localBatchSize))) *
-                      (coinPrice ?? 0)
-                  )}
-                </Label>
+                {!isUndefined(coinPrice) ? (
+                  <Label>
+                    ~
+                    {formatUSD(
+                      Number(formatUnitsWei(BigInt(disputeData.arbitrationCost ?? 0) * BigInt(localBatchSize))) *
+                        coinPrice
+                    )}
+                  </Label>
+                ) : null}
               </Info>
             </InfosContainer>
           </BottomContent>

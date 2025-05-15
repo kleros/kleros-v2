@@ -62,9 +62,7 @@ const StyledP = styled.p`
 const StyledRadio = styled(Radio)`
   align-self: center;
   padding-left: 16px;
-  > input {
-    display: none;
-  }
+
   > span {
     transform: translateY(-50%);
   }
