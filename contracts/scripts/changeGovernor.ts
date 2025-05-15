@@ -62,6 +62,7 @@ task("change-governor", "Changes the governor for all the contracts")
 
     // TODO: upgrade and add changeGovernor!
     // await updateGovernor("SortitionModule", sortition)
+    // await updateGovernor("EvidenceModule", evidence)
 
     await updateGovernor("KlerosCore", core);
     await updateGovernor("DisputeKitClassic", disputeKitClassic);
