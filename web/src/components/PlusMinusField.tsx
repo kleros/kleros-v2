@@ -22,6 +22,7 @@ const IconContainer = styled.button`
 
 const StyledEllipseIcon = styled(Ellipse)<{ isDisabled?: boolean }>`
   circle {
+    fill: ${({ theme }) => theme.primaryBlue};
     ${({ isDisabled }) =>
       isDisabled &&
       css`
