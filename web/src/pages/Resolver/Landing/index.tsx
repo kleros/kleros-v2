@@ -86,7 +86,10 @@ const Landing: React.FC = () => {
     if (isUndefined(populatedDispute) || isUndefined(roundData) || isInvalidDispute) return;
 
     const answers = populatedDispute.answers.reduce<Answer[]>((acc, val) => {
-      acc.push({ ...val, id: parseInt(val.id, 16).toString() });
+      const id = parseInt(val.id, 16);
+      // don't duplicate RFA option
+      if (id === 0) return acc;
+      acc.push({ ...val, id: id.toString() });
       return acc;
     }, []);
 
