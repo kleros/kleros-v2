@@ -5743,6 +5743,7 @@ __metadata:
     "@reown/appkit-adapter-wagmi": "npm:^1.7.1"
     "@sentry/react": "npm:^7.120.0"
     "@sentry/tracing": "npm:^7.120.0"
+    "@shutter-network/shutter-sdk": "npm:^0.0.1"
     "@solana/wallet-adapter-react": "npm:^0.15.36"
     "@solana/web3.js": "npm:^1.98.0"
     "@tanstack/react-query": "npm:^5.69.0"
