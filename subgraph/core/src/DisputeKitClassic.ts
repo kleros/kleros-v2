@@ -161,7 +161,7 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     const localDispute = ClassicDispute.load(`${disputeKitID}-${coreDisputeID}`);
     if (!localDispute) return;
 
-    if (BigInt.fromString(disputeKitID) === newDisputeKitID) {
+    if (BigInt.fromString(disputeKitID).equals(newDisputeKitID)) {
       const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
       const numberOfChoices = localDispute.numberOfChoices;
       localDispute.currentLocalRoundIndex = newRoundIndex;
