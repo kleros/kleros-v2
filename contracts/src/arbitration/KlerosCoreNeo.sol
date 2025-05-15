@@ -67,6 +67,10 @@ contract KlerosCoreNeo is KlerosCoreBase {
         jurorNft = _jurorNft;
     }
 
+    function initialize4() external reinitializer(4) {
+        // NOP
+    }
+
     // ************************************* //
     // *             Governance            * //
     // ************************************* //

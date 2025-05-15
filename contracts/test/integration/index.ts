@@ -150,7 +150,7 @@ describe("Integration tests", async () => {
         },
         { value: arbitrationCost }
       );
-    expect(tx2).to.emit(homeGateway, "Dispute");
+    expect(tx2).to.emit(homeGateway, "DisputeRequest");
     await tx2.wait();
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime

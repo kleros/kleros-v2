@@ -9,7 +9,7 @@
   "devDependencies": {
     "@kleros/kleros-v2-eslint-config": "*",
     "@tsconfig/node18": "^18.2.4",
-    "@tsconfig/node20": "^20.1.4",
+    "@tsconfig/node20": "^20.1.5",
     "eslint": "^9.15.0"
   }
 }

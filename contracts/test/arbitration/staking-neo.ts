@@ -155,7 +155,7 @@ describe("Staking", async () => {
       const arbitrationCost = ETH(0.5);
       expect(await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost }))
         .to.emit(core, "DisputeCreation")
-        .withArgs(1, resolver.target);
+        .withArgs(0, resolver.target);
     });
   });
 
@@ -183,7 +183,7 @@ describe("Staking", async () => {
       await pnk.connect(juror).approve(core.target, PNK(1000));
       await expect(await core.connect(juror).setStake(1, PNK(1000)))
         .to.emit(sortition, "StakeSet")
-        .withArgs(juror.address, 1, PNK(1000));
+        .withArgs(juror.address, 1, PNK(1000), PNK(1000));
       expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
     });
   });
@@ -201,17 +201,17 @@ describe("Staking", async () => {
       it("Should be able to unstake", async () => {
         expect(await core.connect(juror).setStake(1, PNK(500)))
           .to.emit(sortition, "StakeSet")
-          .withArgs(juror.address, 1, PNK(500));
+          .withArgs(juror.address, 1, PNK(500), PNK(500));
         expect(await sortition.totalStaked()).to.be.equal(PNK(500));
 
         expect(await core.connect(juror).setStake(1, PNK(1001)))
           .to.emit(sortition, "StakeSet")
-          .withArgs(juror.address, 1, PNK(1001));
+          .withArgs(juror.address, 1, PNK(1001), PNK(1001));
         expect(await sortition.totalStaked()).to.be.equal(PNK(1001));
 
         expect(await core.connect(juror).setStake(1, PNK(0)))
           .to.emit(sortition, "StakeSet")
-          .withArgs(juror.address, 1, PNK(0));
+          .withArgs(juror.address, 1, PNK(0), PNK(0));
         expect(await sortition.totalStaked()).to.be.equal(PNK(0));
       });
     });
@@ -230,7 +230,7 @@ describe("Staking", async () => {
         await drawAndReachStakingPhaseFromGenerating();
         expect(await sortition.executeDelayedStakes(10))
           .to.emit(sortition, "StakeSet")
-          .withArgs(juror.address, 1, PNK(0));
+          .withArgs(juror.address, 1, PNK(0), PNK(0));
       });
     });
   });
@@ -272,14 +272,14 @@ describe("Staking", async () => {
           await core.connect(juror).setStake(1, PNK(1000));
           await createDisputeAndReachGeneratingPhaseFromStaking();
           expect(await core.connect(juror).setStake(1, PNK(2000)))
-            .to.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .withArgs(juror.address, 1, PNK(2000))
             .to.not.emit(sortition, "StakeSet");
           expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
           await drawAndReachStakingPhaseFromGenerating();
           expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(juror.address, 1, PNK(2000));
+            .withArgs(juror.address, 1, PNK(2000), PNK(2000));
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
         });
       });
@@ -309,7 +309,7 @@ describe("Staking", async () => {
           await pnk.connect(juror).approve(core.target, PNK(1000));
           await expect(await core.connect(juror).setStake(1, PNK(1000)))
             .to.emit(sortition, "StakeSet")
-            .withArgs(juror.address, 1, PNK(1000));
+            .withArgs(juror.address, 1, PNK(1000), PNK(1000));
           expect(await sortition.totalStaked()).to.be.equal(PNK(3000));
         });
       });
@@ -334,13 +334,13 @@ describe("Staking", async () => {
         it("Should be able to stake exactly maxTotalStaked", async () => {
           await pnk.connect(juror).approve(core.target, PNK(1000));
           await expect(await core.connect(juror).setStake(1, PNK(1000)))
-            .to.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .withArgs(juror.address, 1, PNK(1000));
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000)); // Not updated until the delayed stake is executed
           await drawAndReachStakingPhaseFromGenerating();
           await expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(juror.address, 1, PNK(1000));
+            .withArgs(juror.address, 1, PNK(1000), PNK(1000));
           expect(await sortition.totalStaked()).to.be.equal(PNK(3000));
         });
       });
@@ -430,7 +430,7 @@ describe("Staking", async () => {
           await pnk.approve(core.target, PNK(1000));
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
           await expect(core.setStake(2, PNK(3000)))
-            .to.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .withArgs(deployer, 2, PNK(3000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(5000), 0, PNK(2000), 2]); // stake does not change
         });
@@ -456,9 +456,9 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes", async () => {
           await expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(3000))
+            .withArgs(deployer, 2, PNK(3000), PNK(5000))
             .to.not.emit(sortition, "StakeDelayedNotTransferred")
-            .to.not.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.not.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferredWithdrawn");
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(5000),
@@ -524,7 +524,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes by withdrawing PNK and reducing the stakes", async () => {
           await expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(1000));
+            .withArgs(deployer, 2, PNK(1000), PNK(3000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(3000),
             PNK(300), // we're the only juror so we are drawn 3 times
@@ -613,7 +613,7 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes but the stakes should remain the same", async () => {
           await expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(2000));
+            .withArgs(deployer, 2, PNK(2000), PNK(4000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(4000),
             PNK(300), // we're the only juror so we are drawn 3 times
@@ -653,7 +653,7 @@ describe("Staking", async () => {
           await pnk.approve(core.target, PNK(1000));
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
           await expect(core.setStake(2, PNK(3000)))
-            .to.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .withArgs(deployer, 2, PNK(3000));
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(5000), 0, PNK(2000), 2]); // stake does not change
         });
@@ -704,9 +704,9 @@ describe("Staking", async () => {
         it("Should execute the delayed stakes but the stakes should remain the same", async () => {
           await expect(sortition.executeDelayedStakes(10))
             .to.emit(await sortition, "StakeSet")
-            .withArgs(deployer, 2, PNK(2000))
+            .withArgs(deployer, 2, PNK(2000), PNK(4000))
             .to.not.emit(sortition, "StakeDelayedNotTransferred")
-            .to.not.emit(sortition, "StakeDelayedAlreadyTransferred")
+            .to.not.emit(sortition, "StakeDelayedAlreadyTransferredDeposited")
             .to.not.emit(sortition, "StakeDelayedAlreadyTransferredWithdrawn");
           expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
             PNK(4000),

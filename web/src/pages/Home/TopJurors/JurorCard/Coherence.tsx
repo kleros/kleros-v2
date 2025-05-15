@@ -12,6 +12,7 @@ const Container = styled.div`
   color: ${({ theme }) => theme.primaryText};
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: 2px;
 `;
 
 interface ICoherence {
@@ -24,8 +25,8 @@ const Coherence: React.FC<ICoherence> = ({ totalCoherentVotes, totalResolvedVote
 
   return (
     <Container>
-      <Tooltip text={coherenceRatio}>
-        {getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes))}
+      <Tooltip text={getCoherencePercent(Number(totalCoherentVotes), Number(totalResolvedVotes))}>
+        {coherenceRatio}
       </Tooltip>
     </Container>
   );

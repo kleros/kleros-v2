@@ -1,6 +1,6 @@
 import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { Court, JurorTokensPerCourt } from "../../generated/schema";
-import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
+import { updateActiveJurors, getDelta, updateStakedPNK, updateCourtStateVariable } from "../datapoint";
 import { ensureUser } from "./User";
 import { ONE, ZERO } from "../utils";
 import { SortitionModule } from "../../generated/SortitionModule/SortitionModule";
@@ -32,34 +32,26 @@ export function createJurorTokensPerCourt(jurorAddress: string, courtID: string)
   return jurorTokens;
 }
 
-export function updateJurorEffectiveStake(jurorAddress: string, courtID: string): void {
+export function updateJurorEffectiveStake(jurorAddress: string, courtID: string, delta: BigInt): void {
   let court = Court.load(courtID);
-  if (!court) {
-    return;
+  if (!court) return;
+
+  const jurorTokensPerCourt = ensureJurorTokensPerCourt(jurorAddress, court.id);
+  const previousEffectiveStake = jurorTokensPerCourt.effectiveStake;
+  const newEffectiveStake = previousEffectiveStake.plus(delta);
+
+  if (previousEffectiveStake.equals(ZERO) && newEffectiveStake.gt(ZERO)) {
+    court.effectiveNumberStakedJurors = court.effectiveNumberStakedJurors.plus(ONE);
+  } else if (previousEffectiveStake.gt(ZERO) && newEffectiveStake.equals(ZERO)) {
+    court.effectiveNumberStakedJurors = court.effectiveNumberStakedJurors.minus(ONE);
   }
 
-  while (court) {
-    const jurorTokensPerCourt = ensureJurorTokensPerCourt(jurorAddress, court.id);
-    let totalStake = jurorTokensPerCourt.staked;
-    const childrenCourts = court.children.load();
+  jurorTokensPerCourt.effectiveStake = newEffectiveStake;
+  jurorTokensPerCourt.save();
+  court.save();
 
-    for (let i = 0; i < childrenCourts.length; i++) {
-      const childCourtID = childrenCourts[i].id;
-      const childCourt = Court.load(childCourtID);
-      if (childCourt) {
-        const childJurorTokensPerCourt = ensureJurorTokensPerCourt(jurorAddress, childCourt.id);
-        totalStake = totalStake.plus(childJurorTokensPerCourt.effectiveStake);
-      }
-    }
-
-    jurorTokensPerCourt.effectiveStake = totalStake;
-    jurorTokensPerCourt.save();
-
-    if (court.parent && court.parent !== null) {
-      court = Court.load(court.parent as string);
-    } else {
-      break;
-    }
+  if (court.parent) {
+    updateJurorEffectiveStake(jurorAddress, court.parent as string, delta);
   }
 }
 
@@ -92,8 +84,9 @@ export function updateJurorStake(
   updateActiveJurors(activeJurorsDelta, timestamp);
   juror.save();
   court.save();
-  updateEffectiveStake(courtID);
-  updateJurorEffectiveStake(jurorAddress, courtID);
+  updateEffectiveStake(courtID, stakeDelta);
+  updateJurorEffectiveStake(jurorAddress, courtID, stakeDelta);
+  updateCourtStateVariable(courtID, court.effectiveStake, timestamp, "effectiveStake");
 }
 
 export function updateJurorDelayedStake(jurorAddress: string, courtID: string, amount: BigInt): void {

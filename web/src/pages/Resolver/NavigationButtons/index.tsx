@@ -1,10 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useNewDisputeContext } from "context/NewDisputeContext";
+
+import { isUndefined } from "src/utils";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 import NextButton from "./NextButton";
 import PreviousButton from "./PreviousButton";
+import SubmitBatchDisputesButton from "./SubmitBatchDisputesButton";
 import SubmitDisputeButton from "./SubmitDisputeButton";
 
 const Container = styled.div`
@@ -21,10 +26,13 @@ interface NavigationButtonsProps {
 }
 
 const NavigationButtons: React.FC<NavigationButtonsProps> = ({ prevRoute, nextRoute }) => {
+  const { isBatchCreation } = useNewDisputeContext();
+
+  const SubmitButton = isBatchCreation ? SubmitBatchDisputesButton : SubmitDisputeButton;
   return (
     <Container>
       <PreviousButton prevRoute={prevRoute} />
-      {prevRoute === "/resolver/policy" ? <SubmitDisputeButton /> : <NextButton nextRoute={nextRoute} />}
+      {isUndefined(nextRoute) ? <SubmitButton /> : <NextButton nextRoute={nextRoute} />}
     </Container>
   );
 };

@@ -5,30 +5,15 @@ import { ZERO } from "../utils";
 
 // This function calculates the "effective" stake, which is the specific stake
 // of the current court + the specific stake of all of its children courts
-export function updateEffectiveStake(courtID: string): void {
+export function updateEffectiveStake(courtID: string, delta: BigInt): void {
   let court = Court.load(courtID);
   if (!court) return;
 
-  while (court) {
-    let totalStake = court.stake;
+  court.effectiveStake = court.effectiveStake.plus(delta);
+  court.save();
 
-    const childrenCourts = court.children.load();
-
-    for (let i = 0; i < childrenCourts.length; i++) {
-      const childCourt = Court.load(childrenCourts[i].id);
-      if (childCourt) {
-        totalStake = totalStake.plus(childCourt.effectiveStake);
-      }
-    }
-
-    court.effectiveStake = totalStake;
-    court.save();
-
-    if (court.parent && court.parent !== null) {
-      court = Court.load(court.parent as string);
-    } else {
-      break;
-    }
+  if (court.parent) {
+    updateEffectiveStake(court.parent as string, delta);
   }
 }
 
@@ -48,6 +33,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
   court.numberAppealingDisputes = ZERO;
   court.numberVotes = ZERO;
   court.numberStakedJurors = ZERO;
+  court.effectiveNumberStakedJurors = ZERO;
   court.stake = ZERO;
   court.effectiveStake = ZERO;
   court.delayedStake = ZERO;

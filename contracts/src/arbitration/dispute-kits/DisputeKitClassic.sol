@@ -11,7 +11,7 @@ import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitClassic is DisputeKitClassicBase {
-    string public constant override version = "0.8.0";
+    string public constant override version = "0.10.0";
 
     // ************************************* //
     // *            Constructor            * //
@@ -27,6 +27,10 @@ contract DisputeKitClassic is DisputeKitClassicBase {
     /// @param _core The KlerosCore arbitrator.
     function initialize(address _governor, KlerosCore _core) external reinitializer(1) {
         __DisputeKitClassicBase_initialize(_governor, _core);
+    }
+
+    function initialize6() external reinitializer(6) {
+        // NOP
     }
 
     // ************************ //

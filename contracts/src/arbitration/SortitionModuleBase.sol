@@ -81,10 +81,35 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // *              Events               * //
     // ************************************* //
 
-    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
+    /// @notice Emitted when a juror stakes in a court.
+    /// @param _address The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _amount The amount of tokens staked in the court.
+    /// @param _amountAllCourts The amount of tokens staked in all courts.
+    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _amountAllCourts);
+
+    /// @notice Emitted when a juror's stake is delayed and tokens are not transferred yet.
+    /// @param _address The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _amount The amount of tokens staked in the court.
     event StakeDelayedNotTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
-    event StakeDelayedAlreadyTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
+
+    /// @notice Emitted when a juror's stake is delayed and tokens are already deposited.
+    /// @param _address The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _amount The amount of tokens staked in the court.
+    event StakeDelayedAlreadyTransferredDeposited(address indexed _address, uint256 _courtID, uint256 _amount);
+
+    /// @notice Emitted when a juror's stake is delayed and tokens are already withdrawn.
+    /// @param _address The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _amount The amount of tokens withdrawn.
     event StakeDelayedAlreadyTransferredWithdrawn(address indexed _address, uint96 indexed _courtID, uint256 _amount);
+
+    /// @notice Emitted when a juror's stake is locked.
+    /// @param _address The address of the juror.
+    /// @param _relativeAmount The amount of tokens locked.
+    /// @param _unlock Whether the stake is locked or unlocked.
     event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unlock);
 
     // ************************************* //
@@ -126,6 +151,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /// @dev Changes the governor of the contract.
+    /// @param _governor The new governor.
+    function changeGovernor(address _governor) external onlyByGovernor {
+        governor = _governor;
+    }
 
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
@@ -288,7 +319,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 // PNK deposit: tokens are transferred now.
                 delayedStake.alreadyTransferred = true;
                 pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
-                emit StakeDelayedAlreadyTransferred(_account, _courtID, _newStake);
+                emit StakeDelayedAlreadyTransferredDeposited(_account, _courtID, _newStake);
             } else {
                 // PNK withdrawal: tokens are not transferred yet.
                 emit StakeDelayedNotTransferred(_account, _courtID, _newStake);
@@ -318,7 +349,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 (currenCourtID, , , , , , ) = core.courts(currenCourtID); // Get the parent court.
             }
         }
-        emit StakeSet(_account, _courtID, _newStake);
+        emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
         return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
 

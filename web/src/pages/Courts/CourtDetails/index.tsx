@@ -8,7 +8,8 @@ import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
 import { isProductionDeployment } from "consts/index";
 
-import { useCourtPolicy } from "queries/useCourtPolicy";
+import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
+
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -26,6 +27,7 @@ import Description from "./Description";
 import StakePanel from "./StakePanel";
 import Stats from "./Stats";
 import TopSearch from "./TopSearch";
+import JurorsStakedByCourt from "./JurorsStakedByCourt";
 
 const Container = styled.div``;
 
@@ -99,7 +101,6 @@ const StakePanelAndStats = styled.div`
 
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
-  const { data: policy } = useCourtPolicy(id);
   const { data } = useCourtTree();
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
   const navigate = useNavigate();
@@ -112,13 +113,16 @@ const CourtDetails: React.FC = () => {
       value: node.id,
     })) ?? [];
 
+  const currentCourt = courtPath?.[courtPath.length - 1];
+  const courtName = currentCourt?.name;
+
   return (
     <Container>
       <TopSearch />
       <StyledCard>
         <CourtHeader>
           <CourtInfo>
-            {policy ? policy.name : <StyledSkeleton width={200} />}
+            {data ? courtName : <StyledSkeleton width={200} />}
             {breadcrumbItems.length > 1 ? (
               <StyledBreadcrumb
                 items={breadcrumbItems}
@@ -138,14 +142,19 @@ const CourtDetails: React.FC = () => {
         </CourtHeader>
         <Divider />
         <StakePanelAndStats>
-          <StakePanel courtName={policy?.name} />
+          <StakePanel {...{ courtName }} />
           <Stats />
         </StakePanelAndStats>
       </StyledCard>
       <StyledCard>
         <Description />
       </StyledCard>
-      <LatestCases filters={{ court: id }} />
+      <LatestCases
+        {...{ courtName }}
+        title={`Latest Cases in ${getDescriptiveCourtName(courtName)}`}
+        filters={{ court: id }}
+      />
+      <JurorsStakedByCourt {...{ courtName }} />
       <ScrollTop />
     </Container>
   );

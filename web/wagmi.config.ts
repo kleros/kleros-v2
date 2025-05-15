@@ -1,26 +1,20 @@
 import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
 
-import { Chain } from "@wagmi/chains";
 import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import { type Abi } from "viem";
-
-import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
-import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
+import { type Chain } from "viem";
+import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
 
 import { ArbitratorTypes, getArbitratorType } from "consts/arbitratorTypes";
 
+import IArbitrableV2 from "../contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
+import * as devnetViem from "../contracts/deployments/devnet.viem";
+import * as mainnetViem from "../contracts/deployments/mainnet.viem";
+import * as testnetViem from "../contracts/deployments/testnet.viem";
+
 dotenv.config();
-
-type ArtifactPartial = {
-  abi: Abi;
-};
-
-const getAbi = (artifact: any) => {
-  return (artifact as ArtifactPartial).abi;
-};
 
 const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardhatChainName?: string) => {
   const artifactSuffix =
@@ -30,8 +24,16 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
   const vanillaArtifacts = ["KlerosCore", "DisputeKitClassic", "SortitionModule", "DisputeResolver"];
   const typeSpecificArtifacts = vanillaArtifacts.map((artifact) => `${artifact}${artifactSuffix}`);
 
-  const chains = await import("wagmi/chains");
-  const chain = chains[viemChainName] as Chain;
+  const chainMap: Record<string, Chain> = {
+    arbitrum,
+    arbitrumSepolia,
+    sepolia,
+    mainnet,
+    gnosisChiado,
+    gnosis,
+  };
+
+  const chain = chainMap[viemChainName];
   if (!chain) {
     throw new Error(`Viem chain ${viemChainName} not found`);
   }
@@ -75,18 +77,22 @@ const getConfig = async (): Promise<Config> => {
 
   let viemNetwork: string;
   let hardhatNetwork: string;
+  let arbitratorContracts;
   switch (deployment) {
     case "devnet":
       viemNetwork = "arbitrumSepolia";
       hardhatNetwork = "arbitrumSepoliaDevnet";
+      arbitratorContracts = devnetViem;
       break;
     case "testnet":
       viemNetwork = "arbitrumSepolia";
       hardhatNetwork = "arbitrumSepolia";
+      arbitratorContracts = testnetViem;
       break;
     case "mainnet":
       viemNetwork = "arbitrum";
       hardhatNetwork = "arbitrum";
+      arbitratorContracts = mainnetViem;
       break;
     default:
       throw new Error(`Unknown deployment ${deployment}`);
@@ -100,11 +106,11 @@ const getConfig = async (): Promise<Config> => {
       ...deploymentContracts,
       {
         name: "IHomeGateway",
-        abi: getAbi(IHomeGateway),
+        abi: arbitratorContracts.iHomeGatewayAbi,
       },
       {
         name: "IArbitrableV2",
-        abi: getAbi(IArbitrableV2),
+        abi: IArbitrableV2.abi,
       },
     ],
     plugins: [react(), actions()],

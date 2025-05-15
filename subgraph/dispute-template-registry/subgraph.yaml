@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: DisputeTemplateRegistry
-    network: arbitrum-sepolia
+    network: arbitrum-one
     source:
-      address: "0x596D3B09E684D62217682216e9b7a0De75933391"
+      address: "0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2"
       abi: DisputeTemplateRegistry
-      startBlock: 3639191
+      startBlock: 272063329
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -17,7 +17,7 @@ dataSources:
         - DisputeTemplate
       abis:
         - name: DisputeTemplateRegistry
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeTemplateRegistry.json
+          file: ../../contracts/deployments/arbitrum/DisputeTemplateRegistry.json
       eventHandlers:
         - event: DisputeTemplate(indexed uint256,indexed string,string,string)
           handler: handleDisputeTemplate

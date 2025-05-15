@@ -92,6 +92,11 @@ interface IDisputeKit {
     /// @return Whether all of the jurors have cast their votes for the last round.
     function areVotesAllCast(uint256 _coreDisputeID) external view returns (bool);
 
+    /// @dev Returns true if the appeal funding is finished prematurely (e.g. when losing side didn't fund).
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @return Whether the appeal funding is finished.
+    function isAppealFunded(uint256 _coreDisputeID) external view returns (bool);
+
     /// @dev Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.

@@ -575,7 +575,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             dispute.period = Period.appeal;
             emit AppealPossible(_disputeID, dispute.arbitrated);
         } else if (dispute.period == Period.appeal) {
-            if (block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]) {
+            if (
+                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                !disputeKits[round.disputeKitID].isAppealFunded(_disputeID)
+            ) {
                 revert AppealPeriodNotPassed();
             }
             dispute.period = Period.execution;
@@ -982,6 +985,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         return disputes[_disputeID].rounds[_round];
     }
 
+    function getPnkAtStakePerJuror(uint256 _disputeID, uint256 _round) external view returns (uint256) {
+        return disputes[_disputeID].rounds[_round].pnkAtStakePerJuror;
+    }
+
     function getNumberOfRounds(uint256 _disputeID) external view returns (uint256) {
         return disputes[_disputeID].rounds.length;
     }
@@ -1098,7 +1105,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         if (_result == StakingResult.StakingTransferFailed) revert StakingTransferFailed();
         if (_result == StakingResult.UnstakingTransferFailed) revert UnstakingTransferFailed();
         if (_result == StakingResult.CannotStakeInMoreCourts) revert StakingInTooManyCourts();
-        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibeInThisCourt();
+        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibleInThisCourt();
         if (_result == StakingResult.CannotStakeLessThanMinStake) revert StakingLessThanCourtMinStake();
         if (_result == StakingResult.CannotStakeZeroWhenNoStake) revert StakingZeroWhenNoStake();
     }
@@ -1152,7 +1159,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
     error StakingInTooManyCourts();
-    error StakingNotPossibeInThisCourt();
+    error StakingNotPossibleInThisCourt();
     error StakingLessThanCourtMinStake();
     error StakingTransferFailed();
     error UnstakingTransferFailed();

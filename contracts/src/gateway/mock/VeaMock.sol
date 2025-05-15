@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.24;
 
-import "@kleros/vea-contracts/interfaces/inboxes/IVeaInbox.sol";
-import "@kleros/vea-contracts/interfaces/outboxes/IVeaOutboxOnL1.sol";
+import "@kleros/vea-contracts/src/interfaces/inboxes/IVeaInbox.sol";
+import "@kleros/vea-contracts/src/interfaces/outboxes/IVeaOutboxOnL1.sol";
 
 contract VeaMock is IVeaOutboxOnL1, IVeaInbox {
     /* solhint-disable */
@@ -20,10 +20,10 @@ contract VeaMock is IVeaOutboxOnL1, IVeaInbox {
     /// @return msgId The index of the message in the inbox, as a message Id, needed to relay the message.
     function sendMessage(address _to, bytes4 _fnSelector, bytes memory _data) external returns (uint64 msgId) {
         bytes memory data = abi.encodePacked( // abi.encodeWithSelector(fnSelector, msg.sender, data)
-            _fnSelector,
-            bytes32(uint256(uint160(msg.sender))), // big endian padded encoding of msg.sender, simulating abi.encodeWithSelector
-            _data
-        );
+                _fnSelector,
+                bytes32(uint256(uint160(msg.sender))), // big endian padded encoding of msg.sender, simulating abi.encodeWithSelector
+                _data
+            );
 
         (bool success, bytes memory res) = _to.call(data);
         require(success, "Call failure");
