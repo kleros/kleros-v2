@@ -41,6 +41,8 @@ task("change-governor", "Changes the governor for all the contracts")
       chainlinkRng,
       randomizerRng,
       snapshotProxy,
+      sortition,
+      evidence,
     } = await getContracts(hre, coreType);
 
     const updateGovernor = async (contractName: string, contractInstance: any) => {
@@ -60,16 +62,14 @@ task("change-governor", "Changes the governor for all the contracts")
       }
     };
 
-    // TODO: upgrade and add changeGovernor!
-    // await updateGovernor("SortitionModule", sortition)
-    // await updateGovernor("EvidenceModule", evidence)
-
     await updateGovernor("KlerosCore", core);
     await updateGovernor("DisputeKitClassic", disputeKitClassic);
     await updateGovernor("DisputeResolver", disputeResolver);
     await updateGovernor("DisputeTemplateRegistry", disputeTemplateRegistry);
     await updateGovernor("PolicyRegistry", policyRegistry);
     await updateGovernor("KlerosCoreSnapshotProxy", snapshotProxy);
+    await updateGovernor("SortitionModule", sortition);
+    await updateGovernor("EvidenceModule", evidence);
     if (chainlinkRng) await updateGovernor("ChainlinkRNG", chainlinkRng);
     if (randomizerRng) await updateGovernor("RandomizerRNG", randomizerRng);
 
