@@ -1,12 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Routes, Route } from "react-router-dom";
+
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import { Routes, Route } from "react-router-dom";
-
-import AttachmentDisplay from "./AttachmentDisplay";
 import CaseDetails from "./CaseDetails";
 import CasesFetcher from "./CasesFetcher";
 
@@ -28,9 +27,6 @@ const Cases: React.FC = () => (
   <Container>
     <Routes>
       <Route path="/display/:page/:order/:filter" element={<CasesFetcher />} />
-      <Route path="/:id/evidence/attachment/*" element={<AttachmentDisplay />} />
-      <Route path="/:id/overview/policy/attachment/*" element={<AttachmentDisplay />} />
-      <Route path="/:id/overview/attachment/*" element={<AttachmentDisplay />} />
       <Route path="/:id/*" element={<CaseDetails />} />
     </Routes>
   </Container>

@@ -76,7 +76,8 @@
     "@openzeppelin/contracts-upgradeable@npm:4.9.3": "npm:4.9.6",
     "elliptic@npm:6.5.4": "npm:6.6.1",
     "word-wrap@npm:~1.2.3": "npm:1.2.5",
-    "@codemirror/state": "npm:6.5.2"
+    "@codemirror/state": "npm:6.5.2",
+    "undici@npm:7.3.0": "npm:7.5.0"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",

@@ -33,7 +33,7 @@ dataSources:
           file: ../../contracts/deployments/arbitrum/DisputeKitClassicNeo.json
         - name: KlerosCore
           # FIX: temporarily point to the abi with event addition.
-          file: ./abi-migrations/KlerosCore.json
+          file: ./abi-migrations/KlerosCoreNeo.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -156,7 +156,7 @@ dataSources:
       abis:
         - name: SortitionModule
           # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/SortitionModule.json
+          file: ./abi-migrations/SortitionModuleNeo.json
       eventHandlers:
         - event: StakeDelayedAlreadyTransferredDeposited(indexed address,uint256,uint256)
           handler: handleStakeDelayedAlreadyTransferredDeposited
