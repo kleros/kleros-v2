@@ -11,14 +11,23 @@ import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
 
 import { Dispute_Filter } from "../graphql/graphql";
-import AllCasesButton from "./AllCasesButton";
+import SeeAllCasesButton from "./SeeAllCasesButton";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(28, 48)};
+  margin-top: ${responsiveSize(32, 48)};
+`;
+
+const TitleAndButtonContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px 12px;
+  margin-bottom: ${responsiveSize(12, 24)};
 `;
 
 const Title = styled.h1`
-  margin-bottom: ${responsiveSize(12, 24)};
+  margin-bottom: 0;
   font-size: ${responsiveSize(20, 24)};
 `;
 
@@ -28,12 +37,6 @@ const DisputeContainer = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(min(100%, max(312px, (100% - var(--gap) * 2)/3)), 1fr));
   align-items: stretch;
   gap: var(--gap);
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  margin-top: 16px;
-  justify-content: center;
 `;
 
 interface ILatestCases {
@@ -49,15 +52,15 @@ const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters, 
 
   return isUndefined(disputes) || disputes.length > 0 ? (
     <Container>
-      <Title>{title}</Title>
+      <TitleAndButtonContainer>
+        <Title>{title}</Title>
+        <SeeAllCasesButton {...{ courtId, courtName }} />
+      </TitleAndButtonContainer>
       <DisputeContainer>
         {isUndefined(disputes)
           ? Array.from({ length: 3 }).map((_, index) => <SkeletonDisputeCard key={index} />)
           : disputes.map((dispute) => <DisputeView key={dispute.id} {...dispute} overrideIsList />)}
       </DisputeContainer>
-      <ButtonContainer>
-        <AllCasesButton {...{ courtId, courtName }} />
-      </ButtonContainer>
     </Container>
   ) : null;
 };
