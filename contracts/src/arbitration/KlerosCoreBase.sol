@@ -593,7 +593,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @dev Draws jurors for the dispute. Can be called in parts.
     /// @param _disputeID The ID of the dispute.
     /// @param _iterations The number of iterations to run.
-    function draw(uint256 _disputeID, uint256 _iterations) external {
+    /// @return nbDrawnJurors The total number of jurors drawn in the round.
+    function draw(uint256 _disputeID, uint256 _iterations) external returns (uint256 nbDrawnJurors) {
         Dispute storage dispute = disputes[_disputeID];
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
@@ -616,6 +617,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             }
         }
         round.drawIterations += i;
+        return round.drawnJurors.length;
     }
 
     /// @dev Appeals the ruling of a specified dispute.
