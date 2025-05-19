@@ -42,10 +42,9 @@ const DisputeContainer = styled.div`
 interface ILatestCases {
   title?: string;
   filters?: Dispute_Filter;
-  courtName?: string;
 }
 
-const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters, courtName }) => {
+const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters }) => {
   const { data } = useCasesQuery(0, 3, filters);
   const disputes: DisputeDetailsFragment[] = useMemo(() => data?.disputes as DisputeDetailsFragment[], [data]);
   const courtId = typeof filters?.court === "string" ? filters?.court : undefined;
@@ -54,7 +53,7 @@ const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters, 
     <Container>
       <TitleAndButtonContainer>
         <Title>{title}</Title>
-        <SeeAllCasesButton {...{ courtId, courtName }} />
+        <SeeAllCasesButton {...{ courtId }} />
       </TitleAndButtonContainer>
       <DisputeContainer>
         {isUndefined(disputes)
