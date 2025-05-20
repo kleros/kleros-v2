@@ -1,4 +1,6 @@
 specVersion: 0.0.5
+description: Kleros v2 Core
+repository: https://github.com/kleros/kleros-v2/tree/dev/subgraph/core
 schema:
   file: ./schema.graphql
 features:

@@ -38,7 +38,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
         uint256 nbVotes; // Maximal number of votes this dispute can get.
-        mapping(address drawnAddress => bool) alreadyDrawn; // Set to 'true' if the address has already been drawn, so it can't be drawn more than once.
     }
 
     struct Vote {
@@ -62,6 +61,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
     bool public singleDrawPerJuror; // Whether each juror can only draw once per dispute, false by default.
+    mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(address drawnAddress => bool)))
+        public alreadyDrawn; // 'true' if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
 
     // ************************************* //
     // *              Events               * //
@@ -215,8 +216,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _coreDisputeID,
         uint256 _nonce
     ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress) {
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+        Dispute storage dispute = disputes[localDisputeID];
+        uint256 localRoundID = dispute.rounds.length - 1;
+        Round storage round = dispute.rounds[localRoundID];
 
         ISortitionModule sortitionModule = core.sortitionModule();
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
@@ -226,7 +229,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
-            round.alreadyDrawn[drawnAddress] = true;
+            alreadyDrawn[localDisputeID][localRoundID][drawnAddress] = true;
         } else {
             drawnAddress = address(0);
         }
@@ -657,7 +660,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         result = totalStaked >= totalLocked + lockedAmountPerJuror;
 
         if (singleDrawPerJuror) {
-            result = result && !_round.alreadyDrawn[_juror];
+            uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+            Dispute storage dispute = disputes[localDisputeID];
+            uint256 localRoundID = dispute.rounds.length - 1;
+            result = result && !alreadyDrawn[localDisputeID][localRoundID][_juror];
         }
     }
 }

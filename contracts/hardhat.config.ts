@@ -18,6 +18,7 @@ require("./scripts/populateCourts");
 require("./scripts/changeGovernor");
 require("./scripts/getDisputeTemplate");
 require("./scripts/compareStorageLayout");
+require("./scripts/storage-layout");
 
 dotenv.config();
 
