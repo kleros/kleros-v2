@@ -1,15 +1,17 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
-import { keccak256, encodePacked } from "viem";
+import { keccak256, stringToHex, encodeAbiParameters } from "viem";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitShutterCastCommitShutter } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
-import { wrapWithToast } from "utils/wrapWithToast";
 import { encrypt } from "utils/shutter";
+import { wrapWithToast } from "utils/wrapWithToast";
+
 import OptionsContainer from "../OptionsContainer";
 
 const Container = styled.div`
@@ -25,6 +27,25 @@ interface ICommit {
 }
 
 const SEPARATOR = "-";
+
+/**
+ * This hashing function must be follow the same logic as DisputeKitClassic.hashVote()
+ */
+const hashVote = (choice: bigint, salt: bigint, justification: string): `0x${string}` => {
+  const justificationHash = keccak256(stringToHex(justification));
+
+  // Encode and hash the parameters together (mimics Solidity's abi.encode)
+  const encodedParams = encodeAbiParameters(
+    [
+      { type: "uint256" }, // choice
+      { type: "uint256" }, // salt
+      { type: "bytes32" }, // justificationHash
+    ],
+    [choice, salt, justificationHash]
+  );
+
+  return keccak256(encodedParams);
+};
 
 const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) => {
   const { id } = useParams();
@@ -55,9 +76,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       const encodedMessage = `${choice.toString()}${SEPARATOR}${salt}${SEPARATOR}${justification}`;
       const { encryptedCommitment, identity } = await encrypt(encodedMessage);
 
-      const commitHash = keccak256(
-        encodePacked(["uint256", "uint256", "string"], [choice, BigInt(salt), justification])
-      );
+      const commitHash = hashVote(choice, BigInt(salt), justification);
 
       const { request } = await simulateDisputeKitShutterCastCommitShutter(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
