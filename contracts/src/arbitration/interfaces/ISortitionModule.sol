@@ -27,7 +27,10 @@ interface ISortitionModule {
 
     function unlockStake(address _account, uint256 _relativeAmount) external;
 
-    function penalizeStake(address _account, uint256 _relativeAmount) external;
+    function penalizeStake(
+        address _account,
+        uint256 _relativeAmount
+    ) external returns (uint256 pnkBalance, uint256 availablePenalty);
 
     function notifyRandomNumber(uint256 _drawnNumber) external;
 
@@ -45,4 +48,6 @@ interface ISortitionModule {
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 
     function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
+
+    function withdrawLeftoverPNK(address _account) external;
 }
