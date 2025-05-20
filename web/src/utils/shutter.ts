@@ -2,7 +2,7 @@ import { encryptData, decrypt as shutterDecrypt } from "@shutter-network/shutter
 import { stringToHex, hexToString, Hex } from "viem";
 
 // Time in seconds to wait before the message can be decrypted
-export const DECRYPTION_DELAY = 5;
+export const DECRYPTION_DELAY = 120;
 
 interface ShutterApiMessageData {
   eon: number;
@@ -145,7 +145,7 @@ function ensureHexString(hexString: string | undefined): `0x${string}` {
  */
 function generateRandomBytes32(): `0x${string}` {
   return ("0x" +
-    window.crypto
+    crypto
       .getRandomValues(new Uint8Array(32))
       .reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")) as Hex;
 }

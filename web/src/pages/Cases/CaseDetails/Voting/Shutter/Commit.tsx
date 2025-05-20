@@ -5,7 +5,7 @@ import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { simulateDisputeKitShutterCastCommit } from "hooks/contracts/generated";
+import { simulateDisputeKitShutterCastCommitShutter } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -24,7 +24,7 @@ interface ICommit {
   refetch: () => void;
 }
 
-const SEPARATOR = "␟";
+const SEPARATOR = "-";
 
 const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) => {
   const { id } = useParams();
@@ -59,7 +59,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
         encodePacked(["uint256", "uint256", "string"], [choice, BigInt(salt), justification])
       );
 
-      const { request } = await simulateDisputeKitShutterCastCommit(wagmiConfig, {
+      const { request } = await simulateDisputeKitShutterCastCommitShutter(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
       });
       if (walletClient && publicClient) {

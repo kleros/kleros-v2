@@ -43,7 +43,8 @@
     "check-types": "tsc --noEmit",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen --require tsconfig-paths/register",
-    "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"
+    "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate",
+    "postinstall": "mkdir -p src/public/node_modules/@shutter-network/shutter-sdk/dist && cp -R ../node_modules/@shutter-network/shutter-sdk/dist/* src/public/node_modules/@shutter-network/shutter-sdk/dist"
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
