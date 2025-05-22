@@ -1,9 +1,6 @@
 import { encryptData, decrypt as shutterDecrypt } from "@shutter-network/shutter-sdk";
 import { stringToHex, hexToString, Hex } from "viem";
 
-// Time in seconds to wait before the message can be decrypted
-export const DECRYPTION_DELAY = 120;
-
 interface ShutterApiMessageData {
   eon: number;
   identity: string;
@@ -109,7 +106,7 @@ async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKe
     if (jsonResponse?.description?.includes("timestamp not reached yet")) {
       throw new Error(
         `Cannot decrypt yet: The decryption timestamp has not been reached.\n` +
-          `Please wait at least ${DECRYPTION_DELAY} seconds after encryption before attempting to decrypt.\n` +
+          `Please wait until the commit period has ended before attempting to decrypt.\n` +
           `Error details: ${jsonResponse.description}`
       );
     }
@@ -155,9 +152,12 @@ function generateRandomBytes32(): `0x${string}` {
  * @param message The message to encrypt
  * @returns Promise with the encrypted commitment and identity
  */
-export async function encrypt(message: string): Promise<{ encryptedCommitment: string; identity: string }> {
+export async function encrypt(
+  message: string,
+  decryptionDelay: number
+): Promise<{ encryptedCommitment: string; identity: string }> {
   // Set decryption timestamp
-  const decryptionTimestamp = Math.floor(Date.now() / 1000) + DECRYPTION_DELAY;
+  const decryptionTimestamp = Math.floor(Date.now() / 1000) + decryptionDelay;
 
   // Fetch encryption data from Shutter API
   console.log(`Fetching encryption data for decryption at timestamp ${decryptionTimestamp}...`);

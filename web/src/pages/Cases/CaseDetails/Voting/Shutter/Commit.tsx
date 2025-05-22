@@ -8,11 +8,15 @@ import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitShutterCastCommitShutter } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
+import { useCountdown } from "hooks/useCountdown";
+import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import { isUndefined } from "utils/index";
 import { encrypt } from "utils/shutter";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import OptionsContainer from "../OptionsContainer";
+import { getDeadline } from "../../Timeline";
 
 const Container = styled.div`
   width: 100%;
@@ -24,6 +28,8 @@ interface ICommit {
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   refetch: () => void;
+  dispute: DisputeDetailsQuery["dispute"];
+  currentPeriodIndex: number;
 }
 
 const SEPARATOR = "-";
@@ -47,7 +53,7 @@ const hashVote = (choice: bigint, salt: bigint, justification: string): `0x${str
   return keccak256(encodedParams);
 };
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, dispute, currentPeriodIndex }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -58,6 +64,12 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
   const [justification, setJustification] = useState("");
   const saltKey = useMemo(() => `shutter-dispute-${id}-voteids-${voteIDs}`, [id, voteIDs]);
   const [_, setSalt] = useLocalStorage(saltKey);
+  const deadlineCommitPeriod = getDeadline(
+    currentPeriodIndex,
+    dispute?.lastPeriodChange,
+    dispute?.court.timesPerPeriod
+  );
+  const countdownToVotingPeriod = useCountdown(deadlineCommitPeriod);
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
@@ -74,7 +86,9 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       setSalt(JSON.stringify({ salt, choice: choice.toString(), justification }));
 
       const encodedMessage = `${choice.toString()}${SEPARATOR}${salt}${SEPARATOR}${justification}`;
-      const { encryptedCommitment, identity } = await encrypt(encodedMessage);
+      // a minimum of 60 seconds of decryptionDelay is enforced to give the threshold crypto nodes time to coordinate
+      const decryptionDelay = Math.max(countdownToVotingPeriod, 60);
+      const { encryptedCommitment, identity } = await encrypt(encodedMessage, decryptionDelay);
 
       const commitHash = hashVote(choice, BigInt(salt), justification);
 
@@ -101,6 +115,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       generateSigningAccount,
       signingAccount,
       refetch,
+      countdownToVotingPeriod,
     ]
   );
 

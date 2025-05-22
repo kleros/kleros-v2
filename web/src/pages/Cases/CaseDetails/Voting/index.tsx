@@ -15,7 +15,7 @@ import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
 
 import { useAppealCost } from "queries/useAppealCost";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { responsiveSize } from "styles/responsiveSize";
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -55,9 +55,10 @@ const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, tim
 interface IVoting {
   arbitrable?: `0x${string}`;
   currentPeriodIndex: number;
+  dispute: DisputeDetailsQuery["dispute"];
 }
 
-const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
+const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) => {
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -116,7 +117,9 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
           {isClassicDisputeKit ? <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} /> : null}
-          {isShutterDisputeKit ? <Shutter arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} /> : null}
+          {isShutterDisputeKit ? (
+            <Shutter arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ dispute, currentPeriodIndex }} />
+          ) : null}
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />
