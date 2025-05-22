@@ -1,23 +1,25 @@
 import { expect } from "chai";
 import { deployments, ethers } from "hardhat";
-import { KlerosCore, DisputeKitClassic } from "../../typechain-types";
+import { KlerosCore, DisputeKitClassic, DisputeKitShutter } from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
   let deployer: HardhatEthersSigner;
-  let core: KlerosCore, disputeKit: DisputeKitClassic;
+  let core: KlerosCore, disputeKit: DisputeKitClassic, disputeKitShutter: DisputeKitShutter;
 
   before("Deploying", async () => {
     [deployer] = await ethers.getSigners();
-    [core, disputeKit] = await deployContracts();
+    [core, disputeKit, disputeKitShutter] = await deployContracts();
   });
 
   it("Kleros Core initialization", async () => {
     const events = await core.queryFilter(core.filters.DisputeKitCreated());
-    expect(events.length).to.equal(1);
+    expect(events.length).to.equal(2);
     expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._disputeKitAddress).to.equal(disputeKit.target);
+    expect(events[1].args._disputeKitID).to.equal(2);
+    expect(events[1].args._disputeKitAddress).to.equal(disputeKitShutter.target);
 
     // Reminder: the Forking court will be added which will break these expectations.
     const events2 = await core.queryFilter(core.filters.CourtCreated());
@@ -60,12 +62,13 @@ describe("DisputeKitClassic", async () => {
   });
 });
 
-async function deployContracts(): Promise<[KlerosCore, DisputeKitClassic]> {
+async function deployContracts(): Promise<[KlerosCore, DisputeKitClassic, DisputeKitShutter]> {
   await deployments.fixture(["Arbitration", "VeaMock"], {
     fallbackToGlobal: true,
     keepExistingDeployments: false,
   });
   const disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  const disputeKitShutter = (await ethers.getContract("DisputeKitShutter")) as DisputeKitShutter;
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-  return [core, disputeKit];
+  return [core, disputeKit, disputeKitShutter];
 }
