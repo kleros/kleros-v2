@@ -12,17 +12,25 @@ import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 /// - an appeal system: fund 2 choices only, vote on any choice.
 /// Added functionality: an Shutter-specific event emitted when a vote is cast.
 contract DisputeKitShutter is DisputeKitClassicBase {
-    string public constant override version = "0.9.3";
+    string public constant override version = "0.11.1";
 
     // ************************************* //
     // *              Events               * //
     // ************************************* //
 
     /// @dev Emitted when a vote is cast.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _juror The address of the juror casting the vote commitment.
     /// @param _commit The commitment hash.
     /// @param _identity The Shutter identity used for encryption.
     /// @param _encryptedVote The Shutter encrypted vote.
-    event CommitCastShutter(bytes32 indexed _commit, bytes32 _identity, bytes _encryptedVote);
+    event CommitCastShutter(
+        uint256 indexed _coreDisputeID,
+        address indexed _juror,
+        bytes32 indexed _commit,
+        bytes32 _identity,
+        bytes _encryptedVote
+    );
 
     // ************************************* //
     // *            Constructor            * //
@@ -40,7 +48,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         __DisputeKitClassicBase_initialize(_governor, _core);
     }
 
-    function initialize5() external reinitializer(5) {
+    function initialize8() external reinitializer(8) {
         // NOP
     }
 
@@ -75,7 +83,21 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         bytes calldata _encryptedVote
     ) external notJumped(_coreDisputeID) {
         _castCommit(_coreDisputeID, _voteIDs, _commit);
-        emit CommitCastShutter(_commit, _identity, _encryptedVote);
+        emit CommitCastShutter(_coreDisputeID, msg.sender, _commit, _identity, _encryptedVote);
+    }
+
+    function castVoteShutter(
+        uint256 _coreDisputeID,
+        uint256[] calldata _voteIDs,
+        uint256 _choice,
+        uint256 _salt,
+        string memory _justification
+    ) external {
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        address juror = dispute.rounds[dispute.rounds.length - 1].votes[_voteIDs[0]].account;
+
+        // _castVote() ensures that all the _voteIDs do belong to `juror`
+        _castVote(_coreDisputeID, _voteIDs, _choice, _salt, _justification, juror);
     }
 
     // ************************************* //
