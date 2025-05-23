@@ -13,7 +13,7 @@ import { wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import OptionsContainer from "./OptionsContainer";
+import OptionsContainer from "../OptionsContainer";
 
 const Container = styled.div`
   width: 100%;

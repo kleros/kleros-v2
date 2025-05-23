@@ -141,7 +141,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
   }));
 };
 
-const getDeadline = (
+export const getDeadline = (
   currentPeriodIndex: number,
   lastPeriodChange?: string,
   timesPerPeriod?: string[]

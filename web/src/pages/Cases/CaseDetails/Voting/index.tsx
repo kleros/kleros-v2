@@ -15,7 +15,7 @@ import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
 
 import { useAppealCost } from "queries/useAppealCost";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { responsiveSize } from "styles/responsiveSize";
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -25,7 +25,10 @@ import InfoCard from "components/InfoCard";
 import Popup, { PopupType } from "components/Popup";
 
 import Classic from "./Classic";
+import Shutter from "./Shutter";
 import VotingHistory from "./VotingHistory";
+
+import { getDisputeKitName } from "consts/index";
 
 const Container = styled.div`
   padding: 20px 16px 16px;
@@ -52,9 +55,10 @@ const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, tim
 interface IVoting {
   arbitrable?: `0x${string}`;
   currentPeriodIndex: number;
+  dispute: DisputeDetailsQuery["dispute"];
 }
 
-const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
+const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) => {
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -65,6 +69,11 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+
+  const disputeKitId = disputeData?.dispute?.currentRound?.disputeKit?.id;
+  const disputeKitName = disputeKitId ? getDisputeKitName(Number(disputeKitId)) : undefined;
+  const isClassicDisputeKit = disputeKitName?.toLowerCase().includes("classic") ?? false;
+  const isShutterDisputeKit = disputeKitName?.toLowerCase().includes("shutter") ?? false;
 
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
@@ -107,7 +116,10 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
       {userWasDrawn && isCommitOrVotePeriod && !voted ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} />
+          {isClassicDisputeKit ? <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} /> : null}
+          {isShutterDisputeKit ? (
+            <Shutter arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ dispute, currentPeriodIndex }} />
+          ) : null}
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />
