@@ -3,6 +3,7 @@ import {
   BlockHashRNG,
   ChainlinkRNG,
   DisputeKitClassic,
+  DisputeKitShutter,
   DisputeResolver,
   DisputeTemplateRegistry,
   KlerosCore,
@@ -38,18 +39,21 @@ export const getContractNames = (coreType: Core) => {
       core: "KlerosCoreNeo",
       sortition: "SortitionModuleNeo",
       disputeKitClassic: "DisputeKitClassicNeo",
+      disputeKitShutter: "DisputeKitShutterNeo",
       disputeResolver: "DisputeResolverNeo",
     },
     [Cores.BASE]: {
       core: "KlerosCore",
       sortition: "SortitionModule",
       disputeKitClassic: "DisputeKitClassic",
+      disputeKitShutter: "DisputeKitShutter",
       disputeResolver: "DisputeResolver",
     },
     [Cores.UNIVERSITY]: {
       core: "KlerosCoreUniversity",
       sortition: "SortitionModuleUniversity",
       disputeKitClassic: "DisputeKitClassicUniversity",
+      disputeKitShutter: "DisputeKitShutterUniversity",
       disputeResolver: "DisputeResolverUniversity",
     },
   };
@@ -97,6 +101,9 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
       throw new Error("Invalid core type, must be one of BASE, NEO, or UNIVERSITY");
   }
   const disputeKitClassic = await ethers.getContract<DisputeKitClassic>(getContractNames(coreType).disputeKitClassic);
+  const disputeKitShutter = await ethers.getContractOrNull<DisputeKitShutter>(
+    getContractNames(coreType).disputeKitShutter
+  );
   const disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
   const disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>(
     getContractNames(coreType).disputeTemplateRegistry
@@ -115,6 +122,7 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     core,
     sortition,
     disputeKitClassic,
+    disputeKitShutter,
     disputeResolver,
     disputeTemplateRegistry,
     evidence,
