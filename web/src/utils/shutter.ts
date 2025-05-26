@@ -27,11 +27,8 @@ interface ShutterDecryptionKeyData {
  */
 async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApiMessageData> {
   try {
-    console.log(`Sending request to Shutter API with decryption timestamp: ${decryptionTimestamp}`);
-
     // Generate a random identity prefix
     const identityPrefix = generateRandomBytes32();
-    console.log(`Generated identity prefix: ${identityPrefix}`);
 
     const response = await fetch("https://shutter-api.shutter.network/api/register_identity", {
       method: "POST",
@@ -46,7 +43,6 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
     });
 
     // Log the response status
-    console.log(`API response status: ${response.status}`);
 
     // Get the response text
     const responseText = await response.text();
@@ -81,8 +77,6 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
  * @returns Promise with the decryption key data
  */
 async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKeyData> {
-  console.log(`Fetching decryption key for identity: ${identity}`);
-
   const response = await fetch(`https://shutter-api.shutter.network/api/get_decryption_key?identity=${identity}`, {
     method: "GET",
     headers: {
@@ -160,7 +154,6 @@ export async function encrypt(
   const decryptionTimestamp = Math.floor(Date.now() / 1000) + decryptionDelay;
 
   // Fetch encryption data from Shutter API
-  console.log(`Fetching encryption data for decryption at timestamp ${decryptionTimestamp}...`);
   const shutterData = await fetchShutterData(decryptionTimestamp);
 
   // Extract the eon key and identity from the response and ensure they have the correct format
@@ -172,10 +165,6 @@ export async function encrypt(
 
   // Generate a random sigma
   const sigmaHex = generateRandomBytes32();
-
-  console.log("Eon Key:", eonKeyHex);
-  console.log("Identity:", identityHex);
-  console.log("Sigma:", sigmaHex);
 
   // Encrypt the message
   const encryptedCommitment = await encryptData(msgHex, identityHex, eonKeyHex, sigmaHex);
@@ -192,7 +181,6 @@ export async function encrypt(
 export async function decrypt(encryptedMessage: string, identity: string): Promise<string> {
   // Fetch the decryption key
   const decryptionKeyData = await fetchDecryptionKey(identity);
-  console.log("Decryption key:", decryptionKeyData.decryption_key);
 
   // Ensure the decryption key is properly formatted
   const decryptionKey = ensureHexString(decryptionKeyData.decryption_key);

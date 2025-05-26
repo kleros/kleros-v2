@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
-import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import ShutterCommit from "./Commit";
 import Reveal from "./Reveal";
@@ -19,8 +19,7 @@ interface IShutter {
 const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPeriodIndex }) => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: disputeData } = useDisputeDetailsQuery(id);
-  const { data: drawData, refetch } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
+  const { data: drawData, refetch } = useDrawQuery(address?.toLowerCase(), id, dispute?.currentRound.id);
   const { isCommitPeriod, isVotingPeriod, commited } = useVotingContext();
   const voteIDs = useMemo(() => drawData?.draws?.map((draw) => draw.voteIDNum) as string[], [drawData]);
 
