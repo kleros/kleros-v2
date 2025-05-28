@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-subgraph",
-  "version": "0.16.3",
+  "version": "0.16.4",
   "drtVersion": "0.12.2",
   "license": "MIT",
   "scripts": {
