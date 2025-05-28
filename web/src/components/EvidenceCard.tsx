@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
+import { useParams } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -224,6 +225,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   fileURI,
 }) => {
   const profileLink = `/profile/1/desc/all?address=${sender}`;
+  const { id } = useParams();
 
   const transactionExplorerLink = useMemo(() => {
     return getTxnExplorerLink(transactionHash ?? "");
@@ -258,7 +260,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>
-            <StyledInternalLink to={`/attachment/?title=${"Evidence File"}&url=${getIpfsUrl(fileURI)}`}>
+            <StyledInternalLink to={`/attachment/?disputeId=${id}&title=${"Evidence File"}&url=${getIpfsUrl(fileURI)}`}>
               <AttachmentIcon />
               <AttachedFileText />
             </StyledInternalLink>
