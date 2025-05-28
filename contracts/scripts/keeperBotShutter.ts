@@ -37,7 +37,7 @@ const getContracts = async () => {
  * @param message The message to decode
  * @returns Object containing the decoded components
  */
-function decode(message: string) {
+const decode = (message: string) => {
   const SEPARATOR = "-";
   const [choice, salt, justification] = message.split(SEPARATOR);
   return {
@@ -45,17 +45,17 @@ function decode(message: string) {
     salt,
     justification,
   };
-}
+};
 
 /**
  * Parses a Graph vote ID string (e.g., "2-45-1-0") into its components.
  * @param graphVoteId - The vote ID string from the Graph.
  * @returns An object with disputeKitID, localDisputeID, localRoundID, and voteID as numbers.
  */
-function parseGraphVoteId(graphVoteId: string) {
+const parseGraphVoteId = (graphVoteId: string) => {
   const [disputeKitID, localDisputeID, localRoundID, voteID] = graphVoteId.split("-").map(Number);
   return { disputeKitID, localDisputeID, localRoundID, voteID };
-}
+};
 
 type DisputeVotes = {
   votes: {
@@ -185,7 +185,7 @@ const getShutterDisputesToReveal = async (disputeKitShutter: DisputeKitShutter):
   return filteredDisputeVotes;
 };
 
-async function shutterAutoReveal(disputeKitShutter: DisputeKitShutter | null) {
+export const shutterAutoReveal = async (disputeKitShutter: DisputeKitShutter | null, disputesToSkip: string[]) => {
   if (!disputeKitShutter) {
     logger.debug("No Shutter dispute kit found, skipping auto-reveal");
     return [];
@@ -196,7 +196,7 @@ async function shutterAutoReveal(disputeKitShutter: DisputeKitShutter | null) {
 
   for (const dispute of shutterDisputes) {
     const { coreDispute, votes } = dispute;
-    if (Number(coreDispute.id) < 55) {
+    if (disputesToSkip.includes(coreDispute.id)) {
       logger.info(`Skipping disputeID: ${coreDispute.id}`);
       continue;
     }
@@ -255,22 +255,54 @@ async function shutterAutoReveal(disputeKitShutter: DisputeKitShutter | null) {
       logger.info(
         `Decoded message for voteIDs [${voteIDs.join(", ")}]: ${JSON.stringify({ choice: decodedMessage.choice.toString(), salt: decodedMessage.salt, justification: decodedMessage.justification }, null, 2)}`
       );
-      const tx = await disputeKitShutter.castVoteShutter(
-        coreDispute.id,
-        voteIDs,
-        decodedMessage.choice,
-        decodedMessage.salt,
-        decodedMessage.justification
-      );
-      logger.info(`Cast vote transaction: ${tx.hash}`);
+      // Simulate
+      try {
+        await disputeKitShutter.castVoteShutter.staticCall(
+          coreDispute.id,
+          voteIDs,
+          decodedMessage.choice,
+          decodedMessage.salt,
+          decodedMessage.justification
+        );
+      } catch (e) {
+        logger.error(
+          `CastVoteShutter: will fail for disputeID: ${coreDispute.id} and voteIDs [${voteIDs.join(", ")}], skipping`
+        );
+        continue;
+      }
+      // Execute with extra gas
+      try {
+        const gas =
+          ((await disputeKitShutter.castVoteShutter.estimateGas(
+            coreDispute.id,
+            voteIDs,
+            decodedMessage.choice,
+            decodedMessage.salt,
+            decodedMessage.justification
+          )) *
+            150n) /
+          100n; // 50% extra gas
+        const tx = await disputeKitShutter.castVoteShutter(
+          coreDispute.id,
+          voteIDs,
+          decodedMessage.choice,
+          decodedMessage.salt,
+          decodedMessage.justification,
+          { gasLimit: gas }
+        );
+        logger.info(`Cast vote transaction: ${tx.hash}`);
+      } catch (e) {
+        logger.error(e, "Failure");
+        continue;
+      }
     }
   }
-}
+};
 
 async function main() {
   logger.debug("Starting...");
   const { disputeKitShutter } = await getContracts();
-  await shutterAutoReveal(disputeKitShutter);
+  await shutterAutoReveal(disputeKitShutter, ["44", "45", "51", "54"]);
 }
 
 if (require.main === module) {
