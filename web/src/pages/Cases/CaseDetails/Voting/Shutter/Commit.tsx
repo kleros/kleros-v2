@@ -86,8 +86,9 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, di
       setSalt(JSON.stringify({ salt, choice: choice.toString(), justification }));
 
       const encodedMessage = `${choice.toString()}${SEPARATOR}${salt}${SEPARATOR}${justification}`;
-      // a minimum of 60 seconds of decryptionDelay is enforced to give the threshold crypto nodes time to coordinate
-      const decryptionDelay = Math.max(countdownToVotingPeriod, 60);
+      /* an extra 300 seconds (5 minutes) of decryptionDelay is enforced after Commit period is over
+      to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
+      const decryptionDelay = countdownToVotingPeriod + 300;
       const { encryptedCommitment, identity } = await encrypt(encodedMessage, decryptionDelay);
 
       const commitHash = hashVote(choice, BigInt(salt), justification);
