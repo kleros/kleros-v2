@@ -176,11 +176,13 @@ const getShutterDisputesToReveal = async (disputeKitShutter: DisputeKitShutter):
     };
   });
 
-  // Filter out the votes where commited is false or voted is true
-  const filteredDisputeVotes = disputeVotes.map((item) => ({
-    ...item,
-    votes: item.votes.filter((vote) => vote.commited && !vote.voted),
-  }));
+  // Filter out the disputes without votes and the votes where committed is false or voted is true
+  const filteredDisputeVotes = disputeVotes
+    .map((item) => ({
+      ...item,
+      votes: item.votes.filter((vote) => vote.commited && !vote.voted),
+    }))
+    .filter((item) => item.votes.length > 0);
 
   return filteredDisputeVotes;
 };

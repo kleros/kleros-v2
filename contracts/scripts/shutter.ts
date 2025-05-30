@@ -2,9 +2,17 @@ import { encryptData, decrypt as shutterDecrypt } from "@shutter-network/shutter
 import { Hex, stringToHex, hexToString } from "viem";
 import crypto from "crypto";
 import "isomorphic-fetch";
+import env from "./utils/env";
 
 // Time in seconds to wait before the message can be decrypted
 export const DECRYPTION_DELAY = 5;
+
+const SHUTTER_API_URL = {
+  mainnet: "https://shutter-api.shutter.network",
+  testnet: "https://shutter-api.chiado.staging.shutter.network",
+};
+
+const SHUTTER_API = env.optional("SHUTTER_API", "mainnet") as keyof typeof SHUTTER_API_URL;
 
 interface ShutterApiMessageData {
   eon: number;
@@ -38,7 +46,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
     const identityPrefix = generateRandomBytes32();
     console.log(`Generated identity prefix: ${identityPrefix}`);
 
-    const response = await fetch("https://shutter-api.shutter.network/api/register_identity", {
+    const response = await fetch(`${SHUTTER_API_URL[SHUTTER_API]}/api/register_identity`, {
       method: "POST",
       headers: {
         accept: "application/json",
@@ -88,7 +96,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
 async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKeyData> {
   console.log(`Fetching decryption key for identity: ${identity}`);
 
-  const response = await fetch(`https://shutter-api.shutter.network/api/get_decryption_key?identity=${identity}`, {
+  const response = await fetch(`${SHUTTER_API_URL[SHUTTER_API]}/api/get_decryption_key?identity=${identity}`, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -232,6 +240,7 @@ Examples:
           console.error("Usage: yarn ts-node shutter.ts encrypt <message>");
           process.exit(1);
         }
+        console.log(`Using Shutter API ${SHUTTER_API_URL[SHUTTER_API]}...`);
         const { encryptedCommitment, identity } = await encrypt(message);
         console.log("\nEncrypted Commitment:", encryptedCommitment);
         console.log("Identity:", identity);
@@ -245,6 +254,7 @@ Examples:
           console.error("Note: The identity is the one returned during encryption");
           process.exit(1);
         }
+        console.log(`Using Shutter API ${SHUTTER_API_URL[SHUTTER_API]}...`);
         const decryptedMessage = await decrypt(encryptedMessage, identity);
         console.log("\nDecrypted Message:", decryptedMessage);
         break;

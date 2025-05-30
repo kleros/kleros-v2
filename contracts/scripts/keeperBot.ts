@@ -71,6 +71,16 @@ type CustomError = {
   errorSignature: string;
 };
 
+enum Period {
+  EVIDENCE = "evidence",
+  COMMIT = "commit",
+  VOTE = "vote",
+  APPEAL = "appeal",
+  EXECUTION = "execution",
+}
+
+const PERIODS = Object.values(Period);
+
 enum Phase {
   STAKING = "staking",
   GENERATING = "generating",
@@ -484,6 +494,10 @@ const filterDisputesToSkip = (disputes: Dispute[]) => {
   return disputes.filter((dispute) => !DISPUTES_TO_SKIP.includes(dispute.id));
 };
 
+const filterDisputesByPeriod = (disputes: Dispute[], period: Period) => {
+  return disputes.filter((dispute) => dispute.period === period);
+};
+
 const mapAsync = <T, U>(array: T[], callbackfn: (value: T, index: number, array: T[]) => Promise<U>): Promise<U[]> => {
   return Promise.all(array.map(callbackfn));
 };
@@ -554,14 +568,6 @@ async function main() {
 
   await sendHeartbeat();
 
-  logger.info("Auto-revealing disputes");
-  await shutterAutoReveal(disputeKitShutter, DISPUTES_TO_SKIP);
-  if (SHUTTER_AUTO_REVEAL_ONLY) {
-    logger.debug("Shutter auto-reveal only, skipping other actions");
-    await shutdown();
-    return;
-  }
-
   logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
   // Retrieve the disputes which are in a non-final period
@@ -588,6 +594,22 @@ async function main() {
   for (const dispute of disputes) {
     logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
+
+  // ----------------------------------------------- //
+  //                  AUTO-REVEAL                    //
+  // ----------------------------------------------- //
+  logger.info("Auto-revealing disputes");
+  // Ensure that the disputes ready to be auto-revealed are passed to the voting period otherwise they won't be picked up.
+  for (const dispute of filterDisputesByPeriod(filterDisputesToSkip(disputes), Period.COMMIT)) {
+    await passPeriod(dispute);
+  }
+  await shutterAutoReveal(disputeKitShutter, DISPUTES_TO_SKIP);
+  if (SHUTTER_AUTO_REVEAL_ONLY) {
+    logger.debug("Shutter auto-reveal only, skipping other actions");
+    await shutdown();
+    return;
+  }
+
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
   if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
     // ----------------------------------------------- //
