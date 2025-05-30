@@ -30,7 +30,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
     // Generate a random identity prefix
     const identityPrefix = generateRandomBytes32();
 
-    const response = await fetch("https://shutter-api.shutter.network/api/register_identity", {
+    const response = await fetch(`${import.meta.env.REACT_APP_SHUTTER_API}/register_identity`, {
       method: "POST",
       headers: {
         accept: "application/json",
@@ -77,7 +77,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
  * @returns Promise with the decryption key data
  */
 async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKeyData> {
-  const response = await fetch(`https://shutter-api.shutter.network/api/get_decryption_key?identity=${identity}`, {
+  const response = await fetch(`${import.meta.env.REACT_APP_SHUTTER_API}/get_decryption_key?identity=${identity}`, {
     method: "GET",
     headers: {
       accept: "application/json",

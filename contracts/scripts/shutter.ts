@@ -1,8 +1,10 @@
+import env from "./utils/env";
 import { encryptData, decrypt as shutterDecrypt } from "@shutter-network/shutter-sdk";
 import { Hex, stringToHex, hexToString } from "viem";
 import crypto from "crypto";
 import "isomorphic-fetch";
 
+const SHUTTER_API = env.optionalNoDefault("SHUTTER_API");
 // Time in seconds to wait before the message can be decrypted
 export const DECRYPTION_DELAY = 5;
 
@@ -38,7 +40,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
     const identityPrefix = generateRandomBytes32();
     console.log(`Generated identity prefix: ${identityPrefix}`);
 
-    const response = await fetch("https://shutter-api.shutter.network/api/register_identity", {
+    const response = await fetch(`${SHUTTER_API}/register_identity`, {
       method: "POST",
       headers: {
         accept: "application/json",
@@ -88,7 +90,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
 async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKeyData> {
   console.log(`Fetching decryption key for identity: ${identity}`);
 
-  const response = await fetch(`https://shutter-api.shutter.network/api/get_decryption_key?identity=${identity}`, {
+  const response = await fetch(`${SHUTTER_API}/get_decryption_key?identity=${identity}`, {
     method: "GET",
     headers: {
       accept: "application/json",
