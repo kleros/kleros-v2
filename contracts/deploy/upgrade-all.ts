@@ -15,7 +15,7 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   const chainId = Number(await getChainId());
   console.log("upgrading on %s with deployer %s", HomeChains[chainId], deployer);
 
-  const { disputeKitClassic, disputeTemplateRegistry, evidence, core, policyRegistry, sortition } =
+  const { disputeKitClassic, disputeKitShutter, disputeTemplateRegistry, evidence, core, policyRegistry, sortition } =
     await getContractNamesFromNetwork(hre);
 
   const upgrade = async (contractName: string, initializer: string, args: any[]) => {
@@ -78,7 +78,8 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
     }
   };
 
-  await upgrade(disputeKitClassic, "initialize6", []);
+  await upgrade(disputeKitClassic, "initialize7", []);
+  await upgrade(disputeKitShutter, "initialize8", []);
   await upgrade(disputeTemplateRegistry, "initialize2", []);
   await upgrade(evidence, "initialize2", []);
   await upgrade(core, "initialize5", []);
