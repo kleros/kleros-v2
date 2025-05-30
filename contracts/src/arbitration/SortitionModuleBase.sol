@@ -312,17 +312,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             delayedStake.courtID = _courtID;
             delayedStake.stake = _newStake;
             emit StakeDelayed(_account, _courtID, _newStake);
-            return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+            return (pnkDeposit, pnkWithdrawal, StakingResult.Delayed);
         }
 
         // Current phase is Staking: set normal stakes or delayed stakes.
         if (_newStake >= currentStake) {
             pnkDeposit = _newStake - currentStake;
-            if (currentStake == 0) {
-                juror.courtIDs.push(_courtID);
-            }
-            // Increase juror's balance by deposited amount.
-            juror.stakedPnk += pnkDeposit;
         } else {
             pnkWithdrawal = currentStake - _newStake;
             // Ensure locked tokens remain in the contract. They can only be released during Execution.
@@ -330,7 +325,28 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             if (pnkWithdrawal > possibleWithdrawal) {
                 pnkWithdrawal = possibleWithdrawal;
             }
-            juror.stakedPnk -= pnkWithdrawal;
+        }
+        return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+    }
+
+    /// @dev Called by KC at the end of setStake flow.
+    function updateState(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) external override onlyByCore {
+        Juror storage juror = jurors[_account];
+        if (_pnkDeposit > 0) {
+            uint256 currentStake = stakeOf(_account, _courtID);
+            if (currentStake == 0) {
+                juror.courtIDs.push(_courtID);
+            }
+            // Increase juror's balance by deposited amount.
+            juror.stakedPnk += _pnkDeposit;
+        } else {
+            juror.stakedPnk -= _pnkWithdrawal;
             if (_newStake == 0) {
                 // Cleanup
                 for (uint256 i = juror.courtIDs.length; i > 0; i--) {
@@ -342,6 +358,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 }
             }
         }
+
         // Update the sortition sum tree.
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
@@ -356,7 +373,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
-        return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
 
     function lockStake(address _account, uint256 _relativeAmount) external override onlyByCore {

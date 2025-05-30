@@ -50,4 +50,12 @@ interface ISortitionModule {
     function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
 
     function withdrawLeftoverPNK(address _account) external;
+
+    function updateState(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) external;
 }

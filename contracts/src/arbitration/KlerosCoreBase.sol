@@ -1099,9 +1099,11 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             _newStake,
             false // Unused parameter.
         );
-        if (stakingResult != StakingResult.Successful) {
+        if (stakingResult != StakingResult.Successful && stakingResult != StakingResult.Delayed) {
             _stakingFailed(_onError, stakingResult);
             return false;
+        } else if (stakingResult == StakingResult.Delayed) {
+            return true;
         }
         if (pnkDeposit > 0) {
             if (!pinakion.safeTransferFrom(_account, address(this), pnkDeposit)) {
@@ -1115,6 +1117,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
                 return false;
             }
         }
+        sortitionModule.updateState(_account, _courtID, pnkDeposit, pnkWithdrawal, _newStake);
+
         return true;
     }
 
