@@ -193,8 +193,10 @@ export const shutterAutoReveal = async (disputeKitShutter: DisputeKitShutter | n
     return [];
   }
 
+  logger.info(`Using Shutter API: ${process.env.SHUTTER_API ?? "mainnet"}`);
+
   const shutterDisputes = await getShutterDisputesToReveal(disputeKitShutter);
-  console.log(JSON.stringify(shutterDisputes, null, 2));
+  logger.info(`Votes to auto-reveal: ${JSON.stringify(shutterDisputes, null, 2)}`);
 
   for (const dispute of shutterDisputes) {
     const { coreDispute, votes } = dispute;
