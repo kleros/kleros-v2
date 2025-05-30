@@ -317,6 +317,14 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         return jurors[_juror].stakedPnk > 0;
     }
 
+    function updateState(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) external {}
+
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
