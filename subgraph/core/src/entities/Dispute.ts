@@ -57,10 +57,36 @@ export const updateDisputeRequestData = (event: DisputeCreation): void => {
   if (!receipt) return;
 
   const logs = receipt.logs;
+  const coreDisputeId = event.params._disputeID;
 
   // note that the topic at 0th index is always the event signature
-  const disputeRequestEventIndex = logs.findIndex((log) => log.topics[0] == DisputeRequestSignature);
-  const crossChainDisputeEventIndex = logs.findIndex((log) => log.topics[0] == CrossChainDisputeIncomingSignature);
+  // For DisputeRequestSignature
+  let disputeRequestEventIndex = -1;
+  for (let i = 0; i < logs.length; i++) {
+    let log = logs[i];
+    if (log.topics.length > 2 && log.topics[0] == DisputeRequestSignature) {
+      // 3rd indexed argument in event is _arbitratorDisputeId
+      let decodedId = ethereum.decode("uint256", log.topics[2]);
+      if (decodedId != null && coreDisputeId.equals(decodedId.toBigInt())) {
+        disputeRequestEventIndex = i;
+        break;
+      }
+    }
+  }
+
+  // For CrossChainDisputeIncomingSignature
+  let crossChainDisputeEventIndex = -1;
+  for (let i = 0; i < logs.length; i++) {
+    let log = logs[i];
+    if (log.topics.length > 3 && log.topics[0] == CrossChainDisputeIncomingSignature) {
+      // 4th indexed argument in event is _arbitratorDisputeId
+      let decodedId = ethereum.decode("uint256", log.topics[3]);
+      if (decodedId != null && coreDisputeId.equals(decodedId.toBigInt())) {
+        crossChainDisputeEventIndex = i;
+        break;
+      }
+    }
+  }
 
   if (crossChainDisputeEventIndex !== -1) {
     const crossChainDisputeEvent = logs[crossChainDisputeEventIndex];
