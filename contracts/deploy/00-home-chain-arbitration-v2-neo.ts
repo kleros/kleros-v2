@@ -5,7 +5,7 @@ import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCoreV2Neo, StakeControllerNeo, PNKVaultNeo } from "../typechain-types";
+import { ChainlinkRNG, DisputeKitClassic, KlerosCoreV2Neo, StakeControllerNeo, VaultNeo } from "../typechain-types";
 
 const deployArbitrationV2Neo: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -43,8 +43,8 @@ const deployArbitrationV2Neo: DeployFunction = async (hre: HardhatRuntimeEnviron
     log: true,
   });
 
-  // Deploy PNKVaultNeo
-  const pnkVaultNeo = await deployUpgradable(deployments, "PNKVaultNeo", {
+  // Deploy VaultNeo
+  const pnkVaultNeo = await deployUpgradable(deployments, "VaultNeo", {
     from: deployer,
     args: [deployer, pnk.target, stPNK.address],
     log: true,
@@ -135,12 +135,12 @@ const deployArbitrationV2Neo: DeployFunction = async (hre: HardhatRuntimeEnviron
   // Configure cross-dependencies
   console.log("Configuring cross-dependencies...");
 
-  // Configure stPNK token to allow PNKVaultNeo operations
+  // Configure stPNK token to allow VaultNeo operations
   const stPNKContract = await ethers.getContractAt("stPNK", stPNK.address);
   const currentVault = await stPNKContract.vault();
   if (currentVault !== pnkVaultNeo.address) {
-    console.log(`stPNK.setVault(${pnkVaultNeo.address})`);
-    await stPNKContract.setVault(pnkVaultNeo.address);
+    console.log(`stPNK.changeVault(${pnkVaultNeo.address})`);
+    await stPNKContract.changeVault(pnkVaultNeo.address);
   }
 
   // disputeKit.changeCore() only if necessary
@@ -192,7 +192,7 @@ const deployArbitrationV2Neo: DeployFunction = async (hre: HardhatRuntimeEnviron
   });
 
   console.log("✅ V2 Neo Architecture deployment completed successfully!");
-  console.log(`📦 PNKVaultNeo: ${pnkVaultNeo.address}`);
+  console.log(`📦 VaultNeo: ${pnkVaultNeo.address}`);
   console.log(`🎫 stPNKNeo: ${stPNK.address}`);
   console.log(`🎯 SortitionModuleV2Neo: ${sortitionModuleV2Neo.address}`);
   console.log(`🎮 StakeControllerNeo: ${stakeControllerNeo.target}`);

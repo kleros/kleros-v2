@@ -3,17 +3,28 @@
 pragma solidity 0.8.24;
 
 import {ISortitionModule} from "./ISortitionModule.sol";
+import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
 import "../../libraries/Constants.sol";
 
 /// @title IStakeController
-/// @notice Interface for the Stake Controller that coordinates between PNKVault and SortitionModule
+/// @notice Interface for the Stake Controller that coordinates between Vault and SortitionModule
 /// @dev Combines phase management, delayed stakes, and coordination between vault and sortition
 interface IStakeController {
+    // ************************************* //
+    // *             Enums                 * //
+    // ************************************* //
+
+    enum Phase {
+        staking, // Stake sum trees can be updated. Pass after `minStakingTime` passes and there is at least one dispute without jurors.
+        generating, // Waiting for a random number. Pass as soon as it is ready.
+        drawing // Jurors can be drawn. Pass after all disputes have jurors or `maxDrawingTime` passes.
+    }
+
     // ************************************* //
     // *             Events                * //
     // ************************************* //
 
-    event NewPhase(ISortitionModule.Phase phase);
+    event NewPhase(Phase phase);
     event JurorPenaltyExecuted(address indexed account, uint256 requestedPenalty, uint256 actualPenalty);
     event StakeUnlocked(address indexed account, uint256 amount);
     event JurorSetInactive(address indexed account);
@@ -22,7 +33,7 @@ interface IStakeController {
     event StakeImported(address indexed account, uint96 indexed courtID, uint256 stake);
     event DelayedStakeImported(address indexed account, uint96 indexed courtID, uint256 stake, uint256 index);
     event MigrationCompleted(uint256 totalAttempted, uint256 totalImported);
-    event PhaseStateMigrated(ISortitionModule.Phase phase, uint256 lastPhaseChange, uint256 disputesWithoutJurors);
+    event PhaseStateMigrated(Phase phase, uint256 lastPhaseChange, uint256 disputesWithoutJurors);
     event EmergencyReset(uint256 timestamp);
 
     // ************************************* //
@@ -34,7 +45,7 @@ interface IStakeController {
 
     /// @notice Get the current phase
     /// @return The current phase
-    function getPhase() external view returns (ISortitionModule.Phase);
+    function getPhase() external view returns (Phase);
 
     /// @notice Execute delayed stakes during staking phase
     /// @param _iterations The number of delayed stakes to execute
@@ -97,6 +108,16 @@ interface IStakeController {
         uint256 _repartition
     ) external view returns (bool shouldSet);
 
+    /// @notice Create dispute hook
+    /// @param _disputeID The dispute ID
+    /// @param _roundID The round ID
+    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
+
+    /// @notice Post draw hook
+    /// @param _disputeID The dispute ID
+    /// @param _roundID The round ID
+    function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
+
     // ************************************* //
     // *         Sortition Delegation      * //
     // ************************************* //
@@ -112,20 +133,6 @@ interface IStakeController {
     /// @param _nonce The drawing nonce
     /// @return The drawn juror address
     function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _nonce) external view returns (address);
-
-    /// @notice Create dispute hook (delegated to SortitionModule)
-    /// @param _disputeID The dispute ID
-    /// @param _roundID The round ID
-    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
-
-    /// @notice Post draw hook (delegated to SortitionModule)
-    /// @param _disputeID The dispute ID
-    /// @param _roundID The round ID
-    function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
-
-    /// @notice Notify random number (delegated to SortitionModule)
-    /// @param _drawnNumber The random number
-    function notifyRandomNumber(uint256 _drawnNumber) external;
 
     // ************************************* //
     // *           View Functions          * //
@@ -162,4 +169,8 @@ interface IStakeController {
     /// @param _account The account to check
     /// @return The deposited balance
     function getDepositedBalance(address _account) external view returns (uint256);
+
+    /// @notice Get the core arbitrator contract
+    /// @return The core contract
+    function core() external view returns (KlerosCoreV2Base);
 }

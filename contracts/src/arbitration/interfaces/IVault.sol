@@ -4,9 +4,9 @@ pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/// @title IPNKVault
+/// @title IVault
 /// @notice Interface for the PNK Vault that handles PNK deposits, withdrawals, locks, and penalties
-interface IPNKVault {
+interface IVault {
     // ************************************* //
     // *              Events               * //
     // ************************************* //

@@ -23,10 +23,9 @@ contract SortitionModuleV2 is SortitionModuleV2Base {
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _governor The governor's address.
-    /// @param _core The KlerosCore contract.
     /// @param _stakeController The StakeController contract.
-    function initialize(address _governor, KlerosCore _core, IStakeController _stakeController) external initializer {
-        __SortitionModuleV2Base_initialize(_governor, _core, _stakeController);
+    function initialize(address _governor, IStakeController _stakeController) external initializer {
+        __SortitionModuleV2Base_initialize(_governor, _stakeController);
     }
 
     // ************************************* //

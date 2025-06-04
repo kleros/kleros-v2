@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.24;
 
-import {PNKVaultBase, IERC20} from "./PNKVaultBase.sol";
+import {VaultBase, IERC20, stPNK} from "./VaultBase.sol";
 
-/// @title PNKVault
+/// @title Vault
 /// @notice PNK Vault for handling deposits, withdrawals, locks, and penalties
 /// @dev Follows the same pattern as KlerosCore for upgradeable contracts
-contract PNKVault is PNKVaultBase {
+contract Vault is VaultBase {
     string public constant override version = "1.0.0";
 
     // ************************************* //
@@ -27,10 +27,11 @@ contract PNKVault is PNKVaultBase {
     function initialize(
         address _governor,
         IERC20 _pnk,
+        stPNK _stPnk,
         address _stakeController,
         address _core
     ) external reinitializer(1) {
-        __PNKVaultBase_initialize(_governor, _pnk, _stakeController, _core);
+        __VaultBase_initialize(_governor, _pnk, _stPnk, _stakeController, _core);
     }
 
     // ************************************* //

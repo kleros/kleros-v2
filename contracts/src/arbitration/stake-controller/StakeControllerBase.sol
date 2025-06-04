@@ -3,17 +3,17 @@
 pragma solidity 0.8.24;
 
 import {IStakeController} from "../interfaces/IStakeController.sol";
-import {IPNKVault} from "../interfaces/IPNKVault.sol";
-import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {IVault} from "../interfaces/IVault.sol";
+import {ISortitionModuleV2} from "../interfaces/ISortitionModuleV2.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
-import {KlerosCore} from "../KlerosCore.sol";
+import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {RNG} from "../../rng/RNG.sol";
 import "../../libraries/Constants.sol";
 
 /// @title StakeControllerBase
-/// @notice Abstract base contract for coordinating between PNKVault and SortitionModule
+/// @notice Abstract base contract for coordinating between Vault and SortitionModule
 /// @dev Manages phases, delayed stakes, and coordination logic
 abstract contract StakeControllerBase is IStakeController, Initializable, UUPSProxiable {
     // ************************************* //
@@ -32,12 +32,12 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // ************************************* //
 
     address public governor; // The governor of the contract.
-    KlerosCore public core; // The core arbitrator contract.
-    IPNKVault public vault; // The PNK vault for token management.
-    ISortitionModule public sortitionModule; // The sortition module for drawing logic.
+    KlerosCoreV2Base public core; // The core arbitrator contract.
+    IVault public vault; // The PNK vault for token management.
+    ISortitionModuleV2 public sortitionModule; // The sortition module for drawing logic.
 
     // Phase management (moved from SortitionModule)
-    ISortitionModule.Phase public phase; // The current phase.
+    Phase public phase; // The current phase.
     uint256 public minStakingTime; // The time after which the phase can be switched to Drawing if there are open disputes.
     uint256 public maxDrawingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
@@ -73,9 +73,9 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     function __StakeControllerBase_initialize(
         address _governor,
-        KlerosCore _core,
-        IPNKVault _vault,
-        ISortitionModule _sortitionModule,
+        KlerosCoreV2Base _core,
+        IVault _vault,
+        ISortitionModuleV2 _sortitionModule,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
@@ -105,13 +105,13 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @dev Changes the `vault` storage variable.
     /// @param _vault The new vault address.
-    function changeVault(IPNKVault _vault) external onlyByGovernor {
+    function changeVault(IVault _vault) external onlyByGovernor {
         vault = _vault;
     }
 
     /// @dev Changes the `sortitionModule` storage variable.
     /// @param _sortitionModule The new sortition module address.
-    function changeSortitionModule(ISortitionModule _sortitionModule) external onlyByGovernor {
+    function changeSortitionModule(ISortitionModuleV2 _sortitionModule) external onlyByGovernor {
         sortitionModule = _sortitionModule;
     }
 
@@ -133,7 +133,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
         rng = _rng;
         rngLookahead = _rngLookahead;
-        if (phase == ISortitionModule.Phase.generating) {
+        if (phase == Phase.generating) {
             rng.requestRandomness(block.number + rngLookahead);
             randomNumberRequestBlock = block.number;
         }
@@ -145,21 +145,21 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @inheritdoc IStakeController
     function passPhase() external override {
-        if (phase == ISortitionModule.Phase.staking) {
+        if (phase == Phase.staking) {
             if (block.timestamp - lastPhaseChange < minStakingTime) revert MinStakingTimeNotPassed();
             if (disputesWithoutJurors == 0) revert NoDisputesNeedingJurors();
             rng.requestRandomness(block.number + rngLookahead);
             randomNumberRequestBlock = block.number;
-            phase = ISortitionModule.Phase.generating;
-        } else if (phase == ISortitionModule.Phase.generating) {
+            phase = Phase.generating;
+        } else if (phase == Phase.generating) {
             randomNumber = rng.receiveRandomness(randomNumberRequestBlock + rngLookahead);
             if (randomNumber == 0) revert RandomNumberNotReady();
-            phase = ISortitionModule.Phase.drawing;
-        } else if (phase == ISortitionModule.Phase.drawing) {
+            phase = Phase.drawing;
+        } else if (phase == Phase.drawing) {
             if (disputesWithoutJurors > 0 && block.timestamp - lastPhaseChange < maxDrawingTime) {
                 revert StillDrawingDisputes();
             }
-            phase = ISortitionModule.Phase.staking;
+            phase = Phase.staking;
         }
 
         lastPhaseChange = block.timestamp;
@@ -167,13 +167,13 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     }
 
     /// @inheritdoc IStakeController
-    function getPhase() external view override returns (ISortitionModule.Phase) {
+    function getPhase() external view override returns (Phase) {
         return phase;
     }
 
     /// @inheritdoc IStakeController
     function executeDelayedStakes(uint256 _iterations) external override {
-        if (phase != ISortitionModule.Phase.staking) revert NotInStakingPhase();
+        if (phase != Phase.staking) revert NotInStakingPhase();
         if (delayedStakeWriteIndex < delayedStakeReadIndex) revert NoDelayedStakes();
 
         uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
@@ -221,15 +221,25 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     function _setStake(
         address _account,
         uint96 _courtID,
+        uint256 _newStake
+    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        return _setStake(_account, _courtID, _newStake, false);
+    }
+
+    /// @dev Internal implementation of setStake with phase-aware delayed stake logic
+    /// TODO: REMOVE THE INSTANT STAKING LOGIC !
+    function _setStake(
+        address _account,
+        uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
     ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        (, , uint256 currentStake, ) = sortitionModule.getJurorBalance(_account, _courtID);
+        (, , uint256 currentStake, ) = sortitionModule.getJurorInfo(_account, _courtID);
 
         // Delete any existing delayed stake for this juror/court
         pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
 
-        if (phase != ISortitionModule.Phase.staking) {
+        if (phase != Phase.staking) {
             // Store the stake change as delayed, to be applied when the phase switches back to Staking.
             DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
             delayedStake.account = _account;
@@ -239,7 +249,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
             if (_newStake > currentStake) {
                 // PNK deposit: tokens are transferred now via vault coordination
-                delayedStake.alreadyTransferred = true;
+                delayedStake.alreadyTransferred = _alreadyTransferred || true;
                 pnkDeposit = _newStake - currentStake;
                 // Note: Actual PNK transfer is handled by KlerosCore through vault
             } else {
@@ -250,7 +260,18 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         }
 
         // Current phase is Staking: set normal stakes through sortition module
-        return sortitionModule.setStake(_account, _courtID, _newStake, _alreadyTransferred);
+        // SortitionModule returns bool success, we need to convert to expected format
+        bool success = sortitionModule.setStake(_account, _courtID, _newStake);
+        if (success) {
+            if (_newStake > currentStake) {
+                pnkDeposit = _newStake - currentStake;
+            } else {
+                pnkWithdrawal = currentStake - _newStake;
+            }
+            return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+        } else {
+            return (0, 0, StakingResult.StakingTransferFailed);
+        }
     }
 
     /// @inheritdoc IStakeController
@@ -286,10 +307,10 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         uint96[] memory courtIds = sortitionModule.getJurorCourtIDs(_account);
 
         for (uint256 i = 0; i < courtIds.length; i++) {
-            (, , uint256 currentStake, ) = sortitionModule.getJurorBalance(_account, courtIds[i]);
+            (, , uint256 currentStake, ) = sortitionModule.getJurorInfo(_account, courtIds[i]);
             if (currentStake > 0) {
                 // Set stake to 0 in sortition module to remove from trees
-                sortitionModule.setStake(_account, courtIds[i], 0, true);
+                sortitionModule.setStake(_account, courtIds[i], 0);
             }
         }
 
@@ -325,24 +346,17 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @inheritdoc IStakeController
     function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _nonce) external view override returns (address) {
-        return sortitionModule.draw(_court, _coreDisputeID, _nonce);
+        return sortitionModule.draw(_court, _coreDisputeID, _nonce, randomNumber);
     }
 
     /// @inheritdoc IStakeController
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
         disputesWithoutJurors++;
-        sortitionModule.createDisputeHook(_disputeID, _roundID);
     }
 
     /// @inheritdoc IStakeController
     function postDrawHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
         disputesWithoutJurors--;
-        sortitionModule.postDrawHook(_disputeID, _roundID);
-    }
-
-    /// @inheritdoc IStakeController
-    function notifyRandomNumber(uint256 _drawnNumber) external override {
-        sortitionModule.notifyRandomNumber(_drawnNumber);
     }
 
     // ************************************* //
@@ -359,7 +373,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         override
         returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts)
     {
-        return sortitionModule.getJurorBalance(_juror, _courtID);
+        return sortitionModule.getJurorInfo(_juror, _courtID);
     }
 
     /// @inheritdoc IStakeController
@@ -369,7 +383,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @inheritdoc IStakeController
     function isJurorStaked(address _juror) external view override returns (bool) {
-        return sortitionModule.isJurorStaked(_juror);
+        return sortitionModule.hasStakes(_juror);
     }
 
     /// @inheritdoc IStakeController
@@ -432,7 +446,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             DelayedStake storage delayedStake = delayedStakes[latestIndex];
             if (delayedStake.alreadyTransferred) {
                 // Calculate amount to withdraw based on the difference
-                (, , uint256 sortitionStake, ) = sortitionModule.getJurorBalance(_juror, _courtID);
+                (, , uint256 sortitionStake, ) = sortitionModule.getJurorInfo(_juror, _courtID);
                 uint256 amountToWithdraw = delayedStake.stake > sortitionStake
                     ? delayedStake.stake - sortitionStake
                     : 0;
@@ -466,8 +480,8 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         for (uint256 i = 0; i < _accounts.length; i++) {
             if (_stakes[i] > 0) {
                 // Direct stake import bypassing normal validation for migration
-                (, , StakingResult result) = sortitionModule.setStake(_accounts[i], _courtIDs[i], _stakes[i], true);
-                if (result == StakingResult.Successful) {
+                bool success = sortitionModule.setStake(_accounts[i], _courtIDs[i], _stakes[i]);
+                if (success) {
                     totalImported++;
                     emit StakeImported(_accounts[i], _courtIDs[i], _stakes[i]);
                 }
@@ -502,7 +516,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     /// @param _lastPhaseChange The last phase change timestamp
     /// @param _disputesWithoutJurors Number of disputes without jurors
     function migratePhaseState(
-        ISortitionModule.Phase _phase,
+        Phase _phase,
         uint256 _lastPhaseChange,
         uint256 _disputesWithoutJurors
     ) external onlyByGovernor {
@@ -515,7 +529,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @dev Emergency coordination reset for critical issues
     function emergencyCoordinationReset() external onlyByGovernor {
-        phase = ISortitionModule.Phase.staking;
+        phase = Phase.staking;
         lastPhaseChange = block.timestamp;
         disputesWithoutJurors = 0;
         randomNumber = 0;

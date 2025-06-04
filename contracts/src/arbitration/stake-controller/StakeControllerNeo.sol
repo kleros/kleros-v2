@@ -3,15 +3,15 @@
 pragma solidity 0.8.24;
 
 import {StakeControllerBase} from "./StakeControllerBase.sol";
-import {IPNKVault} from "../interfaces/IPNKVault.sol";
-import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {IVault} from "../interfaces/IVault.sol";
+import {ISortitionModuleV2} from "../interfaces/ISortitionModuleV2.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
-import {KlerosCore} from "../KlerosCore.sol";
+import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
 import {RNG} from "../../rng/RNG.sol";
 
 /// @title StakeControllerNeo
 /// @notice Enhanced implementation of the Stake Controller with additional features
-/// @dev Coordinates between PNKVault and SortitionModule with improved penalty logic
+/// @dev Coordinates between Vault and SortitionModule with improved penalty logic
 contract StakeControllerNeo is StakeControllerBase {
     string public constant override version = "1.0.0";
 
@@ -50,7 +50,7 @@ contract StakeControllerNeo is StakeControllerBase {
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore contract.
-    /// @param _vault The PNKVault contract.
+    /// @param _vault The Vault contract.
     /// @param _sortitionModule The SortitionModule contract.
     /// @param _minStakingTime The minimum staking time.
     /// @param _maxDrawingTime The maximum drawing time.
@@ -60,9 +60,9 @@ contract StakeControllerNeo is StakeControllerBase {
     /// @param _penaltyCooldownBlocks Minimum blocks between penalties.
     function initialize(
         address _governor,
-        KlerosCore _core,
-        IPNKVault _vault,
-        ISortitionModule _sortitionModule,
+        KlerosCoreV2Base _core,
+        IVault _vault,
+        ISortitionModuleV2 _sortitionModule,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,

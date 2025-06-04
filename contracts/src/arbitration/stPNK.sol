@@ -2,24 +2,25 @@
 
 pragma solidity 0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 
 /// @title stPNK
-/// @notice Non-transferable liquid staking token representing staked PNK
+/// @notice Non-transferable staking token representing staked PNK
 /// @dev Only transferable within Kleros protocol contracts to prevent external trading
 /// @custom:security-contact contact@kleros.io
-contract stPNK is ERC20 {
+contract stPNK is ERC20Upgradeable, UUPSProxiable {
+    string public constant override version = "1.0.0";
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    address public immutable vault;
-
-    // Whitelist of protocol contracts that can receive stPNK
-    mapping(address => bool) public protocolContracts;
-
-    // Track if an address is a regular user (not a protocol contract)
-    mapping(address => bool) public isUser;
+    address public governor;
+    address public vault;
+    mapping(address => bool) public protocolContracts; // Whitelist of protocol contracts that can receive stPNK
+    mapping(address => bool) public isUser; // Track if an address is a regular user (not a protocol contract)
 
     // ************************************* //
     // *              Events               * //
@@ -28,17 +29,13 @@ contract stPNK is ERC20 {
     event ProtocolContractUpdated(address indexed contract_, bool allowed);
 
     // ************************************* //
-    // *              Errors               * //
-    // ************************************* //
-
-    error TransferNotAllowed();
-    error OnlyVault();
-    error OnlyProtocolContracts();
-    error ArrayLengthMismatch();
-
-    // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
+
+    modifier onlyByGovernor() {
+        if (governor != msg.sender) revert GovernorOnly();
+        _;
+    }
 
     modifier onlyVault() {
         if (msg.sender != vault) revert OnlyVault();
@@ -54,11 +51,40 @@ contract stPNK is ERC20 {
     // *            Constructor            * //
     // ************************************* //
 
-    constructor(address _vault) ERC20("Staked Pinakion", "stPNK") {
-        vault = _vault;
+    constructor() {
+        _disableInitializers();
+    }
 
-        // Automatically whitelist vault
-        protocolContracts[_vault] = true;
+    /// @notice Initialize the stPNK token
+    /// @param _governor The governor address
+    /// @param _vault The vault address
+    function initialize(address _governor, address _vault) external initializer {
+        __ERC20_init("Staked Pinakion", "stPNK");
+        governor = _governor;
+        vault = _vault;
+        protocolContracts[_vault] = true; // Automatically whitelist vault
+    }
+
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
+
+    /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+    ///      Only the governor can perform upgrades (`onlyByGovernor`)
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
+
+    /// @notice Change the governor address
+    /// @param _governor The new governor address
+    function changeGovernor(address _governor) external onlyByGovernor {
+        governor = _governor;
+    }
+
+    /// @notice Change the vault address
+    /// @param _vault The new vault address
+    function changeVault(address _vault) external onlyByGovernor {
+        vault = _vault;
     }
 
     // ************************************* //
@@ -90,6 +116,7 @@ contract stPNK is ERC20 {
         if (_contracts.length != _allowed.length) revert ArrayLengthMismatch();
 
         for (uint256 i = 0; i < _contracts.length; i++) {
+            if (_contracts[i] == address(0)) continue;
             protocolContracts[_contracts[i]] = _allowed[i];
             emit ProtocolContractUpdated(_contracts[i], _allowed[i]);
         }
@@ -148,4 +175,14 @@ contract stPNK is ERC20 {
         // Block all other transfers (user-to-user, external contracts)
         revert TransferNotAllowed();
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error TransferNotAllowed();
+    error OnlyVault();
+    error OnlyProtocolContracts();
+    error ArrayLengthMismatch();
 }

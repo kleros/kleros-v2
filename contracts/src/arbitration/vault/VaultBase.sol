@@ -2,16 +2,16 @@
 
 pragma solidity 0.8.24;
 
-import {IPNKVault} from "../interfaces/IPNKVault.sol";
+import {IVault} from "../interfaces/IVault.sol";
 import {stPNK} from "../stPNK.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
 
-/// @title PNKVaultBase
+/// @title VaultBase
 /// @notice Abstract base contract for PNK vault that handles deposits, withdrawals, locks, and penalties
 /// @dev Follows the same pattern as KlerosCoreBase for upgradeable contracts
-abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
+abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
 
     // ************************************* //
@@ -30,7 +30,7 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
 
     address public governor; // The governor of the contract.
     IERC20 public pnk; // The PNK token contract.
-    stPNK public stPnkToken; // The stPNK token contract.
+    stPNK public stPnk; // The stPNK token contract.
     address public stakeController; // The stake controller authorized to lock/unlock/penalize.
     address public core; // The KlerosCore authorized to transfer rewards.
 
@@ -40,7 +40,7 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
     // *              Events               * //
     // ************************************* //
 
-    // Events are defined in IPNKVault interface
+    // Events are defined in IVault interface
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -65,19 +65,18 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
     // *            Constructor            * //
     // ************************************* //
 
-    function __PNKVaultBase_initialize(
+    function __VaultBase_initialize(
         address _governor,
         IERC20 _pnk,
+        stPNK _stPnk,
         address _stakeController,
         address _core
     ) internal onlyInitializing {
         governor = _governor;
         pnk = _pnk;
+        stPnk = _stPnk;
         stakeController = _stakeController;
         core = _core;
-
-        // Deploy stPNK token
-        stPnkToken = new stPNK(address(this));
 
         // Add stakeController and core as protocol contracts in stPNK
         address[] memory contracts = new address[](2);
@@ -86,7 +85,7 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
         contracts[1] = _core;
         allowed[0] = true;
         allowed[1] = true;
-        stPnkToken.setProtocolContracts(contracts, allowed);
+        stPnk.setProtocolContracts(contracts, allowed);
     }
 
     // ************************************* //
@@ -107,7 +106,7 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
         bool[] memory allowed = new bool[](1);
         contracts[0] = _stakeController;
         allowed[0] = true;
-        stPnkToken.setProtocolContracts(contracts, allowed);
+        stPnk.setProtocolContracts(contracts, allowed);
     }
 
     /// @dev Changes the `core` storage variable.
@@ -118,14 +117,14 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
         bool[] memory allowed = new bool[](1);
         contracts[0] = _core;
         allowed[0] = true;
-        stPnkToken.setProtocolContracts(contracts, allowed);
+        stPnk.setProtocolContracts(contracts, allowed);
     }
 
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function deposit(uint256 _amount) external virtual override returns (uint256 stPnkAmount) {
         if (_amount == 0) revert InvalidAmount();
 
@@ -134,12 +133,12 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
 
         // Mint 1:1 stPNK
         stPnkAmount = _amount;
-        stPnkToken.mint(msg.sender, stPnkAmount);
+        stPnk.mint(msg.sender, stPnkAmount);
 
         emit Deposit(msg.sender, _amount);
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function withdraw(uint256 _amount) external virtual override returns (uint256 pnkAmount) {
         if (_amount == 0) revert InvalidAmount();
 
@@ -150,10 +149,10 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
         if (_amount > available) revert InsufficientAvailableBalance();
 
         // Check stPNK balance
-        if (stPnkToken.balanceOf(msg.sender) < _amount) revert InsufficientStPNKBalance();
+        if (stPnk.balanceOf(msg.sender) < _amount) revert InsufficientStPNKBalance();
 
         // Burn stPNK and transfer PNK
-        stPnkToken.burnFrom(msg.sender, _amount);
+        stPnk.burnFrom(msg.sender, _amount);
         balance.deposited -= _amount;
         pnk.safeTransfer(msg.sender, _amount);
 
@@ -161,19 +160,19 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
         return _amount;
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function lockTokens(address _account, uint256 _amount) external virtual override onlyStakeController {
         jurorBalances[_account].locked += _amount;
         emit Lock(_account, _amount);
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function unlockTokens(address _account, uint256 _amount) external virtual override onlyStakeController {
         jurorBalances[_account].locked -= _amount;
         emit Unlock(_account, _amount);
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function applyPenalty(
         address _account,
         uint256 _amount
@@ -188,17 +187,17 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
         balance.penalties += actualPenalty;
 
         // Burn equivalent stPNK if user still holds it
-        uint256 userStPnkBalance = stPnkToken.balanceOf(_account);
+        uint256 userStPnkBalance = stPnk.balanceOf(_account);
         uint256 toBurn = actualPenalty > userStPnkBalance ? userStPnkBalance : actualPenalty;
         if (toBurn > 0) {
-            stPnkToken.burnFrom(_account, toBurn);
+            stPnk.burnFrom(_account, toBurn);
         }
 
         // Note: Penalized PNK stays in vault to fund rewards pool
         emit Penalty(_account, actualPenalty);
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function transferReward(address _account, uint256 _amount) external virtual override onlyCore {
         if (pnk.balanceOf(address(this)) < _amount) revert InsufficientVaultBalance();
         pnk.safeTransfer(_account, _amount);
@@ -209,29 +208,29 @@ abstract contract PNKVaultBase is IPNKVault, Initializable, UUPSProxiable {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function getAvailableBalance(address _account) public view override returns (uint256) {
         JurorBalance storage balance = jurorBalances[_account];
         uint256 locked = balance.locked + balance.penalties;
         return balance.deposited > locked ? balance.deposited - locked : 0;
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function getDepositedBalance(address _account) external view override returns (uint256) {
         return jurorBalances[_account].deposited;
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function getLockedBalance(address _account) external view override returns (uint256) {
         return jurorBalances[_account].locked;
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function getStPNKBalance(address _account) external view override returns (uint256) {
-        return stPnkToken.balanceOf(_account);
+        return stPnk.balanceOf(_account);
     }
 
-    /// @inheritdoc IPNKVault
+    /// @inheritdoc IVault
     function getPenaltyBalance(address _account) external view override returns (uint256) {
         return jurorBalances[_account].penalties;
     }

@@ -39,18 +39,16 @@ contract SortitionModuleV2Neo is SortitionModuleV2Base {
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _governor The governor's address.
-    /// @param _core The KlerosCore contract.
     /// @param _stakeController The StakeController contract.
     /// @param _maxStakePerJuror Maximum stake amount per juror.
     /// @param _maxTotalStakedInCourt Maximum total stake per court.
     function initialize(
         address _governor,
-        KlerosCore _core,
         IStakeController _stakeController,
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStakedInCourt
     ) external initializer {
-        __SortitionModuleV2Base_initialize(_governor, _core, _stakeController);
+        __SortitionModuleV2Base_initialize(_governor, _stakeController);
 
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStakedInCourt = _maxTotalStakedInCourt;

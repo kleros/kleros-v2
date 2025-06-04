@@ -12,7 +12,7 @@ pragma solidity 0.8.24;
 
 import {ISortitionModuleV2} from "../interfaces/ISortitionModuleV2.sol";
 import {IStakeController} from "../interfaces/IStakeController.sol";
-import {KlerosCore} from "../KlerosCore.sol";
+import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import "../../libraries/Constants.sol";
@@ -45,7 +45,6 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
     // ************************************* //
 
     address public governor; // The governor of the contract.
-    KlerosCore public core; // The core arbitrator contract.
     IStakeController public stakeController; // The stake controller for coordination.
 
     mapping(bytes32 treeHash => SortitionSumTree) internal sortitionSumTrees; // The mapping trees by keys.
@@ -65,22 +64,15 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
         _;
     }
 
-    modifier onlyByCoreOrController() {
-        if (address(core) != msg.sender && address(stakeController) != msg.sender) revert CoreOrStakeControllerOnly();
-        _;
-    }
-
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
     function __SortitionModuleV2Base_initialize(
         address _governor,
-        KlerosCore _core,
         IStakeController _stakeController
     ) internal onlyInitializing {
         governor = _governor;
-        core = _core;
         stakeController = _stakeController;
     }
 
@@ -105,7 +97,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
     // ************************************* //
 
     /// @inheritdoc ISortitionModuleV2
-    function createTree(bytes32 _key, bytes memory _extraData) external override onlyByCoreOrController {
+    function createTree(bytes32 _key, bytes memory _extraData) external override onlyByStakeController {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 K = _extraDataToTreeK(_extraData);
         if (tree.K != 0) revert TreeAlreadyExists();
@@ -260,7 +252,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currentCourtID = _courtID;
-
+        KlerosCoreV2Base core = stakeController.core();
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
@@ -443,7 +435,6 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
 
     error GovernorOnly();
     error StakeControllerOnly();
-    error CoreOrStakeControllerOnly();
     error TreeAlreadyExists();
     error InvalidTreeK();
 }
