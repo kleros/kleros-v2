@@ -34,6 +34,7 @@ interface IAtlasProvider {
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
   isUploadingFile: boolean;
+  isConfirmingEmail: boolean;
   user: User | undefined;
   userExists: boolean;
   authoriseUser: () => Promise<void>;
@@ -65,6 +66,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
+  const [isConfirmingEmail, setIsConfirmingEmail] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const { signMessageAsync } = useSignMessage({ config: config.wagmiConfig });
@@ -308,7 +310,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const confirmEmail = useCallback(
     async (userSettings: ConfirmEmailData): Promise<ConfirmEmailResponse & { isError: boolean }> => {
       try {
-        setIsUpdatingUser(true);
+        setIsConfirmingEmail(true);
 
         const emailConfirmed = await confirmEmailInAtlas(atlasGqlClient, userSettings);
 
@@ -317,6 +319,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         // eslint-disable-next-line
         console.log("Confirm Email Error : ", err?.message);
         return { isConfirmed: false, isTokenExpired: false, isTokenInvalid: false, isError: true };
+      } finally {
+        setIsConfirmingEmail(false);
       }
     },
     [atlasGqlClient]
@@ -340,6 +344,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           uploadFile,
           confirmEmail,
           roleRestrictions,
+          isConfirmingEmail,
         }),
         [
           isVerified,
@@ -356,6 +361,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           uploadFile,
           confirmEmail,
           roleRestrictions,
+          isConfirmingEmail,
         ]
       )}
     >
