@@ -101,15 +101,15 @@ contract VaultNeo is VaultBase {
     // ************************************* //
 
     /// @notice Deposit PNK and mint stPNK with additional validation checks
-    function deposit(uint256 _amount) external override returns (uint256 stPnkAmount) {
+    function _deposit(address _from, uint256 _amount) internal override returns (uint256 stPnkAmount) {
         // Check NFT requirement if set
-        if (address(depositNft) != address(0) && depositNft.balanceOf(msg.sender) == 0) {
+        if (address(depositNft) != address(0) && depositNft.balanceOf(_from) == 0) {
             revert DepositNftRequired();
         }
 
         // Check per-user deposit limit
         if (maxDepositPerUser > 0) {
-            uint256 currentUserDeposit = jurorBalances[msg.sender].deposited;
+            uint256 currentUserDeposit = jurorBalances[_from].deposited;
             if (currentUserDeposit + _amount > maxDepositPerUser) {
                 revert ExceedsMaxDepositPerUser();
             }
@@ -123,13 +123,13 @@ contract VaultNeo is VaultBase {
         // Update total deposited
         totalDeposited += _amount;
 
-        return this.deposit(_amount);
+        return super._deposit(_from, _amount);
     }
 
     /// @notice Withdraw PNK by burning stPNK and update total deposited
-    function withdraw(uint256 _amount) external override returns (uint256 pnkAmount) {
+    function _withdraw(address _to, uint256 _amount) internal override returns (uint256 pnkAmount) {
         totalDeposited -= _amount;
-        return this.withdraw(_amount);
+        return super._withdraw(_to, _amount);
     }
 
     // ************************************* //

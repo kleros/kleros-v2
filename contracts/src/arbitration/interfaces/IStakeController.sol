@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.24;
 
-import {ISortitionModule} from "./ISortitionModule.sol";
 import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
 import "../../libraries/Constants.sol";
 
@@ -24,17 +23,18 @@ interface IStakeController {
     // *             Events                * //
     // ************************************* //
 
-    event NewPhase(Phase phase);
-    event JurorPenaltyExecuted(address indexed account, uint256 requestedPenalty, uint256 actualPenalty);
-    event StakeUnlocked(address indexed account, uint256 amount);
-    event JurorSetInactive(address indexed account);
+    event NewPhase(Phase _phase);
+    event JurorPenaltyExecuted(address indexed _account, uint256 _penalty, uint256 _actualPenalty);
+    event StakeLocked(address indexed _account, uint256 _amount);
+    event StakeUnlocked(address indexed _account, uint256 _amount);
+    event JurorSetInactive(address indexed _account);
 
     // Migration events
-    event StakeImported(address indexed account, uint96 indexed courtID, uint256 stake);
-    event DelayedStakeImported(address indexed account, uint96 indexed courtID, uint256 stake, uint256 index);
-    event MigrationCompleted(uint256 totalAttempted, uint256 totalImported);
-    event PhaseStateMigrated(Phase phase, uint256 lastPhaseChange, uint256 disputesWithoutJurors);
-    event EmergencyReset(uint256 timestamp);
+    event StakeImported(address indexed _juror, uint96 indexed _courtID, uint256 _stake);
+    event DelayedStakeImported(address indexed _juror, uint96 indexed _courtID, uint256 _stake, uint256 _index);
+    event MigrationCompleted(uint256 _totalAccounts, uint256 _totalStakesImported);
+    event PhaseStateMigrated(Phase _phase, uint256 _lastPhaseChange, uint256 _disputesWithoutJurors);
+    event EmergencyReset(uint256 _timestamp);
 
     // ************************************* //
     // *          Phase Management         * //
@@ -45,7 +45,7 @@ interface IStakeController {
 
     /// @notice Get the current phase
     /// @return The current phase
-    function getPhase() external view returns (Phase);
+    function phase() external view returns (Phase);
 
     /// @notice Execute delayed stakes during staking phase
     /// @param _iterations The number of delayed stakes to execute
@@ -83,30 +83,13 @@ interface IStakeController {
     /// @notice Execute penalty on juror through vault coordination
     /// @param _account The account to penalize
     /// @param _penalty The penalty amount
-    /// @param _totalStake The total stake amount (for inactivity check)
     /// @return actualPenalty The actual penalty applied
-    function executeJurorPenalty(
-        address _account,
-        uint256 _penalty,
-        uint256 _totalStake
-    ) external returns (uint256 actualPenalty);
+    function executeJurorPenalty(address _account, uint256 _penalty) external returns (uint256 actualPenalty);
 
     /// @notice Set juror as inactive and remove from all sortition trees
     /// @param _account The juror to set inactive
-    function setJurorInactive(address _account) external;
-
-    /// @notice Check if a juror should be set inactive after penalty
-    /// @param _account The juror account
-    /// @param _disputeID The dispute ID
-    /// @param _round The round number
-    /// @param _repartition The repartition index
-    /// @return shouldSet Whether the juror should be set inactive
-    function shouldSetJurorInactive(
-        address _account,
-        uint256 _disputeID,
-        uint256 _round,
-        uint256 _repartition
-    ) external view returns (bool shouldSet);
+    /// @return pnkToWithdraw The amount of PNK to withdraw
+    function setJurorInactive(address _account) external returns (uint256 pnkToWithdraw);
 
     /// @notice Create dispute hook
     /// @param _disputeID The dispute ID
@@ -141,14 +124,26 @@ interface IStakeController {
     /// @notice Get juror balance information
     /// @param _juror The juror address
     /// @param _courtID The court ID
+    /// @return availablePnk Available PNK
+    /// @return lockedPnk Locked PNK
+    /// @return penaltyPnk Penalty PNK
     /// @return totalStaked Total staked amount
-    /// @return totalLocked Total locked amount
     /// @return stakedInCourt Amount staked in specific court
     /// @return nbCourts Number of courts staked in
     function getJurorBalance(
         address _juror,
         uint96 _courtID
-    ) external view returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts);
+    )
+        external
+        view
+        returns (
+            uint256 availablePnk,
+            uint256 lockedPnk,
+            uint256 penaltyPnk,
+            uint256 totalStaked,
+            uint256 stakedInCourt,
+            uint256 nbCourts
+        );
 
     /// @notice Get court IDs where juror has stakes
     /// @param _juror The juror address

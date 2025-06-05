@@ -72,13 +72,12 @@ interface ISortitionModuleV2 {
     /// @param _juror The juror address
     /// @param _courtID The court ID
     /// @return totalStaked Total staked amount (from external source)
-    /// @return totalLocked Total locked amount (from external source)
     /// @return stakedInCourt Amount staked in specific court
     /// @return nbCourts Number of courts staked in
     function getJurorInfo(
         address _juror,
         uint96 _courtID
-    ) external view returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts);
+    ) external view returns (uint256 totalStaked, uint256 stakedInCourt, uint256 nbCourts);
 
     /// @notice Get court IDs where juror has stakes
     /// @param _juror The juror address

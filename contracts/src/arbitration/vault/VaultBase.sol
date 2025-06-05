@@ -125,38 +125,57 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     // ************************************* //
 
     /// @inheritdoc IVault
-    function deposit(uint256 _amount) external virtual override returns (uint256 stPnkAmount) {
+    function deposit(address _from, uint256 _amount) external virtual override onlyCore returns (uint256 stPnkAmount) {
+        return _deposit(_from, _amount);
+    }
+
+    /// @dev Internal implementation of deposit.
+    /// @param _from The user address for the deposit.
+    /// @param _amount The amount of PNK to deposit.
+    /// @return stPnkAmount The amount of stPNK minted.
+    function _deposit(address _from, uint256 _amount) internal virtual returns (uint256 stPnkAmount) {
         if (_amount == 0) revert InvalidAmount();
 
-        pnk.safeTransferFrom(msg.sender, address(this), _amount);
-        jurorBalances[msg.sender].deposited += _amount;
+        // Transfer PNK from the user to the vault
+        // The Vault must be approved by _from to transfer PNK to the vault
+        pnk.safeTransferFrom(_from, address(this), _amount);
+        jurorBalances[_from].deposited += _amount;
 
-        // Mint 1:1 stPNK
+        // Mint 1:1 stPNK to the user account
         stPnkAmount = _amount;
-        stPnk.mint(msg.sender, stPnkAmount);
+        stPnk.mint(_from, stPnkAmount);
 
-        emit Deposit(msg.sender, _amount);
+        emit Deposit(_from, _amount);
     }
 
     /// @inheritdoc IVault
-    function withdraw(uint256 _amount) external virtual override returns (uint256 pnkAmount) {
+    function withdraw(address _to, uint256 _amount) external virtual override onlyCore returns (uint256 pnkAmount) {
+        return _withdraw(_to, _amount);
+    }
+
+    /// @dev Internal implementation of withdraw.
+    /// @param _to The user address for the withdrawal.
+    /// @param _amount The amount of stPNK to withdraw (will be burned).
+    /// @return pnkAmount The amount of PNK transferred back to the user.
+    function _withdraw(address _to, uint256 _amount) internal virtual returns (uint256 pnkAmount) {
         if (_amount == 0) revert InvalidAmount();
 
-        JurorBalance storage balance = jurorBalances[msg.sender];
+        JurorBalance storage balance = jurorBalances[_to];
 
-        // Check available balance (deposited - locked - penalties)
-        uint256 available = getAvailableBalance(msg.sender);
+        // Check available balance (deposited - locked - penalties) for the user
+        uint256 available = getAvailableBalance(_to);
         if (_amount > available) revert InsufficientAvailableBalance();
 
-        // Check stPNK balance
-        if (stPnk.balanceOf(msg.sender) < _amount) revert InsufficientStPNKBalance();
+        // Check stPNK balance of the user
+        // The Vault must be approved by _to to burn their stPNK
+        if (stPnk.balanceOf(_to) < _amount) revert InsufficientStPNKBalance();
 
-        // Burn stPNK and transfer PNK
-        stPnk.burnFrom(msg.sender, _amount);
+        // Burn stPNK from the user and transfer PNK to the user
+        stPnk.burnFrom(_to, _amount); // Vault burns user's stPNK
         balance.deposited -= _amount;
-        pnk.safeTransfer(msg.sender, _amount);
+        pnk.safeTransfer(_to, _amount); // Vault sends PNK to user
 
-        emit Withdraw(msg.sender, _amount);
+        emit Withdraw(_to, _amount);
         return _amount;
     }
 
@@ -211,8 +230,8 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     /// @inheritdoc IVault
     function getAvailableBalance(address _account) public view override returns (uint256) {
         JurorBalance storage balance = jurorBalances[_account];
-        uint256 locked = balance.locked + balance.penalties;
-        return balance.deposited > locked ? balance.deposited - locked : 0;
+        uint256 unavailable = balance.locked + balance.penalties;
+        return balance.deposited > unavailable ? balance.deposited - unavailable : 0;
     }
 
     /// @inheritdoc IVault

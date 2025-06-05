@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
+import {DisputeKitClassicBase, KlerosCoreV2} from "./DisputeKitClassicBase.sol";
 
 interface IBalanceHolder {
     /// @dev Returns the number of tokens in `owner` account.
@@ -54,7 +54,7 @@ contract DisputeKitGated is DisputeKitClassicBase {
     /// @param _isERC1155 Whether the token is an ERC-1155
     function initialize(
         address _governor,
-        KlerosCore _core,
+        KlerosCoreV2 _core,
         address _tokenGate,
         uint256 _tokenId,
         bool _isERC1155

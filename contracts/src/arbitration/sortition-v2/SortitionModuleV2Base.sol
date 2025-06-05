@@ -180,17 +180,11 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
     function getJurorInfo(
         address _juror,
         uint96 _courtID
-    )
-        external
-        view
-        override
-        returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts)
-    {
+    ) external view override returns (uint256 totalStaked, uint256 stakedInCourt, uint256 nbCourts) {
         JurorStakeInfo storage info = jurorStakeInfo[_juror];
 
         // Get total staked and locked from stake controller
         totalStaked = stakeController.getDepositedBalance(_juror);
-        totalLocked = 0; // Will be retrieved from vault through stake controller if needed
 
         // Get stake in specific court from sortition tree
         stakedInCourt = this.stakeOf(_juror, _courtID);

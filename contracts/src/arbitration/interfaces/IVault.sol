@@ -23,14 +23,16 @@ interface IVault {
     // ************************************* //
 
     /// @notice Deposit PNK and mint stPNK
+    /// @param _from The account to deposit from
     /// @param _amount The amount of PNK to deposit
     /// @return stPnkAmount The amount of stPNK minted
-    function deposit(uint256 _amount) external returns (uint256 stPnkAmount);
+    function deposit(address _from, uint256 _amount) external returns (uint256 stPnkAmount);
 
     /// @notice Withdraw PNK by burning stPNK
+    /// @param _to The account to withdraw to
     /// @param _amount The amount to withdraw
     /// @return pnkAmount The amount of PNK withdrawn
-    function withdraw(uint256 _amount) external returns (uint256 pnkAmount);
+    function withdraw(address _to, uint256 _amount) external returns (uint256 pnkAmount);
 
     /// @notice Lock tokens for dispute participation (only StakeController)
     /// @param _account The account to lock tokens for
