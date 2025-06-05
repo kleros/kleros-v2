@@ -3,7 +3,6 @@
 pragma solidity 0.8.24;
 
 import {IVault} from "./interfaces/IVault.sol";
-import {stPNK} from "./stPNK.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
@@ -30,7 +29,6 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
 
     address public governor; // The governor of the contract.
     IERC20 public pnk; // The PNK token contract.
-    stPNK public stPnk; // The stPNK token contract.
     address public stakeController; // The stake controller authorized to lock/unlock/penalize.
     address public core; // The KlerosCore authorized to transfer rewards.
 
@@ -68,24 +66,13 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     function __VaultBase_initialize(
         address _governor,
         IERC20 _pnk,
-        stPNK _stPnk,
         address _stakeController,
         address _core
     ) internal onlyInitializing {
         governor = _governor;
         pnk = _pnk;
-        stPnk = _stPnk;
         stakeController = _stakeController;
         core = _core;
-
-        // Add stakeController and core as protocol contracts in stPNK
-        address[] memory contracts = new address[](2);
-        bool[] memory allowed = new bool[](2);
-        contracts[0] = _stakeController;
-        contracts[1] = _core;
-        allowed[0] = true;
-        allowed[1] = true;
-        stPnk.setProtocolContracts(contracts, allowed);
     }
 
     // ************************************* //
@@ -102,22 +89,12 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     /// @param _stakeController The new value for the `stakeController` storage variable.
     function changeStakeController(address _stakeController) external onlyByGovernor {
         stakeController = _stakeController;
-        address[] memory contracts = new address[](1);
-        bool[] memory allowed = new bool[](1);
-        contracts[0] = _stakeController;
-        allowed[0] = true;
-        stPnk.setProtocolContracts(contracts, allowed);
     }
 
     /// @dev Changes the `core` storage variable.
     /// @param _core The new value for the `core` storage variable.
     function changeCore(address _core) external onlyByGovernor {
         core = _core;
-        address[] memory contracts = new address[](1);
-        bool[] memory allowed = new bool[](1);
-        contracts[0] = _core;
-        allowed[0] = true;
-        stPnk.setProtocolContracts(contracts, allowed);
     }
 
     // ************************************* //
@@ -125,25 +102,20 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     // ************************************* //
 
     /// @inheritdoc IVault
-    function deposit(address _from, uint256 _amount) external virtual override onlyCore returns (uint256 stPnkAmount) {
-        return _deposit(_from, _amount);
+    function deposit(address _from, uint256 _amount) external virtual override onlyCore {
+        _deposit(_from, _amount);
     }
 
     /// @dev Internal implementation of deposit.
     /// @param _from The user address for the deposit.
     /// @param _amount The amount of PNK to deposit.
-    /// @return stPnkAmount The amount of stPNK minted.
-    function _deposit(address _from, uint256 _amount) internal virtual returns (uint256 stPnkAmount) {
+    function _deposit(address _from, uint256 _amount) internal virtual {
         if (_amount == 0) revert InvalidAmount();
 
         // Transfer PNK from the user to the vault
         // The Vault must be approved by _from to transfer PNK to the vault
         pnk.safeTransferFrom(_from, address(this), _amount);
         jurorBalances[_from].deposited += _amount;
-
-        // Mint 1:1 stPNK to the user account
-        stPnkAmount = _amount;
-        stPnk.mint(_from, stPnkAmount);
 
         emit Deposit(_from, _amount);
     }
@@ -155,7 +127,7 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
 
     /// @dev Internal implementation of withdraw.
     /// @param _to The user address for the withdrawal.
-    /// @param _amount The amount of stPNK to withdraw (will be burned).
+    /// @param _amount The amount of PNK to withdraw.
     /// @return pnkAmount The amount of PNK transferred back to the user.
     function _withdraw(address _to, uint256 _amount) internal virtual returns (uint256 pnkAmount) {
         if (_amount == 0) revert InvalidAmount();
@@ -166,12 +138,6 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
         uint256 available = getAvailableBalance(_to);
         if (_amount > available) revert InsufficientAvailableBalance();
 
-        // Check stPNK balance of the user
-        // The Vault must be approved by _to to burn their stPNK
-        if (stPnk.balanceOf(_to) < _amount) revert InsufficientStPNKBalance();
-
-        // Burn stPNK from the user and transfer PNK to the user
-        stPnk.burnFrom(_to, _amount); // Vault burns user's stPNK
         balance.deposited -= _amount;
         pnk.safeTransfer(_to, _amount); // Vault sends PNK to user
 
@@ -206,13 +172,6 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
         balance.deposited -= actualPenalty;
         balance.penalties += actualPenalty;
 
-        // Burn equivalent stPNK if user still holds it
-        uint256 userStPnkBalance = stPnk.balanceOf(_account);
-        uint256 toBurn = actualPenalty > userStPnkBalance ? userStPnkBalance : actualPenalty;
-        if (toBurn > 0) {
-            stPnk.burnFrom(_account, toBurn);
-        }
-
         // Note: Penalized PNK stays in vault to fund rewards pool
         emit Penalty(_account, actualPenalty);
     }
@@ -246,11 +205,6 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     }
 
     /// @inheritdoc IVault
-    function getStPNKBalance(address _account) external view override returns (uint256) {
-        return stPnk.balanceOf(_account);
-    }
-
-    /// @inheritdoc IVault
     function getPenaltyBalance(address _account) external view override returns (uint256) {
         return jurorBalances[_account].penalties;
     }
@@ -264,6 +218,5 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     error OnlyCore();
     error InvalidAmount();
     error InsufficientAvailableBalance();
-    error InsufficientStPNKBalance();
     error InsufficientVaultBalance();
 }

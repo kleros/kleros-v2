@@ -1102,7 +1102,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         }
         if (pnkDeposit > 0) {
             try vault.deposit(_account, pnkDeposit) {
-                // Successfully deposited PNK and minted stPNK via Vault
+                // Successfully deposited PNK
             } catch {
                 // Revert with a specific error or reuse existing one
                 _stakingFailed(_onError, StakingResult.StakingTransferFailed); // Indicating failure in the deposit part of staking
@@ -1111,7 +1111,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         }
         if (pnkWithdrawal > 0) {
             try vault.withdraw(_account, pnkWithdrawal) {
-                // Successfully burned stPNK and withdrew PNK via Vault
+                // Successfully withdrew PNK via Vault
             } catch {
                 // Revert with a specific error or reuse existing one
                 _stakingFailed(_onError, StakingResult.UnstakingTransferFailed); // Indicating failure in the withdrawal part of unstaking
@@ -1143,7 +1143,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         }
         if (pnkDeposit > 0) {
             try vault.deposit(_account, pnkDeposit) {
-                // Successfully deposited PNK and minted stPNK via Vault
+                // Successfully deposited PNK
             } catch {
                 // Revert with a specific error or reuse existing one
                 _stakingFailed(onError, StakingResult.StakingTransferFailed); // Indicating failure in the deposit part of staking
@@ -1152,7 +1152,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         }
         if (pnkWithdrawal > 0) {
             try vault.withdraw(_account, pnkWithdrawal) {
-                // Successfully burned stPNK and withdrew PNK via Vault
+                // Successfully withdrew PNK via Vault
             } catch {
                 // Revert with a specific error or reuse existing one
                 _stakingFailed(onError, StakingResult.UnstakingTransferFailed); // Indicating failure in the withdrawal part of unstaking

@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {VaultBase, IERC20, stPNK} from "./VaultBase.sol";
+import {VaultBase, IERC20} from "./VaultBase.sol";
 
 /// @title Vault
 /// @notice PNK Vault for handling deposits, withdrawals, locks, and penalties
@@ -27,11 +27,10 @@ contract Vault is VaultBase {
     function initialize(
         address _governor,
         IERC20 _pnk,
-        stPNK _stPnk,
         address _stakeController,
         address _core
     ) external reinitializer(1) {
-        __VaultBase_initialize(_governor, _pnk, _stPnk, _stakeController, _core);
+        __VaultBase_initialize(_governor, _pnk, _stakeController, _core);
     }
 
     // ************************************* //

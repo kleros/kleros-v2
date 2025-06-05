@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {VaultBase, IERC20, stPNK} from "./VaultBase.sol";
+import {VaultBase, IERC20} from "./VaultBase.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -51,14 +51,13 @@ contract VaultNeo is VaultBase {
     function initialize(
         address _governor,
         IERC20 _pnk,
-        stPNK _stPnk,
         address _stakeController,
         address _core,
         IERC721 _depositNft,
         uint256 _maxDepositPerUser,
         uint256 _totalDepositCap
     ) external reinitializer(2) {
-        __VaultBase_initialize(_governor, _pnk, _stPnk, _stakeController, _core);
+        __VaultBase_initialize(_governor, _pnk, _stakeController, _core);
 
         depositNft = _depositNft;
         maxDepositPerUser = _maxDepositPerUser;
@@ -100,8 +99,8 @@ contract VaultNeo is VaultBase {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @notice Deposit PNK and mint stPNK with additional validation checks
-    function _deposit(address _from, uint256 _amount) internal override returns (uint256 stPnkAmount) {
+    /// @inheritdoc VaultBase
+    function _deposit(address _from, uint256 _amount) internal override {
         // Check NFT requirement if set
         if (address(depositNft) != address(0) && depositNft.balanceOf(_from) == 0) {
             revert DepositNftRequired();
@@ -123,10 +122,10 @@ contract VaultNeo is VaultBase {
         // Update total deposited
         totalDeposited += _amount;
 
-        return super._deposit(_from, _amount);
+        super._deposit(_from, _amount);
     }
 
-    /// @notice Withdraw PNK by burning stPNK and update total deposited
+    /// @inheritdoc VaultBase
     function _withdraw(address _to, uint256 _amount) internal override returns (uint256 pnkAmount) {
         totalDeposited -= _amount;
         return super._withdraw(_to, _amount);

@@ -22,13 +22,12 @@ interface IVault {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @notice Deposit PNK and mint stPNK
+    /// @notice Deposit PNK in the vault
     /// @param _from The account to deposit from
     /// @param _amount The amount of PNK to deposit
-    /// @return stPnkAmount The amount of stPNK minted
-    function deposit(address _from, uint256 _amount) external returns (uint256 stPnkAmount);
+    function deposit(address _from, uint256 _amount) external;
 
-    /// @notice Withdraw PNK by burning stPNK
+    /// @notice Withdraw PNK
     /// @param _to The account to withdraw to
     /// @param _amount The amount to withdraw
     /// @return pnkAmount The amount of PNK withdrawn
@@ -77,11 +76,6 @@ interface IVault {
     /// @param _account The account to check
     /// @return The locked balance
     function getLockedBalance(address _account) external view returns (uint256);
-
-    /// @notice Get stPNK balance (same as deposited - penalties)
-    /// @param _account The account to check
-    /// @return The stPNK balance
-    function getStPNKBalance(address _account) external view returns (uint256);
 
     /// @notice Get penalty balance
     /// @param _account The account to check

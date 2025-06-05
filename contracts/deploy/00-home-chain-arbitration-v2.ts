@@ -42,33 +42,27 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
   // Calculate future addresses for circular dependencies
   const nonce = await ethers.provider.getTransactionCount(deployer);
 
-  const vaultAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): stPNK Impl tx, stPNK Proxy tx, Vault Impl tx, Vault Proxy tx
-  console.log("calculated future Vault address for nonce %d: %s", nonce + 3, vaultAddress);
+  const vaultAddress = getContractAddress(deployer, nonce + 1); // deployed on the 2nd tx (nonce+1): Vault Impl tx, Vault Proxy tx
+  console.log("calculated future Vault address for nonce %d: %s", nonce + 1, vaultAddress);
 
-  const stakeControllerAddress = getContractAddress(deployer, nonce + 7); // deployed on the 8th tx (nonce+7): StakeController Impl tx, StakeController Proxy tx
-  console.log("calculated future StakeController address for nonce %d: %s", nonce + 7, stakeControllerAddress);
+  const stakeControllerAddress = getContractAddress(deployer, nonce + 5); // deployed on the 6th tx (nonce+5): Vault Impl tx, Vault Proxy tx, SortitionModule Impl tx, SortitionModule Proxy tx,, StakeController Impl tx, StakeController Proxy tx
+  console.log("calculated future StakeController address for nonce %d: %s", nonce + 5, stakeControllerAddress);
 
-  const klerosCoreV2Address = getContractAddress(deployer, nonce + 9); // deployed on the 10th tx (nonce+9): SortitionModule Impl tx, SortitionModule Proxy tx, StakeController Impl tx, StakeController Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
-  console.log("calculated future KlerosCoreX address for nonce %d: %s", nonce + 9, klerosCoreV2Address);
-
-  const stPNK = await deployUpgradable(deployments, "stPNK", {
-    from: deployer,
-    args: [deployer, vaultAddress],
-    log: true,
-  }); // nonce (implementation), nonce+1 (proxy)
+  const klerosCoreAddress = getContractAddress(deployer, nonce + 7); // deployed on the 8th tx (nonce+7): Vault Impl tx, Vault Proxy tx, SortitionModule Impl tx, SortitionModule Proxy tx, StakeController Impl tx, StakeController Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+  console.log("calculated future KlerosCoreX address for nonce %d: %s", nonce + 7, klerosCoreAddress);
 
   const vault = await deployUpgradable(deployments, "Vault", {
     from: deployer,
-    args: [deployer, pnk.target, stPNK.address, stakeControllerAddress, klerosCoreV2Address],
+    args: [deployer, pnk.target, stakeControllerAddress, klerosCoreAddress],
     log: true,
-  }); // nonce + 2 (implementation), nonce + 3 (proxy)
+  }); // nonce (implementation), nonce + 1 (proxy)
 
   // Deploy SortitionSumTree
   const sortitionModuleV2 = await deployUpgradable(deployments, "SortitionSumTree", {
     from: deployer,
     args: [deployer, stakeControllerAddress],
     log: true,
-  }); // nonce + 4 (implementation), nonce + 5 (proxy)
+  }); // nonce + 2 (implementation), nonce + 3 (proxy)
 
   // Deploy StakeController (only if not already deployed)
   const devnet = isDevnet(hre.network);
@@ -79,7 +73,7 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
     from: deployer,
     args: [
       deployer,
-      klerosCoreV2Address,
+      klerosCoreAddress,
       vault.address,
       sortitionModuleV2.address,
       rng.target,
@@ -88,7 +82,7 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
       RNG_LOOKAHEAD,
     ],
     log: true,
-  }); // nonce + 6 (implementation), nonce + 7 (proxy)
+  }); // nonce + 4 (implementation), nonce + 5 (proxy)
 
   const minStake = PNK(200);
   const alpha = 10000;
@@ -150,7 +144,6 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
 
   console.log("✅ V2 Architecture deployment completed successfully!");
   console.log(`📦 Vault: ${vault.address}`);
-  console.log(`🎫 stPNK: ${stPNK.address}`);
   console.log(`🎯 SortitionSumTree: ${sortitionModuleV2.address}`);
   console.log(`🎮 StakeController: ${stakeController.address}`);
   console.log(`⚖️ KlerosCoreX: ${klerosCoreV2.address}`);

@@ -5559,7 +5559,6 @@ __metadata:
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
     "@nomiclabs/hardhat-solhint": "npm:^4.0.1"
     "@openzeppelin/contracts": "npm:^5.2.0"
-    "@openzeppelin/contracts-upgradeable": "npm:^5.2.0"
     "@openzeppelin/upgrades-core": "npm:^1.42.2"
     "@typechain/ethers-v6": "npm:^0.5.1"
     "@typechain/hardhat": "npm:^9.1.0"
@@ -7388,15 +7387,6 @@ __metadata:
   version: 4.9.6
   resolution: "@openzeppelin/contracts-upgradeable@npm:4.9.6"
   checksum: 10/af9057147f13b6f0e13ca69581777f615f2cce8c6c274ec00fbea906a9095cd9ca1fb70e2c1282122a9f522fd639641c180bf1ad79bb2722494aac5ae9e565bc
-  languageName: node
-  linkType: hard
-
-"@openzeppelin/contracts-upgradeable@npm:^5.2.0":
-  version: 5.3.0
-  resolution: "@openzeppelin/contracts-upgradeable@npm:5.3.0"
-  peerDependencies:
-    "@openzeppelin/contracts": 5.3.0
-  checksum: 10/048eb2862aa23dba6f548ba5332e1ec9282c1dd6e73125156c1d918f5e7f48b8a0e0f405d0f7e4e74794d2cea3dd9e7901a146ac315a325730dcd38f99c2a3d9
   languageName: node
   linkType: hard
 
