@@ -2,13 +2,13 @@
 
 pragma solidity 0.8.24;
 
-import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
-import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
-import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
-import {Initializable} from "../proxy/Initializable.sol";
-import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
-import "../libraries/Constants.sol";
+import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
+import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
+import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {Initializable} from "../../proxy/Initializable.sol";
+import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
+import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
+import "../../libraries/Constants.sol";
 
 /// @title KlerosCoreBase
 /// Core arbitrator contract for Kleros v2.

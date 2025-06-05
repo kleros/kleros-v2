@@ -55,19 +55,31 @@ interface IStakeController {
     // *         Stake Management          * //
     // ************************************* //
 
-    /// @notice Set stake for a juror with vault coordination
-    /// @param _account The address of the juror
+    /// @notice System-level update to a juror's stake directly in the SortitionModule.
+    /// @dev Called by KlerosCoreXBase for executing delayed stakes. Skips regular phase checks and delayed stake creation.
+    /// @param _account The juror's account
     /// @param _courtID The ID of the court
     /// @param _newStake The new stake amount
-    /// @param _alreadyTransferred Whether the tokens were already transferred
+    /// @return pnkDeposit The amount of PNK to deposit
+    /// @return pnkWithdrawal The amount of PNK to withdraw
+    /// @return stakingResult The result of the staking operation
+    function setStakeBySystem(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake
+    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
+
+    /// @notice Set stake for a juror with vault coordination
+    /// @param _account The juror's account
+    /// @param _courtID The ID of the court
+    /// @param _newStake The new stake amount
     /// @return pnkDeposit The amount of PNK to deposit
     /// @return pnkWithdrawal The amount of PNK to withdraw
     /// @return stakingResult The result of the staking operation
     function setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
+        uint256 _newStake
     ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
 
     /// @notice Lock stake for dispute participation

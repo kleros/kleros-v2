@@ -10,7 +10,7 @@
 
 pragma solidity 0.8.24;
 
-import "../arbitration/SortitionModule.sol";
+import "../arbitration/old/SortitionModule.sol";
 
 /// @title SortitionModuleMock
 /// @dev Adds getter functions to sortition module for Foundry tests.

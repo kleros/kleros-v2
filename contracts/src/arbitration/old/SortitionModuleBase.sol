@@ -11,12 +11,12 @@
 pragma solidity 0.8.24;
 
 import {KlerosCore} from "./KlerosCore.sol";
-import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
-import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
-import {Initializable} from "../proxy/Initializable.sol";
-import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {RNG} from "../rng/RNG.sol";
-import "../libraries/Constants.sol";
+import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
+import {Initializable} from "../../proxy/Initializable.sol";
+import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
+import {RNG} from "../../rng/RNG.sol";
+import "../../libraries/Constants.sol";
 
 /// @title SortitionModuleBase
 /// @dev A factory of trees that keeps track of staked values for sortition.

@@ -24,7 +24,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         address account; // The address of the juror.
         uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
-        bool alreadyTransferred; // True if tokens were already transferred before delayed stake's execution.
     }
 
     // ************************************* //
@@ -51,7 +50,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
-    mapping(address jurorAccount => mapping(uint96 courtId => uint256)) public latestDelayedStakeIndex; // Maps the juror to its latest delayed stake. If there is already a delayed stake for this juror then it'll be replaced.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -178,32 +176,11 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
         for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
             DelayedStake storage delayedStake = delayedStakes[i];
-            // Delayed stake could've been manually removed already. In this case simply move on to the next item.
-            if (delayedStake.account != address(0)) {
-                // Nullify the index so the delayed stake won't get deleted before its own execution.
-                delete latestDelayedStakeIndex[delayedStake.account][delayedStake.courtID];
+            if (delayedStake.account == address(0)) continue;
 
-                // Execute the delayed stake by calling KlerosCore, which will handle Vault interactions
-                // core.setStakeBySortitionModule was the old way, now KlerosCore itself has _setStake
-                // which calls this StakeController's setStake. This creates a circular dependency if not careful.
-                // For delayed stakes, the StakeController should probably update SortitionModule directly
-                // and then tell KlerosCore to handle the deposit/withdrawal with the Vault if needed.
-                // OR, the KlerosCoreXBase.setStakeBySortitionModule needs to exist and be smart enough.
-
-                // For now, assuming KlerosCore will have a way to apply this, or this internal _setStake is used.
-                // This part needs careful review of how KlerosCore consumes delayed stakes.
-                // Let's assume _setStake here is the one that directly updates sortition and returns pnkDeposit/Withdrawal.
-                _setStake(
-                    delayedStake.account,
-                    delayedStake.courtID,
-                    delayedStake.stake,
-                    delayedStake.alreadyTransferred
-                    // No direct PNK transfer here by StakeController; KlerosCore handles Vault interaction
-                );
-
-                // Note: In delayed stake execution, we don't revert on failures to maintain batch processing
-                delete delayedStakes[i];
-            }
+            // Let KlerosCore coordinate stake update and vault deposit/withdrawal.
+            core.setStakeBySystem(delayedStake.account, delayedStake.courtID, delayedStake.stake);
+            delete delayedStakes[i];
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
     }
@@ -213,85 +190,21 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // ************************************* //
 
     /// @inheritdoc IStakeController
+    function setStakeBySystem(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake
+    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        return _setStakeBySystem(_account, _courtID, _newStake);
+    }
+
+    /// @inheritdoc IStakeController
     function setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred // Indicates if KlerosCore already handled the PNK transfer (e.g. for its direct setStake calls)
+        uint256 _newStake
     ) public override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        return _setStake(_account, _courtID, _newStake, _alreadyTransferred);
-    }
-
-    /// @dev Internal implementation of setStake with phase-aware delayed stake logic
-    /// TODO: REMOVE THE INSTANT STAKING LOGIC !
-    function _setStake(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
-    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        (, uint256 currentStake, ) = sortitionModule.getJurorInfo(_account, _courtID);
-
-        // Delete any existing delayed stake for this juror/court
-        // If a delayed stake was already funded (_alreadyTransferred = true for its deposit part),
-        // and now we are processing an earlier, direct setStake, _deleteDelayedStake
-        // should ideally signal KlerosCore to refund if the new operation effectively cancels a pre-funded deposit.
-        // Current _deleteDelayedStake returns the amount that *would have been withdrawn by the delayed stake itself*.
-        uint256 potentialWithdrawalFromDeletedDelayedStake = _deleteDelayedStake(_courtID, _account);
-
-        if (phase != Phase.staking) {
-            // Store the stake change as delayed, to be applied when the phase switches back to Staking.
-            DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
-            delayedStake.account = _account;
-            delayedStake.courtID = _courtID;
-            delayedStake.stake = _newStake;
-            latestDelayedStakeIndex[_account][_courtID] = delayedStakeWriteIndex;
-
-            if (_newStake > currentStake) {
-                // This is for a future deposit when phase is staking.
-                // If KlerosCore calls this (_alreadyTransferred=false path typically), it will use the returned pnkDeposit
-                // to instruct Vault.deposit(). So the delayedStake.alreadyTransferred should be set based on whether
-                // the funding happens now (for delayed stake path) or later (for KlerosCore direct path that gets delayed).
-                delayedStake.alreadyTransferred = _alreadyTransferred; // If it's a delayed execution of a pre-funded stake, it's true.
-                // If KlerosCore is calling and it gets delayed, _alreadyTransferred was false, so this is false.
-                pnkDeposit = _newStake - currentStake;
-                // No actual PNK transfer here. KlerosCore handles Vault interaction based on returned pnkDeposit.
-            } else {
-                // This is for a future withdrawal. No PNK is transferred now by StakeController.
-                // KlerosCore will use returned pnkWithdrawal to instruct Vault.withdraw().
-                delayedStake.alreadyTransferred = false; // Withdrawals are never pre-funded for a delayed op.
-                pnkWithdrawal = currentStake - _newStake;
-                if (potentialWithdrawalFromDeletedDelayedStake > pnkWithdrawal) {
-                    // This implies the deleted delayed stake was a larger withdrawal than the current one.
-                    // Or it was a deposit that got cancelled and replaced by a smaller one/withdrawal.
-                    // This logic is complex if trying to reconcile pre-funded delayed stakes with new operations.
-                    // For now, pnkWithdrawal is based on currentStake and _newStake.
-                }
-            }
-            return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
-        }
-
-        // Current phase is Staking: apply normally
-        bool success = sortitionModule.setStake(_account, _courtID, _newStake);
-        if (!success) {
-            // This typically shouldn't fail if parameters are valid (e.g. tree exists).
-            // Assuming SortitionModule itself doesn't revert but returns false for logical errors not caught by KlerosCore.
-            return (0, 0, StakingResult.CannotStakeInThisCourt); // Or a more generic sortition error
-        }
-
-        if (!_alreadyTransferred) {
-            // Only calculate pnkDeposit/pnkWithdrawal if KlerosCore hasn't handled it
-            if (_newStake > currentStake) {
-                pnkDeposit = _newStake - currentStake;
-            } else {
-                pnkWithdrawal = currentStake - _newStake;
-            }
-        }
-        // If _alreadyTransferred is true, KlerosCore has (or will) handle the Vault interaction.
-        // pnkDeposit/pnkWithdrawal would be 0 in that case from this function's perspective for KlerosCore.
-        // However, the current KlerosCore _setStake always passes _alreadyTransferred = false.
-
-        return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+        return _setStake(_account, _courtID, _newStake);
     }
 
     /// @inheritdoc IStakeController
@@ -355,12 +268,12 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     }
 
     /// @inheritdoc IStakeController
-    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
+    function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors++;
     }
 
     /// @inheritdoc IStakeController
-    function postDrawHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
+    function postDrawHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors--;
     }
 
@@ -412,34 +325,62 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     }
 
     // ************************************* //
-    // *              Internal             * //
+    // *            Internal               * //
     // ************************************* //
 
-    /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
-    /// @param _courtID ID of the court.
-    /// @param _juror Juror whose stake to check.
-    /// @return amountToWithdrawFromDeletedDelayedStake If the deleted delayed stake was a deposit (_alreadyTransferred=true),
-    ///         this is the PNK amount that was effectively pre-funded and now might need to be returned to the user by KlerosCore.
-    ///         If it was a withdrawal, this is 0.
-    function _deleteDelayedStake(
+    /// @dev Internal implementation of setStakeBySystem
+    /// @param _account The account to set the stake for.
+    /// @param _courtID The ID of the court to set the stake for.
+    /// @param _newStake The new stake.
+    /// @return pnkDeposit The amount of PNK to deposit.
+    /// @return pnkWithdrawal The amount of PNK to withdraw.
+    /// @return stakingResult The result of the staking operation.
+    function _setStakeBySystem(
+        address _account,
         uint96 _courtID,
-        address _juror
-    ) internal returns (uint256 amountToWithdrawFromDeletedDelayedStake) {
-        uint256 latestIndex = latestDelayedStakeIndex[_juror][_courtID];
-        if (latestIndex != 0) {
-            DelayedStake storage delayedStake = delayedStakes[latestIndex];
-            if (delayedStake.alreadyTransferred) {
-                // This delayed stake was a deposit that was pre-funded into the system (e.g. KlerosCore took PNK).
-                // Now that it's being deleted (e.g., by a new setStake operation before execution),
-                // KlerosCore might need to refund this pre-funded amount if the new operation doesn't cover it.
-                (, uint256 sortitionStake, ) = sortitionModule.getJurorInfo(_juror, _courtID);
-                if (delayedStake.stake > sortitionStake) {
-                    // The delayed stake was larger than current actual stake
-                    amountToWithdrawFromDeletedDelayedStake = delayedStake.stake - sortitionStake;
-                }
+        uint256 _newStake
+    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        (, uint256 currentStake, ) = sortitionModule.getJurorInfo(_account, _courtID);
+        if (_newStake > currentStake) {
+            pnkDeposit = _newStake - currentStake;
+        } else if (_newStake < currentStake) {
+            pnkWithdrawal = currentStake - _newStake;
+        }
+        stakingResult = sortitionModule.setStake(_account, _courtID, _newStake);
+        if (stakingResult != StakingResult.Successful) {
+            return (0, 0, stakingResult);
+        }
+    }
+
+    /// @dev Internal implementation of setStake with phase-aware delayed stake logic
+    /// @param _account The account to set the stake for.
+    /// @param _courtID The ID of the court to set the stake for.
+    /// @param _newStake The new stake.
+    /// @return pnkDeposit The amount of PNK to deposit.
+    /// @return pnkWithdrawal The amount of PNK to withdraw.
+    /// @return stakingResult The result of the staking operation.
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake
+    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        (, uint256 currentStake, ) = sortitionModule.getJurorInfo(_account, _courtID);
+        if (_newStake > currentStake) {
+            pnkDeposit = _newStake - currentStake;
+        } else if (_newStake < currentStake) {
+            pnkWithdrawal = currentStake - _newStake;
+        }
+        if (phase == Phase.staking) {
+            stakingResult = sortitionModule.setStake(_account, _courtID, _newStake);
+            if (stakingResult != StakingResult.Successful) {
+                return (0, 0, stakingResult);
             }
-            delete delayedStakes[latestIndex];
-            delete latestDelayedStakeIndex[_juror][_courtID];
+        } else {
+            DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
+            delayedStake.account = _account;
+            delayedStake.courtID = _courtID;
+            delayedStake.stake = _newStake;
+            stakingResult = StakingResult.Delayed;
         }
     }
 
@@ -464,8 +405,8 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         for (uint256 i = 0; i < _accounts.length; i++) {
             if (_stakes[i] > 0) {
                 // Direct stake import bypassing normal validation for migration
-                bool success = sortitionModule.setStake(_accounts[i], _courtIDs[i], _stakes[i]);
-                if (success) {
+                StakingResult stakingResult = sortitionModule.setStake(_accounts[i], _courtIDs[i], _stakes[i]);
+                if (stakingResult == StakingResult.Successful) {
                     totalImported++;
                     emit StakeImported(_accounts[i], _courtIDs[i], _stakes[i]);
                 }
@@ -483,7 +424,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             if (delayedStake.account != address(0)) {
                 delayedStakeWriteIndex++;
                 delayedStakes[delayedStakeWriteIndex] = delayedStake;
-                latestDelayedStakeIndex[delayedStake.account][delayedStake.courtID] = delayedStakeWriteIndex;
 
                 emit DelayedStakeImported(
                     delayedStake.account,

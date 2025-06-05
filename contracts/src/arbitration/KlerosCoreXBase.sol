@@ -177,6 +177,11 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         _;
     }
 
+    modifier onlyStakeController() {
+        if (msg.sender != address(stakeController)) revert StakeControllerOnly();
+        _;
+    }
+
     modifier whenPaused() {
         if (!paused) revert WhenPausedOnly();
         _;
@@ -460,22 +465,21 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external virtual whenNotPaused {
-        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
+        _setStake(msg.sender, _courtID, _newStake, OnError.Revert);
     }
 
-    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
-    /// @param _account The account whose stake is being set.
+    /// @notice Executes a stake change initiated by the system (e.g., processing a delayed stake).
+    /// @dev Called by StakeControllerBase during executeDelayedStakes. Assumes KlerosCore holds pre-funded PNK if _depositPreFunded is true.
+    /// @param _account The juror's account.
     /// @param _courtID The ID of the court.
-    /// @param _newStake The new stake.
-    /// @param _alreadyTransferred Whether the PNKs have already been transferred to the contract.
-    function setStakeBySortitionModule(
+    /// @param _newStake The new stake amount for the juror in the court.
+    /// @return success Whether the stake was successfully set or not.
+    function setStakeBySystem(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
-    ) external {
-        if (msg.sender != address(stakeController)) revert SortitionModuleOnly();
-        _setStake(_account, _courtID, _newStake, _alreadyTransferred, OnError.Return);
+        uint256 _newStake
+    ) external onlyStakeController returns (bool success) {
+        return _setStakeBySystem(_account, _courtID, _newStake);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -1074,20 +1078,13 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 
-    /// @dev If called only once then set _onError to Revert, otherwise set it to Return
+    /// @dev If called only once then set _onError to Revert, otherwise for batch staking set it to Return
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
-    /// @param _alreadyTransferred Whether the PNKs were already transferred to/from the staking contract.
     /// @param _onError Whether to revert or return false on error.
     /// @return Whether the stake was successfully set or not.
-    function _setStake(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred,
-        OnError _onError
-    ) internal returns (bool) {
+    function _setStake(address _account, uint96 _courtID, uint256 _newStake, OnError _onError) internal returns (bool) {
         if (_courtID == FORKING_COURT || _courtID >= courts.length) {
             _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
             return false;
@@ -1099,9 +1096,11 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.setStake(
             _account,
             _courtID,
-            _newStake,
-            _alreadyTransferred
+            _newStake
         );
+        if (stakingResult == StakingResult.Delayed) {
+            return true;
+        }
         if (stakingResult != StakingResult.Successful) {
             _stakingFailed(_onError, stakingResult);
             return false;
@@ -1121,6 +1120,47 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
             } catch {
                 // Revert with a specific error or reuse existing one
                 _stakingFailed(_onError, StakingResult.UnstakingTransferFailed); // Indicating failure in the withdrawal part of unstaking
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// @dev Internal implementation of setStakeBySystem
+    /// @param _account The account to set the stake for.
+    /// @param _courtID The ID of the court to set the stake for.
+    /// @param _newStake The new stake.
+    /// @return success Whether the stake was successfully set or not.
+    function _setStakeBySystem(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake
+    ) internal virtual returns (bool success) {
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.setStakeBySystem(
+            _account,
+            _courtID,
+            _newStake
+        );
+        OnError onError = OnError.Return;
+        if (stakingResult != StakingResult.Successful) {
+            _stakingFailed(onError, stakingResult);
+            return false;
+        }
+        if (pnkDeposit > 0) {
+            try vault.deposit(_account, pnkDeposit) {
+                // Successfully deposited PNK and minted stPNK via Vault
+            } catch {
+                // Revert with a specific error or reuse existing one
+                _stakingFailed(onError, StakingResult.StakingTransferFailed); // Indicating failure in the deposit part of staking
+                return false;
+            }
+        }
+        if (pnkWithdrawal > 0) {
+            try vault.withdraw(_account, pnkWithdrawal) {
+                // Successfully burned stPNK and withdrew PNK via Vault
+            } catch {
+                // Revert with a specific error or reuse existing one
+                _stakingFailed(onError, StakingResult.UnstakingTransferFailed); // Indicating failure in the withdrawal part of unstaking
                 return false;
             }
         }
@@ -1179,6 +1219,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     error GuardianOrGovernorOnly();
     error DisputeKitOnly();
     error SortitionModuleOnly();
+    error StakeControllerOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();
     error MinStakeLowerThanParentCourt();

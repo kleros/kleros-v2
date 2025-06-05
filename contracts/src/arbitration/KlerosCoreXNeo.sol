@@ -104,7 +104,7 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external override whenNotPaused {
         if (jurorNft.balanceOf(msg.sender) == 0) revert NotEligibleForStaking();
-        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
+        _setStake(msg.sender, _courtID, _newStake, OnError.Revert);
     }
 
     // ************************************* //

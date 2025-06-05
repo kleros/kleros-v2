@@ -1,13 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @custom:authors: [@epiqueras, @unknownunknown1, @jaybuidl, @shotaronowhere]
- *  @custom:reviewers: []
- *  @custom:auditors: []
- *  @custom:bounties: []
- *  @custom:deployments: []
- */
-
 pragma solidity 0.8.24;
 
 import {ISortitionSumTree} from "./interfaces/ISortitionSumTree.sol";
@@ -111,7 +103,7 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
         address _account,
         uint96 _courtID,
         uint256 _newStake
-    ) external virtual override onlyByStakeController returns (bool success) {
+    ) external virtual override onlyByStakeController returns (StakingResult stakingResult) {
         return _setStake(_account, _courtID, _newStake);
     }
 
@@ -228,18 +220,22 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
     // ************************************* //
 
     /// @dev Internal implementation of setStake with court hierarchy updates
-    function _setStake(address _account, uint96 _courtID, uint256 _newStake) internal returns (bool success) {
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake
+    ) internal returns (StakingResult stakingResult) {
         uint256 currentStake = this.stakeOf(_account, _courtID);
 
         if (currentStake == 0 && _newStake == 0) {
-            return false; // No change needed
+            return StakingResult.CannotStakeZeroWhenNoStake; // No change needed
         }
 
         JurorStakeInfo storage info = jurorStakeInfo[_account];
         uint256 nbCourts = info.courtIDs.length;
 
         if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
-            return false; // Prevent staking beyond MAX_STAKE_PATHS
+            return StakingResult.CannotStakeInMoreCourts; // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
         // Update the sortition sum tree in court hierarchy
@@ -280,10 +276,65 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
         uint256 totalStaked = stakeController.getDepositedBalance(_account);
         emit StakeSet(_account, _courtID, _newStake, totalStaked);
 
-        return true;
+        return StakingResult.Successful;
+    }
+
+    /// @dev Update all the parents of a node.
+    /// @param _key The key of the tree to update.
+    /// @param _treeIndex The index of the node to start from.
+    /// @param _plusOrMinus Whether to add (true) or substract (false).
+    /// @param _value The value to add or substract.
+    /// `O(log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
+    function _updateParents(bytes32 _key, uint256 _treeIndex, bool _plusOrMinus, uint256 _value) private {
+        SortitionSumTree storage tree = sortitionSumTrees[_key];
+
+        uint256 parentIndex = _treeIndex;
+        while (parentIndex != 0) {
+            parentIndex = (parentIndex - 1) / tree.K;
+            tree.nodes[parentIndex] = _plusOrMinus
+                ? tree.nodes[parentIndex] + _value
+                : tree.nodes[parentIndex] - _value;
+        }
+    }
+
+    /// @dev Retrieves a juror's address from the stake path ID.
+    /// @param _stakePathID The stake path ID to unpack.
+    /// @return account The account.
+    function _stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
+        assembly {
+            // solium-disable-line security/no-inline-assembly
+            let ptr := mload(0x40)
+            for {
+                let i := 0x00
+            } lt(i, 0x14) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
+            }
+            account := mload(ptr)
+        }
+    }
+
+    function _extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
+        if (_extraData.length >= 32) {
+            assembly {
+                // solium-disable-line security/no-inline-assembly
+                K := mload(add(_extraData, 0x20))
+            }
+        } else {
+            K = DEFAULT_K;
+        }
     }
 
     /// @dev Set a value in a tree.
+    /// @param _key The key of the tree.
+    /// @param _value The new value.
+    /// @param _ID The ID of the value.
+    /// `O(log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function _set(bytes32 _key, uint256 _value, bytes32 _ID) internal {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
@@ -356,48 +407,10 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
         }
     }
 
-    /// @dev Update all the parents of a node.
-    function _updateParents(bytes32 _key, uint256 _treeIndex, bool _plusOrMinus, uint256 _value) internal {
-        SortitionSumTree storage tree = sortitionSumTrees[_key];
-
-        uint256 parentIndex = _treeIndex;
-        while (parentIndex != 0) {
-            parentIndex = (parentIndex - 1) / tree.K;
-            tree.nodes[parentIndex] = _plusOrMinus
-                ? tree.nodes[parentIndex] + _value
-                : tree.nodes[parentIndex] - _value;
-        }
-    }
-
-    /// @dev Retrieves a juror's address from the stake path ID.
-    function _stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
-        assembly {
-            // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
-            }
-            account := mload(ptr)
-        }
-    }
-
-    /// @dev Extract tree K parameter from extra data
-    function _extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
-        if (_extraData.length >= 32) {
-            assembly {
-                // solium-disable-line security/no-inline-assembly
-                K := mload(add(_extraData, 0x20))
-            }
-        } else {
-            K = DEFAULT_K;
-        }
-    }
-
     /// @dev Packs an account and a court ID into a stake path ID.
+    /// @param _account The address of the juror to pack.
+    /// @param _courtID The court ID to pack.
+    /// @return stakePathID The stake path ID.
     function _accountAndCourtIDToStakePathID(
         address _account,
         uint96 _courtID
