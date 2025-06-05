@@ -101,7 +101,6 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
     args: [
       deployer,
       deployer,
-      pnk.target,
       ZeroAddress, // JurorProsecutionModule, not implemented yet
       disputeKit.address,
       false,
@@ -109,6 +108,7 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       stakeController.address,
+      vault.address,
     ],
     log: true,
   });
