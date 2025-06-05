@@ -386,6 +386,8 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             }
             return (0, 0, stakingResult);
         }
+
+        emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
     }
 
     /// @dev Internal implementation of setStake with phase-aware delayed stake logic
@@ -458,6 +460,8 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             }
             return (0, 0, stakingResult);
         }
+
+        emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
     }
 
     /// @dev Removes a court from a juror's list of staked courts.

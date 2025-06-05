@@ -125,9 +125,6 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
                 }
             }
         }
-
-        (, , , uint256 totalStaked, , ) = stakeController.getJurorBalance(_account, _courtID);
-        emit StakeSet(_account, _courtID, _newStake, totalStaked);
         return StakingResult.Successful;
     }
 

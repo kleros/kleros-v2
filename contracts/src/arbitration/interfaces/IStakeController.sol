@@ -29,6 +29,13 @@ interface IStakeController {
     event StakeUnlocked(address indexed _account, uint256 _amount);
     event JurorSetInactive(address indexed _account);
 
+    /// @notice Emitted when a juror's stake is set in a court
+    /// @param _account The address of the juror
+    /// @param _courtID The ID of the court
+    /// @param _stakeInCourt The amount of tokens staked in the court
+    /// @param _totalStake The amount of tokens staked in all courts
+    event StakeSet(address indexed _account, uint96 indexed _courtID, uint256 _stakeInCourt, uint256 _totalStake);
+
     // Migration events
     event StakeImported(address indexed _juror, uint96 indexed _courtID, uint256 _stake);
     event DelayedStakeImported(address indexed _juror, uint96 indexed _courtID, uint256 _stake, uint256 _index);

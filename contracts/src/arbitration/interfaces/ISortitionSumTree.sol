@@ -9,17 +9,6 @@ import "../../libraries/Constants.sol";
 /// @dev This interface contains only tree management and drawing logic
 interface ISortitionSumTree {
     // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    /// @notice Emitted when a juror's stake is set in a court
-    /// @param _address The address of the juror
-    /// @param _courtID The ID of the court
-    /// @param _amount The amount of tokens staked in the court
-    /// @param _amountAllCourts The amount of tokens staked in all courts
-    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _amountAllCourts);
-
-    // ************************************* //
     // *          Tree Management          * //
     // ************************************* //
 
