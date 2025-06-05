@@ -220,18 +220,15 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     }
 
     /// @inheritdoc IStakeController
-    function executeJurorPenalty(
+    function setJurorPenalty(
         address _account,
         uint256 _penalty
-    ) external virtual override onlyByCore returns (uint256 actualPenalty) {
-        // First unlock the penalty amount
+    ) external virtual override onlyByCore returns (uint256 pnkBalance, uint256 actualPenalty) {
         vault.unlockTokens(_account, _penalty);
 
-        // Then apply the penalty through vault
-        actualPenalty = vault.applyPenalty(_account, _penalty);
+        (pnkBalance, actualPenalty) = vault.applyPenalty(_account, _penalty);
 
         emit JurorPenaltyExecuted(_account, _penalty, actualPenalty);
-        return actualPenalty;
     }
 
     /// @inheritdoc IStakeController

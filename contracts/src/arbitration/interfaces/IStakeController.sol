@@ -95,8 +95,12 @@ interface IStakeController {
     /// @notice Execute penalty on juror through vault coordination
     /// @param _account The account to penalize
     /// @param _penalty The penalty amount
+    /// @return pnkBalance The balance of PNK after penalty application, including locked PNK
     /// @return actualPenalty The actual penalty applied
-    function executeJurorPenalty(address _account, uint256 _penalty) external returns (uint256 actualPenalty);
+    function setJurorPenalty(
+        address _account,
+        uint256 _penalty
+    ) external returns (uint256 pnkBalance, uint256 actualPenalty);
 
     /// @notice Set juror as inactive and remove from all sortition trees
     /// @param _account The juror to set inactive

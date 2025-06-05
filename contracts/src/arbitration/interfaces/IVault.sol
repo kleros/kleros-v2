@@ -47,8 +47,12 @@ interface IVault {
     /// @notice Apply penalty by reducing deposited balance (only StakeController)
     /// @param _account The account to penalize
     /// @param _amount The penalty amount
+    /// @return pnkBalance The balance of PNK after penalty application, including locked PNK
     /// @return actualPenalty The actual penalty applied
-    function applyPenalty(address _account, uint256 _amount) external returns (uint256 actualPenalty);
+    function applyPenalty(
+        address _account,
+        uint256 _amount
+    ) external returns (uint256 pnkBalance, uint256 actualPenalty);
 
     /// @notice Transfer PNK rewards directly to account (only KlerosCore)
     /// @param _account The account to receive rewards

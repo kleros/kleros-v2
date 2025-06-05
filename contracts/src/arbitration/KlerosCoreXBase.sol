@@ -778,7 +778,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
 
         // Execute penalty through StakeController coordination
         address account = round.drawnJurors[_params.repartition];
-        uint256 actualPenalty = stakeController.executeJurorPenalty(account, penalty);
+        (uint256 pnkBalance, uint256 actualPenalty) = stakeController.setJurorPenalty(account, penalty);
         _params.pnkPenaltiesInRound += actualPenalty;
 
         emit TokenAndETHShift(
@@ -792,8 +792,8 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         );
 
         // Check if juror should be set inactive
-        bool shouldBeInactive = !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition);
-        if (shouldBeInactive) {
+        bool inactive = !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition);
+        if (pnkBalance == 0 || inactive) {
             uint256 pnkToWithdraw = stakeController.setJurorInactive(account);
             if (pnkToWithdraw > 0) {
                 try vault.withdraw(account, pnkToWithdraw) {
@@ -851,11 +851,6 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
 
         // Release the rest of the PNKs of the juror for this round.
         stakeController.unlockStake(account, pnkLocked);
-
-        // Give back the locked PNKs in case the juror fully unstaked earlier.
-        if (!stakeController.isJurorStaked(account)) {
-            vault.transferReward(account, pnkLocked);
-        }
 
         // Transfer the rewards
         uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;

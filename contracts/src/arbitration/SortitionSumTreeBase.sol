@@ -231,10 +231,9 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
             return StakingResult.CannotStakeZeroWhenNoStake; // No change needed
         }
 
-        JurorStakeInfo storage info = jurorStakeInfo[_account];
-        uint256 nbCourts = info.courtIDs.length;
+        JurorStakeInfo storage juror = jurorStakeInfo[_account];
 
-        if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
+        if (currentStake == 0 && juror.courtIDs.length >= MAX_STAKE_PATHS) {
             return StakingResult.CannotStakeInMoreCourts; // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
@@ -253,24 +252,23 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
             }
         }
 
-        // Update local stake tracking (inlined from _updateJurorStakeInfo)
-        uint256 currentStakeInInfo = info.stakes[_courtID];
-
+        // Update local stake tracking
+        uint256 currentStakeInInfo = juror.stakes[_courtID];
         if (currentStakeInInfo == 0 && _newStake > 0) {
             // Adding new court
-            info.courtIDs.push(_courtID);
+            juror.courtIDs.push(_courtID);
         } else if (currentStakeInInfo > 0 && _newStake == 0) {
             // Removing court
-            for (uint256 i = 0; i < info.courtIDs.length; i++) {
-                if (info.courtIDs[i] == _courtID) {
-                    info.courtIDs[i] = info.courtIDs[info.courtIDs.length - 1];
-                    info.courtIDs.pop();
+            for (uint256 i = 0; i < juror.courtIDs.length; i++) {
+                if (juror.courtIDs[i] == _courtID) {
+                    juror.courtIDs[i] = juror.courtIDs[juror.courtIDs.length - 1];
+                    juror.courtIDs.pop();
                     break;
                 }
             }
         }
 
-        info.stakes[_courtID] = _newStake;
+        juror.stakes[_courtID] = _newStake;
 
         // Get total staked amount from stake controller for event
         uint256 totalStaked = stakeController.getDepositedBalance(_account);

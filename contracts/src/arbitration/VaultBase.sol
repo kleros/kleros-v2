@@ -195,11 +195,12 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     function applyPenalty(
         address _account,
         uint256 _amount
-    ) external virtual override onlyStakeController returns (uint256 actualPenalty) {
+    ) external virtual override onlyStakeController returns (uint256 pnkBalance, uint256 actualPenalty) {
         JurorBalance storage balance = jurorBalances[_account];
 
         // Calculate actual penalty (cannot exceed deposited amount)
         actualPenalty = _amount > balance.deposited ? balance.deposited : _amount;
+        pnkBalance = balance.deposited - actualPenalty; // includes locked PNK
 
         // Update balances
         balance.deposited -= actualPenalty;
