@@ -2,11 +2,11 @@
 
 pragma solidity 0.8.24;
 
-import {IVault} from "../interfaces/IVault.sol";
-import {stPNK} from "../stPNK.sol";
-import {Initializable} from "../../proxy/Initializable.sol";
-import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
-import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
+import {IVault} from "./interfaces/IVault.sol";
+import {stPNK} from "./stPNK.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
 
 /// @title VaultBase
 /// @notice Abstract base contract for PNK vault that handles deposits, withdrawals, locks, and penalties

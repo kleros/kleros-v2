@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.24;
 
-import {IStakeController} from "../interfaces/IStakeController.sol";
-import {IVault} from "../interfaces/IVault.sol";
-import {ISortitionModuleV2} from "../interfaces/ISortitionModuleV2.sol";
-import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
-import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
-import {Initializable} from "../../proxy/Initializable.sol";
-import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
-import {RNG} from "../../rng/RNG.sol";
-import "../../libraries/Constants.sol";
+import {IStakeController} from "./interfaces/IStakeController.sol";
+import {IVault} from "./interfaces/IVault.sol";
+import {ISortitionSumTree} from "./interfaces/ISortitionSumTree.sol";
+import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
+import {KlerosCoreXBase} from "./KlerosCoreXBase.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {RNG} from "../rng/RNG.sol";
+import "../libraries/Constants.sol";
 
 /// @title StakeControllerBase
 /// @notice Abstract base contract for coordinating between Vault and SortitionModule
@@ -32,9 +32,9 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // ************************************* //
 
     address public governor; // The governor of the contract.
-    KlerosCoreV2Base public core; // The core arbitrator contract.
+    KlerosCoreXBase public core; // The core arbitrator contract.
     IVault public vault; // The PNK vault for token management.
-    ISortitionModuleV2 public sortitionModule; // The sortition module for drawing logic.
+    ISortitionSumTree public sortitionModule; // The sortition module for drawing logic.
 
     // Phase management
     Phase public override phase; // The current phase. Uses Phase from IStakeController.
@@ -73,9 +73,9 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     function __StakeControllerBase_initialize(
         address _governor,
-        KlerosCoreV2Base _core,
+        KlerosCoreXBase _core,
         IVault _vault,
-        ISortitionModuleV2 _sortitionModule,
+        ISortitionSumTree _sortitionModule,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
@@ -111,7 +111,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @dev Changes the `sortitionModule` storage variable.
     /// @param _sortitionModule The new sortition module address.
-    function changeSortitionModule(ISortitionModuleV2 _sortitionModule) external onlyByGovernor {
+    function changeSortitionModule(ISortitionSumTree _sortitionModule) external onlyByGovernor {
         sortitionModule = _sortitionModule;
     }
 
@@ -188,7 +188,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
                 // which calls this StakeController's setStake. This creates a circular dependency if not careful.
                 // For delayed stakes, the StakeController should probably update SortitionModule directly
                 // and then tell KlerosCore to handle the deposit/withdrawal with the Vault if needed.
-                // OR, the KlerosCoreV2Base.setStakeBySortitionModule needs to exist and be smart enough.
+                // OR, the KlerosCoreXBase.setStakeBySortitionModule needs to exist and be smart enough.
 
                 // For now, assuming KlerosCore will have a way to apply this, or this internal _setStake is used.
                 // This part needs careful review of how KlerosCore consumes delayed stakes.

@@ -5,7 +5,7 @@ import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCoreV2Neo, StakeControllerNeo, VaultNeo } from "../typechain-types";
+import { ChainlinkRNG, DisputeKitClassic, KlerosCoreXNeo, StakeControllerNeo, VaultNeo } from "../typechain-types";
 
 const deployArbitrationV2Neo: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -53,7 +53,7 @@ const deployArbitrationV2Neo: DeployFunction = async (hre: HardhatRuntimeEnviron
   console.log(`core.changeArbitrableWhitelist(${resolver.address}, true)`);
   await core.changeArbitrableWhitelist(resolver.address, true);
 
-  await deploy("KlerosCoreV2NeoSnapshotProxy", {
+  await deploy("KlerosCoreXNeoSnapshotProxy", {
     from: deployer,
     contract: "KlerosCoreSnapshotProxy",
     args: [deployer, core.target],
@@ -63,9 +63,9 @@ const deployArbitrationV2Neo: DeployFunction = async (hre: HardhatRuntimeEnviron
   console.log("✅ V2 Neo Architecture deployment completed successfully!");
   console.log(`📦 VaultNeo: ${pnkVaultNeo.address}`);
   console.log(`🎫 stPNKNeo: ${stPNK.address}`);
-  console.log(`🎯 SortitionModuleV2Neo: ${sortitionModuleV2Neo.address}`);
+  console.log(`🎯 SortitionSumTreeNeo: ${sortitionModuleV2Neo.address}`);
   console.log(`🎮 StakeControllerNeo: ${stakeControllerNeo.target}`);
-  console.log(`⚖️ KlerosCoreV2Neo: ${klerosCoreV2Neo.target}`);
+  console.log(`⚖️ KlerosCoreXNeo: ${klerosCoreV2Neo.target}`);
   console.log(`🎨 JurorNFT: ${nft.target}`);
   console.log(`🔐 DisputeResolver: ${resolver.address}`);
 };

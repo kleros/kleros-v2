@@ -3,7 +3,7 @@
 pragma solidity 0.8.24;
 
 import {VaultBase, IERC20, stPNK} from "./VaultBase.sol";
-import {SafeERC20} from "../../libraries/SafeERC20.sol";
+import {SafeERC20} from "../libraries/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title VaultNeo

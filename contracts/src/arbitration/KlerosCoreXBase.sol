@@ -2,19 +2,19 @@
 
 pragma solidity 0.8.24;
 
-import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
-import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
-import {IStakeController, StakingResult, OnError} from "../interfaces/IStakeController.sol";
-import {IVault} from "../interfaces/IVault.sol";
-import {Initializable} from "../../proxy/Initializable.sol";
-import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
-import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
-import "../../libraries/Constants.sol";
+import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
+import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
+import {IStakeController} from "./interfaces/IStakeController.sol";
+import {IVault} from "./interfaces/IVault.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
+import "../libraries/Constants.sol";
 
-/// @title KlerosCoreV2Base
+/// @title KlerosCoreXBase
 /// Core arbitrator contract for Kleros v2 with new StakeController architecture.
 /// Note that this contract trusts the PNK token, the dispute kit and the stake controller contracts.
-abstract contract KlerosCoreV2Base is IArbitratorV2, Initializable, UUPSProxiable {
+abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
 
     // ************************************* //
@@ -191,7 +191,7 @@ abstract contract KlerosCoreV2Base is IArbitratorV2, Initializable, UUPSProxiabl
     // *            Constructor            * //
     // ************************************* //
 
-    function __KlerosCoreV2Base_initialize(
+    function __KlerosCoreXBase_initialize(
         address _governor,
         address _guardian,
         address _jurorProsecutionModule,

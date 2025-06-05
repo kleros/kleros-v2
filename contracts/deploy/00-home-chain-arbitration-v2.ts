@@ -5,7 +5,7 @@ import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCoreV2, StakeController, Vault } from "../typechain-types";
+import { ChainlinkRNG, DisputeKitClassic, KlerosCoreX, StakeController, Vault } from "../typechain-types";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 
 const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -34,7 +34,7 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
     contract: "DisputeKitClassic",
     args: [
       deployer,
-      ZeroAddress, // Placeholder for KlerosCoreV2 address, configured later
+      ZeroAddress, // Placeholder for KlerosCoreX address, configured later
     ],
     log: true,
   });
@@ -49,7 +49,7 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
   console.log("calculated future StakeController address for nonce %d: %s", nonce + 7, stakeControllerAddress);
 
   const klerosCoreV2Address = getContractAddress(deployer, nonce + 9); // deployed on the 10th tx (nonce+9): SortitionModule Impl tx, SortitionModule Proxy tx, StakeController Impl tx, StakeController Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
-  console.log("calculated future KlerosCoreV2 address for nonce %d: %s", nonce + 9, klerosCoreV2Address);
+  console.log("calculated future KlerosCoreX address for nonce %d: %s", nonce + 9, klerosCoreV2Address);
 
   const stPNK = await deployUpgradable(deployments, "stPNK", {
     from: deployer,
@@ -63,8 +63,8 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
     log: true,
   }); // nonce + 2 (implementation), nonce + 3 (proxy)
 
-  // Deploy SortitionModuleV2
-  const sortitionModuleV2 = await deployUpgradable(deployments, "SortitionModuleV2", {
+  // Deploy SortitionSumTree
+  const sortitionModuleV2 = await deployUpgradable(deployments, "SortitionSumTree", {
     from: deployer,
     args: [deployer, stakeControllerAddress],
     log: true,
@@ -95,8 +95,8 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
   const feeForJuror = ETH(0.1);
   const jurorsForCourtJump = 256;
 
-  // Deploy KlerosCoreV2 (only if not already deployed)
-  const klerosCoreV2 = await deployUpgradable(deployments, "KlerosCoreV2", {
+  // Deploy KlerosCoreX (only if not already deployed)
+  const klerosCoreV2 = await deployUpgradable(deployments, "KlerosCoreX", {
     from: deployer,
     args: [
       deployer,
@@ -132,7 +132,7 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
     await rng.changeSortitionModule(stakeController.address);
   }
 
-  const core = (await hre.ethers.getContract("KlerosCoreV2")) as KlerosCoreV2;
+  const core = (await hre.ethers.getContract("KlerosCoreX")) as KlerosCoreX;
   try {
     await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);
     await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);
@@ -141,7 +141,7 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
     console.error("failed to change currency rates:", e);
   }
 
-  await deploy("KlerosCoreV2SnapshotProxy", {
+  await deploy("KlerosCoreXSnapshotProxy", {
     from: deployer,
     contract: "KlerosCoreSnapshotProxy",
     args: [deployer, core.target],
@@ -151,9 +151,9 @@ const deployArbitrationV2: DeployFunction = async (hre: HardhatRuntimeEnvironmen
   console.log("✅ V2 Architecture deployment completed successfully!");
   console.log(`📦 Vault: ${vault.address}`);
   console.log(`🎫 stPNK: ${stPNK.address}`);
-  console.log(`🎯 SortitionModuleV2: ${sortitionModuleV2.address}`);
+  console.log(`🎯 SortitionSumTree: ${sortitionModuleV2.address}`);
   console.log(`🎮 StakeController: ${stakeController.address}`);
-  console.log(`⚖️ KlerosCoreV2: ${klerosCoreV2.address}`);
+  console.log(`⚖️ KlerosCoreX: ${klerosCoreV2.address}`);
 };
 
 deployArbitrationV2.tags = ["ArbitrationV2"];

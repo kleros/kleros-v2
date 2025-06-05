@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {DisputeKitClassicBase, KlerosCoreV2} from "./DisputeKitClassicBase.sol";
+import {DisputeKitClassicBase, KlerosCoreX} from "./DisputeKitClassicBase.sol";
 
 /// @title DisputeKitClassic
 /// Dispute kit implementation of the Kleros v1 features including:
@@ -25,7 +25,7 @@ contract DisputeKitClassic is DisputeKitClassicBase {
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
-    function initialize(address _governor, KlerosCoreV2 _core) external reinitializer(1) {
+    function initialize(address _governor, KlerosCoreX _core) external reinitializer(1) {
         __DisputeKitClassicBase_initialize(_governor, _core);
     }
 

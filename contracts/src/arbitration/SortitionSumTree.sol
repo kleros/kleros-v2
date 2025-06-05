@@ -2,14 +2,13 @@
 
 pragma solidity 0.8.24;
 
-import {SortitionModuleV2Base} from "./SortitionModuleV2Base.sol";
-import {IStakeController} from "../interfaces/IStakeController.sol";
-import {KlerosCore} from "../KlerosCore.sol";
+import {SortitionSumTreeBase} from "./SortitionSumTreeBase.sol";
+import {IStakeController} from "./interfaces/IStakeController.sol";
 
-/// @title SortitionModuleV2
+/// @title SortitionSumTree
 /// @notice Basic implementation of the pure sortition module
 /// @dev Contains only tree management and drawing logic, no phase management or token operations
-contract SortitionModuleV2 is SortitionModuleV2Base {
+contract SortitionSumTree is SortitionSumTreeBase {
     string public constant override version = "2.0.0";
 
     // ************************************* //
@@ -25,7 +24,7 @@ contract SortitionModuleV2 is SortitionModuleV2Base {
     /// @param _governor The governor's address.
     /// @param _stakeController The StakeController contract.
     function initialize(address _governor, IStakeController _stakeController) external initializer {
-        __SortitionModuleV2Base_initialize(_governor, _stakeController);
+        __SortitionSumTreeBase_initialize(_governor, _stakeController);
     }
 
     // ************************************* //

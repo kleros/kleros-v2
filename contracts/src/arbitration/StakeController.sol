@@ -3,10 +3,10 @@
 pragma solidity 0.8.24;
 
 import {StakeControllerBase} from "./StakeControllerBase.sol";
-import {IVault} from "../interfaces/IVault.sol";
-import {ISortitionModuleV2} from "../interfaces/ISortitionModuleV2.sol";
-import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
-import {RNG} from "../../rng/RNG.sol";
+import {IVault} from "./interfaces/IVault.sol";
+import {ISortitionSumTree} from "./interfaces/ISortitionSumTree.sol";
+import {KlerosCoreXBase} from "./KlerosCoreXBase.sol";
+import {RNG} from "../rng/RNG.sol";
 
 /// @title StakeController
 /// @notice Basic implementation of the Stake Controller
@@ -34,9 +34,9 @@ contract StakeController is StakeControllerBase {
     /// @param _rngLookahead The RNG lookahead time.
     function initialize(
         address _governor,
-        KlerosCoreV2Base _core,
+        KlerosCoreXBase _core,
         IVault _vault,
-        ISortitionModuleV2 _sortitionModule,
+        ISortitionSumTree _sortitionModule,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,

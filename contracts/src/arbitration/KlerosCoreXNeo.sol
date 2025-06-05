@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.24;
 
-import "./KlerosCoreV2Base.sol";
+import "./KlerosCoreXBase.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-/// @title KlerosCoreV2Neo
+/// @title KlerosCoreXNeo
 /// @notice KlerosCore implementation with new StakeController architecture for production environments
-contract KlerosCoreV2Neo is KlerosCoreV2Base {
+contract KlerosCoreXNeo is KlerosCoreXBase {
     /// @notice Version of the implementation contract
     string public constant override version = "0.0.1";
 
@@ -51,7 +51,7 @@ contract KlerosCoreV2Neo is KlerosCoreV2Base {
         IVault _vault,
         IERC721 _jurorNft
     ) external reinitializer(2) {
-        __KlerosCoreV2Base_initialize(
+        __KlerosCoreXBase_initialize(
             _governor,
             _guardian,
             _jurorProsecutionModule,

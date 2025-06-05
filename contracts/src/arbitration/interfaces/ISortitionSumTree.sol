@@ -4,10 +4,10 @@ pragma solidity 0.8.24;
 
 import "../../libraries/Constants.sol";
 
-/// @title ISortitionModuleV2
+/// @title ISortitionSumTree
 /// @notice Interface for pure sortition operations without phase management or token operations
 /// @dev This interface contains only tree management and drawing logic
-interface ISortitionModuleV2 {
+interface ISortitionSumTree {
     // ************************************* //
     // *              Events               * //
     // ************************************* //

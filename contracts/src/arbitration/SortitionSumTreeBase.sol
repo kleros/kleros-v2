@@ -10,17 +10,17 @@
 
 pragma solidity 0.8.24;
 
-import {ISortitionModuleV2} from "../interfaces/ISortitionModuleV2.sol";
-import {IStakeController} from "../interfaces/IStakeController.sol";
-import {KlerosCoreV2Base} from "../core-v2/KlerosCoreV2Base.sol";
-import {Initializable} from "../../proxy/Initializable.sol";
-import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
-import "../../libraries/Constants.sol";
+import {ISortitionSumTree} from "./interfaces/ISortitionSumTree.sol";
+import {IStakeController} from "./interfaces/IStakeController.sol";
+import {KlerosCoreXBase} from "./KlerosCoreXBase.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import "../libraries/Constants.sol";
 
-/// @title SortitionModuleV2Base
+/// @title SortitionSumTreeBase
 /// @notice Abstract base contract for pure sortition operations
 /// @dev Contains only tree management and drawing logic, no phase management or token operations
-abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UUPSProxiable {
+abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPSProxiable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -68,7 +68,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
     // *            Constructor            * //
     // ************************************* //
 
-    function __SortitionModuleV2Base_initialize(
+    function __SortitionSumTreeBase_initialize(
         address _governor,
         IStakeController _stakeController
     ) internal onlyInitializing {
@@ -96,7 +96,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
     // *          Tree Management          * //
     // ************************************* //
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function createTree(bytes32 _key, bytes memory _extraData) external override onlyByStakeController {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 K = _extraDataToTreeK(_extraData);
@@ -106,7 +106,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
         tree.nodes.push(0);
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function setStake(
         address _account,
         uint96 _courtID,
@@ -119,7 +119,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
     // *            Drawing                * //
     // ************************************* //
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function draw(
         bytes32 _court,
         uint256 _coreDisputeID,
@@ -160,13 +160,13 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
     // *           View Functions          * //
     // ************************************* //
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function stakeOf(address _juror, uint96 _courtID) external view override returns (uint256 value) {
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
         return stakeOf(bytes32(uint256(_courtID)), stakePathID);
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function stakeOf(bytes32 _key, bytes32 _ID) public view override returns (uint256) {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint treeIndex = tree.IDsToNodeIndexes[_ID];
@@ -176,7 +176,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
         return tree.nodes[treeIndex];
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function getJurorInfo(
         address _juror,
         uint96 _courtID
@@ -193,24 +193,24 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
         nbCourts = info.courtIDs.length;
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function getJurorCourtIDs(address _juror) external view override returns (uint96[] memory) {
         return jurorStakeInfo[_juror].courtIDs;
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function hasStakes(address _juror) external view override returns (bool) {
         return jurorStakeInfo[_juror].courtIDs.length > 0;
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function getTotalStakeInCourt(uint96 _courtID) external view override returns (uint256) {
         SortitionSumTree storage tree = sortitionSumTrees[bytes32(uint256(_courtID))];
         if (tree.nodes.length == 0) return 0;
         return tree.nodes[0]; // Root node contains total stake
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function accountAndCourtIDToStakePathID(
         address _account,
         uint96 _courtID
@@ -218,7 +218,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
         return _accountAndCourtIDToStakePathID(_account, _courtID);
     }
 
-    /// @inheritdoc ISortitionModuleV2
+    /// @inheritdoc ISortitionSumTree
     function stakePathIDToAccount(bytes32 _stakePathID) external pure override returns (address account) {
         return _stakePathIDToAccount(_stakePathID);
     }
@@ -246,7 +246,7 @@ abstract contract SortitionModuleV2Base is ISortitionModuleV2, Initializable, UU
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currentCourtID = _courtID;
-        KlerosCoreV2Base core = stakeController.core();
+        KlerosCoreXBase core = stakeController.core();
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
