@@ -72,27 +72,6 @@ interface ISortitionSumTree {
     /// @return value The stake of the juror in the court
     function stakeOf(bytes32 _key, bytes32 _ID) external view returns (uint256 value);
 
-    /// @notice Get juror information for a specific court
-    /// @param _juror The juror address
-    /// @param _courtID The court ID
-    /// @return totalStaked Total staked amount (from external source)
-    /// @return stakedInCourt Amount staked in specific court
-    /// @return nbCourts Number of courts staked in
-    function getJurorInfo(
-        address _juror,
-        uint96 _courtID
-    ) external view returns (uint256 totalStaked, uint256 stakedInCourt, uint256 nbCourts);
-
-    /// @notice Get court IDs where juror has stakes
-    /// @param _juror The juror address
-    /// @return Array of court IDs
-    function getJurorCourtIDs(address _juror) external view returns (uint96[] memory);
-
-    /// @notice Check if juror has any stakes in sortition trees
-    /// @param _juror The juror address
-    /// @return Whether the juror has stakes
-    function hasStakes(address _juror) external view returns (bool);
-
     /// @notice Get the total stake in a court's tree
     /// @param _courtID The court ID
     /// @return Total stake in the court

@@ -27,11 +27,6 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
         mapping(uint256 => bytes32) nodeIndexesToIDs;
     }
 
-    struct JurorStakeInfo {
-        uint96[] courtIDs; // The IDs of courts where the juror has stakes
-        mapping(uint96 => uint256) stakes; // Court ID -> stake amount
-    }
-
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -40,7 +35,6 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
     IStakeController public stakeController; // The stake controller for coordination.
 
     mapping(bytes32 treeHash => SortitionSumTree) internal sortitionSumTrees; // The mapping trees by keys.
-    mapping(address account => JurorStakeInfo) internal jurorStakeInfo; // Juror stake information for sortition
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -104,7 +98,37 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
         uint96 _courtID,
         uint256 _newStake
     ) external virtual override onlyByStakeController returns (StakingResult stakingResult) {
-        return _setStake(_account, _courtID, _newStake);
+        uint256 currentStake = this.stakeOf(_account, _courtID);
+
+        if (currentStake == 0 && _newStake == 0) {
+            return StakingResult.CannotStakeZeroWhenNoStake; // No change needed
+        }
+
+        // Update the sortition sum tree in court hierarchy
+        bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
+        bool finished = false;
+        uint96 currentCourtIDForHierarchy = _courtID;
+        KlerosCoreXBase core = stakeController.core();
+
+        while (!finished) {
+            _set(bytes32(uint256(currentCourtIDForHierarchy)), _newStake, stakePathID);
+            if (currentCourtIDForHierarchy == GENERAL_COURT) {
+                finished = true;
+            } else {
+                // Fetch parent court ID. Ensure core.courts() is accessible and correct.
+                (uint96 parentCourtID, , , , , , ) = core.courts(currentCourtIDForHierarchy);
+                if (parentCourtID == currentCourtIDForHierarchy) {
+                    // Avoid infinite loop if parent is self (e.g. for general court already handled or misconfiguration)
+                    finished = true;
+                } else {
+                    currentCourtIDForHierarchy = parentCourtID;
+                }
+            }
+        }
+
+        (, , , uint256 totalStaked, , ) = stakeController.getJurorBalance(_account, _courtID);
+        emit StakeSet(_account, _courtID, _newStake, totalStaked);
+        return StakingResult.Successful;
     }
 
     // ************************************* //
@@ -169,33 +193,6 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
     }
 
     /// @inheritdoc ISortitionSumTree
-    function getJurorInfo(
-        address _juror,
-        uint96 _courtID
-    ) external view override returns (uint256 totalStaked, uint256 stakedInCourt, uint256 nbCourts) {
-        JurorStakeInfo storage info = jurorStakeInfo[_juror];
-
-        // Get total staked and locked from stake controller
-        totalStaked = stakeController.getDepositedBalance(_juror);
-
-        // Get stake in specific court from sortition tree
-        stakedInCourt = this.stakeOf(_juror, _courtID);
-
-        // Number of courts from local tracking
-        nbCourts = info.courtIDs.length;
-    }
-
-    /// @inheritdoc ISortitionSumTree
-    function getJurorCourtIDs(address _juror) external view override returns (uint96[] memory) {
-        return jurorStakeInfo[_juror].courtIDs;
-    }
-
-    /// @inheritdoc ISortitionSumTree
-    function hasStakes(address _juror) external view override returns (bool) {
-        return jurorStakeInfo[_juror].courtIDs.length > 0;
-    }
-
-    /// @inheritdoc ISortitionSumTree
     function getTotalStakeInCourt(uint96 _courtID) external view override returns (uint256) {
         SortitionSumTree storage tree = sortitionSumTrees[bytes32(uint256(_courtID))];
         if (tree.nodes.length == 0) return 0;
@@ -218,64 +215,6 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
     // ************************************* //
     // *              Internal             * //
     // ************************************* //
-
-    /// @dev Internal implementation of setStake with court hierarchy updates
-    function _setStake(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake
-    ) internal returns (StakingResult stakingResult) {
-        uint256 currentStake = this.stakeOf(_account, _courtID);
-
-        if (currentStake == 0 && _newStake == 0) {
-            return StakingResult.CannotStakeZeroWhenNoStake; // No change needed
-        }
-
-        JurorStakeInfo storage juror = jurorStakeInfo[_account];
-
-        if (currentStake == 0 && juror.courtIDs.length >= MAX_STAKE_PATHS) {
-            return StakingResult.CannotStakeInMoreCourts; // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
-        }
-
-        // Update the sortition sum tree in court hierarchy
-        bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
-        bool finished = false;
-        uint96 currentCourtID = _courtID;
-        KlerosCoreXBase core = stakeController.core();
-        while (!finished) {
-            // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
-            _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
-            if (currentCourtID == GENERAL_COURT) {
-                finished = true;
-            } else {
-                (currentCourtID, , , , , , ) = core.courts(currentCourtID); // Get the parent court.
-            }
-        }
-
-        // Update local stake tracking
-        uint256 currentStakeInInfo = juror.stakes[_courtID];
-        if (currentStakeInInfo == 0 && _newStake > 0) {
-            // Adding new court
-            juror.courtIDs.push(_courtID);
-        } else if (currentStakeInInfo > 0 && _newStake == 0) {
-            // Removing court
-            for (uint256 i = 0; i < juror.courtIDs.length; i++) {
-                if (juror.courtIDs[i] == _courtID) {
-                    juror.courtIDs[i] = juror.courtIDs[juror.courtIDs.length - 1];
-                    juror.courtIDs.pop();
-                    break;
-                }
-            }
-        }
-
-        juror.stakes[_courtID] = _newStake;
-
-        // Get total staked amount from stake controller for event
-        uint256 totalStaked = stakeController.getDepositedBalance(_account);
-        emit StakeSet(_account, _courtID, _newStake, totalStaked);
-
-        return StakingResult.Successful;
-    }
 
     /// @dev Update all the parents of a node.
     /// @param _key The key of the tree to update.
