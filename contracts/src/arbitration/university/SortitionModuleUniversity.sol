@@ -235,7 +235,10 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         emit StakeLocked(_account, _relativeAmount, true);
     }
 
-    function penalizeStake(address _account, uint256 _relativeAmount) external override onlyByCore {
+    function penalizeStake(
+        address _account,
+        uint256 _relativeAmount
+    ) external override onlyByCore returns (uint256 pnkBalance, uint256 availablePenalty) {
         Juror storage juror = jurors[_account];
         if (juror.stakedPnk >= _relativeAmount) {
             juror.stakedPnk -= _relativeAmount;
@@ -257,6 +260,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, false);
         }
     }
+
+    function withdrawLeftoverPNK(address _account) external override {}
 
     // ************************************* //
     // *           Public Views            * //
@@ -311,6 +316,14 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     function isJurorStaked(address _juror) external view override returns (bool) {
         return jurors[_juror].stakedPnk > 0;
     }
+
+    function updateState(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) external {}
 
     // ************************************* //
     // *            Internal               * //

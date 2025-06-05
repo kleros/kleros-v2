@@ -88,13 +88,13 @@ contract SortitionModuleNeo is SortitionModuleBase {
         address _account,
         uint96 _courtID,
         uint256 _newStake,
-        bool _alreadyTransferred
+        bool /*_alreadyTransferred*/
     ) internal override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         uint256 currentStake = stakeOf(_account, _courtID);
         bool stakeIncrease = _newStake > currentStake;
         uint256 stakeChange = stakeIncrease ? _newStake - currentStake : currentStake - _newStake;
         Juror storage juror = jurors[_account];
-        if (stakeIncrease && !_alreadyTransferred) {
+        if (stakeIncrease) {
             if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
                 return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
             }
@@ -113,7 +113,7 @@ contract SortitionModuleNeo is SortitionModuleBase {
             _account,
             _courtID,
             _newStake,
-            _alreadyTransferred
+            false // This parameter is not used
         );
     }
 }
