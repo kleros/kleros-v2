@@ -344,23 +344,24 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         JurorStake storage currentJurorStake = jurorStakes[_account];
         uint256 currentStakeInCourt = currentJurorStake.stakes[_courtID];
 
-        // Check for MAX_STAKE_PATHS before calculating deposit/withdrawal if it's a new court stake
-        if (currentStakeInCourt == 0 && _newStake > 0) {
-            if (currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS) {
+        if (currentStakeInCourt == 0) {
+            if (_newStake == 0)
+                // No change needed
+                return (0, 0, StakingResult.CannotStakeZeroWhenNoStake);
+            else if (_newStake > 0 && currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS)
+                // Cannot stake in more courts
                 return (0, 0, StakingResult.CannotStakeInMoreCourts);
-            }
-        }
-
-        uint256 previousTotalStake = currentJurorStake.totalStake; // Keep track for potential revert
-        if (_newStake > currentStakeInCourt) {
-            pnkDeposit = _newStake - currentStakeInCourt;
-            currentJurorStake.totalStake = previousTotalStake + pnkDeposit;
-        } else if (_newStake < currentStakeInCourt) {
-            pnkWithdrawal = currentStakeInCourt - _newStake;
-            currentJurorStake.totalStake = previousTotalStake - pnkWithdrawal;
         }
 
         currentJurorStake.stakes[_courtID] = _newStake;
+
+        if (_newStake > currentStakeInCourt) {
+            pnkDeposit = _newStake - currentStakeInCourt;
+            currentJurorStake.totalStake += pnkDeposit;
+        } else if (_newStake < currentStakeInCourt) {
+            pnkWithdrawal = currentStakeInCourt - _newStake;
+            currentJurorStake.totalStake -= pnkWithdrawal;
+        }
 
         // Manage stakedCourtIDs
         if (currentStakeInCourt == 0 && _newStake > 0) {
@@ -369,23 +370,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             _removeCourt(currentJurorStake.stakedCourtIDs, _courtID);
         }
 
-        stakingResult = sortitionModule.setStake(_account, _courtID, _newStake);
-        if (stakingResult != StakingResult.Successful) {
-            // Revert local changes if sortitionModule update fails
-            currentJurorStake.stakes[_courtID] = currentStakeInCourt;
-            currentJurorStake.totalStake = previousTotalStake;
-            if (currentStakeInCourt == 0 && _newStake > 0) {
-                // revert insertion: was a push, so pop
-                uint96[] storage stakedCourtsRevert = currentJurorStake.stakedCourtIDs;
-                if (stakedCourtsRevert.length > 0 && stakedCourtsRevert[stakedCourtsRevert.length - 1] == _courtID) {
-                    stakedCourtsRevert.pop();
-                }
-            } else if (currentStakeInCourt > 0 && _newStake == 0) {
-                // revert removal: was a remove, so add it back (order might not be preserved by simple push)
-                currentJurorStake.stakedCourtIDs.push(_courtID);
-            }
-            return (0, 0, stakingResult);
-        }
+        sortitionModule.setStake(_account, _courtID, _newStake);
 
         emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
     }
@@ -402,6 +387,10 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         uint96 _courtID,
         uint256 _newStake
     ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        if (phase == Phase.staking) {
+            return _setStakeBySystem(_account, _courtID, _newStake);
+        }
+
         JurorStake storage currentJurorStake = jurorStakes[_account];
         uint256 currentStakeInCourt = currentJurorStake.stakes[_courtID];
 
@@ -411,70 +400,25 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             pnkWithdrawal = currentStakeInCourt - _newStake;
         }
 
-        if (phase != Phase.staking) {
-            // MAX_STAKE_PATHS is checked when _setStakeBySystem() is called during executeDelayedStakes().
-            DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
-            delayedStake.account = _account;
-            delayedStake.courtID = _courtID;
-            delayedStake.stake = _newStake;
-            return (pnkDeposit, pnkWithdrawal, StakingResult.Delayed);
-        }
-
-        // Check for MAX_STAKE_PATHS if it's a new court stake
-        if (currentStakeInCourt == 0 && _newStake > 0) {
-            if (currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS) {
-                return (0, 0, StakingResult.CannotStakeInMoreCourts);
-            }
-        }
-
-        // Update local stake records first
-        uint256 previousTotalStake = currentJurorStake.totalStake; // Keep track for potential revert
-        if (_newStake > currentStakeInCourt) {
-            currentJurorStake.totalStake = previousTotalStake + pnkDeposit;
-        } else if (_newStake < currentStakeInCourt) {
-            currentJurorStake.totalStake = previousTotalStake - pnkWithdrawal;
-        }
-        currentJurorStake.stakes[_courtID] = _newStake;
-
-        // Manage stakedCourtIDs
-        if (currentStakeInCourt == 0 && _newStake > 0) {
-            currentJurorStake.stakedCourtIDs.push(_courtID);
-        } else if (currentStakeInCourt > 0 && _newStake == 0) {
-            _removeCourt(currentJurorStake.stakedCourtIDs, _courtID);
-        }
-
-        stakingResult = sortitionModule.setStake(_account, _courtID, _newStake);
-        if (stakingResult != StakingResult.Successful) {
-            // Revert local changes if sortitionModule update fails
-            currentJurorStake.stakes[_courtID] = currentStakeInCourt;
-            currentJurorStake.totalStake = previousTotalStake;
-            if (currentStakeInCourt == 0 && _newStake > 0) {
-                // revert insertion: was a push, so pop
-                uint96[] storage stakedCourtsRevert = currentJurorStake.stakedCourtIDs;
-                if (stakedCourtsRevert.length > 0 && stakedCourtsRevert[stakedCourtsRevert.length - 1] == _courtID) {
-                    stakedCourtsRevert.pop();
-                }
-            } else if (currentStakeInCourt > 0 && _newStake == 0) {
-                // revert removal: was a remove, so add it back (order might not be preserved by simple push)
-                currentJurorStake.stakedCourtIDs.push(_courtID);
-            }
-            return (0, 0, stakingResult);
-        }
-
-        emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
+        // MAX_STAKE_PATHS is checked by _setStakeBySystem() called during executeDelayedStakes().
+        DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
+        delayedStake.account = _account;
+        delayedStake.courtID = _courtID;
+        delayedStake.stake = _newStake;
+        return (pnkDeposit, pnkWithdrawal, StakingResult.Delayed);
     }
 
     /// @dev Removes a court from a juror's list of staked courts.
     /// @param _stakedCourts Storage pointer to the juror's array of staked court IDs.
     /// @param _courtID The ID of the court to remove.
     function _removeCourt(uint96[] storage _stakedCourts, uint96 _courtID) internal {
-        uint256 len = _stakedCourts.length;
-        if (len == 0) {
+        uint256 length = _stakedCourts.length;
+        if (length == 0) {
             return; // Nothing to remove
         }
 
         uint256 courtIndexToRemove = type(uint256).max; // Sentinel value indicates not found
-        for (uint256 i = 0; i < len; i++) {
+        for (uint256 i = 0; i < length; i++) {
             if (_stakedCourts[i] == _courtID) {
                 courtIndexToRemove = i;
                 break;
@@ -484,8 +428,8 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         if (courtIndexToRemove != type(uint256).max) {
             // If the courtID was found in the array
             // If it's not the last element, swap the last element into its place
-            if (courtIndexToRemove != len - 1) {
-                _stakedCourts[courtIndexToRemove] = _stakedCourts[len - 1];
+            if (courtIndexToRemove != length - 1) {
+                _stakedCourts[courtIndexToRemove] = _stakedCourts[length - 1];
             }
             // Remove the last element (either the original last, or the one that was swapped)
             _stakedCourts.pop();

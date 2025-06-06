@@ -97,35 +97,27 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
         address _account,
         uint96 _courtID,
         uint256 _newStake
-    ) external virtual override onlyByStakeController returns (StakingResult stakingResult) {
-        uint256 currentStake = this.stakeOf(_account, _courtID);
-
-        if (currentStake == 0 && _newStake == 0) {
-            return StakingResult.CannotStakeZeroWhenNoStake; // No change needed
-        }
-
-        // Update the sortition sum tree in court hierarchy
+    ) external virtual override onlyByStakeController {
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
-        uint96 currentCourtIDForHierarchy = _courtID;
+        uint96 currentCourtID = _courtID;
         KlerosCoreXBase core = stakeController.core();
 
         while (!finished) {
-            _set(bytes32(uint256(currentCourtIDForHierarchy)), _newStake, stakePathID);
-            if (currentCourtIDForHierarchy == GENERAL_COURT) {
+            _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
+            if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
                 // Fetch parent court ID. Ensure core.courts() is accessible and correct.
-                (uint96 parentCourtID, , , , , , ) = core.courts(currentCourtIDForHierarchy);
-                if (parentCourtID == currentCourtIDForHierarchy) {
+                (uint96 parentCourtID, , , , , , ) = core.courts(currentCourtID);
+                if (parentCourtID == currentCourtID) {
                     // Avoid infinite loop if parent is self (e.g. for general court already handled or misconfiguration)
                     finished = true;
                 } else {
-                    currentCourtIDForHierarchy = parentCourtID;
+                    currentCourtID = parentCourtID;
                 }
             }
         }
-        return StakingResult.Successful;
     }
 
     // ************************************* //

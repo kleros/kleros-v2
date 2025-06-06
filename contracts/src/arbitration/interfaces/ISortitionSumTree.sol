@@ -21,12 +21,7 @@ interface ISortitionSumTree {
     /// @param _account The address of the juror
     /// @param _courtID The ID of the court
     /// @param _newStake The new stake amount
-    /// @return stakingResult The result of the staking operation
-    function setStake(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake
-    ) external returns (StakingResult stakingResult);
+    function setStake(address _account, uint96 _courtID, uint256 _newStake) external;
 
     // ************************************* //
     // *            Drawing                * //
