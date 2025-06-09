@@ -3,12 +3,11 @@
 pragma solidity 0.8.24;
 
 import "./KlerosCoreBase.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title KlerosCoreNeo
 /// @notice KlerosCore with whitelisted arbitrables
 contract KlerosCoreNeo is KlerosCoreBase {
-    string public constant override version = "0.0.1";
+    string public constant override version = "0.10.0";
 
     // ************************************* //
     // *             Storage               * //

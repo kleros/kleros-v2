@@ -13,7 +13,7 @@ import "../libraries/Constants.sol";
 /// @notice Responsible for sortition operations
 /// @dev Contains only tree management and drawing logic, no phase management or token operations
 contract SortitionSumTree is ISortitionSumTree, Initializable, UUPSProxiable {
-    string public constant override version = "2.0.0";
+    string public constant override version = "0.9.0";
 
     // ************************************* //
     // *         Enums / Structs           * //

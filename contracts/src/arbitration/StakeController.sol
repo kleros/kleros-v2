@@ -16,7 +16,7 @@ import "../libraries/Constants.sol";
 /// @notice Responsible for coordinating between Vault and SortitionSumTree
 /// @dev Manages phases, delayed stakes, and coordination logic
 contract StakeController is IStakeController, Initializable, UUPSProxiable {
-    string public constant override version = "1.0.0";
+    string public constant override version = "0.9.0";
 
     // ************************************* //
     // *         Enums / Structs           * //

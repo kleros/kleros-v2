@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 contract VaultNeo is VaultBase {
     using SafeERC20 for IERC20;
 
-    string public constant override version = "1.0.0";
+    string public constant override version = "0.1.0";
 
     // ************************************* //
     // *             Storage               * //

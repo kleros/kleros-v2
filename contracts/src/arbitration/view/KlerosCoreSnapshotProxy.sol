@@ -2,10 +2,10 @@
 
 pragma solidity 0.8.24;
 
-import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {IStakeController} from "../interfaces/IStakeController.sol";
 
 interface IKlerosCore {
-    function sortitionModule() external view returns (ISortitionModule);
+    function stakeController() external view returns (IStakeController);
 }
 
 /// @title KlerosCoreSnapshotProxy
@@ -67,6 +67,6 @@ contract KlerosCoreSnapshotProxy {
     /// @param _account The address to query.
     /// @return totalStaked Total amount staked in V2 by the address.
     function balanceOf(address _account) external view returns (uint256 totalStaked) {
-        (totalStaked, , , ) = core.sortitionModule().getJurorBalance(_account, 0);
+        (, , , totalStaked, , ) = core.stakeController().getJurorBalance(_account, 0);
     }
 }

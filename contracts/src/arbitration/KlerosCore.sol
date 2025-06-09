@@ -8,7 +8,7 @@ import "./KlerosCoreBase.sol";
 /// @notice KlerosCore implementation with new StakeController architecture for testing environments
 contract KlerosCore is KlerosCoreBase {
     /// @notice Version of the implementation contract
-    string public constant override version = "0.0.1";
+    string public constant override version = "0.10.0";
 
     // ************************************* //
     // *            Constructor            * //

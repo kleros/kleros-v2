@@ -1071,7 +1071,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 
-    /// @dev If called only once then set _onError to Revert, otherwise for batch staking set it to Return
+    /// @dev It may revert if the stake change in invalid.
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
