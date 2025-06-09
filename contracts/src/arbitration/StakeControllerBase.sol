@@ -203,12 +203,74 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // ************************************* //
 
     /// @inheritdoc IStakeController
-    function setStake(
+    function validateStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake
-    ) public override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        return _setStake(_account, _courtID, _newStake);
+    ) external view override returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        JurorStake storage currentJurorStake = jurorStakes[_account];
+        uint256 currentStakeInCourt = currentJurorStake.stakes[_courtID];
+
+        if (_newStake > currentStakeInCourt) {
+            pnkDeposit = _newStake - currentStakeInCourt;
+        } else if (_newStake < currentStakeInCourt) {
+            pnkWithdrawal = currentStakeInCourt - _newStake;
+        }
+
+        if (phase != Phase.staking) {
+            return (pnkDeposit, pnkWithdrawal, StakingResult.Delayed);
+        } else {
+            if (currentStakeInCourt == 0) {
+                if (_newStake == 0) revert StakingZeroWhenNoStake();
+                else if (_newStake > 0 && currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS)
+                    revert StakingInTooManyCourts();
+            }
+            return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+        }
+    }
+
+    /// @inheritdoc IStakeController
+    function setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal
+    ) public override onlyByCore {
+        JurorStake storage currentJurorStake = jurorStakes[_account];
+        uint256 currentStakeInCourt = currentJurorStake.stakes[_courtID];
+
+        if (phase != Phase.staking) {
+            revert NotInStakingPhase();
+        }
+
+        // Update jurorStakes
+        currentJurorStake.stakes[_courtID] = _newStake;
+        if (_newStake > currentStakeInCourt) {
+            currentJurorStake.totalStake += _pnkDeposit;
+        } else if (_newStake < currentStakeInCourt) {
+            currentJurorStake.totalStake -= _pnkWithdrawal;
+        }
+
+        // Manage stakedCourtIDs
+        if (currentStakeInCourt == 0 && _newStake > 0) {
+            currentJurorStake.stakedCourtIDs.push(_courtID);
+        } else if (currentStakeInCourt > 0 && _newStake == 0) {
+            _removeCourt(currentJurorStake.stakedCourtIDs, _courtID);
+        }
+
+        // Update sortition tree
+        sortition.setStake(_account, _courtID, _newStake);
+
+        emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
+    }
+
+    /// @inheritdoc IStakeController
+    function setStakeDelayed(address _account, uint96 _courtID, uint256 _newStake) public override {
+        DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
+        delayedStake.account = _account;
+        delayedStake.courtID = _courtID;
+        delayedStake.stake = _newStake;
     }
 
     /// @inheritdoc IStakeController
@@ -235,14 +297,24 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @inheritdoc IStakeController
     function setJurorInactive(address _account) external override onlyByCore returns (uint256 pnkToWithdraw) {
-        uint96[] storage courtIDsForJuror = jurorStakes[_account].stakedCourtIDs;
-        while (courtIDsForJuror.length > 0) {
-            uint96 courtID = courtIDsForJuror[0];
-            _setStake(_account, courtID, 0);
+        JurorStake storage currentJurorStake = jurorStakes[_account];
+        uint96[] storage stakedCourtIDs = currentJurorStake.stakedCourtIDs;
+        while (stakedCourtIDs.length > 0) {
+            uint96 courtID = stakedCourtIDs[0];
+            uint256 currentStakeInCourt = currentJurorStake.stakes[courtID];
+            if (phase == Phase.staking) {
+                setStake(_account, courtID, 0, 0, currentStakeInCourt);
+            } else {
+                setStakeDelayed(_account, courtID, 0);
+            }
         }
-        jurorStakes[_account].totalStake = 0;
-        pnkToWithdraw = vault.getAvailableBalance(_account);
-        emit JurorSetInactive(_account);
+        if (phase == Phase.staking) {
+            pnkToWithdraw = vault.getAvailableBalance(_account);
+            emit JurorSetInactive(_account, false);
+        } else {
+            pnkToWithdraw = 0;
+            emit JurorSetInactive(_account, true);
+        }
     }
 
     // ************************************* //
@@ -324,64 +396,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Internal implementation of setStake with phase-aware delayed stake logic
-    /// @param _account The account to set the stake for.
-    /// @param _courtID The ID of the court to set the stake for.
-    /// @param _newStake The new stake.
-    /// @return pnkDeposit The amount of PNK to deposit.
-    /// @return pnkWithdrawal The amount of PNK to withdraw.
-    /// @return stakingResult The result of the staking operation.
-    function _setStake(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake
-    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        JurorStake storage currentJurorStake = jurorStakes[_account];
-        uint256 currentStakeInCourt = currentJurorStake.stakes[_courtID];
-
-        if (phase == Phase.staking) {
-            if (currentStakeInCourt == 0) {
-                if (_newStake == 0) revert StakingZeroWhenNoStake();
-                else if (_newStake > 0 && currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS)
-                    revert StakingInTooManyCourts();
-            }
-
-            currentJurorStake.stakes[_courtID] = _newStake;
-
-            if (_newStake > currentStakeInCourt) {
-                pnkDeposit = _newStake - currentStakeInCourt;
-                currentJurorStake.totalStake += pnkDeposit;
-            } else if (_newStake < currentStakeInCourt) {
-                pnkWithdrawal = currentStakeInCourt - _newStake;
-                currentJurorStake.totalStake -= pnkWithdrawal;
-            }
-
-            // Manage stakedCourtIDs
-            if (currentStakeInCourt == 0 && _newStake > 0) {
-                currentJurorStake.stakedCourtIDs.push(_courtID);
-            } else if (currentStakeInCourt > 0 && _newStake == 0) {
-                _removeCourt(currentJurorStake.stakedCourtIDs, _courtID);
-            }
-
-            sortition.setStake(_account, _courtID, _newStake);
-
-            emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
-            return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
-        }
-
-        if (_newStake > currentStakeInCourt) {
-            pnkDeposit = _newStake - currentStakeInCourt;
-        } else if (_newStake < currentStakeInCourt) {
-            pnkWithdrawal = currentStakeInCourt - _newStake;
-        }
-
-        DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
-        delayedStake.account = _account;
-        delayedStake.courtID = _courtID;
-        delayedStake.stake = _newStake;
-        return (pnkDeposit, pnkWithdrawal, StakingResult.Delayed);
-    }
-
     /// @dev Removes a court from a juror's list of staked courts.
     /// @param _stakedCourts Storage pointer to the juror's array of staked court IDs.
     /// @param _courtID The ID of the court to remove.
@@ -408,101 +422,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             // Remove the last element (either the original last, or the one that was swapped)
             _stakedCourts.pop();
         }
-    }
-
-    // ************************************* //
-    // *       Migration Utilities         * //
-    // ************************************* //
-
-    /// @dev Import existing stakes from old sortition module for migration
-    /// @param _accounts Array of juror accounts
-    /// @param _courtIDs Array of court IDs
-    /// @param _stakes Array of stake amounts
-    function importExistingStakes(
-        address[] calldata _accounts,
-        uint96[] calldata _courtIDs,
-        uint256[] calldata _stakes
-    ) external onlyByGovernor {
-        if (_accounts.length != _courtIDs.length || _accounts.length != _stakes.length) {
-            revert InvalidMigrationData();
-        }
-
-        uint256 totalImportedSuccess = 0;
-        for (uint256 i = 0; i < _accounts.length; i++) {
-            if (_stakes[i] > 0) {
-                address account = _accounts[i];
-                uint96 courtID = _courtIDs[i];
-                uint256 stakeToImport = _stakes[i];
-
-                // Ensure no prior stake exists for this specific account/courtID combination in this contract's state for a clean import.
-                // This check assumes importExistingStakes is for a fresh population or controlled append.
-                // If overwriting/updating was intended, this check might differ.
-                if (jurorStakes[account].stakes[courtID] > 0) {
-                    // Skip or revert, depending on desired import semantics. For now, skip and log.
-                    // emit ImportSkippedDuplicate(account, courtID, stakeToImport);
-                    continue;
-                }
-
-                // _setStake will update local juror stake mappings (jurorStakes) AND call sortition.setStake.
-                // The pnkDeposit/pnkWithdrawal are calculated but not used by this import function.
-                (, , StakingResult stakingResult) = _setStake(account, courtID, stakeToImport);
-
-                if (stakingResult == StakingResult.Successful) {
-                    totalImportedSuccess++;
-                    emit StakeImported(account, courtID, stakeToImport);
-                } else {
-                    // Log or handle failed import for a specific entry
-                    // emit StakeImportFailed(account, courtID, stakeToImport, stakingResult);
-                }
-            }
-        }
-
-        emit MigrationCompleted(_accounts.length, totalImportedSuccess);
-    }
-
-    /// @dev Import delayed stakes from old system for migration
-    /// @param _delayedStakes Array of delayed stake data
-    function importDelayedStakes(DelayedStake[] calldata _delayedStakes) external onlyByGovernor {
-        for (uint256 i = 0; i < _delayedStakes.length; i++) {
-            DelayedStake memory delayedStake = _delayedStakes[i];
-            if (delayedStake.account != address(0)) {
-                delayedStakeWriteIndex++;
-                delayedStakes[delayedStakeWriteIndex] = delayedStake;
-
-                emit DelayedStakeImported(
-                    delayedStake.account,
-                    delayedStake.courtID,
-                    delayedStake.stake,
-                    delayedStakeWriteIndex
-                );
-            }
-        }
-    }
-
-    /// @dev Migrate phase state from old sortition module
-    /// @param _phase The phase to set
-    /// @param _lastPhaseChange The last phase change timestamp
-    /// @param _disputesWithoutJurors Number of disputes without jurors
-    function migratePhaseState(
-        Phase _phase,
-        uint256 _lastPhaseChange,
-        uint256 _disputesWithoutJurors
-    ) external onlyByGovernor {
-        phase = _phase;
-        lastPhaseChange = _lastPhaseChange;
-        disputesWithoutJurors = _disputesWithoutJurors;
-
-        emit PhaseStateMigrated(_phase, _lastPhaseChange, _disputesWithoutJurors);
-    }
-
-    /// @dev Emergency coordination reset for critical issues
-    function emergencyCoordinationReset() external onlyByGovernor {
-        phase = Phase.staking;
-        lastPhaseChange = block.timestamp;
-        disputesWithoutJurors = 0;
-        randomNumber = 0;
-
-        emit EmergencyReset(block.timestamp);
     }
 
     // ************************************* //

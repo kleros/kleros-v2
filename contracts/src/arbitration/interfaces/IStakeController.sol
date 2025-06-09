@@ -27,7 +27,7 @@ interface IStakeController {
     event JurorPenaltyExecuted(address indexed _account, uint256 _penalty, uint256 _actualPenalty);
     event StakeLocked(address indexed _account, uint256 _amount);
     event StakeUnlocked(address indexed _account, uint256 _amount);
-    event JurorSetInactive(address indexed _account);
+    event JurorSetInactive(address indexed _account, bool _delayed);
 
     /// @notice Emitted when a juror's stake is set in a court
     /// @param _account The address of the juror
@@ -66,18 +66,38 @@ interface IStakeController {
     // *         Stake Management          * //
     // ************************************* //
 
+    /// @notice Validate a stake change for a juror
+    /// @param _account The juror's account
+    /// @param _courtID The ID of the court
+    /// @param _newStake The new stake amount
+    /// @return pnkDeposit The amount of PNK validated for deposit
+    /// @return pnkWithdrawal The amount of PNK validated for withdrawal
+    /// @return stakingResult The result of the staking operation
+    function validateStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake
+    ) external view returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
+
     /// @notice Set stake for a juror with vault coordination
     /// @param _account The juror's account
     /// @param _courtID The ID of the court
     /// @param _newStake The new stake amount
-    /// @return pnkDeposit The amount of PNK to deposit
-    /// @return pnkWithdrawal The amount of PNK to withdraw
-    /// @return stakingResult The result of the staking operation
+    /// @param _pnkDeposit The amount of PNK validated for deposit
+    /// @param _pnkWithdrawal The amount of PNK validated for withdrawal
     function setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake
-    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
+        uint256 _newStake,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal
+    ) external;
+
+    /// @notice Set a delayed stake change for a juror to be executed in the next staking phase
+    /// @param _account The juror's account
+    /// @param _courtID The ID of the court
+    /// @param _newStake The new stake amount
+    function setStakeDelayed(address _account, uint96 _courtID, uint256 _newStake) external;
 
     /// @notice Lock stake for dispute participation
     /// @param _account The account to lock stake for

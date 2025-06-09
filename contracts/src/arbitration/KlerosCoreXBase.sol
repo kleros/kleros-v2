@@ -1085,7 +1085,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         if (_newStake != 0 && _newStake < courts[_courtID].minStake) {
             revert StakingLessThanCourtMinStake();
         }
-        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.setStake(
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.validateStake(
             _account,
             _courtID,
             _newStake
@@ -1093,19 +1093,19 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         if (stakingResult == StakingResult.Delayed) {
             return true;
         }
+        success = true;
         if (pnkDeposit > 0) {
-            try vault.deposit(_account, pnkDeposit) {
-                success = true;
-            } catch {
+            try vault.deposit(_account, pnkDeposit) {} catch {
                 success = false;
             }
         }
         if (pnkWithdrawal > 0) {
-            try vault.withdraw(_account, pnkWithdrawal) {
-                success = true;
-            } catch {
+            try vault.withdraw(_account, pnkWithdrawal) {} catch {
                 success = false;
             }
+        }
+        if (success) {
+            stakeController.setStake(_account, _courtID, _newStake, pnkDeposit, pnkWithdrawal);
         }
         return success;
     }
