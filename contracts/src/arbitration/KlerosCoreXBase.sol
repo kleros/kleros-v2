@@ -1131,7 +1131,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         uint96 _courtID,
         uint256 _newStake
     ) internal virtual returns (bool success) {
-        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.setStakeBySystem(
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.setStake(
             _account,
             _courtID,
             _newStake
@@ -1213,7 +1213,6 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     error GovernorOnly();
     error GuardianOrGovernorOnly();
     error DisputeKitOnly();
-    error SortitionModuleOnly();
     error StakeControllerOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();

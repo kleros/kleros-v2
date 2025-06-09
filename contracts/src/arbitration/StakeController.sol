@@ -10,7 +10,7 @@ import {RNG} from "../rng/RNG.sol";
 
 /// @title StakeController
 /// @notice Basic implementation of the Stake Controller
-/// @dev Coordinates between Vault and SortitionModule for the new architecture
+/// @dev Coordinates between Vault and SortitionSumTree for the new architecture
 contract StakeController is StakeControllerBase {
     string public constant override version = "1.0.0";
 
@@ -27,7 +27,7 @@ contract StakeController is StakeControllerBase {
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore contract.
     /// @param _vault The Vault contract.
-    /// @param _sortitionModule The SortitionModule contract.
+    /// @param _sortition The SortitionSumTree contract.
     /// @param _minStakingTime The minimum staking time.
     /// @param _maxDrawingTime The maximum drawing time.
     /// @param _rng The random number generator.
@@ -36,7 +36,7 @@ contract StakeController is StakeControllerBase {
         address _governor,
         KlerosCoreXBase _core,
         IVault _vault,
-        ISortitionSumTree _sortitionModule,
+        ISortitionSumTree _sortition,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
@@ -46,7 +46,7 @@ contract StakeController is StakeControllerBase {
             _governor,
             _core,
             _vault,
-            _sortitionModule,
+            _sortition,
             _minStakingTime,
             _maxDrawingTime,
             _rng,

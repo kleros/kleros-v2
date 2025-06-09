@@ -207,7 +207,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
-    /// @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
+    /// @dev Draws the juror from the Stake Controller.
     /// Note: Access restricted to Kleros Core only.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _nonce Nonce of the drawing iteration.
@@ -221,11 +221,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 localRoundID = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[localRoundID];
 
-        IStakeController sortitionModule = core.stakeController();
+        IStakeController stakeController = core.stakeController();
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
 
-        drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
+        drawnAddress = stakeController.draw(key, _coreDisputeID, _nonce);
 
         if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));

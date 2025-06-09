@@ -6,7 +6,7 @@ import {KlerosCoreXBase} from "../KlerosCoreXBase.sol";
 import "../../libraries/Constants.sol";
 
 /// @title IStakeController
-/// @notice Interface for the Stake Controller that coordinates between Vault and SortitionModule
+/// @notice Interface for the Stake Controller that coordinates between Vault and SortitionSumTree
 /// @dev Combines phase management, delayed stakes, and coordination between vault and sortition
 interface IStakeController {
     // ************************************* //
@@ -62,20 +62,6 @@ interface IStakeController {
     // *         Stake Management          * //
     // ************************************* //
 
-    /// @notice System-level update to a juror's stake directly in the SortitionModule.
-    /// @dev Called by KlerosCoreXBase for executing delayed stakes. Skips regular phase checks and delayed stake creation.
-    /// @param _account The juror's account
-    /// @param _courtID The ID of the court
-    /// @param _newStake The new stake amount
-    /// @return pnkDeposit The amount of PNK to deposit
-    /// @return pnkWithdrawal The amount of PNK to withdraw
-    /// @return stakingResult The result of the staking operation
-    function setStakeBySystem(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake
-    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
-
     /// @notice Set stake for a juror with vault coordination
     /// @param _account The juror's account
     /// @param _courtID The ID of the court
@@ -128,12 +114,12 @@ interface IStakeController {
     // *         Sortition Delegation      * //
     // ************************************* //
 
-    /// @notice Create a sortition tree (delegated to SortitionModule)
+    /// @notice Create a sortition tree (delegated to SortitionSumTree)
     /// @param _key The key of the tree
     /// @param _extraData Extra data for tree configuration
     function createTree(bytes32 _key, bytes memory _extraData) external;
 
-    /// @notice Draw a juror for dispute (delegated to SortitionModule)
+    /// @notice Draw a juror for dispute (delegated to SortitionSumTree)
     /// @param _court The court identifier
     /// @param _coreDisputeID The core dispute ID
     /// @param _nonce The drawing nonce

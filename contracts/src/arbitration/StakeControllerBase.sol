@@ -13,7 +13,7 @@ import {RNG} from "../rng/RNG.sol";
 import "../libraries/Constants.sol";
 
 /// @title StakeControllerBase
-/// @notice Abstract base contract for coordinating between Vault and SortitionModule
+/// @notice Abstract base contract for coordinating between Vault and SortitionSumTree
 /// @dev Manages phases, delayed stakes, and coordination logic
 abstract contract StakeControllerBase is IStakeController, Initializable, UUPSProxiable {
     // ************************************* //
@@ -39,7 +39,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     address public governor; // The governor of the contract.
     KlerosCoreXBase public core; // The core arbitrator contract.
     IVault public vault; // The PNK vault for token management.
-    ISortitionSumTree public sortitionModule; // The sortition module for drawing logic.
+    ISortitionSumTree public sortition; // The sortition sum tree for drawing.
 
     // Phase management
     Phase public override phase; // The current phase. Uses Phase from IStakeController.
@@ -82,7 +82,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         address _governor,
         KlerosCoreXBase _core,
         IVault _vault,
-        ISortitionSumTree _sortitionModule,
+        ISortitionSumTree _sortition,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
@@ -91,7 +91,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         governor = _governor;
         core = _core;
         vault = _vault;
-        sortitionModule = _sortitionModule;
+        sortition = _sortition;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
@@ -116,10 +116,10 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         vault = _vault;
     }
 
-    /// @dev Changes the `sortitionModule` storage variable.
-    /// @param _sortitionModule The new sortition module address.
-    function changeSortitionModule(ISortitionSumTree _sortitionModule) external onlyByGovernor {
-        sortitionModule = _sortitionModule;
+    /// @dev Changes the `sortition` storage variable.
+    /// @param _sortition The new sortition module address.
+    function changeSortitionSumTree(ISortitionSumTree _sortition) external onlyByGovernor {
+        sortition = _sortition;
     }
 
     /// @dev Changes the `minStakingTime` storage variable.
@@ -199,15 +199,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // ************************************* //
 
     /// @inheritdoc IStakeController
-    function setStakeBySystem(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake
-    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        return _setStakeBySystem(_account, _courtID, _newStake);
-    }
-
-    /// @inheritdoc IStakeController
     function setStake(
         address _account,
         uint96 _courtID,
@@ -243,7 +234,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         uint96[] storage courtIDsForJuror = jurorStakes[_account].stakedCourtIDs;
         while (courtIDsForJuror.length > 0) {
             uint96 courtID = courtIDsForJuror[0];
-            _setStakeBySystem(_account, courtID, 0);
+            _setStake(_account, courtID, 0);
         }
         jurorStakes[_account].totalStake = 0;
         pnkToWithdraw = vault.getAvailableBalance(_account);
@@ -256,14 +247,14 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     /// @inheritdoc IStakeController
     function createTree(bytes32 _key, bytes memory _extraData) external override onlyByCore {
-        sortitionModule.createTree(_key, _extraData);
+        sortition.createTree(_key, _extraData);
     }
 
     /// @inheritdoc IStakeController
     function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _nonce) external view override returns (address) {
         if (phase != Phase.drawing) revert NotDrawingPhase();
         if (randomNumber == 0) revert RandomNumberNotReadyYet();
-        return sortitionModule.draw(_court, _coreDisputeID, _nonce, randomNumber);
+        return sortition.draw(_court, _coreDisputeID, _nonce, randomNumber);
     }
 
     /// @inheritdoc IStakeController
@@ -329,52 +320,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Internal implementation of setStakeBySystem
-    /// @param _account The account to set the stake for.
-    /// @param _courtID The ID of the court to set the stake for.
-    /// @param _newStake The new stake.
-    /// @return pnkDeposit The amount of PNK to deposit.
-    /// @return pnkWithdrawal The amount of PNK to withdraw.
-    /// @return stakingResult The result of the staking operation.
-    function _setStakeBySystem(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake
-    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        JurorStake storage currentJurorStake = jurorStakes[_account];
-        uint256 currentStakeInCourt = currentJurorStake.stakes[_courtID];
-
-        if (currentStakeInCourt == 0) {
-            if (_newStake == 0)
-                // No change needed
-                return (0, 0, StakingResult.CannotStakeZeroWhenNoStake);
-            else if (_newStake > 0 && currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS)
-                // Cannot stake in more courts
-                return (0, 0, StakingResult.CannotStakeInMoreCourts);
-        }
-
-        currentJurorStake.stakes[_courtID] = _newStake;
-
-        if (_newStake > currentStakeInCourt) {
-            pnkDeposit = _newStake - currentStakeInCourt;
-            currentJurorStake.totalStake += pnkDeposit;
-        } else if (_newStake < currentStakeInCourt) {
-            pnkWithdrawal = currentStakeInCourt - _newStake;
-            currentJurorStake.totalStake -= pnkWithdrawal;
-        }
-
-        // Manage stakedCourtIDs
-        if (currentStakeInCourt == 0 && _newStake > 0) {
-            currentJurorStake.stakedCourtIDs.push(_courtID);
-        } else if (currentStakeInCourt > 0 && _newStake == 0) {
-            _removeCourt(currentJurorStake.stakedCourtIDs, _courtID);
-        }
-
-        sortitionModule.setStake(_account, _courtID, _newStake);
-
-        emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
-    }
-
     /// @dev Internal implementation of setStake with phase-aware delayed stake logic
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
@@ -387,12 +332,41 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
         uint96 _courtID,
         uint256 _newStake
     ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        if (phase == Phase.staking) {
-            return _setStakeBySystem(_account, _courtID, _newStake);
-        }
-
         JurorStake storage currentJurorStake = jurorStakes[_account];
         uint256 currentStakeInCourt = currentJurorStake.stakes[_courtID];
+
+        if (phase == Phase.staking) {
+            if (currentStakeInCourt == 0) {
+                if (_newStake == 0)
+                    // No change needed
+                    return (0, 0, StakingResult.CannotStakeZeroWhenNoStake);
+                else if (_newStake > 0 && currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS)
+                    // Cannot stake in more courts
+                    return (0, 0, StakingResult.CannotStakeInMoreCourts);
+            }
+
+            currentJurorStake.stakes[_courtID] = _newStake;
+
+            if (_newStake > currentStakeInCourt) {
+                pnkDeposit = _newStake - currentStakeInCourt;
+                currentJurorStake.totalStake += pnkDeposit;
+            } else if (_newStake < currentStakeInCourt) {
+                pnkWithdrawal = currentStakeInCourt - _newStake;
+                currentJurorStake.totalStake -= pnkWithdrawal;
+            }
+
+            // Manage stakedCourtIDs
+            if (currentStakeInCourt == 0 && _newStake > 0) {
+                currentJurorStake.stakedCourtIDs.push(_courtID);
+            } else if (currentStakeInCourt > 0 && _newStake == 0) {
+                _removeCourt(currentJurorStake.stakedCourtIDs, _courtID);
+            }
+
+            sortition.setStake(_account, _courtID, _newStake);
+
+            emit StakeSet(_account, _courtID, _newStake, currentJurorStake.totalStake);
+            return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+        }
 
         if (_newStake > currentStakeInCourt) {
             pnkDeposit = _newStake - currentStakeInCourt;
@@ -470,9 +444,9 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
                 }
 
                 // _setStakeBySystem will update local juror stake mappings (jurorStakes)
-                // AND call sortitionModule.setStake.
+                // AND call sortition.setStake.
                 // The pnkDeposit/pnkWithdrawal are calculated but not used by this import function.
-                (, , StakingResult stakingResult) = _setStakeBySystem(account, courtID, stakeToImport);
+                (, , StakingResult stakingResult) = _setStake(account, courtID, stakeToImport);
 
                 if (stakingResult == StakingResult.Successful) {
                     totalImportedSuccess++;
