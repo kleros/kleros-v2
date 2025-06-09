@@ -11,10 +11,10 @@ import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
 import "../libraries/Constants.sol";
 
-/// @title KlerosCoreXBase
+/// @title KlerosCoreBase
 /// Core arbitrator contract for Kleros v2 with new StakeController architecture.
 /// Note that this contract trusts the PNK token, the dispute kit and the stake controller contracts.
-abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable {
+abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
 
     // ************************************* //
@@ -196,7 +196,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     // *            Constructor            * //
     // ************************************* //
 
-    function __KlerosCoreXBase_initialize(
+    function __KlerosCoreBase_initialize(
         address _governor,
         address _guardian,
         address _jurorProsecutionModule,

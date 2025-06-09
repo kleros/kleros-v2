@@ -2,11 +2,11 @@
 
 pragma solidity 0.8.24;
 
-import "./KlerosCoreXBase.sol";
+import "./KlerosCoreBase.sol";
 
-/// @title KlerosCoreX
+/// @title KlerosCore
 /// @notice KlerosCore implementation with new StakeController architecture for testing environments
-contract KlerosCoreX is KlerosCoreXBase {
+contract KlerosCore is KlerosCoreBase {
     /// @notice Version of the implementation contract
     string public constant override version = "0.0.1";
 
@@ -42,7 +42,7 @@ contract KlerosCoreX is KlerosCoreXBase {
         IStakeController _stakeController,
         IVault _vault
     ) external initializer {
-        __KlerosCoreXBase_initialize(
+        __KlerosCoreBase_initialize(
             _governor,
             _guardian,
             _jurorProsecutionModule,

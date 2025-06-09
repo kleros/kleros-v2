@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {KlerosCoreXBase} from "../KlerosCoreXBase.sol";
+import {KlerosCoreBase} from "../KlerosCoreBase.sol";
 import "../../libraries/Constants.sol";
 
 /// @title IStakeController
@@ -200,5 +200,5 @@ interface IStakeController {
 
     /// @notice Get the core arbitrator contract
     /// @return The core contract
-    function core() external view returns (KlerosCoreXBase);
+    function core() external view returns (KlerosCoreBase);
 }

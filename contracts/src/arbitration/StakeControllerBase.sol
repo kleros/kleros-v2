@@ -6,7 +6,7 @@ import {IStakeController} from "./interfaces/IStakeController.sol";
 import {IVault} from "./interfaces/IVault.sol";
 import {ISortitionSumTree} from "./interfaces/ISortitionSumTree.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
-import {KlerosCoreXBase} from "./KlerosCoreXBase.sol";
+import {KlerosCoreBase} from "./KlerosCoreBase.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {RNG} from "../rng/RNG.sol";
@@ -37,7 +37,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     // ************************************* //
 
     address public governor; // The governor of the contract.
-    KlerosCoreXBase public core; // The core arbitrator contract.
+    KlerosCoreBase public core; // The core arbitrator contract.
     IVault public vault; // The PNK vault for token management.
     ISortitionSumTree public sortition; // The sortition sum tree for drawing.
 
@@ -80,7 +80,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
     function __StakeControllerBase_initialize(
         address _governor,
-        KlerosCoreXBase _core,
+        KlerosCoreBase _core,
         IVault _vault,
         ISortitionSumTree _sortition,
         uint256 _minStakingTime,

@@ -4,7 +4,7 @@ pragma solidity 0.8.24;
 
 import {ISortitionSumTree} from "./interfaces/ISortitionSumTree.sol";
 import {IStakeController} from "./interfaces/IStakeController.sol";
-import {KlerosCoreXBase} from "./KlerosCoreXBase.sol";
+import {KlerosCoreBase} from "./KlerosCoreBase.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import "../libraries/Constants.sol";
@@ -101,7 +101,7 @@ abstract contract SortitionSumTreeBase is ISortitionSumTree, Initializable, UUPS
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currentCourtID = _courtID;
-        KlerosCoreXBase core = stakeController.core();
+        KlerosCoreBase core = stakeController.core();
 
         while (!finished) {
             _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);

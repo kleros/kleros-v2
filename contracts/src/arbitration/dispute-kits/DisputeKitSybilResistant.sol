@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {DisputeKitClassicBase, KlerosCoreX} from "./DisputeKitClassicBase.sol";
+import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 interface IProofOfHumanity {
     /// @dev Return true if the submission is registered and not expired.
@@ -39,7 +39,7 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.
-    function initialize(address _governor, KlerosCoreX _core, IProofOfHumanity _poh) external reinitializer(1) {
+    function initialize(address _governor, KlerosCore _core, IProofOfHumanity _poh) external reinitializer(1) {
         __DisputeKitClassicBase_initialize(_governor, _core);
         poh = _poh;
         singleDrawPerJuror = true;

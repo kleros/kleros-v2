@@ -1,8 +1,8 @@
-import { KlerosCore, KlerosCoreNeo, KlerosCoreRuler, KlerosCoreUniversity, KlerosCoreX } from "../../typechain-types";
+import { KlerosCore, KlerosCoreNeo, KlerosCoreRuler, KlerosCoreUniversity, KlerosCore } from "../../typechain-types";
 import { BigNumberish, toBigInt } from "ethers";
 
 export const changeCurrencyRate = async (
-  core: KlerosCore | KlerosCoreNeo | KlerosCoreRuler | KlerosCoreUniversity | KlerosCoreX,
+  core: KlerosCore | KlerosCoreNeo | KlerosCoreRuler | KlerosCoreUniversity | KlerosCore,
   erc20: string,
   accepted: boolean,
   rateInEth: BigNumberish,
