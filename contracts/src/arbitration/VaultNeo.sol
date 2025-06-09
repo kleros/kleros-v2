@@ -103,7 +103,7 @@ contract VaultNeo is VaultBase {
     function _deposit(address _from, uint256 _amount) internal override {
         // Check NFT requirement if set
         if (address(depositNft) != address(0) && depositNft.balanceOf(_from) == 0) {
-            revert DepositNftRequired();
+            revert NotEligible();
         }
 
         // Check per-user deposit limit
@@ -135,7 +135,7 @@ contract VaultNeo is VaultBase {
     // *              Errors               * //
     // ************************************* //
 
-    error DepositNftRequired();
+    error NotEligible();
     error ExceedsMaxDepositPerUser();
     error ExceedsTotalDepositCap();
 }

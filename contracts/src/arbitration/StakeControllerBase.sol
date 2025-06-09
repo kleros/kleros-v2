@@ -188,7 +188,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             if (delayedStake.account == address(0)) continue;
 
             // Let KlerosCore coordinate stake update and vault deposit/withdrawal.
-            core.setStakeBySystem(delayedStake.account, delayedStake.courtID, delayedStake.stake);
+            core.setStakeByController(delayedStake.account, delayedStake.courtID, delayedStake.stake);
             delete delayedStakes[i];
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;

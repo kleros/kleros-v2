@@ -474,12 +474,13 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake amount for the juror in the court.
     /// @return success Whether the stake was successfully set or not.
-    function setStakeBySystem(
+    function setStakeByController(
         address _account,
         uint96 _courtID,
         uint256 _newStake
     ) external onlyStakeController returns (bool success) {
-        return _setStakeBySystem(_account, _courtID, _newStake);
+        // TODO: use TRY/CATCH ?? then delete _stakingFailed()
+        return _setStake(_account, _courtID, _newStake, OnError.Return);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -1121,47 +1122,6 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         return true;
     }
 
-    /// @dev Internal implementation of setStakeBySystem
-    /// @param _account The account to set the stake for.
-    /// @param _courtID The ID of the court to set the stake for.
-    /// @param _newStake The new stake.
-    /// @return success Whether the stake was successfully set or not.
-    function _setStakeBySystem(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake
-    ) internal virtual returns (bool success) {
-        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.setStake(
-            _account,
-            _courtID,
-            _newStake
-        );
-        OnError onError = OnError.Return;
-        if (stakingResult != StakingResult.Successful) {
-            _stakingFailed(onError, stakingResult);
-            return false;
-        }
-        if (pnkDeposit > 0) {
-            try vault.deposit(_account, pnkDeposit) {
-                // Successfully deposited PNK
-            } catch {
-                // Revert with a specific error or reuse existing one
-                _stakingFailed(onError, StakingResult.StakingTransferFailed); // Indicating failure in the deposit part of staking
-                return false;
-            }
-        }
-        if (pnkWithdrawal > 0) {
-            try vault.withdraw(_account, pnkWithdrawal) {
-                // Successfully withdrew PNK via Vault
-            } catch {
-                // Revert with a specific error or reuse existing one
-                _stakingFailed(onError, StakingResult.UnstakingTransferFailed); // Indicating failure in the withdrawal part of unstaking
-                return false;
-            }
-        }
-        return true;
-    }
-
     /// @dev It may revert depending on the _onError parameter.
     function _stakingFailed(OnError _onError, StakingResult _result) internal pure virtual {
         if (_onError == OnError.Return) return;
@@ -1221,6 +1181,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     error InvalidForkingCourtAsParent();
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
+    error StakingZeroWhenNoStake();
     error StakingInTooManyCourts();
     error StakingNotPossibleInThisCourt();
     error StakingLessThanCourtMinStake();
@@ -1244,5 +1205,4 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     error TransferFailed();
     error WhenNotPausedOnly();
     error WhenPausedOnly();
-    error StakingZeroWhenNoStake();
 }

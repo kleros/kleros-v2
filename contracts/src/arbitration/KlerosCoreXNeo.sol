@@ -6,9 +6,8 @@ import "./KlerosCoreXBase.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title KlerosCoreXNeo
-/// @notice KlerosCore implementation with new StakeController architecture for production environments
+/// @notice KlerosCore with whitelisted arbitrables
 contract KlerosCoreXNeo is KlerosCoreXBase {
-    /// @notice Version of the implementation contract
     string public constant override version = "0.0.1";
 
     // ************************************* //
@@ -16,7 +15,6 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
     // ************************************* //
 
     mapping(address => bool) public arbitrableWhitelist; // Arbitrable whitelist.
-    IERC721 public jurorNft; // Eligible jurors NFT.
 
     // ************************************* //
     // *            Constructor            * //
@@ -37,7 +35,6 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
     /// @param _timesPerPeriod The timesPerPeriod array for courts
     /// @param _sortitionExtraData Extra data for sortition module setup
     /// @param _stakeController The stake controller for coordination
-    /// @param _jurorNft NFT contract to vet the jurors
     function initialize(
         address _governor,
         address _guardian,
@@ -48,8 +45,7 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
         IStakeController _stakeController,
-        IVault _vault,
-        IERC721 _jurorNft
+        IVault _vault
     ) external reinitializer(2) {
         __KlerosCoreXBase_initialize(
             _governor,
@@ -63,7 +59,6 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
             _stakeController,
             _vault
         );
-        jurorNft = _jurorNft;
     }
 
     function initialize5() external reinitializer(5) {
@@ -77,13 +72,7 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
     /// @notice Access Control to perform implementation upgrades (UUPS Proxiable)
     ///         Only the governor can perform upgrades (`onlyByGovernor`)
     function _authorizeUpgrade(address) internal view override onlyByGovernor {
-        // Empty block: access control implemented by `onlyByGovernor` modifier
-    }
-
-    /// @dev Changes the `jurorNft` storage variable.
-    /// @param _jurorNft The new value for the `jurorNft` storage variable.
-    function changeJurorNft(IERC721 _jurorNft) external onlyByGovernor {
-        jurorNft = _jurorNft;
+        // NOP
     }
 
     /// @dev Adds or removes an arbitrable from whitelist.
@@ -91,20 +80,6 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
     /// @param _allowed Whether add or remove permission.
     function changeArbitrableWhitelist(address _arbitrable, bool _allowed) external onlyByGovernor {
         arbitrableWhitelist[_arbitrable] = _allowed;
-    }
-
-    // ************************************* //
-    // *         State Modifiers           * //
-    // ************************************* //
-
-    /// @dev Sets the caller's stake in a court.
-    /// Note: Staking and unstaking is forbidden during pause.
-    /// @param _courtID The ID of the court.
-    /// @param _newStake The new stake.
-    /// Note that the existing delayed stake will be nullified as non-relevant.
-    function setStake(uint96 _courtID, uint256 _newStake) external override whenNotPaused {
-        if (jurorNft.balanceOf(msg.sender) == 0) revert NotEligibleForStaking();
-        _setStake(msg.sender, _courtID, _newStake, OnError.Revert);
     }
 
     // ************************************* //
@@ -131,7 +106,6 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
     // *              Errors               * //
     // ************************************* //
 
-    error NotEligibleForStaking();
     error StakingMoreThanMaxStakePerJuror();
     error StakingMoreThanMaxTotalStaked();
     error ArbitrableNotWhitelisted();
