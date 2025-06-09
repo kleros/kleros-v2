@@ -266,7 +266,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     }
 
     /// @inheritdoc IStakeController
-    function setStakeDelayed(address _account, uint96 _courtID, uint256 _newStake) public override {
+    function setStakeDelayed(address _account, uint96 _courtID, uint256 _newStake) public override onlyByCore {
         DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
         delayedStake.account = _account;
         delayedStake.courtID = _courtID;
