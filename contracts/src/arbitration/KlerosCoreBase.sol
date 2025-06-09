@@ -1089,6 +1089,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             _newStake
         );
         if (stakingResult == StakingResult.Delayed) {
+            stakeController.setStakeDelayed(_account, _courtID, _newStake);
             return true;
         }
         success = true;
