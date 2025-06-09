@@ -188,7 +188,11 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             if (delayedStake.account == address(0)) continue;
 
             // Let KlerosCore coordinate stake update and vault deposit/withdrawal.
-            core.setStakeByController(delayedStake.account, delayedStake.courtID, delayedStake.stake);
+            try core.setStakeByController(delayedStake.account, delayedStake.courtID, delayedStake.stake) {
+                // NOP
+            } catch (bytes memory data) {
+                emit DelayedStakeSetFailed(data);
+            }
             delete delayedStakes[i];
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
@@ -337,12 +341,9 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
 
         if (phase == Phase.staking) {
             if (currentStakeInCourt == 0) {
-                if (_newStake == 0)
-                    // No change needed
-                    return (0, 0, StakingResult.CannotStakeZeroWhenNoStake);
+                if (_newStake == 0) revert StakingZeroWhenNoStake();
                 else if (_newStake > 0 && currentJurorStake.stakedCourtIDs.length >= MAX_STAKE_PATHS)
-                    // Cannot stake in more courts
-                    return (0, 0, StakingResult.CannotStakeInMoreCourts);
+                    revert StakingInTooManyCourts();
             }
 
             currentJurorStake.stakes[_courtID] = _newStake;
@@ -374,7 +375,6 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             pnkWithdrawal = currentStakeInCourt - _newStake;
         }
 
-        // MAX_STAKE_PATHS is checked by _setStakeBySystem() called during executeDelayedStakes().
         DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
         delayedStake.account = _account;
         delayedStake.courtID = _courtID;
@@ -443,8 +443,7 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
                     continue;
                 }
 
-                // _setStakeBySystem will update local juror stake mappings (jurorStakes)
-                // AND call sortition.setStake.
+                // _setStake will update local juror stake mappings (jurorStakes) AND call sortition.setStake.
                 // The pnkDeposit/pnkWithdrawal are calculated but not used by this import function.
                 (, , StakingResult stakingResult) = _setStake(account, courtID, stakeToImport);
 
@@ -517,6 +516,8 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     error RandomNumberNotReady();
     error RandomNumberNotReadyYet();
     error StillDrawingDisputes();
+    error StakingZeroWhenNoStake();
+    error StakingInTooManyCourts();
     error NotInStakingPhase();
     error NotDrawingPhase();
     error NoDelayedStakes();

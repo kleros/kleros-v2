@@ -465,7 +465,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external virtual whenNotPaused {
-        _setStake(msg.sender, _courtID, _newStake, OnError.Revert);
+        _setStake(msg.sender, _courtID, _newStake);
     }
 
     /// @notice Executes a stake change initiated by the system (e.g., processing a delayed stake).
@@ -479,8 +479,7 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         uint96 _courtID,
         uint256 _newStake
     ) external onlyStakeController returns (bool success) {
-        // TODO: use TRY/CATCH ?? then delete _stakingFailed()
-        return _setStake(_account, _courtID, _newStake, OnError.Return);
+        return _setStake(_account, _courtID, _newStake);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -1078,16 +1077,13 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
-    /// @param _onError Whether to revert or return false on error.
-    /// @return Whether the stake was successfully set or not.
-    function _setStake(address _account, uint96 _courtID, uint256 _newStake, OnError _onError) internal returns (bool) {
+    /// @return success Whether the stake was successfully set or not.
+    function _setStake(address _account, uint96 _courtID, uint256 _newStake) internal returns (bool success) {
         if (_courtID == FORKING_COURT || _courtID >= courts.length) {
-            _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
-            return false;
+            revert StakingNotPossibleInThisCourt();
         }
         if (_newStake != 0 && _newStake < courts[_courtID].minStake) {
-            _stakingFailed(_onError, StakingResult.CannotStakeLessThanMinStake); // Staking less than the minimum stake is not allowed.
-            return false;
+            revert StakingLessThanCourtMinStake();
         }
         (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.setStake(
             _account,
@@ -1097,40 +1093,21 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
         if (stakingResult == StakingResult.Delayed) {
             return true;
         }
-        if (stakingResult != StakingResult.Successful) {
-            _stakingFailed(_onError, stakingResult);
-            return false;
-        }
         if (pnkDeposit > 0) {
             try vault.deposit(_account, pnkDeposit) {
-                // Successfully deposited PNK
+                success = true;
             } catch {
-                // Revert with a specific error or reuse existing one
-                _stakingFailed(_onError, StakingResult.StakingTransferFailed); // Indicating failure in the deposit part of staking
-                return false;
+                success = false;
             }
         }
         if (pnkWithdrawal > 0) {
             try vault.withdraw(_account, pnkWithdrawal) {
-                // Successfully withdrew PNK via Vault
+                success = true;
             } catch {
-                // Revert with a specific error or reuse existing one
-                _stakingFailed(_onError, StakingResult.UnstakingTransferFailed); // Indicating failure in the withdrawal part of unstaking
-                return false;
+                success = false;
             }
         }
-        return true;
-    }
-
-    /// @dev It may revert depending on the _onError parameter.
-    function _stakingFailed(OnError _onError, StakingResult _result) internal pure virtual {
-        if (_onError == OnError.Return) return;
-        if (_result == StakingResult.StakingTransferFailed) revert StakingTransferFailed();
-        if (_result == StakingResult.UnstakingTransferFailed) revert UnstakingTransferFailed();
-        if (_result == StakingResult.CannotStakeInMoreCourts) revert StakingInTooManyCourts();
-        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibleInThisCourt();
-        if (_result == StakingResult.CannotStakeLessThanMinStake) revert StakingLessThanCourtMinStake();
-        if (_result == StakingResult.CannotStakeZeroWhenNoStake) revert StakingZeroWhenNoStake();
+        return success;
     }
 
     /// @dev Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
@@ -1181,8 +1158,6 @@ abstract contract KlerosCoreXBase is IArbitratorV2, Initializable, UUPSProxiable
     error InvalidForkingCourtAsParent();
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
-    error StakingZeroWhenNoStake();
-    error StakingInTooManyCourts();
     error StakingNotPossibleInThisCourt();
     error StakingLessThanCourtMinStake();
     error StakingTransferFailed();

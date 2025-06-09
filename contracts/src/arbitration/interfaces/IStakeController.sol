@@ -36,6 +36,10 @@ interface IStakeController {
     /// @param _totalStake The amount of tokens staked in all courts
     event StakeSet(address indexed _account, uint96 indexed _courtID, uint256 _stakeInCourt, uint256 _totalStake);
 
+    /// @notice Emitted when a delayed stake execution fails
+    /// @param _data The data of the error defined as `abi.encodeWithSelector(CustomError.selector, /*args…*/ )`
+    event DelayedStakeSetFailed(bytes _data);
+
     // Migration events
     event StakeImported(address indexed _juror, uint96 indexed _courtID, uint256 _stake);
     event DelayedStakeImported(address indexed _juror, uint96 indexed _courtID, uint256 _stake, uint256 _index);

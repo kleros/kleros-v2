@@ -96,17 +96,9 @@ contract KlerosCoreXNeo is KlerosCoreXBase {
         return super._createDispute(_numberOfChoices, _extraData, _feeToken, _feeAmount);
     }
 
-    function _stakingFailed(OnError _onError, StakingResult _result) internal pure override {
-        super._stakingFailed(_onError, _result);
-        if (_result == StakingResult.CannotStakeMoreThanMaxStakePerJuror) revert StakingMoreThanMaxStakePerJuror();
-        if (_result == StakingResult.CannotStakeMoreThanMaxTotalStaked) revert StakingMoreThanMaxTotalStaked();
-    }
-
     // ************************************* //
     // *              Errors               * //
     // ************************************* //
 
-    error StakingMoreThanMaxStakePerJuror();
-    error StakingMoreThanMaxTotalStaked();
     error ArbitrableNotWhitelisted();
 }
