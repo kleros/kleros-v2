@@ -16,7 +16,7 @@ import "../arbitration/SortitionSumTree.sol";
 /// @dev Adds getter functions to sortition module for Foundry tests.
 contract SortitionModuleMock is SortitionSumTree {
     function getSortitionProperties(bytes32 _key) external view returns (uint256 K, uint256 nodeLength) {
-        SortitionSumTree storage tree = sortitionSumTrees[_key];
+        SumTree storage tree = sortitionSumTrees[_key];
         K = tree.K;
         nodeLength = tree.nodes.length;
     }

@@ -363,11 +363,9 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
+        courts[_parent].children.push(courtID);
 
         stakeController.createTree(bytes32(courtID), _sortitionExtraData);
-        if (_parent != FORKING_COURT) {
-            courts[_parent].children.push(courtID);
-        }
 
         emit CourtCreated(
             uint96(courtID),
@@ -469,7 +467,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     }
 
     /// @notice Executes a stake change initiated by the system (e.g., processing a delayed stake).
-    /// @dev Called by StakeControllerBase during executeDelayedStakes. Assumes KlerosCore holds pre-funded PNK if _depositPreFunded is true.
+    /// @dev Called by StakeController during executeDelayedStakes. Assumes KlerosCore holds pre-funded PNK if _depositPreFunded is true.
     /// @param _account The juror's account.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake amount for the juror in the court.
