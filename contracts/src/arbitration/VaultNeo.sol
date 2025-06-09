@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title VaultNeo
 /// @notice Enhanced PNK Vault with additional features like NFT-gated deposits
-/// @dev Follows the same pattern as KlerosCoreNeo for upgradeable contracts
 contract VaultNeo is VaultBase {
     using SafeERC20 for IERC20;
 

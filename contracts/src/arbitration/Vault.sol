@@ -6,9 +6,8 @@ import {VaultBase, IERC20} from "./VaultBase.sol";
 
 /// @title Vault
 /// @notice PNK Vault for handling deposits, withdrawals, locks, and penalties
-/// @dev Follows the same pattern as KlerosCore for upgradeable contracts
 contract Vault is VaultBase {
-    string public constant override version = "0.1.0";
+    string public constant override version = "0.10.0";
 
     // ************************************* //
     // *            Constructor            * //

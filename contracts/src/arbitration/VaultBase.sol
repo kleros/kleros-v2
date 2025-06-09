@@ -9,7 +9,6 @@ import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
 
 /// @title VaultBase
 /// @notice Abstract base contract for PNK vault that handles deposits, withdrawals, locks, and penalties
-/// @dev Follows the same pattern as KlerosCoreBase for upgradeable contracts
 abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
 
@@ -31,14 +30,7 @@ abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
     IERC20 public pnk; // The PNK token contract.
     address public stakeController; // The stake controller authorized to lock/unlock/penalize.
     address public core; // The KlerosCore authorized to transfer rewards.
-
     mapping(address => JurorBalance) public jurorBalances; // Juror balance tracking.
-
-    // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    // Events are defined in IVault interface
 
     // ************************************* //
     // *        Function Modifiers         * //

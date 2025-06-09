@@ -121,6 +121,7 @@ contract SortitionSumTree is ISortitionSumTree, Initializable, UUPSProxiable {
         KlerosCoreBase core = stakeController.core();
 
         while (!finished) {
+            // Tokens are also implicitly staked in parent courts via _updateParents().
             _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
