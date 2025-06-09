@@ -413,10 +413,11 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
             }
         }
 
+        // If the courtID was found in the array
         if (courtIndexToRemove != type(uint256).max) {
-            // If the courtID was found in the array
-            // If it's not the last element, swap the last element into its place
+            // If it's not the last element
             if (courtIndexToRemove != length - 1) {
+                // Swap the last element into its place
                 _stakedCourts[courtIndexToRemove] = _stakedCourts[length - 1];
             }
             // Remove the last element (either the original last, or the one that was swapped)
@@ -440,5 +441,4 @@ abstract contract StakeControllerBase is IStakeController, Initializable, UUPSPr
     error NotInStakingPhase();
     error NotDrawingPhase();
     error NoDelayedStakes();
-    error InvalidMigrationData();
 }

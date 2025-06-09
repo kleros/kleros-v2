@@ -1160,8 +1160,6 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     error CannotDisableClassicDK();
     error StakingNotPossibleInThisCourt();
     error StakingLessThanCourtMinStake();
-    error StakingTransferFailed();
-    error UnstakingTransferFailed();
     error ArbitrationFeesNotEnough();
     error DisputeKitNotSupportedByCourt();
     error MustSupportDisputeKitClassic();

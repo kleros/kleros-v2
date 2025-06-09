@@ -20,7 +20,7 @@ uint256 constant DEFAULT_K = 6; // Default number of children per node.
 uint256 constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
 IERC20 constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
 
-// DEPRECATED
+// DEPRECATED: still used by University contracts for now
 enum OnError {
     Revert,
     Return
@@ -29,7 +29,7 @@ enum OnError {
 enum StakingResult {
     Successful,
     Delayed,
-    StakingTransferFailed, // DEPRECATED
+    StakingTransferFailed, // DEPRECATED: still used by University contracts for now
     UnstakingTransferFailed, // DEPRECATED
     CannotStakeInMoreCourts, // DEPRECATED
     CannotStakeInThisCourt, // DEPRECATED
