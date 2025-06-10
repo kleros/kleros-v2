@@ -56,10 +56,10 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   return (
     <>
       <Container>
-        <DisputeContext disputeDetails={disputeDetails} isRpcError={isError} />
+        <DisputeContext isRpcError={isError} {...{ votingHistory, disputeDetails, dispute }} />
         <Divider />
 
-        <Verdict arbitrable={arbitrable} />
+        <Verdict {...{ arbitrable, votingHistory }} />
         <Divider />
 
         <DisputeInfo

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
@@ -9,6 +9,8 @@ import { isUndefined } from "utils/index";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { DisputeDetailsQuery, VotingHistoryQuery } from "src/graphql/graphql";
+
 import ReactMarkdown from "components/ReactMarkdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -16,12 +18,19 @@ import { Divider } from "../Divider";
 import { ExternalLink } from "../ExternalLink";
 
 import AliasDisplay from "./Alias";
+import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
 
 const StyledH1 = styled.h1`
   margin: 0;
   word-wrap: break-word;
-  font-size: ${responsiveSize(18, 24)};
+  font-size: ${responsiveSize(20, 26)};
   line-height: 24px;
+`;
+
+const TitleSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 const ReactMarkdownWrapper = styled.div`
@@ -68,17 +77,36 @@ const AliasesContainer = styled.div`
 
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
+  dispute: DisputeDetailsQuery | undefined;
   isRpcError?: boolean;
+  votingHistory: VotingHistoryQuery | undefined;
 }
 
-export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRpcError = false }) => {
+export const DisputeContext: React.FC<IDisputeContext> = ({
+  disputeDetails,
+  dispute,
+  isRpcError = false,
+  votingHistory,
+}) => {
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
+  const rounds = votingHistory?.dispute?.rounds;
+  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
+  console.log({ jurorRewardsDispersed }, disputeDetails);
 
   return (
     <>
-      <StyledH1 dir="auto">
-        {isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}
-      </StyledH1>
+      <TitleSection>
+        <StyledH1 dir="auto">
+          {isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}
+        </StyledH1>
+        {!isUndefined(Boolean(dispute?.dispute?.ruled)) || jurorRewardsDispersed ? (
+          <RulingAndRewardsIndicators
+            ruled={Boolean(dispute?.dispute?.ruled)}
+            jurorRewardsDispersed={jurorRewardsDispersed}
+          />
+        ) : null}
+        <Divider />
+      </TitleSection>
       {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
         <div>
           {disputeDetails?.question?.trim() ? (
