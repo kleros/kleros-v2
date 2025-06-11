@@ -57,7 +57,7 @@ export const useUserQuery = (address?: Address, where?: Dispute_Filter) => {
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<UserQuery | UserDisputeFilterQuery>({
-    queryKey: [`userQuery${address?.toLowerCase()}`],
+    queryKey: [`userQuery${address?.toLowerCase()}${where}`],
     enabled: isEnabled,
     staleTime: STALE_TIME,
     queryFn: async () =>
