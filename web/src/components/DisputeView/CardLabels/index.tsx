@@ -22,11 +22,12 @@ import { ClassicContribution } from "src/graphql/graphql";
 import Label, { IColors } from "./Label";
 import RewardsAndFundLabel from "./RewardsAndFundLabel";
 
-const Container = styled.div<{ isList: boolean }>`
+const Container = styled.div<{ isList: boolean; isOverview: boolean }>`
   display: flex;
   gap: 8px;
   flex-direction: column;
   align-items: end;
+
   ${({ isList }) =>
     !isList &&
     css`
@@ -36,7 +37,16 @@ const Container = styled.div<{ isList: boolean }>`
       flex-direction: row;
       align-items: center;
     `}
+
+  ${({ isOverview }) =>
+    isOverview &&
+    css`
+      margin-top: 0;
+      flex-direction: row;
+      width: auto;
+    `}
 `;
+
 const RewardsContainer = styled.div`
   display: flex;
   gap: 4px 8px;
@@ -47,6 +57,7 @@ interface ICardLabels {
   disputeId: string;
   round: number;
   isList: boolean;
+  isOverview?: boolean;
 }
 
 const LabelArgs: Record<string, { text: string; icon: React.FC<React.SVGAttributes<SVGElement>>; color: IColors }> = {
@@ -73,7 +84,7 @@ const getFundingRewards = (contributions: ClassicContribution[], closed: boolean
   return Number(formatUnits(BigInt(contribution), 18));
 };
 
-const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList }) => {
+const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview = false }) => {
   const { address } = useAccount();
   const { data: labelInfo, isLoading } = useLabelInfoQuery(address?.toLowerCase(), disputeId);
   const localRounds = getLocalRounds(labelInfo?.dispute?.disputeKitDispute);
@@ -139,7 +150,7 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList }) => {
   }, [contributionRewards, shifts]);
 
   return (
-    <Container {...{ isList }}>
+    <Container {...{ isList, isOverview }}>
       {isLoading ? (
         <Skeleton width={130} height={14} />
       ) : (
