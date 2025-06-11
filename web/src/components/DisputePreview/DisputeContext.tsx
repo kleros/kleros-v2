@@ -2,6 +2,8 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { useParams } from "react-router-dom";
+import { useAccount } from "wagmi";
 
 import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Answer as IAnswer } from "context/NewDisputeContext";
@@ -19,6 +21,7 @@ import { ExternalLink } from "../ExternalLink";
 
 import AliasDisplay from "./Alias";
 import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
+import CardLabel from "../DisputeView/CardLabels";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -75,6 +78,13 @@ const AliasesContainer = styled.div`
   gap: ${responsiveSize(8, 20)};
 `;
 
+const RulingAndRewardsAndLabels = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
   dispute: DisputeDetailsQuery | undefined;
@@ -88,6 +98,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   isRpcError = false,
   votingHistory,
 }) => {
+  const { id } = useParams();
+  const { isDisconnected } = useAccount();
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
@@ -99,12 +111,17 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         <StyledH1 dir="auto">
           {isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}
         </StyledH1>
-        {!isUndefined(Boolean(dispute?.dispute?.ruled)) || jurorRewardsDispersed ? (
-          <RulingAndRewardsIndicators
-            ruled={Boolean(dispute?.dispute?.ruled)}
-            jurorRewardsDispersed={jurorRewardsDispersed}
-          />
-        ) : null}
+        <RulingAndRewardsAndLabels>
+          {!isUndefined(Boolean(dispute?.dispute?.ruled)) || jurorRewardsDispersed ? (
+            <RulingAndRewardsIndicators
+              ruled={Boolean(dispute?.dispute?.ruled)}
+              jurorRewardsDispersed={jurorRewardsDispersed}
+            />
+          ) : null}
+          {!isDisconnected ? (
+            <CardLabel disputeId={id} round={rounds?.length - 1} isList={false} isOverview={true} />
+          ) : null}
+        </RulingAndRewardsAndLabels>
         <Divider />
       </TitleSection>
       {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
