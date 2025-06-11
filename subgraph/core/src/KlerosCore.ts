@@ -215,10 +215,19 @@ export function handleAppealDecision(event: AppealDecision): void {
   const disputeID = event.params._disputeID;
   const dispute = Dispute.load(disputeID.toString());
   if (!dispute) return;
+
+  // Load the current (previous) round
+  const previousRoundID = dispute.currentRound;
+  const previousRound = Round.load(previousRoundID);
+  if (previousRound) {
+    previousRound.isCurrentRound = false;
+    previousRound.save();
+  }
+
   const newRoundIndex = dispute.currentRoundIndex.plus(ONE);
-  const roundID = `${disputeID}-${newRoundIndex.toString()}`;
+  const newRoundID = `${disputeID}-${newRoundIndex.toString()}`;
   dispute.currentRoundIndex = newRoundIndex;
-  dispute.currentRound = roundID;
+  dispute.currentRound = newRoundID;
   dispute.save();
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
 

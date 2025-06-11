@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useParams } from "react-router-dom";
+
 import PaperclipIcon from "svgs/icons/paperclip.svg";
 import PolicyIcon from "svgs/icons/policy.svg";
 
@@ -67,17 +69,23 @@ interface IPolicies {
 }
 
 export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attachment }) => {
+  const { id } = useParams();
+
   return (
     <Container>
       <StyledP>Policy documents:</StyledP>
       {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-        <StyledInternalLink to={`/attachment/?title=${"Case Policy"}&url=${getIpfsUrl(attachment.uri)}`}>
+        <StyledInternalLink
+          to={`/attachment/?disputeId=${id}&title=${"Case Policy"}&url=${getIpfsUrl(attachment.uri)}`}
+        >
           <StyledPaperclipIcon />
           {attachment.label ?? "Attachment"}
         </StyledInternalLink>
       ) : null}
       {isUndefined(disputePolicyURI) ? null : (
-        <StyledInternalLink to={`/attachment/?title=${"Dispute Policy"}&url=${getIpfsUrl(disputePolicyURI)}`}>
+        <StyledInternalLink
+          to={`/attachment/?disputeId=${id}&title=${"Dispute Policy"}&url=${getIpfsUrl(disputePolicyURI)}`}
+        >
           <StyledPolicyIcon />
           Dispute Policy
         </StyledInternalLink>

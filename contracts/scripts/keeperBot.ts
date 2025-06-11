@@ -7,6 +7,7 @@ import { Cores, getContracts as getContractsForCoreType } from "./utils/contract
 
 let request: <T>(url: string, query: string) => Promise<T>; // Workaround graphql-request ESM import
 const { ethers } = hre;
+const MAX_DRAW_CALLS_WITHOUT_JURORS = 10;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
 const MAX_DELAYED_STAKES_ITERATIONS = 50;
@@ -248,7 +249,19 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.draw.staticCall(dispute.id, iterations, HIGH_GAS_LIMIT);
+    const simulatedIterations = iterations * MAX_DRAW_CALLS_WITHOUT_JURORS; // Drawing will be skipped as long as no juror is available in the next MAX_DRAW_CALLS_WITHOUT_JURORS calls to draw() given this nb of iterations.
+    const { drawnJurors: drawnJurorsBefore } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
+    const nbDrawnJurors = (await core.draw.staticCall(dispute.id, simulatedIterations, HIGH_GAS_LIMIT)) as bigint;
+    const extraJurors = nbDrawnJurors - BigInt(drawnJurorsBefore.length);
+    logger.debug(
+      `Draw: ${extraJurors} jurors available in the next ${simulatedIterations} iterations for dispute ${dispute.id}`
+    );
+    if (extraJurors <= 0n) {
+      logger.warn(
+        `Draw: skipping, no jurors available in the next ${simulatedIterations} iterations for dispute ${dispute.id}`
+      );
+      return success;
+    }
   } catch (e) {
     logger.error(`Draw: will fail for ${dispute.id}, skipping`);
     return success;
