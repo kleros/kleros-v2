@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../KlerosCore.sol";
+import {KlerosCore, KlerosCoreBase, IDisputeKit, IStakeController} from "../KlerosCore.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 
@@ -207,7 +207,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
-    /// @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
+    /// @dev Draws the juror from the Stake Controller.
     /// Note: Access restricted to Kleros Core only.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _nonce Nonce of the drawing iteration.
@@ -221,11 +221,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 localRoundID = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[localRoundID];
 
-        ISortitionModule sortitionModule = core.sortitionModule();
+        IStakeController stakeController = core.stakeController();
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
 
-        drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
+        drawnAddress = stakeController.draw(key, _coreDisputeID, _nonce);
 
         if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
@@ -247,7 +247,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256[] calldata _voteIDs,
         bytes32 _commit
     ) external notJumped(_coreDisputeID) {
-        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCoreBase.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.commit, "The dispute should be in Commit period.");
         require(_commit != bytes32(0), "Empty commit.");
 
@@ -276,7 +276,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _salt,
         string memory _justification
     ) external notJumped(_coreDisputeID) {
-        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCoreBase.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
 
@@ -456,7 +456,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         tied = round.tied;
         ruling = tied ? 0 : round.winningChoice;
-        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCoreBase.Period period, , ) = core.disputes(_coreDisputeID);
         // Override the final ruling if only one side funded the appeals.
         if (period == KlerosCoreBase.Period.execution) {
             uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
@@ -625,7 +625,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
-        (uint256 totalStaked, uint256 totalLocked, , ) = core.sortitionModule().getJurorBalance(_juror, courtID);
+        (, uint256 totalLocked, , uint256 totalStaked, , ) = core.stakeController().getJurorBalance(_juror, courtID);
         result = totalStaked >= totalLocked + lockedAmountPerJuror;
 
         if (singleDrawPerJuror) {

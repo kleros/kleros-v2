@@ -4,7 +4,8 @@ pragma solidity 0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
-import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
+import {IStakeController} from "./interfaces/IStakeController.sol";
+import {IVault} from "./interfaces/IVault.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
@@ -12,7 +13,7 @@ import "../libraries/Constants.sol";
 
 /// @title KlerosCoreBase
 /// Core arbitrator contract for Kleros v2.
-/// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
+/// Note that this contract trusts the dispute kit and the stake controller contracts.
 abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
 
@@ -91,9 +92,9 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
     address public governor; // The governor of the contract.
     address public guardian; // The guardian able to pause asset withdrawals.
-    IERC20 public pinakion; // The Pinakion token contract.
     address public jurorProsecutionModule; // The module for juror's prosecution.
-    ISortitionModule public sortitionModule; // Sortition module for drawing.
+    IStakeController public stakeController; // Stake controller for coordination.
+    IVault public vault; // The PNK vault for atomic deposits/withdrawals.
     Court[] public courts; // The courts.
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
@@ -160,6 +161,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     );
     event Paused();
     event Unpaused();
+    event InactiveJurorWithdrawalFailed(address indexed _juror, uint256 _amount, bytes _reason);
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -172,6 +174,11 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
     modifier onlyByGuardianOrGovernor() {
         if (guardian != msg.sender && governor != msg.sender) revert GuardianOrGovernorOnly();
+        _;
+    }
+
+    modifier onlyStakeController() {
+        if (msg.sender != address(stakeController)) revert StakeControllerOnly();
         _;
     }
 
@@ -192,20 +199,20 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     function __KlerosCoreBase_initialize(
         address _governor,
         address _guardian,
-        IERC20 _pinakion,
         address _jurorProsecutionModule,
         IDisputeKit _disputeKit,
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        ISortitionModule _sortitionModuleAddress
+        IStakeController _stakeController,
+        IVault _vault
     ) internal onlyInitializing {
         governor = _governor;
         guardian = _guardian;
-        pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
-        sortitionModule = _sortitionModuleAddress;
+        stakeController = _stakeController;
+        vault = _vault;
 
         // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a dispute kit is not supported.
         disputeKits.push();
@@ -218,7 +225,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
         courts.push();
-        sortitionModule.createTree(bytes32(uint256(FORKING_COURT)), _sortitionExtraData);
+        stakeController.createTree(bytes32(uint256(FORKING_COURT)), _sortitionExtraData);
 
         // GENERAL_COURT
         Court storage court = courts.push();
@@ -231,7 +238,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
 
-        sortitionModule.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
+        stakeController.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
 
         uint256[] memory supportedDisputeKits = new uint256[](1);
         supportedDisputeKits[0] = DISPUTE_KIT_CLASSIC;
@@ -290,23 +297,17 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         guardian = _guardian;
     }
 
-    /// @dev Changes the `pinakion` storage variable.
-    /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(IERC20 _pinakion) external onlyByGovernor {
-        pinakion = _pinakion;
-    }
-
     /// @dev Changes the `jurorProsecutionModule` storage variable.
     /// @param _jurorProsecutionModule The new value for the `jurorProsecutionModule` storage variable.
     function changeJurorProsecutionModule(address _jurorProsecutionModule) external onlyByGovernor {
         jurorProsecutionModule = _jurorProsecutionModule;
     }
 
-    /// @dev Changes the `_sortitionModule` storage variable.
-    /// Note that the new module should be initialized for all courts.
-    /// @param _sortitionModule The new value for the `sortitionModule` storage variable.
-    function changeSortitionModule(ISortitionModule _sortitionModule) external onlyByGovernor {
-        sortitionModule = _sortitionModule;
+    /// @dev Changes the `stakeController` storage variable.
+    /// Note that the new controller should be initialized for all courts.
+    /// @param _stakeController The new value for the `stakeController` storage variable.
+    function changeStakeController(IStakeController _stakeController) external onlyByGovernor {
+        stakeController = _stakeController;
     }
 
     /// @dev Add a new supported dispute kit module to the court.
@@ -362,11 +363,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
-
-        sortitionModule.createTree(bytes32(courtID), _sortitionExtraData);
-
-        // Update the parent.
         courts[_parent].children.push(courtID);
+
+        stakeController.createTree(bytes32(courtID), _sortitionExtraData);
+
         emit CourtCreated(
             uint96(courtID),
             _parent,
@@ -463,22 +463,21 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external virtual whenNotPaused {
-        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
+        _setStake(msg.sender, _courtID, _newStake);
     }
 
-    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
-    /// @param _account The account whose stake is being set.
+    /// @notice Executes a stake change initiated by the system (e.g., processing a delayed stake).
+    /// @dev Called by StakeController during executeDelayedStakes. Assumes KlerosCore holds pre-funded PNK if _depositPreFunded is true.
+    /// @param _account The juror's account.
     /// @param _courtID The ID of the court.
-    /// @param _newStake The new stake.
-    /// @param _alreadyTransferred Whether the PNKs have already been transferred to the contract.
-    function setStakeBySortitionModule(
+    /// @param _newStake The new stake amount for the juror in the court.
+    /// @return success Whether the stake was successfully set or not.
+    function setStakeByController(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
-    ) external {
-        if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
-        _setStake(_account, _courtID, _newStake, _alreadyTransferred, OnError.Return);
+        uint256 _newStake
+    ) external onlyStakeController returns (bool success) {
+        return _setStake(_account, _courtID, _newStake);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -534,7 +533,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
 
-        sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
+        stakeController.createDisputeHook(disputeID, 0); // Default round ID.
 
         disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
         emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
@@ -609,11 +608,11 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             if (drawnAddress == address(0)) {
                 continue;
             }
-            sortitionModule.lockStake(drawnAddress, round.pnkAtStakePerJuror);
+            stakeController.lockStake(drawnAddress, round.pnkAtStakePerJuror);
             emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
             round.drawnJurors.push(drawnAddress);
             if (round.drawnJurors.length == round.nbVotes) {
-                sortitionModule.postDrawHook(_disputeID, currentRound);
+                stakeController.postDrawHook(_disputeID, currentRound);
             }
         }
         round.drawIterations += i;
@@ -664,7 +663,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
 
-        sortitionModule.createDisputeHook(_disputeID, dispute.rounds.length - 1);
+        stakeController.createDisputeHook(_disputeID, dispute.rounds.length - 1);
 
         // Dispute kit was changed, so create a dispute in the new DK contract.
         if (extraRound.disputeKitID != round.disputeKitID) {
@@ -774,28 +773,35 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
         // Fully coherent jurors won't be penalized.
         uint256 penalty = (round.pnkAtStakePerJuror * (ALPHA_DIVISOR - degreeOfCoherence)) / ALPHA_DIVISOR;
-        _params.pnkPenaltiesInRound += penalty;
 
-        // Unlock the PNKs affected by the penalty
+        // Execute penalty through StakeController coordination
         address account = round.drawnJurors[_params.repartition];
-        sortitionModule.unlockStake(account, penalty);
+        (uint256 pnkBalance, uint256 actualPenalty) = stakeController.setJurorPenalty(account, penalty);
+        _params.pnkPenaltiesInRound += actualPenalty;
 
-        // Apply the penalty to the staked PNKs.
-        sortitionModule.penalizeStake(account, penalty);
         emit TokenAndETHShift(
             account,
             _params.disputeID,
             _params.round,
             degreeOfCoherence,
-            -int256(penalty),
+            -int256(actualPenalty),
             0,
             round.feeToken
         );
 
-        if (!disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
-            // The juror is inactive, unstake them.
-            sortitionModule.setJurorInactive(account);
+        // Check if juror should be set inactive
+        bool inactive = !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition);
+        if (pnkBalance == 0 || inactive) {
+            uint256 pnkToWithdraw = stakeController.setJurorInactive(account);
+            if (pnkToWithdraw > 0) {
+                try vault.withdraw(account, pnkToWithdraw) {
+                    // Successfully withdrew PNK for inactive juror
+                } catch (bytes memory reason) {
+                    emit InactiveJurorWithdrawalFailed(account, pnkToWithdraw, reason);
+                }
+            }
         }
+
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the governor.
             if (round.feeToken == NATIVE_CURRENCY) {
@@ -805,7 +811,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
                 // The dispute fees were paid in ERC20
                 round.feeToken.safeTransfer(governor, round.totalFeesForJurors);
             }
-            pinakion.safeTransfer(governor, _params.pnkPenaltiesInRound);
+            vault.transferReward(governor, _params.pnkPenaltiesInRound);
             emit LeftoverRewardSent(
                 _params.disputeID,
                 _params.round,
@@ -842,19 +848,14 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256 pnkLocked = (round.pnkAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
 
         // Release the rest of the PNKs of the juror for this round.
-        sortitionModule.unlockStake(account, pnkLocked);
-
-        // Give back the locked PNKs in case the juror fully unstaked earlier.
-        if (!sortitionModule.isJurorStaked(account)) {
-            pinakion.safeTransfer(account, pnkLocked);
-        }
+        stakeController.unlockStake(account, pnkLocked);
 
         // Transfer the rewards
         uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
         round.sumPnkRewardPaid += pnkReward;
         uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
         round.sumFeeRewardPaid += feeReward;
-        pinakion.safeTransfer(account, pnkReward);
+        vault.transferReward(account, pnkReward);
         if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
             payable(account).send(feeReward);
@@ -878,7 +879,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             uint256 leftoverFeeReward = round.totalFeesForJurors - round.sumFeeRewardPaid;
             if (leftoverPnkReward != 0 || leftoverFeeReward != 0) {
                 if (leftoverPnkReward != 0) {
-                    pinakion.safeTransfer(governor, leftoverPnkReward);
+                    vault.transferReward(governor, leftoverPnkReward);
                 }
                 if (leftoverFeeReward != 0) {
                     if (round.feeToken == NATIVE_CURRENCY) {
@@ -1070,62 +1071,42 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 
-    /// @dev If called only once then set _onError to Revert, otherwise set it to Return
+    /// @dev It may revert if the stake change in invalid.
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
-    /// @param _alreadyTransferred Whether the PNKs were already transferred to/from the staking contract.
-    /// @param _onError Whether to revert or return false on error.
-    /// @return Whether the stake was successfully set or not.
-    function _setStake(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred,
-        OnError _onError
-    ) internal returns (bool) {
+    /// @return success Whether the stake was successfully set or not.
+    function _setStake(address _account, uint96 _courtID, uint256 _newStake) internal returns (bool success) {
         if (_courtID == FORKING_COURT || _courtID >= courts.length) {
-            _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
-            return false;
+            revert StakingNotPossibleInThisCourt();
         }
         if (_newStake != 0 && _newStake < courts[_courtID].minStake) {
-            _stakingFailed(_onError, StakingResult.CannotStakeLessThanMinStake); // Staking less than the minimum stake is not allowed.
-            return false;
+            revert StakingLessThanCourtMinStake();
         }
-        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.setStake(
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = stakeController.validateStake(
             _account,
             _courtID,
-            _newStake,
-            _alreadyTransferred
+            _newStake
         );
-        if (stakingResult != StakingResult.Successful) {
-            _stakingFailed(_onError, stakingResult);
-            return false;
+        if (stakingResult == StakingResult.Delayed) {
+            stakeController.setStakeDelayed(_account, _courtID, _newStake);
+            return true;
         }
+        success = true;
         if (pnkDeposit > 0) {
-            if (!pinakion.safeTransferFrom(_account, address(this), pnkDeposit)) {
-                _stakingFailed(_onError, StakingResult.StakingTransferFailed);
-                return false;
+            try vault.deposit(_account, pnkDeposit) {} catch {
+                success = false;
             }
         }
         if (pnkWithdrawal > 0) {
-            if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
-                _stakingFailed(_onError, StakingResult.UnstakingTransferFailed);
-                return false;
+            try vault.withdraw(_account, pnkWithdrawal) {} catch {
+                success = false;
             }
         }
-        return true;
-    }
-
-    /// @dev It may revert depending on the _onError parameter.
-    function _stakingFailed(OnError _onError, StakingResult _result) internal pure virtual {
-        if (_onError == OnError.Return) return;
-        if (_result == StakingResult.StakingTransferFailed) revert StakingTransferFailed();
-        if (_result == StakingResult.UnstakingTransferFailed) revert UnstakingTransferFailed();
-        if (_result == StakingResult.CannotStakeInMoreCourts) revert StakingInTooManyCourts();
-        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibleInThisCourt();
-        if (_result == StakingResult.CannotStakeLessThanMinStake) revert StakingLessThanCourtMinStake();
-        if (_result == StakingResult.CannotStakeZeroWhenNoStake) revert StakingZeroWhenNoStake();
+        if (success) {
+            stakeController.setStake(_account, _courtID, _newStake, pnkDeposit, pnkWithdrawal);
+        }
+        return success;
     }
 
     /// @dev Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
@@ -1168,7 +1149,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     error GovernorOnly();
     error GuardianOrGovernorOnly();
     error DisputeKitOnly();
-    error SortitionModuleOnly();
+    error StakeControllerOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();
     error MinStakeLowerThanParentCourt();
@@ -1176,11 +1157,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     error InvalidForkingCourtAsParent();
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
-    error StakingInTooManyCourts();
     error StakingNotPossibleInThisCourt();
     error StakingLessThanCourtMinStake();
-    error StakingTransferFailed();
-    error UnstakingTransferFailed();
     error ArbitrationFeesNotEnough();
     error DisputeKitNotSupportedByCourt();
     error MustSupportDisputeKitClassic();
@@ -1199,5 +1177,4 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     error TransferFailed();
     error WhenNotPausedOnly();
     error WhenPausedOnly();
-    error StakingZeroWhenNoStake();
 }
