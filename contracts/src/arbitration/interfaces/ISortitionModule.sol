@@ -14,21 +14,23 @@ interface ISortitionModule {
 
     function createTree(bytes32 _key, bytes memory _extraData) external;
 
-    function setStake(
+    function validateStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
-    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
+        uint256 _newStake
+    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, uint256 actualNewStake, StakingResult stakingResult);
+
+    function setStake(address _account, uint96 _courtID, uint256 _newStake) external;
 
     function setJurorInactive(address _account) external;
 
-    function lockStake(address _account, uint256 _relativeAmount) external;
+    function lockStake(address _account, uint96 _courtID, uint256 _relativeAmount) external;
 
-    function unlockStake(address _account, uint256 _relativeAmount) external;
+    function unlockStake(address _account, uint96 _courtID, uint256 _relativeAmount) external;
 
     function penalizeStake(
         address _account,
+        uint96 _courtID,
         uint256 _relativeAmount
     ) external returns (uint256 pnkBalance, uint256 availablePenalty);
 
@@ -48,14 +50,4 @@ interface ISortitionModule {
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 
     function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
-
-    function withdrawLeftoverPNK(address _account) external;
-
-    function updateState(
-        address _account,
-        uint96 _courtID,
-        uint256 _pnkDeposit,
-        uint256 _pnkWithdrawal,
-        uint256 _newStake
-    ) external;
 }

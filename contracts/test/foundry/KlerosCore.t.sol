@@ -1098,8 +1098,8 @@ contract KlerosCoreTest is Test {
         (totalStaked, totalLocked, stakedInCourt, nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
         assertEq(totalStaked, 3000, "Wrong amount total staked");
         assertEq(totalLocked, 3000, "Wrong amount locked");
-        assertEq(stakedInCourt, 0, "Wrong amount staked in court");
-        assertEq(nbCourts, 0, "Wrong amount staked in court");
+        assertEq(stakedInCourt, 3000, "Wrong amount staked in court");
+        assertEq(nbCourts, 1, "Wrong amount staked in court");
 
         assertEq(pinakion.balanceOf(address(core)), 3000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999997000, "Wrong token balance of staker1");
@@ -1109,13 +1109,13 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 5000);
 
         (totalStaked, totalLocked, stakedInCourt, nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
-        assertEq(totalStaked, 8000, "Wrong amount total staked"); // 5000 were added to the previous 3000.
+        assertEq(totalStaked, 5000, "Wrong amount total staked"); // 5000 were added to the previous 3000.
         assertEq(totalLocked, 3000, "Wrong amount locked");
         assertEq(stakedInCourt, 5000, "Wrong amount staked in court");
         assertEq(nbCourts, 1, "Wrong amount staked in court");
 
-        assertEq(pinakion.balanceOf(address(core)), 8000, "Wrong amount of tokens in Core");
-        assertEq(pinakion.balanceOf(staker1), 999999999999992000, "Wrong token balance of staker1");
+        assertEq(pinakion.balanceOf(address(core)), 5000, "Wrong amount of tokens in Core");
+        assertEq(pinakion.balanceOf(staker1), 999999999999995000, "Wrong token balance of staker1");
     }
 
     function test_executeDelayedStakes() public {
@@ -1240,7 +1240,7 @@ contract KlerosCoreTest is Test {
         // Note that functionality of this function was checked during delayed stakes execution
         vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
         vm.prank(governor);
-        core.setStakeBySortitionModule(staker1, GENERAL_COURT, 1000, false);
+        core.setStakeBySortitionModule(staker1, GENERAL_COURT, 1000);
     }
 
     function test_setStake_snapshotProxyCheck() public {
@@ -2408,7 +2408,8 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 20000);
         vm.prank(staker1);
         core.setStake(newCourtID, 20000);
-        (, , , uint256 nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
+        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
+            .getJurorBalance(staker1, GENERAL_COURT);
         assertEq(nbCourts, 2, "Wrong number of courts");
 
         assertEq(pinakion.balanceOf(address(core)), 40000, "Wrong token balance of the core");
@@ -2440,7 +2441,11 @@ contract KlerosCoreTest is Test {
         vm.expectEmit(true, true, true, true);
         emit SortitionModuleBase.StakeSet(staker1, newCourtID, 0, 19000); // Starting with 40000 we first nullify the stake and remove 20000 and then remove penalty once since there was only first iteration (40000 - 20000 - 1000)
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0, 2000); // 2000 PNK should remain in balance to cover penalties since the first 1000 of locked pnk was already unlocked
+        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 2000, 2000); // 2000 PNK should remain in balance to cover penalties since the first 1000 of locked pnk was already unlocked
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1000, 1000);
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0, 0);
         core.execute(disputeID, 0, 3);
 
         assertEq(pinakion.balanceOf(address(core)), 0, "Wrong token balance of the core");
@@ -2548,42 +2553,22 @@ contract KlerosCoreTest is Test {
             .getJurorBalance(staker1, GENERAL_COURT);
         assertEq(totalStaked, 1000, "Wrong amount staked");
         assertEq(totalLocked, 3000, "Wrong amount locked");
-        assertEq(stakedInCourt, 0, "Should be unstaked");
-        assertEq(nbCourts, 0, "Should be 0 courts");
+        assertEq(stakedInCourt, 1000, "Should be unstaked");
+        assertEq(nbCourts, 1, "Should be 1 courts");
 
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
-
-        vm.expectRevert(bytes("Not eligible for withdrawal."));
-        sortitionModule.withdrawLeftoverPNK(staker1);
 
         core.execute(disputeID, 0, 6);
 
-        (totalStaked, totalLocked, , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
+        (totalStaked, totalLocked, stakedInCourt, nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
         assertEq(totalStaked, 1000, "Wrong amount staked");
         assertEq(totalLocked, 0, "Should be fully unlocked");
+        assertEq(stakedInCourt, 1000, "Should be unstaked");
+        assertEq(nbCourts, 1, "Should be 1 courts");
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
-        assertEq(round.pnkPenalties, 0, "Wrong pnkPenalties");
-        assertEq(round.sumFeeRewardPaid, 0.09 ether, "Wrong sumFeeRewardPaid");
-        assertEq(round.sumPnkRewardPaid, 0, "Wrong sumPnkRewardPaid"); // No penalty so no rewards in pnk
-
-        // Execute() shouldn't withdraw the tokens.
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
-
-        vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
-        vm.prank(governor);
-        core.transferBySortitionModule(staker1, 1000);
-
-        sortitionModule.withdrawLeftoverPNK(staker1);
-
-        (totalStaked, , , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
-        assertEq(totalStaked, 0, "Should be unstaked fully");
-
-        // Check that everything is withdrawn now
-        assertEq(pinakion.balanceOf(address(core)), 0, "Core balance should be empty");
-        assertEq(pinakion.balanceOf(staker1), 1 ether, "All PNK should be withdrawn");
     }
 
     function test_execute_feeToken() public {

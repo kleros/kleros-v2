@@ -31,6 +31,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         uint96[] courtIDs; // The IDs of courts where the juror's stake path ends. A stake path is a path from the general court to a court the juror directly staked in using `_setStake`.
         uint256 stakedPnk; // The juror's total amount of tokens staked in subcourts. Reflects actual pnk balance.
         uint256 lockedPnk; // The juror's total amount of tokens locked in disputes. Can reflect actual pnk balance when stakedPnk are fully withdrawn.
+        mapping(uint96 courtID => uint256 stake) lockedInCourt; // The juror's tokens locked in particular courts.
     }
 
     // ************************************* //
@@ -135,28 +136,30 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// @param _account The address of the juror.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
-    /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
     /// @return pnkDeposit The amount of PNK to be deposited.
     /// @return pnkWithdrawal The amount of PNK to be withdrawn.
+    /// @return actualNewStake The actual new stake.
     /// @return stakingResult The result of the staking operation.
-    function setStake(
+    function validateStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
-    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        uint256 _newStake
+    )
+        external
+        override
+        onlyByCore
+        returns (uint256 pnkDeposit, uint256 pnkWithdrawal, uint256 actualNewStake, StakingResult stakingResult)
+    {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
 
         uint256 nbCourts = juror.courtIDs.length;
         if (_newStake == 0 && (nbCourts >= MAX_STAKE_PATHS || currentStake == 0)) {
-            return (0, 0, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
+            return (0, 0, currentStake, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
         if (_newStake >= currentStake) {
-            if (!_alreadyTransferred) {
-                pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
-            }
+            pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
         } else {
             pnkWithdrawal += _decreaseStake(juror, _courtID, _newStake, currentStake);
         }
@@ -174,7 +177,11 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
-        return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+        return (pnkDeposit, pnkWithdrawal, _newStake, StakingResult.Successful);
+    }
+
+    function setStake(address _account, uint96 _courtID, uint256 _newStake) external override onlyByCore {
+        // TODO: split validateStake
     }
 
     function _increaseStake(
@@ -225,18 +232,21 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         juror.stakedPnk = (juror.stakedPnk >= _currentStake) ? juror.stakedPnk - _currentStake + _newStake : _newStake;
     }
 
-    function lockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
+    function lockStake(address _account, uint96 _courtID, uint256 _relativeAmount) external override onlyByCore {
         jurors[_account].lockedPnk += _relativeAmount;
+        jurors[_account].lockedInCourt[_courtID] += _relativeAmount;
         emit StakeLocked(_account, _relativeAmount, false);
     }
 
-    function unlockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
+    function unlockStake(address _account, uint96 _courtID, uint256 _relativeAmount) external override onlyByCore {
         jurors[_account].lockedPnk -= _relativeAmount;
+        jurors[_account].lockedInCourt[_courtID] -= _relativeAmount;
         emit StakeLocked(_account, _relativeAmount, true);
     }
 
     function penalizeStake(
         address _account,
+        uint96 _courtID,
         uint256 _relativeAmount
     ) external override onlyByCore returns (uint256 pnkBalance, uint256 availablePenalty) {
         Juror storage juror = jurors[_account];
@@ -257,11 +267,9 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, false);
+            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
         }
     }
-
-    function withdrawLeftoverPNK(address _account) external override {}
 
     // ************************************* //
     // *           Public Views            * //
@@ -316,14 +324,6 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     function isJurorStaked(address _juror) external view override returns (bool) {
         return jurors[_juror].stakedPnk > 0;
     }
-
-    function updateState(
-        address _account,
-        uint96 _courtID,
-        uint256 _pnkDeposit,
-        uint256 _pnkWithdrawal,
-        uint256 _newStake
-    ) external {}
 
     // ************************************* //
     // *            Internal               * //
