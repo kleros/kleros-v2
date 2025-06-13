@@ -1,9 +1,10 @@
 import mustache from "mustache";
 import { DisputeDetails } from "./disputeDetailsTypes";
 import DisputeDetailsSchema, { RefuseToArbitrateAnswer } from "./disputeDetailsSchema";
+import { lambdas } from "./lambdas";
 
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
-  const render = mustache.render(mustacheTemplate, data);
+  const render = mustache.render(mustacheTemplate, { ...data, ...lambdas });
   const dispute = JSON.parse(render);
 
   const validation = DisputeDetailsSchema.safeParse(dispute);
