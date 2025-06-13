@@ -4,7 +4,7 @@ import DisputeDetailsSchema, { RefuseToArbitrateAnswer } from "./disputeDetailsS
 import { lambdas } from "./lambdas";
 
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
-  const render = mustache.render(mustacheTemplate, { ...data, ...lambdas });
+  const render = mustache.render(mustacheTemplate, { ...lambdas, ...data });
   const dispute = JSON.parse(render);
 
   const validation = DisputeDetailsSchema.safeParse(dispute);
