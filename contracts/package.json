@@ -47,7 +47,7 @@
     "node": ">=16.0.0"
   },
   "volta": {
-    "node": "18.20.6"
+    "node": "18.20.8"
   },
   "publishConfig": {
     "access": "public",
@@ -131,7 +131,7 @@
     "gluegun": "^5.2.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
-    "hardhat": "2.22.19",
+    "hardhat": "2.24.3",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^1.0.1",
     "hardhat-deploy-ethers": "^0.4.2",
@@ -145,7 +145,7 @@
     "pino-pretty": "^10.3.1",
     "prettier": "^3.3.3",
     "prettier-plugin-solidity": "^1.4.2",
-    "shelljs": "^0.8.5",
+    "shelljs": "^0.10.0",
     "sinon": "^20.0.0",
     "solhint-plugin-prettier": "^0.1.0",
     "solidity-coverage": "^0.8.13",
