@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { VotingHistoryQuery } from "src/graphql/graphql";
+
 import DisputeTimeline from "./DisputeTimeline";
 import FinalDecision from "./FinalDecision";
 
@@ -14,13 +16,14 @@ const Container = styled.div`
 
 interface IVerdict {
   arbitrable?: `0x${string}`;
+  votingHistory: VotingHistoryQuery | undefined;
 }
 
-const Verdict: React.FC<IVerdict> = ({ arbitrable }) => {
+const Verdict: React.FC<IVerdict> = ({ arbitrable, votingHistory }) => {
   return (
     <Container>
-      <FinalDecision arbitrable={arbitrable} />
-      <DisputeTimeline arbitrable={arbitrable} />
+      <FinalDecision {...{ votingHistory, arbitrable }} />
+      <DisputeTimeline {...{ arbitrable }} />
     </Container>
   );
 };

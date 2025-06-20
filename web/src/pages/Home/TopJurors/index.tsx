@@ -12,14 +12,22 @@ import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 
 import Header from "./Header";
 import JurorCard from "./JurorCard";
-import JurorsLeaderboardButton from "components/JurorsLeaderboardButton";
+import SeeAllJurorsButton from "components/SeeAllJurorsButton";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(24, 48)};
+  margin-top: ${responsiveSize(28, 48)};
+`;
+
+const TitleAndButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: ${responsiveSize(12, 24)};
 `;
 
 const Title = styled.h1`
-  margin-bottom: ${responsiveSize(12, 24)};
+  margin-bottom: 0;
   font-size: ${responsiveSize(20, 24)};
 `;
 
@@ -40,12 +48,6 @@ export const StyledLabel = styled.label`
   font-size: 16px;
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  margin-top: 16px;
-  justify-content: center;
-`;
-
 const TopJurors: React.FC = () => {
   const { data: queryJurors } = useJurorsByCoherenceScore(0, 5, "coherenceScore", "desc");
 
@@ -56,7 +58,10 @@ const TopJurors: React.FC = () => {
 
   return (
     <Container>
-      <Title>Top Jurors</Title>
+      <TitleAndButtonContainer>
+        <Title>Top Jurors</Title>
+        <SeeAllJurorsButton />
+      </TitleAndButtonContainer>
       {!isUndefined(topJurors) && topJurors.length === 0 ? (
         <StyledLabel>No jurors found</StyledLabel>
       ) : (
@@ -67,9 +72,6 @@ const TopJurors: React.FC = () => {
             : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
         </ListContainer>
       )}
-      <ButtonContainer>
-        <JurorsLeaderboardButton />
-      </ButtonContainer>
     </Container>
   );
 };
