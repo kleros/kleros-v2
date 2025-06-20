@@ -3,6 +3,7 @@ import { Address } from "viem";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
+import { sanitizeFilter } from "utils/sanitizeFilter";
 import { STALE_TIME } from "src/consts";
 import { graphql } from "src/graphql";
 import { UserQuery, Dispute_Filter, UserDisputeFilterQuery, UserDetailsFragment } from "src/graphql/graphql";
@@ -52,19 +53,20 @@ const userQueryDisputeFilter = graphql(`
 `);
 
 export const useUserQuery = (address?: Address, where?: Dispute_Filter) => {
+  const sanitizedWhere = sanitizeFilter(where);
   const isEnabled = address !== undefined;
-  const query = where ? userQueryDisputeFilter : userQuery;
+  const query = sanitizedWhere ? userQueryDisputeFilter : userQuery;
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<UserQuery | UserDisputeFilterQuery>({
-    queryKey: [`userQuery${address?.toLowerCase()}`],
+    queryKey: ["userQuery", address?.toLowerCase(), sanitizedWhere],
     enabled: isEnabled,
     staleTime: STALE_TIME,
     queryFn: async () =>
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: query,
-        variables: { address: address?.toLowerCase(), where },
+        variables: { address: address?.toLowerCase(), where: sanitizedWhere },
       }),
   });
 };
