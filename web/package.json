@@ -79,7 +79,7 @@
     "vite-tsconfig-paths": "^4.3.2"
   },
   "dependencies": {
-    "@bigmi/react": "^0.1.0",
+    "@bigmi/react": "^0.3.0",
     "@coinbase/wallet-sdk": "^4.3.2",
     "@cyntler/react-doc-viewer": "^1.17.0",
     "@graphql-tools/batch-execute": "^9.0.11",
