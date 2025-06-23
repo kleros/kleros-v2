@@ -19,7 +19,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import InfoCard from "components/InfoCard";
 
-import JustificationArea from "./JustificationArea";
+import JustificationArea from "../JustificationArea";
 import { Answer } from "@kleros/kleros-sdk";
 import { EnsureChain } from "components/EnsureChain";
 
