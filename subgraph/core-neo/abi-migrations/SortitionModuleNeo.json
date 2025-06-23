@@ -64,6 +64,25 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LeftoverPNKWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": false,
           "internalType": "enum ISortitionModule.Phase",
           "name": "_phase",
@@ -71,56 +90,6 @@
         }
       ],
       "name": "NewPhase",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_address",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "StakeDelayedAlreadyTransferredDeposited",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_address",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "StakeDelayedAlreadyTransferred",
       "type": "event"
     },
     {
@@ -145,32 +114,7 @@
           "type": "uint256"
         }
       ],
-      "name": "StakeDelayedAlreadyTransferredWithdrawn",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_address",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "StakeDelayedNotTransferred",
+      "name": "StakeDelayed",
       "type": "event"
     },
     {
@@ -449,11 +393,6 @@
           "internalType": "uint256",
           "name": "stake",
           "type": "uint256"
-        },
-        {
-          "internalType": "bool",
-          "name": "alreadyTransferred",
-          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -700,30 +639,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "jurorAccount",
-          "type": "address"
-        },
-        {
-          "internalType": "uint96",
-          "name": "courtId",
-          "type": "uint96"
-        }
-      ],
-      "name": "latestDelayedStakeIndex",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "_account",
           "type": "address"
         },
@@ -824,7 +739,18 @@
         }
       ],
       "name": "penalizeStake",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pnkBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "availablePenalty",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -956,7 +882,7 @@
         },
         {
           "internalType": "bool",
-          "name": "_alreadyTransferred",
+          "name": "",
           "type": "bool"
         }
       ],
@@ -970,6 +896,11 @@
         {
           "internalType": "uint256",
           "name": "pnkWithdrawal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "oldStake",
           "type": "uint256"
         },
         {
@@ -1089,6 +1020,19 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawLeftoverPNK",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

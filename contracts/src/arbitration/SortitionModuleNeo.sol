@@ -84,22 +84,26 @@ contract SortitionModuleNeo is SortitionModuleBase {
     // *         State Modifiers           * //
     // ************************************* //
 
-    function _setStake(
+    function _validateStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
-    ) internal override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        uint256 _newStake
+    )
+        internal
+        override
+        onlyByCore
+        returns (uint256 pnkDeposit, uint256 pnkWithdrawal, uint256 actualNewStake, StakingResult stakingResult)
+    {
         uint256 currentStake = stakeOf(_account, _courtID);
         bool stakeIncrease = _newStake > currentStake;
         uint256 stakeChange = stakeIncrease ? _newStake - currentStake : currentStake - _newStake;
         Juror storage juror = jurors[_account];
-        if (stakeIncrease && !_alreadyTransferred) {
+        if (stakeIncrease) {
             if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
-                return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
+                return (0, 0, currentStake, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
             }
             if (totalStaked + stakeChange > maxTotalStaked) {
-                return (0, 0, StakingResult.CannotStakeMoreThanMaxTotalStaked);
+                return (0, 0, currentStake, StakingResult.CannotStakeMoreThanMaxTotalStaked);
             }
         }
         if (phase == Phase.staking) {
@@ -109,11 +113,10 @@ contract SortitionModuleNeo is SortitionModuleBase {
                 totalStaked -= stakeChange;
             }
         }
-        (pnkDeposit, pnkWithdrawal, stakingResult) = super._setStake(
+        (pnkDeposit, pnkWithdrawal, actualNewStake, stakingResult) = super._validateStake(
             _account,
             _courtID,
-            _newStake,
-            _alreadyTransferred
+            _newStake
         );
     }
 }
