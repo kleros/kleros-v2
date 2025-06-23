@@ -72,7 +72,7 @@ jobs:
       working-directory: web
 
     - name: Create Sentry release
-      uses: getsentry/action-release@ffb64465339ef6fb868e2fc261318d78ae0ed8d9 # v1.10.5
+      uses: getsentry/action-release@db19a8438b9ff55beba8fbb40fdce2571e85bbd9 # v3.1.2
       env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
