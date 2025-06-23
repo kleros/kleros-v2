@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { useAccount } from "wagmi";
 
 import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
 
 import { responsiveSize } from "styles/responsiveSize";
+
+import { DisputeDetailsQuery, VotingHistoryQuery } from "src/graphql/graphql";
 
 import ReactMarkdown from "components/ReactMarkdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
@@ -16,12 +19,20 @@ import { Divider } from "../Divider";
 import { ExternalLink } from "../ExternalLink";
 
 import AliasDisplay from "./Alias";
+import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
+import CardLabel from "../DisputeView/CardLabels";
 
 const StyledH1 = styled.h1`
   margin: 0;
   word-wrap: break-word;
-  font-size: ${responsiveSize(18, 24)};
+  font-size: ${responsiveSize(20, 26)};
   line-height: 24px;
+`;
+
+const TitleSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 const ReactMarkdownWrapper = styled.div`
@@ -66,19 +77,59 @@ const AliasesContainer = styled.div`
   gap: ${responsiveSize(8, 20)};
 `;
 
+const RulingAndRewardsAndLabels = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
   isRpcError?: boolean;
+  dispute?: DisputeDetailsQuery | undefined;
+
+  disputeId?: string;
+  votingHistory?: VotingHistoryQuery | undefined;
 }
 
-export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRpcError = false }) => {
+export const DisputeContext: React.FC<IDisputeContext> = ({
+  disputeDetails,
+  isRpcError = false,
+  dispute,
+  disputeId,
+  votingHistory,
+}) => {
+  const { isDisconnected } = useAccount();
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
+  const rounds = votingHistory?.dispute?.rounds;
+  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
+  console.log({ jurorRewardsDispersed }, disputeDetails);
 
   return (
     <>
-      <StyledH1 dir="auto">
-        {isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}
-      </StyledH1>
+      <TitleSection>
+        <StyledH1 dir="auto">
+          {isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}
+        </StyledH1>
+        {!isUndefined(disputeDetails) &&
+        !isUndefined(dispute) &&
+        !isUndefined(disputeId) &&
+        !isUndefined(votingHistory) ? (
+          <RulingAndRewardsAndLabels>
+            {!isUndefined(Boolean(dispute?.dispute?.ruled)) || jurorRewardsDispersed ? (
+              <RulingAndRewardsIndicators
+                ruled={Boolean(dispute?.dispute?.ruled)}
+                jurorRewardsDispersed={jurorRewardsDispersed}
+              />
+            ) : null}
+            {!isDisconnected ? (
+              <CardLabel {...{ disputeId }} round={rounds?.length - 1} isList={false} isOverview={true} />
+            ) : null}
+          </RulingAndRewardsAndLabels>
+        ) : null}
+        <Divider />
+      </TitleSection>
       {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
         <div>
           {disputeDetails?.question?.trim() ? (

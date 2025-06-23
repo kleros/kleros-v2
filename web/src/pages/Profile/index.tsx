@@ -11,7 +11,7 @@ import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
-import { OrderDirection } from "src/graphql/graphql";
+import { Dispute_Filter, OrderDirection, UserDetailsFragment } from "src/graphql/graphql";
 
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
@@ -50,6 +50,33 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
+const calculateStats = (user: UserDetailsFragment, filter: Dispute_Filter) => {
+  const toInt = (v) => Number(v) || 0;
+  let totalCases, ruledCases;
+
+  if (!user) {
+    totalCases = 0;
+    ruledCases = 0;
+  } else if (filter?.period === "appeal") {
+    totalCases = toInt(user.totalAppealingDisputes);
+    ruledCases = 0;
+  } else if (filter?.ruled === true) {
+    totalCases = toInt(user.totalResolvedDisputes);
+    ruledCases = totalCases;
+  } else if (filter?.ruled === false) {
+    totalCases = toInt(user.disputes?.length);
+    ruledCases = 0;
+  } else {
+    totalCases = toInt(user.disputes?.length);
+    ruledCases = toInt(user.totalResolvedDisputes);
+  }
+
+  return {
+    totalCases,
+    ruledCases,
+  };
+};
+
 const Profile: React.FC = () => {
   const { isConnected, address: connectedAddress } = useAccount();
   const { page, order, filter } = useParams();
@@ -69,8 +96,10 @@ const Profile: React.FC = () => {
     order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
   );
   const { data: userData } = useUserQuery(addressToQuery, decodedFilter);
-  const totalCases = userData?.user?.disputes.length;
-  const totalResolvedCases = parseInt(userData?.user?.totalResolvedDisputes);
+  const { totalCases, ruledCases: totalResolvedCases } = useMemo(
+    () => calculateStats(userData?.user, decodedFilter),
+    [userData?.user, decodedFilter]
+  );
   const totalPages = useMemo(
     () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
     [totalCases, casesPerPage]
