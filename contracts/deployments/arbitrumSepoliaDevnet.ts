@@ -3909,9 +3909,28 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize2",
+          name: "initialize5",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -5961,7 +5980,7 @@ export default {
       ],
     },
     DisputeKitClassic_Implementation: {
-      address: "0xc51Ac08b07832Cf9b51Ff9E9dd3E85a3D205ff24",
+      address: "0x8Db69EE93365190FE9CA4d59Ae4Cdd4f3688f1Af",
       abi: [
         {
           inputs: [],
@@ -6796,9 +6815,28 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize2",
+          name: "initialize5",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -8965,7 +9003,7 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingNotPossibeInThisCourt",
+          name: "StakingNotPossibleInThisCourt",
           type: "error",
         },
         {
@@ -10290,6 +10328,30 @@ export default {
               type: "uint256",
             },
           ],
+          name: "getPnkAtStakePerJuror",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
           name: "getRoundInfo",
           outputs: [
             {
@@ -10463,7 +10525,7 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize3",
+          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -17550,7 +17612,7 @@ export default {
       ],
     },
     KlerosCore_Implementation: {
-      address: "0xb6839061C3aD03c208EFd697409453bf9900cAb2",
+      address: "0xEff34d5b37F0bb4d32C563E21C9C56E971f420Bd",
       abi: [
         {
           inputs: [],
@@ -17700,7 +17762,7 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingNotPossibeInThisCourt",
+          name: "StakingNotPossibleInThisCourt",
           type: "error",
         },
         {
@@ -19025,6 +19087,30 @@ export default {
               type: "uint256",
             },
           ],
+          name: "getPnkAtStakePerJuror",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
           name: "getRoundInfo",
           outputs: [
             {
@@ -19198,7 +19284,7 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize3",
+          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
