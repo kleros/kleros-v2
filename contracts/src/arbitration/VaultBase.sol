@@ -1,0 +1,214 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity 0.8.24;
+
+import {IVault} from "./interfaces/IVault.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
+
+/// @title VaultBase
+/// @notice Abstract base contract for PNK vault that handles deposits, withdrawals, locks, and penalties
+abstract contract VaultBase is IVault, Initializable, UUPSProxiable {
+    using SafeERC20 for IERC20;
+
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
+
+    struct JurorBalance {
+        uint256 deposited; // Total PNK deposited
+        uint256 locked; // PNK locked in disputes
+        uint256 penalties; // Accumulated penalties
+    }
+
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    address public governor; // The governor of the contract.
+    IERC20 public pnk; // The PNK token contract.
+    address public stakeController; // The stake controller authorized to lock/unlock/penalize.
+    address public core; // The KlerosCore authorized to transfer rewards.
+    mapping(address => JurorBalance) public jurorBalances; // Juror balance tracking.
+
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByGovernor() {
+        if (governor != msg.sender) revert GovernorOnly();
+        _;
+    }
+
+    modifier onlyStakeController() {
+        if (msg.sender != stakeController) revert OnlyStakeController();
+        _;
+    }
+
+    modifier onlyCore() {
+        if (msg.sender != core) revert OnlyCore();
+        _;
+    }
+
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    function __VaultBase_initialize(
+        address _governor,
+        IERC20 _pnk,
+        address _stakeController,
+        address _core
+    ) internal onlyInitializing {
+        governor = _governor;
+        pnk = _pnk;
+        stakeController = _stakeController;
+        core = _core;
+    }
+
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
+
+    /// @dev Changes the `governor` storage variable.
+    /// @param _governor The new value for the `governor` storage variable.
+    function changeGovernor(address _governor) external onlyByGovernor {
+        governor = _governor;
+    }
+
+    /// @dev Changes the `stakeController` storage variable.
+    /// @param _stakeController The new value for the `stakeController` storage variable.
+    function changeStakeController(address _stakeController) external onlyByGovernor {
+        stakeController = _stakeController;
+    }
+
+    /// @dev Changes the `core` storage variable.
+    /// @param _core The new value for the `core` storage variable.
+    function changeCore(address _core) external onlyByGovernor {
+        core = _core;
+    }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
+    /// @inheritdoc IVault
+    function deposit(address _from, uint256 _amount) external virtual override onlyCore {
+        _deposit(_from, _amount);
+    }
+
+    /// @dev Internal implementation of deposit.
+    /// @param _from The user address for the deposit.
+    /// @param _amount The amount of PNK to deposit.
+    function _deposit(address _from, uint256 _amount) internal virtual {
+        if (_amount == 0) revert InvalidAmount();
+
+        // Transfer PNK from the user to the vault
+        // The Vault must be approved by _from to transfer PNK to the vault
+        pnk.safeTransferFrom(_from, address(this), _amount);
+        jurorBalances[_from].deposited += _amount;
+
+        emit Deposit(_from, _amount);
+    }
+
+    /// @inheritdoc IVault
+    function withdraw(address _to, uint256 _amount) external virtual override onlyCore returns (uint256 pnkAmount) {
+        return _withdraw(_to, _amount);
+    }
+
+    /// @dev Internal implementation of withdraw.
+    /// @param _to The user address for the withdrawal.
+    /// @param _amount The amount of PNK to withdraw.
+    /// @return pnkAmount The amount of PNK transferred back to the user.
+    function _withdraw(address _to, uint256 _amount) internal virtual returns (uint256 pnkAmount) {
+        if (_amount == 0) revert InvalidAmount();
+
+        JurorBalance storage balance = jurorBalances[_to];
+
+        // Check available balance (deposited - locked - penalties) for the user
+        uint256 available = getAvailableBalance(_to);
+        if (_amount > available) revert InsufficientAvailableBalance();
+
+        balance.deposited -= _amount;
+        pnk.safeTransfer(_to, _amount); // Vault sends PNK to user
+
+        emit Withdraw(_to, _amount);
+        return _amount;
+    }
+
+    /// @inheritdoc IVault
+    function lockTokens(address _account, uint256 _amount) external virtual override onlyStakeController {
+        jurorBalances[_account].locked += _amount;
+        emit Lock(_account, _amount);
+    }
+
+    /// @inheritdoc IVault
+    function unlockTokens(address _account, uint256 _amount) external virtual override onlyStakeController {
+        jurorBalances[_account].locked -= _amount;
+        emit Unlock(_account, _amount);
+    }
+
+    /// @inheritdoc IVault
+    function applyPenalty(
+        address _account,
+        uint256 _amount
+    ) external virtual override onlyStakeController returns (uint256 pnkBalance, uint256 actualPenalty) {
+        JurorBalance storage balance = jurorBalances[_account];
+
+        // Calculate actual penalty (cannot exceed deposited amount)
+        actualPenalty = _amount > balance.deposited ? balance.deposited : _amount;
+        pnkBalance = balance.deposited - actualPenalty; // includes locked PNK
+
+        // Update balances
+        balance.deposited -= actualPenalty;
+        balance.penalties += actualPenalty;
+
+        // Note: Penalized PNK stays in vault to fund rewards pool
+        emit Penalty(_account, actualPenalty);
+    }
+
+    /// @inheritdoc IVault
+    function transferReward(address _account, uint256 _amount) external virtual override onlyCore {
+        if (pnk.balanceOf(address(this)) < _amount) revert InsufficientVaultBalance();
+        pnk.safeTransfer(_account, _amount);
+        emit RewardTransferred(_account, _amount);
+    }
+
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
+    /// @inheritdoc IVault
+    function getAvailableBalance(address _account) public view override returns (uint256) {
+        JurorBalance storage balance = jurorBalances[_account];
+        uint256 unavailable = balance.locked + balance.penalties;
+        return balance.deposited > unavailable ? balance.deposited - unavailable : 0;
+    }
+
+    /// @inheritdoc IVault
+    function getDepositedBalance(address _account) external view override returns (uint256) {
+        return jurorBalances[_account].deposited;
+    }
+
+    /// @inheritdoc IVault
+    function getLockedBalance(address _account) external view override returns (uint256) {
+        return jurorBalances[_account].locked;
+    }
+
+    /// @inheritdoc IVault
+    function getPenaltyBalance(address _account) external view override returns (uint256) {
+        return jurorBalances[_account].penalties;
+    }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error OnlyStakeController();
+    error OnlyCore();
+    error InvalidAmount();
+    error InsufficientAvailableBalance();
+    error InsufficientVaultBalance();
+}

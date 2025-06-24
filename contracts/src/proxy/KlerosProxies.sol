@@ -67,14 +67,18 @@ contract RandomizerRNGProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
-contract SortitionModuleNeoProxy is UUPSProxy {
+contract SortitionSumTree is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
-contract SortitionModuleUniversityProxy is UUPSProxy {
+contract StakeController is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
-contract SortitionModuleProxy is UUPSProxy {
+contract Vault is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
+
+contract VaultNeo is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
