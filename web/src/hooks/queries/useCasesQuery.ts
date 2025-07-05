@@ -3,6 +3,7 @@ import { Address } from "viem";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { isUndefined } from "utils/index";
+import { sanitizeFilter } from "utils/sanitizeFilter";
 
 import { graphql } from "src/graphql";
 import {
@@ -71,17 +72,18 @@ const myCasesQueryWhere = graphql(`
 
 export const useCasesQuery = (skip = 0, first = 3, where?: Dispute_Filter, sortOrder?: OrderDirection) => {
   const { graphqlBatcher } = useGraphqlBatcher();
+  const sanitizedWhere = sanitizeFilter(where);
 
   return useQuery<CasesPageQuery>({
-    queryKey: [`useCasesQuery`, skip, where, sortOrder, first],
+    queryKey: [`useCasesQuery`, skip, sanitizedWhere, sortOrder, first],
     queryFn: async () =>
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
-        document: isUndefined(where) ? casesQuery : casesQueryWhere,
+        document: isUndefined(sanitizedWhere) ? casesQuery : casesQueryWhere,
         variables: {
           first,
           skip,
-          where,
+          where: sanitizedWhere,
           orderDirection: sortOrder ?? "desc",
         },
       }),
@@ -89,20 +91,20 @@ export const useCasesQuery = (skip = 0, first = 3, where?: Dispute_Filter, sortO
 };
 
 export const useMyCasesQuery = (user?: Address, skip = 0, where?: Dispute_Filter, sortOrder?: OrderDirection) => {
-  const isEnabled = !isUndefined(user);
   const { graphqlBatcher } = useGraphqlBatcher();
+  const sanitizedWhere = sanitizeFilter(where);
 
   return useQuery<MyCasesQuery>({
-    queryKey: [`useMyCasesQuery`, user, skip, where, sortOrder],
-    enabled: isEnabled,
+    queryKey: ["useMyCasesQuery", user, skip, sanitizedWhere, sortOrder],
+    enabled: !isUndefined(user),
     queryFn: async () =>
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
-        document: isUndefined(where) ? myCasesQuery : myCasesQueryWhere,
+        document: isUndefined(sanitizedWhere) ? myCasesQuery : myCasesQueryWhere,
         variables: {
           skip,
           id: user?.toLowerCase(),
-          where,
+          where: sanitizedWhere,
           orderDirection: sortOrder ?? "desc",
         },
       }),
