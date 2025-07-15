@@ -1393,7 +1393,7 @@ contract KlerosCoreTest is Test {
         assertEq(jumped, false, "jumped should be false");
         assertEq(extraData, newExtraData, "Wrong extra data");
         assertEq(disputeKit.coreDisputeIDToLocal(0), disputeID, "Wrong local disputeID");
-        assertEq(disputeKit.coreDisputeIDToDisputeLength(0), 1, "Wrong disputes length");
+        assertEq(disputeKit.coreDisputeIDToActive(0), true, "Wrong disputes length");
 
         (
             uint256 winningChoice,
@@ -2885,11 +2885,11 @@ contract KlerosCoreTest is Test {
 
         // Check that the new DK has the info but not the old one.
 
-        assertEq(disputeKit.coreDisputeIDToDisputeLength(disputeID), 0, "Should be 0 for old DK");
+        assertEq(disputeKit.coreDisputeIDToActive(disputeID), false, "Should be false for old DK");
 
         // This is the DK where dispute was created. Core dispute points to index 1 because new DK has two disputes.
         assertEq(newDisputeKit.coreDisputeIDToLocal(disputeID), 1, "Wrong local dispute ID for new DK");
-        assertEq(newDisputeKit.coreDisputeIDToDisputeLength(disputeID), 2, "Wrong disputes length for new DK");
+        assertEq(newDisputeKit.coreDisputeIDToActive(disputeID), true, "Should be active for new DK");
         (uint256 numberOfChoices, , bytes memory extraData) = newDisputeKit.disputes(1);
         assertEq(numberOfChoices, 2, "Wrong numberOfChoices in new DK");
         assertEq(extraData, newExtraData, "Wrong extra data");
@@ -2901,7 +2901,7 @@ contract KlerosCoreTest is Test {
 
         // Deliberately cast votes using the old DK to see if the exception will be caught.
         vm.prank(staker1);
-        vm.expectRevert(bytes("No local dispute for core ID"));
+        vm.expectRevert(bytes("Not active for core dispute ID"));
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         // And check the new DK.

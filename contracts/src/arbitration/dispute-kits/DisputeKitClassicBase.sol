@@ -62,9 +62,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
     bool public singleDrawPerJuror; // Whether each juror can only draw once per dispute, false by default.
     mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(address drawnAddress => bool)))
-        public alreadyDrawn; // 'true' if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
-
-    mapping(uint256 => uint256) public coreDisputeIDToDisputeLength; // Maps core dispute ID with the current length of disputes array to avoid falling back to 0 index and make sure core dispute is indeed connected to this DK.
+        public alreadyDrawn; // True if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
+    mapping(uint256 coreDisputeID => bool) public coreDisputeIDToActive; // True if this dispute kit is active for this core dispute ID.
 
     // ************************************* //
     // *              Events               * //
@@ -197,6 +196,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Dispute storage dispute = disputes.push();
         dispute.numberOfChoices = _numberOfChoices;
         dispute.extraData = _extraData;
+        dispute.jumped = false; // Possibly true if this DK has jumped in a previous round.
 
         // New round in the Core should be created before the dispute creation in DK.
         dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID) - 1] = dispute.rounds.length;
@@ -206,7 +206,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         round.tied = true;
 
         coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
-        coreDisputeIDToDisputeLength[_coreDisputeID] = localDisputeID + 1;
+        coreDisputeIDToActive[_coreDisputeID] = true;
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
@@ -253,7 +253,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.commit, "The dispute should be in Commit period.");
         require(_commit != bytes32(0), "Empty commit.");
-        require(coreDisputeIDToDisputeLength[_coreDisputeID] != 0, "No local dispute for core ID");
+        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
@@ -283,7 +283,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
-        require(coreDisputeIDToDisputeLength[_coreDisputeID] != 0, "No local dispute for core ID");
+        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         require(_choice <= dispute.numberOfChoices, "Choice out of bounds");
@@ -330,7 +330,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable notJumped(_coreDisputeID) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         require(_choice <= dispute.numberOfChoices, "There is no such ruling to fund.");
-        require(coreDisputeIDToDisputeLength[_coreDisputeID] != 0, "No local dispute for core ID");
+        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
 
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
         require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, "Appeal period is over.");
@@ -410,7 +410,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
         require(isRuled, "Dispute should be resolved.");
         require(!core.paused(), "Core is paused");
-        require(coreDisputeIDToDisputeLength[_coreDisputeID] != 0, "No local dispute for core ID");
+        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
