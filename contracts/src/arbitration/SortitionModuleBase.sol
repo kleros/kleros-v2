@@ -81,24 +81,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @param _amountAllCourts The amount of tokens staked in all courts.
     event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _amountAllCourts);
 
-    /// @notice DEPRECATED Emitted when a juror's stake is delayed and tokens are not transferred yet.
-    /// @param _address The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @param _amount The amount of tokens staked in the court.
-    event StakeDelayedNotTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
-
-    /// @notice DEPRECATED Emitted when a juror's stake is delayed and tokens are already deposited.
-    /// @param _address The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @param _amount The amount of tokens staked in the court.
-    event StakeDelayedAlreadyTransferredDeposited(address indexed _address, uint256 _courtID, uint256 _amount);
-
-    /// @notice DEPRECATED Emitted when a juror's stake is delayed and tokens are already withdrawn.
-    /// @param _address The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @param _amount The amount of tokens withdrawn.
-    event StakeDelayedAlreadyTransferredWithdrawn(address indexed _address, uint96 indexed _courtID, uint256 _amount);
-
     /// @notice Emitted when a juror's stake is delayed.
     /// @param _address The address of the juror.
     /// @param _courtID The ID of the court.
