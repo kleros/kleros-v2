@@ -259,29 +259,23 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @param _randomNumber Random number returned by RNG contract.
     function notifyRandomNumber(uint256 _randomNumber) public override {}
 
-    /// @dev Sets the specified juror's stake in a court.
-    /// `O(n + p * log_k(j))` where
-    /// `n` is the number of courts the juror has staked in,
-    /// `p` is the depth of the court tree,
-    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
-    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @dev Validate the specified juror's new stake for a court.
+    /// Note: no state changes should be made when returning stakingResult != Successful, otherwise delayed stakes might break invariants.
     /// @param _account The address of the juror.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     /// @return pnkDeposit The amount of PNK to be deposited.
     /// @return pnkWithdrawal The amount of PNK to be withdrawn.
     /// @return stakingResult The result of the staking operation.
-    function setStake(
+    function validateStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake
     ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        (pnkDeposit, pnkWithdrawal, stakingResult) = _setStake(_account, _courtID, _newStake);
+        (pnkDeposit, pnkWithdrawal, stakingResult) = _validateStake(_account, _courtID, _newStake);
     }
 
-    /// @dev Sets the specified juror's stake in a court.
-    /// Note: no state changes should be made when returning stakingResult != Successful, otherwise delayed stakes might break invariants.
-    function _setStake(
+    function _validateStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake
@@ -322,14 +316,34 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
 
-    /// @dev Called by KC at the end of setStake flow.
-    function updateState(
+    /// @dev Update the state of the stakes, called by KC at the end of setStake flow.
+    /// `O(n + p * log_k(j))` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _pnkDeposit The amount of PNK to be deposited.
+    /// @param _pnkWithdrawal The amount of PNK to be withdrawn.
+    /// @param _newStake The new stake.
+    function setStake(
         address _account,
         uint96 _courtID,
         uint256 _pnkDeposit,
         uint256 _pnkWithdrawal,
         uint256 _newStake
     ) external override onlyByCore {
+        _setStake(_account, _courtID, _pnkDeposit, _pnkWithdrawal, _newStake);
+    }
+
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) internal virtual {
         Juror storage juror = jurors[_account];
         if (_pnkDeposit > 0) {
             uint256 currentStake = stakeOf(_account, _courtID);

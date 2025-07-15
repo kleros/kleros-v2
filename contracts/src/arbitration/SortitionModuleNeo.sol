@@ -84,7 +84,7 @@ contract SortitionModuleNeo is SortitionModuleBase {
     // *         State Modifiers           * //
     // ************************************* //
 
-    function _setStake(
+    function _validateStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake
@@ -108,6 +108,6 @@ contract SortitionModuleNeo is SortitionModuleBase {
                 totalStaked -= stakeChange;
             }
         }
-        (pnkDeposit, pnkWithdrawal, stakingResult) = super._setStake(_account, _courtID, _newStake);
+        (pnkDeposit, pnkWithdrawal, stakingResult) = super._validateStake(_account, _courtID, _newStake);
     }
 }

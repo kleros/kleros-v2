@@ -1047,7 +1047,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             _stakingFailed(_onError, StakingResult.CannotStakeLessThanMinStake); // Staking less than the minimum stake is not allowed.
             return false;
         }
-        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.setStake(
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.validateStake(
             _account,
             _courtID,
             _newStake

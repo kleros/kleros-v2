@@ -138,7 +138,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// @return pnkDeposit The amount of PNK to be deposited.
     /// @return pnkWithdrawal The amount of PNK to be withdrawn.
     /// @return stakingResult The result of the staking operation.
-    function setStake(
+    function validateStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake
@@ -313,7 +313,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         return jurors[_juror].stakedPnk > 0;
     }
 
-    function updateState(
+    function setStake(
         address _account,
         uint96 _courtID,
         uint256 _pnkDeposit,

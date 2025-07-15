@@ -1082,7 +1082,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             _stakingFailed(_onError, StakingResult.CannotStakeLessThanMinStake); // Staking less than the minimum stake is not allowed.
             return false;
         }
-        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.setStake(
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.validateStake(
             _account,
             _courtID,
             _newStake
@@ -1105,7 +1105,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
                 return false;
             }
         }
-        sortitionModule.updateState(_account, _courtID, pnkDeposit, pnkWithdrawal, _newStake);
+        sortitionModule.setStake(_account, _courtID, pnkDeposit, pnkWithdrawal, _newStake);
 
         return true;
     }
