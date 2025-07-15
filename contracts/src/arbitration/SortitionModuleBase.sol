@@ -302,7 +302,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             return (pnkDeposit, pnkWithdrawal, StakingResult.Delayed);
         }
 
-        // Current phase is Staking: set normal stakes or delayed stakes.
+        // Current phase is Staking: set stakes.
         if (_newStake >= currentStake) {
             pnkDeposit = _newStake - currentStake;
         } else {
