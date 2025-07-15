@@ -17,8 +17,7 @@ interface ISortitionModule {
     function setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
+        uint256 _newStake
     ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
 
     function setJurorInactive(address _account) external;

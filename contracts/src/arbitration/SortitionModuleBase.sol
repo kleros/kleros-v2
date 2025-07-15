@@ -241,12 +241,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
 
         for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
             DelayedStake storage delayedStake = delayedStakes[i];
-            core.setStakeBySortitionModule(
-                delayedStake.account,
-                delayedStake.courtID,
-                delayedStake.stake,
-                false // Unused parameter.
-            );
+            core.setStakeBySortitionModule(delayedStake.account, delayedStake.courtID, delayedStake.stake);
             delete delayedStakes[i];
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
@@ -279,10 +274,9 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     function setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool /*_alreadyTransferred*/
+        uint256 _newStake
     ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        (pnkDeposit, pnkWithdrawal, stakingResult) = _setStake(_account, _courtID, _newStake, false); // The last parameter is unused.
+        (pnkDeposit, pnkWithdrawal, stakingResult) = _setStake(_account, _courtID, _newStake);
     }
 
     /// @dev Sets the specified juror's stake in a court.
@@ -290,8 +284,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     function _setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool /*_alreadyTransferred*/
+        uint256 _newStake
     ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = stakeOf(_account, _courtID);
@@ -414,7 +407,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, false);
+            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
         }
     }
 

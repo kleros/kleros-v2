@@ -1240,7 +1240,7 @@ contract KlerosCoreTest is Test {
         // Note that functionality of this function was checked during delayed stakes execution
         vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
         vm.prank(governor);
-        core.setStakeBySortitionModule(staker1, GENERAL_COURT, 1000, false);
+        core.setStakeBySortitionModule(staker1, GENERAL_COURT, 1000);
     }
 
     function test_setStake_snapshotProxyCheck() public {

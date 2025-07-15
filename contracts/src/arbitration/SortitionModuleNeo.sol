@@ -87,8 +87,7 @@ contract SortitionModuleNeo is SortitionModuleBase {
     function _setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool /*_alreadyTransferred*/
+        uint256 _newStake
     ) internal override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         uint256 currentStake = stakeOf(_account, _courtID);
         bool stakeIncrease = _newStake > currentStake;
@@ -109,11 +108,6 @@ contract SortitionModuleNeo is SortitionModuleBase {
                 totalStaked -= stakeChange;
             }
         }
-        (pnkDeposit, pnkWithdrawal, stakingResult) = super._setStake(
-            _account,
-            _courtID,
-            _newStake,
-            false // This parameter is not used
-        );
+        (pnkDeposit, pnkWithdrawal, stakingResult) = super._setStake(_account, _courtID, _newStake);
     }
 }

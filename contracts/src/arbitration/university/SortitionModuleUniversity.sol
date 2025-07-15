@@ -135,15 +135,13 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// @param _account The address of the juror.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
-    /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
     /// @return pnkDeposit The amount of PNK to be deposited.
     /// @return pnkWithdrawal The amount of PNK to be withdrawn.
     /// @return stakingResult The result of the staking operation.
     function setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
+        uint256 _newStake
     ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
@@ -154,11 +152,9 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         }
 
         if (_newStake >= currentStake) {
-            if (!_alreadyTransferred) {
-                pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
-            }
+            pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
         } else {
-            pnkWithdrawal += _decreaseStake(juror, _courtID, _newStake, currentStake);
+            pnkWithdrawal = _decreaseStake(juror, _courtID, _newStake, currentStake);
         }
 
         bool finished = false;
@@ -257,7 +253,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, false);
+            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
         }
     }
 
