@@ -93,6 +93,11 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @param _unlock Whether the stake is locked or unlocked.
     event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unlock);
 
+    /// @dev Emitted when leftover PNK is available.
+    /// @param _account The account of the juror.
+    /// @param _amount The amount of PNK available.
+    event LeftoverPNK(address indexed _account, uint256 _amount);
+
     /// @dev Emitted when leftover PNK is withdrawn.
     /// @param _account The account of the juror withdrawing PNK.
     /// @param _amount The amount of PNK withdrawn.
@@ -370,8 +375,14 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     }
 
     function unlockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
-        jurors[_account].lockedPnk -= _relativeAmount;
+        Juror storage juror = jurors[_account];
+        juror.lockedPnk -= _relativeAmount;
         emit StakeLocked(_account, _relativeAmount, true);
+
+        uint256 amount = getJurorLeftoverPNK(_account);
+        if (amount > 0) {
+            emit LeftoverPNK(_account, amount);
+        }
     }
 
     function penalizeStake(
@@ -414,17 +425,13 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// Also note that if the juror has some leftover PNK while not fully unstaked he'll have to manually unstake from all courts to trigger this function.
     /// @param _account The juror whose PNK to withdraw.
     function withdrawLeftoverPNK(address _account) external override {
-        Juror storage juror = jurors[_account];
         // Can withdraw the leftover PNK if fully unstaked, has no tokens locked and has positive balance.
         // This withdrawal can't be triggered by calling setStake() in KlerosCore because current stake is technically 0, thus it is done via separate function.
-        if (juror.stakedPnk > 0 && juror.courtIDs.length == 0 && juror.lockedPnk == 0) {
-            uint256 amount = juror.stakedPnk;
-            juror.stakedPnk = 0;
-            core.transferBySortitionModule(_account, amount);
-            emit LeftoverPNKWithdrawn(_account, amount);
-        } else {
-            revert("Not eligible for withdrawal.");
-        }
+        uint256 amount = getJurorLeftoverPNK(_account);
+        require(amount > 0, "Not eligible for withdrawal.");
+        jurors[_account].stakedPnk = 0;
+        core.transferBySortitionModule(_account, amount);
+        emit LeftoverPNKWithdrawn(_account, amount);
     }
 
     // ************************************* //
@@ -522,6 +529,15 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
 
     function isJurorStaked(address _juror) external view override returns (bool) {
         return jurors[_juror].stakedPnk > 0;
+    }
+
+    function getJurorLeftoverPNK(address _juror) public view override returns (uint256) {
+        Juror storage juror = jurors[_juror];
+        if (juror.courtIDs.length == 0 && juror.lockedPnk == 0) {
+            return juror.stakedPnk;
+        } else {
+            return 0;
+        }
     }
 
     // ************************************* //

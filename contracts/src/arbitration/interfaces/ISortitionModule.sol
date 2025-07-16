@@ -52,6 +52,8 @@ interface ISortitionModule {
 
     function isJurorStaked(address _juror) external view returns (bool);
 
+    function getJurorLeftoverPNK(address _juror) external view returns (uint256);
+
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 
     function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
