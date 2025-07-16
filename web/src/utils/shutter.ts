@@ -35,6 +35,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
+        authorization: `Bearer ${import.meta.env.REACT_APP_SHUTTER_API_TOKEN}`,
       },
       body: JSON.stringify({
         decryptionTimestamp,
@@ -81,6 +82,7 @@ async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKe
     method: "GET",
     headers: {
       accept: "application/json",
+      authorization: `Bearer ${import.meta.env.REACT_APP_SHUTTER_API_TOKEN}`,
     },
   });
 
