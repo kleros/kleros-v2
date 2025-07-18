@@ -2558,6 +2558,8 @@ contract KlerosCoreTest is Test {
         vm.expectRevert(bytes("Not eligible for withdrawal."));
         sortitionModule.withdrawLeftoverPNK(staker1);
 
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModuleBase.LeftoverPNK(staker1, 1000);
         core.execute(disputeID, 0, 6);
 
         (totalStaked, totalLocked, , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
@@ -2577,6 +2579,8 @@ contract KlerosCoreTest is Test {
         vm.prank(governor);
         core.transferBySortitionModule(staker1, 1000);
 
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModuleBase.LeftoverPNKWithdrawn(staker1, 1000);
         sortitionModule.withdrawLeftoverPNK(staker1);
 
         (totalStaked, , , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
