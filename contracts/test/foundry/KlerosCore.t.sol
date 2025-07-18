@@ -1692,7 +1692,7 @@ contract KlerosCoreTest is Test {
         disputeKit.castVote(disputeID, voteIDs, 2 + 1, 0, "XYZ");
 
         vm.prank(other);
-        vm.expectRevert(bytes("The caller has to own the vote."));
+        vm.expectRevert(bytes("The juror has to own the vote."));
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
