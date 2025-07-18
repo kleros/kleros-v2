@@ -92,7 +92,7 @@
 
 
 
-// Goes in SortitionModule.json:  rename of StakeDelayedAlreadyTransferred => StakeDelayedAlreadyTransferredDeposited
+// NOT NEEDED ANYMORE: Goes in SortitionModule.json:  rename of StakeDelayedAlreadyTransferred => StakeDelayedAlreadyTransferredDeposited
     {
       "anonymous": false,
       "inputs": [

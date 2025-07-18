@@ -617,7 +617,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// Note that we don't check the minStake requirement here because of the implicit staking in parent courts.
     /// minStake is checked directly during staking process however it's possible for the juror to get drawn
     /// while having < minStake if it is later increased by governance.
-    /// This issue is expected and harmless since we check for insolvency anyway.
+    /// This issue is expected and harmless.
     /// @param _round The round in which the juror is being drawn.
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
@@ -627,19 +627,13 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _coreDisputeID,
         address _juror
     ) internal view virtual returns (bool result) {
-        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        uint256 lockedAmountPerJuror = core.getPnkAtStakePerJuror(
-            _coreDisputeID,
-            core.getNumberOfRounds(_coreDisputeID) - 1
-        );
-        (uint256 totalStaked, uint256 totalLocked, , ) = core.sortitionModule().getJurorBalance(_juror, courtID);
-        result = totalStaked >= totalLocked + lockedAmountPerJuror;
-
         if (singleDrawPerJuror) {
             uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
             Dispute storage dispute = disputes[localDisputeID];
             uint256 localRoundID = dispute.rounds.length - 1;
-            result = result && !alreadyDrawn[localDisputeID][localRoundID][_juror];
+            result = !alreadyDrawn[localDisputeID][localRoundID][_juror];
+        } else {
+            result = true;
         }
     }
 }

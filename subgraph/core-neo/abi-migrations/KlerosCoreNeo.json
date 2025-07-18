@@ -1454,7 +1454,13 @@
         }
       ],
       "name": "draw",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "nbDrawnJurors",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -1806,7 +1812,7 @@
     },
     {
       "inputs": [],
-      "name": "initialize3",
+      "name": "initialize5",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1973,11 +1979,6 @@
           "internalType": "uint256",
           "name": "_newStake",
           "type": "uint256"
-        },
-        {
-          "internalType": "bool",
-          "name": "_alreadyTransferred",
-          "type": "bool"
         }
       ],
       "name": "setStakeBySortitionModule",
@@ -1996,6 +1997,24 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferBySortitionModule",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
