@@ -35,10 +35,17 @@ describe("DisputeKitClassic", async () => {
     expect(events2[0].args._supportedDisputeKits).to.deep.equal([1]);
 
     const events3 = await core.queryFilter(core.filters.DisputeKitEnabled());
-    expect(events3.length).to.equal(1);
-    expect(events3[0].args._courtID).to.equal(1);
-    expect(events3[0].args._disputeKitID).to.equal(1);
-    expect(events3[0].args._enable).to.equal(true);
+    expect(events3.length).to.equal(2);
+
+    const classicDisputeKit = events3[0].args;
+    expect(classicDisputeKit._courtID).to.equal(1);
+    expect(classicDisputeKit._disputeKitID).to.equal(1);
+    expect(classicDisputeKit._enable).to.equal(true);
+
+    const shutterDisputeKit = events3[1].args;
+    expect(shutterDisputeKit._courtID).to.equal(1);
+    expect(shutterDisputeKit._disputeKitID).to.equal(2);
+    expect(shutterDisputeKit._enable).to.equal(true);
   });
 
   it("Should create a dispute", async () => {
