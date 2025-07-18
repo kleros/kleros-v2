@@ -13,6 +13,7 @@ const SHUTTER_API_URL = {
 };
 
 const SHUTTER_API = env.optional("SHUTTER_API", "mainnet") as keyof typeof SHUTTER_API_URL;
+const SHUTTER_API_TOKEN = env.optionalNoDefault("SHUTTER_API_TOKEN");
 
 interface ShutterApiMessageData {
   eon: number;
@@ -34,6 +35,23 @@ interface ShutterDecryptionKeyData {
 }
 
 /**
+ * Gets the appropriate headers for API requests, including bearer token for mainnet if available
+ * @returns Headers object for fetch requests
+ */
+function getApiHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    accept: "application/json",
+  };
+
+  // Add bearer token for mainnet if available
+  if (SHUTTER_API === "mainnet" && SHUTTER_API_TOKEN && SHUTTER_API_TOKEN?.trim() !== "") {
+    headers.Authorization = `Bearer ${SHUTTER_API_TOKEN}`;
+  }
+
+  return headers;
+}
+
+/**
  * Fetches encryption data from the Shutter API
  * @param decryptionTimestamp Unix timestamp when decryption should be possible
  * @returns Promise with the eon key and identity
@@ -49,7 +67,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
     const response = await fetch(`${SHUTTER_API_URL[SHUTTER_API]}/api/register_identity`, {
       method: "POST",
       headers: {
-        accept: "application/json",
+        ...getApiHeaders(),
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -98,9 +116,7 @@ async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKe
 
   const response = await fetch(`${SHUTTER_API_URL[SHUTTER_API]}/api/get_decryption_key?identity=${identity}`, {
     method: "GET",
-    headers: {
-      accept: "application/json",
-    },
+    headers: getApiHeaders(),
   });
 
   // Get the response text
