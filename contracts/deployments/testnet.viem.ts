@@ -2253,6 +2253,17 @@ export const disputeKitClassicAbi = [
   },
   {
     type: "function",
+    inputs: [
+      { name: "localDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "localRoundID", internalType: "uint256", type: "uint256" },
+      { name: "drawnAddress", internalType: "address", type: "address" },
+    ],
+    name: "alreadyDrawn",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "areCommitsAllCast",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -2466,9 +2477,16 @@ export const disputeKitClassicAbi = [
   {
     type: "function",
     inputs: [],
-    name: "initialize2",
+    name: "initialize6",
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -2558,7 +2576,7 @@ export const disputeKitClassicConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xCd4B2aD853027DbF7629003242CD609BDdaA89E1)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xBed62D71A93c7E4415dF9b32B9A8116CeEd23b28)
  */
 export const disputeKitClassicImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -2824,6 +2842,17 @@ export const disputeKitClassicImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [
+      { name: "localDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "localRoundID", internalType: "uint256", type: "uint256" },
+      { name: "drawnAddress", internalType: "address", type: "address" },
+    ],
+    name: "alreadyDrawn",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "areCommitsAllCast",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -3037,9 +3066,16 @@ export const disputeKitClassicImplementationAbi = [
   {
     type: "function",
     inputs: [],
-    name: "initialize2",
+    name: "initialize6",
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -3102,14 +3138,14 @@ export const disputeKitClassicImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xCd4B2aD853027DbF7629003242CD609BDdaA89E1)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xBed62D71A93c7E4415dF9b32B9A8116CeEd23b28)
  */
 export const disputeKitClassicImplementationAddress = {
-  421614: "0xCd4B2aD853027DbF7629003242CD609BDdaA89E1",
+  421614: "0xBed62D71A93c7E4415dF9b32B9A8116CeEd23b28",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xCd4B2aD853027DbF7629003242CD609BDdaA89E1)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xBed62D71A93c7E4415dF9b32B9A8116CeEd23b28)
  */
 export const disputeKitClassicImplementationConfig = {
   address: disputeKitClassicImplementationAddress,
@@ -4766,7 +4802,7 @@ export const klerosCoreAbi = [
   { type: "error", inputs: [], name: "SortitionModuleOnly" },
   { type: "error", inputs: [], name: "StakingInTooManyCourts" },
   { type: "error", inputs: [], name: "StakingLessThanCourtMinStake" },
-  { type: "error", inputs: [], name: "StakingNotPossibeInThisCourt" },
+  { type: "error", inputs: [], name: "StakingNotPossibleInThisCourt" },
   { type: "error", inputs: [], name: "StakingTransferFailed" },
   { type: "error", inputs: [], name: "StakingZeroWhenNoStake" },
   { type: "error", inputs: [], name: "TokenNotAccepted" },
@@ -5624,6 +5660,16 @@ export const klerosCoreAbi = [
       { name: "_disputeID", internalType: "uint256", type: "uint256" },
       { name: "_round", internalType: "uint256", type: "uint256" },
     ],
+    name: "getPnkAtStakePerJuror",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_disputeID", internalType: "uint256", type: "uint256" },
+      { name: "_round", internalType: "uint256", type: "uint256" },
+    ],
     name: "getRoundInfo",
     outputs: [
       {
@@ -5735,7 +5781,7 @@ export const klerosCoreAbi = [
   {
     type: "function",
     inputs: [],
-    name: "initialize3",
+    name: "initialize4",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -5970,7 +6016,7 @@ export const klerosCoreSnapshotProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x3Dc15eb9673b7228c69aBcF056d4c4044325fdf7)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x71c56fbE58706C1B3f64a7baf913eCA3Cec04164)
  */
 export const klerosCoreImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -6005,7 +6051,7 @@ export const klerosCoreImplementationAbi = [
   { type: "error", inputs: [], name: "SortitionModuleOnly" },
   { type: "error", inputs: [], name: "StakingInTooManyCourts" },
   { type: "error", inputs: [], name: "StakingLessThanCourtMinStake" },
-  { type: "error", inputs: [], name: "StakingNotPossibeInThisCourt" },
+  { type: "error", inputs: [], name: "StakingNotPossibleInThisCourt" },
   { type: "error", inputs: [], name: "StakingTransferFailed" },
   { type: "error", inputs: [], name: "StakingZeroWhenNoStake" },
   { type: "error", inputs: [], name: "TokenNotAccepted" },
@@ -6863,6 +6909,16 @@ export const klerosCoreImplementationAbi = [
       { name: "_disputeID", internalType: "uint256", type: "uint256" },
       { name: "_round", internalType: "uint256", type: "uint256" },
     ],
+    name: "getPnkAtStakePerJuror",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_disputeID", internalType: "uint256", type: "uint256" },
+      { name: "_round", internalType: "uint256", type: "uint256" },
+    ],
     name: "getRoundInfo",
     outputs: [
       {
@@ -6974,7 +7030,7 @@ export const klerosCoreImplementationAbi = [
   {
     type: "function",
     inputs: [],
-    name: "initialize3",
+    name: "initialize4",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -7093,14 +7149,14 @@ export const klerosCoreImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x3Dc15eb9673b7228c69aBcF056d4c4044325fdf7)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x71c56fbE58706C1B3f64a7baf913eCA3Cec04164)
  */
 export const klerosCoreImplementationAddress = {
-  421614: "0x3Dc15eb9673b7228c69aBcF056d4c4044325fdf7",
+  421614: "0x71c56fbE58706C1B3f64a7baf913eCA3Cec04164",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x3Dc15eb9673b7228c69aBcF056d4c4044325fdf7)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x71c56fbE58706C1B3f64a7baf913eCA3Cec04164)
  */
 export const klerosCoreImplementationConfig = {
   address: klerosCoreImplementationAddress,

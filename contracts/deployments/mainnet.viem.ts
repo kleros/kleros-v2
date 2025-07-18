@@ -1996,6 +1996,17 @@ export const disputeKitClassicNeoAbi = [
   },
   {
     type: "function",
+    inputs: [
+      { name: "localDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "localRoundID", internalType: "uint256", type: "uint256" },
+      { name: "drawnAddress", internalType: "address", type: "address" },
+    ],
+    name: "alreadyDrawn",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "areCommitsAllCast",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -2208,6 +2219,20 @@ export const disputeKitClassicNeoAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize6",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
@@ -2226,6 +2251,13 @@ export const disputeKitClassicNeoAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "singleDrawPerJuror",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "newImplementation", internalType: "address", type: "address" },
       { name: "data", internalType: "bytes", type: "bytes" },
@@ -2233,6 +2265,13 @@ export const disputeKitClassicNeoAbi = [
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -2280,7 +2319,7 @@ export const disputeKitClassicNeoConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xAF0325dbBFa812a574743Bb5A085266D31e3e03a)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7F3C3C9f9c6238885d958afa1bCc92f1032ef81d)
  */
 export const disputeKitClassicNeoImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -2546,6 +2585,17 @@ export const disputeKitClassicNeoImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [
+      { name: "localDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "localRoundID", internalType: "uint256", type: "uint256" },
+      { name: "drawnAddress", internalType: "address", type: "address" },
+    ],
+    name: "alreadyDrawn",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "areCommitsAllCast",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -2758,6 +2808,20 @@ export const disputeKitClassicNeoImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize6",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
@@ -2776,6 +2840,13 @@ export const disputeKitClassicNeoImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "singleDrawPerJuror",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "newImplementation", internalType: "address", type: "address" },
       { name: "data", internalType: "bytes", type: "bytes" },
@@ -2783,6 +2854,13 @@ export const disputeKitClassicNeoImplementationAbi = [
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -2803,14 +2881,14 @@ export const disputeKitClassicNeoImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xAF0325dbBFa812a574743Bb5A085266D31e3e03a)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7F3C3C9f9c6238885d958afa1bCc92f1032ef81d)
  */
 export const disputeKitClassicNeoImplementationAddress = {
-  42161: "0xAF0325dbBFa812a574743Bb5A085266D31e3e03a",
+  42161: "0x7F3C3C9f9c6238885d958afa1bCc92f1032ef81d",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xAF0325dbBFa812a574743Bb5A085266D31e3e03a)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7F3C3C9f9c6238885d958afa1bCc92f1032ef81d)
  */
 export const disputeKitClassicNeoImplementationConfig = {
   address: disputeKitClassicNeoImplementationAddress,
@@ -3764,6 +3842,13 @@ export const evidenceModuleAbi = [
   {
     type: "function",
     inputs: [],
+    name: "initialize2",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
     name: "proxiableUUID",
     outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
     stateMutability: "view",
@@ -3787,6 +3872,13 @@ export const evidenceModuleAbi = [
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
   },
   {
     type: "constructor",
@@ -3818,7 +3910,7 @@ export const evidenceModuleConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xA502A3942abCF8e71FBD87ed442B39b798b192C8)
  */
 export const evidenceModuleImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -3904,6 +3996,13 @@ export const evidenceModuleImplementationAbi = [
   {
     type: "function",
     inputs: [],
+    name: "initialize2",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
     name: "proxiableUUID",
     outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
     stateMutability: "view",
@@ -3928,17 +4027,24 @@ export const evidenceModuleImplementationAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xA502A3942abCF8e71FBD87ed442B39b798b192C8)
  */
 export const evidenceModuleImplementationAddress = {
-  42161: "0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d",
+  42161: "0xA502A3942abCF8e71FBD87ed442B39b798b192C8",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xA502A3942abCF8e71FBD87ed442B39b798b192C8)
  */
 export const evidenceModuleImplementationConfig = {
   address: evidenceModuleImplementationAddress,
@@ -4252,10 +4358,8 @@ export const klerosCoreNeoAbi = [
   { type: "error", inputs: [], name: "AppealPeriodNotPassed" },
   { type: "error", inputs: [], name: "ArbitrableNotWhitelisted" },
   { type: "error", inputs: [], name: "ArbitrationFeesNotEnough" },
-  { type: "error", inputs: [], name: "ArraysLengthMismatch" },
   { type: "error", inputs: [], name: "CannotDisableClassicDK" },
   { type: "error", inputs: [], name: "CommitPeriodNotPassed" },
-  { type: "error", inputs: [], name: "DepthLevelMax" },
   { type: "error", inputs: [], name: "DisputeKitNotSupportedByCourt" },
   { type: "error", inputs: [], name: "DisputeKitOnly" },
   { type: "error", inputs: [], name: "DisputeNotAppealable" },
@@ -4284,8 +4388,9 @@ export const klerosCoreNeoAbi = [
   { type: "error", inputs: [], name: "StakingLessThanCourtMinStake" },
   { type: "error", inputs: [], name: "StakingMoreThanMaxStakePerJuror" },
   { type: "error", inputs: [], name: "StakingMoreThanMaxTotalStaked" },
-  { type: "error", inputs: [], name: "StakingNotPossibeInThisCourt" },
+  { type: "error", inputs: [], name: "StakingNotPossibleInThisCourt" },
   { type: "error", inputs: [], name: "StakingTransferFailed" },
+  { type: "error", inputs: [], name: "StakingZeroWhenNoStake" },
   { type: "error", inputs: [], name: "TokenNotAccepted" },
   { type: "error", inputs: [], name: "TransferFailed" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -4359,8 +4464,8 @@ export const klerosCoreNeoAbi = [
     inputs: [
       {
         name: "_courtID",
-        internalType: "uint256",
-        type: "uint256",
+        internalType: "uint96",
+        type: "uint96",
         indexed: true,
       },
       {
@@ -5165,6 +5270,16 @@ export const klerosCoreNeoAbi = [
       { name: "_disputeID", internalType: "uint256", type: "uint256" },
       { name: "_round", internalType: "uint256", type: "uint256" },
     ],
+    name: "getPnkAtStakePerJuror",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_disputeID", internalType: "uint256", type: "uint256" },
+      { name: "_round", internalType: "uint256", type: "uint256" },
+    ],
     name: "getRoundInfo",
     outputs: [
       {
@@ -5271,6 +5386,13 @@ export const klerosCoreNeoAbi = [
       { name: "_jurorNft", internalType: "contract IERC721", type: "address" },
     ],
     name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "initialize4",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -5385,6 +5507,13 @@ export const klerosCoreNeoAbi = [
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
   },
   {
     type: "constructor",
@@ -5416,7 +5545,7 @@ export const klerosCoreNeoConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x17c39AB53A7072b167A74a85D47b30385c98ae89)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xEb6D9E61921506f876dc662B2398E34C92330faB)
  */
 export const klerosCoreNeoImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -5425,10 +5554,8 @@ export const klerosCoreNeoImplementationAbi = [
   { type: "error", inputs: [], name: "AppealPeriodNotPassed" },
   { type: "error", inputs: [], name: "ArbitrableNotWhitelisted" },
   { type: "error", inputs: [], name: "ArbitrationFeesNotEnough" },
-  { type: "error", inputs: [], name: "ArraysLengthMismatch" },
   { type: "error", inputs: [], name: "CannotDisableClassicDK" },
   { type: "error", inputs: [], name: "CommitPeriodNotPassed" },
-  { type: "error", inputs: [], name: "DepthLevelMax" },
   { type: "error", inputs: [], name: "DisputeKitNotSupportedByCourt" },
   { type: "error", inputs: [], name: "DisputeKitOnly" },
   { type: "error", inputs: [], name: "DisputeNotAppealable" },
@@ -5457,8 +5584,9 @@ export const klerosCoreNeoImplementationAbi = [
   { type: "error", inputs: [], name: "StakingLessThanCourtMinStake" },
   { type: "error", inputs: [], name: "StakingMoreThanMaxStakePerJuror" },
   { type: "error", inputs: [], name: "StakingMoreThanMaxTotalStaked" },
-  { type: "error", inputs: [], name: "StakingNotPossibeInThisCourt" },
+  { type: "error", inputs: [], name: "StakingNotPossibleInThisCourt" },
   { type: "error", inputs: [], name: "StakingTransferFailed" },
+  { type: "error", inputs: [], name: "StakingZeroWhenNoStake" },
   { type: "error", inputs: [], name: "TokenNotAccepted" },
   { type: "error", inputs: [], name: "TransferFailed" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -5532,8 +5660,8 @@ export const klerosCoreNeoImplementationAbi = [
     inputs: [
       {
         name: "_courtID",
-        internalType: "uint256",
-        type: "uint256",
+        internalType: "uint96",
+        type: "uint96",
         indexed: true,
       },
       {
@@ -6338,6 +6466,16 @@ export const klerosCoreNeoImplementationAbi = [
       { name: "_disputeID", internalType: "uint256", type: "uint256" },
       { name: "_round", internalType: "uint256", type: "uint256" },
     ],
+    name: "getPnkAtStakePerJuror",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_disputeID", internalType: "uint256", type: "uint256" },
+      { name: "_round", internalType: "uint256", type: "uint256" },
+    ],
     name: "getRoundInfo",
     outputs: [
       {
@@ -6444,6 +6582,13 @@ export const klerosCoreNeoImplementationAbi = [
       { name: "_jurorNft", internalType: "contract IERC721", type: "address" },
     ],
     name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "initialize4",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -6559,17 +6704,24 @@ export const klerosCoreNeoImplementationAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x17c39AB53A7072b167A74a85D47b30385c98ae89)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xEb6D9E61921506f876dc662B2398E34C92330faB)
  */
 export const klerosCoreNeoImplementationAddress = {
-  42161: "0x17c39AB53A7072b167A74a85D47b30385c98ae89",
+  42161: "0xEb6D9E61921506f876dc662B2398E34C92330faB",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x17c39AB53A7072b167A74a85D47b30385c98ae89)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xEb6D9E61921506f876dc662B2398E34C92330faB)
  */
 export const klerosCoreNeoImplementationConfig = {
   address: klerosCoreNeoImplementationAddress,
@@ -9629,6 +9781,13 @@ export const policyRegistryAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize2",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     name: "policies",
     outputs: [{ name: "", internalType: "string", type: "string" }],
@@ -9663,6 +9822,13 @@ export const policyRegistryAbi = [
     stateMutability: "payable",
   },
   {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
     type: "constructor",
     inputs: [
       { name: "_implementation", internalType: "address", type: "address" },
@@ -9695,7 +9861,7 @@ export const policyRegistryConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x15E5964C7751dF8563eA4bC000301582C79BC454)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xf7EE0Cd4E33C832DC05fB359896Add6E14E96C28)
  */
 export const policyRegistryImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -9787,6 +9953,13 @@ export const policyRegistryImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize2",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     name: "policies",
     outputs: [{ name: "", internalType: "string", type: "string" }],
@@ -9820,17 +9993,24 @@ export const policyRegistryImplementationAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x15E5964C7751dF8563eA4bC000301582C79BC454)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xf7EE0Cd4E33C832DC05fB359896Add6E14E96C28)
  */
 export const policyRegistryImplementationAddress = {
-  42161: "0x15E5964C7751dF8563eA4bC000301582C79BC454",
+  42161: "0xf7EE0Cd4E33C832DC05fB359896Add6E14E96C28",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x15E5964C7751dF8563eA4bC000301582C79BC454)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xf7EE0Cd4E33C832DC05fB359896Add6E14E96C28)
  */
 export const policyRegistryImplementationConfig = {
   address: policyRegistryImplementationAddress,
@@ -10381,7 +10561,7 @@ export const sortitionModuleNeoAbi = [
         indexed: false,
       },
     ],
-    name: "StakeDelayedAlreadyTransferred",
+    name: "StakeDelayedAlreadyTransferredDeposited",
   },
   {
     type: "event",
@@ -10475,6 +10655,12 @@ export const sortitionModuleNeoAbi = [
         type: "uint256",
         indexed: false,
       },
+      {
+        name: "_amountAllCourts",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
     ],
     name: "StakeSet",
   },
@@ -10490,6 +10676,13 @@ export const sortitionModuleNeoAbi = [
       },
     ],
     name: "Upgraded",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_governor", internalType: "address", type: "address" }],
+    name: "changeGovernor",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -10649,6 +10842,13 @@ export const sortitionModuleNeoAbi = [
       { name: "_maxTotalStaked", internalType: "uint256", type: "uint256" },
     ],
     name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "initialize3",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -10875,6 +11075,13 @@ export const sortitionModuleNeoAbi = [
     stateMutability: "payable",
   },
   {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
     type: "constructor",
     inputs: [
       { name: "_implementation", internalType: "address", type: "address" },
@@ -10904,7 +11111,7 @@ export const sortitionModuleNeoConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cB3626Edf41F27a192102630D0502cCd93Cf043)
  */
 export const sortitionModuleNeoImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -10971,7 +11178,7 @@ export const sortitionModuleNeoImplementationAbi = [
         indexed: false,
       },
     ],
-    name: "StakeDelayedAlreadyTransferred",
+    name: "StakeDelayedAlreadyTransferredDeposited",
   },
   {
     type: "event",
@@ -11065,6 +11272,12 @@ export const sortitionModuleNeoImplementationAbi = [
         type: "uint256",
         indexed: false,
       },
+      {
+        name: "_amountAllCourts",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
     ],
     name: "StakeSet",
   },
@@ -11080,6 +11293,13 @@ export const sortitionModuleNeoImplementationAbi = [
       },
     ],
     name: "Upgraded",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_governor", internalType: "address", type: "address" }],
+    name: "changeGovernor",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -11239,6 +11459,13 @@ export const sortitionModuleNeoImplementationAbi = [
       { name: "_maxTotalStaked", internalType: "uint256", type: "uint256" },
     ],
     name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "initialize3",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -11464,17 +11691,24 @@ export const sortitionModuleNeoImplementationAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cB3626Edf41F27a192102630D0502cCd93Cf043)
  */
 export const sortitionModuleNeoImplementationAddress = {
-  42161: "0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851",
+  42161: "0x0cB3626Edf41F27a192102630D0502cCd93Cf043",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cB3626Edf41F27a192102630D0502cCd93Cf043)
  */
 export const sortitionModuleNeoImplementationConfig = {
   address: sortitionModuleNeoImplementationAddress,

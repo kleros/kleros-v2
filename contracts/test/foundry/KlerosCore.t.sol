@@ -1393,6 +1393,7 @@ contract KlerosCoreTest is Test {
         assertEq(jumped, false, "jumped should be false");
         assertEq(extraData, newExtraData, "Wrong extra data");
         assertEq(disputeKit.coreDisputeIDToLocal(0), disputeID, "Wrong local disputeID");
+        assertEq(disputeKit.coreDisputeIDToActive(0), true, "Wrong disputes length");
 
         (
             uint256 winningChoice,
@@ -1783,7 +1784,7 @@ contract KlerosCoreTest is Test {
         (address account, bytes32 commit, uint256 choice, bool voted) = disputeKit.getVoteInfo(0, 0, 0); // Dispute - Round - VoteID
         assertEq(account, staker1, "Wrong drawn account");
         assertEq(commit, bytes32(0), "Commit should be empty");
-        assertEq(choice, 2, "Choice should be empty");
+        assertEq(choice, 2, "Choice should be 2");
         assertEq(voted, true, "Voted should be true");
 
         assertEq(disputeKit.isVoteActive(0, 0, 0), true, "Vote should be active"); // Dispute - Round - VoteID
@@ -2826,5 +2827,99 @@ contract KlerosCoreTest is Test {
         assertEq(crowdfunder1.balance, 10 ether, "Wrong balance of the crowdfunder1");
         assertEq(crowdfunder2.balance, 10 ether, "Wrong balance of the crowdfunder2");
         assertEq(address(disputeKit).balance, 0, "Wrong balance of the DK");
+    }
+
+    function test_castVote_differentDK() public {
+        DisputeKitClassic dkLogic = new DisputeKitClassic();
+        // Create a new DK to check castVote.
+        bytes memory initDataDk = abi.encodeWithSignature("initialize(address,address)", governor, address(core));
+
+        UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
+        DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
+
+        vm.prank(governor);
+        core.addNewDisputeKit(newDisputeKit);
+
+        uint256 newDkID = 2;
+        uint256[] memory supportedDK = new uint256[](1);
+        bytes memory newExtraData = abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, newDkID);
+
+        vm.prank(governor);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, newDkID, true);
+        supportedDK[0] = newDkID;
+        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
+        assertEq(core.isSupported(GENERAL_COURT, newDkID), true, "New DK should be supported by General court");
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+
+        // Create one dispute for the old DK and two disputes for the new DK.
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        arbitrable.changeArbitratorExtraData(newExtraData);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        uint256 disputeID = 2; // Use the latest dispute for reference. This is the ID in the core contract
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.roll(block.number + rngLookahead + 1);
+        sortitionModule.passPhase(); // Drawing phase
+
+        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.disputeKitID, newDkID, "Wrong DK ID");
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        // Draw jurors for the old DK as well to prepare round.votes array
+        core.draw(0, DEFAULT_NB_OF_JURORS);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        // Check that the new DK has the info but not the old one.
+
+        assertEq(disputeKit.coreDisputeIDToActive(disputeID), false, "Should be false for old DK");
+
+        // This is the DK where dispute was created. Core dispute points to index 1 because new DK has two disputes.
+        assertEq(newDisputeKit.coreDisputeIDToLocal(disputeID), 1, "Wrong local dispute ID for new DK");
+        assertEq(newDisputeKit.coreDisputeIDToActive(disputeID), true, "Should be active for new DK");
+        (uint256 numberOfChoices, , bytes memory extraData) = newDisputeKit.disputes(1);
+        assertEq(numberOfChoices, 2, "Wrong numberOfChoices in new DK");
+        assertEq(extraData, newExtraData, "Wrong extra data");
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+
+        // Deliberately cast votes using the old DK to see if the exception will be caught.
+        vm.prank(staker1);
+        vm.expectRevert(bytes("Not active for core dispute ID"));
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        // And check the new DK.
+        vm.prank(staker1);
+        newDisputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        (
+            uint256 winningChoice,
+            bool tied,
+            uint256 totalVoted,
+            uint256 totalCommited,
+            ,
+            uint256 choiceCount
+        ) = newDisputeKit.getRoundInfo(disputeID, 0, 2);
+        assertEq(winningChoice, 2, "Wrong winning choice");
+        assertEq(tied, false, "tied should be false");
+        assertEq(totalVoted, 3, "totalVoted should be 3");
+        assertEq(totalCommited, 0, "totalCommited should be 0");
+        assertEq(choiceCount, 3, "choiceCount should be 3");
     }
 }
