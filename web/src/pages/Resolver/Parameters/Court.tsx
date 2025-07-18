@@ -90,13 +90,14 @@ const Court: React.FC = () => {
       ) : (
         <StyledSkeleton width={240} height={42} />
       )}
-      <StyledDropdownSelect
-        items={disputeKitOptions}
-        disabled={!disputeData.courtId}
-        placeholder={{ text: "Select Dispute Kit" }}
-        defaultValue={disputeData.disputeKitId ?? 1}
-        callback={handleDisputeKitChange}
-      />
+      {disputeData?.courtId && (
+        <StyledDropdownSelect
+          items={disputeKitOptions}
+          placeholder={{ text: "Select Dispute Kit" }}
+          defaultValue={disputeData.disputeKitId ?? 1}
+          callback={handleDisputeKitChange}
+        />
+      )}
       <AlertMessageContainer>
         <AlertMessage
           title="Check the courts available beforehand"
