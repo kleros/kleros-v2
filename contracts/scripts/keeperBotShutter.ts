@@ -39,7 +39,11 @@ const getContracts = async () => {
  */
 const decode = (message: string) => {
   const SEPARATOR = "-";
-  const [choice, salt, justification] = message.split(SEPARATOR);
+  const parts = message.split(SEPARATOR);
+  if (parts.length !== 3) {
+    throw Error(`Malformed decrypted message (${message})`);
+  }
+  const [choice, salt, justification] = parts;
   return {
     choice: BigInt(choice),
     salt,
