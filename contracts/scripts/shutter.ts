@@ -13,7 +13,7 @@ const SHUTTER_API_URL = {
 };
 
 const SHUTTER_API = env.optional("SHUTTER_API", "mainnet") as keyof typeof SHUTTER_API_URL;
-const SHUTTER_API_TOKEN = env.optionalNoDefault("SHUTTER_API_TOKEN");
+const SHUTTER_API_KEY = env.optionalNoDefault("SHUTTER_API_KEY");
 
 interface ShutterApiMessageData {
   eon: number;
@@ -44,8 +44,8 @@ function getApiHeaders(): Record<string, string> {
   };
 
   // Add bearer token for mainnet if available
-  if (SHUTTER_API === "mainnet" && SHUTTER_API_TOKEN && SHUTTER_API_TOKEN?.trim() !== "") {
-    headers.Authorization = `Bearer ${SHUTTER_API_TOKEN}`;
+  if (SHUTTER_API === "mainnet" && SHUTTER_API_KEY && SHUTTER_API_KEY?.trim() !== "") {
+    headers.Authorization = `Bearer ${SHUTTER_API_KEY}`;
   }
 
   return headers;
