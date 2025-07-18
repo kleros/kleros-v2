@@ -76,6 +76,25 @@
           "type": "uint256"
         }
       ],
+      "name": "LeftoverPNK",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
       "name": "LeftoverPNKWithdrawn",
       "type": "event"
     },
@@ -393,6 +412,11 @@
           "internalType": "uint256",
           "name": "stake",
           "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "alreadyTransferred",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -512,6 +536,25 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_juror",
+          "type": "address"
+        }
+      ],
+      "name": "getJurorLeftoverPNK",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "governor",
       "outputs": [
@@ -625,6 +668,30 @@
     {
       "inputs": [],
       "name": "lastPhaseChange",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "jurorAccount",
+          "type": "address"
+        },
+        {
+          "internalType": "uint96",
+          "name": "courtId",
+          "type": "uint96"
+        }
+      ],
+      "name": "latestDelayedStakeIndex",
       "outputs": [
         {
           "internalType": "uint256",
@@ -877,38 +944,22 @@
         },
         {
           "internalType": "uint256",
-          "name": "_newStake",
+          "name": "_pnkDeposit",
           "type": "uint256"
         },
         {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
+          "internalType": "uint256",
+          "name": "_pnkWithdrawal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_newStake",
+          "type": "uint256"
         }
       ],
       "name": "setStake",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "pnkDeposit",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "pnkWithdrawal",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "oldStake",
-          "type": "uint256"
-        },
-        {
-          "internalType": "enum StakingResult",
-          "name": "stakingResult",
-          "type": "uint8"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -1007,6 +1058,45 @@
       "name": "upgradeToAndCall",
       "outputs": [],
       "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint96",
+          "name": "_courtID",
+          "type": "uint96"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_newStake",
+          "type": "uint256"
+        }
+      ],
+      "name": "validateStake",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pnkDeposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pnkWithdrawal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum StakingResult",
+          "name": "stakingResult",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
