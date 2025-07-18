@@ -64,6 +64,44 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LeftoverPNK",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LeftoverPNKWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": false,
           "internalType": "enum ISortitionModule.Phase",
           "name": "_phase",
@@ -71,56 +109,6 @@
         }
       ],
       "name": "NewPhase",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_address",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "StakeDelayedAlreadyTransferredDeposited",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_address",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "StakeDelayedAlreadyTransferred",
       "type": "event"
     },
     {
@@ -145,32 +133,7 @@
           "type": "uint256"
         }
       ],
-      "name": "StakeDelayedAlreadyTransferredWithdrawn",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_address",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "StakeDelayedNotTransferred",
+      "name": "StakeDelayed",
       "type": "event"
     },
     {
@@ -573,6 +536,25 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_juror",
+          "type": "address"
+        }
+      ],
+      "name": "getJurorLeftoverPNK",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "governor",
       "outputs": [
@@ -824,7 +806,18 @@
         }
       ],
       "name": "penalizeStake",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pnkBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "availablePenalty",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -951,33 +944,22 @@
         },
         {
           "internalType": "uint256",
-          "name": "_newStake",
+          "name": "_pnkDeposit",
           "type": "uint256"
         },
         {
-          "internalType": "bool",
-          "name": "_alreadyTransferred",
-          "type": "bool"
+          "internalType": "uint256",
+          "name": "_pnkWithdrawal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_newStake",
+          "type": "uint256"
         }
       ],
       "name": "setStake",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "pnkDeposit",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "pnkWithdrawal",
-          "type": "uint256"
-        },
-        {
-          "internalType": "enum StakingResult",
-          "name": "stakingResult",
-          "type": "uint8"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -1079,6 +1061,45 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint96",
+          "name": "_courtID",
+          "type": "uint96"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_newStake",
+          "type": "uint256"
+        }
+      ],
+      "name": "validateStake",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pnkDeposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pnkWithdrawal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum StakingResult",
+          "name": "stakingResult",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "version",
       "outputs": [
@@ -1089,6 +1110,19 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawLeftoverPNK",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

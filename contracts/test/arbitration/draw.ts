@@ -254,7 +254,7 @@ describe("Draw Benchmark", async () => {
         await sortitionModule.getJurorBalance(wallet.address, PARENT_COURT),
         "Drawn jurors have a locked stake in the parent court"
       ).to.deep.equal([
-        0, // totalStaked
+        locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
         0, // stakedInCourt
         0, // nbOfCourts
@@ -263,7 +263,7 @@ describe("Draw Benchmark", async () => {
         await sortitionModule.getJurorBalance(wallet.address, CHILD_COURT),
         "No locked stake in the child court"
       ).to.deep.equal([
-        0, // totalStaked
+        locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
         0, // stakedInCourt
         0, // nbOfCourts
@@ -361,7 +361,7 @@ describe("Draw Benchmark", async () => {
         await sortitionModule.getJurorBalance(wallet.address, PARENT_COURT),
         "No locked stake in the parent court"
       ).to.deep.equal([
-        0, // totalStaked
+        locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
         0, // stakedInCourt
         0, // nbOfCourts
@@ -370,7 +370,7 @@ describe("Draw Benchmark", async () => {
         await sortitionModule.getJurorBalance(wallet.address, CHILD_COURT),
         "Drawn jurors have a locked stake in the child court"
       ).to.deep.equal([
-        0, // totalStaked
+        locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
         0, // stakedInCourt
         0, // nbOfCourts
@@ -427,7 +427,7 @@ describe("Draw Benchmark", async () => {
         await sortitionModule.getJurorBalance(wallet.address, PARENT_COURT),
         "No locked stake in the parent court"
       ).to.deep.equal([
-        0, // totalStaked
+        locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
         0, // stakedInCourt
         0, // nbOfCourts
@@ -436,7 +436,7 @@ describe("Draw Benchmark", async () => {
         await sortitionModule.getJurorBalance(wallet.address, CHILD_COURT),
         "Drawn jurors have a locked stake in the child court"
       ).to.deep.equal([
-        0, // totalStaked
+        locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
         0, // stakedInCourt
         0, // nbOfCourts
