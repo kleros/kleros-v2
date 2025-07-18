@@ -3,11 +3,14 @@ import React from "react";
 import { VoteDescriptionEmphasizedDate } from "components/Popup";
 
 interface IVoteWithCommit {
-  date: string;
+  date?: string;
+  automaticVoteReveal?: boolean;
 }
 
-const VoteWithCommit: React.FC<IVoteWithCommit> = ({ date }) => {
-  return (
+const VoteWithCommit: React.FC<IVoteWithCommit> = ({ date, automaticVoteReveal = false }) =>
+  automaticVoteReveal ? (
+    <div>Your vote is confirmed. It's kept secret until all jurors have cast their votes.</div>
+  ) : (
     <div>
       Your vote is confirmed. It's kept secret until all jurors have cast their votes.
       <VoteDescriptionEmphasizedDate>
@@ -15,5 +18,5 @@ const VoteWithCommit: React.FC<IVoteWithCommit> = ({ date }) => {
       </VoteDescriptionEmphasizedDate>
     </div>
   );
-};
+
 export default VoteWithCommit;

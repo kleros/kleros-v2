@@ -38,6 +38,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
         uint256 nbVotes; // Maximal number of votes this dispute can get.
+        //mapping(address drawnAddress => bool) alreadyDrawn; // DEPRECATED: DO NOT COMMIT
     }
 
     struct Vote {
@@ -244,12 +245,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// `n` is the number of votes.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
-    /// @param _commit The commit. Note that justification string is a part of the commit.
-    function castCommit(
+    /// @param _commit The commitment hash.
+    function castCommit(uint256 _coreDisputeID, uint256[] calldata _voteIDs, bytes32 _commit) external {
+        _castCommit(_coreDisputeID, _voteIDs, _commit);
+    }
+
+    function _castCommit(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit
-    ) external notJumped(_coreDisputeID) {
+    ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.commit, "The dispute should be in Commit period.");
         require(_commit != bytes32(0), "Empty commit.");
@@ -279,7 +284,18 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _choice,
         uint256 _salt,
         string memory _justification
-    ) external notJumped(_coreDisputeID) {
+    ) external {
+        _castVote(_coreDisputeID, _voteIDs, _choice, _salt, _justification, msg.sender);
+    }
+
+    function _castVote(
+        uint256 _coreDisputeID,
+        uint256[] calldata _voteIDs,
+        uint256 _choice,
+        uint256 _salt,
+        string memory _justification,
+        address _juror
+    ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCoreBase.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
@@ -289,20 +305,23 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         require(_choice <= dispute.numberOfChoices, "Choice out of bounds");
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , , ) = core.courts(courtID);
+        {
+            (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+            (, bool hiddenVotes, , , , , ) = core.courts(courtID);
+            bytes32 voteHash = hashVote(_choice, _salt, _justification);
 
-        //  Save the votes.
-        for (uint256 i = 0; i < _voteIDs.length; i++) {
-            require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
-            require(
-                !hiddenVotes || round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _salt)),
-                "The commit must match the choice in courts with hidden votes."
-            );
-            require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
-            round.votes[_voteIDs[i]].choice = _choice;
-            round.votes[_voteIDs[i]].voted = true;
-        }
+            //  Save the votes.
+            for (uint256 i = 0; i < _voteIDs.length; i++) {
+                require(round.votes[_voteIDs[i]].account == _juror, "The juror has to own the vote.");
+                require(
+                    !hiddenVotes || round.votes[_voteIDs[i]].commit == voteHash,
+                    "The vote hash must match the commitment in courts with hidden votes."
+                );
+                require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
+                round.votes[_voteIDs[i]].choice = _choice;
+                round.votes[_voteIDs[i]].voted = true;
+            }
+        } // Workaround stack too deep
 
         round.totalVoted += _voteIDs.length;
 
@@ -320,7 +339,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
                 round.tied = false;
             }
         }
-        emit VoteCast(_coreDisputeID, msg.sender, _voteIDs, _choice, _justification);
+        emit VoteCast(_coreDisputeID, _juror, _voteIDs, _choice, _justification);
     }
 
     /// @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.
@@ -444,6 +463,22 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
+
+    /**
+     * @dev Computes the hash of a vote using ABI encoding
+     * @dev The unused parameters may be used by overriding contracts.
+     * @param _choice The choice being voted for
+     * @param _justification The justification for the vote
+     * @param _salt A random salt for commitment
+     * @return bytes32 The hash of the encoded vote parameters
+     */
+    function hashVote(
+        uint256 _choice,
+        uint256 _salt,
+        string memory _justification
+    ) public pure virtual returns (bytes32) {
+        return keccak256(abi.encodePacked(_choice, _salt));
+    }
 
     function getFundedChoices(uint256 _coreDisputeID) public view returns (uint256[] memory fundedChoices) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -599,6 +634,32 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         );
     }
 
+    /// @dev Returns the number of rounds in a dispute.
+    /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
+    /// @return The number of rounds in the dispute.
+    function getNumberOfRounds(uint256 _localDisputeID) external view returns (uint256) {
+        return disputes[_localDisputeID].rounds.length;
+    }
+
+    /// @dev Returns the local dispute ID and round ID for a given core dispute ID and core round ID.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
+    /// @return localDisputeID The ID of the dispute in the Dispute Kit.
+    /// @return localRoundID The ID of the round in the Dispute Kit.
+    function getLocalDisputeRoundID(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID
+    ) external view returns (uint256 localDisputeID, uint256 localRoundID) {
+        localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+        localRoundID = disputes[localDisputeID].coreRoundIDToLocal[_coreRoundID];
+    }
+
+    /// @dev Returns the vote information for a given vote ID.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
+    /// @param _voteID The ID of the vote.
+    /// @return account The address of the juror who cast the vote.
+    /// @return commit The commit of the vote.
     function getVoteInfo(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,

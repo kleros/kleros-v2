@@ -46,6 +46,7 @@ const RefuseToArbitrateContainer = styled.div`
 const StyledEnsureChain = styled(EnsureChain)`
   align-self: center;
 `;
+
 interface IOptions {
   arbitrable: `0x${string}`;
   handleSelection: (arg0: bigint) => Promise<void>;
@@ -69,11 +70,16 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
     async (id: bigint) => {
       setIsSending(true);
       setChosenOption(id);
-      await handleSelection(id);
-      setChosenOption(BigInt(-1));
-      setIsSending(false);
+      try {
+        await handleSelection(id);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setChosenOption(BigInt(-1));
+        setIsSending(false);
+      }
     },
-    [handleSelection, setChosenOption, setIsSending]
+    [handleSelection]
   );
 
   return id ? (

@@ -96,6 +96,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.error("failed to change currency rates:", e);
   }
 
+  // Extra dispute kits
+  const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
+    from: deployer,
+    args: [deployer, core.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitShutter.address);
+  await core.enableDisputeKits(1, [2], true); // enable disputeKitShutter on the General Court
+
   await deploy("KlerosCoreSnapshotProxy", {
     from: deployer,
     args: [deployer, core.target],

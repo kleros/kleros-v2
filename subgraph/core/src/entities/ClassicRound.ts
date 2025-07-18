@@ -1,10 +1,15 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassic";
-import { Answer, ClassicRound } from "../../generated/schema";
+import { Answer, ClassicRound, Dispute, Round } from "../../generated/schema";
 import { ZERO } from "../utils";
 
-export function createClassicRound(disputeID: string, numberOfChoices: BigInt, roundIndex: BigInt): void {
-  const localDisputeID = `1-${disputeID}`;
+export function createClassicRound(
+  disputeID: string,
+  numberOfChoices: BigInt,
+  roundIndex: BigInt,
+  disputeKitID: string
+): void {
+  const localDisputeID = `${disputeKitID}-${disputeID}`;
   const id = `${localDisputeID}-${roundIndex.toString()}`;
   const classicRound = new ClassicRound(id);
   classicRound.localDispute = localDisputeID;
@@ -67,9 +72,16 @@ export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt, delt
 }
 
 export function updateChoiceFundingFromContributionEvent(event: Contribution): void {
-  const disputeKitID = "1";
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreRoundIndex = event.params._coreRoundID.toString();
+  const coreDispute = Dispute.load(coreDisputeID);
+  if (!coreDispute) return;
+
+  const roundId = `${coreDisputeID}-${coreRoundIndex}`;
+  const coreRound = Round.load(roundId);
+  if (!coreRound) return;
+  const disputeKitID = coreRound.disputeKit;
+
   const roundID = `${disputeKitID}-${coreDisputeID}-${coreRoundIndex}`;
 
   const classicRound = ClassicRound.load(roundID);

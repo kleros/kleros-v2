@@ -1592,11 +1592,11 @@ contract KlerosCoreTest is Test {
 
         // Check the require with the wrong choice and then with the wrong salt
         vm.prank(staker1);
-        vm.expectRevert(bytes("The commit must match the choice in courts with hidden votes."));
+        vm.expectRevert(bytes("The vote hash must match the commitment in courts with hidden votes."));
         disputeKit.castVote(disputeID, voteIDs, 2, salt, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("The commit must match the choice in courts with hidden votes."));
+        vm.expectRevert(bytes("The vote hash must match the commitment in courts with hidden votes."));
         disputeKit.castVote(disputeID, voteIDs, YES, salt - 1, "XYZ");
 
         vm.prank(staker1);
@@ -1692,7 +1692,7 @@ contract KlerosCoreTest is Test {
         disputeKit.castVote(disputeID, voteIDs, 2 + 1, 0, "XYZ");
 
         vm.prank(other);
-        vm.expectRevert(bytes("The caller has to own the vote."));
+        vm.expectRevert(bytes("The juror has to own the vote."));
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
