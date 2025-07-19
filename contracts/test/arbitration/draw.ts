@@ -150,6 +150,7 @@ describe("Draw Benchmark", async () => {
     const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     if (lastBlock?.hash === null || lastBlock?.hash === undefined) throw new Error("lastBlock is null || undefined");
+
     // Relayer tx
     await homeGateway
       .connect(await ethers.getSigner(relayer))

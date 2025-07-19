@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { ChainlinkRNG, DisputeKitClassic, KlerosCore } from "../typechain-types";
@@ -103,8 +103,25 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
-  await core.enableDisputeKits(1, [2], true); // enable disputeKitShutter on the General Court
+  await core.enableDisputeKits(Courts.GENERAL, [2], true); // enable disputeKitShutter on the General Court
 
+  const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
+    from: deployer,
+    args: [deployer, core.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitGated.address);
+  await core.enableDisputeKits(Courts.GENERAL, [3], true); // enable disputeKitGated on the General Court
+
+  const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
+    from: deployer,
+    args: [deployer, core.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitGatedShutter.address);
+  await core.enableDisputeKits(Courts.GENERAL, [4], true); // enable disputeKitGatedShutter on the General Court
+
+  // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {
     from: deployer,
     args: [deployer, core.target],

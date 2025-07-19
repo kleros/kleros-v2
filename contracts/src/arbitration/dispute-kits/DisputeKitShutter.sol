@@ -5,12 +5,12 @@ pragma solidity 0.8.24;
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 /// @title DisputeKitShutter
+/// Added functionality: shielded voting.
 /// Dispute kit implementation of the Kleros v1 features including:
 /// - a drawing system: proportional to staked PNK,
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-/// Added functionality: an Shutter-specific event emitted when a vote is cast.
 contract DisputeKitShutter is DisputeKitClassicBase {
     string public constant override version = "0.11.1";
 
