@@ -28,7 +28,7 @@ interface IBalanceHolderERC1155 {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitGatedShutter is DisputeKitClassicBase {
-    string public constant override version = "0.10.0";
+    string public constant override version = "0.11.0";
 
     // ************************************* //
     // *              Events               * //
@@ -62,6 +62,10 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// @param _core The KlerosCore arbitrator.
     function initialize(address _governor, KlerosCore _core) external reinitializer(1) {
         __DisputeKitClassicBase_initialize(_governor, _core);
+    }
+
+    function initialize7() external reinitializer(7) {
+        // NOP
     }
 
     // ************************ //

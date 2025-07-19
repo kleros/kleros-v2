@@ -15,8 +15,22 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   const chainId = Number(await getChainId());
   console.log("upgrading on %s with deployer %s", HomeChains[chainId], deployer);
 
-  const { disputeKitClassic, disputeKitShutter, disputeTemplateRegistry, evidence, core, policyRegistry, sortition } =
-    await getContractNamesFromNetwork(hre);
+  const {
+    disputeKitClassic,
+    disputeKitShutter,
+    disputeKitGated,
+    disputeKitGatedShutter,
+    disputeTemplateRegistry,
+    evidence,
+    core,
+    policyRegistry,
+    sortition,
+  } = await getContractNamesFromNetwork(hre);
+
+  console.log("disputeKitClassic", disputeKitClassic);
+  console.log("disputeKitShutter", disputeKitShutter);
+  console.log("disputeKitGated", disputeKitGated);
+  console.log("disputeKitGatedShutter", disputeKitGatedShutter);
 
   const upgrade = async (contractName: string, initializer: string, args: any[]) => {
     try {
@@ -80,11 +94,13 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
 
   await upgrade(disputeKitClassic, "initialize7", []);
   await upgrade(disputeKitShutter, "initialize8", []);
+  await upgrade(disputeKitGated, "initialize7", []);
+  await upgrade(disputeKitGatedShutter, "initialize7", []);
   await upgrade(disputeTemplateRegistry, "initialize2", []);
   await upgrade(evidence, "initialize2", []);
   await upgrade(core, "initialize5", []);
   await upgrade(policyRegistry, "initialize2", []);
-  await upgrade(sortition, "initialize3", []);
+  await upgrade(sortition, "initialize4", []);
 };
 
 deployUpgradeAll.tags = ["UpgradeAll"];
