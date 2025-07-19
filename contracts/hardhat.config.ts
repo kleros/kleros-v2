@@ -105,15 +105,7 @@ const config: HardhatUserConfig = {
     arbitrumSepolia: {
       chainId: 421614,
       url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts:
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
-        ]) ||
-        (process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []),
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -131,15 +123,7 @@ const config: HardhatUserConfig = {
     arbitrumSepoliaDevnet: {
       chainId: 421614,
       url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts:
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
-        ]) ||
-        (process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []),
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
