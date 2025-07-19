@@ -1,9 +1,19 @@
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { toBigInt, BigNumberish, Addressable } from "ethers";
-import { PNK, KlerosCore, SortitionModule, IncrementalNG, DisputeKitGated } from "../../typechain-types";
+import {
+  PNK,
+  KlerosCore,
+  SortitionModule,
+  IncrementalNG,
+  DisputeKitGated,
+  TestERC20,
+  TestERC721,
+  TestERC1155,
+} from "../../typechain-types";
 import { expect } from "chai";
 import { Courts } from "../../deploy/utils";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { deployERC1155, deployERC721 } from "../../deploy/utils/deployTokens";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -11,16 +21,23 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 describe("DisputeKitGated", async () => {
   const ONE_THOUSAND_PNK = 10n ** 21n;
   const thousandPNK = (amount: BigNumberish) => toBigInt(amount) * ONE_THOUSAND_PNK;
+  const PNK = (amount: BigNumberish) => toBigInt(amount) * 10n ** 18n;
 
   let deployer: string;
   let juror1: HardhatEthersSigner;
   let juror2: HardhatEthersSigner;
   let disputeKitGated: DisputeKitGated;
   let pnk: PNK;
+  let dai: TestERC20;
   let core: KlerosCore;
   let sortitionModule: SortitionModule;
   let rng: IncrementalNG;
+  let nft721: TestERC721;
+  let nft1155: TestERC1155;
   const RANDOM = 424242n;
+  const GATED_DK_ID = 3;
+  const TOKEN_ID = 888;
+  const minStake = PNK(200);
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -32,6 +49,7 @@ describe("DisputeKitGated", async () => {
     });
     disputeKitGated = (await ethers.getContract("DisputeKitGated")) as DisputeKitGated;
     pnk = (await ethers.getContract("PNK")) as PNK;
+    dai = (await ethers.getContract("DAI")) as TestERC20;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
 
@@ -44,11 +62,19 @@ describe("DisputeKitGated", async () => {
     rng = (await ethers.getContract("IncrementalNG")) as IncrementalNG;
 
     await sortitionModule.changeRandomNumberGenerator(rng.target, 20).then((tx) => tx.wait());
+
+    const hre = require("hardhat");
+    await deployERC721(hre, deployer, "TestERC721", "Nft721");
+    nft721 = (await ethers.getContract("Nft721")) as TestERC721;
+
+    await deployERC1155(hre, deployer, "TestERC1155", "Nft1155");
+    nft1155 = (await ethers.getContract("Nft1155")) as TestERC1155;
+    await nft1155.mint(deployer, TOKEN_ID, 1, "0x00");
   });
 
   const encodeExtraData = (
     courtId: number,
-    minJurors: number,
+    minJurors: BigNumberish,
     disputeKitId: number,
     tokenGate: string | Addressable,
     isERC1155: boolean,
@@ -65,7 +91,7 @@ describe("DisputeKitGated", async () => {
 
   const stakeAndDraw = async (
     courtId: number,
-    minJurors: number,
+    minJurors: BigNumberish,
     disputeKitId: number,
     tokenGate: string | Addressable,
     isERC1155: boolean,
@@ -95,7 +121,7 @@ describe("DisputeKitGated", async () => {
     }
 
     const extraData = encodeExtraData(courtId, minJurors, disputeKitId, tokenGate, isERC1155, tokenId);
-    console.log("extraData", extraData);
+    // console.log("extraData", extraData);
 
     const tokenInfo = await disputeKitGated.extraDataToTokenInfo(extraData);
     expect(tokenInfo[0]).to.equal(tokenGate);
@@ -121,13 +147,147 @@ describe("DisputeKitGated", async () => {
     }
 
     await sortitionModule.passPhase().then((tx) => tx.wait()); // Generating -> Drawing
-    return core.draw(disputeId, 20, { gasLimit: 1000000 });
+    return core.draw(disputeId, 70, { gasLimit: 10000000 });
   };
 
-  describe("When gating with PNK token", async () => {
-    it("Should draw all the jurors successfully", async () => {
-      await stakeAndDraw(Courts.GENERAL, 3, 3, pnk.target, false, 0);
-      // TODO: expect....
+  describe("When gating with DAI token", async () => {
+    it("Should draw no juror if they don't have any DAI balance", async () => {
+      const nbOfJurors = 15n;
+      const tx = await stakeAndDraw(Courts.GENERAL, nbOfJurors, GATED_DK_ID, dai.target, false, 0).then((tx) =>
+        tx.wait()
+      );
+
+      // Ensure that no juror is drawn
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === core.target) || [];
+      expect(drawLogs).to.have.length(0);
+    });
+
+    it("Should draw only the jurors who have some DAI balance", async () => {
+      dai.transfer(juror1.address, 1);
+
+      const nbOfJurors = 15n;
+      const tx = await stakeAndDraw(Courts.GENERAL, nbOfJurors, GATED_DK_ID, dai.target, false, 0).then((tx) =>
+        tx.wait()
+      );
+
+      // Ensure that only juror1 is drawn
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === core.target) || [];
+      expect(drawLogs).to.have.length(nbOfJurors);
+      drawLogs.forEach((log: any) => {
+        expect(log.args[0]).to.equal(juror1.address);
+      });
+
+      // Ensure that juror1 has PNK locked
+      expect(await sortitionModule.getJurorBalance(juror1.address, Courts.GENERAL)).to.deep.equal([
+        thousandPNK(10), // totalStaked
+        minStake * nbOfJurors, // totalLocked
+        thousandPNK(10), // stakedInCourt
+        1, // nbOfCourts
+      ]);
+
+      // Ensure that juror2 has no PNK locked
+      expect(await sortitionModule.getJurorBalance(juror2.address, Courts.GENERAL)).to.deep.equal([
+        thousandPNK(10), // totalStaked
+        0, // totalLocked
+        thousandPNK(10), // stakedInCourt
+        1, // nbOfCourts
+      ]);
+    });
+  });
+
+  describe("When gating with ERC721 token", async () => {
+    it("Should draw no juror if they don't own the ERC721 token", async () => {
+      const nbOfJurors = 15n;
+      const tx = await stakeAndDraw(Courts.GENERAL, nbOfJurors, GATED_DK_ID, nft721.target, false, 0).then((tx) =>
+        tx.wait()
+      );
+
+      // Ensure that no juror is drawn
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === core.target) || [];
+      expect(drawLogs).to.have.length(0);
+    });
+
+    it("Should draw only the jurors owning the ERC721 token", async () => {
+      await nft721.safeMint(juror2.address);
+
+      const nbOfJurors = 15n;
+      const tx = await stakeAndDraw(Courts.GENERAL, nbOfJurors, GATED_DK_ID, nft721.target, false, 0).then((tx) =>
+        tx.wait()
+      );
+
+      // Ensure that only juror2 is drawn
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === core.target) || [];
+      expect(drawLogs).to.have.length(nbOfJurors);
+      drawLogs.forEach((log: any) => {
+        expect(log.args[0]).to.equal(juror2.address);
+      });
+
+      // Ensure that juror1 is has no PNK locked
+      expect(await sortitionModule.getJurorBalance(juror1.address, Courts.GENERAL)).to.deep.equal([
+        thousandPNK(10), // totalStaked
+        0, // totalLocked
+        thousandPNK(10), // stakedInCourt
+        1, // nbOfCourts
+      ]);
+
+      // Ensure that juror2 has PNK locked
+      expect(await sortitionModule.getJurorBalance(juror2.address, Courts.GENERAL)).to.deep.equal([
+        thousandPNK(10), // totalStaked
+        minStake * nbOfJurors, // totalLocked
+        thousandPNK(10), // stakedInCourt
+        1, // nbOfCourts
+      ]);
+    });
+  });
+
+  describe("When gating with ERC1155 token", async () => {
+    it("Should draw no juror if they don't own the ERC1155 token", async () => {
+      const nbOfJurors = 15n;
+      const tx = await stakeAndDraw(Courts.GENERAL, nbOfJurors, GATED_DK_ID, nft1155.target, true, TOKEN_ID).then(
+        (tx) => tx.wait()
+      );
+
+      // Ensure that no juror is drawn
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === core.target) || [];
+      expect(drawLogs).to.have.length(0);
+    });
+
+    it("Should draw only the jurors owning the ERC1155 token", async () => {
+      await nft1155.mint(juror2.address, TOKEN_ID, 1, "0x00");
+
+      const nbOfJurors = 15n;
+      const tx = await stakeAndDraw(Courts.GENERAL, nbOfJurors, GATED_DK_ID, nft1155.target, true, TOKEN_ID).then(
+        (tx) => tx.wait()
+      );
+
+      // Ensure that only juror2 is drawn
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === core.target) || [];
+      expect(drawLogs).to.have.length(nbOfJurors);
+      drawLogs.forEach((log: any) => {
+        expect(log.args[0]).to.equal(juror2.address);
+      });
+
+      // Ensure that juror1 is has no PNK locked
+      expect(await sortitionModule.getJurorBalance(juror1.address, Courts.GENERAL)).to.deep.equal([
+        thousandPNK(10), // totalStaked
+        0, // totalLocked
+        thousandPNK(10), // stakedInCourt
+        1, // nbOfCourts
+      ]);
+
+      // Ensure that juror2 has PNK locked
+      expect(await sortitionModule.getJurorBalance(juror2.address, Courts.GENERAL)).to.deep.equal([
+        thousandPNK(10), // totalStaked
+        minStake * nbOfJurors, // totalLocked
+        thousandPNK(10), // stakedInCourt
+        1, // nbOfCourts
+      ]);
     });
   });
 });
