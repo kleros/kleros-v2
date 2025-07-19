@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 /// @dev The token controller contract must implement these functions. See https://github.com/Giveth/minime/blob/master/contracts/TokenController.sol
 interface ITokenController {

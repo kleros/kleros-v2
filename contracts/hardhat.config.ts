@@ -24,19 +24,39 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.24",
-    settings: {
-      // viaIR: true,
-      optimizer: {
-        enabled: true,
-        runs: 100,
-      },
-      outputSelection: {
-        "*": {
-          "*": ["storageLayout"],
+    compilers: [
+      {
+        version: "0.8.28",
+        settings: {
+          // viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+          outputSelection: {
+            "*": {
+              "*": ["storageLayout"],
+            },
+          },
         },
       },
-    },
+      {
+        // For Vea
+        version: "0.8.24",
+        settings: {
+          // viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+          outputSelection: {
+            "*": {
+              "*": ["storageLayout"],
+            },
+          },
+        },
+      },
+    ],
   },
   paths: {
     sources: "./src",

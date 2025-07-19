@@ -3,7 +3,7 @@
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 /// @title DisputeResolver
 /// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.

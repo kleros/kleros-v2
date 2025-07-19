@@ -27,10 +27,10 @@
     "tsconfig",
     "kleros-app"
   ],
-  "packageManager": "yarn@4.8.1",
+  "packageManager": "yarn@4.9.2",
   "volta": {
     "node": "20.18.3",
-    "yarn": "4.8.1"
+    "yarn": "4.9.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.8.1",

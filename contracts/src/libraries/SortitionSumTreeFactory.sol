@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 /// @title SortitionSumTreeFactory
 /// @author Enrique Piqueras - <epiquerass@gmail.com>
