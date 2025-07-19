@@ -18,6 +18,8 @@ import {
   TransactionBatcher,
   KlerosCoreSnapshotProxy,
   EvidenceModule,
+  DisputeKitGated,
+  DisputeKitGatedShutter,
 } from "../../typechain-types";
 
 export const Cores = {
@@ -40,6 +42,8 @@ export const getContractNames = (coreType: Core) => {
       sortition: "SortitionModuleNeo",
       disputeKitClassic: "DisputeKitClassicNeo",
       disputeKitShutter: "DisputeKitShutterNeo",
+      disputeKitGated: "DisputeKitGatedNeo",
+      disputeKitGatedShutter: "DisputeKitGatedShutterNeo",
       disputeResolver: "DisputeResolverNeo",
     },
     [Cores.BASE]: {
@@ -47,6 +51,8 @@ export const getContractNames = (coreType: Core) => {
       sortition: "SortitionModule",
       disputeKitClassic: "DisputeKitClassic",
       disputeKitShutter: "DisputeKitShutter",
+      disputeKitGated: "DisputeKitGated",
+      disputeKitGatedShutter: "DisputeKitGatedShutter",
       disputeResolver: "DisputeResolver",
     },
     [Cores.UNIVERSITY]: {
@@ -54,6 +60,8 @@ export const getContractNames = (coreType: Core) => {
       sortition: "SortitionModuleUniversity",
       disputeKitClassic: "DisputeKitClassicUniversity",
       disputeKitShutter: "DisputeKitShutterUniversity",
+      disputeKitGated: "DisputeKitGatedUniversity",
+      disputeKitGatedShutter: "DisputeKitGatedShutterUniversity",
       disputeResolver: "DisputeResolverUniversity",
     },
   };
@@ -104,6 +112,10 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
   const disputeKitShutter = await ethers.getContractOrNull<DisputeKitShutter>(
     getContractNames(coreType).disputeKitShutter
   );
+  const disputeKitGated = await ethers.getContractOrNull<DisputeKitGated>(getContractNames(coreType).disputeKitGated);
+  const disputeKitGatedShutter = await ethers.getContractOrNull<DisputeKitGatedShutter>(
+    getContractNames(coreType).disputeKitGatedShutter
+  );
   const disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
   const disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>(
     getContractNames(coreType).disputeTemplateRegistry
@@ -123,6 +135,8 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     sortition,
     disputeKitClassic,
     disputeKitShutter,
+    disputeKitGated,
+    disputeKitGatedShutter,
     disputeResolver,
     disputeTemplateRegistry,
     evidence,

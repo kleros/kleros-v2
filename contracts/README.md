@@ -197,7 +197,7 @@ yarn deploy --network localhost --tags <Arbitration|VeaMock|ForeignGatewayOnEthe
 ```bash
 # ArbitrumSepolia to Chiado
 yarn deploy --network arbitrumSepolia --tags Arbitration
-yarn deploy --network arbitrumSepolia --tags HomeArbitrable
+yarn deploy --network arbitrumSepolia --tags Resolver
 yarn deploy --network chiado --tags ForeignGatewayOnGnosis
 yarn deploy --network chiado --tags KlerosLiquidOnGnosis
 yarn deploy --network chiado --tags ForeignArbitrable
@@ -259,26 +259,11 @@ do
 done
 ```
 
-#### 2/ Import the data to V2 - Local Network
-
-Shell 1:
+#### 2/ Import the data to V2 - Public Testnet
 
 ```bash
-yarn hardhat node --tags Arbitration
-```
-
-Shell 2:
-
-```bash
-yarn hardhat run scripts/populateCourts.ts --network localhost
-yarn hardhat run scripts/populatePolicyRegistry.ts --network localhost
-```
-
-#### 3/ Import the data to V2 - Public Testnet
-
-```bash
-yarn hardhat run scripts/populateCourts.ts --network arbitrumSepolia
-yarn hardhat run scripts/populatePolicyRegistry.ts --network arbitrumSepolia
+yarn hardhat populate:courts --from v2_testnet --max-number-of-courts 3 --network arbitrumSepolia
+yarn hardhat populate:policy-registry --from v2_testnet --network arbitrumSepolia
 ```
 
 ### Generate deployment artifacts for existing contracts
