@@ -38,7 +38,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
         uint256 nbVotes; // Maximal number of votes this dispute can get.
-        //mapping(address drawnAddress => bool) alreadyDrawn; // DEPRECATED: DO NOT COMMIT
     }
 
     struct Vote {

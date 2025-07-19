@@ -2,12 +2,13 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-# Etherscan docs: https://docs.etherscan.io/api-endpoints/contracts#verifying-proxy-contract-using-curl
+# Etherscan docs: https://docs.etherscan.io/etherscan-v2/api-endpoints/contracts#verifying-proxy-contract-using-curl
 
-function verify() { #deploymentDir #explorerApiUrl #apiKey
+function verify() { #deploymentDir #explorerApiUrl #apiKey #chainId
     deploymentDir=$1
     explorerApiUrl=$2
     apiKey=$3
+    chainId=$4
     echo "verifying proxies on $(basename $deploymentDir)"
     for f in $(ls -1 $deploymentDir/*_Proxy.json 2>/dev/null); do
         contractName=$(basename $f .json)
@@ -15,15 +16,19 @@ function verify() { #deploymentDir #explorerApiUrl #apiKey
         echo -n "verifying $contractName as a proxy at $address... "
         curl -s \
             -d "address=$address" \
-            "$explorerApiUrl?module=contract&action=verifyproxycontract&apikey=$apiKey"
+            "$explorerApiUrl?chainid=${chainId}&module=contract&action=verifyproxycontract&apikey=${apiKey}"
         echo
     done
 }
 
-apiKey=$($SCRIPT_DIR/dotenv.sh ARBISCAN_API_KEY)
+apiKey=$($SCRIPT_DIR/dotenv.sh ETHERSCAN_API_KEY)
+if [ -z "$apiKey" ]; then
+    echo "API key missing"
+    exit 1
+fi
 
-verify "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://api-sepolia.arbiscan.io/api" $apiKey
+verify "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://api.etherscan.io/v2/api" $apiKey 421614
 echo
-verify "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://api-sepolia.arbiscan.io/api" $apiKey
+verify "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://api.etherscan.io/v2/api" $apiKey 421614
 echo
-verify "$SCRIPT_DIR/../deployments/arbitrum" "https://api.arbiscan.io/api" $apiKey
+verify "$SCRIPT_DIR/../deployments/arbitrum" "https://api.etherscan.io/v2/api" $apiKey 42161
