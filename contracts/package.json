@@ -156,7 +156,7 @@
     "@chainlink/contracts": "^1.4.0",
     "@kleros/vea-contracts": "^0.6.0",
     "@openzeppelin/contracts": "^5.4.0",
-    "@shutter-network/shutter-sdk": "^0.0.2",
+    "@shutter-network/shutter-sdk": "0.0.1",
     "isomorphic-fetch": "^3.0.0",
     "viem": "^2.24.1"
   }
