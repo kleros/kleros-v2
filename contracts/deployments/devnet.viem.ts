@@ -4943,6 +4943,13 @@ export const disputeKitGatedAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize7",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -5627,6 +5634,13 @@ export const disputeKitGatedShutterAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize7",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -5720,7 +5734,7 @@ export const disputeKitGatedShutterConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xAcf0eAa29419EA5523d0b672267781b09e69eD1d)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC344C28493C51023E5504B6c7f1E86C0fB43C645)
  */
 export const disputeKitGatedShutterImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -6310,6 +6324,13 @@ export const disputeKitGatedShutterImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize7",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -6376,14 +6397,14 @@ export const disputeKitGatedShutterImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xAcf0eAa29419EA5523d0b672267781b09e69eD1d)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC344C28493C51023E5504B6c7f1E86C0fB43C645)
  */
 export const disputeKitGatedShutterImplementationAddress = {
-  421614: "0xAcf0eAa29419EA5523d0b672267781b09e69eD1d",
+  421614: "0xC344C28493C51023E5504B6c7f1E86C0fB43C645",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xAcf0eAa29419EA5523d0b672267781b09e69eD1d)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC344C28493C51023E5504B6c7f1E86C0fB43C645)
  */
 export const disputeKitGatedShutterImplementationConfig = {
   address: disputeKitGatedShutterImplementationAddress,
@@ -6430,7 +6451,7 @@ export const disputeKitGatedShutterProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x89BF27c2148873E0ae4d8c6253C2e4423dF959aF)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258)
  */
 export const disputeKitGatedImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -6968,6 +6989,13 @@ export const disputeKitGatedImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "initialize7",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -7034,14 +7062,14 @@ export const disputeKitGatedImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x89BF27c2148873E0ae4d8c6253C2e4423dF959aF)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258)
  */
 export const disputeKitGatedImplementationAddress = {
-  421614: "0x89BF27c2148873E0ae4d8c6253C2e4423dF959aF",
+  421614: "0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x89BF27c2148873E0ae4d8c6253C2e4423dF959aF)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258)
  */
 export const disputeKitGatedImplementationConfig = {
   address: disputeKitGatedImplementationAddress,
@@ -19188,7 +19216,7 @@ export const sortitionModuleAbi = [
   {
     type: "function",
     inputs: [],
-    name: "initialize3",
+    name: "initialize4",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -20162,7 +20190,7 @@ export const sortitionModuleUniversityProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xBe984dc03B4A8d5135BCc07b46fdB867e02BA1F3)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x8a26445989c944C58503275ad87Ab4d7b17d4F1e)
  */
 export const sortitionModuleImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -20495,7 +20523,7 @@ export const sortitionModuleImplementationAbi = [
   {
     type: "function",
     inputs: [],
-    name: "initialize3",
+    name: "initialize4",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -20732,14 +20760,14 @@ export const sortitionModuleImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xBe984dc03B4A8d5135BCc07b46fdB867e02BA1F3)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x8a26445989c944C58503275ad87Ab4d7b17d4F1e)
  */
 export const sortitionModuleImplementationAddress = {
-  421614: "0xBe984dc03B4A8d5135BCc07b46fdB867e02BA1F3",
+  421614: "0x8a26445989c944C58503275ad87Ab4d7b17d4F1e",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xBe984dc03B4A8d5135BCc07b46fdB867e02BA1F3)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x8a26445989c944C58503275ad87Ab4d7b17d4F1e)
  */
 export const sortitionModuleImplementationConfig = {
   address: sortitionModuleImplementationAddress,

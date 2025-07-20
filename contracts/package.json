@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.9.4",
+  "version": "0.10.0",
   "description": "Smart contracts for Kleros version 2",
   "main": "./cjs/deployments/index.js",
   "module": "./esm/deployments/index.js",

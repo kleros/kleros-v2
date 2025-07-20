@@ -8232,6 +8232,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize7",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -9454,6 +9461,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize7",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -9611,7 +9625,7 @@ export default {
       ],
     },
     DisputeKitGatedShutter_Implementation: {
-      address: "0xAcf0eAa29419EA5523d0b672267781b09e69eD1d",
+      address: "0xC344C28493C51023E5504B6c7f1E86C0fB43C645",
       abi: [
         {
           inputs: [],
@@ -10673,6 +10687,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "initialize7",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -10843,7 +10864,7 @@ export default {
       ],
     },
     DisputeKitGated_Implementation: {
-      address: "0x89BF27c2148873E0ae4d8c6253C2e4423dF959aF",
+      address: "0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258",
       abi: [
         {
           inputs: [],
@@ -11826,6 +11847,13 @@ export default {
             },
           ],
           name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "initialize7",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -29249,7 +29277,7 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize3",
+          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -30885,7 +30913,7 @@ export default {
       ],
     },
     SortitionModule_Implementation: {
-      address: "0xBe984dc03B4A8d5135BCc07b46fdB867e02BA1F3",
+      address: "0x8a26445989c944C58503275ad87Ab4d7b17d4F1e",
       abi: [
         {
           inputs: [],
@@ -31443,7 +31471,7 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize3",
+          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
