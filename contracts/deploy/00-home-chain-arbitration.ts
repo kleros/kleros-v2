@@ -29,6 +29,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await getContractOrDeployUpgradable(hre, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
+  await deployUpgradable(deployments, "DisputeTemplateRegistry", {
+    from: deployer,
+    args: [deployer],
+    log: true,
+  });
+
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
     args: [deployer, ZeroAddress],

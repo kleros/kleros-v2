@@ -13,28 +13,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
-  const extraData =
-    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
-  const weth = await deployments.get("WETH");
-
-  const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistry", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-
-  // await deploy("ArbitrableExample", {
-  //   from: deployer,
-  //   args: [
-  //     klerosCore.address,
-  //     disputeTemplate,
-  //     "disputeTemplateMapping: TODO",
-  //     extraData,
-  //     disputeTemplateRegistry.address,
-  //     weth.address,
-  //   ],
-  //   log: true,
-  // });
+  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
 
   await deploy("DisputeResolver", {
     from: deployer,
@@ -43,7 +22,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 };
 
-deployArbitration.tags = ["HomeArbitrable"];
+deployArbitration.tags = ["Resolver"];
 deployArbitration.dependencies = ["Arbitration"];
 deployArbitration.skip = async ({ network }) => {
   return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);

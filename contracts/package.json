@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.9.4",
+  "version": "0.10.0",
   "description": "Smart contracts for Kleros version 2",
   "main": "./cjs/deployments/index.js",
   "module": "./esm/deployments/index.js",
@@ -131,7 +131,7 @@
     "gluegun": "^5.2.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
-    "hardhat": "2.26.0",
+    "hardhat": "2.25.0",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^1.0.4",
     "hardhat-deploy-ethers": "^0.4.2",
@@ -156,7 +156,7 @@
     "@chainlink/contracts": "^1.4.0",
     "@kleros/vea-contracts": "^0.6.0",
     "@openzeppelin/contracts": "^5.4.0",
-    "@shutter-network/shutter-sdk": "^0.0.2",
+    "@shutter-network/shutter-sdk": "0.0.1",
     "isomorphic-fetch": "^3.0.0",
     "viem": "^2.24.1"
   }
