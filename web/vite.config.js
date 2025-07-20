@@ -26,8 +26,11 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: resolve(__dirname, "../node_modules/@shutter-network/shutter-sdk/dist/*"),
-          dest: "node_modules/@shutter-network/shutter-sdk/dist",
+          src: [
+            resolve(__dirname, "../node_modules/@shutter-network/shutter-sdk/dist/blst.js"),
+            resolve(__dirname, "../node_modules/@shutter-network/shutter-sdk/dist/blst.wasm"),
+          ],
+          dest: ".",
         },
       ],
     }),

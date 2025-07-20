@@ -6131,7 +6131,7 @@ __metadata:
     "@reown/appkit-adapter-wagmi": "npm:^1.7.1"
     "@sentry/react": "npm:^7.120.0"
     "@sentry/tracing": "npm:^7.120.0"
-    "@shutter-network/shutter-sdk": "npm:0.0.1"
+    "@shutter-network/shutter-sdk": "npm:0.0.2"
     "@solana/wallet-adapter-react": "npm:^0.15.36"
     "@solana/web3.js": "npm:^1.98.0"
     "@tanstack/react-query": "npm:^5.69.0"
@@ -8926,6 +8926,18 @@ __metadata:
     lodash: "npm:^4.17.21"
     viem: "npm:^2.23.2"
   checksum: 10/5e021c9dc27cb88dd487e1a289501394302d88fe349a873525610405eb2b351563556b1d0ef2ac789cff99b03ba6019c0a9761a093a0aef5a82941986ca58517
+  languageName: node
+  linkType: hard
+
+"@shutter-network/shutter-sdk@npm:0.0.2":
+  version: 0.0.2
+  resolution: "@shutter-network/shutter-sdk@npm:0.0.2"
+  dependencies:
+    browser-or-node: "npm:^3.0.0"
+    buffer: "npm:^6.0.3"
+    lodash: "npm:^4.17.21"
+    viem: "npm:^2.23.2"
+  checksum: 10/da53a9cf757be3204fa0e806e6a39e9dee6f6141471c9220c82f5a8f461615b565d30516880eaaa5d31308345839e7f8e9b5534fd9f0eb0abc243ff4c774becd
   languageName: node
   linkType: hard
 
