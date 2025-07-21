@@ -30,6 +30,7 @@ const disputeDetailsQuery = graphql(`
         nbVotes
         disputeKit {
           id
+          address
         }
       }
       currentRoundIndex

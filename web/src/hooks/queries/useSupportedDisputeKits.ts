@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { SupportedDisputeKitsQuery } from "src/graphql/graphql";
 
@@ -8,6 +10,7 @@ const supportedDisputeKitsQuery = graphql(`
     court(id: $id) {
       supportedDisputeKits {
         id
+        address
       }
     }
   }

@@ -5,9 +5,10 @@ import { AlertMessage, DropdownCascader, DropdownSelect } from "@kleros/ui-compo
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
-import { useSupportedDisputeKits } from "queries/useSupportedDisputeKits";
-import { getDisputeKitName } from "consts/index";
+import { useDisputeKitAddressesAll } from "hooks/useDisputeKitAddresses";
 import { isUndefined } from "utils/index";
+
+import { useSupportedDisputeKits } from "queries/useSupportedDisputeKits";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -66,10 +67,23 @@ const Court: React.FC = () => {
   const { data: courtTree } = useCourtTree();
   const { data: supportedDisputeKits } = useSupportedDisputeKits(disputeData.courtId);
   const items = useMemo(() => !isUndefined(courtTree?.court) && [rootCourtToItems(courtTree.court)], [courtTree]);
+  const { availableDisputeKits } = useDisputeKitAddressesAll();
   const disputeKitOptions = useMemo(() => {
-    const supportedDisputeKitIDs = supportedDisputeKits?.court?.supportedDisputeKits.map((k) => Number(k.id)) || [];
-    return supportedDisputeKitIDs.map((id) => ({ text: getDisputeKitName(id), value: id }));
-  }, [supportedDisputeKits]);
+    return (
+      supportedDisputeKits?.court?.supportedDisputeKits.map((dk) => ({
+        text: availableDisputeKits[dk.address.toLowerCase()] ?? "",
+        value: dk.id,
+      })) || []
+    );
+  }, [supportedDisputeKits, availableDisputeKits]);
+
+  const defaultDisputeKitValue = useMemo(() => {
+    if (disputeKitOptions.length === 1) {
+      return disputeKitOptions[0].value; // If there's only 1 supported dispute kit, select it by default
+    }
+    return disputeData.disputeKitId ?? 1;
+  }, [disputeKitOptions, disputeData.disputeKitId]);
+
   const handleCourtWrite = (courtId: string) => {
     setDisputeData({ ...disputeData, courtId, disputeKitId: undefined });
   };
@@ -94,7 +108,7 @@ const Court: React.FC = () => {
         <StyledDropdownSelect
           items={disputeKitOptions}
           placeholder={{ text: "Select Dispute Kit" }}
-          defaultValue={disputeData.disputeKitId ?? 1}
+          defaultValue={defaultDisputeKitValue}
           callback={handleDisputeKitChange}
         />
       )}
