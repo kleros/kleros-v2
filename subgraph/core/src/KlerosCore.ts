@@ -166,7 +166,10 @@ export function handleNewPeriod(event: NewPeriod): void {
           continue;
         }
 
-        if (vote.choice === null) continue;
+        if (vote.choice === null) {
+          juror.save();
+          continue;
+        }
 
         // Check if the vote choice matches the final ruling
         if (vote.choice!.equals(dispute.currentRuling)) {
