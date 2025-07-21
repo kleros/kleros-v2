@@ -5948,7 +5948,7 @@ __metadata:
     "@nomiclabs/hardhat-solhint": "npm:^4.1.0"
     "@openzeppelin/contracts": "npm:^5.4.0"
     "@openzeppelin/upgrades-core": "npm:^1.44.1"
-    "@shutter-network/shutter-sdk": "npm:0.0.1"
+    "@shutter-network/shutter-sdk": "npm:0.0.2"
     "@typechain/ethers-v6": "npm:^0.5.1"
     "@typechain/hardhat": "npm:^9.1.0"
     "@types/chai": "npm:^4.3.20"
@@ -8915,17 +8915,6 @@ __metadata:
   dependencies:
     "@sentry/types": "npm:7.120.0"
   checksum: 10/d4fd729732f5811d90a8a524903c6c00a84fa14c2ed4d1fb34aa2d02f6182b09400b5e042a4f2b6fb44e66fa10d650b613b098b3ea12b3adb5cb133400459829
-  languageName: node
-  linkType: hard
-
-"@shutter-network/shutter-sdk@npm:0.0.1":
-  version: 0.0.1
-  resolution: "@shutter-network/shutter-sdk@npm:0.0.1"
-  dependencies:
-    browser-or-node: "npm:^3.0.0"
-    lodash: "npm:^4.17.21"
-    viem: "npm:^2.23.2"
-  checksum: 10/5e021c9dc27cb88dd487e1a289501394302d88fe349a873525610405eb2b351563556b1d0ef2ac789cff99b03ba6019c0a9761a093a0aef5a82941986ca58517
   languageName: node
   linkType: hard
 
