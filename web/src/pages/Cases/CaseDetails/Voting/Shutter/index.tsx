@@ -1,9 +1,11 @@
 import React, { useMemo } from "react";
+
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
+
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import ShutterCommit from "./Commit";
@@ -14,9 +16,10 @@ interface IShutter {
   setIsOpen: (val: boolean) => void;
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
+  isGated: boolean;
 }
 
-const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPeriodIndex }) => {
+const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPeriodIndex, isGated }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: drawData, refetch } = useDrawQuery(address?.toLowerCase(), id, dispute?.currentRound.id);
@@ -24,7 +27,7 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
   const voteIDs = useMemo(() => drawData?.draws?.map((draw) => draw.voteIDNum) as string[], [drawData]);
 
   return id && isCommitPeriod && !commited ? (
-    <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, refetch, dispute, currentPeriodIndex }} />
+    <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, refetch, dispute, currentPeriodIndex, isGated }} />
   ) : id && isVotingPeriod ? (
     <Reveal {...{ setIsOpen, voteIDs }} />
   ) : null;

@@ -17,9 +17,10 @@ import Options from "./Options";
 interface IClassic {
   isAppealMiniGuideOpen: boolean;
   toggleAppealMiniGuide: () => void;
+  isGated: boolean;
 }
 
-const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide }) => {
+const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, isGated }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const { selectedOption } = useSelectedOptionContext();
@@ -47,7 +48,7 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
       </AppealHeader>
       <label> The jury decision is appealed when two options are fully funded. </label>
       <Options setAmount={setAmount} />
-      <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} />
+      <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} {...{ isGated }} />
     </>
   );
 };

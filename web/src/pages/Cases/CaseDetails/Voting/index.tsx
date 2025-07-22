@@ -72,8 +72,9 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit = disputeKitName === DisputeKits.Classic;
-  const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter;
+  const isClassicDisputeKit = disputeKitName === DisputeKits.Classic || disputeKitName === DisputeKits.Gated;
+  const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
+  const isGated = Boolean(disputeKitName?.includes("Gated"));
 
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
@@ -117,9 +118,15 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
       {userWasDrawn && isCommitOrVotePeriod && !voted ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          {isClassicDisputeKit ? <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} /> : null}
+          {isClassicDisputeKit ? (
+            <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ isGated }} />
+          ) : null}
           {isShutterDisputeKit ? (
-            <Shutter arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ dispute, currentPeriodIndex }} />
+            <Shutter
+              arbitrable={arbitrable ?? "0x0"}
+              setIsOpen={setIsPopupOpen}
+              {...{ dispute, currentPeriodIndex, isGated }}
+            />
           ) : null}
         </>
       ) : (
