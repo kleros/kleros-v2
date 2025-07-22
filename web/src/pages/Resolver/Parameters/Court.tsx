@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { AlertMessage, Checkbox, DropdownCascader, DropdownSelect, Field } from "@kleros/ui-components-library";
@@ -88,7 +88,6 @@ const StyledCheckbox = styled(Checkbox)`
 
 const Court: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
-  const [isGatedDisputeKit, setIsGatedDisputeKit] = useState(false);
   const { data: courtTree } = useCourtTree();
   const { data: supportedDisputeKits } = useSupportedDisputeKits(disputeData.courtId);
   const items = useMemo(() => !isUndefined(courtTree?.court) && [rootCourtToItems(courtTree.court)], [courtTree]);
@@ -123,7 +122,7 @@ const Court: React.FC = () => {
   };
 
   const handleDisputeKitChange = (newValue: string | number) => {
-    const options = disputeKitOptions.find((dk) => dk.value === String(newValue));
+    const options = disputeKitOptions.find((dk) => String(dk.value) === String(newValue));
     const isNewValueGated = options?.gated ?? false;
     const gatedDisputeKitData: IGatedDisputeData | undefined = isNewValueGated
       ? {
@@ -133,9 +132,13 @@ const Court: React.FC = () => {
           tokenId: "0",
         }
       : undefined;
-    setIsGatedDisputeKit(isNewValueGated);
     setDisputeData({ ...disputeData, disputeKitId: Number(newValue), disputeKitData: gatedDisputeKitData });
   };
+
+  const isGatedDisputeKit = useMemo(() => {
+    const options = disputeKitOptions.find((dk) => String(dk.value) === String(selectedDisputeKitId));
+    return options?.gated ?? false;
+  }, [disputeKitOptions, selectedDisputeKitId]);
 
   const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;

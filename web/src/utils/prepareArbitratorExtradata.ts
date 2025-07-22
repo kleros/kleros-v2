@@ -50,7 +50,6 @@ export const prepareArbitratorExtradata = (
     [subcourtID, noOfVotes, disputeKit]
   ) as `0x{string}`;
   if (!disputeKitData) {
-    console.log("extraData", extraData);
     return extraData;
   }
 
@@ -60,6 +59,5 @@ export const prepareArbitratorExtradata = (
   }
   const encodedDisputeKitData = encoder(disputeKitData as any);
   extraData = ethers.utils.hexConcat([extraData, encodedDisputeKitData]) as `0x{string}`;
-  console.log("extraData", extraData);
   return extraData;
 };
