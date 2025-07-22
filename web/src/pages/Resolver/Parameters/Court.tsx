@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { AlertMessage, Checkbox, DropdownCascader, DropdownSelect, Field } from "@kleros/ui-components-library";
@@ -7,6 +7,7 @@ import { DisputeKits } from "consts/index";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
 import { useDisputeKitAddressesAll } from "hooks/useDisputeKitAddresses";
+import { useERC20ERC721Validation, useERC1155Validation } from "hooks/useTokenAddressValidation";
 import { isUndefined } from "utils/index";
 
 import { useSupportedDisputeKits } from "queries/useSupportedDisputeKits";
@@ -86,6 +87,86 @@ const StyledCheckbox = styled(Checkbox)`
   )}
 `;
 
+const ValidationContainer = styled.div`
+  width: 84vw;
+  display: flex;
+  align-items: left;
+  gap: 8px;
+  margin-top: 8px;
+  ${landscapeStyle(
+    () => css`
+      width: ${responsiveSize(442, 700, 900)};
+    `
+  )}
+`;
+
+const ValidationIcon = styled.div<{ $isValid?: boolean | null; $isValidating?: boolean }>`
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+
+  ${({ $isValidating, $isValid }) => {
+    if ($isValidating) {
+      return css`
+        border: 2px solid #ccc;
+        border-top-color: #007bff;
+        animation: spin 1s linear infinite;
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `;
+    }
+
+    if ($isValid === true) {
+      return css`
+        background-color: #28a745;
+        color: white;
+        &::after {
+          content: "✓";
+        }
+      `;
+    }
+
+    if ($isValid === false) {
+      return css`
+        background-color: #dc3545;
+        color: white;
+        &::after {
+          content: "✗";
+        }
+      `;
+    }
+
+    return css`
+      display: none;
+    `;
+  }}
+`;
+
+const ValidationMessage = styled.small<{ $isError?: boolean }>`
+  color: ${({ $isError }) => ($isError ? "#dc3545" : "#28a745")};
+  font-size: 14px;
+  font-style: italic;
+  font-weight: normal;
+`;
+
+const StyledFieldWithValidation = styled(StyledField)<{ $isValid?: boolean | null }>`
+  > input {
+    border-color: ${({ $isValid }) => {
+      if ($isValid === true) return "#28a745";
+      if ($isValid === false) return "#dc3545";
+      return "inherit";
+    }};
+  }
+`;
+
 const Court: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const { data: courtTree } = useCourtTree();
@@ -120,6 +201,47 @@ const Court: React.FC = () => {
     return options?.gated ?? false;
   }, [disputeKitOptions, selectedDisputeKitId]);
 
+  // Token validation for token gate address (conditional based on ERC1155 checkbox)
+  const tokenGateAddress = (disputeData.disputeKitData as IGatedDisputeData)?.tokenGate ?? "";
+  const isERC1155 = (disputeData.disputeKitData as IGatedDisputeData)?.isERC1155 ?? false;
+  const validationEnabled = isGatedDisputeKit && !!tokenGateAddress.trim();
+
+  const {
+    isValidating: isValidatingERC20,
+    isValid: isValidERC20,
+    error: validationErrorERC20,
+  } = useERC20ERC721Validation({
+    address: tokenGateAddress,
+    enabled: validationEnabled && !isERC1155,
+  });
+
+  const {
+    isValidating: isValidatingERC1155,
+    isValid: isValidERC1155,
+    error: validationErrorERC1155,
+  } = useERC1155Validation({
+    address: tokenGateAddress,
+    enabled: validationEnabled && isERC1155,
+  });
+
+  // Combine validation results based on token type
+  const isValidating = isERC1155 ? isValidatingERC1155 : isValidatingERC20;
+  const isValidToken = isERC1155 ? isValidERC1155 : isValidERC20;
+  const validationError = isERC1155 ? validationErrorERC1155 : validationErrorERC20;
+
+  // Update validation state in dispute context
+  useEffect(() => {
+    if (isGatedDisputeKit && disputeData.disputeKitData) {
+      const currentData = disputeData.disputeKitData as IGatedDisputeData;
+      if (currentData.isTokenGateValid !== isValidToken) {
+        setDisputeData({
+          ...disputeData,
+          disputeKitData: { ...currentData, isTokenGateValid: isValidToken },
+        });
+      }
+    }
+  }, [isValidToken, isGatedDisputeKit, disputeData, setDisputeData]);
+
   const handleCourtChange = (courtId: string) => {
     if (disputeData.courtId !== courtId) {
       setDisputeData({ ...disputeData, courtId, disputeKitId: undefined });
@@ -144,7 +266,11 @@ const Court: React.FC = () => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;
     setDisputeData({
       ...disputeData,
-      disputeKitData: { ...currentData, tokenGate: event.target.value },
+      disputeKitData: {
+        ...currentData,
+        tokenGate: event.target.value,
+        isTokenGateValid: null, // Reset validation state when address changes
+      },
     });
   };
 
@@ -152,7 +278,11 @@ const Court: React.FC = () => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;
     setDisputeData({
       ...disputeData,
-      disputeKitData: { ...currentData, isERC1155: event.target.checked },
+      disputeKitData: {
+        ...currentData,
+        isERC1155: event.target.checked,
+        isTokenGateValid: null, // Reset validation state when token type changes
+      },
     });
   };
 
@@ -187,12 +317,23 @@ const Court: React.FC = () => {
       )}
       {isGatedDisputeKit && (
         <>
-          <StyledField
+          <StyledFieldWithValidation
             dir="auto"
             onChange={handleTokenAddressChange}
             value={(disputeData.disputeKitData as IGatedDisputeData)?.tokenGate ?? ""}
             placeholder="Eg. 0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
+            $isValid={isValidToken}
           />
+          {tokenGateAddress.trim() !== "" && (
+            <ValidationContainer>
+              <ValidationIcon $isValidating={isValidating} $isValid={isValidToken} />
+              <ValidationMessage $isError={!!validationError}>
+                {isValidating && `Validating ${isERC1155 ? "ERC-1155" : "ERC-20 or ERC-721"} token...`}
+                {validationError && validationError}
+                {isValidToken === true && `Valid ${isERC1155 ? "ERC-1155" : "ERC-20 or ERC-721"} token`}
+              </ValidationMessage>
+            </ValidationContainer>
+          )}
           <StyledCheckbox
             onChange={handleERC1155TokenChange}
             checked={(disputeData.disputeKitData as IGatedDisputeData)?.isERC1155 ?? false}

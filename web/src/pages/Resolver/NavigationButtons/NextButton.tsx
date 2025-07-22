@@ -4,7 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { useNewDisputeContext } from "context/NewDisputeContext";
+import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
+
 import { isEmpty } from "src/utils";
 
 interface INextButton {
@@ -15,6 +16,17 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
   const navigate = useNavigate();
   const { disputeData, isPolicyUploading } = useNewDisputeContext();
   const location = useLocation();
+
+  // Check gated dispute kit validation status
+  const isGatedTokenValid = React.useMemo(() => {
+    if (!disputeData.disputeKitData || disputeData.disputeKitData.type !== "gated") return true;
+
+    const gatedData = disputeData.disputeKitData as IGatedDisputeData;
+    if (!gatedData?.tokenGate?.trim()) return true; // No token address provided, so valid
+
+    // If token address is provided, it must be validated as valid ERC20
+    return gatedData.isTokenGateValid === true;
+  }, [disputeData.disputeKitData]);
 
   //checks if each answer is filled in
   const areVotingOptionsFilled =
@@ -29,7 +41,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
   const isButtonDisabled =
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
-    (location.pathname.includes("/resolver/court") && !disputeData.courtId) ||
+    (location.pathname.includes("/resolver/court") && (!disputeData.courtId || !isGatedTokenValid)) ||
     (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
     (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/notable-persons") && !areAliasesValidOrEmpty) ||

@@ -61,6 +61,7 @@ export interface IGatedDisputeData {
   isERC1155: boolean;
   tokenGate: string;
   tokenId: string;
+  isTokenGateValid?: boolean | null; // null = not validated, false = invalid, true = valid
 }
 
 // Placeholder
