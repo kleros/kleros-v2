@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { Button } from "@kleros/ui-components-library";
-import { useWalletClient, usePublicClient } from "wagmi";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
+import { useWalletClient, usePublicClient } from "wagmi";
 
-import { wrapWithToast } from "utils/wrapWithToast";
-import { isUndefined } from "utils/index";
+import { Button } from "@kleros/ui-components-library";
 
 import { useSimulateDisputeKitShutterCastVoteShutter } from "hooks/contracts/generated";
+import { isUndefined } from "utils/index";
+import { wrapWithToast } from "utils/wrapWithToast";
 
 const Container = styled.div`
   width: 100%;

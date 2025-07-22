@@ -6,17 +6,20 @@ import { useLocalStorage } from "react-use";
 import { keccak256, stringToHex, encodeAbiParameters } from "viem";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { simulateDisputeKitShutterCastCommitShutter } from "hooks/contracts/generated";
-import useSigningAccount from "hooks/useSigningAccount";
+import {
+  simulateDisputeKitGatedShutterCastCommitShutter,
+  simulateDisputeKitShutterCastCommitShutter,
+} from "hooks/contracts/generated";
 import { useCountdown } from "hooks/useCountdown";
-import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-
+import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { encrypt } from "utils/shutter";
 import { wrapWithToast } from "utils/wrapWithToast";
 
-import OptionsContainer from "../OptionsContainer";
+import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import { getDeadline } from "../../Timeline";
+import OptionsContainer from "../OptionsContainer";
 
 const Container = styled.div`
   width: 100%;
@@ -30,6 +33,7 @@ interface ICommit {
   refetch: () => void;
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
+  isGated: boolean;
 }
 
 const SEPARATOR = "-";
@@ -53,7 +57,15 @@ const hashVote = (choice: bigint, salt: bigint, justification: string): `0x${str
   return keccak256(encodedParams);
 };
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, dispute, currentPeriodIndex }) => {
+const Commit: React.FC<ICommit> = ({
+  arbitrable,
+  voteIDs,
+  setIsOpen,
+  refetch,
+  dispute,
+  currentPeriodIndex,
+  isGated,
+}) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -88,14 +100,22 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, di
       const encodedMessage = `${choice.toString()}${SEPARATOR}${salt}${SEPARATOR}${justification}`;
       /* an extra 300 seconds (5 minutes) of decryptionDelay is enforced after Commit period is over
       to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
-      const decryptionDelay = countdownToVotingPeriod + 300;
+      const decryptionDelay = countdownToVotingPeriod ?? 0 + 300;
       const { encryptedCommitment, identity } = await encrypt(encodedMessage, decryptionDelay);
 
       const commitHash = hashVote(choice, BigInt(salt), justification);
 
-      const { request } = await simulateDisputeKitShutterCastCommitShutter(wagmiConfig, {
-        args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
-      });
+      let request;
+      if (isGated) {
+        request = await simulateDisputeKitGatedShutterCastCommitShutter(wagmiConfig, {
+          args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
+        });
+      } else {
+        request = await simulateDisputeKitShutterCastCommitShutter(wagmiConfig, {
+          args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
+        });
+      }
+
       if (walletClient && publicClient) {
         await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
           setIsOpen(status);
@@ -117,6 +137,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, di
       signingAccount,
       refetch,
       countdownToVotingPeriod,
+      isGated,
     ]
   );
 

@@ -8,7 +8,12 @@ import { useAccount, useBalance, usePublicClient } from "wagmi";
 import { Field, Button } from "@kleros/ui-components-library";
 
 import { REFETCH_INTERVAL } from "consts/index";
-import { useSimulateDisputeKitClassicFundAppeal, useWriteDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
+import {
+  useSimulateDisputeKitClassicFundAppeal,
+  useSimulateDisputeKitGatedFundAppeal,
+  useWriteDisputeKitClassicFundAppeal,
+  useWriteDisputeKitGatedFundAppeal,
+} from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { isUndefined } from "utils/index";
@@ -62,7 +67,7 @@ const useNeedFund = () => {
   return needFund;
 };
 
-const useFundAppeal = (parsedAmount, insufficientBalance) => {
+const useFundAppeal = (parsedAmount: bigint, isGated: boolean, insufficientBalance?: boolean) => {
   const { id } = useParams();
   const { selectedOption } = useSelectedOptionContext();
   const {
@@ -71,24 +76,44 @@ const useFundAppeal = (parsedAmount, insufficientBalance) => {
     isError,
   } = useSimulateDisputeKitClassicFundAppeal({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance,
+      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && !isGated,
     },
     args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
     value: parsedAmount,
   });
-
   const { writeContractAsync: fundAppeal } = useWriteDisputeKitClassicFundAppeal();
 
-  return { fundAppeal, fundAppealConfig, isLoading, isError };
+  const {
+    data: fundAppealGatedConfig,
+    isLoading: isLoadingGated,
+    isError: isErrorGated,
+  } = useSimulateDisputeKitGatedFundAppeal({
+    query: {
+      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && isGated,
+    },
+    args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
+    value: parsedAmount,
+  });
+  const { writeContractAsync: fundAppealGated } = useWriteDisputeKitGatedFundAppeal();
+
+  return isGated
+    ? {
+        fundAppeal: fundAppealGated,
+        fundAppealConfig: fundAppealGatedConfig,
+        isLoading: isLoadingGated,
+        isError: isErrorGated,
+      }
+    : { fundAppeal, fundAppealConfig, isLoading, isError };
 };
 
 interface IFund {
   amount: `${number}`;
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
+  isGated: boolean;
 }
 
-const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
+const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
   const needFund = useNeedFund();
   const { address, isDisconnected } = useAccount();
   const { data: balance } = useBalance({
@@ -109,7 +134,11 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
     return balance && balance.value < parsedAmount;
   }, [balance, parsedAmount]);
 
-  const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(parsedAmount, insufficientBalance);
+  const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(
+    parsedAmount,
+    isGated,
+    insufficientBalance
+  );
 
   const isFundDisabled = useMemo(
     () =>
