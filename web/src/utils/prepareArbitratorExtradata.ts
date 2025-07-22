@@ -10,9 +10,15 @@ import { IDisputeKitData, IGatedDisputeData, ISomeFutureDisputeData } from "cont
 const encodeGatedDisputeData = (data: IGatedDisputeData): string => {
   // Packing of tokenGate and isERC1155
   // uint88 (padding 11 bytes) + bool (1 byte) + address (20 bytes) = 32 bytes
-  const packed = ethers.utils.solidityPack(["uint88", "bool", "address"], [0, data.isERC1155, data.tokenGate]);
-  if (!data.tokenId || !data.isERC1155) data.tokenId = "0";
-  return ethers.utils.defaultAbiCoder.encode(["bytes32", "uint256"], [packed, data.tokenId]);
+  const normalizedData = {
+    ...data,
+    tokenId: !data.tokenId || !data.isERC1155 ? "0" : data.tokenId,
+  };
+  const packed = ethers.utils.solidityPack(
+    ["uint88", "bool", "address"],
+    [0, normalizedData.isERC1155, normalizedData.tokenGate]
+  );
+  return ethers.utils.defaultAbiCoder.encode(["bytes32", "uint256"], [packed, normalizedData.tokenId]);
 };
 
 /**
@@ -45,7 +51,7 @@ export const prepareArbitratorExtradata = (
   disputeKit: number = 1,
   disputeKitData?: IDisputeKitData
 ) => {
-  let extraData = ethers.utils.defaultAbiCoder.encode(
+  const extraData = ethers.utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256"],
     [subcourtID, noOfVotes, disputeKit]
   ) as `0x{string}`;
@@ -58,6 +64,5 @@ export const prepareArbitratorExtradata = (
     throw new Error(`Unknown dispute kit data type: ${disputeKitData.type}`);
   }
   const encodedDisputeKitData = encoder(disputeKitData as any);
-  extraData = ethers.utils.hexConcat([extraData, encodedDisputeKitData]) as `0x{string}`;
-  return extraData;
+  return ethers.utils.hexConcat([extraData, encodedDisputeKitData]) as `0x{string}`;
 };

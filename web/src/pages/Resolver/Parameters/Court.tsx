@@ -115,6 +115,11 @@ const Court: React.FC = () => {
     return disputeData.disputeKitId ?? -1;
   }, [disputeKitOptions, disputeData.disputeKitId]);
 
+  const isGatedDisputeKit = useMemo(() => {
+    const options = disputeKitOptions.find((dk) => String(dk.value) === String(selectedDisputeKitId));
+    return options?.gated ?? false;
+  }, [disputeKitOptions, selectedDisputeKitId]);
+
   const handleCourtChange = (courtId: string) => {
     if (disputeData.courtId !== courtId) {
       setDisputeData({ ...disputeData, courtId, disputeKitId: undefined });
@@ -123,22 +128,17 @@ const Court: React.FC = () => {
 
   const handleDisputeKitChange = (newValue: string | number) => {
     const options = disputeKitOptions.find((dk) => String(dk.value) === String(newValue));
-    const isNewValueGated = options?.gated ?? false;
-    const gatedDisputeKitData: IGatedDisputeData | undefined = isNewValueGated
-      ? {
-          type: "gated",
-          tokenGate: "",
-          isERC1155: false,
-          tokenId: "0",
-        }
-      : undefined;
+    const gatedDisputeKitData: IGatedDisputeData | undefined =
+      (options?.gated ?? false)
+        ? {
+            type: "gated",
+            tokenGate: "",
+            isERC1155: false,
+            tokenId: "0",
+          }
+        : undefined;
     setDisputeData({ ...disputeData, disputeKitId: Number(newValue), disputeKitData: gatedDisputeKitData });
   };
-
-  const isGatedDisputeKit = useMemo(() => {
-    const options = disputeKitOptions.find((dk) => String(dk.value) === String(selectedDisputeKitId));
-    return options?.gated ?? false;
-  }, [disputeKitOptions, selectedDisputeKitId]);
 
   const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;

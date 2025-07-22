@@ -44,8 +44,8 @@ export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid 
 export const spamEvidencesIds: string[] = (import.meta.env.REACT_APP_SPAM_EVIDENCES_IDS ?? "").split(",");
 
 export enum DisputeKits {
-  Classic = "Classic Dispute Kit",
-  Shutter = "Shutter Dispute Kit",
-  Gated = "Gated Dispute Kit",
-  GatedShutter = "Gated Shutter Dispute Kit",
+  Classic = "Classic",
+  Shutter = "Shutter",
+  Gated = "Token Gated",
+  GatedShutter = "Token Gated Shutter",
 }
