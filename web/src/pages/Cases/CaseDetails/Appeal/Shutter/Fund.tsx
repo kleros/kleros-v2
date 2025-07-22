@@ -11,6 +11,7 @@ import { REFETCH_INTERVAL } from "consts/index";
 import {
   useSimulateDisputeKitGatedShutterFundAppeal,
   useSimulateDisputeKitShutterFundAppeal,
+  useWriteDisputeKitGatedShutterFundAppeal,
   useWriteDisputeKitShutterFundAppeal,
 } from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
@@ -88,7 +89,7 @@ const useFundAppeal = (parsedAmount: bigint, isGated: boolean, insufficientBalan
     args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
     value: parsedAmount,
   });
-  const { writeContractAsync: fundAppealGated } = useWriteDisputeKitShutterFundAppeal();
+  const { writeContractAsync: fundAppealGated } = useWriteDisputeKitGatedShutterFundAppeal();
 
   return isGated
     ? {
