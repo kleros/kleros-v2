@@ -100,7 +100,7 @@ const Court: React.FC = () => {
         const text = availableDisputeKits[dk.address.toLowerCase()] ?? "";
         return {
           text,
-          value: dk.id,
+          value: Number(dk.id),
           gated: text === DisputeKits.Gated || text === DisputeKits.GatedShutter,
         };
       }) || []
