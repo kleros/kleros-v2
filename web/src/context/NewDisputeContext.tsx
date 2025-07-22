@@ -51,6 +51,22 @@ interface IDisputeData extends IDisputeTemplate {
   arbitrationCost?: string;
   aliasesArray?: AliasArray[];
   disputeKitId?: number;
+  disputeKitData?: IDisputeKitData;
+}
+
+export type IDisputeKitData = IGatedDisputeData | ISomeFutureDisputeData;
+
+export interface IGatedDisputeData {
+  type: "gated";
+  isERC1155: boolean;
+  tokenGate: string;
+  tokenId: string;
+}
+
+// Placeholder
+export interface ISomeFutureDisputeData {
+  type: "future";
+  contract: string;
 }
 
 interface INewDisputeContext {
