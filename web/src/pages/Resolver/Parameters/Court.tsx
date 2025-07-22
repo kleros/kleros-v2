@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { AlertMessage, DropdownCascader, DropdownSelect } from "@kleros/ui-components-library";
+import { AlertMessage, Checkbox, DropdownCascader, DropdownSelect, Field } from "@kleros/ui-components-library";
 
-import { useNewDisputeContext } from "context/NewDisputeContext";
+import { DisputeKits } from "consts/index";
+import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
 import { useDisputeKitAddressesAll } from "hooks/useDisputeKitAddresses";
 import { isUndefined } from "utils/index";
@@ -62,34 +63,103 @@ const StyledDropdownSelect = styled(DropdownSelect)`
   )}
 `;
 
+const StyledField = styled(Field)`
+  width: 84vw;
+  margin-top: 24px;
+  ${landscapeStyle(
+    () => css`
+      width: ${responsiveSize(442, 700, 900)};
+    `
+  )}
+  > small {
+    margin-top: 16px;
+  }
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+  width: 84vw;
+  margin-top: 24px;
+  ${landscapeStyle(
+    () => css`
+      width: ${responsiveSize(442, 700, 900)};
+    `
+  )}
+`;
+
 const Court: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
+  const [isGatedDisputeKit, setIsGatedDisputeKit] = useState(false);
   const { data: courtTree } = useCourtTree();
   const { data: supportedDisputeKits } = useSupportedDisputeKits(disputeData.courtId);
   const items = useMemo(() => !isUndefined(courtTree?.court) && [rootCourtToItems(courtTree.court)], [courtTree]);
   const { availableDisputeKits } = useDisputeKitAddressesAll();
+
   const disputeKitOptions = useMemo(() => {
     return (
-      supportedDisputeKits?.court?.supportedDisputeKits.map((dk) => ({
-        text: availableDisputeKits[dk.address.toLowerCase()] ?? "",
-        value: dk.id,
-      })) || []
+      supportedDisputeKits?.court?.supportedDisputeKits.map((dk) => {
+        const text = availableDisputeKits[dk.address.toLowerCase()] ?? "";
+        return {
+          text,
+          value: dk.id,
+          gated: text === DisputeKits.Gated || text === DisputeKits.GatedShutter,
+        };
+      }) || []
     );
   }, [supportedDisputeKits, availableDisputeKits]);
 
-  const defaultDisputeKitValue = useMemo(() => {
+  const selectedDisputeKitId = useMemo(() => {
+    // If there's only 1 supported dispute kit, select it by default
     if (disputeKitOptions.length === 1) {
-      return disputeKitOptions[0].value; // If there's only 1 supported dispute kit, select it by default
+      return disputeKitOptions[0].value;
     }
-    return disputeData.disputeKitId ?? 1;
+    // If there's no saved selection, select nothing
+    return disputeData.disputeKitId ?? -1;
   }, [disputeKitOptions, disputeData.disputeKitId]);
 
-  const handleCourtWrite = (courtId: string) => {
-    setDisputeData({ ...disputeData, courtId, disputeKitId: undefined });
+  const handleCourtChange = (courtId: string) => {
+    if (disputeData.courtId !== courtId) {
+      setDisputeData({ ...disputeData, courtId, disputeKitId: undefined });
+    }
   };
 
-  const handleDisputeKitChange = (newValue: string | number) =>
-    setDisputeData({ ...disputeData, disputeKitId: Number(newValue) });
+  const handleDisputeKitChange = (newValue: string | number) => {
+    const options = disputeKitOptions.find((dk) => dk.value === String(newValue));
+    const isNewValueGated = options?.gated ?? false;
+    const gatedDisputeKitData: IGatedDisputeData | undefined = isNewValueGated
+      ? {
+          type: "gated",
+          tokenGate: "",
+          isERC1155: false,
+          tokenId: "0",
+        }
+      : undefined;
+    setIsGatedDisputeKit(isNewValueGated);
+    setDisputeData({ ...disputeData, disputeKitId: Number(newValue), disputeKitData: gatedDisputeKitData });
+  };
+
+  const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const currentData = disputeData.disputeKitData as IGatedDisputeData;
+    setDisputeData({
+      ...disputeData,
+      disputeKitData: { ...currentData, tokenGate: event.target.value },
+    });
+  };
+
+  const handleERC1155TokenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const currentData = disputeData.disputeKitData as IGatedDisputeData;
+    setDisputeData({
+      ...disputeData,
+      disputeKitData: { ...currentData, isERC1155: event.target.checked },
+    });
+  };
+
+  const handleTokenIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const currentData = disputeData.disputeKitData as IGatedDisputeData;
+    setDisputeData({
+      ...disputeData,
+      disputeKitData: { ...currentData, tokenId: event.target.value },
+    });
+  };
 
   return (
     <Container>
@@ -97,20 +167,44 @@ const Court: React.FC = () => {
       {items ? (
         <StyledDropdownCascader
           items={items}
-          onSelect={(path: string | number) => typeof path === "string" && handleCourtWrite(path.split("/").pop()!)}
+          onSelect={(path: string | number) => typeof path === "string" && handleCourtChange(path.split("/").pop()!)}
           placeholder="Select Court"
           value={`/courts/${disputeData.courtId}`}
         />
       ) : (
         <StyledSkeleton width={240} height={42} />
       )}
-      {disputeData?.courtId && (
+      {disputeData?.courtId && disputeKitOptions.length > 0 && (
         <StyledDropdownSelect
           items={disputeKitOptions}
           placeholder={{ text: "Select Dispute Kit" }}
-          defaultValue={defaultDisputeKitValue}
+          defaultValue={selectedDisputeKitId}
           callback={handleDisputeKitChange}
         />
+      )}
+      {isGatedDisputeKit && (
+        <>
+          <StyledField
+            dir="auto"
+            onChange={handleTokenAddressChange}
+            value={(disputeData.disputeKitData as IGatedDisputeData)?.tokenGate ?? ""}
+            placeholder="Eg. 0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
+          />
+          <StyledCheckbox
+            onChange={handleERC1155TokenChange}
+            checked={(disputeData.disputeKitData as IGatedDisputeData)?.isERC1155 ?? false}
+            label="ERC-1155 token"
+            small={true}
+          />
+          {(disputeData.disputeKitData as IGatedDisputeData)?.isERC1155 && (
+            <StyledField
+              dir="auto"
+              onChange={handleTokenIdChange}
+              value={(disputeData.disputeKitData as IGatedDisputeData)?.tokenId ?? "0"}
+              placeholder="Eg. 1"
+            />
+          )}
+        </>
       )}
       <AlertMessageContainer>
         <AlertMessage
