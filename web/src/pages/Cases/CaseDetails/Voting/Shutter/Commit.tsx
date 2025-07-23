@@ -105,21 +105,23 @@ const Commit: React.FC<ICommit> = ({
 
       const commitHash = hashVote(choice, BigInt(salt), justification);
 
-      let request;
+      let config;
       if (isGated) {
-        request = await simulateDisputeKitGatedShutterCastCommitShutter(wagmiConfig, {
+        config = await simulateDisputeKitGatedShutterCastCommitShutter(wagmiConfig, {
           args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
         });
       } else {
-        request = await simulateDisputeKitShutterCastCommitShutter(wagmiConfig, {
+        config = await simulateDisputeKitShutterCastCommitShutter(wagmiConfig, {
           args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
         });
       }
 
       if (walletClient && publicClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
-          setIsOpen(status);
-        });
+        await wrapWithToast(async () => await walletClient.writeContract(config.request), publicClient).then(
+          ({ status }) => {
+            setIsOpen(status);
+          }
+        );
       }
       refetch();
     },
