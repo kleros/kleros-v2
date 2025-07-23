@@ -100,7 +100,7 @@ const Commit: React.FC<ICommit> = ({
       const encodedMessage = `${choice.toString()}${SEPARATOR}${salt}${SEPARATOR}${justification}`;
       /* an extra 300 seconds (5 minutes) of decryptionDelay is enforced after Commit period is over
       to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
-      const decryptionDelay = countdownToVotingPeriod ?? 0 + 300;
+      const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
       const { encryptedCommitment, identity } = await encrypt(encodedMessage, decryptionDelay);
 
       const commitHash = hashVote(choice, BigInt(salt), justification);
