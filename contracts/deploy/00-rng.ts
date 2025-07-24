@@ -2,13 +2,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { SortitionModule } from "../typechain-types";
 import { HomeChains, isMainnet, isSkipped } from "./utils";
-import { deployUpgradable } from "./utils/deployUpgradable";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId, ethers } = hre;
   const { deploy } = deployments;
-  const RNG_LOOKAHEAD = 20;
+  const RNG_LOOKAHEAD_TIME = 30 * 60; // 30 minutes in seconds
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -32,11 +31,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const rng2 = await deploy("BlockHashRNG", {
     from: deployer,
-    args: [],
+    args: [
+      deployer, // governor
+      sortitionModule.target, // consumer
+      RNG_LOOKAHEAD_TIME,
+    ],
     log: true,
   });
 
-  await sortitionModule.changeRandomNumberGenerator(rng2.address, RNG_LOOKAHEAD);
+  await sortitionModule.changeRandomNumberGenerator(rng2.address);
 };
 
 deployArbitration.tags = ["RNG"];

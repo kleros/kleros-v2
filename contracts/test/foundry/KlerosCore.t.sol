@@ -53,7 +53,7 @@ contract KlerosCoreTest is Test {
 
     uint256 minStakingTime;
     uint256 maxDrawingTime;
-    uint256 rngLookahead;
+    uint256 rngLookahead; // Time in seconds
 
     string templateData;
     string templateDataMappings;
@@ -63,7 +63,6 @@ contract KlerosCoreTest is Test {
         SortitionModuleMock smLogic = new SortitionModuleMock();
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         DisputeTemplateRegistry registryLogic = new DisputeTemplateRegistry();
-        rng = new BlockHashRNG();
         pinakion = new PNK();
         feeToken = new TestERC20("Test", "TST");
         wNative = new TestERC20("wrapped ETH", "wETH");
@@ -93,8 +92,10 @@ contract KlerosCoreTest is Test {
         sortitionExtraData = abi.encode(uint256(5));
         minStakingTime = 18;
         maxDrawingTime = 24;
-        rngLookahead = 20;
         hiddenVotes = false;
+
+        rngLookahead = 600;
+        rng = new BlockHashRNG(msg.sender, address(sortitionModule), rngLookahead);
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
@@ -109,17 +110,18 @@ contract KlerosCoreTest is Test {
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address,uint256)",
+            "initialize(address,address,uint256,uint256,address)",
             governor,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
-            rng,
-            rngLookahead
+            rng
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
         sortitionModule = SortitionModuleMock(address(proxySm));
+        vm.prank(governor);
+        rng.changeConsumer(address(sortitionModule));
 
         core = KlerosCoreMock(address(proxyCore));
         core.initialize(
@@ -239,11 +241,9 @@ contract KlerosCoreTest is Test {
         assertEq(sortitionModule.minStakingTime(), 18, "Wrong minStakingTime");
         assertEq(sortitionModule.maxDrawingTime(), 24, "Wrong maxDrawingTime");
         assertEq(sortitionModule.lastPhaseChange(), block.timestamp, "Wrong lastPhaseChange");
-        assertEq(sortitionModule.randomNumberRequestBlock(), 0, "randomNumberRequestBlock should be 0");
         assertEq(sortitionModule.disputesWithoutJurors(), 0, "disputesWithoutJurors should be 0");
         assertEq(address(sortitionModule.rng()), address(rng), "Wrong RNG address");
         assertEq(sortitionModule.randomNumber(), 0, "randomNumber should be 0");
-        assertEq(sortitionModule.rngLookahead(), 20, "Wrong rngLookahead");
         assertEq(sortitionModule.delayedStakeWriteIndex(), 0, "delayedStakeWriteIndex should be 0");
         assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
 
@@ -260,7 +260,6 @@ contract KlerosCoreTest is Test {
         KlerosCoreMock coreLogic = new KlerosCoreMock();
         SortitionModuleMock smLogic = new SortitionModuleMock();
         DisputeKitClassic dkLogic = new DisputeKitClassic();
-        rng = new BlockHashRNG();
         pinakion = new PNK();
 
         governor = msg.sender;
@@ -280,8 +279,10 @@ contract KlerosCoreTest is Test {
         sortitionExtraData = abi.encode(uint256(5));
         minStakingTime = 18;
         maxDrawingTime = 24;
-        rngLookahead = 20;
         hiddenVotes = false;
+
+        rngLookahead = 20;
+        rng = new BlockHashRNG(msg.sender, address(sortitionModule), rngLookahead);
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
@@ -296,17 +297,18 @@ contract KlerosCoreTest is Test {
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address,uint256)",
+            "initialize(address,address,uint256,uint256,address)",
             governor,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
-            rng,
-            rngLookahead
+            rng
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
         sortitionModule = SortitionModuleMock(address(proxySm));
+        vm.prank(governor);
+        rng.changeConsumer(address(sortitionModule));
 
         core = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
@@ -1015,7 +1017,7 @@ contract KlerosCoreTest is Test {
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
@@ -1062,7 +1064,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         assertEq(pinakion.balanceOf(address(core)), 2000, "Wrong token balance of the core");
@@ -1089,7 +1091,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         uint256 disputeID = 0;
@@ -1145,7 +1147,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         uint256 disputeID = 0;
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -1433,7 +1435,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         vm.expectEmit(true, true, true, true);
@@ -1512,7 +1514,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action"); // Dispute uses general court by default
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         (uint96 courtID, , , , ) = core.disputes(disputeID);
@@ -1555,7 +1557,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1665,7 +1667,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1690,7 +1692,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS - 1); // Draw less to check the require later
@@ -1801,7 +1803,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1828,7 +1830,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1869,7 +1871,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1918,7 +1920,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2008,7 +2010,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2052,7 +2054,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2153,7 +2155,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
@@ -2231,7 +2233,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2265,7 +2267,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         // Split the stakers' votes. The first staker will get VoteID 0 and the second will take the rest.
@@ -2277,7 +2279,7 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 20000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, 2); // Assign leftover votes to staker2
@@ -2383,7 +2385,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2458,7 +2460,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2504,7 +2506,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2559,7 +2561,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2649,7 +2651,7 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 20000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2703,7 +2705,7 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 20000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2742,7 +2744,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2796,7 +2798,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2839,7 +2841,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2938,7 +2940,7 @@ contract KlerosCoreTest is Test {
 
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);

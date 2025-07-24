@@ -70,6 +70,8 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     ],
     log: true,
   });
+
+  console.log("Register this Chainlink consumer here: http://vrf.chain.link/");
 };
 
 deployRng.tags = ["ChainlinkRNG"];

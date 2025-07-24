@@ -7,7 +7,7 @@ import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {RNG} from "../rng/RNG.sol";
+import {IRNG} from "../rng/IRNG.sol";
 import "../libraries/Constants.sol";
 
 /// @title SortitionModuleBase
@@ -50,11 +50,9 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     uint256 public minStakingTime; // The time after which the phase can be switched to Drawing if there are open disputes.
     uint256 public maxDrawingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
-    uint256 public randomNumberRequestBlock; // Number of the block when RNG request was made.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
-    RNG public rng; // The random number generator.
+    IRNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
-    uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 treeHash => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
@@ -104,8 +102,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng,
-        uint256 _rngLookahead
+        IRNG _rng
     ) internal onlyInitializing {
         governor = _governor;
         core = _core;
@@ -113,7 +110,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
         rng = _rng;
-        rngLookahead = _rngLookahead;
         delayedStakeReadIndex = 1;
     }
 
@@ -153,15 +149,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         maxDrawingTime = _maxDrawingTime;
     }
 
-    /// @dev Changes the `_rng` and `_rngLookahead` storage variables.
-    /// @param _rng The new value for the `RNGenerator` storage variable.
-    /// @param _rngLookahead The new value for the `rngLookahead` storage variable.
-    function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
+    /// @dev Changes the `rng` storage variable.
+    /// @param _rng The new random number generator.
+    function changeRandomNumberGenerator(IRNG _rng) external onlyByGovernor {
         rng = _rng;
-        rngLookahead = _rngLookahead;
         if (phase == Phase.generating) {
-            rng.requestRandomness(block.number + rngLookahead);
-            randomNumberRequestBlock = block.number;
+            rng.requestRandomness();
         }
     }
 
@@ -176,11 +169,10 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 "The minimum staking time has not passed yet."
             );
             require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
-            rng.requestRandomness(block.number + rngLookahead);
-            randomNumberRequestBlock = block.number;
+            rng.requestRandomness();
             phase = Phase.generating;
         } else if (phase == Phase.generating) {
-            randomNumber = rng.receiveRandomness(randomNumberRequestBlock + rngLookahead);
+            randomNumber = rng.receiveRandomness();
             require(randomNumber != 0, "Random number is not ready yet");
             phase = Phase.drawing;
         } else if (phase == Phase.drawing) {

@@ -12,7 +12,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy } = deployments;
   const { ZeroAddress } = hre.ethers;
-  const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -53,7 +52,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.target, RNG_LOOKAHEAD],
+    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.target],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -87,11 +86,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     await disputeKitContract.changeCore(klerosCore.address);
   }
 
-  // rng.changeSortitionModule() only if necessary
-  const rngSortitionModule = await rng.sortitionModule();
-  if (rngSortitionModule !== sortitionModule.address) {
-    console.log(`rng.changeSortitionModule(${sortitionModule.address})`);
-    await rng.changeSortitionModule(sortitionModule.address);
+  // rng.changeConsumer() only if necessary
+  const rngConsumer = await rng.consumer();
+  if (rngConsumer !== sortitionModule.address) {
+    console.log(`rng.changeConsumer(${sortitionModule.address})`);
+    await rng.changeConsumer(sortitionModule.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
