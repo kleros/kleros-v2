@@ -3,7 +3,6 @@ import { deployments, ethers, network } from "hardhat";
 import { IncrementalNG, BlockHashRNG, ChainlinkRNG, ChainlinkVRFCoordinatorV2Mock } from "../../typechain-types";
 
 const initialNg = 424242;
-const abiCoder = ethers.AbiCoder.defaultAbiCoder();
 
 describe("IncrementalNG", async () => {
   let rng: IncrementalNG;
@@ -28,15 +27,48 @@ describe("BlockHashRNG", async () => {
   let rng: BlockHashRNG;
 
   beforeEach("Setup", async () => {
-    const rngFactory = await ethers.getContractFactory("BlockHashRNG");
-    rng = (await rngFactory.deploy(1)) as BlockHashRNG;
+    const [deployer] = await ethers.getSigners();
+    await deployments.delete("BlockHashRNG");
+    await deployments.deploy("BlockHashRNG", {
+      from: deployer.address,
+      args: [deployer.address, deployer.address, 10], // governor, consumer, lookaheadTime (seconds)
+    });
+    rng = await ethers.getContract<BlockHashRNG>("BlockHashRNG");
   });
 
-  it("Should return a non-zero number for a block number", async () => {
-    const tx = await rng.receiveRandomness();
-    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
-    expect(rn).to.not.equal(0);
+  it("Should return a non-zero number after requesting and waiting", async () => {
+    // First request randomness
+    await rng.requestRandomness();
+
+    // Check that it's not ready yet
+    expect(await rng.isRandomnessReady()).to.be.false;
+
+    // Advance time by 10 seconds (the lookahead time)
+    await network.provider.send("evm_increaseTime", [10]);
+    await network.provider.send("evm_mine");
+
+    // Now it should be ready
+    expect(await rng.isRandomnessReady()).to.be.true;
+
+    // Get the random number
+    const randomNumber = await rng.receiveRandomness.staticCall();
+    expect(randomNumber).to.not.equal(0);
+  });
+
+  it("Should return 0 if randomness not requested", async () => {
+    const randomNumber = await rng.receiveRandomness.staticCall();
+    expect(randomNumber).to.equal(0);
+  });
+
+  it("Should return 0 if not enough time has passed", async () => {
+    await rng.requestRandomness();
+
+    // Don't advance time enough
+    await network.provider.send("evm_increaseTime", [5]); // Only 5 seconds
+    await network.provider.send("evm_mine");
+
+    const randomNumber = await rng.receiveRandomness.staticCall();
+    expect(randomNumber).to.equal(0);
   });
 });
 

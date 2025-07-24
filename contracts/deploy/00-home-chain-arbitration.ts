@@ -43,7 +43,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const blockhashRng = await getContractOrDeploy(hre, "BlockHashRNG", {
     from: deployer,
-    args: [],
+    args: [
+      deployer, // governor
+      deployer, // consumer (configured to SortitionModule later)
+      600, // lookaheadTime: 10 minutes in seconds
+    ],
     log: true,
   });
 
