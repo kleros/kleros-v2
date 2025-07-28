@@ -68,29 +68,10 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "internalType": "enum ISortitionModule.Phase",
-          "name": "_phase",
-          "type": "uint8"
-        }
-      ],
-      "name": "NewPhase",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
           "indexed": true,
           "internalType": "address",
-          "name": "_address",
+          "name": "_account",
           "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
         },
         {
           "indexed": false,
@@ -99,7 +80,39 @@
           "type": "uint256"
         }
       ],
-      "name": "StakeDelayedAlreadyTransferredDeposited",
+      "name": "LeftoverPNK",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LeftoverPNKWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "enum ISortitionModule.Phase",
+          "name": "_phase",
+          "type": "uint8"
+        }
+      ],
+      "name": "NewPhase",
       "type": "event"
     },
     {
@@ -124,32 +137,7 @@
           "type": "uint256"
         }
       ],
-      "name": "StakeDelayedAlreadyTransferredWithdrawn",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_address",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "StakeDelayedNotTransferred",
+      "name": "StakeDelayed",
       "type": "event"
     },
     {
@@ -501,6 +489,25 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_juror",
+          "type": "address"
+        }
+      ],
+      "name": "getJurorLeftoverPNK",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "governor",
       "outputs": [
@@ -553,7 +560,7 @@
     },
     {
       "inputs": [],
-      "name": "initialize3",
+      "name": "initialize4",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -716,7 +723,18 @@
         }
       ],
       "name": "penalizeStake",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pnkBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "availablePenalty",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -843,33 +861,22 @@
         },
         {
           "internalType": "uint256",
-          "name": "_newStake",
+          "name": "_pnkDeposit",
           "type": "uint256"
         },
         {
-          "internalType": "bool",
-          "name": "_alreadyTransferred",
-          "type": "bool"
+          "internalType": "uint256",
+          "name": "_pnkWithdrawal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_newStake",
+          "type": "uint256"
         }
       ],
       "name": "setStake",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "pnkDeposit",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "pnkWithdrawal",
-          "type": "uint256"
-        },
-        {
-          "internalType": "enum StakingResult",
-          "name": "stakingResult",
-          "type": "uint8"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -958,6 +965,45 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint96",
+          "name": "_courtID",
+          "type": "uint96"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_newStake",
+          "type": "uint256"
+        }
+      ],
+      "name": "validateStake",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pnkDeposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pnkWithdrawal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum StakingResult",
+          "name": "stakingResult",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "version",
       "outputs": [
@@ -968,6 +1014,19 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawLeftoverPNK",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1020,16 +1079,16 @@
     "0xA418a7E63DC8Aa0F379487E4445f86543C16A0E9",
     "0x54812d17000000000000000000000000f1c7c037891525e360c59f708739ac09a7670c59000000000000000000000000e8442307d36e9bf6ab27f1a009f95ce8e11c3479000000000000000000000000000000000000000000000000000000000000070800000000000000000000000000000000000000000000000000000000000007080000000000000000000000000298a3efa6faf90865725e2b48cf0f66e5d527540000000000000000000000000000000000000000000000000000000000000014"
   ],
-  "numDeployments": 2,
-  "solcInputHash": "acb39436d8539d1379a47e045a065e54",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/proxy/KlerosProxies.sol\":\"SortitionModuleProxy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/proxy/KlerosProxies.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.24;\\n\\nimport \\\"./UUPSProxy.sol\\\";\\n\\n/// Workaround to get meaningful names for the proxy contracts\\n/// Otherwise all the contracts are called `UUPSProxy` on the chain explorers\\n\\ncontract DisputeKitClassicNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitClassicUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitClassicProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitGatedProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitSybilResistantProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeTemplateRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract EvidenceModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract ForeignGatewayOnEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract HomeGatewayToEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreRulerProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract PolicyRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract RandomizerRNGProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\",\"keccak256\":\"0x8edb830825d7fe8ef85d445b087fac3b41f626cd7d5b40ea583c3cba21528687\",\"license\":\"MIT\"},\"src/proxy/UUPSProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.24;\\n\\n/// @title UUPS Proxy\\n/// @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n/// @dev This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.\\n/// @dev This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.\\n/// @dev We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\\n/// @dev Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/ERC1967/ERC1967Proxy.sol>\\ncontract UUPSProxy {\\n    /// @dev Storage slot with the address of the current implementation.\\n    /// This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n    /// validated in the constructor.\\n    /// NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @dev Initializes the upgradeable proxy with an initial implementation specified by `_implementation`.\\n    /// If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded\\n    /// function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n    constructor(address _implementation, bytes memory _data) {\\n        assembly {\\n            sstore(IMPLEMENTATION_SLOT, _implementation)\\n        }\\n\\n        if (_data.length != 0) {\\n            (bool success, ) = _implementation.delegatecall(_data);\\n            require(success, \\\"Proxy Constructor failed\\\");\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Delegates the current call to `implementation`.\\n    /// NOTE: This function does not return to its internal call site, it will return directly to the external caller.\\n    function _delegate(address implementation) internal {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views            * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Fallback                * //\\n    // ************************************* //\\n\\n    /// @dev Fallback function that delegates calls to the address returned by `_implementation()`.\\n    /// @dev Will run if no other function in the contract matches the call data.\\n    fallback() external payable {\\n        _delegate(_getImplementation());\\n    }\\n\\n    receive() external payable {\\n        _delegate(_getImplementation());\\n    }\\n}\\n\",\"keccak256\":\"0xc3e0b18f846a62cc6c274680fc10014d1267885f8eefc6767292d3e174a081c0\",\"license\":\"MIT\"}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b5060405161030238038061030283398101604081905261002f91610151565b8181817f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc55805160001461010e576000826001600160a01b031682604051610077919061021f565b600060405180830381855af49150503d80600081146100b2576040519150601f19603f3d011682016040523d82523d6000602084013e6100b7565b606091505b505090508061010c5760405162461bcd60e51b815260206004820152601860248201527f50726f787920436f6e7374727563746f72206661696c65640000000000000000604482015260640160405180910390fd5b505b5050505061023b565b634e487b7160e01b600052604160045260246000fd5b60005b83811015610148578181015183820152602001610130565b50506000910152565b6000806040838503121561016457600080fd5b82516001600160a01b038116811461017b57600080fd5b60208401519092506001600160401b038082111561019857600080fd5b818501915085601f8301126101ac57600080fd5b8151818111156101be576101be610117565b604051601f8201601f19908116603f011681019083821181831017156101e6576101e6610117565b816040528281528860208487010111156101ff57600080fd5b61021083602083016020880161012d565b80955050505050509250929050565b6000825161023181846020870161012d565b9190910192915050565b60b9806102496000396000f3fe608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea2646970667358221220513bc6a745176e53721a26bca808387afe1464a5c3e66402a18c832c564fd1dc64736f6c63430008180033",
-  "deployedBytecode": "0x608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea2646970667358221220513bc6a745176e53721a26bca808387afe1464a5c3e66402a18c832c564fd1dc64736f6c63430008180033",
+  "numDeployments": 3,
+  "solcInputHash": "74873d15f43e245d08be76d8560e80d9",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.28+commit.7893614a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/proxy/KlerosProxies.sol\":\"SortitionModuleProxy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/proxy/KlerosProxies.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.24;\\n\\nimport \\\"./UUPSProxy.sol\\\";\\n\\n/// Workaround to get meaningful names for the proxy contracts\\n/// Otherwise all the contracts are called `UUPSProxy` on the chain explorers\\n\\ncontract DisputeKitClassicNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitClassicUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitClassicProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitGatedProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitGatedShutterProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitShutterProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitSybilResistantProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeTemplateRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract EvidenceModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract ForeignGatewayOnEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract HomeGatewayToEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreRulerProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract PolicyRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract RandomizerRNGProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\",\"keccak256\":\"0xc4b339597d3141b25664fd25d91a78bed6d61220fa0ea63f0116be7a0cc53fbf\",\"license\":\"MIT\"},\"src/proxy/UUPSProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.24;\\n\\n/// @title UUPS Proxy\\n/// @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n/// @dev This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.\\n/// @dev This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.\\n/// @dev We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\\n/// @dev Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/ERC1967/ERC1967Proxy.sol>\\ncontract UUPSProxy {\\n    /// @dev Storage slot with the address of the current implementation.\\n    /// This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n    /// validated in the constructor.\\n    /// NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @dev Initializes the upgradeable proxy with an initial implementation specified by `_implementation`.\\n    /// If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded\\n    /// function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n    constructor(address _implementation, bytes memory _data) {\\n        assembly {\\n            sstore(IMPLEMENTATION_SLOT, _implementation)\\n        }\\n\\n        if (_data.length != 0) {\\n            (bool success, ) = _implementation.delegatecall(_data);\\n            require(success, \\\"Proxy Constructor failed\\\");\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Delegates the current call to `implementation`.\\n    /// NOTE: This function does not return to its internal call site, it will return directly to the external caller.\\n    function _delegate(address implementation) internal {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views            * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Fallback                * //\\n    // ************************************* //\\n\\n    /// @dev Fallback function that delegates calls to the address returned by `_implementation()`.\\n    /// @dev Will run if no other function in the contract matches the call data.\\n    fallback() external payable {\\n        _delegate(_getImplementation());\\n    }\\n\\n    receive() external payable {\\n        _delegate(_getImplementation());\\n    }\\n}\\n\",\"keccak256\":\"0x0c2cf69714fddf4aaae7dadd53afe0c376178953313ce5b3af72b834e46b2c77\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161030838038061030883398101604081905261002f91610151565b8181817f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc55805160001461010e576000826001600160a01b0316826040516100779190610225565b600060405180830381855af49150503d80600081146100b2576040519150601f19603f3d011682016040523d82523d6000602084013e6100b7565b606091505b505090508061010c5760405162461bcd60e51b815260206004820152601860248201527f50726f787920436f6e7374727563746f72206661696c65640000000000000000604482015260640160405180910390fd5b505b50505050610241565b634e487b7160e01b600052604160045260246000fd5b60005b83811015610148578181015183820152602001610130565b50506000910152565b6000806040838503121561016457600080fd5b82516001600160a01b038116811461017b57600080fd5b60208401519092506001600160401b0381111561019757600080fd5b8301601f810185136101a857600080fd5b80516001600160401b038111156101c1576101c1610117565b604051601f8201601f19908116603f011681016001600160401b03811182821017156101ef576101ef610117565b60405281815282820160200187101561020757600080fd5b61021882602083016020860161012d565b8093505050509250929050565b6000825161023781846020870161012d565b9190910192915050565b60b98061024f6000396000f3fe608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea2646970667358221220f2e3563554b18c2c9587081d72ef7797df12f887fb52d3ccfb244524903568c364736f6c634300081c0033",
+  "deployedBytecode": "0x608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea2646970667358221220f2e3563554b18c2c9587081d72ef7797df12f887fb52d3ccfb244524903568c364736f6c634300081c0033",
   "execute": {
-    "methodName": "initialize3",
+    "methodName": "initialize4",
     "args": []
   },
-  "implementation": "0xAe750D6Fa39b1044d4081CB0bfecF886d176Be5b",
+  "implementation": "0x0C872eeF07030107b53eaD15bb7dD7E6FBCA2b83",
   "devdoc": {
     "kind": "dev",
     "methods": {},
