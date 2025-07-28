@@ -6,7 +6,7 @@ import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { simulateDisputeKitClassicCastCommit } from "hooks/contracts/generated";
+import { simulateDisputeKitClassicCastCommit, simulateDisputeKitGatedCastCommit } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -25,9 +25,10 @@ interface ICommit {
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   refetch: () => void;
+  isGated: boolean;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, isGated }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -58,7 +59,10 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       const salt = keccak256(rawSalt);
       setSalt(JSON.stringify({ salt, choice: choice.toString() }));
       const commit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(choice), BigInt(salt)]));
-      const { request } = await simulateDisputeKitClassicCastCommit(wagmiConfig, {
+
+      const simulate = isGated ? simulateDisputeKitGatedCastCommit : simulateDisputeKitClassicCastCommit;
+
+      const { request } = await simulate(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, commit],
       });
       if (walletClient && publicClient) {
@@ -80,6 +84,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       generateSigningAccount,
       signingAccount,
       refetch,
+      isGated,
     ]
   );
 

@@ -43,14 +43,9 @@ export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid 
 
 export const spamEvidencesIds: string[] = (import.meta.env.REACT_APP_SPAM_EVIDENCES_IDS ?? "").split(",");
 
-export const getDisputeKitName = (id: number): string | undefined => {
-  const universityDisputeKits: Record<number, string> = { 1: "Classic Dispute Kit" };
-  const neoDisputeKits: Record<number, string> = { 1: "Classic Dispute Kit" };
-  const testnetDisputeKits: Record<number, string> = { 1: "Classic Dispute Kit" };
-  const devnetDisputeKits: Record<number, string> = { 1: "Classic Dispute Kit", 2: "Shutter Dispute Kit" };
-
-  if (isKlerosUniversity()) return universityDisputeKits[id];
-  if (isKlerosNeo()) return neoDisputeKits[id];
-  if (isTestnetDeployment()) return testnetDisputeKits[id];
-  return devnetDisputeKits[id];
-};
+export enum DisputeKits {
+  Classic = "Classic",
+  Shutter = "Shutter",
+  Gated = "Token Gated",
+  GatedShutter = "Token Gated Shutter",
+}

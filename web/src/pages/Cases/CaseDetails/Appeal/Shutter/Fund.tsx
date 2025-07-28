@@ -4,13 +4,18 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount, useBalance, usePublicClient } from "wagmi";
+
 import { Field, Button } from "@kleros/ui-components-library";
 
 import { REFETCH_INTERVAL } from "consts/index";
-import { useSimulateDisputeKitShutterFundAppeal, useWriteDisputeKitShutterFundAppeal } from "hooks/contracts/generated";
+import {
+  useSimulateDisputeKitGatedShutterFundAppeal,
+  useSimulateDisputeKitShutterFundAppeal,
+  useWriteDisputeKitGatedShutterFundAppeal,
+  useWriteDisputeKitShutterFundAppeal,
+} from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useParsedAmount } from "hooks/useParsedAmount";
-
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 
@@ -61,7 +66,7 @@ const useNeedFund = () => {
   );
 };
 
-const useFundAppeal = (parsedAmount: bigint, insufficientBalance: boolean) => {
+const useFundAppeal = (parsedAmount: bigint, isGated: boolean, insufficientBalance?: boolean) => {
   const { id } = useParams();
   const { selectedOption } = useSelectedOptionContext();
   const {
@@ -69,21 +74,41 @@ const useFundAppeal = (parsedAmount: bigint, insufficientBalance: boolean) => {
     isLoading,
     isError,
   } = useSimulateDisputeKitShutterFundAppeal({
-    query: { enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance },
+    query: { enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && !isGated },
     args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
     value: parsedAmount,
   });
   const { writeContractAsync: fundAppeal } = useWriteDisputeKitShutterFundAppeal();
-  return { fundAppeal, fundAppealConfig, isLoading, isError };
+
+  const {
+    data: fundAppealGatedConfig,
+    isLoading: isLoadingGated,
+    isError: isErrorGated,
+  } = useSimulateDisputeKitGatedShutterFundAppeal({
+    query: { enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && isGated },
+    args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
+    value: parsedAmount,
+  });
+  const { writeContractAsync: fundAppealGated } = useWriteDisputeKitGatedShutterFundAppeal();
+
+  return isGated
+    ? {
+        fundAppeal: fundAppealGated,
+        fundAppealConfig: fundAppealGatedConfig,
+        isLoading: isLoadingGated,
+        isError: isErrorGated,
+      }
+    : { fundAppeal, fundAppealConfig, isLoading, isError };
 };
 
 interface IFund {
   amount: `${number}`;
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
+  isGated: boolean;
 }
 
-const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
+const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
   const needFund = useNeedFund();
   const { address, isDisconnected } = useAccount();
   const { data: balance } = useBalance({
@@ -96,7 +121,11 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
   const insufficientBalance = useMemo(() => balance && balance.value < parsedAmount, [balance, parsedAmount]);
-  const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(parsedAmount, insufficientBalance);
+  const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(
+    parsedAmount,
+    isGated,
+    insufficientBalance
+  );
   const isFundDisabled = useMemo(
     () =>
       isDisconnected ||

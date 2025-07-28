@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { Textarea } from "@kleros/ui-components-library";
@@ -17,6 +17,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
 `;
+
 const StyledTextArea = styled(Textarea)`
   width: 84vw;
   height: 300px;
@@ -26,15 +27,26 @@ const StyledTextArea = styled(Textarea)`
     `
   )}
 `;
+
 const Description: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleWrite = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDisputeData({ ...disputeData, description: event.target.value });
   };
 
+  useEffect(() => {
+    if (containerRef.current) {
+      const textareaElement = containerRef.current.querySelector("textarea");
+      if (textareaElement) {
+        textareaElement.focus();
+      }
+    }
+  }, []);
+
   return (
-    <Container>
+    <Container ref={containerRef}>
       <Header text="Describe the case" />
       <StyledTextArea
         dir="auto"
@@ -46,4 +58,5 @@ const Description: React.FC = () => {
     </Container>
   );
 };
+
 export default Description;

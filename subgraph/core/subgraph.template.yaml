@@ -161,6 +161,82 @@ dataSources:
           handler: handleCommitCast
       file: ./src/DisputeKitClassic.ts
   - kind: ethereum
+    name: DisputeKitGated
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeKitGated
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitGated
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitGated.json
+        - name: DisputeKitClassic # Required on Alchemy
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: DisputeKitGatedShutter
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeKitGatedShutter
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitGatedShutter
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitGatedShutter.json
+        - name: DisputeKitClassic # Required on Alchemy
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
     name: EvidenceModule
     network: _PLACEHOLDER_
     source:

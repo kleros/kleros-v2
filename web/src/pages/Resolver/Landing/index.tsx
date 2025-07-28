@@ -7,6 +7,7 @@ import { useDebounce } from "react-use";
 import { Button } from "@kleros/ui-components-library";
 
 import { AliasArray, Answer, useNewDisputeContext } from "context/NewDisputeContext";
+import { extraDataToTokenInfo } from "utils/extradataToTokenInfo";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
@@ -68,6 +69,13 @@ const Landing: React.FC = () => {
     isLoading: isLoadingRound,
   } = useRoundDetailsQuery(debouncedDisputeID, 0);
 
+  const gatedTokenInfo = useMemo(() => {
+    const extradata = roundData?.round?.dispute.disputeKitDispute?.[0].extraData;
+
+    if (isUndefined(extradata)) return;
+    return extraDataToTokenInfo(extradata);
+  }, [roundData]);
+
   const isLoading = useMemo(
     () => isLoadingDispute || isPopulatingDispute || isLoadingRound,
     [isLoadingDispute, isPopulatingDispute, isLoadingRound]
@@ -114,6 +122,7 @@ const Landing: React.FC = () => {
       disputeKitId: parseInt(roundData.round?.disputeKit.id ?? "1", 10),
       answers,
       aliasesArray: aliasesArray ?? disputeData.aliasesArray,
+      disputeKitData: gatedTokenInfo ? { ...gatedTokenInfo, type: "gated" } : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [populatedDispute, roundData, isInvalidDispute]);

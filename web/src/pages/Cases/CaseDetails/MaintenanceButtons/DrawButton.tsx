@@ -56,6 +56,8 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
     [maintenanceData, isDrawn, phase, period]
   );
 
+  const drawIterations = useMemo(() => Math.min(100, Number(numberOfVotes ?? 0) * 4), [numberOfVotes]);
+
   const {
     data: drawConfig,
     isLoading: isLoadingConfig,
@@ -71,7 +73,7 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
     },
     // eslint-disable-next-line
     // @ts-ignore
-    args: [BigInt(id ?? 0), isUniversity ? drawJuror : BigInt(numberOfVotes ?? 0)],
+    args: [BigInt(id ?? 0), isUniversity ? drawJuror : drawIterations],
   });
 
   const { writeContractAsync: draw } = useWriteKlerosCoreDraw();

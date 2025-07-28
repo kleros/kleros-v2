@@ -56,7 +56,7 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
     let jsonResponse: ShutterApiResponse;
     try {
       jsonResponse = JSON.parse(responseText);
-    } catch (error) {
+    } catch {
       throw new Error(`Failed to parse API response as JSON: ${responseText}`);
     }
 
@@ -93,7 +93,7 @@ async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKe
   let jsonResponse;
   try {
     jsonResponse = JSON.parse(responseText);
-  } catch (error) {
+  } catch {
     throw new Error(`Failed to parse API response as JSON: ${responseText}`);
   }
 
@@ -151,7 +151,7 @@ function generateRandomBytes32(): `0x${string}` {
 export async function encrypt(
   message: string,
   decryptionDelay: number
-): Promise<{ encryptedCommitment: string; identity: string }> {
+): Promise<{ encryptedCommitment: `0x${string}`; identity: string }> {
   // Set decryption timestamp
   const decryptionTimestamp = Math.floor(Date.now() / 1000) + decryptionDelay;
 

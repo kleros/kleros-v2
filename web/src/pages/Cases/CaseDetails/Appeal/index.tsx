@@ -1,11 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { useToggle } from "react-use";
 import { useParams } from "react-router-dom";
+import { useToggle } from "react-use";
 
+import { DisputeKits } from "consts/index";
 import { Periods } from "consts/periods";
-import { getDisputeKitName } from "consts/index";
+import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -49,20 +51,28 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
   const [isAppealMiniGuideOpen, toggleAppealMiniGuide] = useToggle(false);
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
-  const disputeKitId = disputeData?.dispute?.currentRound?.disputeKit?.id;
-  const disputeKitName = disputeKitId ? getDisputeKitName(Number(disputeKitId))?.toLowerCase() : "";
-  const isClassicDisputeKit = disputeKitName?.includes("classic") ?? false;
-  const isShutterDisputeKit = disputeKitName?.includes("shutter") ?? false;
-
+  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
+  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
+  const isClassicDisputeKit = disputeKitName === DisputeKits.Classic || disputeKitName === DisputeKits.Gated;
+  const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
+  const isGated = Boolean(disputeKitName?.includes("Gated"));
   return (
     <Container>
       {Periods.appeal === currentPeriodIndex ? (
         <>
           {isClassicDisputeKit && (
-            <Classic isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
+            <Classic
+              isAppealMiniGuideOpen={isAppealMiniGuideOpen}
+              toggleAppealMiniGuide={toggleAppealMiniGuide}
+              {...{ isGated }}
+            />
           )}
           {isShutterDisputeKit && (
-            <Shutter isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
+            <Shutter
+              isAppealMiniGuideOpen={isAppealMiniGuideOpen}
+              toggleAppealMiniGuide={toggleAppealMiniGuide}
+              {...{ isGated }}
+            />
           )}
         </>
       ) : (

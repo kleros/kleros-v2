@@ -1,15 +1,18 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { Button } from "@kleros/ui-components-library";
-import { useWalletClient, usePublicClient } from "wagmi";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
+import { useWalletClient, usePublicClient } from "wagmi";
 
-import { wrapWithToast } from "utils/wrapWithToast";
+import { Button } from "@kleros/ui-components-library";
+
+import {
+  useSimulateDisputeKitGatedShutterCastVoteShutter,
+  useSimulateDisputeKitShutterCastVoteShutter,
+} from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-
-import { useSimulateDisputeKitShutterCastVoteShutter } from "hooks/contracts/generated";
+import { wrapWithToast } from "utils/wrapWithToast";
 
 const Container = styled.div`
   width: 100%;
@@ -22,9 +25,10 @@ const Container = styled.div`
 interface IReveal {
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
+  isGated: boolean;
 }
 
-const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen }) => {
+const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -52,12 +56,12 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen }) => {
   }, [storedData]);
 
   const {
-    data: simulateData,
-    isLoading: isSimulating,
-    error: simulateError,
+    data: simulateDefaultData,
+    isLoading: isSimulatingDefault,
+    error: simulateDefaultError,
   } = useSimulateDisputeKitShutterCastVoteShutter({
     query: {
-      enabled: !isUndefined(parsedStoredData),
+      enabled: !isUndefined(parsedStoredData) && !isGated,
     },
     args: [
       parsedDisputeID,
@@ -67,6 +71,27 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen }) => {
       parsedStoredData?.justification ?? "",
     ],
   });
+
+  const {
+    data: simulateGatedData,
+    isLoading: isSimulatingGated,
+    error: simulateGatedError,
+  } = useSimulateDisputeKitGatedShutterCastVoteShutter({
+    query: {
+      enabled: !isUndefined(parsedStoredData) && isGated,
+    },
+    args: [
+      parsedDisputeID,
+      parsedVoteIDs,
+      BigInt(parsedStoredData?.choice ?? 0),
+      BigInt(parsedStoredData?.salt ?? 0),
+      parsedStoredData?.justification ?? "",
+    ],
+  });
+
+  const isSimulating = isGated ? isSimulatingGated : isSimulatingDefault;
+  const simulateData = isGated ? simulateGatedData : simulateDefaultData;
+  const simulateError = isGated ? simulateGatedError : simulateDefaultError;
 
   const handleReveal = useCallback(async () => {
     if (isUndefined(parsedStoredData) || isUndefined(simulateData)) {
