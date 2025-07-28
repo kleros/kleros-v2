@@ -20,6 +20,9 @@ import {
   BlockHashRNG__factory,
   PNK__factory,
   KlerosCoreSnapshotProxy__factory,
+  DisputeKitShutter__factory,
+  DisputeKitGated__factory,
+  DisputeKitGatedShutter__factory,
 } from "../../typechain-types";
 import { getActualAddress } from "../utils/getActualAddress";
 
@@ -39,10 +42,32 @@ type ContractMapping = {
   };
 };
 
-const baseContractMapping: ContractMapping = {
+const devnetContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCore" },
   sortition: { name: "SortitionModule" },
   disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeResolver: { name: "DisputeResolver" },
+  disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
+  evidence: { name: "EvidenceModule" },
+  policyRegistry: { name: "PolicyRegistry" },
+  transactionBatcher: { name: "TransactionBatcher" },
+  chainlinkRng: { name: "ChainlinkRNG", optional: true },
+  randomizerRng: { name: "RandomizerRNG", optional: true },
+  blockHashRng: { name: "BlockHashRNG" },
+  pnk: { name: "PNK" },
+  klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
+};
+
+const testnetContractMapping: ContractMapping = {
+  klerosCore: { name: "KlerosCore" },
+  sortition: { name: "SortitionModule" },
+  disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter", optional: true },
+  disputeKitGated: { name: "DisputeKitGated", optional: true },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter", optional: true },
   disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -59,6 +84,9 @@ const universityContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCoreUniversity" },
   sortition: { name: "SortitionModuleUniversity" },
   disputeKitClassic: { name: "DisputeKitClassicUniversity" },
+  disputeKitShutter: { name: "DisputeKitShutterUniversity", optional: true },
+  disputeKitGated: { name: "DisputeKitGatedUniversity", optional: true },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutterUniversity", optional: true },
   disputeResolver: { name: "DisputeResolverUniversity" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -75,6 +103,9 @@ const neoContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCoreNeo" },
   sortition: { name: "SortitionModuleNeo" },
   disputeKitClassic: { name: "DisputeKitClassicNeo" },
+  disputeKitShutter: { name: "DisputeKitShutterNeo", optional: true },
+  disputeKitGated: { name: "DisputeKitGatedNeo", optional: true },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo", optional: true },
   disputeResolver: { name: "DisputeResolverNeo" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -87,7 +118,7 @@ const neoContractMapping: ContractMapping = {
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
 
-describe("getContractsEthers", () => {
+describe("getContractsEthers", async () => {
   // Use real providers for each network
   const arbitrumSepoliaProvider = new ethers.JsonRpcProvider("https://sepolia-rollup.arbitrum.io/rpc");
   const arbitrumProvider = new ethers.JsonRpcProvider("https://arb1.arbitrum.io/rpc");
@@ -104,6 +135,17 @@ describe("getContractsEthers", () => {
     provider: ethers.Provider
   ) {
     expect(contracts.disputeKitClassic).to.be.instanceOf(getConstructor(DisputeKitClassic__factory, provider));
+    if (contracts.disputeKitShutter) {
+      expect(contracts.disputeKitShutter).to.be.instanceOf(getConstructor(DisputeKitShutter__factory, provider));
+    }
+    if (contracts.disputeKitGated) {
+      expect(contracts.disputeKitGated).to.be.instanceOf(getConstructor(DisputeKitGated__factory, provider));
+    }
+    if (contracts.disputeKitGatedShutter) {
+      expect(contracts.disputeKitGatedShutter).to.be.instanceOf(
+        getConstructor(DisputeKitGatedShutter__factory, provider)
+      );
+    }
     expect(contracts.disputeResolver).to.be.instanceOf(getConstructor(DisputeResolver__factory, provider));
     expect(contracts.disputeTemplateRegistry).to.be.instanceOf(
       getConstructor(DisputeTemplateRegistry__factory, provider)
@@ -136,6 +178,15 @@ describe("getContractsEthers", () => {
     await verifyContractAddress(contracts.klerosCore.getAddress());
     await verifyContractAddress(contracts.sortition.getAddress());
     await verifyContractAddress(contracts.disputeKitClassic.getAddress());
+    if (contracts.disputeKitShutter) {
+      await verifyContractAddress(contracts.disputeKitShutter.getAddress());
+    }
+    if (contracts.disputeKitGated) {
+      await verifyContractAddress(contracts.disputeKitGated.getAddress());
+    }
+    if (contracts.disputeKitGatedShutter) {
+      await verifyContractAddress(contracts.disputeKitGatedShutter.getAddress());
+    }
     await verifyContractAddress(contracts.disputeResolver.getAddress());
     await verifyContractAddress(contracts.disputeTemplateRegistry.getAddress());
     await verifyContractAddress(contracts.evidence.getAddress());
@@ -181,12 +232,15 @@ describe("getContractsEthers", () => {
     expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumSepoliaProvider));
     expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumSepoliaProvider));
     verifyCommonContractInstances(contracts, arbitrumSepoliaProvider);
+    expect(contracts.disputeKitShutter).to.not.be.null;
+    expect(contracts.disputeKitGated).to.not.be.null;
+    expect(contracts.disputeKitGatedShutter).to.not.be.null;
     expect(contracts.chainlinkRng).to.not.be.null;
     expect(contracts.randomizerRng).to.be.null;
 
     // Verify all contract addresses
     await verifyAllContractAddresses(contracts);
-    await verifyDeployedAddresses(contracts, NETWORKS.DEVNET, baseContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.DEVNET, devnetContractMapping);
   });
 
   it("should return correct contract instances for university", async () => {
@@ -204,6 +258,9 @@ describe("getContractsEthers", () => {
       getConstructor(SortitionModuleUniversity__factory, arbitrumSepoliaProvider)
     );
     verifyCommonContractInstances(contracts, arbitrumSepoliaProvider);
+    expect(contracts.disputeKitShutter).to.be.null;
+    expect(contracts.disputeKitGated).to.be.null;
+    expect(contracts.disputeKitGatedShutter).to.be.null;
     expect(contracts.chainlinkRng).to.not.be.null;
     expect(contracts.randomizerRng).to.be.null;
 
@@ -223,12 +280,15 @@ describe("getContractsEthers", () => {
     expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumSepoliaProvider));
     expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumSepoliaProvider));
     verifyCommonContractInstances(contracts, arbitrumSepoliaProvider);
+    expect(contracts.disputeKitShutter).to.be.null;
+    expect(contracts.disputeKitGated).to.be.null;
+    expect(contracts.disputeKitGatedShutter).to.be.null;
     expect(contracts.chainlinkRng).to.not.be.null;
     expect(contracts.randomizerRng).to.be.null;
 
     // Verify all contract addresses
     await verifyAllContractAddresses(contracts);
-    await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, baseContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
   it("should return correct contract instances for mainnetNeo", async () => {
@@ -242,6 +302,9 @@ describe("getContractsEthers", () => {
     expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCoreNeo__factory, arbitrumProvider));
     expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModuleNeo__factory, arbitrumProvider));
     verifyCommonContractInstances(contracts, arbitrumProvider);
+    expect(contracts.disputeKitShutter).to.be.null;
+    expect(contracts.disputeKitGated).to.be.null;
+    expect(contracts.disputeKitGatedShutter).to.be.null;
     expect(contracts.chainlinkRng).to.not.be.null;
     expect(contracts.randomizerRng).to.not.be.null;
 
