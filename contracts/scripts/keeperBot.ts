@@ -1,6 +1,13 @@
 import hre from "hardhat";
 import { toBigInt, BigNumberish, getNumber, BytesLike } from "ethers";
-import { DisputeKitClassic, DisputeKitShutter, SortitionModule, SortitionModuleNeo } from "../typechain-types";
+import {
+  DisputeKitClassic,
+  DisputeKitGated,
+  DisputeKitGatedShutter,
+  DisputeKitShutter,
+  SortitionModule,
+  SortitionModuleNeo,
+} from "../typechain-types";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import { Cores, getContracts as getContractsForCoreType } from "./utils/contracts";
@@ -92,14 +99,14 @@ const getDisputeKit = async (
   coreDisputeId: string,
   coreRoundId: string
 ): Promise<{
-  disputeKit: DisputeKitClassic | DisputeKitShutter;
+  disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
   localDisputeId: bigint;
   localRoundId: bigint;
 }> => {
-  const { core, disputeKitClassic, disputeKitShutter } = await getContracts();
+  const { core, disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter } = await getContracts();
   const round = await core.getRoundInfo(coreDisputeId, coreRoundId);
   const disputeKitAddress = await core.disputeKits(round.disputeKitID);
-  let disputeKit: DisputeKitClassic | DisputeKitShutter;
+  let disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
   switch (disputeKitAddress) {
     case disputeKitClassic.target:
       disputeKit = disputeKitClassic;
@@ -107,6 +114,14 @@ const getDisputeKit = async (
     case disputeKitShutter?.target:
       if (!disputeKitShutter) throw new Error(`DisputeKitShutter not deployed`);
       disputeKit = disputeKitShutter;
+      break;
+    case disputeKitGated?.target:
+      if (!disputeKitGated) throw new Error(`DisputeKitGated not deployed`);
+      disputeKit = disputeKitGated;
+      break;
+    case disputeKitGatedShutter?.target:
+      if (!disputeKitGatedShutter) throw new Error(`DisputeKitGatedShutter not deployed`);
+      disputeKit = disputeKitGatedShutter;
       break;
     default:
       throw new Error(`Unknown dispute kit: ${disputeKitAddress}`);
@@ -527,7 +542,7 @@ const shutdown = async () => {
 };
 
 async function main() {
-  const { core, sortition, disputeKitShutter } = await getContracts();
+  const { core, sortition, disputeKitShutter, disputeKitGatedShutter } = await getContracts();
 
   const getBlockTime = async () => {
     return await ethers.provider.getBlock("latest").then((block) => {
@@ -604,6 +619,7 @@ async function main() {
     await passPeriod(dispute);
   }
   await shutterAutoReveal(disputeKitShutter, DISPUTES_TO_SKIP);
+  await shutterAutoReveal(disputeKitGatedShutter, DISPUTES_TO_SKIP);
   if (SHUTTER_AUTO_REVEAL_ONLY) {
     logger.debug("Shutter auto-reveal only, skipping other actions");
     await shutdown();
