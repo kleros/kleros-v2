@@ -217,6 +217,38 @@ const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]>
   return getUniqueDisputes(disputes);
 };
 
+const getUnstakedJurors = async (disputeId: string): Promise<string[]> => {
+  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+  const query = gql`
+    query UnstakedJurors($disputeId: String!) {
+      dispute(id: $disputeId) {
+        currentRound {
+          drawnJurors(where: { juror_: { totalStake: 0 } }) {
+            juror {
+              userAddress
+            }
+          }
+        }
+      }
+    }
+  `;
+  type UnstakedJurors = {
+    dispute: {
+      currentRound: {
+        drawnJurors: { juror: { userAddress: string } }[];
+      };
+    };
+  };
+  const { dispute } = await request<UnstakedJurors>(SUBGRAPH_URL, query, { disputeId });
+  if (!dispute || !dispute.currentRound) {
+    return [];
+  }
+  const uniqueAddresses = [
+    ...new Set(dispute.currentRound.drawnJurors.map((drawnJuror) => drawnJuror.juror.userAddress)),
+  ];
+  return uniqueAddresses;
+};
+
 const handleError = (e: any) => {
   logger.error(e, "Failure");
 };
@@ -382,6 +414,29 @@ const executeRuling = async (dispute: { id: string }) => {
     success = true;
   } catch (e) {
     handleError(e);
+  }
+  return success;
+};
+
+const withdrawLeftoverPNK = async (juror: string) => {
+  const { sortition } = await getContracts();
+  let success = false;
+  try {
+    await sortition.withdrawLeftoverPNK.staticCall(juror);
+  } catch (e) {
+    const error = e as CustomError;
+    const errorDescription = sortition.interface.parseError(error.data)?.signature;
+    logger.info(`WithdrawLeftoverPNK: failed for juror ${juror} because of ${errorDescription}, skipping`);
+    return success;
+  }
+  try {
+    const gas = ((await sortition.withdrawLeftoverPNK.estimateGas(juror)) * 150n) / 100n; // 50% extra gas
+    const tx = await (await sortition.withdrawLeftoverPNK(juror, { gasLimit: gas })).wait();
+    logger.info(`WithdrawLeftoverPNK txID: ${tx?.hash}`);
+  } catch (e) {
+    handleError(e);
+  } finally {
+    success = true;
   }
   return success;
 };
@@ -726,7 +781,7 @@ async function main() {
     do {
       const executeIterations = Math.min(MAX_EXECUTE_ITERATIONS, numberOfMissingRepartitions);
       if (executeIterations === 0) {
-        continue;
+        break;
       }
       logger.info(
         `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
@@ -738,6 +793,19 @@ async function main() {
       numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
       await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
     } while (numberOfMissingRepartitions != 0);
+
+    // ----------------------------------------------- //
+    //             WITHDRAW LEFTOVER PNK               //
+    // ----------------------------------------------- //
+    const unstakedJurors = await getUnstakedJurors(dispute.id);
+    logger.info(`Unstaked jurors: ${unstakedJurors.map((juror) => juror)}`);
+    for (const juror of unstakedJurors) {
+      const leftoverPNK = await sortition.getJurorLeftoverPNK(juror);
+      if (leftoverPNK > 0n) {
+        logger.info(`Leftover PNK for juror ${juror}: ${leftoverPNK}, withdrawing...`);
+        await withdrawLeftoverPNK(juror);
+      }
+    }
 
     // ----------------------------------------------- //
     //               RULING EXECUTION                  //
