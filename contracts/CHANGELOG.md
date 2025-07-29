@@ -21,10 +21,10 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - **Breaking:** Redeploy the Devnet contracts ([`b8a2a15`](https://github.com/kleros/kleros-v2/commit/b8a2a15)) (jaybuidl)
 - **Breaking:** Update the Devnet contract artifacts, add getter for the new Shutter, Gated and Gated Shutter dispute kits ([`5ef5f23`](https://github.com/kleros/kleros-v2/commit/5ef5f23)) (jaybuidl)
-- **Breaking**: Make `KlerosCoreBase.draw()` return the number of drawn jurors (`54d83a7a977e691246fe1f4af719251a81211692`)
+- **Breaking**: Make `KlerosCoreBase.draw()` return the number of drawn jurors ([`54d83a7`](https://github.com/kleros/kleros-v2/commit/54d83a7))
 - **Breaking**: Make `SortitionModule.penalizeStake()` return `(uint256 pnkBalance, uint256 availablePenalty)` ([#2004](https://github.com/kleros/kleros-v2/issues/2004))
 - **Breaking**: Split SortitionModuleBase.setStake() into 2 functions: validateStake() and setStake() ([#2004](https://github.com/kleros/kleros-v2/issues/2004))
-- Avoid unnecessary calls `KlerosCoreBase.draw()` by the keeper bot when no juror is available (`54d83a7a977e691246fe1f4af719251a81211692`)
+- Avoid unnecessary calls `KlerosCoreBase.draw()` by the keeper bot when no juror is available ([`54d83a7`](https://github.com/kleros/kleros-v2/commit/54d83a7))
 - Migrate the contracts verification tooling to the etherscan v2 API ([`b8a2a15`](https://github.com/kleros/kleros-v2/commit/b8a2a15)) (jaybuidl)
 - Bump contract Solidity version to v0.8.28 ([`6e535cc`](https://github.com/kleros/kleros-v2/commit/6e535cc)) (jaybuidl)
 - Bump contract dependencies, `hardhat` to v2.26.0 `node` to v20, `yarn` to 4.9.2 ([`6e535cc`](https://github.com/kleros/kleros-v2/commit/6e535cc)) (jaybuidl)
