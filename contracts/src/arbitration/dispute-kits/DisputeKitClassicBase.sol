@@ -230,11 +230,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
 
-        if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
-            round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
-            alreadyDrawn[localDisputeID][localRoundID][drawnAddress] = true;
-        } else {
-            drawnAddress = address(0);
+        if (drawnAddress != address(0)) {
+            // Sortition can return 0 address if no one has staked yet.
+            if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
+                round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
+                alreadyDrawn[localDisputeID][localRoundID][drawnAddress] = true;
+            } else {
+                drawnAddress = address(0);
+            }
         }
     }
 
