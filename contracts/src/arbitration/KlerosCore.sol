@@ -30,6 +30,7 @@ contract KlerosCore is KlerosCoreBase {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
+    /// @param _wNative The address for WETH tranfers.
     function initialize(
         address _governor,
         address _guardian,
@@ -40,7 +41,8 @@ contract KlerosCore is KlerosCoreBase {
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        ISortitionModule _sortitionModuleAddress
+        ISortitionModule _sortitionModuleAddress,
+        address _wNative
     ) external reinitializer(1) {
         __KlerosCoreBase_initialize(
             _governor,
@@ -52,7 +54,8 @@ contract KlerosCore is KlerosCoreBase {
             _courtParameters,
             _timesPerPeriod,
             _sortitionExtraData,
-            _sortitionModuleAddress
+            _sortitionModuleAddress,
+            _wNative
         );
     }
 

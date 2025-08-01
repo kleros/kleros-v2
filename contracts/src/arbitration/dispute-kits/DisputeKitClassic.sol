@@ -25,8 +25,9 @@ contract DisputeKitClassic is DisputeKitClassicBase {
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
-    function initialize(address _governor, KlerosCore _core) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core);
+    /// @param _wNative The address for WETH tranfers.
+    function initialize(address _governor, KlerosCore _core, address _wNative) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
     }
 
     function initialize7() external reinitializer(7) {

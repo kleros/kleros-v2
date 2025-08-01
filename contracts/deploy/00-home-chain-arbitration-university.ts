@@ -27,7 +27,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, ZeroAddress],
+    args: [deployer, ZeroAddress, weth.target],
     log: true,
   });
 
@@ -59,6 +59,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       sortitionModule.address,
+      weth.target,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)

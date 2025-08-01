@@ -6,6 +6,7 @@ import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
 import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
+import {SafeSend} from "../../libraries/SafeSend.sol";
 import "../../libraries/Constants.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
@@ -14,6 +15,7 @@ import {Initializable} from "../../proxy/Initializable.sol";
 /// Core arbitrator contract for educational purposes.
 contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
+    using SafeSend for address payable;
 
     string public constant override version = "0.8.0";
 
@@ -99,6 +101,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
+    address public wNative; // The address for WETH tranfers.
 
     // ************************************* //
     // *              Events               * //
@@ -197,6 +200,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
+    /// @param _wNative The address of the WETH used by SafeSend for fallback transfers.
     function initialize(
         address _governor,
         address _instructor,
@@ -206,13 +210,15 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
-        ISortitionModuleUniversity _sortitionModuleAddress
+        ISortitionModuleUniversity _sortitionModuleAddress,
+        address _wNative
     ) external reinitializer(1) {
         governor = _governor;
         instructor = _instructor;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
         sortitionModule = _sortitionModuleAddress;
+        wNative = _wNative;
 
         // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a dispute kit is not supported.
         disputeKits.push();
@@ -793,7 +799,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             // No one was coherent, send the rewards to the governor.
             if (round.feeToken == NATIVE_CURRENCY) {
                 // The dispute fees were paid in ETH
-                payable(governor).send(round.totalFeesForJurors);
+                payable(governor).safeSend(round.totalFeesForJurors, wNative);
             } else {
                 // The dispute fees were paid in ERC20
                 round.feeToken.safeTransfer(governor, round.totalFeesForJurors);
@@ -845,7 +851,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         pinakion.safeTransfer(account, pnkReward);
         if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
-            payable(account).send(feeReward);
+            payable(account).safeSend(feeReward, wNative);
         } else {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);
@@ -871,7 +877,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
                 if (leftoverFeeReward != 0) {
                     if (round.feeToken == NATIVE_CURRENCY) {
                         // The dispute fees were paid in ETH
-                        payable(governor).send(leftoverFeeReward);
+                        payable(governor).safeSend(leftoverFeeReward, wNative);
                     } else {
                         // The dispute fees were paid in ERC20
                         round.feeToken.safeTransfer(governor, leftoverFeeReward);

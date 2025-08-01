@@ -8,6 +8,7 @@ import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
+import {SafeSend} from "../libraries/SafeSend.sol";
 import "../libraries/Constants.sol";
 
 /// @title KlerosCoreBase
@@ -15,6 +16,7 @@ import "../libraries/Constants.sol";
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
+    using SafeSend for address payable;
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -99,6 +101,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
     bool public paused; // Whether asset withdrawals are paused.
+    address public wNative; // The address for WETH tranfers.
 
     // ************************************* //
     // *              Events               * //
@@ -199,13 +202,15 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        ISortitionModule _sortitionModuleAddress
+        ISortitionModule _sortitionModuleAddress,
+        address _wNative
     ) internal onlyInitializing {
         governor = _governor;
         guardian = _guardian;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
         sortitionModule = _sortitionModuleAddress;
+        wNative = _wNative;
 
         // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a dispute kit is not supported.
         disputeKits.push();
@@ -802,7 +807,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             // No one was coherent, send the rewards to the governor.
             if (round.feeToken == NATIVE_CURRENCY) {
                 // The dispute fees were paid in ETH
-                payable(governor).send(round.totalFeesForJurors);
+                payable(governor).safeSend(round.totalFeesForJurors, wNative);
             } else {
                 // The dispute fees were paid in ERC20
                 round.feeToken.safeTransfer(governor, round.totalFeesForJurors);
@@ -854,7 +859,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         pinakion.safeTransfer(account, pnkReward);
         if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
-            payable(account).send(feeReward);
+            payable(account).safeSend(feeReward, wNative);
         } else {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);
@@ -880,7 +885,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
                 if (leftoverFeeReward != 0) {
                     if (round.feeToken == NATIVE_CURRENCY) {
                         // The dispute fees were paid in ETH
-                        payable(governor).send(leftoverFeeReward);
+                        payable(governor).safeSend(leftoverFeeReward, wNative);
                     } else {
                         // The dispute fees were paid in ERC20
                         round.feeToken.safeTransfer(governor, leftoverFeeReward);

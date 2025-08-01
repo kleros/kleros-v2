@@ -39,8 +39,14 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.
-    function initialize(address _governor, KlerosCore _core, IProofOfHumanity _poh) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core);
+    /// @param _wNative The address for WETH tranfers.
+    function initialize(
+        address _governor,
+        KlerosCore _core,
+        IProofOfHumanity _poh,
+        address _wNative
+    ) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
         poh = _poh;
         singleDrawPerJuror = true;
     }

@@ -5,6 +5,7 @@ pragma solidity ^0.8.24;
 import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../KlerosCore.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
+import {SafeSend} from "../../libraries/SafeSend.sol";
 
 /// @title DisputeKitClassicBase
 /// Abstract Dispute kit classic implementation of the Kleros v1 features including:
@@ -13,6 +14,7 @@ import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxiable {
+    using SafeSend for address payable;
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -64,6 +66,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(address drawnAddress => bool)))
         public alreadyDrawn; // True if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
     mapping(uint256 coreDisputeID => bool) public coreDisputeIDToActive; // True if this dispute kit is active for this core dispute ID.
+    address public wNative; // The address for WETH tranfers.
 
     // ************************************* //
     // *              Events               * //
@@ -142,9 +145,15 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
-    function __DisputeKitClassicBase_initialize(address _governor, KlerosCore _core) internal onlyInitializing {
+    /// @param _wNative The address for WETH tranfers.
+    function __DisputeKitClassicBase_initialize(
+        address _governor,
+        KlerosCore _core,
+        address _wNative
+    ) internal onlyInitializing {
         governor = _governor;
         core = _core;
+        wNative = _wNative;
     }
 
     // ************************ //
@@ -409,7 +418,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices, dispute.extraData);
         }
 
-        if (msg.value > contribution) payable(msg.sender).send(msg.value - contribution);
+        if (msg.value > contribution) payable(msg.sender).safeSend(msg.value - contribution, wNative);
     }
 
     /// @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
@@ -454,7 +463,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         round.contributions[_beneficiary][_choice] = 0;
 
         if (amount != 0) {
-            _beneficiary.send(amount); // Deliberate use of send to prevent reverting fallback. It's the user's responsibility to accept ETH.
+            _beneficiary.safeSend(amount, wNative); // Deliberate use of send to prevent reverting fallback. It's the user's responsibility to accept ETH.
             emit Withdrawal(_coreDisputeID, _coreRoundID, _choice, _beneficiary, amount);
         }
     }

@@ -3,10 +3,12 @@
 pragma solidity ^0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
+import {SafeSend} from "../libraries/SafeSend.sol";
 import "./interfaces/IDisputeTemplateRegistry.sol";
 
 /// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
 contract KlerosGovernor is IArbitrableV2 {
+    using SafeSend for address payable;
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -60,6 +62,8 @@ contract KlerosGovernor is IArbitrableV2 {
     Submission[] public submissions; // Stores all created transaction lists. submissions[_listID].
     Session[] public sessions; // Stores all submitting sessions. sessions[_session].
 
+    address public wNative; // The address for WETH tranfers.
+
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
@@ -111,6 +115,7 @@ contract KlerosGovernor is IArbitrableV2 {
     /// @param _submissionTimeout Time in seconds allocated for submitting transaction list.
     /// @param _executionTimeout Time in seconds after approval that allows to execute transactions of the approved list.
     /// @param _withdrawTimeout Time in seconds after submission that allows to withdraw submitted list.
+    /// @param _wNative The address of the WETH used by SafeSend for fallback transfers.
     constructor(
         IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData,
@@ -119,10 +124,12 @@ contract KlerosGovernor is IArbitrableV2 {
         uint256 _submissionBaseDeposit,
         uint256 _submissionTimeout,
         uint256 _executionTimeout,
-        uint256 _withdrawTimeout
+        uint256 _withdrawTimeout,
+        address _wNative
     ) {
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
+        wNative = _wNative;
 
         lastApprovalTime = block.timestamp;
         submissionBaseDeposit = _submissionBaseDeposit;
@@ -237,7 +244,7 @@ contract KlerosGovernor is IArbitrableV2 {
         emit ListSubmitted(submissions.length - 1, msg.sender, sessions.length - 1, _description);
 
         uint256 remainder = msg.value - submission.deposit;
-        if (remainder > 0) payable(msg.sender).send(remainder);
+        if (remainder > 0) payable(msg.sender).safeSend(remainder, wNative);
 
         reservedETH += submission.deposit;
     }
@@ -277,7 +284,7 @@ contract KlerosGovernor is IArbitrableV2 {
             submission.approvalTime = block.timestamp;
             uint256 sumDeposit = session.sumDeposit;
             session.sumDeposit = 0;
-            submission.submitter.send(sumDeposit);
+            submission.submitter.safeSend(sumDeposit, wNative);
             lastApprovalTime = block.timestamp;
             session.status = Status.Resolved;
             sessions.push();
@@ -311,7 +318,7 @@ contract KlerosGovernor is IArbitrableV2 {
             Submission storage submission = submissions[session.submittedLists[_ruling - 1]];
             submission.approved = true;
             submission.approvalTime = block.timestamp;
-            submission.submitter.send(session.sumDeposit);
+            submission.submitter.safeSend(session.sumDeposit, wNative);
         }
         // If the ruling is "0" the reserved funds of this session become expendable.
         reservedETH -= session.sumDeposit;
