@@ -32,7 +32,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer, // governor
       pnk.target,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
-      weth.target,
     ],
     log: true,
   });

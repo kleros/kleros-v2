@@ -15,6 +15,7 @@ import {SafeSend} from "../../libraries/SafeSend.sol";
 /// - an appeal system: fund 2 choices only, vote on any choice.
 abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxiable {
     using SafeSend for address payable;
+
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -66,7 +67,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(address drawnAddress => bool)))
         public alreadyDrawn; // True if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
     mapping(uint256 coreDisputeID => bool) public coreDisputeIDToActive; // True if this dispute kit is active for this core dispute ID.
-    address public wNative; // The address for WETH tranfers.
+    address public wNative; // The wrapped native token for safeSend().
 
     // ************************************* //
     // *              Events               * //
@@ -145,7 +146,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
-    /// @param _wNative The address for WETH tranfers.
+    /// @param _wNative The wrapped native token address, typically wETH.
     function __DisputeKitClassicBase_initialize(
         address _governor,
         KlerosCore _core,
@@ -463,7 +464,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         round.contributions[_beneficiary][_choice] = 0;
 
         if (amount != 0) {
-            _beneficiary.safeSend(amount, wNative); // Deliberate use of send to prevent reverting fallback. It's the user's responsibility to accept ETH.
+            _beneficiary.safeSend(amount, wNative);
             emit Withdrawal(_coreDisputeID, _coreRoundID, _choice, _beneficiary, amount);
         }
     }

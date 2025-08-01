@@ -39,7 +39,7 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.
-    /// @param _wNative The address for WETH tranfers.
+    /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
         address _governor,
         KlerosCore _core,

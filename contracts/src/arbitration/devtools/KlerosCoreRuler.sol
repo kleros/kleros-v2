@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
-import {SafeSend} from "../../libraries/SafeSend.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import "../../libraries/Constants.sol";
@@ -13,7 +12,6 @@ import "../../libraries/Constants.sol";
 /// Core arbitrator contract for development and testing purposes.
 contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
-    using SafeSend for address payable;
 
     string public constant override version = "0.8.0";
 
@@ -95,7 +93,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     mapping(IArbitrableV2 arbitrable => address ruler) public rulers; // The ruler of each arbitrable contract.
     mapping(IArbitrableV2 arbitrable => RulerSettings) public settings; // The settings of each arbitrable contract.
     mapping(uint256 disputeID => RulingResult) public rulingResults; // The ruling results of each dispute.
-    address public wNative; // The address for WETH tranfers.
 
     // ************************************* //
     // *              Events               * //
@@ -178,16 +175,13 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _governor The governor's address.
     /// @param _pinakion The address of the token contract.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
-    /// @param _wNative The address of the WETH used by SafeSend for fallback transfers.
     function initialize(
         address _governor,
         IERC20 _pinakion,
-        uint256[4] memory _courtParameters,
-        address _wNative
+        uint256[4] memory _courtParameters
     ) external reinitializer(1) {
         governor = _governor;
         pinakion = _pinakion;
-        wNative = _wNative;
 
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
@@ -531,7 +525,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         round.sumFeeRewardPaid += feeReward;
         if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
-            payable(account).safeSend(feeReward, wNative);
+            payable(account).send(feeReward);
         } else {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);

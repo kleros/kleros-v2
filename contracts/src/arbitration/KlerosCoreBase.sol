@@ -101,7 +101,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
     bool public paused; // Whether asset withdrawals are paused.
-    address public wNative; // The address for WETH tranfers.
+    address public wNative; // The wrapped native token for safeSend().
 
     // ************************************* //
     // *              Events               * //

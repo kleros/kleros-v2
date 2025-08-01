@@ -9,6 +9,7 @@ import "./interfaces/IDisputeTemplateRegistry.sol";
 /// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
 contract KlerosGovernor is IArbitrableV2 {
     using SafeSend for address payable;
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -48,6 +49,7 @@ contract KlerosGovernor is IArbitrableV2 {
 
     IArbitratorV2 public arbitrator; // Arbitrator contract.
     bytes public arbitratorExtraData; // Extra data for arbitrator.
+    address public wNative; // The wrapped native token for safeSend().
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     uint256 public templateId; // The current dispute template identifier.
 
@@ -61,8 +63,6 @@ contract KlerosGovernor is IArbitrableV2 {
 
     Submission[] public submissions; // Stores all created transaction lists. submissions[_listID].
     Session[] public sessions; // Stores all submitting sessions. sessions[_session].
-
-    address public wNative; // The address for WETH tranfers.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -115,7 +115,7 @@ contract KlerosGovernor is IArbitrableV2 {
     /// @param _submissionTimeout Time in seconds allocated for submitting transaction list.
     /// @param _executionTimeout Time in seconds after approval that allows to execute transactions of the approved list.
     /// @param _withdrawTimeout Time in seconds after submission that allows to withdraw submitted list.
-    /// @param _wNative The address of the WETH used by SafeSend for fallback transfers.
+    /// @param _wNative The wrapped native token address, typically wETH.
     constructor(
         IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData,

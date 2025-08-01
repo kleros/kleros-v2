@@ -30,7 +30,7 @@ contract KlerosCore is KlerosCoreBase {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
-    /// @param _wNative The address for WETH tranfers.
+    /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
         address _governor,
         address _guardian,
