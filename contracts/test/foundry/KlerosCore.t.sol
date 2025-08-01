@@ -1447,6 +1447,26 @@ contract KlerosCoreTest is Test {
         }
     }
 
+    function test_draw_noEmptyAddresses() public {
+        uint256 disputeID = 0;
+        uint256 roundID = 0;
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.roll(block.number + rngLookahead + 1);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS); // No one is staked so check that the empty addresses are not drawn.
+
+        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, roundID);
+        assertEq(round.drawIterations, 3, "Wrong drawIterations number");
+
+        (, , , , uint256 nbVoters, ) = disputeKit.getRoundInfo(disputeID, roundID, 0);
+        assertEq(nbVoters, 0, "nbVoters should be 0");
+    }
+
     function test_draw_parentCourts() public {
         uint96 newCourtID = 2;
         uint256 disputeID = 0;
