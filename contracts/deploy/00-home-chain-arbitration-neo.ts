@@ -32,7 +32,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicNeo", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, ZeroAddress],
+    args: [deployer, ZeroAddress, weth.target],
     log: true,
   });
 
@@ -81,6 +81,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
       nft.target,
+      weth.target,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)

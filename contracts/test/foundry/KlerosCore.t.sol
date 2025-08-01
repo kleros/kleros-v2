@@ -28,6 +28,7 @@ contract KlerosCoreTest is Test {
     BlockHashRNG rng;
     PNK pinakion;
     TestERC20 feeToken;
+    TestERC20 wNative;
     ArbitrableExample arbitrable;
     DisputeTemplateRegistry registry;
     address governor;
@@ -65,6 +66,7 @@ contract KlerosCoreTest is Test {
         rng = new BlockHashRNG();
         pinakion = new PNK();
         feeToken = new TestERC20("Test", "TST");
+        wNative = new TestERC20("wrapped ETH", "wETH");
 
         governor = msg.sender;
         guardian = vm.addr(1);
@@ -96,7 +98,12 @@ contract KlerosCoreTest is Test {
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
-        bytes memory initDataDk = abi.encodeWithSignature("initialize(address,address)", governor, address(proxyCore));
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            governor,
+            address(proxyCore),
+            address(wNative)
+        );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
         disputeKit = DisputeKitClassic(address(proxyDk));
@@ -125,7 +132,8 @@ contract KlerosCoreTest is Test {
             [minStake, alpha, feeForJuror, jurorsForCourtJump],
             timesPerPeriod,
             sortitionExtraData,
-            sortitionModule
+            sortitionModule,
+            address(wNative)
         );
         vm.prank(staker1);
         pinakion.approve(address(core), 1 ether);
@@ -277,7 +285,12 @@ contract KlerosCoreTest is Test {
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
-        bytes memory initDataDk = abi.encodeWithSignature("initialize(address,address)", governor, address(proxyCore));
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            governor,
+            address(proxyCore),
+            address(wNative)
+        );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
         disputeKit = DisputeKitClassic(address(proxyDk));
@@ -325,7 +338,8 @@ contract KlerosCoreTest is Test {
             [minStake, alpha, feeForJuror, jurorsForCourtJump],
             timesPerPeriod,
             sortitionExtraData,
-            sortitionModule
+            sortitionModule,
+            address(wNative)
         );
     }
 
@@ -2095,7 +2109,12 @@ contract KlerosCoreTest is Test {
         uint256 disputeID = 0;
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK and court to check the switch
-        bytes memory initDataDk = abi.encodeWithSignature("initialize(address,address)", governor, address(core));
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            governor,
+            address(core),
+            address(wNative)
+        );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
@@ -2876,7 +2895,12 @@ contract KlerosCoreTest is Test {
     function test_castVote_differentDK() public {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK to check castVote.
-        bytes memory initDataDk = abi.encodeWithSignature("initialize(address,address)", governor, address(core));
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            governor,
+            address(core),
+            address(wNative)
+        );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
