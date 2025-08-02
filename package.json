@@ -39,7 +39,6 @@
     "buffer": "^5.7.1",
     "conventional-changelog-cli": "^2.2.2",
     "crypto-browserify": "^3.12.1",
-    "hallmark": "^5.0.1",
     "husky": "^8.0.3",
     "lint-staged": "^13.3.0",
     "os-browserify": "^0.3.0",
