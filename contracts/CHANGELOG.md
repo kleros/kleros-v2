@@ -10,14 +10,20 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - **Breaking:** Add an extra wNative parameter to the initializer of `KlerosCoreBase` and `DisputeKitBase` and their descendants ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
 - **Breaking:** Add an extra wNative parameter to the constructor of `KlerosGovernor` ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
+- **Breaking:** Upgrade Mainnet Beta to v0.11.0 ([`ea9dcc95`](https://github.com/kleros/kleros-v2/commit/ea9dcc95))
+- **Breaking:** Upgrade Devnet and Testnet to v0.11.0 ([`b9e847d`](https://github.com/kleros/kleros-v2/commit/b9e847d9))
 - Fallback to sending wETH if sending ETH fails ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
 - Automate `SortitionModule.withdrawLeftoverPNK()` using the keeper bot ([`97ba58a`](https://github.com/kleros/kleros-v2/commit/97ba58a))
-- Upgrade Devnet and Testnet to v0.11.0 ([`b9e847d`](https://github.com/kleros/kleros-v2/commit/b9e847d9))
 - Upgrade Testnet to v0.10.0 ([#2058](https://github.com/kleros/kleros-v2/issues/2058))
 - Support the Gated and Shutter Gated dispute kits by the keeper bot ([`026fe83`](https://github.com/kleros/kleros-v2/commit/026fe83))
 - Support the Gated and Shutter Gated dispute kits by the contracts getter tests ([`2166ee0`](https://github.com/kleros/kleros-v2/commit/2166ee0))
 - Draw jurors with a more number of iterations to account for ineligible jurors by the keeper bot ([`6eb5bc6`](https://github.com/kleros/kleros-v2/commit/6eb5bc6))
 - Bump `@shutter-network/shutter-sdk` to 0.0.2 ([#2049](https://github.com/kleros/kleros-v2/issues/2049))
+
+### Added
+
+- **Breaking:** Add new dispute kits to Mainnet Beta: Shutter, Gated, Gated Shutter ([`ea9dcc95`](https://github.com/kleros/kleros-v2/commit/ea9dcc95))
+- **Breaking:** Add new dispute kits to Testnet: Shutter, Gated, Gated Shutter ([`b9e847d`](https://github.com/kleros/kleros-v2/commit/b9e847d9))
 
 ### Fixed
 
