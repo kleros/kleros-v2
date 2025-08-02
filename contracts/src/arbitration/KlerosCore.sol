@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import {KlerosCoreBase, IDisputeKit, ISortitionModule, IERC20} from "./KlerosCoreBase.sol";
 
@@ -8,7 +8,7 @@ import {KlerosCoreBase, IDisputeKit, ISortitionModule, IERC20} from "./KlerosCor
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 contract KlerosCore is KlerosCoreBase {
-    string public constant override version = "0.9.3";
+    string public constant override version = "0.10.0";
 
     // ************************************* //
     // *            Constructor            * //
@@ -30,6 +30,7 @@ contract KlerosCore is KlerosCoreBase {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
+    /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
         address _governor,
         address _guardian,
@@ -40,7 +41,8 @@ contract KlerosCore is KlerosCoreBase {
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        ISortitionModule _sortitionModuleAddress
+        ISortitionModule _sortitionModuleAddress,
+        address _wNative
     ) external reinitializer(1) {
         __KlerosCoreBase_initialize(
             _governor,
@@ -52,12 +54,13 @@ contract KlerosCore is KlerosCoreBase {
             _courtParameters,
             _timesPerPeriod,
             _sortitionExtraData,
-            _sortitionModuleAddress
+            _sortitionModuleAddress,
+            _wNative
         );
     }
 
-    function initialize4() external reinitializer(4) {
-        // NOP
+    function reinitialize(address _wNative) external reinitializer(6) {
+        wNative = _wNative;
     }
 
     // ************************************* //

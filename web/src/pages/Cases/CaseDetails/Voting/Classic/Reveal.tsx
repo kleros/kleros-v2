@@ -7,9 +7,10 @@ import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
+import { Answer } from "@kleros/kleros-sdk";
 import { Button } from "@kleros/ui-components-library";
 
-import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
+import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
@@ -17,11 +18,10 @@ import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
+import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
 
-import JustificationArea from "./JustificationArea";
-import { Answer } from "@kleros/kleros-sdk";
-import { EnsureChain } from "components/EnsureChain";
+import JustificationArea from "../JustificationArea";
 
 const Container = styled.div`
   width: 100%;
@@ -42,14 +42,15 @@ const StyledEnsureChain = styled(EnsureChain)`
 
 const ReactMarkdownWrapper = styled.div``;
 interface IReveal {
-  arbitrable: `0x${string}`;
+  arbitrable?: `0x${string}`;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   commit: string;
   isRevealPeriod: boolean;
+  isGated: boolean;
 }
 
-const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod }) => {
+const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, isGated }) => {
   const { id } = useParams();
   const [isSending, setIsSending] = useState(false);
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
@@ -71,11 +72,13 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const handleReveal = useCallback(async () => {
     setIsSending(true);
     const { salt, choice } = isUndefined(storedSaltAndChoice)
-      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers, commit)
+      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers ?? [], commit)
       : JSON.parse(storedSaltAndChoice);
     if (isUndefined(choice)) return;
+
+    const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
     const { request } = await catchShortMessage(
-      simulateDisputeKitClassicCastVote(wagmiConfig, {
+      simulate(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
       })
     );
@@ -99,6 +102,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     publicClient,
     setIsOpen,
     walletClient,
+    isGated,
   ]);
 
   return (

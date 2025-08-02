@@ -83,11 +83,10 @@ const AppealBanner: React.FC = () => {
   const { fundedChoices } = useFundingContext();
 
   const text = useMemo(() => {
-    if (loserSideCountdown)
-      return `${secondsToDayHourMinute(loserSideCountdown)} left until losing options can be funded`;
+    if (loserSideCountdown) return `${secondsToDayHourMinute(loserSideCountdown)} remaining to fund losing options`;
     // only show if loosing option was funded and winner needs funding, else no action is needed from user
     if (winnerSideCountdown && !isUndefined(fundedChoices) && fundedChoices.length > 0)
-      return `${secondsToDayHourMinute(winnerSideCountdown)} left until winning option can be funded`;
+      return `${secondsToDayHourMinute(winnerSideCountdown)} remaining to fund winning option`;
     return;
   }, [loserSideCountdown, winnerSideCountdown, fundedChoices]);
 
@@ -141,7 +140,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
   }));
 };
 
-const getDeadline = (
+export const getDeadline = (
   currentPeriodIndex: number,
   lastPeriodChange?: string,
   timesPerPeriod?: string[]

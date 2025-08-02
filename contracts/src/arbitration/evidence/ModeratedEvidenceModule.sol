@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";

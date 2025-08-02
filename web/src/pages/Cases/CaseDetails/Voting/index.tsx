@@ -7,7 +7,9 @@ import { useAccount } from "wagmi";
 
 import VoteIcon from "svgs/icons/voted.svg";
 
+import { DisputeKits } from "consts/index";
 import { Periods } from "consts/periods";
+import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { useVotingContext } from "hooks/useVotingContext";
 import { formatDate } from "utils/date";
@@ -15,16 +17,17 @@ import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
 
 import { useAppealCost } from "queries/useAppealCost";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
 import Popup, { PopupType } from "components/Popup";
 
 import Classic from "./Classic";
+import Shutter from "./Shutter";
 import VotingHistory from "./VotingHistory";
 
 const Container = styled.div`
@@ -52,9 +55,10 @@ const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, tim
 interface IVoting {
   arbitrable?: `0x${string}`;
   currentPeriodIndex: number;
+  dispute: DisputeDetailsQuery["dispute"];
 }
 
-const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
+const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) => {
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -65,6 +69,12 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+
+  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
+  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
+  const isClassicDisputeKit = disputeKitName === DisputeKits.Classic || disputeKitName === DisputeKits.Gated;
+  const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
+  const isGated = Boolean(disputeKitName?.includes("Gated"));
 
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
@@ -102,12 +112,22 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
           date={finalDate ? formatDate(finalDate) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
+          automaticVoteReveal={isShutterDisputeKit}
         />
       )}
       {userWasDrawn && isCommitOrVotePeriod && !voted ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} />
+          {isClassicDisputeKit ? (
+            <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ isGated }} />
+          ) : null}
+          {isShutterDisputeKit ? (
+            <Shutter
+              arbitrable={arbitrable ?? "0x0"}
+              setIsOpen={setIsPopupOpen}
+              {...{ dispute, currentPeriodIndex, isGated }}
+            />
+          ) : null}
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import "@kleros/vea-contracts/src/interfaces/inboxes/IVeaInbox.sol";
 import "@kleros/vea-contracts/src/interfaces/outboxes/IVeaOutboxOnL1.sol";

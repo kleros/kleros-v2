@@ -12,4 +12,4 @@ fi
 node -e "
   require('dotenv').config({ path: '"$SCRIPT_DIR"/../.env' })
   console.log(process.env.$varKey)
-" | sed 1d
+"

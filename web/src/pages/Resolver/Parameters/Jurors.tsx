@@ -5,16 +5,16 @@ import { DisplaySmall, Field } from "@kleros/ui-components-library";
 
 import ETH from "svgs/icons/eth.svg";
 
-import { REFETCH_INTERVAL } from "consts/index";
 import { DEFAULT_CHAIN } from "consts/chains";
+import { REFETCH_INTERVAL } from "consts/index";
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useReadKlerosCoreArbitrationCost } from "hooks/contracts/generated";
 import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import Header from "pages/Resolver/Header";
 
@@ -58,7 +58,7 @@ const Jurors: React.FC = () => {
       enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
       refetchInterval: REFETCH_INTERVAL,
     },
-    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData.numberOfJurors ?? "")],
+    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData.numberOfJurors ?? "0")],
     chainId: DEFAULT_CHAIN,
   });
 

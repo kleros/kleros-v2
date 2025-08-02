@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { Field } from "@kleros/ui-components-library";
@@ -33,15 +33,26 @@ const StyledField = styled(Field)`
     `
   )}
 `;
+
 const Title: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDisputeData({ ...disputeData, title: event.target.value });
   };
 
+  useEffect(() => {
+    if (containerRef.current) {
+      const inputElement = containerRef.current.querySelector("input");
+      if (inputElement) {
+        inputElement.focus();
+      }
+    }
+  }, []);
+
   return (
-    <Container>
+    <Container ref={containerRef}>
       <Header text="Choose a title" />
       <StyledField
         dir="auto"
@@ -53,4 +64,5 @@ const Title: React.FC = () => {
     </Container>
   );
 };
+
 export default Title;

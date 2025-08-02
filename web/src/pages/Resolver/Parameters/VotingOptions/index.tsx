@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { AlertMessage } from "@kleros/ui-components-library";
@@ -39,13 +39,23 @@ const AlertMessageContainer = styled.div`
 
 const VotingOptions: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleQuestionWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDisputeData({ ...disputeData, question: event.target.value });
   };
 
+  useEffect(() => {
+    if (containerRef.current) {
+      const inputElement = containerRef.current.querySelector("input");
+      if (inputElement) {
+        inputElement.focus();
+      }
+    }
+  }, []);
+
   return (
-    <Container>
+    <Container ref={containerRef}>
       <Header text="Voting options" />
       <QuestionField
         label="Question"
@@ -67,4 +77,5 @@ const VotingOptions: React.FC = () => {
     </Container>
   );
 };
+
 export default VotingOptions;

@@ -52,7 +52,8 @@ const SubmitBatchDisputesButton: React.FC = () => {
         prepareArbitratorExtradata(
           disputeData.courtId ?? "1",
           disputeData.numberOfJurors ?? 3,
-          disputeData.disputeKitId ?? 1
+          disputeData.disputeKitId ?? 1,
+          disputeData.disputeKitData
         ),
         JSON.stringify(disputeTemplate),
         "",

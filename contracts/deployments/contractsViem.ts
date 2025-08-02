@@ -3,7 +3,10 @@ import { type ContractConfig, type DeploymentName, deployments, getAddress } fro
 import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
-  disputeKitClassicConfig as devnetDkcConfig,
+  disputeKitClassicConfig as devnetDkClassicConfig,
+  disputeKitShutterConfig as devnetDkShutterConfig,
+  disputeKitGatedConfig as devnetDkGatedConfig,
+  disputeKitGatedShutterConfig as devnetDkGatedShutterConfig,
   disputeResolverConfig as devnetDrConfig,
   disputeTemplateRegistryConfig as devnetDtrConfig,
   evidenceModuleConfig as devnetEvidenceConfig,
@@ -15,13 +18,16 @@ import {
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
-  disputeKitClassicUniversityConfig as devnetDkcUniversityConfig,
+  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
   klerosCoreConfig as testnetCoreConfig,
   sortitionModuleConfig as testnetSortitionConfig,
-  disputeKitClassicConfig as testnetDkcConfig,
+  disputeKitClassicConfig as testnetDkClassicConfig,
+  disputeKitShutterConfig as testnetDkShutterConfig,
+  disputeKitGatedConfig as testnetDkGatedConfig,
+  disputeKitGatedShutterConfig as testnetDkGatedShutterConfig,
   disputeResolverConfig as testnetDrConfig,
   disputeTemplateRegistryConfig as testnetDtrConfig,
   evidenceModuleConfig as testnetEvidenceConfig,
@@ -35,7 +41,10 @@ import {
 import {
   klerosCoreNeoConfig as mainnetCoreConfig,
   sortitionModuleNeoConfig as mainnetSortitionConfig,
-  disputeKitClassicNeoConfig as mainnetDkcConfig,
+  disputeKitClassicNeoConfig as mainnetDkClassicConfig,
+  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
+  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
   disputeResolverNeoConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
@@ -64,6 +73,9 @@ type ContractInstances = {
   klerosCore: ContractInstance;
   sortition: ContractInstance;
   disputeKitClassic: ContractInstance;
+  disputeKitShutter?: ContractInstance;
+  disputeKitGated?: ContractInstance;
+  disputeKitGatedShutter?: ContractInstance;
   disputeResolver: ContractInstance;
   disputeTemplateRegistry: ContractInstance;
   evidence: ContractInstance;
@@ -85,6 +97,9 @@ function getCommonConfigs({
     klerosCore: ContractConfig;
     sortition: ContractConfig;
     disputeKitClassic: ContractConfig;
+    disputeKitShutter?: ContractConfig;
+    disputeKitGated?: ContractConfig;
+    disputeKitGatedShutter?: ContractConfig;
     disputeResolver: ContractConfig;
     disputeTemplateRegistry: ContractConfig;
     evidence: ContractConfig;
@@ -111,6 +126,14 @@ function getCommonConfigs({
     klerosCoreSnapshotProxy: getContractConfig({ config: configs.klerosCoreSnapshotProxy, chainId }),
   };
 
+  if (configs.disputeKitShutter)
+    base.disputeKitShutter = getContractConfig({ config: configs.disputeKitShutter, chainId });
+
+  if (configs.disputeKitGated) base.disputeKitGated = getContractConfig({ config: configs.disputeKitGated, chainId });
+
+  if (configs.disputeKitGatedShutter)
+    base.disputeKitGatedShutter = getContractConfig({ config: configs.disputeKitGatedShutter, chainId });
+
   if (configs.chainlinkRng) base.chainlinkRng = getContractConfig({ config: configs.chainlinkRng, chainId });
 
   if (configs.randomizerRng) base.randomizerRng = getContractConfig({ config: configs.randomizerRng, chainId });
@@ -127,7 +150,10 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         configs: {
           klerosCore: devnetCoreConfig,
           sortition: devnetSortitionConfig,
-          disputeKitClassic: devnetDkcConfig,
+          disputeKitClassic: devnetDkClassicConfig,
+          disputeKitShutter: devnetDkShutterConfig,
+          disputeKitGated: devnetDkGatedConfig,
+          disputeKitGatedShutter: devnetDkGatedShutterConfig,
           disputeResolver: devnetDrConfig,
           disputeTemplateRegistry: devnetDtrConfig,
           evidence: devnetEvidenceConfig,
@@ -144,7 +170,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
       return {
         klerosCore: getContractConfig({ config: devnetCoreUniversityConfig, chainId }),
         sortition: getContractConfig({ config: devnetSortitionUniversityConfig, chainId }),
-        disputeKitClassic: getContractConfig({ config: devnetDkcUniversityConfig, chainId }),
+        disputeKitClassic: getContractConfig({ config: devnetDkClassicUniversityConfig, chainId }),
         disputeResolver: getContractConfig({ config: devnetDrUniversityConfig, chainId }),
         disputeTemplateRegistry: getContractConfig({ config: devnetDtrConfig, chainId }), // FIXME: should not be shared with devnet
         evidence: getContractConfig({ config: devnetEvidenceConfig, chainId }), // Not arbitrator specific
@@ -161,7 +187,10 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         configs: {
           klerosCore: testnetCoreConfig,
           sortition: testnetSortitionConfig,
-          disputeKitClassic: testnetDkcConfig,
+          disputeKitClassic: testnetDkClassicConfig,
+          disputeKitShutter: testnetDkShutterConfig,
+          disputeKitGated: testnetDkGatedConfig,
+          disputeKitGatedShutter: testnetDkGatedShutterConfig,
           disputeResolver: testnetDrConfig,
           disputeTemplateRegistry: testnetDtrConfig,
           evidence: testnetEvidenceConfig,
@@ -180,7 +209,10 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         configs: {
           klerosCore: mainnetCoreConfig,
           sortition: mainnetSortitionConfig,
-          disputeKitClassic: mainnetDkcConfig,
+          disputeKitClassic: mainnetDkClassicConfig,
+          disputeKitShutter: mainnetDkShutterConfig,
+          disputeKitGated: mainnetDkGatedConfig,
+          disputeKitGatedShutter: mainnetDkGatedShutterConfig,
           disputeResolver: mainnetDrConfig,
           disputeTemplateRegistry: mainnetDtrConfig,
           evidence: mainnetEvidenceConfig,
@@ -227,6 +259,24 @@ export const getContracts = ({
     ...contractConfigs.disputeKitClassic,
     ...clientConfig,
   });
+  const disputeKitShutter = contractConfigs.disputeKitShutter
+    ? getContract({
+        ...contractConfigs.disputeKitShutter,
+        ...clientConfig,
+      })
+    : undefined;
+  const disputeKitGated = contractConfigs.disputeKitGated
+    ? getContract({
+        ...contractConfigs.disputeKitGated,
+        ...clientConfig,
+      })
+    : undefined;
+  const disputeKitGatedShutter = contractConfigs.disputeKitGatedShutter
+    ? getContract({
+        ...contractConfigs.disputeKitGatedShutter,
+        ...clientConfig,
+      })
+    : undefined;
   const disputeResolver = getContract({
     ...contractConfigs.disputeResolver,
     ...clientConfig,
@@ -275,6 +325,9 @@ export const getContracts = ({
     klerosCore,
     sortition,
     disputeKitClassic,
+    disputeKitShutter,
+    disputeKitGated,
+    disputeKitGatedShutter,
     disputeResolver,
     disputeTemplateRegistry,
     evidence,

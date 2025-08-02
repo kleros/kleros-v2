@@ -1,5 +1,5 @@
 {
-  "extends": "@kleros/kleros-v2-tsconfig/base18.json",
+  "extends": "@kleros/kleros-v2-tsconfig/base20.json",
   "compilerOptions": {
     "resolveJsonModule": true
   },

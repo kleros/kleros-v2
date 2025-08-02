@@ -2,7 +2,10 @@ import { ethers } from "ethers";
 import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
-  disputeKitClassicConfig as devnetDkcConfig,
+  disputeKitClassicConfig as devnetDkClassicConfig,
+  disputeKitShutterConfig as devnetDkShutterConfig,
+  disputeKitGatedConfig as devnetDkGatedConfig,
+  disputeKitGatedShutterConfig as devnetDkGatedShutterConfig,
   disputeResolverConfig as devnetDrConfig,
   disputeTemplateRegistryConfig as devnetDtrConfig,
   evidenceModuleConfig as devnetEvidenceConfig,
@@ -14,13 +17,16 @@ import {
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
-  disputeKitClassicUniversityConfig as devnetDkcUniversityConfig,
+  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
   klerosCoreConfig as testnetCoreConfig,
   sortitionModuleConfig as testnetSortitionConfig,
   disputeKitClassicConfig as testnetDkcConfig,
+  disputeKitShutterConfig as testnetDkShutterConfig,
+  disputeKitGatedConfig as testnetDkGatedConfig,
+  disputeKitGatedShutterConfig as testnetDkGatedShutterConfig,
   disputeResolverConfig as testnetDrConfig,
   disputeTemplateRegistryConfig as testnetDtrConfig,
   evidenceModuleConfig as testnetEvidenceConfig,
@@ -35,6 +41,9 @@ import {
   klerosCoreNeoConfig as mainnetCoreConfig,
   sortitionModuleNeoConfig as mainnetSortitionConfig,
   disputeKitClassicNeoConfig as mainnetDkcConfig,
+  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
+  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
   disputeResolverNeoConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
@@ -53,6 +62,12 @@ import {
   SortitionModule__factory,
   DisputeKitClassic,
   DisputeKitClassic__factory,
+  DisputeKitShutter,
+  DisputeKitGated,
+  DisputeKitGatedShutter,
+  DisputeKitShutter__factory,
+  DisputeKitGated__factory,
+  DisputeKitGatedShutter__factory,
   DisputeResolver,
   DisputeResolver__factory,
   DisputeTemplateRegistry,
@@ -85,7 +100,10 @@ import {
 import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 
 type CommonFactoriesConfigs = {
-  dkcConfig: ContractConfig;
+  dkClassicConfig: ContractConfig;
+  dkShutterConfig?: ContractConfig;
+  dkGatedConfig?: ContractConfig;
+  dkGatedShutterConfig?: ContractConfig;
   drConfig: ContractConfig;
   dtrConfig: ContractConfig;
   evidenceConfig: ContractConfig;
@@ -100,6 +118,9 @@ type CommonFactoriesConfigs = {
 
 type CommonFactories = {
   disputeKitClassic: DisputeKitClassic;
+  disputeKitShutter: DisputeKitShutter | null;
+  disputeKitGated: DisputeKitGated | null;
+  disputeKitGatedShutter: DisputeKitGatedShutter | null;
   disputeResolver: DisputeResolver;
   disputeTemplateRegistry: DisputeTemplateRegistry;
   evidence: EvidenceModule;
@@ -118,7 +139,16 @@ function getCommonFactories(
   chainId: number
 ): CommonFactories {
   return {
-    disputeKitClassic: DisputeKitClassic__factory.connect(getAddress(configs.dkcConfig, chainId), provider),
+    disputeKitClassic: DisputeKitClassic__factory.connect(getAddress(configs.dkClassicConfig, chainId), provider),
+    disputeKitShutter: configs.dkShutterConfig
+      ? DisputeKitShutter__factory.connect(getAddress(configs.dkShutterConfig, chainId), provider)
+      : null,
+    disputeKitGated: configs.dkGatedConfig
+      ? DisputeKitGated__factory.connect(getAddress(configs.dkGatedConfig, chainId), provider)
+      : null,
+    disputeKitGatedShutter: configs.dkGatedShutterConfig
+      ? DisputeKitGatedShutter__factory.connect(getAddress(configs.dkGatedShutterConfig, chainId), provider)
+      : null,
     disputeResolver: DisputeResolver__factory.connect(getAddress(configs.drConfig, chainId), provider),
     disputeTemplateRegistry: DisputeTemplateRegistry__factory.connect(getAddress(configs.dtrConfig, chainId), provider),
     evidence: EvidenceModule__factory.connect(getAddress(configs.evidenceConfig, chainId), provider),
@@ -151,7 +181,10 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
       sortition = SortitionModule__factory.connect(getAddress(devnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
-          dkcConfig: devnetDkcConfig,
+          dkClassicConfig: devnetDkClassicConfig,
+          dkShutterConfig: devnetDkShutterConfig,
+          dkGatedConfig: devnetDkGatedConfig,
+          dkGatedShutterConfig: devnetDkGatedShutterConfig,
           drConfig: devnetDrConfig,
           dtrConfig: devnetDtrConfig,
           evidenceConfig: devnetEvidenceConfig,
@@ -175,7 +208,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
       );
       commonFactories = getCommonFactories(
         {
-          dkcConfig: devnetDkcUniversityConfig,
+          dkClassicConfig: devnetDkClassicUniversityConfig,
           drConfig: devnetDrUniversityConfig,
           dtrConfig: devnetDtrConfig,
           evidenceConfig: devnetEvidenceConfig,
@@ -196,7 +229,10 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
       sortition = SortitionModule__factory.connect(getAddress(testnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
-          dkcConfig: testnetDkcConfig,
+          dkClassicConfig: testnetDkcConfig,
+          dkShutterConfig: testnetDkShutterConfig,
+          dkGatedConfig: testnetDkGatedConfig,
+          dkGatedShutterConfig: testnetDkGatedShutterConfig,
           drConfig: testnetDrConfig,
           dtrConfig: testnetDtrConfig,
           evidenceConfig: testnetEvidenceConfig,
@@ -216,7 +252,10 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
       sortition = SortitionModuleNeo__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
-          dkcConfig: mainnetDkcConfig,
+          dkClassicConfig: mainnetDkcConfig,
+          dkShutterConfig: mainnetDkShutterConfig,
+          dkGatedConfig: mainnetDkGatedConfig,
+          dkGatedShutterConfig: mainnetDkGatedShutterConfig,
           drConfig: mainnetDrConfig,
           dtrConfig: mainnetDtrConfig,
           evidenceConfig: mainnetEvidenceConfig,

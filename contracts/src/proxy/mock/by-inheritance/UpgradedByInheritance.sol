@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 // Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/mocks/proxy/UUPSUpgradeableMock.sol>
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import "../../UUPSProxiable.sol";
 import "../../UUPSProxy.sol";

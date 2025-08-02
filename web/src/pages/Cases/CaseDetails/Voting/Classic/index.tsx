@@ -15,9 +15,10 @@ import Vote from "./Vote";
 interface IClassic {
   arbitrable: `0x${string}`;
   setIsOpen: (val: boolean) => void;
+  isGated: boolean;
 }
 
-const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen }) => {
+const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -27,9 +28,9 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen }) => {
 
   return id && isHiddenVotes ? (
     isCommitPeriod && !commited ? (
-      <Commit {...{ arbitrable, setIsOpen, voteIDs, refetch }} />
+      <Commit {...{ arbitrable, setIsOpen, voteIDs, refetch, isGated }} />
     ) : (
-      <Reveal {...{ arbitrable, setIsOpen, voteIDs, commit, isRevealPeriod: !isCommitPeriod }} />
+      <Reveal {...{ arbitrable, setIsOpen, voteIDs, commit, isRevealPeriod: !isCommitPeriod, isGated }} />
     )
   ) : (
     <Vote {...{ arbitrable, setIsOpen, voteIDs }} />

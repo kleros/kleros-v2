@@ -28,6 +28,10 @@ const disputeDetailsQuery = graphql(`
       currentRound {
         id
         nbVotes
+        disputeKit {
+          id
+          address
+        }
       }
       currentRoundIndex
       isCrossChain

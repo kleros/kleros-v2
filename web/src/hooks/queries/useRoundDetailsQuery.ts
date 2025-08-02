@@ -17,6 +17,13 @@ const roundDetailsQuery = graphql(`
       disputeKit {
         id
       }
+      dispute {
+        disputeKitDispute {
+          ... on ClassicDispute {
+            extraData
+          }
+        }
+      }
     }
   }
 `);

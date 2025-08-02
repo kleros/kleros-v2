@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -66,9 +66,20 @@ const StyledButton = styled(Button)`
 
 const Header: React.FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const disputeId = searchParams.get("disputeId");
+  const attachmentTitle = searchParams.get("title");
 
   const handleReturn = () => {
-    navigate(-1);
+    if (attachmentTitle === "Evidence File") {
+      navigate(`/cases/${disputeId}/evidence`);
+    } else if (attachmentTitle === "Case Policy" || attachmentTitle === "Dispute Policy") {
+      navigate(`/cases/${disputeId}/overview`);
+    } else if (attachmentTitle === "Policy File") {
+      navigate(`/resolver/policy`);
+    } else {
+      navigate("/");
+    }
   };
 
   return (

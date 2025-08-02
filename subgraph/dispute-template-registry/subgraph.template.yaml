@@ -1,0 +1,26 @@
+specVersion: 0.0.5
+description: Kleros v2 Dispute Template Registry
+repository: https://github.com/kleros/kleros-v2/tree/dev/subgraph/dispute-template-registry
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: DisputeTemplateRegistry
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeTemplateRegistry
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DisputeTemplate
+      abis:
+        - name: DisputeTemplateRegistry
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeTemplateRegistry.json
+      eventHandlers:
+        - event: DisputeTemplate(indexed uint256,indexed string,string,string)
+          handler: handleDisputeTemplate
+      file: src/DisputeTemplateRegistry.ts

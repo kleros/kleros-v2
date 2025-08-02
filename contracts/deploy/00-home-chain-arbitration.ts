@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { ChainlinkRNG, DisputeKitClassic, KlerosCore } from "../typechain-types";
@@ -29,9 +29,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await getContractOrDeployUpgradable(hre, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
+  await deployUpgradable(deployments, "DisputeTemplateRegistry", {
+    from: deployer,
+    args: [deployer],
+    log: true,
+  });
+
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
-    args: [deployer, ZeroAddress],
+    args: [deployer, ZeroAddress, weth.target],
     log: true,
   });
 
@@ -68,6 +74,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
+      weth.target,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
@@ -96,6 +103,32 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.error("failed to change currency rates:", e);
   }
 
+  // Extra dispute kits
+  const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
+    from: deployer,
+    args: [deployer, core.target, weth.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitShutter.address);
+  await core.enableDisputeKits(Courts.GENERAL, [2], true); // enable disputeKitShutter on the General Court
+
+  const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
+    from: deployer,
+    args: [deployer, core.target, weth.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitGated.address);
+  await core.enableDisputeKits(Courts.GENERAL, [3], true); // enable disputeKitGated on the General Court
+
+  const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
+    from: deployer,
+    args: [deployer, core.target, weth.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitGatedShutter.address);
+  await core.enableDisputeKits(Courts.GENERAL, [4], true); // enable disputeKitGatedShutter on the General Court
+
+  // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {
     from: deployer,
     args: [deployer, core.target],
