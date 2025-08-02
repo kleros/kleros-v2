@@ -6,11 +6,11 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCoreNeo, RandomizerRNG } from "../typechain-types";
+import { ChainlinkRNG, DisputeKitClassic, KlerosCoreNeo } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
-  const { deploy, execute } = deployments;
+  const { deploy } = deployments;
   const { ZeroAddress } = hre.ethers;
   const RNG_LOOKAHEAD = 20;
 
@@ -120,10 +120,32 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [core.target, disputeTemplateRegistry.target],
     log: true,
   });
-
   console.log(`core.changeArbitrableWhitelist(${resolver.address}, true)`);
   await core.changeArbitrableWhitelist(resolver.address, true);
 
+  // Extra dispute kits
+  const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
+    from: deployer,
+    args: [deployer, core.target, weth.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitShutter.address);
+
+  const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
+    from: deployer,
+    args: [deployer, core.target, weth.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitGated.address);
+
+  const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
+    from: deployer,
+    args: [deployer, core.target, weth.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitGatedShutter.address);
+
+  // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {
     from: deployer,
     args: [deployer, core.target],

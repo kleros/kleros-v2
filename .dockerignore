@@ -11,3 +11,8 @@ contracts/tenderly.yaml
 
 */.DS_Store
 */*.log
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

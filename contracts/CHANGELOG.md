@@ -12,7 +12,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - **Breaking:** Add an extra wNative parameter to the constructor of `KlerosGovernor` ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
 - Fallback to sending wETH if sending ETH fails ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
 - Automate `SortitionModule.withdrawLeftoverPNK()` using the keeper bot ([`97ba58a`](https://github.com/kleros/kleros-v2/commit/97ba58a))
-- Upgrade Testnet ([#2058](https://github.com/kleros/kleros-v2/issues/2058))
+- Upgrade Devnet and Testnet to v0.11.0 ([`b9e847d`](https://github.com/kleros/kleros-v2/commit/b9e847d9))
+- Upgrade Testnet to v0.10.0 ([#2058](https://github.com/kleros/kleros-v2/issues/2058))
 - Support the Gated and Shutter Gated dispute kits by the keeper bot ([`026fe83`](https://github.com/kleros/kleros-v2/commit/026fe83))
 - Support the Gated and Shutter Gated dispute kits by the contracts getter tests ([`2166ee0`](https://github.com/kleros/kleros-v2/commit/2166ee0))
 - Draw jurors with a more number of iterations to account for ineligible jurors by the keeper bot ([`6eb5bc6`](https://github.com/kleros/kleros-v2/commit/6eb5bc6))
@@ -21,6 +22,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 ### Fixed
 
 - Do not push address(0) in `DisputeKitBase.round.votes` during `draw()` when there is no staked juror in the court ([#2059](https://github.com/kleros/kleros-v2/issues/2059))
+- Reduce Neo core contract size below limit by 144 bytes by extracting internal functions for repeated code and by making the `appealPeriod()` view external. ([`4a84534`](https://github.com/kleros/kleros-v2/commit/4a845346))
 
 ## [0.10.0] - 2025-07-20
 
