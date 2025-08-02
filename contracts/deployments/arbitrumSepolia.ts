@@ -3666,15 +3666,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize7",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -3741,6 +3739,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -3779,6 +3790,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -3837,7 +3861,7 @@ export default {
       ],
     },
     DisputeKitClassic_Implementation: {
-      address: "0x987422d68D7B65DDCBAE76dE2561C08c935f9126",
+      address: "0xA122856B3B4C5fBcA129088af3CEb204509805f0",
       abi: [
         {
           inputs: [],
@@ -4789,15 +4813,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize7",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -4864,6 +4886,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -4902,6 +4937,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -5957,15 +6005,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize7",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -6032,6 +6078,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -6070,6 +6129,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -7186,15 +7258,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize7",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -7261,6 +7331,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -7299,6 +7382,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -7357,7 +7453,7 @@ export default {
       ],
     },
     DisputeKitGatedShutter_Implementation: {
-      address: "0xbd64B87c8A1276c0B83042f3F9128f7994753836",
+      address: "0x3a06272f2FEEC12B0FB5F3FF82688c0F06808bE7",
       abi: [
         {
           inputs: [],
@@ -8412,15 +8508,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize7",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -8487,6 +8581,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -8525,6 +8632,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -8596,7 +8716,7 @@ export default {
       ],
     },
     DisputeKitGated_Implementation: {
-      address: "0x074837F8306faD19D4e6b1f3d2f98eA796c3f8a9",
+      address: "0x2d1b63C9638ed62875256676C665a7ec14D7663C",
       abi: [
         {
           inputs: [],
@@ -9577,15 +9697,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize7",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -9652,6 +9770,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -9690,6 +9821,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -10819,15 +10963,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize8",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -10894,6 +11036,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -10932,6 +11087,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -10990,7 +11158,7 @@ export default {
       ],
     },
     DisputeKitShutter_Implementation: {
-      address: "0x97a1DAAc5aF27383B2c2AB57d8974664A7fe4352",
+      address: "0xca04F97fc0Df83E25e585893F5A12fb0AebEC27d",
       abi: [
         {
           inputs: [],
@@ -12045,15 +12213,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize8",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -12120,6 +12286,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -12158,6 +12337,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -15171,15 +15363,13 @@ export default {
               name: "_sortitionModuleAddress",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize5",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -15302,6 +15492,19 @@ export default {
         {
           inputs: [
             {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "uint96",
               name: "_courtID",
               type: "uint96",
@@ -15404,6 +15607,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -15559,7 +15775,7 @@ export default {
       ],
     },
     KlerosCore_Implementation: {
-      address: "0xa34bbBdCB050cCe0FcB3EeAA1ef4c5709096E5fB",
+      address: "0x02F607722749CECd32db07AA0b0755281FE9D13c",
       abi: [
         {
           inputs: [],
@@ -17229,15 +17445,13 @@ export default {
               name: "_sortitionModuleAddress",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize5",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -17360,6 +17574,19 @@ export default {
         {
           inputs: [
             {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "uint96",
               name: "_courtID",
               type: "uint96",
@@ -17462,6 +17689,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",

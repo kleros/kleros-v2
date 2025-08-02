@@ -4,16 +4,31 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [0.10.1] - 2025-07-29
+## [0.11.0] - 2025-08-01
 
 ### Changed
 
+- **Breaking:** Add an extra wNative parameter to the initializer of `KlerosCoreBase` and `DisputeKitBase` and their descendants ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
+- **Breaking:** Add an extra wNative parameter to the constructor of `KlerosGovernor` ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
+- **Breaking:** Upgrade Mainnet Beta to v0.11.0 ([`ea9dcc95`](https://github.com/kleros/kleros-v2/commit/ea9dcc95))
+- **Breaking:** Upgrade Devnet and Testnet to v0.11.0 ([`b9e847d`](https://github.com/kleros/kleros-v2/commit/b9e847d9))
+- Fallback to sending wETH if sending ETH fails ([#2041](https://github.com/kleros/kleros-v2/issues/2041))
 - Automate `SortitionModule.withdrawLeftoverPNK()` using the keeper bot ([`97ba58a`](https://github.com/kleros/kleros-v2/commit/97ba58a))
-- Upgrade Testnet ([#2058](https://github.com/kleros/kleros-v2/issues/2058))
+- Upgrade Testnet to v0.10.0 ([#2058](https://github.com/kleros/kleros-v2/issues/2058))
 - Support the Gated and Shutter Gated dispute kits by the keeper bot ([`026fe83`](https://github.com/kleros/kleros-v2/commit/026fe83))
 - Support the Gated and Shutter Gated dispute kits by the contracts getter tests ([`2166ee0`](https://github.com/kleros/kleros-v2/commit/2166ee0))
 - Draw jurors with a more number of iterations to account for ineligible jurors by the keeper bot ([`6eb5bc6`](https://github.com/kleros/kleros-v2/commit/6eb5bc6))
 - Bump `@shutter-network/shutter-sdk` to 0.0.2 ([#2049](https://github.com/kleros/kleros-v2/issues/2049))
+
+### Added
+
+- **Breaking:** Add new dispute kits to Mainnet Beta: Shutter, Gated, Gated Shutter ([`ea9dcc95`](https://github.com/kleros/kleros-v2/commit/ea9dcc95))
+- **Breaking:** Add new dispute kits to Testnet: Shutter, Gated, Gated Shutter ([`b9e847d`](https://github.com/kleros/kleros-v2/commit/b9e847d9))
+
+### Fixed
+
+- Do not push address(0) in `DisputeKitBase.round.votes` during `draw()` when there is no staked juror in the court ([#2059](https://github.com/kleros/kleros-v2/issues/2059))
+- Reduce Neo core contract size below limit by 144 bytes by extracting internal functions for repeated code and by making the `appealPeriod()` view external. ([`4a84534`](https://github.com/kleros/kleros-v2/commit/4a845346))
 
 ## [0.10.0] - 2025-07-20
 
@@ -23,7 +38,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - **Breaking:** Update the Devnet contract artifacts, add getter for the new Shutter, Gated and Gated Shutter dispute kits ([`5ef5f23`](https://github.com/kleros/kleros-v2/commit/5ef5f23))
 - **Breaking**: Make `KlerosCoreBase.draw()` return the number of drawn jurors ([`54d83a7`](https://github.com/kleros/kleros-v2/commit/54d83a7))
 - **Breaking**: Make `SortitionModule.penalizeStake()` return `(uint256 pnkBalance, uint256 availablePenalty)` ([#2004](https://github.com/kleros/kleros-v2/issues/2004))
-- **Breaking**: Split SortitionModuleBase.setStake() into 2 functions: validateStake() and setStake() ([#2004](https://github.com/kleros/kleros-v2/issues/2004))
+- **Breaking**: Split SortitionModuleBase.setStake() into 2 functions: `validateStake()` and `setStake()` ([#2004](https://github.com/kleros/kleros-v2/issues/2004))
 - Avoid unnecessary calls `KlerosCoreBase.draw()` by the keeper bot when no juror is available ([`54d83a7`](https://github.com/kleros/kleros-v2/commit/54d83a7))
 - Migrate the contracts verification tooling to the etherscan v2 API ([`b8a2a15`](https://github.com/kleros/kleros-v2/commit/b8a2a15))
 - Bump contract Solidity version to v0.8.28 ([`6e535cc`](https://github.com/kleros/kleros-v2/commit/6e535cc))
@@ -92,7 +107,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [0.8.1] - 2025-04-10
 
-[0.10.1]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.10.1
+[0.11.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.11.0
 [0.10.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.10.0
 [0.9.4]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.9.4
 [0.9.3]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.9.3

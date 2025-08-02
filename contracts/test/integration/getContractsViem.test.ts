@@ -43,9 +43,9 @@ const testnetContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCore" },
   sortition: { name: "SortitionModule" },
   disputeKitClassic: { name: "DisputeKitClassic" },
-  disputeKitShutter: { name: "DisputeKitShutter", optional: true },
-  disputeKitGated: { name: "DisputeKitGated", optional: true },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutter", optional: true },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
   disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -81,9 +81,9 @@ const neoContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCoreNeo" },
   sortition: { name: "SortitionModuleNeo" },
   disputeKitClassic: { name: "DisputeKitClassicNeo" },
-  disputeKitShutter: { name: "DisputeKitShutterNeo", optional: true },
-  disputeKitGated: { name: "DisputeKitGatedNeo", optional: true },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo", optional: true },
+  disputeKitShutter: { name: "DisputeKitShutterNeo" },
+  disputeKitGated: { name: "DisputeKitGatedNeo" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo" },
   disputeResolver: { name: "DisputeResolverNeo" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -228,9 +228,9 @@ describe("getContractsViem", () => {
     verifyAllContractInstances(contracts);
 
     // Verify specific DisputeKit instances
-    expect(contracts.disputeKitShutter).to.be.undefined;
-    expect(contracts.disputeKitGated).to.be.undefined;
-    expect(contracts.disputeKitGatedShutter).to.be.undefined;
+    expect(contracts.disputeKitShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGated).to.not.be.undefined;
+    expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
@@ -253,9 +253,9 @@ describe("getContractsViem", () => {
     verifyAllContractInstances(contracts);
 
     // Verify specific DisputeKit instances
-    expect(contracts.disputeKitShutter).to.be.undefined;
-    expect(contracts.disputeKitGated).to.be.undefined;
-    expect(contracts.disputeKitGatedShutter).to.be.undefined;
+    expect(contracts.disputeKitShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGated).to.not.be.undefined;
+    expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
