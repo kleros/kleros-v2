@@ -24,6 +24,9 @@ import {
   klerosCoreConfig as testnetCoreConfig,
   sortitionModuleConfig as testnetSortitionConfig,
   disputeKitClassicConfig as testnetDkcConfig,
+  disputeKitShutterConfig as testnetDkShutterConfig,
+  disputeKitGatedConfig as testnetDkGatedConfig,
+  disputeKitGatedShutterConfig as testnetDkGatedShutterConfig,
   disputeResolverConfig as testnetDrConfig,
   disputeTemplateRegistryConfig as testnetDtrConfig,
   evidenceModuleConfig as testnetEvidenceConfig,
@@ -38,6 +41,9 @@ import {
   klerosCoreNeoConfig as mainnetCoreConfig,
   sortitionModuleNeoConfig as mainnetSortitionConfig,
   disputeKitClassicNeoConfig as mainnetDkcConfig,
+  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
+  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
   disputeResolverNeoConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
@@ -224,6 +230,9 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: testnetDkcConfig,
+          dkShutterConfig: testnetDkShutterConfig,
+          dkGatedConfig: testnetDkGatedConfig,
+          dkGatedShutterConfig: testnetDkGatedShutterConfig,
           drConfig: testnetDrConfig,
           dtrConfig: testnetDtrConfig,
           evidenceConfig: testnetEvidenceConfig,
@@ -244,6 +253,9 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: mainnetDkcConfig,
+          dkShutterConfig: mainnetDkShutterConfig,
+          dkGatedConfig: mainnetDkGatedConfig,
+          dkGatedShutterConfig: mainnetDkGatedShutterConfig,
           drConfig: mainnetDrConfig,
           dtrConfig: mainnetDtrConfig,
           evidenceConfig: mainnetEvidenceConfig,

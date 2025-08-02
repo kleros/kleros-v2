@@ -65,9 +65,9 @@ const testnetContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCore" },
   sortition: { name: "SortitionModule" },
   disputeKitClassic: { name: "DisputeKitClassic" },
-  disputeKitShutter: { name: "DisputeKitShutter", optional: true },
-  disputeKitGated: { name: "DisputeKitGated", optional: true },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutter", optional: true },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
   disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -103,9 +103,9 @@ const neoContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCoreNeo" },
   sortition: { name: "SortitionModuleNeo" },
   disputeKitClassic: { name: "DisputeKitClassicNeo" },
-  disputeKitShutter: { name: "DisputeKitShutterNeo", optional: true },
-  disputeKitGated: { name: "DisputeKitGatedNeo", optional: true },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo", optional: true },
+  disputeKitShutter: { name: "DisputeKitShutterNeo" },
+  disputeKitGated: { name: "DisputeKitGatedNeo" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo" },
   disputeResolver: { name: "DisputeResolverNeo" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -280,9 +280,9 @@ describe("getContractsEthers", async () => {
     expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumSepoliaProvider));
     expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumSepoliaProvider));
     verifyCommonContractInstances(contracts, arbitrumSepoliaProvider);
-    expect(contracts.disputeKitShutter).to.be.null;
-    expect(contracts.disputeKitGated).to.be.null;
-    expect(contracts.disputeKitGatedShutter).to.be.null;
+    expect(contracts.disputeKitShutter).to.not.be.null;
+    expect(contracts.disputeKitGated).to.not.be.null;
+    expect(contracts.disputeKitGatedShutter).to.not.be.null;
     expect(contracts.chainlinkRng).to.not.be.null;
     expect(contracts.randomizerRng).to.be.null;
 
@@ -302,9 +302,9 @@ describe("getContractsEthers", async () => {
     expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCoreNeo__factory, arbitrumProvider));
     expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModuleNeo__factory, arbitrumProvider));
     verifyCommonContractInstances(contracts, arbitrumProvider);
-    expect(contracts.disputeKitShutter).to.be.null;
-    expect(contracts.disputeKitGated).to.be.null;
-    expect(contracts.disputeKitGatedShutter).to.be.null;
+    expect(contracts.disputeKitShutter).to.not.be.null;
+    expect(contracts.disputeKitGated).to.not.be.null;
+    expect(contracts.disputeKitGatedShutter).to.not.be.null;
     expect(contracts.chainlinkRng).to.not.be.null;
     expect(contracts.randomizerRng).to.not.be.null;
 

@@ -3282,6 +3282,25 @@ export default {
           inputs: [
             {
               internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
               name: "",
               type: "uint256",
             },
@@ -3542,6 +3561,54 @@ export default {
               name: "_coreRoundID",
               type: "uint256",
             },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
             {
               internalType: "uint256",
               name: "_choice",
@@ -3644,6 +3711,35 @@ export default {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
               name: "_governor",
               type: "address",
@@ -3653,15 +3749,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize6",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -3728,6 +3822,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -3766,6 +3873,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -3824,7 +3944,7 @@ export default {
       ],
     },
     DisputeKitClassicNeo_Implementation: {
-      address: "0x7F3C3C9f9c6238885d958afa1bCc92f1032ef81d",
+      address: "0x371Aa4B1AE5b5f9422f3Ff1d105029AAd1D319BC",
       abi: [
         {
           inputs: [],
@@ -4309,6 +4429,25 @@ export default {
           inputs: [
             {
               internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
               name: "",
               type: "uint256",
             },
@@ -4569,6 +4708,54 @@ export default {
               name: "_coreRoundID",
               type: "uint256",
             },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
             {
               internalType: "uint256",
               name: "_choice",
@@ -4671,6 +4858,35 @@ export default {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
               name: "_governor",
               type: "address",
@@ -4680,15 +4896,13 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize6",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -4755,6 +4969,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "singleDrawPerJuror",
           outputs: [
@@ -4799,6 +5026,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -4836,6 +5076,7406 @@ export default {
     },
     DisputeKitClassicNeo_Proxy: {
       address: "0x70B464be85A547144C72485eBa2577E5D3A45421",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+      ],
+    },
+    DisputeKitGatedNeo: {
+      address: "0xaE1eed20C125B739b64c948820C61F809ad9a925",
+      abi: [
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "ChoiceFunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "CommitCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Contribution",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "VoteCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Withdrawal",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "LOSER_APPEAL_PERIOD_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LOSER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "ONE_BASIS_POINT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "WINNER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          name: "alreadyDrawn",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areCommitsAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areVotesAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "castCommit",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVote",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          name: "changeCore",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "core",
+          outputs: [
+            {
+              internalType: "contract KlerosCore",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToLocal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "uint256",
+              name: "_nbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "jumped",
+              type: "bool",
+            },
+            {
+              internalType: "bytes",
+              name: "extraData",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_nonce",
+              type: "uint256",
+            },
+          ],
+          name: "draw",
+          outputs: [
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "extraDataToTokenInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "tokenGate",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "isERC1155",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "fundAppeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getCoherentCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherence",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getFundedChoices",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "fundedChoices",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "winningChoice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "totalVoted",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalCommited",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "nbVoters",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "choiceCount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "getVoteInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "choice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "voted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract KlerosCore",
+              name: "_core",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "isVoteActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "address payable",
+              name: "_beneficiary",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "withdrawFeesAndRewards",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+      ],
+    },
+    DisputeKitGatedNeo_Implementation: {
+      address: "0xEA7863E6dE863e8E6d037D8693ad5dA45Db7790a",
+      abi: [
+        {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "ChoiceFunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "CommitCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Contribution",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "VoteCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Withdrawal",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "LOSER_APPEAL_PERIOD_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LOSER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "ONE_BASIS_POINT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "WINNER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          name: "alreadyDrawn",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areCommitsAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areVotesAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "castCommit",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVote",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          name: "changeCore",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "core",
+          outputs: [
+            {
+              internalType: "contract KlerosCore",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToLocal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "uint256",
+              name: "_nbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "jumped",
+              type: "bool",
+            },
+            {
+              internalType: "bytes",
+              name: "extraData",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_nonce",
+              type: "uint256",
+            },
+          ],
+          name: "draw",
+          outputs: [
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "extraDataToTokenInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "tokenGate",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "isERC1155",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "fundAppeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getCoherentCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherence",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getFundedChoices",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "fundedChoices",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "winningChoice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "totalVoted",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalCommited",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "nbVoters",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "choiceCount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "getVoteInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "choice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "voted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract KlerosCore",
+              name: "_core",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "isVoteActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "address payable",
+              name: "_beneficiary",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "withdrawFeesAndRewards",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+    },
+    DisputeKitGatedNeo_Proxy: {
+      address: "0xaE1eed20C125B739b64c948820C61F809ad9a925",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+      ],
+    },
+    DisputeKitGatedShutterNeo: {
+      address: "0x788330092B9704809C19858E39EB9Ac402c2E47b",
+      abi: [
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "ChoiceFunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "CommitCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "CommitCastShutter",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Contribution",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "VoteCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Withdrawal",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "LOSER_APPEAL_PERIOD_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LOSER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "ONE_BASIS_POINT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "WINNER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          name: "alreadyDrawn",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areCommitsAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areVotesAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "castCommit",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "castCommitShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVote",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVoteShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          name: "changeCore",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "core",
+          outputs: [
+            {
+              internalType: "contract KlerosCore",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToLocal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "uint256",
+              name: "_nbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "jumped",
+              type: "bool",
+            },
+            {
+              internalType: "bytes",
+              name: "extraData",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_nonce",
+              type: "uint256",
+            },
+          ],
+          name: "draw",
+          outputs: [
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "fundAppeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getCoherentCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherence",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getFundedChoices",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "fundedChoices",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "winningChoice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "totalVoted",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalCommited",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "nbVoters",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "choiceCount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "getVoteInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "choice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "voted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract KlerosCore",
+              name: "_core",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "isVoteActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "address payable",
+              name: "_beneficiary",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "withdrawFeesAndRewards",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+      ],
+    },
+    DisputeKitGatedShutterNeo_Implementation: {
+      address: "0xb12EB4c0716d3A9861a9AC471c6CdDB808d61b32",
+      abi: [
+        {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "ChoiceFunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "CommitCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "CommitCastShutter",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Contribution",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "VoteCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Withdrawal",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "LOSER_APPEAL_PERIOD_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LOSER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "ONE_BASIS_POINT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "WINNER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          name: "alreadyDrawn",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areCommitsAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areVotesAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "castCommit",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "castCommitShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVote",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVoteShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          name: "changeCore",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "core",
+          outputs: [
+            {
+              internalType: "contract KlerosCore",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToLocal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "uint256",
+              name: "_nbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "jumped",
+              type: "bool",
+            },
+            {
+              internalType: "bytes",
+              name: "extraData",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_nonce",
+              type: "uint256",
+            },
+          ],
+          name: "draw",
+          outputs: [
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "fundAppeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getCoherentCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherence",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getFundedChoices",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "fundedChoices",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "winningChoice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "totalVoted",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalCommited",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "nbVoters",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "choiceCount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "getVoteInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "choice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "voted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract KlerosCore",
+              name: "_core",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "isVoteActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "address payable",
+              name: "_beneficiary",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "withdrawFeesAndRewards",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+    },
+    DisputeKitGatedShutterNeo_Proxy: {
+      address: "0x788330092B9704809C19858E39EB9Ac402c2E47b",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+      ],
+    },
+    DisputeKitShutterNeo: {
+      address: "0x9D3e3f1765744c2a1BC6F6088549770444BBC768",
+      abi: [
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "ChoiceFunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "CommitCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "CommitCastShutter",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Contribution",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "VoteCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Withdrawal",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "LOSER_APPEAL_PERIOD_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LOSER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "ONE_BASIS_POINT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "WINNER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          name: "alreadyDrawn",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areCommitsAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areVotesAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "castCommit",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "castCommitShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVote",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVoteShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          name: "changeCore",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "core",
+          outputs: [
+            {
+              internalType: "contract KlerosCore",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToLocal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "uint256",
+              name: "_nbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "jumped",
+              type: "bool",
+            },
+            {
+              internalType: "bytes",
+              name: "extraData",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_nonce",
+              type: "uint256",
+            },
+          ],
+          name: "draw",
+          outputs: [
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "fundAppeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getCoherentCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherence",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getFundedChoices",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "fundedChoices",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "winningChoice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "totalVoted",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalCommited",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "nbVoters",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "choiceCount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "getVoteInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "choice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "voted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract KlerosCore",
+              name: "_core",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "isVoteActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "address payable",
+              name: "_beneficiary",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "withdrawFeesAndRewards",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+      ],
+    },
+    DisputeKitShutterNeo_Implementation: {
+      address: "0xF3103B46403A0bBd4551648BFb29BCC2b8783947",
+      abi: [
+        {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "ChoiceFunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "CommitCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "CommitCastShutter",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Contribution",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "VoteCast",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_contributor",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "Withdrawal",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "LOSER_APPEAL_PERIOD_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "LOSER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "ONE_BASIS_POINT",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "WINNER_STAKE_MULTIPLIER",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          name: "alreadyDrawn",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areCommitsAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "areVotesAllCast",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+          ],
+          name: "castCommit",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes32",
+              name: "_commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes32",
+              name: "_identity",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "_encryptedVote",
+              type: "bytes",
+            },
+          ],
+          name: "castCommitShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVote",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[]",
+              name: "_voteIDs",
+              type: "uint256[]",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "castVoteShutter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_core",
+              type: "address",
+            },
+          ],
+          name: "changeCore",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "core",
+          outputs: [
+            {
+              internalType: "contract KlerosCore",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToLocal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "uint256",
+              name: "_nbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "jumped",
+              type: "bool",
+            },
+            {
+              internalType: "bytes",
+              name: "extraData",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_nonce",
+              type: "uint256",
+            },
+          ],
+          name: "draw",
+          outputs: [
+            {
+              internalType: "address",
+              name: "drawnAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "fundAppeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getCoherentCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherence",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getFundedChoices",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "fundedChoices",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "winningChoice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "totalVoted",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalCommited",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "nbVoters",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "choiceCount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "getVoteInfo",
+          outputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "commit",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "choice",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "voted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_justification",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract KlerosCore",
+              name: "_core",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+          ],
+          name: "isVoteActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "address payable",
+              name: "_beneficiary",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+          ],
+          name: "withdrawFeesAndRewards",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+    },
+    DisputeKitShutterNeo_Proxy: {
+      address: "0x9D3e3f1765744c2a1BC6F6088549770444BBC768",
       abi: [
         {
           inputs: [
@@ -7786,7 +15426,13 @@ export default {
             },
           ],
           name: "draw",
-          outputs: [],
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "nbDrawnJurors",
+              type: "uint256",
+            },
+          ],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -8130,15 +15776,13 @@ export default {
               name: "_jurorNft",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -8274,6 +15918,19 @@ export default {
         {
           inputs: [
             {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "uint96",
               name: "_courtID",
               type: "uint96",
@@ -8306,11 +15963,6 @@ export default {
               name: "_newStake",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
           name: "setStakeBySortitionModule",
           outputs: [],
@@ -8328,6 +15980,24 @@ export default {
             },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "transferBySortitionModule",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -8369,6 +16039,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -8387,7 +16070,7 @@ export default {
       ],
     },
     KlerosCoreNeo_Implementation: {
-      address: "0xEb6D9E61921506f876dc662B2398E34C92330faB",
+      address: "0xC1210493804eEF123096F9581Ee82B915150E54c",
       abi: [
         {
           inputs: [],
@@ -9782,7 +17465,13 @@ export default {
             },
           ],
           name: "draw",
-          outputs: [],
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "nbDrawnJurors",
+              type: "uint256",
+            },
+          ],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -10126,15 +17815,13 @@ export default {
               name: "_jurorNft",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
           ],
           name: "initialize",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -10270,6 +17957,19 @@ export default {
         {
           inputs: [
             {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+          ],
+          name: "reinitialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "uint96",
               name: "_courtID",
               type: "uint96",
@@ -10302,11 +18002,6 @@ export default {
               name: "_newStake",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
           name: "setStakeBySortitionModule",
           outputs: [],
@@ -10324,6 +18019,24 @@ export default {
             },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "transferBySortitionModule",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -10359,6 +18072,19 @@ export default {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -16242,29 +23968,10 @@ export default {
           anonymous: false,
           inputs: [
             {
-              indexed: false,
-              internalType: "enum ISortitionModule.Phase",
-              name: "_phase",
-              type: "uint8",
-            },
-          ],
-          name: "NewPhase",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
               indexed: true,
               internalType: "address",
-              name: "_address",
+              name: "_account",
               type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_courtID",
-              type: "uint256",
             },
             {
               indexed: false,
@@ -16273,7 +23980,39 @@ export default {
               type: "uint256",
             },
           ],
-          name: "StakeDelayedAlreadyTransferredDeposited",
+          name: "LeftoverPNK",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "LeftoverPNKWithdrawn",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "enum ISortitionModule.Phase",
+              name: "_phase",
+              type: "uint8",
+            },
+          ],
+          name: "NewPhase",
           type: "event",
         },
         {
@@ -16298,32 +24037,7 @@ export default {
               type: "uint256",
             },
           ],
-          name: "StakeDelayedAlreadyTransferredWithdrawn",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "_address",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_courtID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_amount",
-              type: "uint256",
-            },
-          ],
-          name: "StakeDelayedNotTransferred",
+          name: "StakeDelayed",
           type: "event",
         },
         {
@@ -16701,6 +24415,25 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+          ],
+          name: "getJurorLeftoverPNK",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "governor",
           outputs: [
@@ -16763,7 +24496,7 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize3",
+          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -16952,7 +24685,18 @@ export default {
             },
           ],
           name: "penalizeStake",
-          outputs: [],
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkBalance",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "availablePenalty",
+              type: "uint256",
+            },
+          ],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -17079,33 +24823,22 @@ export default {
             },
             {
               internalType: "uint256",
+              name: "_pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
               name: "_newStake",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
           name: "setStake",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "pnkDeposit",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "pnkWithdrawal",
-              type: "uint256",
-            },
-            {
-              internalType: "enum StakingResult",
-              name: "stakingResult",
-              type: "uint8",
-            },
-          ],
+          outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -17207,6 +24940,45 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_newStake",
+              type: "uint256",
+            },
+          ],
+          name: "validateStake",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "version",
           outputs: [
@@ -17217,6 +24989,19 @@ export default {
             },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+          ],
+          name: "withdrawLeftoverPNK",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -17238,7 +25023,7 @@ export default {
       ],
     },
     SortitionModuleNeo_Implementation: {
-      address: "0x0cB3626Edf41F27a192102630D0502cCd93Cf043",
+      address: "0x3f6D0daeD166b64FCfBb9bc7c9E26423c6C08eEE",
       abi: [
         {
           inputs: [],
@@ -17304,29 +25089,10 @@ export default {
           anonymous: false,
           inputs: [
             {
-              indexed: false,
-              internalType: "enum ISortitionModule.Phase",
-              name: "_phase",
-              type: "uint8",
-            },
-          ],
-          name: "NewPhase",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
               indexed: true,
               internalType: "address",
-              name: "_address",
+              name: "_account",
               type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_courtID",
-              type: "uint256",
             },
             {
               indexed: false,
@@ -17335,7 +25101,39 @@ export default {
               type: "uint256",
             },
           ],
-          name: "StakeDelayedAlreadyTransferredDeposited",
+          name: "LeftoverPNK",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "LeftoverPNKWithdrawn",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "enum ISortitionModule.Phase",
+              name: "_phase",
+              type: "uint8",
+            },
+          ],
+          name: "NewPhase",
           type: "event",
         },
         {
@@ -17360,32 +25158,7 @@ export default {
               type: "uint256",
             },
           ],
-          name: "StakeDelayedAlreadyTransferredWithdrawn",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "_address",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_courtID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_amount",
-              type: "uint256",
-            },
-          ],
-          name: "StakeDelayedNotTransferred",
+          name: "StakeDelayed",
           type: "event",
         },
         {
@@ -17763,6 +25536,25 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_juror",
+              type: "address",
+            },
+          ],
+          name: "getJurorLeftoverPNK",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "governor",
           outputs: [
@@ -17825,7 +25617,7 @@ export default {
         },
         {
           inputs: [],
-          name: "initialize3",
+          name: "initialize4",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -18014,7 +25806,18 @@ export default {
             },
           ],
           name: "penalizeStake",
-          outputs: [],
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkBalance",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "availablePenalty",
+              type: "uint256",
+            },
+          ],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -18141,33 +25944,22 @@ export default {
             },
             {
               internalType: "uint256",
+              name: "_pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
               name: "_newStake",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
           name: "setStake",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "pnkDeposit",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "pnkWithdrawal",
-              type: "uint256",
-            },
-            {
-              internalType: "enum StakingResult",
-              name: "stakingResult",
-              type: "uint8",
-            },
-          ],
+          outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -18269,6 +26061,45 @@ export default {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_newStake",
+              type: "uint256",
+            },
+          ],
+          name: "validateStake",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "version",
           outputs: [
@@ -18279,6 +26110,19 @@ export default {
             },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+          ],
+          name: "withdrawLeftoverPNK",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
       ],
