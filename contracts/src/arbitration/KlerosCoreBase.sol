@@ -8,6 +8,7 @@ import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
+import {SafeSend} from "../libraries/SafeSend.sol";
 import "../libraries/Constants.sol";
 
 /// @title KlerosCoreBase
@@ -15,6 +16,7 @@ import "../libraries/Constants.sol";
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
+    using SafeSend for address payable;
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -99,6 +101,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
     bool public paused; // Whether asset withdrawals are paused.
+    address public wNative; // The wrapped native token for safeSend().
 
     // ************************************* //
     // *              Events               * //
@@ -199,13 +202,15 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        ISortitionModule _sortitionModuleAddress
+        ISortitionModule _sortitionModuleAddress,
+        address _wNative
     ) internal onlyInitializing {
         governor = _governor;
         guardian = _guardian;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
         sortitionModule = _sortitionModuleAddress;
+        wNative = _wNative;
 
         // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a dispute kit is not supported.
         disputeKits.push();
@@ -533,7 +538,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             : convertEthToTokenAmount(_feeToken, court.feeForJuror);
         round.nbVotes = _feeAmount / feeForJuror;
         round.disputeKitID = disputeKitID;
-        round.pnkAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
+        round.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
 
@@ -663,7 +668,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
         Court storage court = courts[newCourtID];
         extraRound.nbVotes = msg.value / court.feeForJuror; // As many votes that can be afforded by the provided funds.
-        extraRound.pnkAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
+        extraRound.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
 
@@ -800,13 +805,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         }
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the governor.
-            if (round.feeToken == NATIVE_CURRENCY) {
-                // The dispute fees were paid in ETH
-                payable(governor).send(round.totalFeesForJurors);
-            } else {
-                // The dispute fees were paid in ERC20
-                round.feeToken.safeTransfer(governor, round.totalFeesForJurors);
-            }
+            _transferFeeToken(round.feeToken, payable(governor), round.totalFeesForJurors);
             pinakion.safeTransfer(governor, _params.pnkPenaltiesInRound);
             emit LeftoverRewardSent(
                 _params.disputeID,
@@ -841,24 +840,18 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         }
 
         address account = round.drawnJurors[_params.repartition % _params.numberOfVotesInRound];
-        uint256 pnkLocked = (round.pnkAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 pnkLocked = _applyCoherence(round.pnkAtStakePerJuror, degreeOfCoherence);
 
         // Release the rest of the PNKs of the juror for this round.
         sortitionModule.unlockStake(account, pnkLocked);
 
         // Transfer the rewards
-        uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 pnkReward = _applyCoherence(_params.pnkPenaltiesInRound / _params.coherentCount, degreeOfCoherence);
         round.sumPnkRewardPaid += pnkReward;
-        uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 feeReward = _applyCoherence(round.totalFeesForJurors / _params.coherentCount, degreeOfCoherence);
         round.sumFeeRewardPaid += feeReward;
         pinakion.safeTransfer(account, pnkReward);
-        if (round.feeToken == NATIVE_CURRENCY) {
-            // The dispute fees were paid in ETH
-            payable(account).send(feeReward);
-        } else {
-            // The dispute fees were paid in ERC20
-            round.feeToken.safeTransfer(account, feeReward);
-        }
+        _transferFeeToken(round.feeToken, payable(account), feeReward);
         emit TokenAndETHShift(
             account,
             _params.disputeID,
@@ -878,13 +871,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
                     pinakion.safeTransfer(governor, leftoverPnkReward);
                 }
                 if (leftoverFeeReward != 0) {
-                    if (round.feeToken == NATIVE_CURRENCY) {
-                        // The dispute fees were paid in ETH
-                        payable(governor).send(leftoverFeeReward);
-                    } else {
-                        // The dispute fees were paid in ERC20
-                        round.feeToken.safeTransfer(governor, leftoverFeeReward);
-                    }
+                    _transferFeeToken(round.feeToken, payable(governor), leftoverFeeReward);
                 }
                 emit LeftoverRewardSent(
                     _params.disputeID,
@@ -957,7 +944,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _disputeID The ID of the dispute.
     /// @return start The start of the appeal period.
     /// @return end The end of the appeal period.
-    function appealPeriod(uint256 _disputeID) public view returns (uint256 start, uint256 end) {
+    function appealPeriod(uint256 _disputeID) external view returns (uint256 start, uint256 end) {
         Dispute storage dispute = disputes[_disputeID];
         if (dispute.period == Period.appeal) {
             start = dispute.lastPeriodChange;
@@ -1057,6 +1044,34 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
+
+    /// @dev Internal function to transfer fee tokens (ETH or ERC20)
+    /// @param _feeToken The token to transfer (NATIVE_CURRENCY for ETH).
+    /// @param _recipient The recipient address.
+    /// @param _amount The amount to transfer.
+    function _transferFeeToken(IERC20 _feeToken, address payable _recipient, uint256 _amount) internal {
+        if (_feeToken == NATIVE_CURRENCY) {
+            _recipient.safeSend(_amount, wNative);
+        } else {
+            _feeToken.safeTransfer(_recipient, _amount);
+        }
+    }
+
+    /// @dev Applies degree of coherence to an amount
+    /// @param _amount The base amount to apply coherence to.
+    /// @param _degreeOfCoherence The degree of coherence in basis points.
+    /// @return The amount after applying the degree of coherence.
+    function _applyCoherence(uint256 _amount, uint256 _degreeOfCoherence) internal pure returns (uint256) {
+        return (_amount * _degreeOfCoherence) / ALPHA_DIVISOR;
+    }
+
+    /// @dev Calculates PNK at stake per juror based on court parameters
+    /// @param _minStake The minimum stake for the court.
+    /// @param _alpha The alpha parameter for the court in basis points.
+    /// @return The amount of PNK at stake per juror.
+    function _calculatePnkAtStake(uint256 _minStake, uint256 _alpha) internal pure returns (uint256) {
+        return (_minStake * _alpha) / ALPHA_DIVISOR;
+    }
 
     /// @dev Toggles the dispute kit support for a given court.
     /// @param _courtID The ID of the court to toggle the support for.

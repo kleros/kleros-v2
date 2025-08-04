@@ -8,7 +8,7 @@
 export async function getActualAddress(network: string, contractName: string): Promise<string> {
   try {
     const deployment = await import(`../../deployments/${network}/${contractName}.json`, {
-      assert: { type: "json" },
+      with: { type: "json" },
     });
     if (!deployment.default.address) {
       throw new Error(`No address found in deployment file for ${contractName} on ${network}`);

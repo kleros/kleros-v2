@@ -12,7 +12,7 @@ import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitShutter is DisputeKitClassicBase {
-    string public constant override version = "0.11.1";
+    string public constant override version = "0.12.0";
 
     // ************************************* //
     // *              Events               * //
@@ -44,12 +44,13 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
-    function initialize(address _governor, KlerosCore _core) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core);
+    /// @param _wNative The wrapped native token address, typically wETH.
+    function initialize(address _governor, KlerosCore _core, address _wNative) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
     }
 
-    function initialize8() external reinitializer(8) {
-        // NOP
+    function reinitialize(address _wNative) external reinitializer(9) {
+        wNative = _wNative;
     }
 
     // ************************ //

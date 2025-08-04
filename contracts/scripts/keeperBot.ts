@@ -1,6 +1,13 @@
 import hre from "hardhat";
 import { toBigInt, BigNumberish, getNumber, BytesLike } from "ethers";
-import { DisputeKitClassic, DisputeKitShutter, SortitionModule, SortitionModuleNeo } from "../typechain-types";
+import {
+  DisputeKitClassic,
+  DisputeKitGated,
+  DisputeKitGatedShutter,
+  DisputeKitShutter,
+  SortitionModule,
+  SortitionModuleNeo,
+} from "../typechain-types";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import { Cores, getContracts as getContractsForCoreType } from "./utils/contracts";
@@ -92,14 +99,14 @@ const getDisputeKit = async (
   coreDisputeId: string,
   coreRoundId: string
 ): Promise<{
-  disputeKit: DisputeKitClassic | DisputeKitShutter;
+  disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
   localDisputeId: bigint;
   localRoundId: bigint;
 }> => {
-  const { core, disputeKitClassic, disputeKitShutter } = await getContracts();
+  const { core, disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter } = await getContracts();
   const round = await core.getRoundInfo(coreDisputeId, coreRoundId);
   const disputeKitAddress = await core.disputeKits(round.disputeKitID);
-  let disputeKit: DisputeKitClassic | DisputeKitShutter;
+  let disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
   switch (disputeKitAddress) {
     case disputeKitClassic.target:
       disputeKit = disputeKitClassic;
@@ -107,6 +114,14 @@ const getDisputeKit = async (
     case disputeKitShutter?.target:
       if (!disputeKitShutter) throw new Error(`DisputeKitShutter not deployed`);
       disputeKit = disputeKitShutter;
+      break;
+    case disputeKitGated?.target:
+      if (!disputeKitGated) throw new Error(`DisputeKitGated not deployed`);
+      disputeKit = disputeKitGated;
+      break;
+    case disputeKitGatedShutter?.target:
+      if (!disputeKitGatedShutter) throw new Error(`DisputeKitGatedShutter not deployed`);
+      disputeKit = disputeKitGatedShutter;
       break;
     default:
       throw new Error(`Unknown dispute kit: ${disputeKitAddress}`);
@@ -200,6 +215,38 @@ const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]>
     .filter((contribution) => contribution.coreDispute.period === "execution")
     .map((dispute) => dispute.coreDispute);
   return getUniqueDisputes(disputes);
+};
+
+const getUnstakedJurors = async (disputeId: string): Promise<string[]> => {
+  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+  const query = gql`
+    query UnstakedJurors($disputeId: String!) {
+      dispute(id: $disputeId) {
+        currentRound {
+          drawnJurors(where: { juror_: { totalStake: 0 } }) {
+            juror {
+              userAddress
+            }
+          }
+        }
+      }
+    }
+  `;
+  type UnstakedJurors = {
+    dispute: {
+      currentRound: {
+        drawnJurors: { juror: { userAddress: string } }[];
+      };
+    };
+  };
+  const { dispute } = await request<UnstakedJurors>(SUBGRAPH_URL, query, { disputeId });
+  if (!dispute || !dispute.currentRound) {
+    return [];
+  }
+  const uniqueAddresses = [
+    ...new Set(dispute.currentRound.drawnJurors.map((drawnJuror) => drawnJuror.juror.userAddress)),
+  ];
+  return uniqueAddresses;
 };
 
 const handleError = (e: any) => {
@@ -371,6 +418,29 @@ const executeRuling = async (dispute: { id: string }) => {
   return success;
 };
 
+const withdrawLeftoverPNK = async (juror: string) => {
+  const { sortition } = await getContracts();
+  let success = false;
+  try {
+    await sortition.withdrawLeftoverPNK.staticCall(juror);
+  } catch (e) {
+    const error = e as CustomError;
+    const errorDescription = sortition.interface.parseError(error.data)?.signature;
+    logger.info(`WithdrawLeftoverPNK: failed for juror ${juror} because of ${errorDescription}, skipping`);
+    return success;
+  }
+  try {
+    const gas = ((await sortition.withdrawLeftoverPNK.estimateGas(juror)) * 150n) / 100n; // 50% extra gas
+    const tx = await (await sortition.withdrawLeftoverPNK(juror, { gasLimit: gas })).wait();
+    logger.info(`WithdrawLeftoverPNK txID: ${tx?.hash}`);
+  } catch (e) {
+    handleError(e);
+  } finally {
+    success = true;
+  }
+  return success;
+};
+
 const withdrawAppealContribution = async (
   coreDisputeId: string,
   coreRoundId: string,
@@ -527,7 +597,7 @@ const shutdown = async () => {
 };
 
 async function main() {
-  const { core, sortition, disputeKitShutter } = await getContracts();
+  const { core, sortition, disputeKitShutter, disputeKitGatedShutter } = await getContracts();
 
   const getBlockTime = async () => {
     return await ethers.provider.getBlock("latest").then((block) => {
@@ -604,6 +674,7 @@ async function main() {
     await passPeriod(dispute);
   }
   await shutterAutoReveal(disputeKitShutter, DISPUTES_TO_SKIP);
+  await shutterAutoReveal(disputeKitGatedShutter, DISPUTES_TO_SKIP);
   if (SHUTTER_AUTO_REVEAL_ONLY) {
     logger.debug("Shutter auto-reveal only, skipping other actions");
     await shutdown();
@@ -710,7 +781,7 @@ async function main() {
     do {
       const executeIterations = Math.min(MAX_EXECUTE_ITERATIONS, numberOfMissingRepartitions);
       if (executeIterations === 0) {
-        continue;
+        break;
       }
       logger.info(
         `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
@@ -722,6 +793,19 @@ async function main() {
       numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
       await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
     } while (numberOfMissingRepartitions != 0);
+
+    // ----------------------------------------------- //
+    //             WITHDRAW LEFTOVER PNK               //
+    // ----------------------------------------------- //
+    const unstakedJurors = await getUnstakedJurors(dispute.id);
+    logger.info(`Unstaked jurors: ${unstakedJurors.map((juror) => juror)}`);
+    for (const juror of unstakedJurors) {
+      const leftoverPNK = await sortition.getJurorLeftoverPNK(juror);
+      if (leftoverPNK > 0n) {
+        logger.info(`Leftover PNK for juror ${juror}: ${leftoverPNK}, withdrawing...`);
+        await withdrawLeftoverPNK(juror);
+      }
+    }
 
     // ----------------------------------------------- //
     //               RULING EXECUTION                  //
