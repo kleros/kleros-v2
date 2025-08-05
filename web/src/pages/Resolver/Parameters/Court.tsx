@@ -112,8 +112,8 @@ const ValidationIcon = styled.div<{ $isValid?: boolean | null; $isValidating?: b
   ${({ $isValidating, $isValid }) => {
     if ($isValidating) {
       return css`
-        border: 2px solid #ccc;
-        border-top-color: #007bff;
+        border: 2px solid ${({ theme }) => theme.stroke};
+        border-top-color: ${({ theme }) => theme.primaryBlue};
         animation: spin 1s linear infinite;
 
         @keyframes spin {
@@ -126,7 +126,7 @@ const ValidationIcon = styled.div<{ $isValid?: boolean | null; $isValidating?: b
 
     if ($isValid === true) {
       return css`
-        background-color: #28a745;
+        background-color: ${({ theme }) => theme.success};
         color: white;
         &::after {
           content: "✓";
@@ -136,7 +136,7 @@ const ValidationIcon = styled.div<{ $isValid?: boolean | null; $isValidating?: b
 
     if ($isValid === false) {
       return css`
-        background-color: #dc3545;
+        background-color: ${({ theme }) => theme.error};
         color: white;
         &::after {
           content: "✗";
@@ -151,7 +151,7 @@ const ValidationIcon = styled.div<{ $isValid?: boolean | null; $isValidating?: b
 `;
 
 const ValidationMessage = styled.small<{ $isError?: boolean }>`
-  color: ${({ $isError }) => ($isError ? "#dc3545" : "#28a745")};
+  color: ${({ $isError, theme }) => ($isError ? theme.error : theme.success)};
   font-size: 14px;
   font-style: italic;
   font-weight: normal;
@@ -159,9 +159,9 @@ const ValidationMessage = styled.small<{ $isError?: boolean }>`
 
 const StyledFieldWithValidation = styled(StyledField)<{ $isValid?: boolean | null }>`
   > input {
-    border-color: ${({ $isValid }) => {
-      if ($isValid === true) return "#28a745";
-      if ($isValid === false) return "#dc3545";
+    border-color: ${({ $isValid, theme }) => {
+      if ($isValid === true) return theme.success;
+      if ($isValid === false) return theme.error;
       return "inherit";
     }};
   }
@@ -327,7 +327,7 @@ const Court: React.FC = () => {
           {tokenGateAddress.trim() !== "" && (
             <ValidationContainer>
               <ValidationIcon $isValidating={isValidating} $isValid={isValidToken} />
-              <ValidationMessage $isError={!!validationError}>
+              <ValidationMessage $isError={Boolean(validationError)}>
                 {isValidating && `Validating ${isERC1155 ? "ERC-1155" : "ERC-20 or ERC-721"} token...`}
                 {validationError && validationError}
                 {isValidToken === true && `Valid ${isERC1155 ? "ERC-1155" : "ERC-20 or ERC-721"} token`}

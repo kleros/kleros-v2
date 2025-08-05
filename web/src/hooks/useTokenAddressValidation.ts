@@ -141,12 +141,7 @@ const useTokenValidation = ({
     error,
   } = useQuery({
     queryKey: [`${tokenType}-validation`, chainId, debouncedAddress],
-    enabled:
-      enabled &&
-      !isUndefined(publicClient) &&
-      !isUndefined(debouncedAddress) &&
-      debouncedAddress.trim() !== "" &&
-      isValidFormat === true,
+    enabled: enabled && !isUndefined(publicClient) && Boolean(isValidFormat),
     staleTime: 300000, // Cache for 5 minutes
     retry: 1, // Only retry once to fail faster
     retryDelay: 1000, // Short retry delay
