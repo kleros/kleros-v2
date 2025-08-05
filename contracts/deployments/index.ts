@@ -17,3 +17,6 @@ export * from "./utils";
 // Contracts getters
 export { getContracts as getContractsEthers } from "./contractsEthers";
 export { getContracts as getContractsViem } from "./contractsViem";
+
+// Dispute kits getters
+export { getDisputeKits as getDisputeKitsViem, type DisputeKitByIds, type DisputeKitInfos } from "./disputeKitsViem";
