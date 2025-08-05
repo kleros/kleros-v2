@@ -22,7 +22,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     if (!disputeData.disputeKitData || disputeData.disputeKitData.type !== "gated") return true;
 
     const gatedData = disputeData.disputeKitData as IGatedDisputeData;
-    if (!gatedData?.tokenGate?.trim()) return true; // No token address provided, so valid
+    if (!gatedData?.tokenGate?.trim()) return false; // No token address provided, so invalid
 
     // If token address is provided, it must be validated as valid ERC20
     return gatedData.isTokenGateValid === true;
