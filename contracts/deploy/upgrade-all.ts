@@ -92,13 +92,15 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
     }
   };
 
-  await upgrade(disputeKitClassic, "initialize7", []);
-  await upgrade(disputeKitShutter, "initialize8", []);
-  await upgrade(disputeKitGated, "initialize7", []);
-  await upgrade(disputeKitGatedShutter, "initialize7", []);
+  const wETH = await deployments.get("WETH");
+
+  await upgrade(disputeKitClassic, "reinitialize", [wETH.address]);
+  await upgrade(disputeKitShutter, "reinitialize", [wETH.address]);
+  await upgrade(disputeKitGated, "reinitialize", [wETH.address]);
+  await upgrade(disputeKitGatedShutter, "reinitialize", [wETH.address]);
   await upgrade(disputeTemplateRegistry, "initialize2", []);
   await upgrade(evidence, "initialize2", []);
-  await upgrade(core, "initialize5", []);
+  await upgrade(core, "reinitialize", [wETH.address]);
   await upgrade(policyRegistry, "initialize2", []);
   await upgrade(sortition, "initialize4", []);
 };

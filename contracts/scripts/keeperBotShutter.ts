@@ -1,6 +1,6 @@
 import hre from "hardhat";
 import { getBytes } from "ethers";
-import { DisputeKitShutter, SortitionModule, SortitionModuleNeo } from "../typechain-types";
+import { DisputeKitGatedShutter, DisputeKitShutter, SortitionModule, SortitionModuleNeo } from "../typechain-types";
 import { decrypt } from "./shutter";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
@@ -8,6 +8,10 @@ import { Cores, getContracts as getContractsForCoreType } from "./utils/contract
 
 const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
 const CORE_TYPE = env.optional("CORE_TYPE", "base");
+const DISPUTES_TO_SKIP = env
+  .optional("DISPUTES_TO_SKIP", "")
+  .split(",")
+  .map((s) => s.trim());
 
 const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
   ? {
@@ -22,15 +26,6 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
       level: env.optional("LOG_LEVEL", "info"),
     };
 const logger = loggerFactory.createLogger(loggerOptions);
-
-const getContracts = async () => {
-  const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
-  if (coreType === Cores.UNIVERSITY) {
-    throw new Error("University is not supported yet");
-  }
-  const contracts = await getContractsForCoreType(hre, coreType);
-  return { ...contracts, sortition: contracts.sortition as SortitionModule | SortitionModuleNeo };
-};
 
 /**
  * Decodes a message string into its component parts
@@ -77,7 +72,9 @@ type DisputeVotes = {
   };
 };
 
-const getShutterDisputesToReveal = async (disputeKitShutter: DisputeKitShutter): Promise<DisputeVotes[]> => {
+const getShutterDisputesToReveal = async (
+  disputeKitShutter: DisputeKitShutter | DisputeKitGatedShutter
+): Promise<DisputeVotes[]> => {
   const { gql, request } = await import("graphql-request"); // workaround for ESM import
   const query = gql`
     query DisputeToAutoReveal($shutterDisputeKit: Bytes) {
@@ -191,7 +188,10 @@ const getShutterDisputesToReveal = async (disputeKitShutter: DisputeKitShutter):
   return filteredDisputeVotes;
 };
 
-export const shutterAutoReveal = async (disputeKitShutter: DisputeKitShutter | null, disputesToSkip: string[]) => {
+export const shutterAutoReveal = async (
+  disputeKitShutter: DisputeKitShutter | DisputeKitGatedShutter | null,
+  disputesToSkip: string[]
+) => {
   if (!disputeKitShutter) {
     logger.debug("No Shutter dispute kit found, skipping auto-reveal");
     return [];
@@ -307,10 +307,20 @@ export const shutterAutoReveal = async (disputeKitShutter: DisputeKitShutter | n
   }
 };
 
+const getContracts = async () => {
+  const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
+  if (coreType === Cores.UNIVERSITY) {
+    throw new Error("University is not supported yet");
+  }
+  const contracts = await getContractsForCoreType(hre, coreType);
+  return { ...contracts, sortition: contracts.sortition as SortitionModule | SortitionModuleNeo };
+};
+
 async function main() {
   logger.debug("Starting...");
-  const { disputeKitShutter } = await getContracts();
-  await shutterAutoReveal(disputeKitShutter, ["44", "45", "51", "54"]);
+  const { disputeKitShutter, disputeKitGatedShutter } = await getContracts();
+  await shutterAutoReveal(disputeKitShutter, DISPUTES_TO_SKIP);
+  await shutterAutoReveal(disputeKitGatedShutter, DISPUTES_TO_SKIP);
 }
 
 if (require.main === module) {

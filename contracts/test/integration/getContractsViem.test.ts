@@ -20,10 +20,32 @@ type ContractMapping = {
   };
 };
 
-const baseContractMapping: ContractMapping = {
+const devnetContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCore" },
   sortition: { name: "SortitionModule" },
   disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeResolver: { name: "DisputeResolver" },
+  disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
+  evidence: { name: "EvidenceModule" },
+  policyRegistry: { name: "PolicyRegistry" },
+  transactionBatcher: { name: "TransactionBatcher" },
+  chainlinkRng: { name: "ChainlinkRNG", optional: true },
+  randomizerRng: { name: "RandomizerRNG", optional: true },
+  blockHashRng: { name: "BlockHashRNG" },
+  pnk: { name: "PNK" },
+  klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
+};
+
+const testnetContractMapping: ContractMapping = {
+  klerosCore: { name: "KlerosCore" },
+  sortition: { name: "SortitionModule" },
+  disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
   disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -40,6 +62,9 @@ const universityContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCoreUniversity" },
   sortition: { name: "SortitionModuleUniversity" },
   disputeKitClassic: { name: "DisputeKitClassicUniversity" },
+  disputeKitShutter: { name: "DisputeKitShutterUniversity", optional: true },
+  disputeKitGated: { name: "DisputeKitGatedUniversity", optional: true },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutterUniversity", optional: true },
   disputeResolver: { name: "DisputeResolverUniversity" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -56,6 +81,9 @@ const neoContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCoreNeo" },
   sortition: { name: "SortitionModuleNeo" },
   disputeKitClassic: { name: "DisputeKitClassicNeo" },
+  disputeKitShutter: { name: "DisputeKitShutterNeo" },
+  disputeKitGated: { name: "DisputeKitGatedNeo" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo" },
   disputeResolver: { name: "DisputeResolverNeo" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -93,6 +121,15 @@ describe("getContractsViem", () => {
     verifyContractInstance(contracts.klerosCore);
     verifyContractInstance(contracts.sortition);
     verifyContractInstance(contracts.disputeKitClassic);
+    if (contracts.disputeKitShutter) {
+      verifyContractInstance(contracts.disputeKitShutter);
+    }
+    if (contracts.disputeKitGated) {
+      verifyContractInstance(contracts.disputeKitGated);
+    }
+    if (contracts.disputeKitGatedShutter) {
+      verifyContractInstance(contracts.disputeKitGatedShutter);
+    }
     verifyContractInstance(contracts.disputeResolver);
     verifyContractInstance(contracts.disputeTemplateRegistry);
     verifyContractInstance(contracts.evidence);
@@ -140,12 +177,17 @@ describe("getContractsViem", () => {
     // Verify all contract instances
     verifyAllContractInstances(contracts);
 
+    // Verify specific DisputeKit instances
+    expect(contracts.disputeKitShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGated).to.not.be.undefined;
+    expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
+
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
     expect(contracts.randomizerRng).to.be.undefined;
 
     // Verify deployed addresses
-    await verifyDeployedAddresses(contracts, NETWORKS.DEVNET, baseContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.DEVNET, devnetContractMapping);
   });
 
   it("should return correct contract instances for university", async () => {
@@ -159,6 +201,11 @@ describe("getContractsViem", () => {
 
     // Verify all contract instances
     verifyAllContractInstances(contracts);
+
+    // Verify specific DisputeKit instances
+    expect(contracts.disputeKitShutter).to.be.undefined;
+    expect(contracts.disputeKitGated).to.be.undefined;
+    expect(contracts.disputeKitGatedShutter).to.be.undefined;
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.be.undefined;
@@ -180,12 +227,17 @@ describe("getContractsViem", () => {
     // Verify all contract instances
     verifyAllContractInstances(contracts);
 
+    // Verify specific DisputeKit instances
+    expect(contracts.disputeKitShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGated).to.not.be.undefined;
+    expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
+
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
     expect(contracts.randomizerRng).to.be.undefined;
 
     // Verify deployed addresses
-    await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, baseContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
   it("should return correct contract instances for mainnetNeo", async () => {
@@ -199,6 +251,11 @@ describe("getContractsViem", () => {
 
     // Verify all contract instances
     verifyAllContractInstances(contracts);
+
+    // Verify specific DisputeKit instances
+    expect(contracts.disputeKitShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGated).to.not.be.undefined;
+    expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;

@@ -2515,15 +2515,9 @@ export const disputeKitClassicAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize7",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -2554,6 +2548,13 @@ export const disputeKitClassicAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -2574,6 +2575,13 @@ export const disputeKitClassicAbi = [
     inputs: [],
     name: "version",
     outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
     stateMutability: "view",
   },
   {
@@ -3750,7 +3758,7 @@ export const disputeKitClassicUniversityProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xD76E74049003faCe2EBA0B6FB61DFC9941da959F)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xc4cC0274E55a9818f8cF42640B1De61d269425ad)
  */
 export const disputeKitClassicImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -4270,15 +4278,9 @@ export const disputeKitClassicImplementationAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize7",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -4309,6 +4311,13 @@ export const disputeKitClassicImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -4333,6 +4342,13 @@ export const disputeKitClassicImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       {
@@ -4350,14 +4366,14 @@ export const disputeKitClassicImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xD76E74049003faCe2EBA0B6FB61DFC9941da959F)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xc4cC0274E55a9818f8cF42640B1De61d269425ad)
  */
 export const disputeKitClassicImplementationAddress = {
-  421614: "0xD76E74049003faCe2EBA0B6FB61DFC9941da959F",
+  421614: "0xc4cC0274E55a9818f8cF42640B1De61d269425ad",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xD76E74049003faCe2EBA0B6FB61DFC9941da959F)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xc4cC0274E55a9818f8cF42640B1De61d269425ad)
  */
 export const disputeKitClassicImplementationConfig = {
   address: disputeKitClassicImplementationAddress,
@@ -4936,15 +4952,9 @@ export const disputeKitGatedAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize7",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -4975,6 +4985,13 @@ export const disputeKitGatedAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -4995,6 +5012,13 @@ export const disputeKitGatedAbi = [
     inputs: [],
     name: "version",
     outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
     stateMutability: "view",
   },
   {
@@ -5627,15 +5651,9 @@ export const disputeKitGatedShutterAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize7",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -5666,6 +5684,13 @@ export const disputeKitGatedShutterAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -5686,6 +5711,13 @@ export const disputeKitGatedShutterAbi = [
     inputs: [],
     name: "version",
     outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
     stateMutability: "view",
   },
   {
@@ -5734,7 +5766,7 @@ export const disputeKitGatedShutterConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC344C28493C51023E5504B6c7f1E86C0fB43C645)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x56199F9E5C0ef9251A251a41597A971141199EDF)
  */
 export const disputeKitGatedShutterImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -6317,15 +6349,9 @@ export const disputeKitGatedShutterImplementationAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize7",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -6356,6 +6382,13 @@ export const disputeKitGatedShutterImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -6380,6 +6413,13 @@ export const disputeKitGatedShutterImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       {
@@ -6397,14 +6437,14 @@ export const disputeKitGatedShutterImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC344C28493C51023E5504B6c7f1E86C0fB43C645)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x56199F9E5C0ef9251A251a41597A971141199EDF)
  */
 export const disputeKitGatedShutterImplementationAddress = {
-  421614: "0xC344C28493C51023E5504B6c7f1E86C0fB43C645",
+  421614: "0x56199F9E5C0ef9251A251a41597A971141199EDF",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC344C28493C51023E5504B6c7f1E86C0fB43C645)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x56199F9E5C0ef9251A251a41597A971141199EDF)
  */
 export const disputeKitGatedShutterImplementationConfig = {
   address: disputeKitGatedShutterImplementationAddress,
@@ -6451,7 +6491,7 @@ export const disputeKitGatedShutterProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA27EedcEA916BC1ab91720cE70c56666E854F55e)
  */
 export const disputeKitGatedImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -6982,15 +7022,9 @@ export const disputeKitGatedImplementationAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize7",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -7021,6 +7055,13 @@ export const disputeKitGatedImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -7045,6 +7086,13 @@ export const disputeKitGatedImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       {
@@ -7062,14 +7110,14 @@ export const disputeKitGatedImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA27EedcEA916BC1ab91720cE70c56666E854F55e)
  */
 export const disputeKitGatedImplementationAddress = {
-  421614: "0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258",
+  421614: "0xA27EedcEA916BC1ab91720cE70c56666E854F55e",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4D5Eb5D5b6c270Be8050Cfe93f85324AFb914258)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA27EedcEA916BC1ab91720cE70c56666E854F55e)
  */
 export const disputeKitGatedImplementationConfig = {
   address: disputeKitGatedImplementationAddress,
@@ -7700,15 +7748,9 @@ export const disputeKitShutterAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize8",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -7739,6 +7781,13 @@ export const disputeKitShutterAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -7759,6 +7808,13 @@ export const disputeKitShutterAbi = [
     inputs: [],
     name: "version",
     outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
     stateMutability: "view",
   },
   {
@@ -7807,7 +7863,7 @@ export const disputeKitShutterConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x036d321AfD9Ca457Be9E523736bc9FbB79FA7efc)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x6582CE0FdB29B5673E6650e34728C784BafB2139)
  */
 export const disputeKitShutterImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -8390,15 +8446,9 @@ export const disputeKitShutterImplementationAbi = [
     inputs: [
       { name: "_governor", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize8",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -8429,6 +8479,13 @@ export const disputeKitShutterImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "singleDrawPerJuror",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
@@ -8453,6 +8510,13 @@ export const disputeKitShutterImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       {
@@ -8470,14 +8534,14 @@ export const disputeKitShutterImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x036d321AfD9Ca457Be9E523736bc9FbB79FA7efc)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x6582CE0FdB29B5673E6650e34728C784BafB2139)
  */
 export const disputeKitShutterImplementationAddress = {
-  421614: "0x036d321AfD9Ca457Be9E523736bc9FbB79FA7efc",
+  421614: "0x6582CE0FdB29B5673E6650e34728C784BafB2139",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x036d321AfD9Ca457Be9E523736bc9FbB79FA7efc)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x6582CE0FdB29B5673E6650e34728C784BafB2139)
  */
 export const disputeKitShutterImplementationConfig = {
   address: disputeKitShutterImplementationAddress,
@@ -12099,15 +12163,9 @@ export const klerosCoreAbi = [
         internalType: "contract ISortitionModule",
         type: "address",
       },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize5",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -12172,6 +12230,13 @@ export const klerosCoreAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_newStake", internalType: "uint256", type: "uint256" },
@@ -12230,6 +12295,13 @@ export const klerosCoreAbi = [
     inputs: [],
     name: "version",
     outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
     stateMutability: "view",
   },
   {
@@ -16651,7 +16723,7 @@ export const klerosCoreUniversityProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x0d91F523fA287A74698A0e6Cd6A2436E91b9BEB9)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xaBf1AA1D08F98ED800938B1B086d0904c5BF4f0E)
  */
 export const klerosCoreImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -17657,15 +17729,9 @@ export const klerosCoreImplementationAbi = [
         internalType: "contract ISortitionModule",
         type: "address",
       },
+      { name: "_wNative", internalType: "address", type: "address" },
     ],
     name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "initialize5",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -17730,6 +17796,13 @@ export const klerosCoreImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_wNative", internalType: "address", type: "address" }],
+    name: "reinitialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_newStake", internalType: "uint256", type: "uint256" },
@@ -17790,17 +17863,24 @@ export const klerosCoreImplementationAbi = [
     outputs: [{ name: "", internalType: "string", type: "string" }],
     stateMutability: "view",
   },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x0d91F523fA287A74698A0e6Cd6A2436E91b9BEB9)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xaBf1AA1D08F98ED800938B1B086d0904c5BF4f0E)
  */
 export const klerosCoreImplementationAddress = {
-  421614: "0x0d91F523fA287A74698A0e6Cd6A2436E91b9BEB9",
+  421614: "0xaBf1AA1D08F98ED800938B1B086d0904c5BF4f0E",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x0d91F523fA287A74698A0e6Cd6A2436E91b9BEB9)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xaBf1AA1D08F98ED800938B1B086d0904c5BF4f0E)
  */
 export const klerosCoreImplementationConfig = {
   address: klerosCoreImplementationAddress,

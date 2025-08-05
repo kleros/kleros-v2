@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 contract KlerosCoreNeo is KlerosCoreBase {
-    string public constant override version = "0.9.4";
+    string public constant override version = "0.10.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -39,6 +39,7 @@ contract KlerosCoreNeo is KlerosCoreBase {
     /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
     /// @param _jurorNft NFT contract to vet the jurors.
+    /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
         address _governor,
         address _guardian,
@@ -50,7 +51,8 @@ contract KlerosCoreNeo is KlerosCoreBase {
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress,
-        IERC721 _jurorNft
+        IERC721 _jurorNft,
+        address _wNative
     ) external reinitializer(2) {
         __KlerosCoreBase_initialize(
             _governor,
@@ -62,13 +64,14 @@ contract KlerosCoreNeo is KlerosCoreBase {
             _courtParameters,
             _timesPerPeriod,
             _sortitionExtraData,
-            _sortitionModuleAddress
+            _sortitionModuleAddress,
+            _wNative
         );
         jurorNft = _jurorNft;
     }
 
-    function initialize5() external reinitializer(5) {
-        // NOP
+    function reinitialize(address _wNative) external reinitializer(6) {
+        wNative = _wNative;
     }
 
     // ************************************* //

@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.10.0",
+  "version": "0.12.0",
   "description": "Smart contracts for Kleros version 2",
   "main": "./cjs/deployments/index.js",
   "module": "./esm/deployments/index.js",
@@ -121,7 +121,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.17.6",
     "@types/sinon": "^17.0.4",
-    "@wagmi/cli": "^2.2.0",
+    "@wagmi/cli": "^2.3.2",
     "abitype": "^0.10.3",
     "chai": "^4.5.0",
     "dotenv": "^16.6.1",
@@ -157,7 +157,14 @@
     "@kleros/vea-contracts": "^0.6.0",
     "@openzeppelin/contracts": "^5.4.0",
     "@shutter-network/shutter-sdk": "0.0.2",
-    "isomorphic-fetch": "^3.0.0",
+    "isomorphic-fetch": "^3.0.0"
+  },
+  "peerDependencies": {
     "viem": "^2.24.1"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": false
+    }
   }
 }

@@ -27,7 +27,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, ZeroAddress],
+    args: [deployer, ZeroAddress, weth.target],
     log: true,
   });
 
