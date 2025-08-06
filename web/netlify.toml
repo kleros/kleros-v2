@@ -9,3 +9,8 @@ YARN_ENABLE_GLOBAL_CACHE = "true"
 
 [functions]
 directory = "web/netlify/functions/"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "llms-txt"
