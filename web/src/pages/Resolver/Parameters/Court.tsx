@@ -240,7 +240,7 @@ const Court: React.FC = () => {
         });
       }
     }
-  }, [isValidToken, isGatedDisputeKit, disputeData, setDisputeData]);
+  }, [isValidToken, isGatedDisputeKit, disputeData.disputeKitData, setDisputeData]);
 
   const handleCourtChange = (courtId: string) => {
     if (disputeData.courtId !== courtId) {
