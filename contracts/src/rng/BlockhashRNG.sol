@@ -77,7 +77,7 @@ contract BlockHashRNG is IRNG {
     /// @dev Return the random number. If it has not been saved and is still computable compute it.
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
     function receiveRandomness() external override onlyByConsumer returns (uint256 randomNumber) {
-        if (requestTimestamp == 0) return 0; // No request made
+        if (requestTimestamp == 0) return 0; // No requests were made yet.
 
         uint256 expectedTimestamp = requestTimestamp + lookaheadTime;
 
@@ -107,14 +107,14 @@ contract BlockHashRNG is IRNG {
     /// @dev Check if randomness is ready to be received.
     /// @return ready True if randomness can be received.
     function isRandomnessReady() external view returns (bool ready) {
-        if (requestTimestamp == 0) return false;
+        if (requestTimestamp == 0) return false; // No requests were made yet.
         return block.timestamp >= requestTimestamp + lookaheadTime;
     }
 
     /// @dev Get the timestamp when randomness will be ready.
     /// @return readyTimestamp The timestamp when randomness will be available.
     function getRandomnessReadyTimestamp() external view returns (uint256 readyTimestamp) {
-        if (requestTimestamp == 0) return 0;
+        if (requestTimestamp == 0) return 0; // No requests were made yet.
         return requestTimestamp + lookaheadTime;
     }
 }

@@ -94,7 +94,7 @@ contract KlerosCoreTest is Test {
         maxDrawingTime = 24;
         hiddenVotes = false;
 
-        rngLookahead = 600;
+        rngLookahead = 30;
         rng = new BlockHashRNG(msg.sender, address(sortitionModule), rngLookahead);
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
@@ -1471,7 +1471,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS); // No one is staked so check that the empty addresses are not drawn.
