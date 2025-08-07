@@ -26,9 +26,9 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.28",
+        version: "0.8.30",
         settings: {
-          // viaIR: true,
+          viaIR: true,
           optimizer: {
             enabled: true,
             runs: 100,
@@ -44,7 +44,7 @@ const config: HardhatUserConfig = {
         // For Vea
         version: "0.8.24",
         settings: {
-          // viaIR: true,
+          viaIR: true,
           optimizer: {
             enabled: true,
             runs: 100,
