@@ -29,15 +29,14 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
   const shouldShowCommit = id && isCommitPeriod && !commited;
   const shouldShowReveal = id && isVotingPeriod;
 
-  if (shouldShowCommit) {
-    return <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, refetch, dispute, currentPeriodIndex, isGated }} />;
-  }
-
-  if (shouldShowReveal) {
-    return <Reveal {...{ setIsOpen, voteIDs, isGated }} />;
-  }
-
-  return null;
+  return (
+    <>
+      {shouldShowCommit && (
+        <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, refetch, dispute, currentPeriodIndex, isGated }} />
+      )}
+      {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, isGated }} />}
+    </>
+  );
 };
 
 export default Shutter;
