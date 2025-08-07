@@ -31,23 +31,7 @@ const config: HardhatUserConfig = {
           viaIR: true,
           optimizer: {
             enabled: true,
-            runs: 100,
-          },
-          outputSelection: {
-            "*": {
-              "*": ["storageLayout"],
-            },
-          },
-        },
-      },
-      {
-        // For Vea
-        version: "0.8.24",
-        settings: {
-          viaIR: true,
-          optimizer: {
-            enabled: true,
-            runs: 100,
+            runs: 10000,
           },
           outputSelection: {
             "*": {
