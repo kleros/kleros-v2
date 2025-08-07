@@ -35,7 +35,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
-  const { data: hasVoted } = useReadDisputeKitClassicIsVoteActive({
+  const { data: hasVotedClassic } = useReadDisputeKitClassicIsVoteActive({
     query: {
       enabled: !isUndefined(roundId) && !isUndefined(voteId),
       refetchInterval: REFETCH_INTERVAL,
@@ -44,12 +44,20 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   const wasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
-  const isHiddenVotes = useMemo(() => disputeData?.dispute?.court.hiddenVotes, [disputeData]);
+  const isHiddenVotes = useMemo(() => disputeData?.dispute?.court.hiddenVotes ?? false, [disputeData]);
   const isCommitPeriod = useMemo(() => disputeData?.dispute?.period === "commit", [disputeData]);
   const isVotingPeriod = useMemo(() => disputeData?.dispute?.period === "vote", [disputeData]);
 
   const commited = useMemo(() => !isUndefined(drawData) && drawData?.draws?.[0]?.vote?.commited, [drawData]);
   const commit = useMemo(() => drawData?.draws?.[0]?.vote?.commit, [drawData]);
+
+  const hasVoted = useMemo(() => {
+    if (isHiddenVotes && isCommitPeriod) {
+      return commited;
+    }
+    return hasVotedClassic;
+  }, [isHiddenVotes, isCommitPeriod, commited, hasVotedClassic]);
+
   return (
     <VotingContext.Provider
       value={useMemo(

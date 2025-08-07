@@ -26,11 +26,18 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
   const { isCommitPeriod, isVotingPeriod, commited } = useVotingContext();
   const voteIDs = useMemo(() => drawData?.draws?.map((draw) => draw.voteIDNum) as string[], [drawData]);
 
-  return id && isCommitPeriod && !commited ? (
-    <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, refetch, dispute, currentPeriodIndex, isGated }} />
-  ) : id && isVotingPeriod ? (
-    <Reveal {...{ setIsOpen, voteIDs, isGated }} />
-  ) : null;
+  const shouldShowCommit = id && isCommitPeriod && !commited;
+  const shouldShowReveal = id && isVotingPeriod;
+
+  if (shouldShowCommit) {
+    return <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, refetch, dispute, currentPeriodIndex, isGated }} />;
+  }
+
+  if (shouldShowReveal) {
+    return <Reveal {...{ setIsOpen, voteIDs, isGated }} />;
+  }
+
+  return null;
 };
 
 export default Shutter;
