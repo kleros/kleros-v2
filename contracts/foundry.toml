@@ -1,15 +1,24 @@
 
 [profile.default]
+solc = "0.8.30"
+via_ir = true
+optimizer = true
+optimizer_runs = 500
+optimizer_details = { yulDetails = { stackAllocation = true } }
+additional_compiler_profiles = [
+    { name = "tests", via_ir = false }
+]
+compilation_restrictions = [
+    { paths = "test/foundry/KlerosCore.t.sol", via_ir = false },
+]
 src = 'src'
 out = 'out'
 libs = ['../node_modules', 'lib']
 
 [rpc_endpoints]
 arbitrumSepolia = "https://sepolia-rollup.arbitrum.io/rpc"
-arbitrumGoerli = "https://goerli-rollup.arbitrum.io/rpc"
 arbitrum = "https://arb1.arbitrum.io/rpc"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
-goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
 chiado = "https://rpc.chiado.gnosis.gateway.fm"
 gnosischain = "https://rpc.gnosis.gateway.fm"

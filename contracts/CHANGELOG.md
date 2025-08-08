@@ -4,7 +4,26 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [0.11.0] - 2025-08-01
+## [0.13.0] - 2025-08-07 (Not published yet)
+
+### Changed
+
+- Set the Hardhat Solidity version to v0.8.30 and enable the IR pipeline ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
+- Set the Foundry Solidity version to v0.8.30 and enable the IR pipeline ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
+- Bump `hardhat` to v2.26.2 ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
+- Bump `@kleros/vea-contracts` to v0.7.0 ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
+
+## [0.12.0] - 2025-08-05
+
+### Changed
+
+- **Breaking:** Make `viem` a peer dependency, it should be provided by the consuming package ([`4594536`](https://github.com/kleros/kleros-v2/commit/4594536c))
+
+### Added
+
+- Add helper function `getDisputeKitsViem` to retrieve a deployment's available dispute kit infos including their capabilities (`isShutter`, `isGated`) ([`5a81f9e`](https://github.com/kleros/kleros-v2/commit/5a81f9ec))
+
+## [0.11.0] - 2025-08-02
 
 ### Changed
 
@@ -107,6 +126,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [0.8.1] - 2025-04-10
 
+[0.13.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.13.0
+[0.12.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.12.0
 [0.11.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.11.0
 [0.10.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.10.0
 [0.9.4]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.9.4
