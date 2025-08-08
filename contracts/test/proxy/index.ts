@@ -4,7 +4,7 @@ import { DeployResult } from "hardhat-deploy/types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployUpgradable } from "../../deploy/utils/deployUpgradable";
 import { UpgradedByInheritanceV1, UpgradedByInheritanceV2 } from "../../typechain-types";
-import { UpgradedByRewrite as UpgradedByRewriteV1 } from "../../typechain-types/src/proxy/mock/by-rewrite";
+import { UpgradedByRewrite as UpgradedByRewriteV1 } from "../../typechain-types/src/proxy/mock/by-rewrite/UpgradedByRewrite.sol";
 import { UpgradedByRewrite as UpgradedByRewriteV2 } from "../../typechain-types/src/proxy/mock/by-rewrite/UpgradedByRewriteV2.sol";
 
 let deployer: HardhatEthersSigner;

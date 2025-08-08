@@ -61,7 +61,7 @@ describe("DisputeKitGated", async () => {
     });
     rng = (await ethers.getContract("IncrementalNG")) as IncrementalNG;
 
-    await sortitionModule.changeRandomNumberGenerator(rng.target, 20).then((tx) => tx.wait());
+    await sortitionModule.changeRandomNumberGenerator(rng.target).then((tx) => tx.wait());
 
     const hre = require("hardhat");
     await deployERC721(hre, deployer, "TestERC721", "Nft721");
@@ -140,11 +140,6 @@ describe("DisputeKitGated", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await sortitionModule.passPhase().then((tx) => tx.wait()); // Staking -> Generating
-
-    const lookahead = await sortitionModule.rngLookahead();
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
 
     await sortitionModule.passPhase().then((tx) => tx.wait()); // Generating -> Drawing
     return core.draw(disputeId, 70, { gasLimit: 10000000 });

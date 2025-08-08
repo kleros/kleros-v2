@@ -81,7 +81,7 @@ describe("Draw Benchmark", async () => {
     });
     rng = (await ethers.getContract("IncrementalNG")) as IncrementalNG;
 
-    await sortitionModule.changeRandomNumberGenerator(rng.target, 20).then((tx) => tx.wait());
+    await sortitionModule.changeRandomNumberGenerator(rng.target).then((tx) => tx.wait());
 
     // CourtId 2 = CHILD_COURT
     const minStake = 3n * 10n ** 20n; // 300 PNK
@@ -173,11 +173,6 @@ describe("Draw Benchmark", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await sortitionModule.passPhase().then((tx) => tx.wait()); // Staking -> Generating
-
-    const lookahead = await sortitionModule.rngLookahead();
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
 
     await sortitionModule.passPhase().then((tx) => tx.wait()); // Generating -> Drawing
     await expectFromDraw(core.draw(0, 20, { gasLimit: 1000000 }));
