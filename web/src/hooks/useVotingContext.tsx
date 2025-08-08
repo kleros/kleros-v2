@@ -3,10 +3,16 @@ import React, { useContext, createContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
-import { REFETCH_INTERVAL } from "consts/index";
-import { useReadDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
+import { REFETCH_INTERVAL, DisputeKits } from "consts/index";
+import {
+  useReadDisputeKitClassicIsVoteActive,
+  useReadDisputeKitShutterIsVoteActive,
+  useReadDisputeKitGatedIsVoteActive,
+  useReadDisputeKitGatedShutterIsVoteActive,
+} from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
+import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
 import { isUndefined } from "utils/index";
 
 interface IVotingContext {
@@ -35,13 +41,66 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
-  const { data: hasVotedClassic } = useReadDisputeKitClassicIsVoteActive({
+
+  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
+  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
+
+  const hookArgs = [BigInt(id ?? 0), roundId, voteId] as const;
+  const isEnabled = !isUndefined(roundId) && !isUndefined(voteId);
+
+  // Only call the hook for the specific dispute kit type
+  const classicVoteResult = useReadDisputeKitClassicIsVoteActive({
     query: {
-      enabled: !isUndefined(roundId) && !isUndefined(voteId),
+      enabled: isEnabled && disputeKitName === DisputeKits.Classic,
       refetchInterval: REFETCH_INTERVAL,
     },
-    args: [BigInt(id ?? 0), roundId, voteId],
+    args: hookArgs,
   });
+
+  const shutterVoteResult = useReadDisputeKitShutterIsVoteActive({
+    query: {
+      enabled: isEnabled && disputeKitName === DisputeKits.Shutter,
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: hookArgs,
+  });
+
+  const gatedVoteResult = useReadDisputeKitGatedIsVoteActive({
+    query: {
+      enabled: isEnabled && disputeKitName === DisputeKits.Gated,
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: hookArgs,
+  });
+
+  const gatedShutterVoteResult = useReadDisputeKitGatedShutterIsVoteActive({
+    query: {
+      enabled: isEnabled && disputeKitName === DisputeKits.GatedShutter,
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: hookArgs,
+  });
+
+  const hasVoted = useMemo(() => {
+    switch (disputeKitName) {
+      case DisputeKits.Classic:
+        return classicVoteResult.data;
+      case DisputeKits.Shutter:
+        return shutterVoteResult.data;
+      case DisputeKits.Gated:
+        return gatedVoteResult.data;
+      case DisputeKits.GatedShutter:
+        return gatedShutterVoteResult.data;
+      default:
+        return undefined;
+    }
+  }, [
+    disputeKitName,
+    classicVoteResult.data,
+    shutterVoteResult.data,
+    gatedVoteResult.data,
+    gatedShutterVoteResult.data,
+  ]);
 
   const wasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
   const isHiddenVotes = useMemo(() => disputeData?.dispute?.court.hiddenVotes ?? false, [disputeData]);
@@ -50,14 +109,6 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const commited = useMemo(() => !isUndefined(drawData) && drawData?.draws?.[0]?.vote?.commited, [drawData]);
   const commit = useMemo(() => drawData?.draws?.[0]?.vote?.commit, [drawData]);
-
-  const hasVoted = useMemo(() => {
-    if (isHiddenVotes && isCommitPeriod) {
-      return commited;
-    }
-    return hasVotedClassic;
-  }, [isHiddenVotes, isCommitPeriod, commited, hasVotedClassic]);
-
   return (
     <VotingContext.Provider
       value={useMemo(
