@@ -48,7 +48,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const hookArgs = [BigInt(id ?? 0), roundId, voteId] as const;
   const isEnabled = !isUndefined(roundId) && !isUndefined(voteId);
 
-  // Only call the hook for the specific dispute kit type
+  // Add a hook call for each DisputeKit
   const classicVoteResult = useReadDisputeKitClassicIsVoteActive({
     query: {
       enabled: isEnabled && disputeKitName === DisputeKits.Classic,
@@ -81,6 +81,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
     args: hookArgs,
   });
 
+  // Add a return for each DisputeKit
   const hasVoted = useMemo(() => {
     switch (disputeKitName) {
       case DisputeKits.Classic:
