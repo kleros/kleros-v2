@@ -85,8 +85,8 @@ const Commit: React.FC<ICommit> = ({
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
-      if (!import.meta.env.REACT_APP_SHUTTER_API) {
-        console.error("REACT_APP_SHUTTER_API environment variable is not set");
+      if (!import.meta.env.REACT_APP_SHUTTER_API || import.meta.env.REACT_APP_SHUTTER_API.trim() === "") {
+        console.error("REACT_APP_SHUTTER_API environment variable is not set or is empty");
         throw new Error("Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set");
       }
       const message = { message: saltKey };
