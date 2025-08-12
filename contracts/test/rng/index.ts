@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { deployments, ethers, network } from "hardhat";
+import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import {
   IncrementalNG,
   BlockHashRNG,
@@ -11,6 +11,7 @@ import {
 
 const initialNg = 424242;
 const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+let deployer: string;
 
 describe("IncrementalNG", async () => {
   let rng: IncrementalNG;
@@ -85,12 +86,16 @@ describe("ChainlinkRNG", async () => {
   let vrfCoordinator: ChainlinkVRFCoordinatorV2Mock;
 
   beforeEach("Setup", async () => {
+    ({ deployer } = await getNamedAccounts());
+
     await deployments.fixture(["ChainlinkRNG"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
     rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
     vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
+
+    await rng.changeConsumer(deployer);
   });
 
   it("Should return a non-zero random number", async () => {
@@ -144,12 +149,16 @@ describe("RandomizerRNG", async () => {
   let randomizer: RandomizerMock;
 
   beforeEach("Setup", async () => {
+    ({ deployer } = await getNamedAccounts());
+
     await deployments.fixture(["RandomizerRNG"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
+
+    await rng.changeConsumer(deployer);
   });
 
   it("Should return a non-zero random number", async () => {

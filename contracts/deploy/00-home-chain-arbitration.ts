@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCore } from "../typechain-types";
+import { ChainlinkRNG, DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -49,10 +49,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
-  const rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
+  const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.target],
+    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rngWithFallback.target],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -79,18 +79,18 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // disputeKit.changeCore() only if necessary
-  const disputeKitContract = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  const disputeKitContract = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
     await disputeKitContract.changeCore(klerosCore.address);
   }
 
-  // rng.changeConsumer() only if necessary
-  const rngConsumer = await rng.consumer();
+  // rngWithFallback.changeConsumer() only if necessary
+  const rngConsumer = await rngWithFallback.consumer();
   if (rngConsumer !== sortitionModule.address) {
-    console.log(`rng.changeConsumer(${sortitionModule.address})`);
-    await rng.changeConsumer(sortitionModule.address);
+    console.log(`rngWithFallback.changeConsumer(${sortitionModule.address})`);
+    await rngWithFallback.changeConsumer(sortitionModule.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
