@@ -8,6 +8,6 @@ interface IRNG {
     function requestRandomness() external;
 
     /// @dev Receive the random number.
-    /// @return randomNumber Random Number. If the number is not ready or has not been required 0 instead.
+    /// @return randomNumber Random number or 0 if not available
     function receiveRandomness() external returns (uint256 randomNumber);
 }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "./IRNG.sol";
 
 /// @title RNG with fallback mechanism
-/// @notice Uses multiple RNG implementations with automatic fallback if default RNG does not respond passed a timeout.
+/// @notice Uses a primary RNG implementation with automatic fallback to a Blockhash RNG if the primary RNG does not respond passed a timeout.
 contract RNGWithFallback is IRNG {
     // ************************************* //
     // *             Storage               * //
@@ -55,33 +55,6 @@ contract RNGWithFallback is IRNG {
     }
 
     // ************************************* //
-    // *         State Modifiers          * //
-    // ************************************* //
-
-    /// @dev Request a random number from the RNG
-    function requestRandomness() external override onlyByConsumer {
-        requestTimestamp = block.timestamp;
-        rng.requestRandomness();
-    }
-
-    /// @dev Receive the random number with fallback logic
-    /// @return randomNumber Random Number
-    function receiveRandomness() external override onlyByConsumer returns (uint256 randomNumber) {
-        // Try to get random number from the RNG contract
-        randomNumber = rng.receiveRandomness();
-
-        // If we got a valid number, clear the request
-        if (randomNumber != 0) {
-            return randomNumber;
-        } else if (block.timestamp > requestTimestamp + fallbackTimeoutSeconds) {
-            // If the timeout is exceeded, try the fallback
-            randomNumber = uint256(blockhash(block.number - 1));
-            emit RNGFallback();
-        }
-        return randomNumber;
-    }
-
-    // ************************************* //
     // *         Governance Functions      * //
     // ************************************* //
 
@@ -102,5 +75,29 @@ contract RNGWithFallback is IRNG {
     function changeFallbackTimeout(uint256 _fallbackTimeoutSeconds) external onlyByGovernor {
         fallbackTimeoutSeconds = _fallbackTimeoutSeconds;
         emit FallbackTimeoutChanged(_fallbackTimeoutSeconds);
+    }
+
+    // ************************************* //
+    // *         State Modifiers          * //
+    // ************************************* //
+
+    /// @dev Request a random number from the primary RNG
+    /// @dev The consumer is trusted not to make concurrent requests.
+    function requestRandomness() external override onlyByConsumer {
+        requestTimestamp = block.timestamp;
+        rng.requestRandomness();
+    }
+
+    /// @dev Receive the random number from the primary RNG with fallback to the blockhash RNG if the primary RNG does not respond passed a timeout.
+    /// @return randomNumber Random number or 0 if not available
+    function receiveRandomness() external override onlyByConsumer returns (uint256 randomNumber) {
+        randomNumber = rng.receiveRandomness();
+
+        // If we didn't get a random number and the timeout is exceeded, try the fallback
+        if (randomNumber == 0 && block.timestamp > requestTimestamp + fallbackTimeoutSeconds) {
+            randomNumber = uint256(blockhash(block.number - 1));
+            emit RNGFallback();
+        }
+        return randomNumber;
     }
 }
