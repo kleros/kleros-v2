@@ -6,6 +6,7 @@ import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../Kler
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";
+import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitClassicBase
 /// Abstract Dispute kit classic implementation of the Kleros v1 features including:
@@ -57,7 +58,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
-    uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
 
     address public governor; // The governor of the contract.
     KlerosCore public core; // The Kleros Core arbitrator

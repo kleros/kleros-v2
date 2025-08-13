@@ -88,7 +88,6 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // *             Storage               * //
     // ************************************* //
 
-    uint256 private constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
 
     address public governor; // The governor of the contract.
@@ -775,13 +774,13 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             _params.feePerJurorInRound,
             _params.pnkAtStakePerJurorInRound
         );
-        if (degreeOfCoherence > ALPHA_DIVISOR) {
+        if (degreeOfCoherence > ONE_BASIS_POINT) {
             // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
-            degreeOfCoherence = ALPHA_DIVISOR;
+            degreeOfCoherence = ONE_BASIS_POINT;
         }
 
         // Fully coherent jurors won't be penalized.
-        uint256 penalty = (round.pnkAtStakePerJuror * (ALPHA_DIVISOR - degreeOfCoherence)) / ALPHA_DIVISOR;
+        uint256 penalty = (round.pnkAtStakePerJuror * (ONE_BASIS_POINT - degreeOfCoherence)) / ONE_BASIS_POINT;
 
         // Unlock the PNKs affected by the penalty
         address account = round.drawnJurors[_params.repartition];
@@ -835,8 +834,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         );
 
         // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
-        if (degreeOfCoherence > ALPHA_DIVISOR) {
-            degreeOfCoherence = ALPHA_DIVISOR;
+        if (degreeOfCoherence > ONE_BASIS_POINT) {
+            degreeOfCoherence = ONE_BASIS_POINT;
         }
 
         address account = round.drawnJurors[_params.repartition % _params.numberOfVotesInRound];
@@ -1062,7 +1061,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _degreeOfCoherence The degree of coherence in basis points.
     /// @return The amount after applying the degree of coherence.
     function _applyCoherence(uint256 _amount, uint256 _degreeOfCoherence) internal pure returns (uint256) {
-        return (_amount * _degreeOfCoherence) / ALPHA_DIVISOR;
+        return (_amount * _degreeOfCoherence) / ONE_BASIS_POINT;
     }
 
     /// @dev Calculates PNK at stake per juror based on court parameters
@@ -1070,7 +1069,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _alpha The alpha parameter for the court in basis points.
     /// @return The amount of PNK at stake per juror.
     function _calculatePnkAtStake(uint256 _minStake, uint256 _alpha) internal pure returns (uint256) {
-        return (_minStake * _alpha) / ALPHA_DIVISOR;
+        return (_minStake * _alpha) / ONE_BASIS_POINT;
     }
 
     /// @dev Toggles the dispute kit support for a given court.
