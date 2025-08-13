@@ -41,7 +41,8 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
   const isButtonDisabled =
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
-    (location.pathname.includes("/resolver/court") && (!disputeData.courtId || !isGatedTokenValid)) ||
+    (location.pathname.includes("/resolver/court") &&
+      (!disputeData.courtId || !isGatedTokenValid || !disputeData.disputeKitId)) ||
     (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
     (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/notable-persons") && !areAliasesValidOrEmpty) ||
