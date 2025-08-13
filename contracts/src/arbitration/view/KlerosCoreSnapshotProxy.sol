@@ -26,7 +26,7 @@ contract KlerosCoreSnapshotProxy {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -69,4 +69,10 @@ contract KlerosCoreSnapshotProxy {
     function balanceOf(address _account) external view returns (uint256 totalStaked) {
         (totalStaked, , , ) = core.sortitionModule().getJurorBalance(_account, 0);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
 }

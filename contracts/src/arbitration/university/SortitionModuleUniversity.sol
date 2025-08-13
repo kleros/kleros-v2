@@ -67,12 +67,12 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(address(governor) == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
     modifier onlyByCore() {
-        require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
+        if (address(core) != msg.sender) revert KlerosCoreOnly();
         _;
     }
 
@@ -280,7 +280,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         // Can withdraw the leftover PNK if fully unstaked, has no tokens locked and has positive balance.
         // This withdrawal can't be triggered by calling setStake() in KlerosCore because current stake is technically 0, thus it is done via separate function.
         uint256 amount = getJurorLeftoverPNK(_account);
-        require(amount > 0, "Not eligible for withdrawal.");
+        if (amount == 0) revert NotEligibleForWithdrawal();
         jurors[_account].stakedPnk = 0;
         core.transferBySortitionModule(_account, amount);
         emit LeftoverPNKWithdrawn(_account, amount);
@@ -364,4 +364,12 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             }
         }
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error KlerosCoreOnly();
+    error NotEligibleForWithdrawal();
 }

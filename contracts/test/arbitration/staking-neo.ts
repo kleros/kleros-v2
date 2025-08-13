@@ -263,7 +263,10 @@ describe("Staking", async () => {
           );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
           await drawAndReachStakingPhaseFromGenerating();
-          await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+          await expect(sortition.executeDelayedStakes(10)).to.revertedWithCustomError(
+            sortition,
+            "NoDelayedStakeToExecute"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
         });
 
@@ -327,7 +330,10 @@ describe("Staking", async () => {
           );
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
           await drawAndReachStakingPhaseFromGenerating();
-          await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+          await expect(sortition.executeDelayedStakes(10)).to.revertedWithCustomError(
+            sortition,
+            "NoDelayedStakeToExecute"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
         });
 

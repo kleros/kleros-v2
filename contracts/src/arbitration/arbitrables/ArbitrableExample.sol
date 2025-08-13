@@ -37,7 +37,7 @@ contract ArbitrableExample is IArbitrableV2 {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(msg.sender == governor, "Only the governor allowed.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -126,8 +126,8 @@ contract ArbitrableExample is IArbitrableV2 {
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 
-        require(weth.safeTransferFrom(msg.sender, address(this), _feeInWeth), "Transfer failed");
-        require(weth.increaseAllowance(address(arbitrator), _feeInWeth), "Allowance increase failed");
+        if (!weth.safeTransferFrom(msg.sender, address(this), _feeInWeth)) revert TransferFailed();
+        if (!weth.increaseAllowance(address(arbitrator), _feeInWeth)) revert AllowanceIncreaseFailed();
 
         disputeID = arbitrator.createDispute(numberOfRulingOptions, arbitratorExtraData, weth, _feeInWeth);
         externalIDtoLocalID[disputeID] = localDisputeID;
@@ -142,13 +142,24 @@ contract ArbitrableExample is IArbitrableV2 {
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
-        require(msg.sender == address(arbitrator), "Only the arbitrator can execute this.");
-        require(_ruling <= dispute.numberOfRulingOptions, "Invalid ruling.");
-        require(dispute.isRuled == false, "This dispute has been ruled already.");
+        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
+        if (_ruling > dispute.numberOfRulingOptions) revert RulingOutOfBounds();
+        if (dispute.isRuled) revert DisputeAlreadyRuled();
 
         dispute.isRuled = true;
         dispute.ruling = _ruling;
 
         emit Ruling(IArbitratorV2(msg.sender), _arbitratorDisputeID, dispute.ruling);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error TransferFailed();
+    error AllowanceIncreaseFailed();
+    error ArbitratorOnly();
+    error RulingOutOfBounds();
+    error DisputeAlreadyRuled();
 }

@@ -1137,7 +1137,7 @@ contract KlerosCoreTest is Test {
         vm.prank(staker2);
         core.setStake(GENERAL_COURT, 10000);
 
-        vm.expectRevert(bytes("No delayed stake to execute."));
+        vm.expectRevert(SortitionModuleBase.NoDelayedStakeToExecute.selector);
         sortitionModule.executeDelayedStakes(5);
 
         // Set the stake and create a dispute to advance the phase
@@ -1150,7 +1150,7 @@ contract KlerosCoreTest is Test {
         uint256 disputeID = 0;
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
-        vm.expectRevert(bytes("Should be in Staking phase."));
+        vm.expectRevert(SortitionModuleBase.NotStakingPhase.selector);
         sortitionModule.executeDelayedStakes(5);
 
         // Create delayed stake
@@ -1270,14 +1270,14 @@ contract KlerosCoreTest is Test {
         assertEq(snapshotProxy.balanceOf(staker1), 12346, "Wrong stPNK balance");
 
         vm.prank(other);
-        vm.expectRevert(bytes("Access not allowed: Governor only."));
+        vm.expectRevert(KlerosCoreSnapshotProxy.GovernorOnly.selector);
         snapshotProxy.changeCore(IKlerosCore(other));
         vm.prank(governor);
         snapshotProxy.changeCore(IKlerosCore(other));
         assertEq(address(snapshotProxy.core()), other, "Wrong core in snapshot proxy after change");
 
         vm.prank(other);
-        vm.expectRevert(bytes("Access not allowed: Governor only."));
+        vm.expectRevert(KlerosCoreSnapshotProxy.GovernorOnly.selector);
         snapshotProxy.changeGovernor(other);
         vm.prank(governor);
         snapshotProxy.changeGovernor(other);
@@ -1565,7 +1565,7 @@ contract KlerosCoreTest is Test {
         voteIDs[0] = 0;
         bytes32 commit;
         vm.prank(staker1);
-        vm.expectRevert(bytes("The dispute should be in Commit period."));
+        vm.expectRevert(DisputeKitClassicBase.NotCommitPeriod.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         vm.expectRevert(KlerosCoreBase.EvidenceNotPassedAndNotAppeal.selector);
@@ -1582,13 +1582,13 @@ contract KlerosCoreTest is Test {
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("Empty commit."));
+        vm.expectRevert(DisputeKitClassicBase.EmptyCommit.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         commit = keccak256(abi.encodePacked(YES, salt));
 
         vm.prank(other);
-        vm.expectRevert(bytes("The caller has to own the vote."));
+        vm.expectRevert(DisputeKitClassicBase.JurorHasToOwnTheVote.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         vm.prank(staker1);
@@ -1626,11 +1626,11 @@ contract KlerosCoreTest is Test {
 
         // Check the require with the wrong choice and then with the wrong salt
         vm.prank(staker1);
-        vm.expectRevert(bytes("The vote hash must match the commitment in courts with hidden votes."));
+        vm.expectRevert(DisputeKitClassicBase.HashDoesNotMatchHiddenVoteCommitment.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, salt, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("The vote hash must match the commitment in courts with hidden votes."));
+        vm.expectRevert(DisputeKitClassicBase.HashDoesNotMatchHiddenVoteCommitment.selector);
         disputeKit.castVote(disputeID, voteIDs, YES, salt - 1, "XYZ");
 
         vm.prank(staker1);
@@ -1698,7 +1698,7 @@ contract KlerosCoreTest is Test {
 
         uint256[] memory voteIDs = new uint256[](0);
         vm.prank(staker1);
-        vm.expectRevert(bytes("The dispute should be in Vote period."));
+        vm.expectRevert(DisputeKitClassicBase.NotVotePeriod.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ"); // Leave salt empty as not needed
 
         vm.expectRevert(KlerosCoreBase.DisputeStillDrawing.selector);
@@ -1716,17 +1716,17 @@ contract KlerosCoreTest is Test {
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("No voteID provided"));
+        vm.expectRevert(DisputeKitClassicBase.EmptyVoteIDs.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         voteIDs = new uint256[](1);
         voteIDs[0] = 0; // Split vote IDs to see how the winner changes
         vm.prank(staker1);
-        vm.expectRevert(bytes("Choice out of bounds"));
+        vm.expectRevert(DisputeKitClassicBase.ChoiceOutOfBounds.selector);
         disputeKit.castVote(disputeID, voteIDs, 2 + 1, 0, "XYZ");
 
         vm.prank(other);
-        vm.expectRevert(bytes("The juror has to own the vote."));
+        vm.expectRevert(DisputeKitClassicBase.JurorHasToOwnTheVote.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
@@ -1735,7 +1735,7 @@ contract KlerosCoreTest is Test {
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("Vote already cast."));
+        vm.expectRevert(DisputeKitClassicBase.VoteAlreadyCast.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         (
@@ -1970,7 +1970,7 @@ contract KlerosCoreTest is Test {
         core.appeal{value: 0.21 ether}(disputeID, 2, arbitratorExtraData);
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(bytes("There is no such ruling to fund."));
+        vm.expectRevert(DisputeKitClassicBase.ChoiceOutOfBounds.selector);
         disputeKit.fundAppeal(disputeID, 3);
 
         vm.prank(crowdfunder1);
@@ -1995,7 +1995,7 @@ contract KlerosCoreTest is Test {
         assertEq((disputeKit.getFundedChoices(disputeID))[0], 1, "Incorrect funded choice");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(bytes("Appeal fee is already paid."));
+        vm.expectRevert(DisputeKitClassicBase.AppealFeeIsAlreadyPaid.selector);
         disputeKit.fundAppeal(disputeID, 1);
     }
 
@@ -2024,7 +2024,7 @@ contract KlerosCoreTest is Test {
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(bytes("Appeal period is over.")); // Appeal period not started yet
+        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOver.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1);
         core.passPeriod(disputeID);
 
@@ -2032,14 +2032,14 @@ contract KlerosCoreTest is Test {
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + ((end - start) / 2 + 1));
-        vm.expectRevert(bytes("Appeal period is over for loser"));
+        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOverForLoser.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1); // Losing choice
 
         disputeKit.fundAppeal(disputeID, 2); // Winning choice funding should not revert yet
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + (end - start) / 2); // Warp one more to cover the whole period
-        vm.expectRevert(bytes("Appeal period is over."));
+        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOver.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 2);
     }
 
@@ -2210,7 +2210,7 @@ contract KlerosCoreTest is Test {
 
         // Check jump modifier
         vm.prank(address(core));
-        vm.expectRevert(bytes("Dispute jumped to a parent DK!"));
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
         newDisputeKit.draw(disputeID, 1);
 
         // And check that draw in the new round works
@@ -2594,7 +2594,7 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
 
-        vm.expectRevert(bytes("Not eligible for withdrawal."));
+        vm.expectRevert(SortitionModuleBase.NotEligibleForWithdrawal.selector);
         sortitionModule.withdrawLeftoverPNK(staker1);
 
         vm.expectEmit(true, true, true, true);
@@ -2863,14 +2863,14 @@ contract KlerosCoreTest is Test {
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
-        vm.expectRevert(bytes("Dispute should be resolved."));
+        vm.expectRevert(DisputeKitClassicBase.DisputeNotResolved.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 0, 1);
 
         core.executeRuling(disputeID);
 
         vm.prank(governor);
         core.pause();
-        vm.expectRevert(bytes("Core is paused"));
+        vm.expectRevert(DisputeKitClassicBase.CoreIsPaused.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 0, 1);
         vm.prank(governor);
         core.unpause();
@@ -2969,7 +2969,7 @@ contract KlerosCoreTest is Test {
 
         // Deliberately cast votes using the old DK to see if the exception will be caught.
         vm.prank(staker1);
-        vm.expectRevert(bytes("Not active for core dispute ID"));
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         // And check the new DK.
