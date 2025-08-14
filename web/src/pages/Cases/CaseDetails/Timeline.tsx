@@ -68,7 +68,7 @@ const Timeline: React.FC<{
   currentPeriodIndex: number;
 }> = ({ currentPeriodIndex, dispute }) => {
   const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.court.hiddenVotes);
-  const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
+  const items = useTimeline(dispute, currentPeriodIndex);
 
   return (
     <TimeLineContainer>
@@ -103,30 +103,26 @@ const currentPeriodToCurrentItem = (currentPeriodIndex: number, hiddenVotes?: bo
   else return currentPeriodIndex - 1;
 };
 
-const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: number, currentPeriodIndex: number) => {
+const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex: number) => {
   const isDesktop = useIsDesktop();
-  const titles = useMemo(() => {
-    const titles = ["Evidence", "Voting", "Appeal", "Executed"];
-    if (dispute?.court.hiddenVotes) {
-      titles.splice(1, 0, "Commit");
-    }
-    return titles;
-  }, [dispute]);
+  const titles = ["Evidence", "Commit", "Voting", "Appeal", "Executed"];
+
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
     dispute?.court.timesPerPeriod
   );
+
   const countdown = useCountdown(deadlineCurrentPeriod);
   const getSubitems = (index: number): string[] | React.ReactNode[] => {
     if (typeof countdown !== "undefined" && dispute) {
       if (index === titles.length - 1) {
         return [];
-      } else if (index === currentItemIndex && countdown === 0) {
+      } else if (index === currentPeriodIndex && countdown === 0) {
         return ["Time's up!"];
-      } else if (index < currentItemIndex) {
+      } else if (index < currentPeriodIndex) {
         return [];
-      } else if (index === currentItemIndex) {
+      } else if (index === currentPeriodIndex) {
         return [secondsToDayHourMinute(countdown)];
       } else {
         return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
@@ -134,10 +130,16 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
     }
     return [<StyledSkeleton key={index} width={60} />];
   };
-  return titles.map((title, i) => ({
-    title: i + 1 < titles.length && isDesktop ? `${title} Period` : title,
-    subitems: getSubitems(i),
-  }));
+  return titles
+    .map((title, i) => {
+      // if not hidden votes, skip commit index
+      if (!dispute?.court.hiddenVotes && i === Periods.commit) return;
+      return {
+        title: i + 1 < titles.length && isDesktop ? `${title} Period` : title,
+        subitems: getSubitems(i),
+      };
+    })
+    .filter((item) => !isUndefined(item));
 };
 
 export const getDeadline = (
