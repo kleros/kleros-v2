@@ -774,8 +774,9 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             _params.feePerJurorInRound,
             _params.pnkAtStakePerJurorInRound
         );
+
+        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
         if (degreeOfCoherence > ONE_BASIS_POINT) {
-            // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
             degreeOfCoherence = ONE_BASIS_POINT;
         }
 
@@ -833,7 +834,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             _params.pnkAtStakePerJurorInRound
         );
 
-        // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
+        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
         if (degreeOfCoherence > ONE_BASIS_POINT) {
             degreeOfCoherence = ONE_BASIS_POINT;
         }
