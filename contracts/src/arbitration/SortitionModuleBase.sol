@@ -344,14 +344,14 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         // Update the sortition sum tree.
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
-        uint96 currenCourtID = _courtID;
+        uint96 currentCourtID = _courtID;
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
-            _set(bytes32(uint256(currenCourtID)), _newStake, stakePathID);
-            if (currenCourtID == GENERAL_COURT) {
+            _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
+            if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currenCourtID, , , , , , ) = core.courts(currenCourtID); // Get the parent court.
+                (currentCourtID, , , , , , ) = core.courts(currentCourtID); // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
