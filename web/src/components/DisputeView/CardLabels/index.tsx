@@ -63,7 +63,7 @@ interface ICardLabels {
 const LabelArgs: Record<string, { text: string; icon: React.FC<React.SVGAttributes<SVGElement>>; color: IColors }> = {
   EvidenceTime: { text: "Evidence time", icon: EvidenceIcon, color: "blue" },
   NotDrawn: { text: "You were not drawn", icon: NotDrawnIcon, color: "grey" },
-  CanVote: { text: "You can vote", icon: CanVoteIcon, color: "blue" },
+  CanVote: { text: "You can vote now", icon: CanVoteIcon, color: "blue" },
   Voted: { text: "You voted", icon: VotedIcon, color: "purple" },
   DidNotVote: { text: "You forgot to vote", icon: ForgotToVoteIcon, color: "purple" },
   CanFund: { text: "Appeal possible", icon: AppealIcon, color: "lightPurple" },
