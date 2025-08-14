@@ -526,14 +526,39 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
     /// @param _voteID The ID of the vote.
-    /// @return The degree of coherence in basis points.
-    function getDegreeOfCoherence(
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @return feeCoherence The degree of coherence in basis points for the dispute fee reward.
+    function getDegreeOfCoherenceReward(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
         uint256 _voteID,
         uint256 /* _feePerJuror */,
         uint256 /* _pnkAtStakePerJuror */
-    ) external view override returns (uint256) {
+    ) external view override returns (uint256 pnkCoherence, uint256 feeCoherence) {
+        uint256 coherence = _getDegreeOfCoherence(_coreDisputeID, _coreRoundID, _voteID);
+        return (coherence, coherence);
+    }
+
+    /// @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the penalty.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    function getDegreeOfCoherencePenalty(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID,
+        uint256 /* _feePerJuror */,
+        uint256 /* _pnkAtStakePerJuror */
+    ) external view override returns (uint256 pnkCoherence) {
+        return _getDegreeOfCoherence(_coreDisputeID, _coreRoundID, _voteID);
+    }
+
+    function _getDegreeOfCoherence(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID
+    ) internal view returns (uint256 coherence) {
         // In this contract this degree can be either 0 or 1, but in other dispute kits this value can be something in between.
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
