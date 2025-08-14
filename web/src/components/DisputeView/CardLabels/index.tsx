@@ -61,13 +61,13 @@ interface ICardLabels {
 }
 
 const LabelArgs: Record<string, { text: string; icon: React.FC<React.SVGAttributes<SVGElement>>; color: IColors }> = {
-  EvidenceTime: { text: "Evidence Time", icon: EvidenceIcon, color: "blue" },
-  NotDrawn: { text: "Not Drawn", icon: NotDrawnIcon, color: "grey" },
-  CanVote: { text: "Time to vote", icon: CanVoteIcon, color: "blue" },
-  Voted: { text: "I voted", icon: VotedIcon, color: "purple" },
-  DidNotVote: { text: "Didn't cast a vote", icon: ForgotToVoteIcon, color: "purple" },
+  EvidenceTime: { text: "Evidence time", icon: EvidenceIcon, color: "blue" },
+  NotDrawn: { text: "You were not drawn", icon: NotDrawnIcon, color: "grey" },
+  CanVote: { text: "You can vote", icon: CanVoteIcon, color: "blue" },
+  Voted: { text: "You voted", icon: VotedIcon, color: "purple" },
+  DidNotVote: { text: "You forgot to vote", icon: ForgotToVoteIcon, color: "purple" },
   CanFund: { text: "Appeal possible", icon: AppealIcon, color: "lightPurple" },
-  Funded: { text: "I funded", icon: FundedIcon, color: "lightPurple" },
+  Funded: { text: "You funded an appeal", icon: FundedIcon, color: "lightPurple" },
 };
 
 const getFundingRewards = (contributions: ClassicContribution[], closed: boolean) => {
