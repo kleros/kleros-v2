@@ -130,16 +130,16 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     }
     return [<StyledSkeleton key={index} width={60} />];
   };
-  return titles
-    .map((title, i) => {
-      // if not hidden votes, skip commit index
-      if (!dispute?.court.hiddenVotes && i === Periods.commit) return;
-      return {
+  return titles.flatMap((title, i) => {
+    // if not hidden votes, skip commit index
+    if (!dispute?.court.hiddenVotes && i === Periods.commit) return [];
+    return [
+      {
         title: i + 1 < titles.length && isDesktop ? `${title} Period` : title,
         subitems: getSubitems(i),
-      };
-    })
-    .filter((item) => !isUndefined(item));
+      },
+    ];
+  });
 };
 
 export const getDeadline = (
