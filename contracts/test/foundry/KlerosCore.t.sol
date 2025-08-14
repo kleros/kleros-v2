@@ -12,6 +12,8 @@ import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModul
 import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
+import {RNGWithFallback} from "../../src/rng/RNGWithFallback.sol";
+import {RNGMock} from "../../src/test/RNGMock.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
@@ -2991,5 +2993,114 @@ contract KlerosCoreTest is Test {
         assertEq(totalVoted, 3, "totalVoted should be 3");
         assertEq(totalCommited, 0, "totalCommited should be 0");
         assertEq(choiceCount, 3, "choiceCount should be 3");
+    }
+
+    function test_RNGFallback() public {
+        RNGWithFallback rngFallback;
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
+        assertEq(rngFallback.governor(), msg.sender, "Wrong governor");
+        assertEq(rngFallback.consumer(), address(sortitionModule), "Wrong sortition module address");
+        assertEq(address(rngFallback.rng()), address(rngMock), "Wrong RNG in fallback contract");
+        assertEq(rngFallback.fallbackTimeoutSeconds(), fallbackTimeout, "Wrong fallback timeout");
+        assertEq(rngFallback.requestTimestamp(), 0, "Request timestamp should be 0");
+
+        vm.prank(governor);
+        sortitionModule.changeRandomNumberGenerator(rngFallback);
+        assertEq(address(sortitionModule.rng()), address(rngFallback), "Wrong RNG address");
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+
+        sortitionModule.passPhase(); // Generating
+        assertEq(rngFallback.requestTimestamp(), block.timestamp, "Wrong request timestamp");
+
+        vm.expectRevert(SortitionModuleBase.RandomNumberNotReady.selector);
+        sortitionModule.passPhase();
+
+        vm.warp(block.timestamp + fallbackTimeout + 1);
+
+        // Pass several blocks too to see that correct block.number is still picked up.
+        vm.roll(block.number + 5);
+
+        vm.expectEmit(true, true, true, true);
+        emit RNGWithFallback.RNGFallback();
+        sortitionModule.passPhase(); // Drawing phase
+
+        assertEq(sortitionModule.randomNumber(), uint256(blockhash(block.number - 1)), "Wrong random number");
+    }
+
+    function test_RNGFallback_happyPath() public {
+        RNGWithFallback rngFallback;
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
+
+        vm.prank(governor);
+        sortitionModule.changeRandomNumberGenerator(rngFallback);
+        assertEq(address(sortitionModule.rng()), address(rngFallback), "Wrong RNG address");
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+
+        assertEq(rngFallback.requestTimestamp(), 0, "Request timestamp should be 0");
+
+        sortitionModule.passPhase(); // Generating
+        assertEq(rngFallback.requestTimestamp(), block.timestamp, "Wrong request timestamp");
+
+        rngMock.setRN(123);
+
+        sortitionModule.passPhase(); // Drawing phase
+        assertEq(sortitionModule.randomNumber(), 123, "Wrong random number");
+    }
+
+    function test_RNGFallback_sanityChecks() public {
+        RNGWithFallback rngFallback;
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
+
+        vm.expectRevert(bytes("Consumer only"));
+        vm.prank(governor);
+        rngFallback.requestRandomness();
+
+        vm.expectRevert(bytes("Consumer only"));
+        vm.prank(governor);
+        rngFallback.receiveRandomness();
+
+        vm.expectRevert(bytes("Governor only"));
+        vm.prank(other);
+        rngFallback.changeGovernor(other);
+        vm.prank(governor);
+        rngFallback.changeGovernor(other);
+        assertEq(rngFallback.governor(), other, "Wrong governor");
+
+        // Change governor back for convenience
+        vm.prank(other);
+        rngFallback.changeGovernor(governor);
+
+        vm.expectRevert(bytes("Governor only"));
+        vm.prank(other);
+        rngFallback.changeConsumer(other);
+        vm.prank(governor);
+        rngFallback.changeConsumer(other);
+        assertEq(rngFallback.consumer(), other, "Wrong consumer");
+
+        vm.expectRevert(bytes("Governor only"));
+        vm.prank(other);
+        rngFallback.changeFallbackTimeout(5);
+
+        vm.prank(governor);
+        vm.expectEmit(true, true, true, true);
+        emit RNGWithFallback.FallbackTimeoutChanged(5);
+        rngFallback.changeFallbackTimeout(5);
+        assertEq(rngFallback.fallbackTimeoutSeconds(), 5, "Wrong fallback timeout");
     }
 }
