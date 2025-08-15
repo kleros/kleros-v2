@@ -15,6 +15,10 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Bump `hardhat` to v2.26.2 ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Bump `@kleros/vea-contracts` to v0.7.0 ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
 
+### Fixed
+
+- Do not pass to Voting period if all the commits are cast because it breaks the current Shutter auto-reveal process. ([#2085](https://github.com/kleros/kleros-v2/issues/2085))
+
 ## [0.12.0] - 2025-08-05
 
 ### Changed
