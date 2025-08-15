@@ -52,7 +52,7 @@
 - Install NodeJS 16:
   - on Red Hat Linux: `sudo dnf module install nodejs:16`
   - on Ubuntu Linux: `sudo snap install node --classic`
-  - on MacOS via [brew](https://brew.sh/): `brew install node`
+  - on MacOS via [Homebrew](https://brew.sh/): `brew install node`
 - Install Yarn v1.22: `npm install -g yarn`
   - Then [upgrade](https://yarnpkg.com/getting-started/install#updating-to-the-latest-versions) Yarn to v3: `yarn set version berry`
 - Install Volta.sh: `curl https://get.volta.sh | bash`
@@ -60,7 +60,7 @@
 - Shell utilities: [jq](https://stedolan.github.io/jq/), [yq](https://mikefarah.gitbook.io/yq/)
   - on Red Hat Linux: `sudo dnf install jq yq`
   - on Ubuntu Linux: `sudo snap install jq yq`
-  - on MacOS via [brew](https://brew.sh/): `brew install jq yq`
+  - on MacOS via [Homebrew](https://brew.sh/): `brew install jq yq`
 
 ### Install the dependencies
 
