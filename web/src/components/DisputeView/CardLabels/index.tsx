@@ -65,7 +65,7 @@ const LabelArgs: Record<string, { text: string; icon: React.FC<React.SVGAttribut
   NotDrawn: { text: "You were not drawn", icon: NotDrawnIcon, color: "grey" },
   CanVote: { text: "You can vote now", icon: CanVoteIcon, color: "blue" },
   Voted: { text: "You voted", icon: VotedIcon, color: "purple" },
-  DidNotVote: { text: "You forgot to vote", icon: ForgotToVoteIcon, color: "purple" },
+  DidNotVote: { text: "You did not vote", icon: ForgotToVoteIcon, color: "purple" },
   CanFund: { text: "Appeal possible", icon: AppealIcon, color: "lightPurple" },
   Funded: { text: "You funded an appeal", icon: FundedIcon, color: "lightPurple" },
 };
