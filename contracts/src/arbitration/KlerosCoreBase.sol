@@ -566,10 +566,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             if (round.drawnJurors.length != round.nbVotes) revert DisputeStillDrawing();
             dispute.period = court.hiddenVotes ? Period.commit : Period.vote;
         } else if (dispute.period == Period.commit) {
-            if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
-                !disputeKits[round.disputeKitID].areCommitsAllCast(_disputeID)
-            ) {
+            // Note that we do not want to pass to Voting period if all the commits are cast because it breaks the Shutter auto-reveal currently.
+            if (block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]) {
                 revert CommitPeriodNotPassed();
             }
             dispute.period = Period.vote;

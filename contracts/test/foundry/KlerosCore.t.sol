@@ -1622,6 +1622,7 @@ contract KlerosCoreTest is Test {
         }
 
         // Check reveal in the next period
+        vm.warp(block.timestamp + timesPerPeriod[1]);
         core.passPeriod(disputeID);
 
         // Check the require with the wrong choice and then with the wrong salt

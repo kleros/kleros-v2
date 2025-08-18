@@ -5,12 +5,9 @@ pragma solidity ^0.8.24;
 // TODO: standard interfaces should be placed in a separated repo (?)
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
-import "../../libraries/CappedMath.sol";
 
 /// @title Implementation of the Evidence Standard with Moderated Submissions
 contract ModeratedEvidenceModule is IArbitrableV2 {
-    using CappedMath for uint256;
-
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -205,8 +202,8 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
 
         uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorData.arbitratorExtraData);
-        uint256 totalCost = arbitrationCost.mulCap(totalCostMultiplier) / MULTIPLIER_DIVISOR;
-        uint256 depositRequired = totalCost.mulCap(initialDepositMultiplier) / MULTIPLIER_DIVISOR;
+        uint256 totalCost = (arbitrationCost * totalCostMultiplier) / MULTIPLIER_DIVISOR;
+        uint256 depositRequired = (totalCost * initialDepositMultiplier) / MULTIPLIER_DIVISOR;
 
         Moderation storage moderation = evidenceData.moderations.push();
         // Overpaying is allowed.
@@ -245,12 +242,12 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         ArbitratorData storage arbitratorData = arbitratorDataList[moderation.arbitratorDataID];
 
         uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorData.arbitratorExtraData);
-        uint256 totalCost = arbitrationCost.mulCap(totalCostMultiplier) / MULTIPLIER_DIVISOR;
+        uint256 totalCost = (arbitrationCost * totalCostMultiplier) / MULTIPLIER_DIVISOR;
 
         uint256 opposition = 3 - uint256(_side);
         uint256 depositRequired = moderation.paidFees[opposition] * 2;
         if (depositRequired == 0) {
-            depositRequired = totalCost.mulCap(initialDepositMultiplier) / MULTIPLIER_DIVISOR;
+            depositRequired = (totalCost * initialDepositMultiplier) / MULTIPLIER_DIVISOR;
         } else if (depositRequired > totalCost) {
             depositRequired = totalCost;
         }
@@ -317,7 +314,9 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     ) internal returns (uint256) {
         uint256 contribution;
         uint256 remainingETH;
-        uint256 requiredAmount = _totalRequired.subCap(_moderation.paidFees[uint256(_side)]);
+        uint256 requiredAmount = _moderation.paidFees[uint256(_side)] >= _totalRequired
+            ? 0
+            : _totalRequired - _moderation.paidFees[uint256(_side)];
         (contribution, remainingETH) = calculateContribution(_amount, requiredAmount);
         _moderation.contributions[_contributor][uint256(_side)] += contribution;
         _moderation.paidFees[uint256(_side)] += contribution;

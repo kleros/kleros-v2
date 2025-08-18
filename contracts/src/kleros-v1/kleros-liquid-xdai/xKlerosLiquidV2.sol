@@ -9,7 +9,7 @@ import {ITokenController} from "../interfaces/ITokenController.sol";
 import {WrappedPinakion} from "./WrappedPinakion.sol";
 import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
 
-import {SortitionSumTreeFactory} from "../../libraries/SortitionSumTreeFactory.sol";
+import {SortitionSumTreeFactory} from "../libraries/SortitionSumTreeFactory.sol";
 import "../../gateway/interfaces/IForeignGateway.sol";
 
 /// @title xKlerosLiquidV2
