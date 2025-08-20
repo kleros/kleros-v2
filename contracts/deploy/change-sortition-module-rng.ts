@@ -23,11 +23,11 @@ const task: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
   }
 
-  console.log(`chainlinkRng.changeSortitionModule(${sortitionModule.target})`);
-  await chainlinkRng.changeSortitionModule(sortitionModule.target);
+  console.log(`chainlinkRng.changeConsumer(${sortitionModule.target})`);
+  await chainlinkRng.changeConsumer(sortitionModule.target);
 
-  console.log(`sortitionModule.changeRandomNumberGenerator(${chainlinkRng.target}, 0)`);
-  await sortitionModule.changeRandomNumberGenerator(chainlinkRng.target, 0);
+  console.log(`sortitionModule.changeRandomNumberGenerator(${chainlinkRng.target})`);
+  await sortitionModule.changeRandomNumberGenerator(chainlinkRng.target);
 };
 
 task.tags = ["ChangeSortitionModuleRNG"];

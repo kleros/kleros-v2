@@ -35,6 +35,7 @@
     "IERC",
     "Initializable",
     "ipfs",
+    "IRNG",
     "kleros",
     "linguo",
     "Numberish",
