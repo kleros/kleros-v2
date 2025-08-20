@@ -1,21 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @custom:authors: [@jaybuidl, @unknownunknown1]
- *  @custom:reviewers: []
- *  @custom:auditors: []
- *  @custom:bounties: []
- *  @custom:deployments: []
- */
-
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import {SortitionModuleBase, KlerosCore, RNG, StakingResult} from "./SortitionModuleBase.sol";
 
 /// @title SortitionModuleNeo
 /// @dev A factory of trees that keeps track of staked values for sortition.
 contract SortitionModuleNeo is SortitionModuleBase {
-    string public constant override version = "0.8.0";
+    string public constant override version = "0.9.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -58,6 +50,10 @@ contract SortitionModuleNeo is SortitionModuleBase {
         maxTotalStaked = _maxTotalStaked;
     }
 
+    function initialize4() external reinitializer(4) {
+        // NOP
+    }
+
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
@@ -80,17 +76,16 @@ contract SortitionModuleNeo is SortitionModuleBase {
     // *         State Modifiers           * //
     // ************************************* //
 
-    function _setStake(
+    function _validateStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
+        uint256 _newStake
     ) internal override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         uint256 currentStake = stakeOf(_account, _courtID);
         bool stakeIncrease = _newStake > currentStake;
         uint256 stakeChange = stakeIncrease ? _newStake - currentStake : currentStake - _newStake;
         Juror storage juror = jurors[_account];
-        if (stakeIncrease && !_alreadyTransferred) {
+        if (stakeIncrease) {
             if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
                 return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
             }
@@ -105,11 +100,6 @@ contract SortitionModuleNeo is SortitionModuleBase {
                 totalStaked -= stakeChange;
             }
         }
-        (pnkDeposit, pnkWithdrawal, stakingResult) = super._setStake(
-            _account,
-            _courtID,
-            _newStake,
-            _alreadyTransferred
-        );
+        (pnkDeposit, pnkWithdrawal, stakingResult) = super._validateStake(_account, _courtID, _newStake);
     }
 }

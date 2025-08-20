@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
@@ -208,6 +208,10 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             _courtParameters[3],
             court.timesPerPeriod
         );
+    }
+
+    function initialize2() external reinitializer(2) {
+        // NOP
     }
 
     // ************************************* //

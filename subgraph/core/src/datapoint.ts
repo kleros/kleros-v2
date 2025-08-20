@@ -1,5 +1,5 @@
 import { BigInt, Entity, Value, store } from "@graphprotocol/graph-ts";
-import { Counter } from "../generated/schema";
+import { Counter, CourtCounter } from "../generated/schema";
 import { ZERO } from "./utils";
 
 export function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
@@ -91,4 +91,78 @@ export function updateCasesAppealing(delta: BigInt, timestamp: BigInt): void {
 
 export function updateTotalLeaderboardJurors(delta: BigInt, timestamp: BigInt): void {
   updateDataPoint(delta, timestamp, "totalLeaderboardJurors");
+}
+
+export function updateCourtCumulativeMetric(courtId: string, delta: BigInt, timestamp: BigInt, metric: string): void {
+  // Load or create the current CourtCounter (ID: courtId-0)
+  let currentCounter = CourtCounter.load(courtId + "-0");
+  if (!currentCounter) {
+    currentCounter = new CourtCounter(courtId + "-0");
+    currentCounter.court = courtId;
+    currentCounter.numberDisputes = ZERO;
+    currentCounter.numberVotes = ZERO;
+    currentCounter.effectiveStake = ZERO;
+    currentCounter.timestamp = ZERO;
+  }
+  if (metric === "numberDisputes") {
+    currentCounter.numberDisputes = currentCounter.numberDisputes.plus(delta);
+  } else if (metric === "numberVotes") {
+    currentCounter.numberVotes = currentCounter.numberVotes.plus(delta);
+  }
+  currentCounter.save();
+
+  // Update daily snapshot
+  let dayID = timestamp.toI32() / 86400; // Seconds to days
+  let dayStartTimestamp = dayID * 86400;
+  let dailyCounter = CourtCounter.load(courtId + "-" + dayStartTimestamp.toString());
+  if (!dailyCounter) {
+    dailyCounter = new CourtCounter(courtId + "-" + dayStartTimestamp.toString());
+    dailyCounter.court = courtId;
+    dailyCounter.numberDisputes = currentCounter.numberDisputes.minus(delta); // State before this update
+    dailyCounter.numberVotes = currentCounter.numberVotes.minus(delta);
+    dailyCounter.effectiveStake = currentCounter.effectiveStake;
+    dailyCounter.timestamp = BigInt.fromI32(dayStartTimestamp);
+  }
+  if (metric === "numberDisputes") {
+    dailyCounter.numberDisputes = dailyCounter.numberDisputes.plus(delta);
+  } else if (metric === "numberVotes") {
+    dailyCounter.numberVotes = dailyCounter.numberVotes.plus(delta);
+  }
+  dailyCounter.save();
+}
+
+export function updateCourtStateVariable(courtId: string, newValue: BigInt, timestamp: BigInt, variable: string): void {
+  // Load or create the current CourtCounter (ID: courtId-0)
+  let currentCounter = CourtCounter.load(courtId + "-0");
+  if (!currentCounter) {
+    currentCounter = new CourtCounter(courtId + "-0");
+    currentCounter.court = courtId;
+    currentCounter.numberDisputes = ZERO;
+    currentCounter.numberVotes = ZERO;
+    currentCounter.effectiveStake = newValue;
+    currentCounter.timestamp = ZERO;
+  } else {
+    if (variable === "effectiveStake") {
+      currentCounter.effectiveStake = newValue;
+    }
+    currentCounter.save();
+  }
+
+  // Update daily snapshot
+  let dayID = timestamp.toI32() / 86400;
+  let dayStartTimestamp = dayID * 86400;
+  let dailyCounter = CourtCounter.load(courtId + "-" + dayStartTimestamp.toString());
+  if (!dailyCounter) {
+    dailyCounter = new CourtCounter(courtId + "-" + dayStartTimestamp.toString());
+    dailyCounter.court = courtId;
+    dailyCounter.numberDisputes = currentCounter.numberDisputes;
+    dailyCounter.numberVotes = currentCounter.numberVotes;
+    dailyCounter.effectiveStake = newValue;
+    dailyCounter.timestamp = BigInt.fromI32(dayStartTimestamp);
+  } else {
+    if (variable === "effectiveStake") {
+      dailyCounter.effectiveStake = newValue;
+    }
+    dailyCounter.save();
+  }
 }

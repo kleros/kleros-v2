@@ -12,10 +12,9 @@ import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
 import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
-import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { VotingHistoryQuery } from "hooks/queries/useVotingHistory";
 import { useVotingContext } from "hooks/useVotingContext";
 import { getLocalRounds } from "utils/getLocalRounds";
-import { isUndefined } from "utils/index";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -25,7 +24,6 @@ import { Divider } from "../Divider";
 import { StyledArrowLink } from "../StyledArrowLink";
 
 import AnswerDisplay from "./Answer";
-import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
 
 const Container = styled.div`
   width: 100%;
@@ -61,11 +59,11 @@ const JuryDecisionTag = styled.small`
 `;
 
 const StyledDivider = styled(Divider)`
-  margin: 16px 0px;
+  margin: 16px 0 0;
 
   ${landscapeStyle(
     () => css`
-      margin: 24px 0px;
+      margin: 24px 0 0;
     `
   )}
 `;
@@ -81,15 +79,15 @@ const ReStyledArrowLink = styled(StyledArrowLink)`
 
 interface IFinalDecision {
   arbitrable?: `0x${string}`;
+  votingHistory: VotingHistoryQuery | undefined;
 }
 
-const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
+const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) => {
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
-  const { data: votingHistory } = useVotingHistory(id);
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
@@ -101,25 +99,17 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const currentRuling = Number(currentRulingArray?.[0] ?? 0);
 
   const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling));
-  const rounds = votingHistory?.dispute?.rounds;
-  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
   const buttonText = useMemo(() => {
-    if (!wasDrawn || isDisconnected) return "Check how the jury voted";
+    if (!wasDrawn || isDisconnected) return "Check votes";
     if (isCommitPeriod && !commited) return "Commit your vote";
     if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return "Reveal your vote";
     if (isVotingPeriod && !isHiddenVotes && !hasVoted) return "Cast your vote";
-    return "Check how the jury voted";
+    return "Check votes";
   }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes, isDisconnected]);
 
   return (
     <Container>
       <VerdictContainer>
-        {!isUndefined(Boolean(disputeDetails?.dispute?.ruled)) || jurorRewardsDispersed ? (
-          <RulingAndRewardsIndicators
-            ruled={Boolean(disputeDetails?.dispute?.ruled)}
-            jurorRewardsDispersed={jurorRewardsDispersed}
-          />
-        ) : null}
         {ruled && (
           <JuryContainer>
             <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
@@ -140,15 +130,15 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
             )}
           </JuryContainer>
         )}
+        {isLoading && !isDisconnected ? (
+          <Skeleton width={250} height={20} />
+        ) : (
+          <ReStyledArrowLink to={`/cases/${id?.toString()}/voting`}>
+            {buttonText} <ArrowIcon />
+          </ReStyledArrowLink>
+        )}
       </VerdictContainer>
       <StyledDivider />
-      {isLoading && !isDisconnected ? (
-        <Skeleton width={250} height={20} />
-      ) : (
-        <ReStyledArrowLink to={`/cases/${id?.toString()}/voting`}>
-          {buttonText} <ArrowIcon />
-        </ReStyledArrowLink>
-      )}
     </Container>
   );
 };

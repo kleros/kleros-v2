@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
+import { useParams } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -10,7 +10,6 @@ import AttachmentIcon from "svgs/icons/attachment.svg";
 
 import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
-import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
 import { getTxnExplorerLink } from "src/utils";
@@ -18,6 +17,8 @@ import { getTxnExplorerLink } from "src/utils";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import JurorLink from "components/JurorLink";
 
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
@@ -99,15 +100,12 @@ const BottomShade = styled.div`
 `;
 
 const BottomLeftContent = styled.div`
-  display: block;
-
-  & > *:not(:last-child) {
-    margin-bottom: 8px;
-  }
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
 
   ${landscapeStyle(
     () => css`
-      display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: center;
@@ -118,24 +116,6 @@ const BottomLeftContent = styled.div`
       }
     `
   )}
-`;
-
-const AccountContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  align-items: center;
-
-  canvas {
-    width: 24px;
-    height: 24px;
-  }
-
-  > * {
-    flex-basis: 1;
-    flex-shrink: 0;
-    margin: 0;
-  }
 `;
 
 const ExternalLinkHoverStyle = css`
@@ -150,14 +130,6 @@ const ExternalLinkHoverStyle = css`
       color: ${({ theme }) => theme.primaryBlue};
       cursor: pointer;
     }
-  }
-`;
-
-const Address = styled.p`
-  margin: 0;
-
-  :hover {
-    color: ${({ theme }) => theme.secondaryBlue};
   }
 `;
 
@@ -200,6 +172,23 @@ const FileLinkContainer = styled.div`
   margin-left: auto;
 `;
 
+const StyledJurorInternalLink = styled(InternalLink)`
+  label {
+    color: ${({ theme }) => theme.primaryText};
+  }
+
+  :hover {
+    label {
+      cursor: pointer;
+      color: ${({ theme }) => theme.secondaryBlue};
+    }
+  }
+
+  svg {
+    display: none;
+  }
+`;
+
 const AttachedFileText: React.FC = () => (
   <>
     <DesktopText>View attached file</DesktopText>
@@ -223,6 +212,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
+  const { id } = useParams();
   const profileLink = `/profile/stakes/1?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
@@ -246,19 +236,16 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
       </TopContent>
       <BottomShade>
         <BottomLeftContent>
-          <AccountContainer>
-            <Identicon size="24" string={sender} />
-            <InternalLink to={profileLink}>
-              <Address>{shortenAddress(sender)}</Address>
-            </InternalLink>
-          </AccountContainer>
+          <StyledJurorInternalLink to={profileLink}>
+            <JurorLink address={sender} />
+          </StyledJurorInternalLink>
           <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
             <label>{formatDate(Number(timestamp), true)}</label>
           </StyledExternalLink>
         </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>
-            <StyledInternalLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
+            <StyledInternalLink to={`/attachment/?disputeId=${id}&title=${"Evidence File"}&url=${getIpfsUrl(fileURI)}`}>
               <AttachmentIcon />
               <AttachedFileText />
             </StyledInternalLink>

@@ -3,7 +3,7 @@
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 /// @title DisputeResolver
 /// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
@@ -48,17 +48,17 @@ contract DisputeResolver is IArbitrableV2 {
     /// @dev Changes the governor.
     /// @param _governor The address of the new governor.
     function changeGovernor(address _governor) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         governor = _governor;
     }
 
     function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         arbitrator = _arbitrator;
     }
 
     function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         templateRegistry = _templateRegistry;
     }
 
@@ -109,9 +109,9 @@ contract DisputeResolver is IArbitrableV2 {
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = arbitratorDisputeIDToLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
-        require(msg.sender == address(arbitrator), "Only the arbitrator can execute this.");
-        require(_ruling <= dispute.numberOfRulingOptions, "Invalid ruling.");
-        require(!dispute.isRuled, "This dispute has been ruled already.");
+        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
+        if (_ruling > dispute.numberOfRulingOptions) revert RulingOutOfBounds();
+        if (dispute.isRuled) revert DisputeAlreadyRuled();
 
         dispute.isRuled = true;
         dispute.ruling = _ruling;
@@ -130,7 +130,7 @@ contract DisputeResolver is IArbitrableV2 {
         string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
     ) internal virtual returns (uint256 arbitratorDisputeID) {
-        require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
+        if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
 
         arbitratorDisputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
         uint256 localDisputeID = disputes.length;
@@ -146,4 +146,14 @@ contract DisputeResolver is IArbitrableV2 {
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
         emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error ArbitratorOnly();
+    error RulingOutOfBounds();
+    error DisputeAlreadyRuled();
+    error ShouldBeAtLeastTwoRulingOptions();
 }

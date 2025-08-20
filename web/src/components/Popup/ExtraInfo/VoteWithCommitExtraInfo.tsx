@@ -12,7 +12,15 @@ const StyledInfoCard = styled(InfoCard)`
   line-height: 19px;
 `;
 
-const VoteWithCommitExtraInfo: React.FC = () => {
-  return <StyledInfoCard msg="Subscribe to receive notifications to be reminded when the reveal time comes." />;
+interface Props {
+  automaticVoteReveal?: boolean;
+}
+
+const VoteWithCommitExtraInfo: React.FC<Props> = ({ automaticVoteReveal = false }) => {
+  const msg = automaticVoteReveal
+    ? "Enable notifications to be updated about the progress of the case: Settings > Notifications"
+    : "Enable notifications to be reminded when the reveal time comes: Settings > Notifications";
+  return <StyledInfoCard msg={msg} />;
 };
+
 export default VoteWithCommitExtraInfo;

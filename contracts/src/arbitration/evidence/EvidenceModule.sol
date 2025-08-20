@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import "../interfaces/IArbitratorV2.sol";
 import "../interfaces/IEvidence.sol";
@@ -22,7 +22,7 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -39,6 +39,10 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     /// @param _governor The governor's address.
     function initialize(address _governor) external reinitializer(1) {
         governor = _governor;
+    }
+
+    function initialize2() external reinitializer(2) {
+        // NOP
     }
 
     // ************************ //
@@ -63,4 +67,10 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
         emit Evidence(_externalDisputeID, msg.sender, _evidence);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
 }

@@ -1,21 +1,21 @@
+import hre from "hardhat";
+import { toBigInt, BigNumberish, getNumber, BytesLike } from "ethers";
 import {
-  PNK,
-  RandomizerRNG,
-  BlockHashRNG,
-  SortitionModule,
-  KlerosCore,
-  KlerosCoreNeo,
-  SortitionModuleNeo,
   DisputeKitClassic,
-  ChainlinkRNG,
+  DisputeKitGated,
+  DisputeKitGatedShutter,
+  DisputeKitShutter,
+  SortitionModule,
+  SortitionModuleNeo,
 } from "../typechain-types";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import { toBigInt, BigNumberish, getNumber } from "ethers";
-import hre = require("hardhat");
+import { Cores, getContracts as getContractsForCoreType } from "./utils/contracts";
+import { shutterAutoReveal } from "./keeperBotShutter";
 
-let request: <T>(url: string, query: string) => Promise<T>; // Workaround graphql-request ESM import
 const { ethers } = hre;
+const SHUTTER_AUTO_REVEAL_ONLY = env.optional("SHUTTER_AUTO_REVEAL_ONLY", "false") === "true";
+const MAX_DRAW_CALLS_WITHOUT_JURORS = 10;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
 const MAX_DELAYED_STAKES_ITERATIONS = 50;
@@ -44,29 +44,12 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
 const logger = loggerFactory.createLogger(loggerOptions);
 
 const getContracts = async () => {
-  let core: KlerosCore | KlerosCoreNeo;
-  let sortition: SortitionModule | SortitionModuleNeo;
-  let disputeKitClassic: DisputeKitClassic;
   const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
-  switch (coreType) {
-    case Cores.NEO:
-      core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
-      sortition = (await ethers.getContract("SortitionModuleNeo")) as SortitionModuleNeo;
-      disputeKitClassic = (await ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
-      break;
-    case Cores.BASE:
-      core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-      sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
-      disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-      break;
-    default:
-      throw new Error("Invalid core type, must be one of base, neo");
+  if (coreType === Cores.UNIVERSITY) {
+    throw new Error("University is not supported yet");
   }
-  const chainlinkRng = await ethers.getContractOrNull<ChainlinkRNG>("ChainlinkRNG");
-  const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>("RandomizerRNG");
-  const blockHashRNG = await ethers.getContractOrNull<BlockHashRNG>("BlockHashRNG");
-  const pnk = (await ethers.getContract("PNK")) as PNK;
-  return { core, sortition, chainlinkRng, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
+  const contracts = await getContractsForCoreType(hre, coreType);
+  return { ...contracts, sortition: contracts.sortition as SortitionModule | SortitionModuleNeo };
 };
 
 type Contribution = {
@@ -87,6 +70,7 @@ type Dispute = {
 };
 
 type CustomError = {
+  data: BytesLike;
   reason: string;
   code: string;
   errorArgs: any[];
@@ -94,10 +78,15 @@ type CustomError = {
   errorSignature: string;
 };
 
-enum Cores {
-  BASE,
-  NEO,
+enum Period {
+  EVIDENCE = "evidence",
+  COMMIT = "commit",
+  VOTE = "vote",
+  APPEAL = "appeal",
+  EXECUTION = "execution",
 }
+
+const PERIODS = Object.values(Period);
 
 enum Phase {
   STAKING = "staking",
@@ -106,52 +95,98 @@ enum Phase {
 }
 const PHASES = Object.values(Phase);
 
+const getDisputeKit = async (
+  coreDisputeId: string,
+  coreRoundId: string
+): Promise<{
+  disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
+  localDisputeId: bigint;
+  localRoundId: bigint;
+}> => {
+  const { core, disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter } = await getContracts();
+  const round = await core.getRoundInfo(coreDisputeId, coreRoundId);
+  const disputeKitAddress = await core.disputeKits(round.disputeKitID);
+  let disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
+  switch (disputeKitAddress) {
+    case disputeKitClassic.target:
+      disputeKit = disputeKitClassic;
+      break;
+    case disputeKitShutter?.target:
+      if (!disputeKitShutter) throw new Error(`DisputeKitShutter not deployed`);
+      disputeKit = disputeKitShutter;
+      break;
+    case disputeKitGated?.target:
+      if (!disputeKitGated) throw new Error(`DisputeKitGated not deployed`);
+      disputeKit = disputeKitGated;
+      break;
+    case disputeKitGatedShutter?.target:
+      if (!disputeKitGatedShutter) throw new Error(`DisputeKitGatedShutter not deployed`);
+      disputeKit = disputeKitGatedShutter;
+      break;
+    default:
+      throw new Error(`Unknown dispute kit: ${disputeKitAddress}`);
+  }
+  const [localDisputeId, localRoundId] = await disputeKit.getLocalDisputeRoundID(coreDisputeId, coreRoundId);
+  return { disputeKit, localDisputeId, localRoundId };
+};
+
 const getNonFinalDisputes = async (): Promise<Dispute[]> => {
-  const nonFinalDisputesRequest = `{
-    disputes(where: {period_not: execution}) {
-      period
-      id
-      currentRoundIndex
+  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+  const query = gql`
+    query NonFinalDisputes {
+      disputes(where: { period_not: execution }) {
+        period
+        id
+        currentRoundIndex
+      }
     }
-  }`;
+  `;
   // TODO: use a local graph node if chainId is HARDHAT
-  const result = await request(SUBGRAPH_URL, nonFinalDisputesRequest);
-  const { disputes } = result as { disputes: Dispute[] };
+  type Disputes = { disputes: Dispute[] };
+  const { disputes } = await request<Disputes>(SUBGRAPH_URL, query);
   return disputes;
 };
 
 const getAppealContributions = async (disputeId: string): Promise<Contribution[]> => {
-  const appealContributionsRequest = (disputeId: string) => `{
-    contributions(where: {coreDispute: "${disputeId}"}) {
-      contributor {
-        id
-      }
-      ... on ClassicContribution {
-        choice
-        rewardWithdrawn
-      }
-      coreDispute {
-        currentRoundIndex
+  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+  const query = gql`
+    query AppealContributions($disputeId: String!) {
+      contributions(where: { coreDispute: $disputeId }) {
+        contributor {
+          id
+        }
+        ... on ClassicContribution {
+          choice
+          rewardWithdrawn
+        }
+        coreDispute {
+          currentRoundIndex
+        }
       }
     }
-  }`;
+  `;
+  const variables = { disputeId };
+  type AppealContributions = { contributions: Contribution[] };
   // TODO: use a local graph node if chainId is HARDHAT
-  const result = await request(SUBGRAPH_URL, appealContributionsRequest(disputeId));
-  const { contributions } = result as { contributions: Contribution[] };
+  const { contributions } = await request<AppealContributions>(SUBGRAPH_URL, query, variables);
   return contributions;
 };
 
 const getDisputesWithUnexecutedRuling = async (): Promise<Dispute[]> => {
-  const disputesWithUnexecutedRuling = `{
-    disputes(where: {period: execution, ruled: false}) {
-      id
-      currentRoundIndex
-    	period
+  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+  const query = gql`
+    query DisputesWithUnexecutedRuling {
+      disputes(where: { period: execution, ruled: false }) {
+        id
+        currentRoundIndex
+        period
+      }
     }
-  }`;
+  `;
   // TODO: use a local graph node if chainId is HARDHAT
-  const result = (await request(SUBGRAPH_URL, disputesWithUnexecutedRuling)) as { disputes: Dispute[] };
-  return result.disputes;
+  type Disputes = { disputes: Dispute[] };
+  const { disputes } = await request<Disputes>(SUBGRAPH_URL, query);
+  return disputes;
 };
 
 const getUniqueDisputes = (disputes: Dispute[]): Dispute[] => {
@@ -159,23 +194,59 @@ const getUniqueDisputes = (disputes: Dispute[]): Dispute[] => {
 };
 
 const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]> => {
-  const disputesWithContributionsNotYetWithdrawn = `{
-    classicContributions(where: {rewardWithdrawn: false}) {
-      coreDispute {
-        id
-        period
-        currentRoundIndex
+  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+  const query = gql`
+    query DisputesWithContributionsNotYetWithdrawn {
+      classicContributions(where: { rewardWithdrawn: false }) {
+        coreDispute {
+          id
+          period
+          currentRoundIndex
+        }
       }
     }
-  }`;
+  `;
   // TODO: use a local graph node if chainId is HARDHAT
-  const result = (await request(SUBGRAPH_URL, disputesWithContributionsNotYetWithdrawn)) as {
+  type Contributions = {
     classicContributions: { coreDispute: Dispute }[];
   };
-  const disputes = result.classicContributions
+  const { classicContributions } = await request<Contributions>(SUBGRAPH_URL, query);
+  const disputes = classicContributions
     .filter((contribution) => contribution.coreDispute.period === "execution")
     .map((dispute) => dispute.coreDispute);
   return getUniqueDisputes(disputes);
+};
+
+const getUnstakedJurors = async (disputeId: string): Promise<string[]> => {
+  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+  const query = gql`
+    query UnstakedJurors($disputeId: String!) {
+      dispute(id: $disputeId) {
+        currentRound {
+          drawnJurors(where: { juror_: { totalStake: 0 } }) {
+            juror {
+              userAddress
+            }
+          }
+        }
+      }
+    }
+  `;
+  type UnstakedJurors = {
+    dispute: {
+      currentRound: {
+        drawnJurors: { juror: { userAddress: string } }[];
+      };
+    };
+  };
+  const { dispute } = await request<UnstakedJurors>(SUBGRAPH_URL, query, { disputeId });
+  if (!dispute || !dispute.currentRound) {
+    return [];
+  }
+  const uniqueAddresses = [
+    ...new Set(dispute.currentRound.drawnJurors.map((drawnJuror) => drawnJuror.juror.userAddress)),
+  ];
+  return uniqueAddresses;
 };
 
 const handleError = (e: any) => {
@@ -185,7 +256,7 @@ const handleError = (e: any) => {
 const isRngReady = async () => {
   const { chainlinkRng, randomizerRng, blockHashRNG, sortition } = await getContracts();
   const currentRng = await sortition.rng();
-  if (currentRng === chainlinkRng?.target) {
+  if (currentRng === chainlinkRng?.target && chainlinkRng !== null) {
     const requestID = await chainlinkRng.lastRequestId();
     const n = await chainlinkRng.randomNumbers(requestID);
     if (Number(n) === 0) {
@@ -195,7 +266,7 @@ const isRngReady = async () => {
       logger.info(`ChainlinkRNG is ready: ${n.toString()}`);
       return true;
     }
-  } else if (currentRng === randomizerRng?.target) {
+  } else if (currentRng === randomizerRng?.target && randomizerRng !== null) {
     const requestID = await randomizerRng.lastRequestId();
     const n = await randomizerRng.randomNumbers(requestID);
     if (Number(n) === 0) {
@@ -205,7 +276,7 @@ const isRngReady = async () => {
       logger.info(`RandomizerRNG is ready: ${n.toString()}`);
       return true;
     }
-  } else if (currentRng === blockHashRNG?.target) {
+  } else if (currentRng === blockHashRNG?.target && blockHashRNG !== null) {
     const requestBlock = await sortition.randomNumberRequestBlock();
     const lookahead = await sortition.rngLookahead();
     const n = await blockHashRNG.receiveRandomness.staticCall(requestBlock + lookahead);
@@ -229,7 +300,8 @@ const passPhase = async () => {
     await sortition.passPhase.staticCall();
   } catch (e) {
     const error = e as CustomError;
-    logger.info(`passPhase: not ready yet because of ${error?.reason ?? error?.errorName ?? error?.code}`);
+    const errorDescription = sortition.interface.parseError(error.data)?.signature;
+    logger.info(`passPhase: not ready yet because of ${errorDescription}`);
     return success;
   }
   const before = getNumber(await sortition.phase());
@@ -254,11 +326,8 @@ const passPeriod = async (dispute: { id: string }) => {
     await core.passPeriod.staticCall(dispute.id);
   } catch (e) {
     const error = e as CustomError;
-    logger.info(
-      `passPeriod: not ready yet for dispute ${dispute.id} because of error ${
-        error?.reason ?? error?.errorName ?? error?.code
-      }`
-    );
+    const errorDescription = core.interface.parseError(error.data)?.signature;
+    logger.info(`passPeriod: not ready yet for dispute ${dispute.id} because of error ${errorDescription}`);
     return success;
   }
   const before = (await core.disputes(dispute.id)).period;
@@ -280,7 +349,19 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.draw.staticCall(dispute.id, iterations, HIGH_GAS_LIMIT);
+    const simulatedIterations = iterations * MAX_DRAW_CALLS_WITHOUT_JURORS; // Drawing will be skipped as long as no juror is available in the next MAX_DRAW_CALLS_WITHOUT_JURORS calls to draw() given this nb of iterations.
+    const { drawnJurors: drawnJurorsBefore } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
+    const nbDrawnJurors = (await core.draw.staticCall(dispute.id, simulatedIterations, HIGH_GAS_LIMIT)) as bigint;
+    const extraJurors = nbDrawnJurors - BigInt(drawnJurorsBefore.length);
+    logger.debug(
+      `Draw: ${extraJurors} jurors available in the next ${simulatedIterations} iterations for dispute ${dispute.id}`
+    );
+    if (extraJurors <= 0n) {
+      logger.warn(
+        `Draw: skipping, no jurors available in the next ${simulatedIterations} iterations for dispute ${dispute.id}`
+      );
+      return success;
+    }
   } catch (e) {
     logger.error(`Draw: will fail for ${dispute.id}, skipping`);
     return success;
@@ -337,50 +418,79 @@ const executeRuling = async (dispute: { id: string }) => {
   return success;
 };
 
+const withdrawLeftoverPNK = async (juror: string) => {
+  const { sortition } = await getContracts();
+  let success = false;
+  try {
+    await sortition.withdrawLeftoverPNK.staticCall(juror);
+  } catch (e) {
+    const error = e as CustomError;
+    const errorDescription = sortition.interface.parseError(error.data)?.signature;
+    logger.info(`WithdrawLeftoverPNK: failed for juror ${juror} because of ${errorDescription}, skipping`);
+    return success;
+  }
+  try {
+    const gas = ((await sortition.withdrawLeftoverPNK.estimateGas(juror)) * 150n) / 100n; // 50% extra gas
+    const tx = await (await sortition.withdrawLeftoverPNK(juror, { gasLimit: gas })).wait();
+    logger.info(`WithdrawLeftoverPNK txID: ${tx?.hash}`);
+  } catch (e) {
+    handleError(e);
+  } finally {
+    success = true;
+  }
+  return success;
+};
+
 const withdrawAppealContribution = async (
-  disputeId: string,
-  roundId: string,
+  coreDisputeId: string,
+  coreRoundId: string,
   contribution: Contribution
 ): Promise<boolean> => {
-  const { disputeKitClassic: kit } = await getContracts();
+  const { disputeKit, localDisputeId, localRoundId } = await getDisputeKit(coreDisputeId, coreRoundId);
   let success = false;
   let amountWithdrawn = 0n;
   try {
-    amountWithdrawn = await kit.withdrawFeesAndRewards.staticCall(
-      disputeId,
+    amountWithdrawn = await disputeKit.withdrawFeesAndRewards.staticCall(
+      localDisputeId,
       contribution.contributor.id,
-      roundId,
+      localRoundId,
       contribution.choice
     );
   } catch (e) {
     logger.warn(
-      `WithdrawFeesAndRewards: will fail for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
+      `WithdrawFeesAndRewards: will fail for core dispute #${coreDisputeId}, round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
     return success;
   }
   if (amountWithdrawn === 0n) {
     logger.debug(
-      `WithdrawFeesAndRewards: no fees or rewards to withdraw for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
+      `WithdrawFeesAndRewards: no fees or rewards to withdraw for core dispute #${coreDisputeId}, round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
     return success;
   }
   try {
     logger.info(
-      `WithdrawFeesAndRewards: appeal contribution for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}`
+      `WithdrawFeesAndRewards: appeal contribution for core dispute #${coreDisputeId}, round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}`
     );
     const gas =
-      ((await kit.withdrawFeesAndRewards.estimateGas(
-        disputeId,
+      ((await disputeKit.withdrawFeesAndRewards.estimateGas(
+        localDisputeId,
         contribution.contributor.id,
-        roundId,
+        localRoundId,
         contribution.choice
       )) *
         150n) /
       100n; // 50% extra gas
     const tx = await (
-      await kit.withdrawFeesAndRewards(disputeId, contribution.contributor.id, roundId, contribution.choice, {
-        gasLimit: gas,
-      })
+      await disputeKit.withdrawFeesAndRewards(
+        localDisputeId,
+        contribution.contributor.id,
+        localRoundId,
+        contribution.choice,
+        {
+          gasLimit: gas,
+        }
+      )
     ).wait();
     logger.info(`WithdrawFeesAndRewards txID: ${tx?.hash}`);
     success = true;
@@ -454,6 +564,10 @@ const filterDisputesToSkip = (disputes: Dispute[]) => {
   return disputes.filter((dispute) => !DISPUTES_TO_SKIP.includes(dispute.id));
 };
 
+const filterDisputesByPeriod = (disputes: Dispute[], period: Period) => {
+  return disputes.filter((dispute) => dispute.period === period);
+};
+
 const mapAsync = <T, U>(array: T[], callbackfn: (value: T, index: number, array: T[]) => Promise<U>): Promise<U[]> => {
   return Promise.all(array.map(callbackfn));
 };
@@ -477,10 +591,13 @@ const sendHeartbeat = async () => {
   }
 };
 
+const shutdown = async () => {
+  logger.info("Shutting down");
+  await delay(2000); // Some log messages may be lost otherwise
+};
+
 async function main() {
-  const graphqlRequest = await import("graphql-request"); // Workaround graphql-request ESM import
-  request = graphqlRequest.request;
-  const { core, sortition, disputeKitClassic } = await getContracts();
+  const { core, sortition, disputeKitShutter, disputeKitGatedShutter } = await getContracts();
 
   const getBlockTime = async () => {
     return await ethers.provider.getBlock("latest").then((block) => {
@@ -544,9 +661,26 @@ async function main() {
   // Skip some disputes
   disputes = filterDisputesToSkip(disputes);
   disputesWithoutJurors = filterDisputesToSkip(disputesWithoutJurors);
-  for (var dispute of disputes) {
+  for (const dispute of disputes) {
     logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
+
+  // ----------------------------------------------- //
+  //                  AUTO-REVEAL                    //
+  // ----------------------------------------------- //
+  logger.info("Auto-revealing disputes");
+  // Ensure that the disputes ready to be auto-revealed are passed to the voting period otherwise they won't be picked up.
+  for (const dispute of filterDisputesByPeriod(filterDisputesToSkip(disputes), Period.COMMIT)) {
+    await passPeriod(dispute);
+  }
+  await shutterAutoReveal(disputeKitShutter, DISPUTES_TO_SKIP);
+  await shutterAutoReveal(disputeKitGatedShutter, DISPUTES_TO_SKIP);
+  if (SHUTTER_AUTO_REVEAL_ONLY) {
+    logger.debug("Shutter auto-reveal only, skipping other actions");
+    await shutdown();
+    return;
+  }
+
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
   if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
     // ----------------------------------------------- //
@@ -567,7 +701,7 @@ async function main() {
     }
     if (await isPhaseDrawing()) {
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
-      for (dispute of disputesWithoutJurors) {
+      for (const dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
           logger.info("Max drawing time passed");
           break;
@@ -606,7 +740,7 @@ async function main() {
 
   logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
-  for (var dispute of disputes) {
+  for (const dispute of disputes) {
     // ----------------------------------------------- //
     //                  PASS PERIOD                    //
     // ----------------------------------------------- //
@@ -631,7 +765,7 @@ async function main() {
   );
   logger.info(`Disputes not fully executed: ${unprocessedDisputesInExecution.map((dispute) => dispute.id)}`);
 
-  for (var dispute of unprocessedDisputesInExecution) {
+  for (const dispute of unprocessedDisputesInExecution) {
     const { period } = await core.disputes(dispute.id);
     if (period !== 4n) {
       logger.info(`Skipping dispute #${dispute.id} because it is not in the execution period`);
@@ -641,12 +775,13 @@ async function main() {
     // ----------------------------------------------- //
     //             REPARTITIONS EXECUTION              //
     // ----------------------------------------------- //
-    const coherentCount = await disputeKitClassic.getCoherentCount(dispute.id, dispute.currentRoundIndex);
+    const { disputeKit } = await getDisputeKit(dispute.id, dispute.currentRoundIndex);
+    const coherentCount = await disputeKit.getCoherentCount(dispute.id, dispute.currentRoundIndex);
     let numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
     do {
       const executeIterations = Math.min(MAX_EXECUTE_ITERATIONS, numberOfMissingRepartitions);
       if (executeIterations === 0) {
-        continue;
+        break;
       }
       logger.info(
         `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
@@ -658,6 +793,19 @@ async function main() {
       numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
       await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
     } while (numberOfMissingRepartitions != 0);
+
+    // ----------------------------------------------- //
+    //             WITHDRAW LEFTOVER PNK               //
+    // ----------------------------------------------- //
+    const unstakedJurors = await getUnstakedJurors(dispute.id);
+    logger.info(`Unstaked jurors: ${unstakedJurors.map((juror) => juror)}`);
+    for (const juror of unstakedJurors) {
+      const leftoverPNK = await sortition.getJurorLeftoverPNK(juror);
+      if (leftoverPNK > 0n) {
+        logger.info(`Leftover PNK for juror ${juror}: ${leftoverPNK}, withdrawing...`);
+        await withdrawLeftoverPNK(juror);
+      }
+    }
 
     // ----------------------------------------------- //
     //               RULING EXECUTION                  //
@@ -705,8 +853,7 @@ async function main() {
 
   await sendHeartbeat();
 
-  logger.info("Shutting down");
-  await delay(2000); // Some log messages may be lost otherwise
+  await shutdown();
 }
 
 main()

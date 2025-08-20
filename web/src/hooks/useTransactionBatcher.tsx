@@ -37,10 +37,15 @@ const useTransactionBatcher = (
   options: TransactionBatcherOptions = { enabled: true }
 ) => {
   const validatedConfigs = configs ?? [];
+  const totalValue = validatedConfigs.reduce((sum, config) => {
+    return sum + (config?.value ?? BigInt(0));
+  }, BigInt(0));
+
   const {
     data: batchConfig,
     isLoading,
     isError,
+    error,
   } = useSimulateTransactionBatcherBatchSend({
     query: {
       enabled: !isUndefined(configs) && options.enabled,
@@ -50,6 +55,7 @@ const useTransactionBatcher = (
       validatedConfigs.map((config) => config?.value ?? BigInt(0)),
       validatedConfigs.map((config) => encodeFunctionData(config)),
     ],
+    value: totalValue,
   });
   const { writeContractAsync } = useWriteTransactionBatcherBatchSend();
 
@@ -58,7 +64,7 @@ const useTransactionBatcher = (
     [writeContractAsync]
   );
 
-  return { executeBatch, batchConfig, isError, isLoading };
+  return { executeBatch, batchConfig, isError, isLoading, error };
 };
 
 export default useTransactionBatcher;

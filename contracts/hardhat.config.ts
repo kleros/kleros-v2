@@ -13,21 +13,34 @@ import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
-require("./scripts/simulations/tasks");
 require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
+require("./scripts/changeGovernor");
+require("./scripts/getDisputeTemplate");
+require("./scripts/compareStorageLayout");
+require("./scripts/storage-layout");
 
 dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.24",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 100,
+    compilers: [
+      {
+        version: "0.8.30",
+        settings: {
+          viaIR: process.env.VIA_IR !== "false", // Defaults to true
+          optimizer: {
+            enabled: true,
+            runs: 10000,
+          },
+          outputSelection: {
+            "*": {
+              "*": ["storageLayout"],
+            },
+          },
+        },
       },
-    },
+    ],
   },
   paths: {
     sources: "./src",
@@ -96,15 +109,7 @@ const config: HardhatUserConfig = {
     arbitrumSepolia: {
       chainId: 421614,
       url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts:
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
-        ]) ||
-        (process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []),
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -114,23 +119,15 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiUrl: "https://api-sepolia.arbiscan.io",
-          apiKey: process.env.ARBISCAN_API_KEY,
+          apiUrl: "https://api.etherscan.io/v2/api",
+          apiKey: process.env.ETHERSCAN_API_KEY,
         },
       },
     },
     arbitrumSepoliaDevnet: {
       chainId: 421614,
       url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts:
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
-          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
-        ]) ||
-        (process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []),
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -140,8 +137,8 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiUrl: "https://api-sepolia.arbiscan.io",
-          apiKey: process.env.ARBISCAN_API_KEY,
+          apiUrl: "https://api.etherscan.io/v2/api",
+          apiKey: process.env.ETHERSCAN_API_KEY,
         },
       },
     },
@@ -157,7 +154,8 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiKey: process.env.ARBISCAN_API_KEY,
+          apiUrl: "https://api.etherscan.io/v2/api",
+          apiKey: process.env.ETHERSCAN_API_KEY,
         },
       },
     },
@@ -172,6 +170,12 @@ const config: HardhatUserConfig = {
       companionNetworks: {
         home: "arbitrumSepolia",
       },
+      verify: {
+        etherscan: {
+          apiUrl: "https://api.etherscan.io/v2/api",
+          apiKey: process.env.ETHERSCAN_API_KEY,
+        },
+      },
     },
     sepoliaDevnet: {
       chainId: 11155111,
@@ -183,6 +187,12 @@ const config: HardhatUserConfig = {
       companionNetworks: {
         home: "arbitrumSepoliaDevnet",
       },
+      verify: {
+        etherscan: {
+          apiUrl: "https://api.etherscan.io/v2/api",
+          apiKey: process.env.ETHERSCAN_API_KEY,
+        },
+      },
     },
     mainnet: {
       chainId: 1,
@@ -193,6 +203,12 @@ const config: HardhatUserConfig = {
       tags: ["production", "foreign", "layer1"],
       companionNetworks: {
         home: "arbitrum",
+      },
+      verify: {
+        etherscan: {
+          apiUrl: "https://api.etherscan.io/v2/api",
+          apiKey: process.env.ETHERSCAN_API_KEY,
+        },
       },
     },
     chiado: {

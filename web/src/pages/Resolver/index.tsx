@@ -5,6 +5,8 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
+import { useAtlasProvider } from "@kleros/kleros-app";
+
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -17,6 +19,7 @@ import ScrollTop from "components/ScrollTop";
 
 import Description from "./Briefing/Description";
 import Title from "./Briefing/Title";
+import Landing from "./Landing";
 import Category from "./Parameters/Category";
 import Court from "./Parameters/Court";
 import Jurors from "./Parameters/Jurors";
@@ -33,6 +36,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 32px;
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: ${responsiveSize(24, 32)};
@@ -74,9 +78,26 @@ const MiddleContentContainer = styled.div`
   position: relative;
 `;
 
+const Heading = styled.h1`
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.primaryText};
+  text-align: center;
+`;
+
+const Paragraph = styled.p`
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  text-align: center;
+  color: ${({ theme }) => theme.secondaryText};
+`;
+
 const DisputeResolver: React.FC = () => {
   const location = useLocation();
   const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);
+  const { isVerified } = useAtlasProvider();
   const { isConnected } = useAccount();
   const isPreviewPage = location.pathname.includes("/preview");
 
@@ -84,8 +105,14 @@ const DisputeResolver: React.FC = () => {
     <Wrapper>
       <HeroImage />
       <Container>
+        {!isConnected || !isVerified ? (
+          <>
+            <Heading>Justice as a Service</Heading>
+            <Paragraph>You send your disputes. Kleros sends back decisions.</Paragraph>
+          </>
+        ) : null}
         {isConnected ? (
-          <StyledEnsureAuth>
+          <StyledEnsureAuth buttonText="Sign in to start">
             <MiddleContentContainer>
               {isConnected && !isPreviewPage ? (
                 <HowItWorksAndTimeline>
@@ -98,7 +125,8 @@ const DisputeResolver: React.FC = () => {
                 </HowItWorksAndTimeline>
               ) : null}
               <Routes>
-                <Route index element={<Navigate to="title" replace />} />
+                <Route index element={<Navigate to="create" replace />} />
+                <Route path="/create/*" element={<Landing />} />
                 <Route path="/title/*" element={<Title />} />
                 <Route path="/description/*" element={<Description />} />
                 <Route path="/court/*" element={<Court />} />

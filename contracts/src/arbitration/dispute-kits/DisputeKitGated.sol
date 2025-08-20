@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
@@ -27,15 +27,7 @@ interface IBalanceHolderERC1155 {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitGated is DisputeKitClassicBase {
-    string public constant override version = "0.8.0";
-
-    // ************************************* //
-    // *             Storage               * //
-    // ************************************* //
-
-    address public tokenGate; // The token used for gating access.
-    uint256 public tokenId; // Only used for ERC-1155
-    bool public isERC1155; // True if the tokenGate is an ERC-1155, false otherwise.
+    string public constant override version = "0.12.0";
 
     // ************************************* //
     // *            Constructor            * //
@@ -49,20 +41,13 @@ contract DisputeKitGated is DisputeKitClassicBase {
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
-    /// @param _tokenGate The token used for gating access.
-    /// @param _tokenId The token ID for ERC-1155 (ignored for other token types)
-    /// @param _isERC1155 Whether the token is an ERC-1155
-    function initialize(
-        address _governor,
-        KlerosCore _core,
-        address _tokenGate,
-        uint256 _tokenId,
-        bool _isERC1155
-    ) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core);
-        tokenGate = _tokenGate;
-        tokenId = _tokenId;
-        isERC1155 = _isERC1155;
+    /// @param _wNative The wrapped native token address, typically wETH.
+    function initialize(address _governor, KlerosCore _core, address _wNative) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
+    }
+
+    function reinitialize(address _wNative) external reinitializer(9) {
+        wNative = _wNative;
     }
 
     // ************************ //
@@ -75,25 +60,36 @@ contract DisputeKitGated is DisputeKitClassicBase {
         // NOP
     }
 
-    /// @dev Changes the `tokenGate` to an ERC-20 or ERC-721 token.
-    /// @param _tokenGate The new value for the `tokenGate` storage variable.
-    function changeTokenGateERC20OrERC721(address _tokenGate) external onlyByGovernor {
-        tokenGate = _tokenGate;
-        isERC1155 = false;
-    }
-
-    /// @dev Changes the `tokenGate` to an ERC-1155 token.
-    /// @param _tokenGate The new value for the `tokenGate` storage variable.
-    /// @param _tokenId The new value for the `tokenId` storage variable.
-    function changeTokenGateERC1155(address _tokenGate, uint256 _tokenId) external onlyByGovernor {
-        tokenGate = _tokenGate;
-        tokenId = _tokenId;
-        isERC1155 = true;
-    }
-
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
+
+    /// @dev Extracts token gating information from the extra data.
+    /// @param _extraData The extra data bytes array with the following encoding:
+    ///        - bytes 0-31: uint96 courtID, not used here
+    ///        - bytes 32-63: uint256 minJurors, not used here
+    ///        - bytes 64-95: uint256 disputeKitID, not used here
+    ///        - bytes 96-127: uint256 packedTokenGateAndFlag (address tokenGate in bits 0-159, bool isERC1155 in bit 160)
+    ///        - bytes 128-159: uint256 tokenId
+    /// @return tokenGate The address of the token contract used for gating access.
+    /// @return isERC1155 True if the token is an ERC-1155, false for ERC-20/ERC-721.
+    /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).
+    function extraDataToTokenInfo(
+        bytes memory _extraData
+    ) public pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
+        // Need at least 160 bytes to safely read the parameters
+        if (_extraData.length < 160) return (address(0), false, 0);
+
+        assembly {
+            // solium-disable-line security/no-inline-assembly
+            let packedTokenGateIsERC1155 := mload(add(_extraData, 0x80)) // 4th parameter at offset 128
+            tokenId := mload(add(_extraData, 0xA0)) // 5th parameter at offset 160 (moved up)
+
+            // Unpack address from lower 160 bits and bool from bit 160
+            tokenGate := and(packedTokenGateIsERC1155, 0xffffffffffffffffffffffffffffffffffffffff)
+            isERC1155 := and(shr(160, packedTokenGateIsERC1155), 1)
+        }
+    }
 
     /// @inheritdoc DisputeKitClassicBase
     function _postDrawCheck(
@@ -103,6 +99,15 @@ contract DisputeKitGated is DisputeKitClassicBase {
     ) internal view override returns (bool) {
         if (!super._postDrawCheck(_round, _coreDisputeID, _juror)) return false;
 
+        // Get the local dispute and extract token info from extraData
+        uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+        Dispute storage dispute = disputes[localDisputeID];
+        (address tokenGate, bool isERC1155, uint256 tokenId) = extraDataToTokenInfo(dispute.extraData);
+
+        // If no token gate is specified, allow all jurors
+        if (tokenGate == address(0)) return true;
+
+        // Check juror's token balance
         if (isERC1155) {
             return IBalanceHolderERC1155(tokenGate).balanceOf(_juror, tokenId) > 0;
         } else {

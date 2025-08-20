@@ -109,7 +109,7 @@ const TopSearch: React.FC = () => {
   const { data } = useCourtTree();
   const navigate = useNavigate();
   const { id: currentCourtId } = useParams();
-  const items = useMemo(() => !isUndefined(data) && [rootCourtToItems(data.court)], [data]);
+  const items = useMemo(() => !isUndefined(data?.court) && [rootCourtToItems(data.court)], [data]);
   const isUniversity = isKlerosUniversity();
   const [search, setSearch] = useState("");
 

@@ -1,0 +1,287 @@
+specVersion: 0.0.5
+description: Kleros v2 Core
+repository: https://github.com/kleros/kleros-v2/tree/dev/subgraph/core
+schema:
+  file: ./schema.graphql
+features:
+  - fullTextSearch
+dataSources:
+  - kind: ethereum
+    name: KlerosCore
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: KlerosCore
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Arbitrable
+        - TokenAndETHShift
+        - JurorTokensPerCourt
+        - Court
+        - Dispute
+        - Round
+        - Draw
+        - DisputeKit
+        - Counter
+      abis:
+        - name: SortitionModule
+          file: ../../contracts/deployments/_PLACEHOLDER_/SortitionModule.json
+        - name: DisputeKitClassic
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          # FIX: temporarily point to the abi with event addition.
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: AppealDecision(indexed uint256,indexed address)
+          handler: handleAppealDecision
+        - event: DisputeCreation(indexed uint256,indexed address)
+          handler: handleDisputeCreation
+          receipt: true
+        - event: Draw(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDraw
+        - event: NewPeriod(indexed uint256,uint8)
+          handler: handleNewPeriod
+        - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
+          handler: handleCourtCreated
+          # FIX: This is support for old signature
+        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
+          handler: handleCourtCreated
+        - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
+          handler: handleCourtModified
+        - event: DisputeKitCreated(indexed uint256,indexed address)
+          handler: handleDisputeKitCreated
+        - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
+          handler: handleDisputeKitEnabled
+        - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
+          handler: handleTokenAndETHShift
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: AcceptedFeeToken(indexed address,indexed bool)
+          handler: handleAcceptedFeeToken
+        - event: CourtJump(indexed uint256,indexed uint256,indexed uint96,uint96)
+          handler: handleCourtJump
+      file: ./src/KlerosCore.ts
+  - kind: ethereum
+    name: PolicyRegistry
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: PolicyRegistry
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Court
+      abis:
+        - name: PolicyRegistry
+          file: ../../contracts/deployments/_PLACEHOLDER_/PolicyRegistry.json
+      eventHandlers:
+        - event: PolicyUpdate(indexed uint256,string,string)
+          handler: handlePolicyUpdate
+      file: ./src/PolicyRegistry.ts
+  - kind: ethereum
+    name: DisputeKitClassic
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeKitClassic
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitClassic
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: DisputeKitShutter
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeKitShutter
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitShutter
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitShutter.json
+        - name: DisputeKitClassic # Required on Alchemy
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: DisputeKitGated
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeKitGated
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitGated
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitGated.json
+        - name: DisputeKitClassic # Required on Alchemy
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: DisputeKitGatedShutter
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeKitGatedShutter
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitGatedShutter
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitGatedShutter.json
+        - name: DisputeKitClassic # Required on Alchemy
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: EvidenceModule
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: EvidenceModule
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicEvidenceGroup
+        - ClassicEvidence
+      abis:
+        - name: EvidenceModule
+          file: ../../contracts/deployments/_PLACEHOLDER_/EvidenceModule.json
+      eventHandlers:
+        - event: Evidence(indexed uint256,indexed address,string)
+          handler: handleEvidenceEvent
+      file: ./src/EvidenceModule.ts
+  - kind: ethereum
+    name: SortitionModule
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: SortitionModule
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - JurorTokensPerCourt
+      abis:
+        - name: SortitionModule
+          # FIX: temporarily point to abi with event addition
+          file: ./abi-migrations/SortitionModule.json
+      eventHandlers:
+        - event: StakeDelayed(indexed address,indexed uint96,uint256)
+          handler: handleStakeDelayed
+        - event: StakeLocked(indexed address,uint256,bool)
+          handler: handleStakeLocked
+        - event: StakeSet(indexed address,uint256,uint256,uint256)
+          handler: handleStakeSet
+          # FIX: old stake set signature
+        - event: StakeSet(indexed address,uint256,uint256)
+          handler: handleStakeSet
+      file: ./src/SortitionModule.ts

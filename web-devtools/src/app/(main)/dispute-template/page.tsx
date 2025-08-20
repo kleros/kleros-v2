@@ -26,6 +26,8 @@ import ReactMarkdown from "components/ReactMarkdown";
 import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestInput";
 import FetchFromIDInput from "./FetchFromIdInput";
 import CustomContextInputs from "./CustomContextInputs";
+import { debounceErrorToast } from "utils/debounceErrorToast";
+import { isEmpty } from "utils/isEmpty";
 
 const Container = styled.div`
   height: auto;
@@ -193,12 +195,14 @@ const DisputeTemplateView = () => {
           if (customContext) initialContext = { ...initialContext, ...customContext };
 
           const fetchData = async () => {
+            if (isEmpty(disputeTemplateInput)) return;
             try {
               const data = dataMappingsInput ? await executeActions(JSON.parse(dataMappingsInput), initialContext) : {};
               const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
               setDisputeDetails(finalDisputeDetails);
-            } catch (e) {
+            } catch (e: any) {
               console.error(e);
+              debounceErrorToast(e?.message);
               setDisputeDetails(undefined);
             } finally {
               setLoading(false);

@@ -1,21 +1,25 @@
 import React, { useEffect } from "react";
+import styled, { css } from "styled-components";
+
 import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from "react-router-dom";
 import { useAccount } from "wagmi";
-import styled, { css } from "styled-components";
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
 
-import PnkIcon from "svgs/icons/pnk.svg";
 import DocIcon from "svgs/icons/doc.svg";
+import PnkIcon from "svgs/icons/pnk.svg";
 import VotedIcon from "svgs/icons/voted-ballot.svg";
+
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
 import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
+
+import Cases from "./Cases";
 import JurorCard from "./JurorCard";
 import Stakes from "./Stakes";
-import Cases from "./Cases";
 import Votes from "./Votes";
 
 const Container = styled.div`

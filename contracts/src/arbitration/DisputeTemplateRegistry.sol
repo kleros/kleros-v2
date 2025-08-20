@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
@@ -25,7 +25,7 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -42,6 +42,10 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     /// @param _governor Governor of the contract.
     function initialize(address _governor) external reinitializer(1) {
         governor = _governor;
+    }
+
+    function initialize2() external reinitializer(2) {
+        // NOP
     }
 
     // ************************ //
@@ -76,4 +80,10 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
         templateId = templates++;
         emit DisputeTemplate(templateId, _templateTag, _templateData, _templateDataMappings);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
 }

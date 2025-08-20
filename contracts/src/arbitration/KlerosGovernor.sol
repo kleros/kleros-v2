@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
+import {SafeSend} from "../libraries/SafeSend.sol";
 import "./interfaces/IDisputeTemplateRegistry.sol";
 
 /// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
 contract KlerosGovernor is IArbitrableV2 {
+    using SafeSend for address payable;
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -46,6 +49,7 @@ contract KlerosGovernor is IArbitrableV2 {
 
     IArbitratorV2 public arbitrator; // Arbitrator contract.
     bytes public arbitratorExtraData; // Extra data for arbitrator.
+    address public wNative; // The wrapped native token for safeSend().
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     uint256 public templateId; // The current dispute template identifier.
 
@@ -66,18 +70,18 @@ contract KlerosGovernor is IArbitrableV2 {
 
     modifier duringSubmissionPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
-        require(block.timestamp - lastApprovalTime <= submissionTimeout + offset, "Submission time has ended.");
+        if (block.timestamp - lastApprovalTime > submissionTimeout + offset) revert SubmissionTimeHasEnded();
         _;
     }
 
     modifier duringApprovalPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
-        require(block.timestamp - lastApprovalTime > submissionTimeout + offset, "Approval time not started yet.");
+        if (block.timestamp - lastApprovalTime <= submissionTimeout + offset) revert ApprovalTimeNotStarted();
         _;
     }
 
     modifier onlyByGovernor() {
-        require(address(this) == msg.sender, "Only the governor allowed.");
+        if (address(this) != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -111,6 +115,7 @@ contract KlerosGovernor is IArbitrableV2 {
     /// @param _submissionTimeout Time in seconds allocated for submitting transaction list.
     /// @param _executionTimeout Time in seconds after approval that allows to execute transactions of the approved list.
     /// @param _withdrawTimeout Time in seconds after submission that allows to withdraw submitted list.
+    /// @param _wNative The wrapped native token address, typically wETH.
     constructor(
         IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData,
@@ -119,10 +124,12 @@ contract KlerosGovernor is IArbitrableV2 {
         uint256 _submissionBaseDeposit,
         uint256 _submissionTimeout,
         uint256 _executionTimeout,
-        uint256 _withdrawTimeout
+        uint256 _withdrawTimeout,
+        address _wNative
     ) {
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
+        wNative = _wNative;
 
         lastApprovalTime = block.timestamp;
         submissionBaseDeposit = _submissionBaseDeposit;
@@ -201,14 +208,14 @@ contract KlerosGovernor is IArbitrableV2 {
         uint256[] memory _dataSize,
         string memory _description
     ) external payable duringSubmissionPeriod {
-        require(_target.length == _value.length, "Wrong input: target and value");
-        require(_target.length == _dataSize.length, "Wrong input: target and datasize");
+        if (_target.length != _value.length) revert WrongInputTargetAndValue();
+        if (_target.length != _dataSize.length) revert WrongInputTargetAndDatasize();
         Session storage session = sessions[sessions.length - 1];
         Submission storage submission = submissions.push();
         submission.submitter = payable(msg.sender);
         // Do the assignment first to avoid creating a new variable and bypass a 'stack too deep' error.
         submission.deposit = submissionBaseDeposit + arbitrator.arbitrationCost(arbitratorExtraData);
-        require(msg.value >= submission.deposit, "Not enough ETH to cover deposit");
+        if (msg.value < submission.deposit) revert InsufficientDeposit();
 
         bytes32 listHash;
         bytes32 currentTxHash;
@@ -226,7 +233,7 @@ contract KlerosGovernor is IArbitrableV2 {
             currentTxHash = keccak256(abi.encodePacked(transaction.target, transaction.value, transaction.data));
             listHash = keccak256(abi.encodePacked(currentTxHash, listHash));
         }
-        require(!session.alreadySubmitted[listHash], "List already submitted");
+        if (session.alreadySubmitted[listHash]) revert ListAlreadySubmitted();
         session.alreadySubmitted[listHash] = true;
         submission.listHash = listHash;
         submission.submissionTime = block.timestamp;
@@ -237,7 +244,7 @@ contract KlerosGovernor is IArbitrableV2 {
         emit ListSubmitted(submissions.length - 1, msg.sender, sessions.length - 1, _description);
 
         uint256 remainder = msg.value - submission.deposit;
-        if (remainder > 0) payable(msg.sender).send(remainder);
+        if (remainder > 0) payable(msg.sender).safeSend(remainder, wNative);
 
         reservedETH += submission.deposit;
     }
@@ -249,11 +256,11 @@ contract KlerosGovernor is IArbitrableV2 {
     function withdrawTransactionList(uint256 _submissionID, bytes32 _listHash) external {
         Session storage session = sessions[sessions.length - 1];
         Submission storage submission = submissions[session.submittedLists[_submissionID]];
-        require(block.timestamp - lastApprovalTime <= submissionTimeout / 2, "Should be in first half");
-        // This require statement is an extra check to prevent _submissionID linking to the wrong list because of index swap during withdrawal.
-        require(submission.listHash == _listHash, "Wrong list hash");
-        require(submission.submitter == msg.sender, "Only submitter can withdraw");
-        require(block.timestamp - submission.submissionTime <= withdrawTimeout, "Withdrawing time has passed.");
+        if (block.timestamp - lastApprovalTime > submissionTimeout / 2) revert ShouldOnlyWithdrawInFirstHalf();
+        // This is an extra check to prevent _submissionID linking to the wrong list because of index swap during withdrawal.
+        if (submission.listHash != _listHash) revert WrongListHash();
+        if (submission.submitter != msg.sender) revert OnlySubmitterCanWithdraw();
+        if (block.timestamp - submission.submissionTime > withdrawTimeout) revert WithdrawingTimeHasPassed();
         session.submittedLists[_submissionID] = session.submittedLists[session.submittedLists.length - 1];
         session.alreadySubmitted[_listHash] = false;
         session.submittedLists.pop();
@@ -266,7 +273,7 @@ contract KlerosGovernor is IArbitrableV2 {
     /// If nothing was submitted changes session.
     function executeSubmissions() external duringApprovalPeriod {
         Session storage session = sessions[sessions.length - 1];
-        require(session.status == Status.NoDispute, "Already disputed");
+        if (session.status != Status.NoDispute) revert AlreadyDisputed();
         if (session.submittedLists.length == 0) {
             lastApprovalTime = block.timestamp;
             session.status = Status.Resolved;
@@ -277,7 +284,7 @@ contract KlerosGovernor is IArbitrableV2 {
             submission.approvalTime = block.timestamp;
             uint256 sumDeposit = session.sumDeposit;
             session.sumDeposit = 0;
-            submission.submitter.send(sumDeposit);
+            submission.submitter.safeSend(sumDeposit, wNative);
             lastApprovalTime = block.timestamp;
             session.status = Status.Resolved;
             sessions.push();
@@ -303,15 +310,15 @@ contract KlerosGovernor is IArbitrableV2 {
     /// Note If the final ruling is "0" nothing is approved and deposits will stay locked in the contract.
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         Session storage session = sessions[sessions.length - 1];
-        require(msg.sender == address(arbitrator), "Only arbitrator allowed");
-        require(session.status == Status.DisputeCreated, "Wrong status");
-        require(_ruling <= session.submittedLists.length, "Ruling is out of bounds.");
+        if (msg.sender != address(arbitrator)) revert OnlyArbitratorAllowed();
+        if (session.status != Status.DisputeCreated) revert NotDisputed();
+        if (_ruling > session.submittedLists.length) revert RulingOutOfBounds();
 
         if (_ruling != 0) {
             Submission storage submission = submissions[session.submittedLists[_ruling - 1]];
             submission.approved = true;
             submission.approvalTime = block.timestamp;
-            submission.submitter.send(session.sumDeposit);
+            submission.submitter.safeSend(session.sumDeposit, wNative);
         }
         // If the ruling is "0" the reserved funds of this session become expendable.
         reservedETH -= session.sumDeposit;
@@ -331,8 +338,8 @@ contract KlerosGovernor is IArbitrableV2 {
     /// @param _count Number of transactions to execute. Executes until the end if set to "0" or number higher than number of transactions in the list.
     function executeTransactionList(uint256 _listID, uint256 _cursor, uint256 _count) external {
         Submission storage submission = submissions[_listID];
-        require(submission.approved, "Should be approved");
-        require(block.timestamp - submission.approvalTime <= executionTimeout, "Time to execute has passed");
+        if (!submission.approved) revert SubmissionNotApproved();
+        if (block.timestamp - submission.approvalTime > executionTimeout) revert TimeToExecuteHasPassed();
         for (uint256 i = _cursor; i < submission.txs.length && (_count == 0 || i < _cursor + _count); i++) {
             Transaction storage transaction = submission.txs[i];
             uint256 expendableFunds = getExpendableFunds();
@@ -340,7 +347,7 @@ contract KlerosGovernor is IArbitrableV2 {
                 (bool callResult, ) = transaction.target.call{value: transaction.value}(transaction.data);
                 // An extra check to prevent re-entrancy through target call.
                 if (callResult == true) {
-                    require(!transaction.executed, "Already executed");
+                    if (transaction.executed) revert AlreadyExecuted();
                     transaction.executed = true;
                 }
             }
@@ -400,4 +407,27 @@ contract KlerosGovernor is IArbitrableV2 {
     function getCurrentSessionNumber() external view returns (uint256) {
         return sessions.length - 1;
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error SubmissionTimeHasEnded();
+    error ApprovalTimeNotStarted();
+    error GovernorOnly();
+    error WrongInputTargetAndValue();
+    error WrongInputTargetAndDatasize();
+    error InsufficientDeposit();
+    error ListAlreadySubmitted();
+    error ShouldOnlyWithdrawInFirstHalf();
+    error WrongListHash();
+    error OnlySubmitterCanWithdraw();
+    error WithdrawingTimeHasPassed();
+    error AlreadyDisputed();
+    error OnlyArbitratorAllowed();
+    error NotDisputed();
+    error RulingOutOfBounds();
+    error SubmissionNotApproved();
+    error TimeToExecuteHasPassed();
+    error AlreadyExecuted();
 }

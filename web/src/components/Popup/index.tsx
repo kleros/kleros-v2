@@ -168,6 +168,7 @@ interface IPopup {
   setIsOpen: (val: boolean) => void;
   setAmount?: (val: string) => void;
   isCommit?: boolean;
+  automaticVoteReveal?: boolean;
 }
 
 type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal | IDisputeCreated | ISwapSuccess;
@@ -179,6 +180,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   setIsOpen,
   setAmount,
   isCommit,
+  automaticVoteReveal,
   ...props
 }) => {
   const containerRef = useRef(null);
@@ -213,7 +215,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
       const { date } = props as IVoteWithCommit;
       PopupComponent = (
         <VoteDescriptionContainer>
-          <VoteWithCommit date={date} />
+          <VoteWithCommit {...{ date, automaticVoteReveal }} />
         </VoteDescriptionContainer>
       );
       break;
@@ -239,6 +241,9 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   const closePopup = () => {
     setIsOpen(false);
     resetValue();
+    // dispute data is cleared, so if popup is closed the preview will show empty,
+    // instead redirect to start point.
+    if (popupType === PopupType.DISPUTE_CREATED) navigate("/resolver");
   };
 
   return (
@@ -257,7 +262,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
           </IconContainer>
         )}
         {popupType === PopupType.STAKE_WITHDRAW && <StakeWithdrawExtraInfo />}
-        {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo />}
+        {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo {...{ automaticVoteReveal }} />}
         {popupType === PopupType.DISPUTE_CREATED && <DisputeCreatedExtraInfo />}
         {popupType !== PopupType.SWAP_SUCCESS && (
           <StyledButton

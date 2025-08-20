@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity >=0.8.0 <0.9.0;
 
 import "../../arbitration/interfaces/IArbitratorV2.sol";
-import "@kleros/vea-contracts/interfaces/gateways/IReceiverGateway.sol";
+import "@kleros/vea-contracts/src/interfaces/gateways/IReceiverGateway.sol";
 
 interface IForeignGateway is IArbitratorV2, IReceiverGateway {
     /// @dev To be emitted when a dispute is sent to the IHomeGateway.

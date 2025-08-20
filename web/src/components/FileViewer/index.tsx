@@ -24,6 +24,10 @@ const StyledDocViewer = styled(DocViewer)`
   #pdf-controls {
     z-index: 3;
   }
+
+  [class*="--loading"] {
+    color: ${({ theme }) => theme.secondaryText};
+  }
 `;
 
 /**

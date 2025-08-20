@@ -1,15 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { formatUnits } from "viem";
 
-import PnkIcon from "svgs/icons/pnk.svg";
 import LockerIcon from "svgs/icons/locker.svg";
+import PnkIcon from "svgs/icons/pnk.svg";
 
 import { isUndefined } from "utils/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import NumberDisplay from "components/NumberDisplay";
 
@@ -64,24 +64,26 @@ const StyledLockerIcon = styled(LockerIcon)`
 `;
 
 interface IHeader {
-  totalStake: string;
+  totalAvailableStake: string;
   lockedStake: string;
 }
 
-const Header: React.FC<IHeader> = ({ totalStake, lockedStake }) => {
-  const formattedTotalStake = formatUnits(BigInt(totalStake), 18);
-  const formattedLockedStake = formatUnits(BigInt(lockedStake), 18);
+const Header: React.FC<IHeader> = ({ totalAvailableStake, lockedStake }) => {
+  const formattedTotalAvailableStake = !isUndefined(totalAvailableStake)
+    ? formatUnits(BigInt(totalAvailableStake), 18)
+    : "0";
+  const formattedLockedStake = !isUndefined(lockedStake) ? formatUnits(BigInt(lockedStake), 18) : "0";
 
   return (
     <Container>
       <StyledTitle>Current Stakes</StyledTitle>
       <TotalStakeAndLockedPnk>
-        {!isUndefined(totalStake) ? (
+        {!isUndefined(totalAvailableStake) ? (
           <StakedPnk>
             <StyledPnkIcon />
-            <label> Total Stake: </label>
+            <label> Total Available Stake: </label>
             <small>
-              <NumberDisplay value={formattedTotalStake} unit="PNK" />
+              <NumberDisplay value={formattedTotalAvailableStake} unit="PNK" />
             </small>
           </StakedPnk>
         ) : null}

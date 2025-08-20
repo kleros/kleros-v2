@@ -23,6 +23,7 @@ import {
   updateCasesAppealing,
   updateCasesRuled,
   updateCasesVoting,
+  updateCourtCumulativeMetric,
   updateTotalLeaderboardJurors,
 } from "./datapoint";
 import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
@@ -81,9 +82,11 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   const court = Court.load(courtID);
   if (!court) return;
   court.numberDisputes = court.numberDisputes.plus(ONE);
+  updateCourtCumulativeMetric(courtID, ONE, event.block.timestamp, "numberDisputes");
 
   const roundInfo = contract.getRoundInfo(disputeID, ZERO);
   court.numberVotes = court.numberVotes.plus(roundInfo.nbVotes);
+  updateCourtCumulativeMetric(courtID, roundInfo.nbVotes, event.block.timestamp, "numberVotes");
 
   court.save();
   createDisputeFromEvent(event);
@@ -153,7 +156,7 @@ export function handleNewPeriod(event: NewPeriod): void {
           updateTotalLeaderboardJurors(ONE, event.block.timestamp);
         }
 
-        // Since this is a ClassicVote entity, this will only work for the Classic DisputeKit (which has ID "1").
+        // Since this is a ClassicVote entity, this will only work for the ClassicDisputeKit and ShutterDisputeKit.
         const vote = ClassicVote.load(`${round.disputeKit}-${draw.id}`);
 
         if (!vote) {
@@ -163,7 +166,10 @@ export function handleNewPeriod(event: NewPeriod): void {
           continue;
         }
 
-        if (vote.choice === null) continue;
+        if (vote.choice === null) {
+          juror.save();
+          continue;
+        }
 
         // Check if the vote choice matches the final ruling
         if (vote.choice!.equals(dispute.currentRuling)) {
@@ -212,10 +218,19 @@ export function handleAppealDecision(event: AppealDecision): void {
   const disputeID = event.params._disputeID;
   const dispute = Dispute.load(disputeID.toString());
   if (!dispute) return;
+
+  // Load the current (previous) round
+  const previousRoundID = dispute.currentRound;
+  const previousRound = Round.load(previousRoundID);
+  if (previousRound) {
+    previousRound.isCurrentRound = false;
+    previousRound.save();
+  }
+
   const newRoundIndex = dispute.currentRoundIndex.plus(ONE);
-  const roundID = `${disputeID}-${newRoundIndex.toString()}`;
+  const newRoundID = `${disputeID}-${newRoundIndex.toString()}`;
   dispute.currentRoundIndex = newRoundIndex;
-  dispute.currentRound = roundID;
+  dispute.currentRound = newRoundID;
   dispute.save();
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
 
@@ -225,6 +240,7 @@ export function handleAppealDecision(event: AppealDecision): void {
   if (!court) return;
 
   court.numberVotes = court.numberVotes.plus(roundInfo.nbVotes);
+  updateCourtCumulativeMetric(courtID, roundInfo.nbVotes, event.block.timestamp, "numberVotes");
   court.save();
 
   createRoundFromRoundInfo(KlerosCore.bind(event.address), disputeID, newRoundIndex, roundInfo);

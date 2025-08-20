@@ -65,3 +65,17 @@ export const deployERC721 = async (
     log: true,
   });
 };
+
+export const deployERC1155 = async (
+  hre: HardhatRuntimeEnvironment,
+  deployer: string,
+  name: string,
+  ticker: string
+): Promise<Contract> => {
+  return getContractOrDeploy(hre, ticker, {
+    from: deployer,
+    contract: "TestERC1155",
+    args: [],
+    log: true,
+  });
+};

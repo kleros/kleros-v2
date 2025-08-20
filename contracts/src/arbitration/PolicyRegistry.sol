@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
@@ -32,7 +32,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
 
     /// @dev Requires that the sender is the governor.
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "No allowed: governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -49,6 +49,10 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     /// @param _governor The governor's address.
     function initialize(address _governor) external reinitializer(1) {
         governor = _governor;
+    }
+
+    function initialize2() external reinitializer(2) {
+        // NOP
     }
 
     // ************************************* //
@@ -81,4 +85,10 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
         policies[_courtID] = _policy;
         emit PolicyUpdate(_courtID, _courtName, policies[_courtID]);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
 }

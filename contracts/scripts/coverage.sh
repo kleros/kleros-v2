@@ -8,7 +8,11 @@ mkdir -p coverage
 # Generate the Forge coverage report
 forge clean
 if [ "$CI" != "true" ]; then
+  echo "Building contracts with Forge..."
+  forge build
+  echo "Running Forge coverage..."
   forge coverage --report summary --report lcov --report-file coverage/lcov-forge.info
+  echo "Forge coverage report generated"
 else 
   # FIXME: Temporarily workaround a CI issue
   touch coverage/lcov-forge.info
@@ -16,7 +20,12 @@ fi
 
 # Generate the Hardhat coverage report
 yarn clean
+echo "Building contracts with Hardhat..."
+export VIA_IR=false
+yarn build
+echo "Running Hardhat coverage..."
 yarn hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --show-stack-traces --testfiles "test/**/*.ts"
+echo "Hardhat coverage report generated"
 mv coverage/lcov.info coverage/lcov-hardhat.info
 
 # Make the Hardhat report paths relative for consistency with Forge coverage report

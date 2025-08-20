@@ -3,10 +3,10 @@ import styled from "styled-components";
 
 import { useAccount } from "wagmi";
 
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
-
 import ArrowIcon from "svgs/icons/arrow.svg";
 import NewTabIcon from "svgs/icons/new-tab.svg";
+
+import { DEFAULT_CHAIN, getChain } from "consts/chains";
 
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
@@ -27,7 +27,7 @@ const Container = styled.div`
   }
 `;
 
-export const ReStyledArrowLink = styled(StyledArrowLink)`
+export const ReStyledArrowLink = styled(StyledArrowLink)<{ smallDisplay?: boolean }>`
   label {
     cursor: pointer;
     color: ${({ theme }) => theme.primaryBlue};
@@ -38,11 +38,21 @@ export const ReStyledArrowLink = styled(StyledArrowLink)`
       color: ${({ theme }) => theme.secondaryBlue};
     }
   }
+
+  ${({ smallDisplay }) =>
+    smallDisplay &&
+    `
+    > svg {
+      height: 14.5px;
+      width: 14.5px;
+    }
+  `}
 `;
 
 interface IJurorLink {
   address: string;
   isInternalLink?: boolean;
+  smallDisplay?: boolean;
 }
 
 const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true }) => {

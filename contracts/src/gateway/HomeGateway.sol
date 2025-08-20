@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
@@ -45,7 +45,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @dev Requires that the sender is the governor.
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "No allowed: governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -129,8 +129,8 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
-        require(feeToken == NATIVE_CURRENCY, "Fees paid in ERC20 only");
-        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
+        if (feeToken != NATIVE_CURRENCY) revert FeesPaidInNativeCurrencyOnly();
+        if (_params.foreignChainID != foreignChainID) revert ForeignChainIDNotSupported();
 
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -144,7 +144,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
-        require(relayedData.relayer == address(0), "Dispute already relayed");
+        if (relayedData.relayer != address(0)) revert DisputeAlreadyRelayed();
 
         uint256 disputeID = arbitrator.createDispute{value: msg.value}(_params.choices, _params.extraData);
         disputeIDtoHash[disputeID] = disputeHash;
@@ -167,8 +167,8 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external {
-        require(feeToken != NATIVE_CURRENCY, "Fees paid in native currency only");
-        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
+        if (feeToken == NATIVE_CURRENCY) revert FeesPaidInERC20Only();
+        if (_params.foreignChainID != foreignChainID) revert ForeignChainIDNotSupported();
 
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -182,10 +182,10 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
-        require(relayedData.relayer == address(0), "Dispute already relayed");
+        if (relayedData.relayer != address(0)) revert DisputeAlreadyRelayed();
 
-        require(feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), "Transfer failed");
-        require(feeToken.increaseAllowance(address(arbitrator), _feeAmount), "Allowance increase failed");
+        if (!feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
+        if (!feeToken.increaseAllowance(address(arbitrator), _feeAmount)) revert AllowanceIncreaseFailed();
 
         uint256 disputeID = arbitrator.createDispute(_params.choices, _params.extraData, feeToken, _feeAmount);
         disputeIDtoHash[disputeID] = disputeHash;
@@ -209,7 +209,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IArbitrableV2
     function rule(uint256 _disputeID, uint256 _ruling) external override {
-        require(msg.sender == address(arbitrator), "Only Arbitrator");
+        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
 
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
@@ -234,4 +234,17 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     function receiverGateway() external view override returns (address) {
         return foreignGateway;
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error ArbitratorOnly();
+    error FeesPaidInERC20Only();
+    error FeesPaidInNativeCurrencyOnly();
+    error ForeignChainIDNotSupported();
+    error DisputeAlreadyRelayed();
+    error TransferFailed();
+    error AllowanceIncreaseFailed();
 }

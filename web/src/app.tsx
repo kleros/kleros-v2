@@ -26,6 +26,7 @@ import Loader from "components/Loader";
 import Layout from "layout/index";
 
 import ErrorFallback from "./components/ErrorFallback";
+import AttachmentDisplay from "./pages/AttachmentDisplay";
 import { SentryRoutes } from "./utils/sentry";
 
 const App: React.FC = () => {
@@ -101,6 +102,14 @@ const App: React.FC = () => {
                           element={
                             <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
                               <Settings />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="attachment/*"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <AttachmentDisplay />
                             </Suspense>
                           }
                         />

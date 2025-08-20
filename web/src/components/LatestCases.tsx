@@ -11,13 +11,23 @@ import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
 
 import { Dispute_Filter } from "../graphql/graphql";
+import SeeAllCasesButton from "./SeeAllCasesButton";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(28, 48)};
+  margin-top: ${responsiveSize(32, 48)};
+`;
+
+const TitleAndButtonContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px 12px;
+  margin-bottom: ${responsiveSize(12, 24)};
 `;
 
 const Title = styled.h1`
-  margin-bottom: ${responsiveSize(12, 24)};
+  margin-bottom: 0;
   font-size: ${responsiveSize(20, 24)};
 `;
 
@@ -29,13 +39,22 @@ const DisputeContainer = styled.div`
   gap: var(--gap);
 `;
 
-const LatestCases: React.FC<{ filters?: Dispute_Filter }> = ({ filters }) => {
+interface ILatestCases {
+  title?: string;
+  filters?: Dispute_Filter;
+}
+
+const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters }) => {
   const { data } = useCasesQuery(0, 3, filters);
   const disputes: DisputeDetailsFragment[] = useMemo(() => data?.disputes as DisputeDetailsFragment[], [data]);
+  const courtId = typeof filters?.court === "string" ? filters?.court : undefined;
 
   return isUndefined(disputes) || disputes.length > 0 ? (
     <Container>
-      <Title>Latest Cases</Title>
+      <TitleAndButtonContainer>
+        <Title>{title}</Title>
+        <SeeAllCasesButton {...{ courtId }} />
+      </TitleAndButtonContainer>
       <DisputeContainer>
         {isUndefined(disputes)
           ? Array.from({ length: 3 }).map((_, index) => <SkeletonDisputeCard key={index} />)

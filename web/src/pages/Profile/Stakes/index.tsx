@@ -1,10 +1,12 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
+
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 import { useStakingHistory } from "queries/useStakingHistory";
 
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import CurrentStakes from "./CurrentStakes";
@@ -37,14 +39,17 @@ interface IStakes {
 
 const Stakes: React.FC<IStakes> = ({ searchParamAddress }) => {
   const { data: currentStakeData, isLoading: isCurrentStakeLoading } = useJurorStakeDetailsQuery(searchParamAddress);
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
+    args: [searchParamAddress, BigInt(1)],
+  });
   const { data: stakingHistoryData } = useStakingHistory(1, 0);
-  const totalStake = currentStakeData?.jurorTokensPerCourts?.[0]?.effectiveStake ?? "0";
-  const lockedStake = currentStakeData?.jurorTokensPerCourts?.[0]?.locked ?? "0";
+  const totalAvailableStake = jurorBalance?.[0];
+  const lockedStake = jurorBalance?.[1];
   const totalNumberStakingEvents = stakingHistoryData?.data?.userStakingEvents?.count ?? 0;
 
   return (
     <Container>
-      <CurrentStakes {...{ totalStake, lockedStake, currentStakeData, isCurrentStakeLoading }} />
+      <CurrentStakes {...{ totalAvailableStake, lockedStake, currentStakeData, isCurrentStakeLoading }} />
       <StakingHistory {...{ searchParamAddress, totalNumberStakingEvents }} />
     </Container>
   );

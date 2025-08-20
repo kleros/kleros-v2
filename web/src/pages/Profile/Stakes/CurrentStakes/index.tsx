@@ -1,15 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import Skeleton from "react-loading-skeleton";
 
 import { JurorStakeDetailsQuery } from "src/graphql/graphql";
 
-import Header from "./Header";
+import { responsiveSize } from "styles/responsiveSize";
+
 import CourtCard from "../CourtCard";
 import { CourtCardsContainer } from "../index";
+
+import Header from "./Header";
 
 const Container = styled.div`
   display: flex;
@@ -22,14 +23,14 @@ const NoCurrentStakesLabel = styled.label`
 `;
 
 interface ICurrentStakes {
-  totalStake: string;
+  totalAvailableStake: string;
   lockedStake: string;
   currentStakeData: JurorStakeDetailsQuery | undefined;
   isCurrentStakeLoading: boolean;
 }
 
 const CurrentStakes: React.FC<ICurrentStakes> = ({
-  totalStake,
+  totalAvailableStake,
   lockedStake,
   currentStakeData,
   isCurrentStakeLoading,
@@ -39,7 +40,7 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
 
   return (
     <Container>
-      <Header {...{ totalStake, lockedStake }} />
+      <Header {...{ totalAvailableStake, lockedStake }} />
       {!isStaked && !isCurrentStakeLoading ? (
         <NoCurrentStakesLabel>No stakes found</NoCurrentStakesLabel>
       ) : isCurrentStakeLoading ? (

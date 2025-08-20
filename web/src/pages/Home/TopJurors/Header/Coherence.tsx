@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   font-size: 12px !important;
   &::before {
-    content: "Coherence";
+    content: "Coherent\u00a0Votes";
   }
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;
@@ -25,18 +25,17 @@ const Container = styled.div`
 `;
 
 const coherentVotesTooltipMsg =
-  "This is the percentage of coherent votes made by a juror." +
-  " Hover to see the ratio of coherent votes: " +
+  "This is the ratio of coherent votes made by a juror: " +
   "the number in the left is the number of times where the juror " +
   "voted coherently and the number in the right is the total number of times " +
-  "the juror voted";
+  "the juror voted. Hover to see the percentage of coherent votes.";
 
 const Coherence: React.FC = () => {
   const isDesktop = useIsDesktop();
 
   return (
     <Container>
-      <WithHelpTooltip place={isDesktop ? "top" : "left"} tooltipMsg={coherentVotesTooltipMsg}></WithHelpTooltip>
+      <WithHelpTooltip place={isDesktop ? "top" : "right"} tooltipMsg={coherentVotesTooltipMsg}></WithHelpTooltip>
     </Container>
   );
 };

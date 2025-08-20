@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity ^0.8.24;
 
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
@@ -18,7 +18,7 @@ interface IProofOfHumanity {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitSybilResistant is DisputeKitClassicBase {
-    string public constant override version = "0.8.0";
+    string public constant override version = "0.12.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -39,8 +39,14 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.
-    function initialize(address _governor, KlerosCore _core, IProofOfHumanity _poh) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core);
+    /// @param _wNative The wrapped native token address, typically wETH.
+    function initialize(
+        address _governor,
+        KlerosCore _core,
+        IProofOfHumanity _poh,
+        address _wNative
+    ) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
         poh = _poh;
         singleDrawPerJuror = true;
     }

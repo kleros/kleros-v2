@@ -27,14 +27,17 @@ import { WagmiProvider } from 'wagmi'
 import { config } from './config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AtlasProvider, Products } from "@kleros/kleros-app";
+import { useConfig } from 'wagmi'
 
 const queryClient = new QueryClient()
 
 function App() {
+  const wagmiConfig = useConfig()
+
   return
     <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-            <AtlasProvider config={{ uri: import.meta.env.REACT_APP_ATLAS_URI, product: Products.CourtV2 }}>
+            <AtlasProvider config={{ uri: import.meta.env.REACT_APP_ATLAS_URI, product: Products.CourtV2, wagmiConfig: wagmiConfig }}>
             ...
             </AtlasProvider>
         </QueryClientProvider>

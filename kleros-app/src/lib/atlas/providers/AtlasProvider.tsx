@@ -2,7 +2,7 @@ import React, { useMemo, createContext, useContext, useState, useCallback, useEf
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
 import { decodeJwt } from "jose";
-import { useAccount, useChainId, useSignMessage } from "wagmi";
+import { useAccount, useChainId, useSignMessage, type Config } from "wagmi";
 import {
   createMessage,
   getNonce,
@@ -34,6 +34,7 @@ interface IAtlasProvider {
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
   isUploadingFile: boolean;
+  isConfirmingEmail: boolean;
   user: User | undefined;
   userExists: boolean;
   authoriseUser: () => Promise<void>;
@@ -53,20 +54,22 @@ const Context = createContext<IAtlasProvider | undefined>(undefined);
 interface AtlasConfig {
   uri: string;
   product: Products;
+  wagmiConfig: Config;
 }
 
 export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.ReactNode }> = ({ children, config }) => {
-  const { address } = useAccount();
-  const chainId = useChainId();
+  const { address } = useAccount({ config: config.wagmiConfig });
+  const chainId = useChainId({ config: config.wagmiConfig });
   const queryClient = useQueryClient();
 
   const [authToken, setAuthToken] = useSessionStorage<string | undefined>("authToken", undefined);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
+  const [isConfirmingEmail, setIsConfirmingEmail] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
-  const { signMessageAsync } = useSignMessage();
+  const { signMessageAsync } = useSignMessage({ config: config.wagmiConfig });
 
   const atlasGqlClient = useMemo(() => {
     const headers = authToken
@@ -307,7 +310,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const confirmEmail = useCallback(
     async (userSettings: ConfirmEmailData): Promise<ConfirmEmailResponse & { isError: boolean }> => {
       try {
-        setIsUpdatingUser(true);
+        setIsConfirmingEmail(true);
 
         const emailConfirmed = await confirmEmailInAtlas(atlasGqlClient, userSettings);
 
@@ -316,6 +319,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         // eslint-disable-next-line
         console.log("Confirm Email Error : ", err?.message);
         return { isConfirmed: false, isTokenExpired: false, isTokenInvalid: false, isError: true };
+      } finally {
+        setIsConfirmingEmail(false);
       }
     },
     [atlasGqlClient]
@@ -339,6 +344,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           uploadFile,
           confirmEmail,
           roleRestrictions,
+          isConfirmingEmail,
         }),
         [
           isVerified,
@@ -355,6 +361,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           uploadFile,
           confirmEmail,
           roleRestrictions,
+          isConfirmingEmail,
         ]
       )}
     >

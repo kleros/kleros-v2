@@ -1,23 +1,39 @@
 import { expect } from "chai";
 import { deployments, ethers } from "hardhat";
-import { KlerosCore, DisputeKitClassic } from "../../typechain-types";
+import {
+  KlerosCore,
+  DisputeKitClassic,
+  DisputeKitShutter,
+  DisputeKitGated,
+  DisputeKitGatedShutter,
+} from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
   let deployer: HardhatEthersSigner;
-  let core: KlerosCore, disputeKit: DisputeKitClassic;
+  let core: KlerosCore,
+    disputeKit: DisputeKitClassic,
+    disputeKitShutter: DisputeKitShutter,
+    disputeKitGated: DisputeKitGated,
+    disputeKitGatedShutter: DisputeKitGatedShutter;
 
   before("Deploying", async () => {
     [deployer] = await ethers.getSigners();
-    [core, disputeKit] = await deployContracts();
+    [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter] = await deployContracts();
   });
 
   it("Kleros Core initialization", async () => {
     const events = await core.queryFilter(core.filters.DisputeKitCreated());
-    expect(events.length).to.equal(1);
+    expect(events.length).to.equal(4);
     expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._disputeKitAddress).to.equal(disputeKit.target);
+    expect(events[1].args._disputeKitID).to.equal(2);
+    expect(events[1].args._disputeKitAddress).to.equal(disputeKitShutter.target);
+    expect(events[2].args._disputeKitID).to.equal(3);
+    expect(events[2].args._disputeKitAddress).to.equal(disputeKitGated.target);
+    expect(events[3].args._disputeKitID).to.equal(4);
+    expect(events[3].args._disputeKitAddress).to.equal(disputeKitGatedShutter.target);
 
     // Reminder: the Forking court will be added which will break these expectations.
     const events2 = await core.queryFilter(core.filters.CourtCreated());
@@ -33,16 +49,33 @@ describe("DisputeKitClassic", async () => {
     expect(events2[0].args._supportedDisputeKits).to.deep.equal([1]);
 
     const events3 = await core.queryFilter(core.filters.DisputeKitEnabled());
-    expect(events3.length).to.equal(1);
-    expect(events3[0].args._courtID).to.equal(1);
-    expect(events3[0].args._disputeKitID).to.equal(1);
-    expect(events3[0].args._enable).to.equal(true);
+    expect(events3.length).to.equal(4);
+
+    const classicDisputeKit = events3[0].args;
+    expect(classicDisputeKit._courtID).to.equal(1);
+    expect(classicDisputeKit._disputeKitID).to.equal(1);
+    expect(classicDisputeKit._enable).to.equal(true);
+
+    const shutterDisputeKit = events3[1].args;
+    expect(shutterDisputeKit._courtID).to.equal(1);
+    expect(shutterDisputeKit._disputeKitID).to.equal(2);
+    expect(shutterDisputeKit._enable).to.equal(true);
+
+    const gatedDisputeKit = events3[2].args;
+    expect(gatedDisputeKit._courtID).to.equal(1);
+    expect(gatedDisputeKit._disputeKitID).to.equal(3);
+    expect(gatedDisputeKit._enable).to.equal(true);
+
+    const gatedShutterDisputeKit = events3[3].args;
+    expect(gatedShutterDisputeKit._courtID).to.equal(1);
+    expect(gatedShutterDisputeKit._disputeKitID).to.equal(4);
+    expect(gatedShutterDisputeKit._enable).to.equal(true);
   });
 
   it("Should create a dispute", async () => {
-    await expect(disputeKit.connect(deployer).createDispute(0, 0, ethers.toBeHex(3), "0x00")).to.be.revertedWith(
-      "Access not allowed: KlerosCore only."
-    );
+    await expect(
+      disputeKit.connect(deployer).createDispute(0, 0, ethers.toBeHex(3), "0x00")
+    ).to.be.revertedWithCustomError(disputeKit, "KlerosCoreOnly");
 
     const tx = await core
       .connect(deployer)
@@ -60,12 +93,17 @@ describe("DisputeKitClassic", async () => {
   });
 });
 
-async function deployContracts(): Promise<[KlerosCore, DisputeKitClassic]> {
+async function deployContracts(): Promise<
+  [KlerosCore, DisputeKitClassic, DisputeKitShutter, DisputeKitGated, DisputeKitGatedShutter]
+> {
   await deployments.fixture(["Arbitration", "VeaMock"], {
     fallbackToGlobal: true,
     keepExistingDeployments: false,
   });
   const disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  const disputeKitShutter = (await ethers.getContract("DisputeKitShutter")) as DisputeKitShutter;
+  const disputeKitGated = (await ethers.getContract("DisputeKitGated")) as DisputeKitGated;
+  const disputeKitGatedShutter = (await ethers.getContract("DisputeKitGatedShutter")) as DisputeKitGatedShutter;
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-  return [core, disputeKit];
+  return [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter];
 }

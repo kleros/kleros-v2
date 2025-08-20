@@ -42,3 +42,10 @@ export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
 
 export const spamEvidencesIds: string[] = (import.meta.env.REACT_APP_SPAM_EVIDENCES_IDS ?? "").split(",");
+
+export enum DisputeKits {
+  Classic = "Classic",
+  Shutter = "Shutter",
+  Gated = "Token Gated",
+  GatedShutter = "Token Gated Shutter",
+}

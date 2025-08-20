@@ -1,0 +1,120 @@
+// KlerosCore.json : for _courtID type change in CourtCreated
+  {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_courtID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint96",
+          "name": "_parent",
+          "type": "uint96"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "_hiddenVotes",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_minStake",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_alpha",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_feeForJuror",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_jurorsForCourtJump",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[4]",
+          "name": "_timesPerPeriod",
+          "type": "uint256[4]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[]",
+          "name": "_supportedDisputeKits",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "CourtCreated",
+      "type": "event"
+    },
+
+
+
+// Goes in SortitionModule.json :  new param in StakeSet
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_courtID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "StakeSet",
+      "type": "event"
+    },
+
+
+
+// NOT NEEDED ANYMORE: Goes in SortitionModule.json:  rename of StakeDelayedAlreadyTransferred => StakeDelayedAlreadyTransferredDeposited
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_courtID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "StakeDelayedAlreadyTransferred",
+      "type": "event"
+    },

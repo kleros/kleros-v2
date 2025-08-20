@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { useLocation } from "react-router-dom";
+import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
@@ -29,6 +30,12 @@ const StyledLabel = styled.label`
   font-size: ${responsiveSize(14, 16)};
 `;
 
+const LinksContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+`;
+
 interface ICasesDisplay extends ICasesGrid {
   numberDisputes?: number;
   numberClosedDisputes?: number;
@@ -48,15 +55,25 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   totalPages,
 }) => {
   const location = useLocation();
+  const { isConnected } = useAccount();
+  const profileLink = isConnected ? `/profile/1/desc/all` : null;
+
   return (
     <div {...{ className }}>
       <TitleContainer className="title">
         <StyledTitle>{title}</StyledTitle>
-        {location.pathname.startsWith("/cases/display/1/desc/all") ? (
-          <StyledArrowLink to={"/resolver"}>
-            Create a case <ArrowIcon />
-          </StyledArrowLink>
-        ) : null}
+        <LinksContainer>
+          {location.pathname.startsWith("/cases/display") && profileLink ? (
+            <StyledArrowLink to={profileLink}>
+              My Cases <ArrowIcon />
+            </StyledArrowLink>
+          ) : null}
+          {location.pathname.startsWith("/cases/display") ? (
+            <StyledArrowLink to={"/resolver"}>
+              Create a case <ArrowIcon />
+            </StyledArrowLink>
+          ) : null}
+        </LinksContainer>
       </TitleContainer>
       <Search />
       <StatsAndFilters totalDisputes={numberDisputes || 0} closedDisputes={numberClosedDisputes || 0} />
