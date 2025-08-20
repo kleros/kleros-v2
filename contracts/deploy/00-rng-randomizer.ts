@@ -2,10 +2,10 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HomeChains, isSkipped } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
+import { RNGWithFallback } from "../typechain-types";
 
 const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments, getNamedAccounts, getChainId } = hre;
-  const { deploy } = deployments;
+  const { getNamedAccounts, getChainId, ethers } = hre;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -20,11 +20,35 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  await getContractOrDeploy(hre, "RandomizerRNG", {
+  const rng = await getContractOrDeploy(hre, "RandomizerRNG", {
     from: deployer,
-    args: [deployer, deployer, randomizerOracle.target], // The consumer is configured as the SortitionModule later
+    args: [
+      deployer,
+      deployer, // The consumer is configured as the RNGWithFallback later
+      randomizerOracle.target,
+    ],
     log: true,
   });
+
+  const fallbackTimeoutSeconds = 30 * 60; // 30 minutes
+  await getContractOrDeploy(hre, "RNGWithFallback", {
+    from: deployer,
+    args: [
+      deployer,
+      deployer, // The consumer is configured as the SortitionModule later
+      fallbackTimeoutSeconds,
+      rng.target,
+    ],
+    log: true,
+  });
+
+  // rng.changeConsumer() only if necessary
+  const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
+  const rngConsumer = await rng.consumer();
+  if (rngConsumer !== rngWithFallback.target) {
+    console.log(`rng.changeConsumer(${rngWithFallback.target})`);
+    await rng.changeConsumer(rngWithFallback.target);
+  }
 };
 
 deployRng.tags = ["RandomizerRNG"];

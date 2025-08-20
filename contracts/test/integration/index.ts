@@ -9,8 +9,6 @@ import {
   HomeGateway,
   VeaMock,
   DisputeKitClassic,
-  RandomizerRNG,
-  RandomizerMock,
   SortitionModule,
   ChainlinkRNG,
   ChainlinkVRFCoordinatorV2Mock,
@@ -161,7 +159,6 @@ describe("Integration tests", async () => {
     console.log("KC phase: %d", await sortitionModule.phase());
 
     await sortitionModule.passPhase(); // Staking -> Generating
-    await mineBlocks(ethers.getNumber(await sortitionModule.rngLookahead())); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
     await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
@@ -206,6 +203,6 @@ describe("Integration tests", async () => {
   };
 });
 
-const logJurorBalance = async (result) => {
+const logJurorBalance = async (result: { totalStaked: bigint; totalLocked: bigint }) => {
   console.log("staked=%s, locked=%s", ethers.formatUnits(result.totalStaked), ethers.formatUnits(result.totalLocked));
 };

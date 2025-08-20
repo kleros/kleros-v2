@@ -9,6 +9,11 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 ### Changed
 
 - **Breaking:** Replace `require()` with `revert()` and custom errors outside KlerosCore for consistency and smaller bytecode ([#2084](https://github.com/kleros/kleros-v2/issues/2084))
+- **Breaking:** Rename the interface from `RNG` to `IRNG` ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- **Breaking:** Remove the `_block` parameter from `IRNG.requestRandomness()` and `IRNG.receiveRandomness()`, not needed for the primary VRF-based RNG ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- Make the primary VRF-based RNG fall back to `BlockhashRNG` if the VRF request is not fulfilled within a timeout ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- Authenticate the calls to the RNGs to prevent 3rd parties from depleting the Chainlink VRF subscription funds ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- Use `block.timestamp` rather than `block.number` for `BlockhashRNG` for better reliability on Arbitrum as block production is sporadic depending on network conditions. ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Set the Hardhat Solidity version to v0.8.30 and enable the IR pipeline ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Set the Foundry Solidity version to v0.8.30 and enable the IR pipeline ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
 - Widen the allowed solc version to any v0.8.x for the interfaces only ([#2083](https://github.com/kleros/kleros-v2/issues/2083))
