@@ -10,9 +10,9 @@ import HeaderRewards from "../Header/Rewards";
 
 import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
-import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
+import JurorLink from "components/JurorLink";
 import Score from "./Score";
 
 const Container = styled.div`
@@ -107,7 +107,7 @@ const MobileCard: React.FC<IMobileCard> = ({
       <TopSide>
         <RankAndTitle>
           {rank ? <Rank {...{ rank }} /> : null}
-          <JurorTitle {...{ address }} />
+          <JurorLink {...{ address }} />
         </RankAndTitle>
         <JurorLevel coherenceScore={Number(coherenceScore)} />
       </TopSide>

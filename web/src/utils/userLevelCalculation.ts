@@ -1,4 +1,4 @@
-interface ILevelCriteria {
+export interface ILevelCriteria {
   level: number;
   title: string;
   minCoherenceScore: number;

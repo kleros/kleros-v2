@@ -58,13 +58,14 @@ const StyledLabel = styled.label<{ frontColor: string; withDot?: boolean; isCard
         `
       : null}
 `;
+
 export interface IPeriodBanner {
   id: number;
   period: Periods;
   isCard?: boolean;
 }
 
-const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
+export const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
   switch (period) {
     case Periods.appeal:
       return [theme.tint, theme.tintMedium];

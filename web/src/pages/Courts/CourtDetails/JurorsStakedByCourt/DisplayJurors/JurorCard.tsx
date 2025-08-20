@@ -3,7 +3,8 @@ import styled from "styled-components";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 
-import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
+import JurorLink from "components/JurorLink";
+
 import Stake from "./Stake";
 
 const Container = styled.div`
@@ -30,7 +31,7 @@ interface IJurorCard {
 const JurorCard: React.FC<IJurorCard> = ({ address, effectiveStake }) => {
   return (
     <Container>
-      <JurorTitle {...{ address }} smallDisplay />
+      <JurorLink {...{ address }} smallDisplay />
       <Stake {...{ effectiveStake }} />
     </Container>
   );
