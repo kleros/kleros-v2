@@ -37,12 +37,12 @@ contract RandomizerRNG is IRNG {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
     modifier onlyByConsumer() {
-        require(consumer == msg.sender, "Consumer only");
+        if (consumer != msg.sender) revert ConsumerOnly();
         _;
     }
 
@@ -110,7 +110,7 @@ contract RandomizerRNG is IRNG {
     /// @param _id The ID of the request.
     /// @param _value The random value answering the request.
     function randomizerCallback(uint256 _id, bytes32 _value) external {
-        require(msg.sender == address(randomizer), "Randomizer only");
+        if (msg.sender != address(randomizer)) revert RandomizerOnly();
         randomNumbers[_id] = uint256(_value);
         emit RequestFulfilled(_id, uint256(_value));
     }
@@ -124,4 +124,10 @@ contract RandomizerRNG is IRNG {
     function receiveRandomness() external view override returns (uint256 randomNumber) {
         randomNumber = randomNumbers[lastRequestId];
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error RandomizerOnly();
 }

@@ -42,12 +42,12 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
     modifier onlyByConsumer() {
-        require(consumer == msg.sender, "Consumer only");
+        if (consumer != msg.sender) revert ConsumerOnly();
         _;
     }
 

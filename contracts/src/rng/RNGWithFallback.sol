@@ -32,7 +32,7 @@ contract RNGWithFallback is IRNG {
     /// @param _fallbackTimeoutSeconds Time in seconds to wait before falling back to next RNG
     /// @param _rng The RNG address (e.g. Chainlink)
     constructor(address _governor, address _consumer, uint256 _fallbackTimeoutSeconds, IRNG _rng) {
-        require(address(_rng) != address(0), "Invalid default RNG");
+        if (address(_rng) == address(0)) revert InvalidDefaultRNG();
 
         governor = _governor;
         consumer = _consumer;
@@ -45,12 +45,12 @@ contract RNGWithFallback is IRNG {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(msg.sender == governor, "Governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
     modifier onlyByConsumer() {
-        require(msg.sender == consumer, "Consumer only");
+        if (consumer != msg.sender) revert ConsumerOnly();
         _;
     }
 
@@ -100,4 +100,10 @@ contract RNGWithFallback is IRNG {
         }
         return randomNumber;
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error InvalidDefaultRNG();
 }

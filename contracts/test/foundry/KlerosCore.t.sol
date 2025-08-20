@@ -12,7 +12,7 @@ import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModul
 import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
-import {RNGWithFallback} from "../../src/rng/RNGWithFallback.sol";
+import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
 import {RNGMock} from "../../src/test/RNGMock.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import {TestERC20} from "../../src/token/TestERC20.sol";
@@ -3067,15 +3067,15 @@ contract KlerosCoreTest is Test {
         RNGMock rngMock = new RNGMock();
         rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
 
-        vm.expectRevert(bytes("Consumer only"));
+        vm.expectRevert(IRNG.ConsumerOnly.selector);
         vm.prank(governor);
         rngFallback.requestRandomness();
 
-        vm.expectRevert(bytes("Consumer only"));
+        vm.expectRevert(IRNG.ConsumerOnly.selector);
         vm.prank(governor);
         rngFallback.receiveRandomness();
 
-        vm.expectRevert(bytes("Governor only"));
+        vm.expectRevert(IRNG.GovernorOnly.selector);
         vm.prank(other);
         rngFallback.changeGovernor(other);
         vm.prank(governor);
@@ -3086,14 +3086,14 @@ contract KlerosCoreTest is Test {
         vm.prank(other);
         rngFallback.changeGovernor(governor);
 
-        vm.expectRevert(bytes("Governor only"));
+        vm.expectRevert(IRNG.GovernorOnly.selector);
         vm.prank(other);
         rngFallback.changeConsumer(other);
         vm.prank(governor);
         rngFallback.changeConsumer(other);
         assertEq(rngFallback.consumer(), other, "Wrong consumer");
 
-        vm.expectRevert(bytes("Governor only"));
+        vm.expectRevert(IRNG.GovernorOnly.selector);
         vm.prank(other);
         rngFallback.changeFallbackTimeout(5);
 
