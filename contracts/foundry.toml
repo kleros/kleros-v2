@@ -1,9 +1,10 @@
 
 [profile.default]
 solc = "0.8.30"
+evm_version = "cancun"
 via_ir = true
 optimizer = true
-optimizer_runs = 500
+optimizer_runs = 10000
 optimizer_details = { yulDetails = { stackAllocation = true } }
 additional_compiler_profiles = [
     { name = "tests", via_ir = false }
