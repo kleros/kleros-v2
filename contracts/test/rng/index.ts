@@ -92,8 +92,8 @@ describe("ChainlinkRNG", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
-    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
+    rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
 
     await rng.changeConsumer(deployer);
   });
@@ -155,8 +155,8 @@ describe("RandomizerRNG", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-    randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
+    rng = await ethers.getContract<RandomizerRNG>("RandomizerRNG");
+    randomizer = await ethers.getContract<RandomizerMock>("RandomizerOracle");
 
     await rng.changeConsumer(deployer);
   });

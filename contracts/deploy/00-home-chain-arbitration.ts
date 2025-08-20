@@ -93,7 +93,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     await rngWithFallback.changeConsumer(sortitionModule.address);
   }
 
-  const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
+  const core = await hre.ethers.getContract<KlerosCore>("KlerosCore");
   try {
     await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);
     await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);

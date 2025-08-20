@@ -47,11 +47,11 @@ describe("DisputeKitGated", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    disputeKitGated = (await ethers.getContract("DisputeKitGated")) as DisputeKitGated;
-    pnk = (await ethers.getContract("PNK")) as PNK;
-    dai = (await ethers.getContract("DAI")) as TestERC20;
-    core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+    disputeKitGated = await ethers.getContract<DisputeKitGated>("DisputeKitGated");
+    pnk = await ethers.getContract<PNK>("PNK");
+    dai = await ethers.getContract<TestERC20>("DAI");
+    core = await ethers.getContract<KlerosCore>("KlerosCore");
+    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
 
     // Make the tests more deterministic with this dummy RNG
     await deployments.deploy("IncrementalNG", {
@@ -59,16 +59,16 @@ describe("DisputeKitGated", async () => {
       args: [RANDOM],
       log: true,
     });
-    rng = (await ethers.getContract("IncrementalNG")) as IncrementalNG;
+    rng = await ethers.getContract<IncrementalNG>("IncrementalNG");
 
     await sortitionModule.changeRandomNumberGenerator(rng.target).then((tx) => tx.wait());
 
     const hre = require("hardhat");
     await deployERC721(hre, deployer, "TestERC721", "Nft721");
-    nft721 = (await ethers.getContract("Nft721")) as TestERC721;
+    nft721 = await ethers.getContract<TestERC721>("Nft721");
 
     await deployERC1155(hre, deployer, "TestERC1155", "Nft1155");
-    nft1155 = (await ethers.getContract("Nft1155")) as TestERC1155;
+    nft1155 = await ethers.getContract<TestERC1155>("Nft1155");
     await nft1155.mint(deployer, TOKEN_ID, 1, "0x00");
   });
 

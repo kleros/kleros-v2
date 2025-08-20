@@ -85,7 +85,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // disputeKit.changeCore() only if necessary
-  const disputeKitContract = (await hre.ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
+  const disputeKitContract = await hre.ethers.getContract<DisputeKitClassic>("DisputeKitClassicNeo");
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
@@ -99,7 +99,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     await rngWithFallback.changeConsumer(sortitionModule.address);
   }
 
-  const core = (await hre.ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
+  const core = await hre.ethers.getContract<KlerosCoreNeo>("KlerosCoreNeo");
   try {
     await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
   } catch (e) {

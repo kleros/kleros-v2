@@ -62,12 +62,12 @@ describe("Draw Benchmark", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-    pnk = (await ethers.getContract("PNK")) as PNK;
-    core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
-    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+    disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+    pnk = await ethers.getContract<PNK>("PNK");
+    core = await ethers.getContract<KlerosCore>("KlerosCore");
+    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
+    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
 
     parentCourtMinStake = await core.courts(Courts.GENERAL).then((court) => court.minStake);
 
@@ -79,7 +79,7 @@ describe("Draw Benchmark", async () => {
       args: [RANDOM],
       log: true,
     });
-    rng = (await ethers.getContract("IncrementalNG")) as IncrementalNG;
+    rng = await ethers.getContract<IncrementalNG>("IncrementalNG");
 
     await sortitionModule.changeRandomNumberGenerator(rng.target).then((tx) => tx.wait());
 

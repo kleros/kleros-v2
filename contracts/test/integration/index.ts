@@ -56,16 +56,16 @@ describe("Integration tests", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
-    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
-    disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-    pnk = (await ethers.getContract("PNK")) as PNK;
-    core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    vea = (await ethers.getContract("VeaMock")) as VeaMock;
-    foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGateway;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
-    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+    rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
+    disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+    pnk = await ethers.getContract<PNK>("PNK");
+    core = await ethers.getContract<KlerosCore>("KlerosCore");
+    vea = await ethers.getContract<VeaMock>("VeaMock");
+    foreignGateway = await ethers.getContract<ForeignGateway>("ForeignGatewayOnEthereum");
+    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
+    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
   });
 
   it("Resolves a dispute on the home chain with no appeal", async () => {

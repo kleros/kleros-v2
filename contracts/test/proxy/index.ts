@@ -130,9 +130,9 @@ describe("Upgradability", async () => {
     });
 
     it("Initializes v1", async () => {
-      proxy = (await ethers.getContract("UpgradedByRewrite")) as UpgradedByRewriteV1;
+      proxy = await ethers.getContract<UpgradedByRewriteV1>("UpgradedByRewrite");
 
-      implementation = (await ethers.getContract("UpgradedByRewrite_Implementation")) as UpgradedByRewriteV1;
+      implementation = await ethers.getContract<UpgradedByRewriteV1>("UpgradedByRewrite_Implementation");
 
       expect(await proxy.governor()).to.equal(deployer.address);
 
@@ -156,7 +156,7 @@ describe("Upgradability", async () => {
       if (!proxyDeployment.implementation) {
         throw new Error("No implementation address");
       }
-      proxy = (await ethers.getContract("UpgradedByRewrite")) as UpgradedByRewriteV2;
+      proxy = await ethers.getContract<UpgradedByRewriteV2>("UpgradedByRewrite");
       expect(await proxy.governor()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(3);
@@ -184,9 +184,9 @@ describe("Upgradability", async () => {
     });
 
     it("Initializes v1", async () => {
-      proxy = (await ethers.getContract("UpgradedByInheritanceV1")) as UpgradedByInheritanceV1;
+      proxy = await ethers.getContract<UpgradedByInheritanceV1>("UpgradedByInheritanceV1");
 
-      implementation = (await ethers.getContract("UpgradedByInheritanceV1_Implementation")) as UpgradedByInheritanceV1;
+      implementation = await ethers.getContract<UpgradedByInheritanceV1>("UpgradedByInheritanceV1_Implementation");
 
       expect(await proxy.governor()).to.equal(deployer.address);
 
@@ -209,7 +209,7 @@ describe("Upgradability", async () => {
         log: true,
       });
 
-      proxy = (await ethers.getContract("UpgradedByInheritanceV1")) as UpgradedByInheritanceV2;
+      proxy = await ethers.getContract<UpgradedByInheritanceV2>("UpgradedByInheritanceV1");
 
       expect(await proxy.governor()).to.equal(deployer.address);
 
