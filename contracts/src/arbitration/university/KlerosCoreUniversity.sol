@@ -840,12 +840,13 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         // Release the rest of the PNKs of the juror for this round.
         sortitionModule.unlockStake(account, pnkLocked);
 
-        // Transfer the rewards
+        // Compute the rewards
         uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * pnkCoherence) / ONE_BASIS_POINT;
         round.sumPnkRewardPaid += pnkReward;
         uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * feeCoherence) / ONE_BASIS_POINT;
         round.sumFeeRewardPaid += feeReward;
-        pinakion.safeTransfer(account, pnkReward);
+
+        // Transfer the fee reward
         if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
             payable(account).send(feeReward);
@@ -853,6 +854,12 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);
         }
+
+        // Stake the PNK reward if possible, by-passes delayed stakes and other checks usually done by validateStake()
+        if (!sortitionModule.setStakeReward(account, dispute.courtID, pnkReward)) {
+            pinakion.safeTransfer(account, pnkReward);
+        }
+
         emit TokenAndETHShift(
             account,
             _params.disputeID,

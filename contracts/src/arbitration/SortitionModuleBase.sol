@@ -306,6 +306,30 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         _setStake(_account, _courtID, _pnkDeposit, _pnkWithdrawal, _newStake);
     }
 
+    /// @dev Update the state of the stakes with a PNK reward deposit, called by KC during rewards execution.
+    /// `O(n + p * log_k(j))` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _reward The amount of PNK to be deposited as a reward.
+    function setStakeReward(
+        address _account,
+        uint96 _courtID,
+        uint256 _reward
+    ) external override onlyByCore returns (bool success) {
+        if (_reward == 0) return true; // No reward to add.
+
+        uint256 currentStake = stakeOf(_account, _courtID);
+        if (currentStake == 0) return false; // Juror has been unstaked, don't increase their stake.
+
+        uint256 newStake = currentStake + _reward;
+        _setStake(_account, _courtID, _reward, 0, newStake);
+        return true;
+    }
+
     function _setStake(
         address _account,
         uint96 _courtID,

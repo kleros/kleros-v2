@@ -29,6 +29,8 @@ interface ISortitionModule {
         uint256 _newStake
     ) external;
 
+    function setStakeReward(address _account, uint96 _courtID, uint256 _reward) external returns (bool success);
+
     function setJurorInactive(address _account) external;
 
     function lockStake(address _account, uint256 _relativeAmount) external;
