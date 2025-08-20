@@ -55,7 +55,7 @@ interface IJurorLink {
   smallDisplay?: boolean;
 }
 
-const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true }) => {
+const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, smallDisplay }) => {
   const { isConnected, address: connectedAddress } = useAccount();
   const profileLink =
     isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
@@ -69,11 +69,12 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true }) => 
     <Container>
       <IdenticonOrAvatar address={address} />
       <ReStyledArrowLink
+        {...{ smallDisplay }}
         to={isInternalLink ? profileLink : addressExplorerLink}
         rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
         target={`${isInternalLink ? "" : "_blank"}`}
       >
-        <AddressOrName address={address} />
+        <AddressOrName {...{ address, smallDisplay }} />
         {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
       </ReStyledArrowLink>
     </Container>
