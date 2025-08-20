@@ -12,8 +12,14 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Set the Hardhat Solidity version to v0.8.30 and enable the IR pipeline ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Set the Foundry Solidity version to v0.8.30 and enable the IR pipeline ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
 - Widen the allowed solc version to any v0.8.x for the interfaces only ([#2083](https://github.com/kleros/kleros-v2/issues/2083))
+- Make `IDisputeKit.getDegreeOfCoherenceReward()` multi-dimensional so different calculations may be applied to PNK rewards, fee rewards and PNK penalties (future-proofing) ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
+- Consolidate the constant `ALPHA_DIVISOR` with `ONE_BASIS_POINTS` ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
 - Bump `hardhat` to v2.26.2 ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Bump `@kleros/vea-contracts` to v0.7.0 ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
+
+### Fixed
+
+- Do not pass to Voting period if all the commits are cast because it breaks the current Shutter auto-reveal process. ([#2085](https://github.com/kleros/kleros-v2/issues/2085))
 
 ## [0.12.0] - 2025-08-05
 
