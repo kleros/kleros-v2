@@ -100,10 +100,10 @@ async function deployContracts(): Promise<
     fallbackToGlobal: true,
     keepExistingDeployments: false,
   });
-  const disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-  const disputeKitShutter = (await ethers.getContract("DisputeKitShutter")) as DisputeKitShutter;
-  const disputeKitGated = (await ethers.getContract("DisputeKitGated")) as DisputeKitGated;
-  const disputeKitGatedShutter = (await ethers.getContract("DisputeKitGatedShutter")) as DisputeKitGatedShutter;
-  const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+  const disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+  const disputeKitShutter = await ethers.getContract<DisputeKitShutter>("DisputeKitShutter");
+  const disputeKitGated = await ethers.getContract<DisputeKitGated>("DisputeKitGated");
+  const disputeKitGatedShutter = await ethers.getContract<DisputeKitGatedShutter>("DisputeKitGatedShutter");
+  const core = await ethers.getContract<KlerosCore>("KlerosCore");
   return [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter];
 }

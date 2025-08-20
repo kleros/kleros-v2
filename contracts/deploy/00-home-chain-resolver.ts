@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HomeChains, isSkipped } from "./utils";
-import { deployUpgradable } from "./utils/deployUpgradable";
+import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
@@ -15,7 +15,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const klerosCore = await deployments.get("KlerosCore");
   const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
 
-  await deploy("DisputeResolver", {
+  await getContractOrDeploy(hre, "DisputeResolver", {
     from: deployer,
     args: [klerosCore.address, disputeTemplateRegistry.address],
     log: true,

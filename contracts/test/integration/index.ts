@@ -9,8 +9,6 @@ import {
   HomeGateway,
   VeaMock,
   DisputeKitClassic,
-  RandomizerRNG,
-  RandomizerMock,
   SortitionModule,
   ChainlinkRNG,
   ChainlinkVRFCoordinatorV2Mock,
@@ -58,16 +56,16 @@ describe("Integration tests", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
-    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
-    disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-    pnk = (await ethers.getContract("PNK")) as PNK;
-    core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    vea = (await ethers.getContract("VeaMock")) as VeaMock;
-    foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGateway;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
-    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+    rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
+    disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+    pnk = await ethers.getContract<PNK>("PNK");
+    core = await ethers.getContract<KlerosCore>("KlerosCore");
+    vea = await ethers.getContract<VeaMock>("VeaMock");
+    foreignGateway = await ethers.getContract<ForeignGateway>("ForeignGatewayOnEthereum");
+    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
+    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
   });
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
@@ -161,7 +159,6 @@ describe("Integration tests", async () => {
     console.log("KC phase: %d", await sortitionModule.phase());
 
     await sortitionModule.passPhase(); // Staking -> Generating
-    await mineBlocks(ethers.getNumber(await sortitionModule.rngLookahead())); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
     await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
@@ -206,6 +203,6 @@ describe("Integration tests", async () => {
   };
 });
 
-const logJurorBalance = async (result) => {
+const logJurorBalance = async (result: { totalStaked: bigint; totalLocked: bigint }) => {
   console.log("staked=%s, locked=%s", ethers.formatUnits(result.totalStaked), ethers.formatUnits(result.totalLocked));
 };
