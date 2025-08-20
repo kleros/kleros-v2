@@ -2312,10 +2312,33 @@ contract KlerosCoreTest is Test {
         core.unpause();
 
         assertEq(disputeKit.getCoherentCount(disputeID, 0), 2, "Wrong coherent count");
+
+        uint256 pnkCoherence;
+        uint256 feeCoherence;
         // dispute, round, voteID, feeForJuror (not used in classic DK), pnkPerJuror (not used in classic DK)
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 0, 0, 0), 0, "Wrong degree of coherence 0 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 1, 0, 0), 10000, "Wrong degree of coherence 1 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 2, 0, 0), 10000, "Wrong degree of coherence 2 vote ID");
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 0, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 0 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 0 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 1, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 1 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 1 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 2, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 2 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 2 vote ID");
+
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 0, 0, 0), 0, "Wrong penalty coherence 0 vote ID");
+        assertEq(
+            disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 1, 0, 0),
+            10000,
+            "Wrong penalty coherence 1 vote ID"
+        );
+        assertEq(
+            disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 2, 0, 0),
+            10000,
+            "Wrong penalty coherence 2 vote ID"
+        );
 
         vm.expectEmit(true, true, true, true);
         emit SortitionModuleBase.StakeLocked(staker1, 1000, true);
@@ -2399,10 +2422,25 @@ contract KlerosCoreTest is Test {
         core.passPeriod(disputeID); // Execution
 
         assertEq(disputeKit.getCoherentCount(disputeID, 0), 0, "Wrong coherent count");
+
+        uint256 pnkCoherence;
+        uint256 feeCoherence;
         // dispute, round, voteID, feeForJuror (not used in classic DK), pnkPerJuror (not used in classic DK)
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 0, 0, 0), 0, "Wrong degree of coherence 0 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 1, 0, 0), 0, "Wrong degree of coherence 1 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 2, 0, 0), 0, "Wrong degree of coherence 2 vote ID");
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 0, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 0 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 0 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 1, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 1 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 1 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 2, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 2 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 2 vote ID");
+
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 0, 0, 0), 0, "Wrong penalty coherence 0 vote ID");
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 1, 0, 0), 0, "Wrong penalty coherence 1 vote ID");
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 2, 0, 0), 0, "Wrong penalty coherence 2 vote ID");
 
         uint256 governorBalance = governor.balance;
         uint256 governorTokenBalance = pinakion.balanceOf(governor);
