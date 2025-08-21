@@ -4,6 +4,28 @@ All notable changes to this package will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [0.13.0] - 2025-08-07 (Not published yet)
+
+### Changed
+
+- **Breaking:** Replace `require()` with `revert()` and custom errors outside KlerosCore for consistency and smaller bytecode ([#2084](https://github.com/kleros/kleros-v2/issues/2084))
+- **Breaking:** Rename the interface from `RNG` to `IRNG` ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- **Breaking:** Remove the `_block` parameter from `IRNG.requestRandomness()` and `IRNG.receiveRandomness()`, not needed for the primary VRF-based RNG ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- Make the primary VRF-based RNG fall back to `BlockhashRNG` if the VRF request is not fulfilled within a timeout ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- Authenticate the calls to the RNGs to prevent 3rd parties from depleting the Chainlink VRF subscription funds ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- Use `block.timestamp` rather than `block.number` for `BlockhashRNG` for better reliability on Arbitrum as block production is sporadic depending on network conditions. ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- Set the Hardhat Solidity version to v0.8.30 and enable the IR pipeline ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
+- Set the Foundry Solidity version to v0.8.30 and enable the IR pipeline ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
+- Widen the allowed solc version to any v0.8.x for the interfaces only ([#2083](https://github.com/kleros/kleros-v2/issues/2083))
+- Make `IDisputeKit.getDegreeOfCoherenceReward()` multi-dimensional so different calculations may be applied to PNK rewards, fee rewards and PNK penalties (future-proofing) ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
+- Consolidate the constant `ALPHA_DIVISOR` with `ONE_BASIS_POINTS` ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
+- Bump `hardhat` to v2.26.2 ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
+- Bump `@kleros/vea-contracts` to v0.7.0 ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
+
+### Fixed
+
+- Do not pass to Voting period if all the commits are cast because it breaks the current Shutter auto-reveal process. ([#2085](https://github.com/kleros/kleros-v2/issues/2085))
+
 ## [0.12.0] - 2025-08-05
 
 ### Changed
@@ -117,6 +139,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [0.8.1] - 2025-04-10
 
+[0.13.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.13.0
 [0.12.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.12.0
 [0.11.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.11.0
 [0.10.0]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@0.10.0

@@ -56,13 +56,13 @@ describe("Staking", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    pnk = (await ethers.getContract("PNK")) as PNK;
-    core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
-    sortition = (await ethers.getContract("SortitionModuleNeo")) as SortitionModuleNeo;
-    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
-    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
-    resolver = (await ethers.getContract("DisputeResolverNeo")) as DisputeResolver;
-    nft = (await ethers.getContract("KlerosV2NeoEarlyUser")) as TestERC721;
+    pnk = await ethers.getContract<PNK>("PNK");
+    core = await ethers.getContract<KlerosCoreNeo>("KlerosCoreNeo");
+    sortition = await ethers.getContract<SortitionModuleNeo>("SortitionModuleNeo");
+    rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
+    resolver = await ethers.getContract<DisputeResolver>("DisputeResolverNeo");
+    nft = await ethers.getContract<TestERC721>("KlerosV2NeoEarlyUser");
 
     // Juror signer setup and funding
     const { firstWallet } = await getNamedAccounts();
@@ -105,10 +105,7 @@ describe("Staking", async () => {
   const drawFromGeneratingPhase = async () => {
     expect(await sortition.phase()).to.be.equal(1); // Generating
 
-    const lookahead = await sortition.rngLookahead();
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
+    await network.provider.send("evm_mine");
 
     await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
     await sortition.passPhase(); // Generating -> Drawing
@@ -263,7 +260,10 @@ describe("Staking", async () => {
           );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
           await drawAndReachStakingPhaseFromGenerating();
-          await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+          await expect(sortition.executeDelayedStakes(10)).to.revertedWithCustomError(
+            sortition,
+            "NoDelayedStakeToExecute"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
         });
 
@@ -327,7 +327,10 @@ describe("Staking", async () => {
           );
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
           await drawAndReachStakingPhaseFromGenerating();
-          await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+          await expect(sortition.executeDelayedStakes(10)).to.revertedWithCustomError(
+            sortition,
+            "NoDelayedStakeToExecute"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
         });
 

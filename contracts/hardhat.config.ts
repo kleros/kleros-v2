@@ -26,28 +26,12 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.28",
+        version: "0.8.30",
         settings: {
-          // viaIR: true,
+          viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 100,
-          },
-          outputSelection: {
-            "*": {
-              "*": ["storageLayout"],
-            },
-          },
-        },
-      },
-      {
-        // For Vea
-        version: "0.8.24",
-        settings: {
-          // viaIR: true,
-          optimizer: {
-            enabled: true,
-            runs: 100,
+            runs: 10000,
           },
           outputSelection: {
             "*": {

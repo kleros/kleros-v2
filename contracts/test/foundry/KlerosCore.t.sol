@@ -12,6 +12,8 @@ import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModul
 import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
+import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
+import {RNGMock} from "../../src/test/RNGMock.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
@@ -53,7 +55,7 @@ contract KlerosCoreTest is Test {
 
     uint256 minStakingTime;
     uint256 maxDrawingTime;
-    uint256 rngLookahead;
+    uint256 rngLookahead; // Time in seconds
 
     string templateData;
     string templateDataMappings;
@@ -63,7 +65,6 @@ contract KlerosCoreTest is Test {
         SortitionModuleMock smLogic = new SortitionModuleMock();
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         DisputeTemplateRegistry registryLogic = new DisputeTemplateRegistry();
-        rng = new BlockHashRNG();
         pinakion = new PNK();
         feeToken = new TestERC20("Test", "TST");
         wNative = new TestERC20("wrapped ETH", "wETH");
@@ -93,8 +94,10 @@ contract KlerosCoreTest is Test {
         sortitionExtraData = abi.encode(uint256(5));
         minStakingTime = 18;
         maxDrawingTime = 24;
-        rngLookahead = 20;
         hiddenVotes = false;
+
+        rngLookahead = 30;
+        rng = new BlockHashRNG(msg.sender, address(sortitionModule), rngLookahead);
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
@@ -109,17 +112,18 @@ contract KlerosCoreTest is Test {
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address,uint256)",
+            "initialize(address,address,uint256,uint256,address)",
             governor,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
-            rng,
-            rngLookahead
+            rng
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
         sortitionModule = SortitionModuleMock(address(proxySm));
+        vm.prank(governor);
+        rng.changeConsumer(address(sortitionModule));
 
         core = KlerosCoreMock(address(proxyCore));
         core.initialize(
@@ -239,11 +243,9 @@ contract KlerosCoreTest is Test {
         assertEq(sortitionModule.minStakingTime(), 18, "Wrong minStakingTime");
         assertEq(sortitionModule.maxDrawingTime(), 24, "Wrong maxDrawingTime");
         assertEq(sortitionModule.lastPhaseChange(), block.timestamp, "Wrong lastPhaseChange");
-        assertEq(sortitionModule.randomNumberRequestBlock(), 0, "randomNumberRequestBlock should be 0");
         assertEq(sortitionModule.disputesWithoutJurors(), 0, "disputesWithoutJurors should be 0");
         assertEq(address(sortitionModule.rng()), address(rng), "Wrong RNG address");
         assertEq(sortitionModule.randomNumber(), 0, "randomNumber should be 0");
-        assertEq(sortitionModule.rngLookahead(), 20, "Wrong rngLookahead");
         assertEq(sortitionModule.delayedStakeWriteIndex(), 0, "delayedStakeWriteIndex should be 0");
         assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
 
@@ -260,7 +262,6 @@ contract KlerosCoreTest is Test {
         KlerosCoreMock coreLogic = new KlerosCoreMock();
         SortitionModuleMock smLogic = new SortitionModuleMock();
         DisputeKitClassic dkLogic = new DisputeKitClassic();
-        rng = new BlockHashRNG();
         pinakion = new PNK();
 
         governor = msg.sender;
@@ -280,8 +281,10 @@ contract KlerosCoreTest is Test {
         sortitionExtraData = abi.encode(uint256(5));
         minStakingTime = 18;
         maxDrawingTime = 24;
-        rngLookahead = 20;
         hiddenVotes = false;
+
+        rngLookahead = 20;
+        rng = new BlockHashRNG(msg.sender, address(sortitionModule), rngLookahead);
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
@@ -296,17 +299,18 @@ contract KlerosCoreTest is Test {
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address,uint256)",
+            "initialize(address,address,uint256,uint256,address)",
             governor,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
-            rng,
-            rngLookahead
+            rng
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
         sortitionModule = SortitionModuleMock(address(proxySm));
+        vm.prank(governor);
+        rng.changeConsumer(address(sortitionModule));
 
         core = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
@@ -1015,7 +1019,7 @@ contract KlerosCoreTest is Test {
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
@@ -1062,7 +1066,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         assertEq(pinakion.balanceOf(address(core)), 2000, "Wrong token balance of the core");
@@ -1089,7 +1093,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         uint256 disputeID = 0;
@@ -1137,7 +1141,7 @@ contract KlerosCoreTest is Test {
         vm.prank(staker2);
         core.setStake(GENERAL_COURT, 10000);
 
-        vm.expectRevert(bytes("No delayed stake to execute."));
+        vm.expectRevert(SortitionModuleBase.NoDelayedStakeToExecute.selector);
         sortitionModule.executeDelayedStakes(5);
 
         // Set the stake and create a dispute to advance the phase
@@ -1145,12 +1149,12 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         uint256 disputeID = 0;
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
-        vm.expectRevert(bytes("Should be in Staking phase."));
+        vm.expectRevert(SortitionModuleBase.NotStakingPhase.selector);
         sortitionModule.executeDelayedStakes(5);
 
         // Create delayed stake
@@ -1270,14 +1274,14 @@ contract KlerosCoreTest is Test {
         assertEq(snapshotProxy.balanceOf(staker1), 12346, "Wrong stPNK balance");
 
         vm.prank(other);
-        vm.expectRevert(bytes("Access not allowed: Governor only."));
+        vm.expectRevert(KlerosCoreSnapshotProxy.GovernorOnly.selector);
         snapshotProxy.changeCore(IKlerosCore(other));
         vm.prank(governor);
         snapshotProxy.changeCore(IKlerosCore(other));
         assertEq(address(snapshotProxy.core()), other, "Wrong core in snapshot proxy after change");
 
         vm.prank(other);
-        vm.expectRevert(bytes("Access not allowed: Governor only."));
+        vm.expectRevert(KlerosCoreSnapshotProxy.GovernorOnly.selector);
         snapshotProxy.changeGovernor(other);
         vm.prank(governor);
         snapshotProxy.changeGovernor(other);
@@ -1433,7 +1437,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         vm.expectEmit(true, true, true, true);
@@ -1469,7 +1473,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS); // No one is staked so check that the empty addresses are not drawn.
@@ -1512,7 +1516,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action"); // Dispute uses general court by default
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         (uint96 courtID, , , , ) = core.disputes(disputeID);
@@ -1555,7 +1559,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1565,7 +1569,7 @@ contract KlerosCoreTest is Test {
         voteIDs[0] = 0;
         bytes32 commit;
         vm.prank(staker1);
-        vm.expectRevert(bytes("The dispute should be in Commit period."));
+        vm.expectRevert(DisputeKitClassicBase.NotCommitPeriod.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         vm.expectRevert(KlerosCoreBase.EvidenceNotPassedAndNotAppeal.selector);
@@ -1582,13 +1586,13 @@ contract KlerosCoreTest is Test {
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("Empty commit."));
+        vm.expectRevert(DisputeKitClassicBase.EmptyCommit.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         commit = keccak256(abi.encodePacked(YES, salt));
 
         vm.prank(other);
-        vm.expectRevert(bytes("The caller has to own the vote."));
+        vm.expectRevert(DisputeKitClassicBase.JurorHasToOwnTheVote.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         vm.prank(staker1);
@@ -1622,15 +1626,16 @@ contract KlerosCoreTest is Test {
         }
 
         // Check reveal in the next period
+        vm.warp(block.timestamp + timesPerPeriod[1]);
         core.passPeriod(disputeID);
 
         // Check the require with the wrong choice and then with the wrong salt
         vm.prank(staker1);
-        vm.expectRevert(bytes("The vote hash must match the commitment in courts with hidden votes."));
+        vm.expectRevert(DisputeKitClassicBase.HashDoesNotMatchHiddenVoteCommitment.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, salt, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("The vote hash must match the commitment in courts with hidden votes."));
+        vm.expectRevert(DisputeKitClassicBase.HashDoesNotMatchHiddenVoteCommitment.selector);
         disputeKit.castVote(disputeID, voteIDs, YES, salt - 1, "XYZ");
 
         vm.prank(staker1);
@@ -1665,7 +1670,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1690,7 +1695,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS - 1); // Draw less to check the require later
@@ -1698,7 +1703,7 @@ contract KlerosCoreTest is Test {
 
         uint256[] memory voteIDs = new uint256[](0);
         vm.prank(staker1);
-        vm.expectRevert(bytes("The dispute should be in Vote period."));
+        vm.expectRevert(DisputeKitClassicBase.NotVotePeriod.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ"); // Leave salt empty as not needed
 
         vm.expectRevert(KlerosCoreBase.DisputeStillDrawing.selector);
@@ -1716,17 +1721,17 @@ contract KlerosCoreTest is Test {
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("No voteID provided"));
+        vm.expectRevert(DisputeKitClassicBase.EmptyVoteIDs.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         voteIDs = new uint256[](1);
         voteIDs[0] = 0; // Split vote IDs to see how the winner changes
         vm.prank(staker1);
-        vm.expectRevert(bytes("Choice out of bounds"));
+        vm.expectRevert(DisputeKitClassicBase.ChoiceOutOfBounds.selector);
         disputeKit.castVote(disputeID, voteIDs, 2 + 1, 0, "XYZ");
 
         vm.prank(other);
-        vm.expectRevert(bytes("The juror has to own the vote."));
+        vm.expectRevert(DisputeKitClassicBase.JurorHasToOwnTheVote.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
@@ -1735,7 +1740,7 @@ contract KlerosCoreTest is Test {
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(bytes("Vote already cast."));
+        vm.expectRevert(DisputeKitClassicBase.VoteAlreadyCast.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         (
@@ -1801,7 +1806,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1828,7 +1833,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1869,7 +1874,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
@@ -1918,7 +1923,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -1970,7 +1975,7 @@ contract KlerosCoreTest is Test {
         core.appeal{value: 0.21 ether}(disputeID, 2, arbitratorExtraData);
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(bytes("There is no such ruling to fund."));
+        vm.expectRevert(DisputeKitClassicBase.ChoiceOutOfBounds.selector);
         disputeKit.fundAppeal(disputeID, 3);
 
         vm.prank(crowdfunder1);
@@ -1995,7 +2000,7 @@ contract KlerosCoreTest is Test {
         assertEq((disputeKit.getFundedChoices(disputeID))[0], 1, "Incorrect funded choice");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(bytes("Appeal fee is already paid."));
+        vm.expectRevert(DisputeKitClassicBase.AppealFeeIsAlreadyPaid.selector);
         disputeKit.fundAppeal(disputeID, 1);
     }
 
@@ -2008,7 +2013,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2024,7 +2029,7 @@ contract KlerosCoreTest is Test {
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(bytes("Appeal period is over.")); // Appeal period not started yet
+        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOver.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1);
         core.passPeriod(disputeID);
 
@@ -2032,14 +2037,14 @@ contract KlerosCoreTest is Test {
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + ((end - start) / 2 + 1));
-        vm.expectRevert(bytes("Appeal period is over for loser"));
+        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOverForLoser.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1); // Losing choice
 
         disputeKit.fundAppeal(disputeID, 2); // Winning choice funding should not revert yet
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + (end - start) / 2); // Warp one more to cover the whole period
-        vm.expectRevert(bytes("Appeal period is over."));
+        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOver.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 2);
     }
 
@@ -2052,7 +2057,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2153,7 +2158,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
@@ -2210,7 +2215,7 @@ contract KlerosCoreTest is Test {
 
         // Check jump modifier
         vm.prank(address(core));
-        vm.expectRevert(bytes("Dispute jumped to a parent DK!"));
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
         newDisputeKit.draw(disputeID, 1);
 
         // And check that draw in the new round works
@@ -2231,7 +2236,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2265,7 +2270,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         // Split the stakers' votes. The first staker will get VoteID 0 and the second will take the rest.
@@ -2277,7 +2282,7 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 20000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, 2); // Assign leftover votes to staker2
@@ -2311,10 +2316,33 @@ contract KlerosCoreTest is Test {
         core.unpause();
 
         assertEq(disputeKit.getCoherentCount(disputeID, 0), 2, "Wrong coherent count");
+
+        uint256 pnkCoherence;
+        uint256 feeCoherence;
         // dispute, round, voteID, feeForJuror (not used in classic DK), pnkPerJuror (not used in classic DK)
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 0, 0, 0), 0, "Wrong degree of coherence 0 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 1, 0, 0), 10000, "Wrong degree of coherence 1 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 2, 0, 0), 10000, "Wrong degree of coherence 2 vote ID");
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 0, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 0 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 0 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 1, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 1 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 1 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 2, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 2 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 2 vote ID");
+
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 0, 0, 0), 0, "Wrong penalty coherence 0 vote ID");
+        assertEq(
+            disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 1, 0, 0),
+            10000,
+            "Wrong penalty coherence 1 vote ID"
+        );
+        assertEq(
+            disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 2, 0, 0),
+            10000,
+            "Wrong penalty coherence 2 vote ID"
+        );
 
         vm.expectEmit(true, true, true, true);
         emit SortitionModuleBase.StakeLocked(staker1, 1000, true);
@@ -2383,7 +2411,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2398,10 +2426,25 @@ contract KlerosCoreTest is Test {
         core.passPeriod(disputeID); // Execution
 
         assertEq(disputeKit.getCoherentCount(disputeID, 0), 0, "Wrong coherent count");
+
+        uint256 pnkCoherence;
+        uint256 feeCoherence;
         // dispute, round, voteID, feeForJuror (not used in classic DK), pnkPerJuror (not used in classic DK)
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 0, 0, 0), 0, "Wrong degree of coherence 0 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 1, 0, 0), 0, "Wrong degree of coherence 1 vote ID");
-        assertEq(disputeKit.getDegreeOfCoherence(disputeID, 0, 2, 0, 0), 0, "Wrong degree of coherence 2 vote ID");
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 0, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 0 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 0 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 1, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 1 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 1 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 2, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 2 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 2 vote ID");
+
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 0, 0, 0), 0, "Wrong penalty coherence 0 vote ID");
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 1, 0, 0), 0, "Wrong penalty coherence 1 vote ID");
+        assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 2, 0, 0), 0, "Wrong penalty coherence 2 vote ID");
 
         uint256 governorBalance = governor.balance;
         uint256 governorTokenBalance = pinakion.balanceOf(governor);
@@ -2458,7 +2501,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2504,7 +2547,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2559,7 +2602,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2594,7 +2637,7 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
 
-        vm.expectRevert(bytes("Not eligible for withdrawal."));
+        vm.expectRevert(SortitionModuleBase.NotEligibleForWithdrawal.selector);
         sortitionModule.withdrawLeftoverPNK(staker1);
 
         vm.expectEmit(true, true, true, true);
@@ -2649,7 +2692,7 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 20000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2703,7 +2746,7 @@ contract KlerosCoreTest is Test {
         core.setStake(GENERAL_COURT, 20000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2742,7 +2785,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2796,7 +2839,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2839,7 +2882,7 @@ contract KlerosCoreTest is Test {
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -2863,14 +2906,14 @@ contract KlerosCoreTest is Test {
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
-        vm.expectRevert(bytes("Dispute should be resolved."));
+        vm.expectRevert(DisputeKitClassicBase.DisputeNotResolved.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 0, 1);
 
         core.executeRuling(disputeID);
 
         vm.prank(governor);
         core.pause();
-        vm.expectRevert(bytes("Core is paused"));
+        vm.expectRevert(DisputeKitClassicBase.CoreIsPaused.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 0, 1);
         vm.prank(governor);
         core.unpause();
@@ -2938,7 +2981,7 @@ contract KlerosCoreTest is Test {
 
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
+        vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
         KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
@@ -2969,7 +3012,7 @@ contract KlerosCoreTest is Test {
 
         // Deliberately cast votes using the old DK to see if the exception will be caught.
         vm.prank(staker1);
-        vm.expectRevert(bytes("Not active for core dispute ID"));
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         // And check the new DK.
@@ -2989,5 +3032,114 @@ contract KlerosCoreTest is Test {
         assertEq(totalVoted, 3, "totalVoted should be 3");
         assertEq(totalCommited, 0, "totalCommited should be 0");
         assertEq(choiceCount, 3, "choiceCount should be 3");
+    }
+
+    function test_RNGFallback() public {
+        RNGWithFallback rngFallback;
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
+        assertEq(rngFallback.governor(), msg.sender, "Wrong governor");
+        assertEq(rngFallback.consumer(), address(sortitionModule), "Wrong sortition module address");
+        assertEq(address(rngFallback.rng()), address(rngMock), "Wrong RNG in fallback contract");
+        assertEq(rngFallback.fallbackTimeoutSeconds(), fallbackTimeout, "Wrong fallback timeout");
+        assertEq(rngFallback.requestTimestamp(), 0, "Request timestamp should be 0");
+
+        vm.prank(governor);
+        sortitionModule.changeRandomNumberGenerator(rngFallback);
+        assertEq(address(sortitionModule.rng()), address(rngFallback), "Wrong RNG address");
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+
+        sortitionModule.passPhase(); // Generating
+        assertEq(rngFallback.requestTimestamp(), block.timestamp, "Wrong request timestamp");
+
+        vm.expectRevert(SortitionModuleBase.RandomNumberNotReady.selector);
+        sortitionModule.passPhase();
+
+        vm.warp(block.timestamp + fallbackTimeout + 1);
+
+        // Pass several blocks too to see that correct block.number is still picked up.
+        vm.roll(block.number + 5);
+
+        vm.expectEmit(true, true, true, true);
+        emit RNGWithFallback.RNGFallback();
+        sortitionModule.passPhase(); // Drawing phase
+
+        assertEq(sortitionModule.randomNumber(), uint256(blockhash(block.number - 1)), "Wrong random number");
+    }
+
+    function test_RNGFallback_happyPath() public {
+        RNGWithFallback rngFallback;
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
+
+        vm.prank(governor);
+        sortitionModule.changeRandomNumberGenerator(rngFallback);
+        assertEq(address(sortitionModule.rng()), address(rngFallback), "Wrong RNG address");
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+
+        assertEq(rngFallback.requestTimestamp(), 0, "Request timestamp should be 0");
+
+        sortitionModule.passPhase(); // Generating
+        assertEq(rngFallback.requestTimestamp(), block.timestamp, "Wrong request timestamp");
+
+        rngMock.setRN(123);
+
+        sortitionModule.passPhase(); // Drawing phase
+        assertEq(sortitionModule.randomNumber(), 123, "Wrong random number");
+    }
+
+    function test_RNGFallback_sanityChecks() public {
+        RNGWithFallback rngFallback;
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
+
+        vm.expectRevert(IRNG.ConsumerOnly.selector);
+        vm.prank(governor);
+        rngFallback.requestRandomness();
+
+        vm.expectRevert(IRNG.ConsumerOnly.selector);
+        vm.prank(governor);
+        rngFallback.receiveRandomness();
+
+        vm.expectRevert(IRNG.GovernorOnly.selector);
+        vm.prank(other);
+        rngFallback.changeGovernor(other);
+        vm.prank(governor);
+        rngFallback.changeGovernor(other);
+        assertEq(rngFallback.governor(), other, "Wrong governor");
+
+        // Change governor back for convenience
+        vm.prank(other);
+        rngFallback.changeGovernor(governor);
+
+        vm.expectRevert(IRNG.GovernorOnly.selector);
+        vm.prank(other);
+        rngFallback.changeConsumer(other);
+        vm.prank(governor);
+        rngFallback.changeConsumer(other);
+        assertEq(rngFallback.consumer(), other, "Wrong consumer");
+
+        vm.expectRevert(IRNG.GovernorOnly.selector);
+        vm.prank(other);
+        rngFallback.changeFallbackTimeout(5);
+
+        vm.prank(governor);
+        vm.expectEmit(true, true, true, true);
+        emit RNGWithFallback.FallbackTimeoutChanged(5);
+        rngFallback.changeFallbackTimeout(5);
+        assertEq(rngFallback.fallbackTimeoutSeconds(), 5, "Wrong fallback timeout");
     }
 }

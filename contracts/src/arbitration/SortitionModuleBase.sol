@@ -7,7 +7,7 @@ import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {RNG} from "../rng/RNG.sol";
+import {IRNG} from "../rng/IRNG.sol";
 import "../libraries/Constants.sol";
 
 /// @title SortitionModuleBase
@@ -50,11 +50,11 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     uint256 public minStakingTime; // The time after which the phase can be switched to Drawing if there are open disputes.
     uint256 public maxDrawingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
-    uint256 public randomNumberRequestBlock; // Number of the block when RNG request was made.
+    uint256 public randomNumberRequestBlock; // DEPRECATED: to be removed in the next redeploy
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
-    RNG public rng; // The random number generator.
+    IRNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
-    uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
+    uint256 public rngLookahead; // DEPRECATED: to be removed in the next redeploy
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 treeHash => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
@@ -104,8 +104,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng,
-        uint256 _rngLookahead
+        IRNG _rng
     ) internal onlyInitializing {
         governor = _governor;
         core = _core;
@@ -113,7 +112,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
         rng = _rng;
-        rngLookahead = _rngLookahead;
         delayedStakeReadIndex = 1;
     }
 
@@ -122,12 +120,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(address(governor) == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
     modifier onlyByCore() {
-        require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
+        if (address(core) != msg.sender) revert KlerosCoreOnly();
         _;
     }
 
@@ -153,15 +151,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         maxDrawingTime = _maxDrawingTime;
     }
 
-    /// @dev Changes the `_rng` and `_rngLookahead` storage variables.
-    /// @param _rng The new value for the `RNGenerator` storage variable.
-    /// @param _rngLookahead The new value for the `rngLookahead` storage variable.
-    function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
+    /// @dev Changes the `rng` storage variable.
+    /// @param _rng The new random number generator.
+    function changeRandomNumberGenerator(IRNG _rng) external onlyByGovernor {
         rng = _rng;
-        rngLookahead = _rngLookahead;
         if (phase == Phase.generating) {
-            rng.requestRandomness(block.number + rngLookahead);
-            randomNumberRequestBlock = block.number;
+            rng.requestRandomness();
         }
     }
 
@@ -171,23 +166,18 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
 
     function passPhase() external {
         if (phase == Phase.staking) {
-            require(
-                block.timestamp - lastPhaseChange >= minStakingTime,
-                "The minimum staking time has not passed yet."
-            );
-            require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
-            rng.requestRandomness(block.number + rngLookahead);
-            randomNumberRequestBlock = block.number;
+            if (block.timestamp - lastPhaseChange < minStakingTime) revert MinStakingTimeNotPassed();
+            if (disputesWithoutJurors == 0) revert NoDisputesThatNeedJurors();
+            rng.requestRandomness();
             phase = Phase.generating;
         } else if (phase == Phase.generating) {
-            randomNumber = rng.receiveRandomness(randomNumberRequestBlock + rngLookahead);
-            require(randomNumber != 0, "Random number is not ready yet");
+            randomNumber = rng.receiveRandomness();
+            if (randomNumber == 0) revert RandomNumberNotReady();
             phase = Phase.drawing;
         } else if (phase == Phase.drawing) {
-            require(
-                disputesWithoutJurors == 0 || block.timestamp - lastPhaseChange >= maxDrawingTime,
-                "There are still disputes without jurors and the maximum drawing time has not passed yet."
-            );
+            if (disputesWithoutJurors > 0 && block.timestamp - lastPhaseChange < maxDrawingTime) {
+                revert DisputesWithoutJurorsAndMaxDrawingTimeNotPassed();
+            }
             phase = Phase.staking;
         }
 
@@ -201,8 +191,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     function createTree(bytes32 _key, bytes memory _extraData) external override onlyByCore {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 K = _extraDataToTreeK(_extraData);
-        require(tree.K == 0, "Tree already exists.");
-        require(K > 1, "K must be greater than one.");
+        if (tree.K != 0) revert TreeAlreadyExists();
+        if (K <= 1) revert KMustBeGreaterThanOne();
         tree.K = K;
         tree.nodes.push(0);
     }
@@ -210,8 +200,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @dev Executes the next delayed stakes.
     /// @param _iterations The number of delayed stakes to execute.
     function executeDelayedStakes(uint256 _iterations) external {
-        require(phase == Phase.staking, "Should be in Staking phase.");
-        require(delayedStakeWriteIndex >= delayedStakeReadIndex, "No delayed stake to execute.");
+        if (phase != Phase.staking) revert NotStakingPhase();
+        if (delayedStakeWriteIndex < delayedStakeReadIndex) revert NoDelayedStakeToExecute();
 
         uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
             ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
@@ -348,14 +338,14 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         // Update the sortition sum tree.
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
-        uint96 currenCourtID = _courtID;
+        uint96 currentCourtID = _courtID;
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
-            _set(bytes32(uint256(currenCourtID)), _newStake, stakePathID);
-            if (currenCourtID == GENERAL_COURT) {
+            _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
+            if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currenCourtID, , , , , , ) = core.courts(currenCourtID); // Get the parent court.
+                (currentCourtID, , , , , , ) = core.courts(currentCourtID); // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
@@ -420,7 +410,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         // Can withdraw the leftover PNK if fully unstaked, has no tokens locked and has positive balance.
         // This withdrawal can't be triggered by calling setStake() in KlerosCore because current stake is technically 0, thus it is done via separate function.
         uint256 amount = getJurorLeftoverPNK(_account);
-        require(amount > 0, "Not eligible for withdrawal.");
+        if (amount == 0) revert NotEligibleForWithdrawal();
         jurors[_account].stakedPnk = 0;
         core.transferBySortitionModule(_account, amount);
         emit LeftoverPNKWithdrawn(_account, amount);
@@ -444,7 +434,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         uint256 _coreDisputeID,
         uint256 _nonce
     ) public view override returns (address drawnAddress) {
-        require(phase == Phase.drawing, "Wrong phase.");
+        if (phase != Phase.drawing) revert NotDrawingPhase();
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
         if (tree.nodes[0] == 0) {
@@ -692,4 +682,21 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             stakePathID := mload(ptr)
         }
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error KlerosCoreOnly();
+    error MinStakingTimeNotPassed();
+    error NoDisputesThatNeedJurors();
+    error RandomNumberNotReady();
+    error DisputesWithoutJurorsAndMaxDrawingTimeNotPassed();
+    error TreeAlreadyExists();
+    error KMustBeGreaterThanOne();
+    error NotStakingPhase();
+    error NoDelayedStakeToExecute();
+    error NotEligibleForWithdrawal();
+    error NotDrawingPhase();
 }

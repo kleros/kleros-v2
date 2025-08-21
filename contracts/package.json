@@ -131,7 +131,7 @@
     "gluegun": "^5.2.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
-    "hardhat": "2.25.0",
+    "hardhat": "2.26.2",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^1.0.4",
     "hardhat-deploy-ethers": "^0.4.2",
@@ -154,7 +154,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^1.4.0",
-    "@kleros/vea-contracts": "^0.6.0",
+    "@kleros/vea-contracts": "^0.7.0",
     "@openzeppelin/contracts": "^5.4.0",
     "@shutter-network/shutter-sdk": "0.0.2",
     "isomorphic-fetch": "^3.0.0"

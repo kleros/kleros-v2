@@ -88,7 +88,6 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // *             Storage               * //
     // ************************************* //
 
-    uint256 private constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
 
     address public governor; // The governor of the contract.
@@ -566,10 +565,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             if (round.drawnJurors.length != round.nbVotes) revert DisputeStillDrawing();
             dispute.period = court.hiddenVotes ? Period.commit : Period.vote;
         } else if (dispute.period == Period.commit) {
-            if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
-                !disputeKits[round.disputeKitID].areCommitsAllCast(_disputeID)
-            ) {
+            // Note that we do not want to pass to Voting period if all the commits are cast because it breaks the Shutter auto-reveal currently.
+            if (block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]) {
                 revert CommitPeriodNotPassed();
             }
             dispute.period = Period.vote;
@@ -768,20 +765,21 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         IDisputeKit disputeKit = disputeKits[round.disputeKitID];
 
         // [0, 1] value that determines how coherent the juror was in this round, in basis points.
-        uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
+        uint256 coherence = disputeKit.getDegreeOfCoherencePenalty(
             _params.disputeID,
             _params.round,
             _params.repartition,
             _params.feePerJurorInRound,
             _params.pnkAtStakePerJurorInRound
         );
-        if (degreeOfCoherence > ALPHA_DIVISOR) {
-            // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
-            degreeOfCoherence = ALPHA_DIVISOR;
+
+        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
+        if (coherence > ONE_BASIS_POINT) {
+            coherence = ONE_BASIS_POINT;
         }
 
         // Fully coherent jurors won't be penalized.
-        uint256 penalty = (round.pnkAtStakePerJuror * (ALPHA_DIVISOR - degreeOfCoherence)) / ALPHA_DIVISOR;
+        uint256 penalty = (round.pnkAtStakePerJuror * (ONE_BASIS_POINT - coherence)) / ONE_BASIS_POINT;
 
         // Unlock the PNKs affected by the penalty
         address account = round.drawnJurors[_params.repartition];
@@ -794,7 +792,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             account,
             _params.disputeID,
             _params.round,
-            degreeOfCoherence,
+            coherence,
             -int256(availablePenalty),
             0,
             round.feeToken
@@ -826,7 +824,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         IDisputeKit disputeKit = disputeKits[round.disputeKitID];
 
         // [0, 1] value that determines how coherent the juror was in this round, in basis points.
-        uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
+        (uint256 pnkCoherence, uint256 feeCoherence) = disputeKit.getDegreeOfCoherenceReward(
             _params.disputeID,
             _params.round,
             _params.repartition % _params.numberOfVotesInRound,
@@ -834,21 +832,24 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             _params.pnkAtStakePerJurorInRound
         );
 
-        // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
-        if (degreeOfCoherence > ALPHA_DIVISOR) {
-            degreeOfCoherence = ALPHA_DIVISOR;
+        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
+        if (pnkCoherence > ONE_BASIS_POINT) {
+            pnkCoherence = ONE_BASIS_POINT;
+        }
+        if (feeCoherence > ONE_BASIS_POINT) {
+            feeCoherence = ONE_BASIS_POINT;
         }
 
         address account = round.drawnJurors[_params.repartition % _params.numberOfVotesInRound];
-        uint256 pnkLocked = _applyCoherence(round.pnkAtStakePerJuror, degreeOfCoherence);
+        uint256 pnkLocked = _applyCoherence(round.pnkAtStakePerJuror, pnkCoherence);
 
         // Release the rest of the PNKs of the juror for this round.
         sortitionModule.unlockStake(account, pnkLocked);
 
         // Transfer the rewards
-        uint256 pnkReward = _applyCoherence(_params.pnkPenaltiesInRound / _params.coherentCount, degreeOfCoherence);
+        uint256 pnkReward = _applyCoherence(_params.pnkPenaltiesInRound / _params.coherentCount, pnkCoherence);
         round.sumPnkRewardPaid += pnkReward;
-        uint256 feeReward = _applyCoherence(round.totalFeesForJurors / _params.coherentCount, degreeOfCoherence);
+        uint256 feeReward = _applyCoherence(round.totalFeesForJurors / _params.coherentCount, feeCoherence);
         round.sumFeeRewardPaid += feeReward;
         pinakion.safeTransfer(account, pnkReward);
         _transferFeeToken(round.feeToken, payable(account), feeReward);
@@ -856,7 +857,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             account,
             _params.disputeID,
             _params.round,
-            degreeOfCoherence,
+            pnkCoherence,
             int256(pnkReward),
             int256(feeReward),
             round.feeToken
@@ -1059,10 +1060,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
     /// @dev Applies degree of coherence to an amount
     /// @param _amount The base amount to apply coherence to.
-    /// @param _degreeOfCoherence The degree of coherence in basis points.
+    /// @param _coherence The degree of coherence in basis points.
     /// @return The amount after applying the degree of coherence.
-    function _applyCoherence(uint256 _amount, uint256 _degreeOfCoherence) internal pure returns (uint256) {
-        return (_amount * _degreeOfCoherence) / ALPHA_DIVISOR;
+    function _applyCoherence(uint256 _amount, uint256 _coherence) internal pure returns (uint256) {
+        return (_amount * _coherence) / ONE_BASIS_POINT;
     }
 
     /// @dev Calculates PNK at stake per juror based on court parameters
@@ -1070,7 +1071,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _alpha The alpha parameter for the court in basis points.
     /// @return The amount of PNK at stake per juror.
     function _calculatePnkAtStake(uint256 _minStake, uint256 _alpha) internal pure returns (uint256) {
-        return (_minStake * _alpha) / ALPHA_DIVISOR;
+        return (_minStake * _alpha) / ONE_BASIS_POINT;
     }
 
     /// @dev Toggles the dispute kit support for a given court.

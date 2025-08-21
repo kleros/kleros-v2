@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity >=0.8.0 <0.9.0;
 
 import "./IArbitratorV2.sol";
 
@@ -67,14 +67,30 @@ interface IDisputeKit {
     /// @param _voteID The ID of the vote.
     /// @param _feePerJuror The fee per juror.
     /// @param _pnkAtStakePerJuror The PNK at stake per juror.
-    /// @return The degree of coherence in basis points.
-    function getDegreeOfCoherence(
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @return feeCoherence The degree of coherence in basis points for the dispute fee reward.
+    function getDegreeOfCoherenceReward(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
         uint256 _voteID,
         uint256 _feePerJuror,
         uint256 _pnkAtStakePerJuror
-    ) external view returns (uint256);
+    ) external view returns (uint256 pnkCoherence, uint256 feeCoherence);
+
+    /// @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the penalty.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @param _feePerJuror The fee per juror.
+    /// @param _pnkAtStakePerJuror The PNK at stake per juror.
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    function getDegreeOfCoherencePenalty(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID,
+        uint256 _feePerJuror,
+        uint256 _pnkAtStakePerJuror
+    ) external view returns (uint256 pnkCoherence);
 
     /// @dev Gets the number of jurors who are eligible to a reward in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
