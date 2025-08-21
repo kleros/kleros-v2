@@ -6,6 +6,7 @@ import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../Kler
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";
+import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitClassicBase
 /// Abstract Dispute kit classic implementation of the Kleros v1 features including:
@@ -57,7 +58,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
-    uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
 
     address public governor; // The governor of the contract.
     KlerosCore public core; // The Kleros Core arbitrator
@@ -526,14 +526,39 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
     /// @param _voteID The ID of the vote.
-    /// @return The degree of coherence in basis points.
-    function getDegreeOfCoherence(
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @return feeCoherence The degree of coherence in basis points for the dispute fee reward.
+    function getDegreeOfCoherenceReward(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
         uint256 _voteID,
         uint256 /* _feePerJuror */,
         uint256 /* _pnkAtStakePerJuror */
-    ) external view override returns (uint256) {
+    ) external view override returns (uint256 pnkCoherence, uint256 feeCoherence) {
+        uint256 coherence = _getDegreeOfCoherence(_coreDisputeID, _coreRoundID, _voteID);
+        return (coherence, coherence);
+    }
+
+    /// @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the penalty.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    function getDegreeOfCoherencePenalty(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID,
+        uint256 /* _feePerJuror */,
+        uint256 /* _pnkAtStakePerJuror */
+    ) external view override returns (uint256 pnkCoherence) {
+        return _getDegreeOfCoherence(_coreDisputeID, _coreRoundID, _voteID);
+    }
+
+    function _getDegreeOfCoherence(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID
+    ) internal view returns (uint256 coherence) {
         // In this contract this degree can be either 0 or 1, but in other dispute kits this value can be something in between.
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];

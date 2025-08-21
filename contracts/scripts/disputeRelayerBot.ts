@@ -33,9 +33,9 @@ export default async function main(
   homeGatewayArtifact: string,
   feeTokenArtifact?: string
 ) {
-  const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-  const homeGateway = (await ethers.getContract(homeGatewayArtifact)) as HomeGateway;
-  const feeToken = feeTokenArtifact ? ((await ethers.getContract(feeTokenArtifact)) as TestERC20) : undefined;
+  const core = await ethers.getContract<KlerosCore>("KlerosCore");
+  const homeGateway = await ethers.getContract<HomeGateway>(homeGatewayArtifact);
+  const feeToken = feeTokenArtifact ? await ethers.getContract<TestERC20>(feeTokenArtifact) : undefined;
 
   const foreignChainProvider = new ethers.providers.JsonRpcProvider(foreignNetwork.url);
   const foreignGatewayDeployment = await foreignDeployments.get(foreignGatewayArtifact);

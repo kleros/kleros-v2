@@ -31,7 +31,7 @@ const deployResolver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
     "specification": "KIP88"
   }`;
 
-  const arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+  const arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
   let tx = await (await arbitrable.changeDisputeTemplate(template, "disputeTemplateMapping: TODO")).wait();
   tx?.logs?.forEach((event) => {
     if (event instanceof EventLog) console.log("event: %O", event.args);
