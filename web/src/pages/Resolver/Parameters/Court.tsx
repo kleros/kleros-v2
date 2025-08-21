@@ -187,19 +187,10 @@ const Court: React.FC = () => {
     );
   }, [supportedDisputeKits, availableDisputeKits]);
 
-  const selectedDisputeKitId = useMemo(() => {
-    // If there's only 1 supported dispute kit, select it by default
-    if (disputeKitOptions.length === 1) {
-      return disputeKitOptions[0].value;
-    }
-    // If there's no saved selection, select nothing
-    return disputeData.disputeKitId ?? -1;
-  }, [disputeKitOptions, disputeData.disputeKitId]);
-
   const isGatedDisputeKit = useMemo(() => {
-    const options = disputeKitOptions.find((dk) => String(dk.value) === String(selectedDisputeKitId));
+    const options = disputeKitOptions.find((dk) => String(dk.value) === String(disputeData.disputeKitId));
     return options?.gated ?? false;
-  }, [disputeKitOptions, selectedDisputeKitId]);
+  }, [disputeKitOptions, disputeData.disputeKitId]);
 
   // Token validation for token gate address (conditional based on ERC1155 checkbox)
   const tokenGateAddress = (disputeData.disputeKitData as IGatedDisputeData)?.tokenGate ?? "";
@@ -311,7 +302,7 @@ const Court: React.FC = () => {
         <StyledDropdownSelect
           items={disputeKitOptions}
           placeholder={{ text: "Select Dispute Kit" }}
-          defaultValue={selectedDisputeKitId}
+          defaultValue={disputeData.disputeKitId}
           callback={handleDisputeKitChange}
         />
       )}
