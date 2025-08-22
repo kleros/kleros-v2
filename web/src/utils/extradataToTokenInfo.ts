@@ -10,16 +10,13 @@ type GatedTokenInfo = {
  * @dev Decodes token information from encoded extra data.
  * @param extraData The extraData
  * @returns GatedTokenInfo object with tokenGate address, isERC1155 flag, and tokenId.
+ *          `undefined` if it's not a gated disputeKit
  */
-export function extraDataToTokenInfo(extraDataHex: `0x${string}`): GatedTokenInfo {
+export function extraDataToTokenInfo(extraDataHex: `0x${string}`): GatedTokenInfo | undefined {
   const extraDataBytes = hexToBytes(extraDataHex);
 
   if (extraDataBytes.length < 160) {
-    return {
-      tokenGate: "0x0000000000000000000000000000000000000000",
-      isERC1155: false,
-      tokenId: "0",
-    };
+    return;
   }
 
   // Slot 4 (bytes 96–127): packedTokenGateAndFlag
