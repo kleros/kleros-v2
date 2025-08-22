@@ -76,11 +76,12 @@ export const useERC20ERC721Validation = ({
   address,
   enabled = true,
 }: UseTokenValidationParams): TokenValidationResult => {
+  // We query the balance for a random non-zero address because many implementations revert on it
   return useTokenValidation({
     address,
     enabled,
     abi: ERC20_ERC721_ABI,
-    contractCall: (contract) => contract.read.balanceOf(["0x0000000000000000000000000000000000000000"]),
+    contractCall: (contract) => contract.read.balanceOf(["0x0000000000000000000000000000000000001234"]),
     tokenType: "ERC-20 or ERC-721",
   });
 };
@@ -92,11 +93,12 @@ export const useERC20ERC721Validation = ({
  * @returns Validation state including loading, result, and error
  */
 export const useERC1155Validation = ({ address, enabled = true }: UseTokenValidationParams): TokenValidationResult => {
+  // We query the balance for a random non-zero address because many implementations revert on it
   return useTokenValidation({
     address,
     enabled,
     abi: ERC1155_ABI,
-    contractCall: (contract) => contract.read.balanceOf(["0x0000000000000000000000000000000000000000", 0]),
+    contractCall: (contract) => contract.read.balanceOf(["0x0000000000000000000000000000000000001234", 0]),
     tokenType: "ERC-1155",
   });
 };
