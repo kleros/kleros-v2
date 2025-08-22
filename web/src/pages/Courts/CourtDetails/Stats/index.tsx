@@ -14,6 +14,7 @@ import { useCourtDetails } from "queries/useCourtDetails";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import StatsContent from "./StatsContent";
+import Spinner from "components/Spinner";
 
 const Container = styled.div`
   padding: 0 24px 12px 24px;
@@ -50,12 +51,30 @@ const StyledAccordion = styled(Accordion)`
   )}
 `;
 
+const ErrorMessage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: ${({ theme }) => theme.error};
+  font-size: 16px;
+  font-weight: 500;
+`;
+
 const Stats = () => {
   const { id } = useParams();
-  const { data } = useCourtDetails(id);
+  const { data, isLoading: isLoadingCourt, error: courtError } = useCourtDetails(id);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
-  const { prices: pricesData } = useCoinPrice(coinIds);
+  const { prices: pricesData, isError: isErrorPrices } = useCoinPrice(coinIds);
   const isDesktop = useIsDesktop();
+
+  if (isLoadingCourt) {
+    return <Spinner />;
+  }
+
+  if (courtError || isErrorPrices) {
+    return <ErrorMessage>Failed to load statistics</ErrorMessage>;
+  }
 
   return isDesktop ? (
     <Container>
