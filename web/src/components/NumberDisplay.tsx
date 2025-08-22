@@ -35,7 +35,7 @@ const NumberDisplay: React.FC<INumberDisplay> = ({
 }) => {
   const parsedValue = Number(value);
   const formattedValue = commify(getFormattedValue(parsedValue, decimals));
-  const tooltipValue = isCurrency ? `${unit} ${value}` : `${value} ${unit}`;
+  const tooltipValue = isCurrency ? `${unit} ${commify(value)}` : `${commify(value)} ${unit}`;
   const displayUnit = showUnitInDisplay ? unit : "";
   const displayValue = isCurrency ? `${displayUnit} ${formattedValue}` : `${formattedValue} ${displayUnit}`;
 
