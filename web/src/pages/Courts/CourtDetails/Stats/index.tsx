@@ -65,14 +65,14 @@ const Stats = () => {
   const { id } = useParams();
   const { data, isLoading: isLoadingCourt, error: courtError } = useCourtDetails(id);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
-  const { prices: pricesData, isError: isErrorPrices } = useCoinPrice(coinIds);
+  const { prices: pricesData, isLoading: isLoadingPrices, error: pricesError } = useCoinPrice(coinIds);
   const isDesktop = useIsDesktop();
 
-  if (isLoadingCourt) {
+  if (isLoadingCourt || isLoadingPrices) {
     return <Spinner />;
   }
 
-  if (courtError || isErrorPrices) {
+  if (courtError || pricesError) {
     return <ErrorMessage>Failed to load statistics</ErrorMessage>;
   }
 
