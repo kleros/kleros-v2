@@ -81,7 +81,10 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
 
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
 
-  const parsedStake = formatPNK(jurorBalance?.[2] ?? 0n, 0, true);
+  const maxWithdrawAmount = jurorBalance
+    ? BigInt(Math.min(Number(jurorBalance[2]), Number(jurorBalance[0] - jurorBalance[1])))
+    : 0n;
+  const parsedMaxWithdrawAmount = formatPNK(maxWithdrawAmount, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
 
   useEffect(() => {
@@ -89,8 +92,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       setErrorMsg("You need a non-zero PNK balance to stake");
     } else if (isStaking && balance && parsedAmount > balance) {
       setErrorMsg("Insufficient balance to stake this amount");
-    } else if (!isStaking && jurorBalance && parsedAmount > jurorBalance[2]) {
-      setErrorMsg("Insufficient staked amount to withdraw this amount");
+    } else if (!isStaking && jurorBalance && parsedAmount > maxWithdrawAmount) {
+      setErrorMsg("Insufficient available amount to withdraw this amount");
     } else if (
       action === ActionType.stake &&
       courtDetails &&
@@ -102,15 +105,15 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
     } else {
       setErrorMsg(undefined);
     }
-  }, [parsedAmount, isStaking, balance, jurorBalance, action, courtDetails]);
+  }, [parsedAmount, isStaking, balance, jurorBalance, action, courtDetails, maxWithdrawAmount]);
 
   return (
     <>
       <LabelArea>
-        <label>{`Available ${isStaking ? parsedBalance : parsedStake} PNK`}</label>
+        <label>{`Available ${isStaking ? parsedBalance : parsedMaxWithdrawAmount} PNK`}</label>
         <StyledLabel
           onClick={() => {
-            const amount = isStaking ? parsedBalance : parsedStake;
+            const amount = isStaking ? parsedBalance : parsedMaxWithdrawAmount;
             setAmount(amount);
           }}
         >
