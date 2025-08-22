@@ -82,7 +82,9 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
 
   const maxWithdrawAmount = jurorBalance
-    ? BigInt(Math.min(Number(jurorBalance[2]), Number(jurorBalance[0] - jurorBalance[1])))
+    ? jurorBalance[2] < jurorBalance[0] - jurorBalance[1]
+      ? jurorBalance[2]
+      : jurorBalance[0] - jurorBalance[1]
     : 0n;
   const parsedMaxWithdrawAmount = formatPNK(maxWithdrawAmount, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
