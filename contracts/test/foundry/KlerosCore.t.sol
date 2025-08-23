@@ -2521,7 +2521,9 @@ contract KlerosCoreTest is Test {
 
         // Note that these events are emitted only after the first iteration of execute() therefore the juror has been penalized only for 1000 PNK her.
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, newCourtID, 0, 19000); // Starting with 40000 we first nullify the stake and remove 20000 and then remove penalty once since there was only first iteration (40000 - 20000 - 1000)
+        emit SortitionModuleBase.StakeSet(staker1, newCourtID, 19000, 39000); // 1000 PNK penalty for voteID 0
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModuleBase.StakeSet(staker1, newCourtID, 0, 20000); // Starting with 40000 we first nullify the stake and remove 19000 and then remove penalty once since there was only first iteration (40000 - 20000 - 1000)
         vm.expectEmit(true, true, true, true);
         emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0, 2000); // 2000 PNK should remain in balance to cover penalties since the first 1000 of locked pnk was already unlocked
         core.execute(disputeID, 0, 3);

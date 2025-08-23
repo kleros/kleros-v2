@@ -60,6 +60,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256 repartitions; // A counter of reward repartitions made in this round.
         uint256 pnkPenalties; // The amount of PNKs collected from penalties in this round.
         address[] drawnJurors; // Addresses of the jurors that were drawn in this round.
+        uint96[] drawnJurorFromCourtIDs; // The courtIDs where the juror was drawn from, possibly their stake in a subcourt.
         uint256 sumFeeRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
@@ -610,13 +611,14 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256 startIndex = round.drawIterations; // for gas: less storage reads
         uint256 i;
         while (i < _iterations && round.drawnJurors.length < round.nbVotes) {
-            address drawnAddress = disputeKit.draw(_disputeID, startIndex + i++);
+            (address drawnAddress, uint96 fromSubcourtID) = disputeKit.draw(_disputeID, startIndex + i++);
             if (drawnAddress == address(0)) {
                 continue;
             }
             sortitionModule.lockStake(drawnAddress, round.pnkAtStakePerJuror);
             emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
             round.drawnJurors.push(drawnAddress);
+            round.drawnJurorFromCourtIDs.push(fromSubcourtID != 0 ? fromSubcourtID : dispute.courtID);
             if (round.drawnJurors.length == round.nbVotes) {
                 sortitionModule.postDrawHook(_disputeID, currentRound);
             }
@@ -786,7 +788,12 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         sortitionModule.unlockStake(account, penalty);
 
         // Apply the penalty to the staked PNKs.
-        (uint256 pnkBalance, uint256 availablePenalty) = sortitionModule.penalizeStake(account, penalty);
+        uint96 penalizedInCourtID = round.drawnJurorFromCourtIDs[_params.repartition];
+        (uint256 pnkBalance, uint256 availablePenalty) = sortitionModule.setStakePenalty(
+            account,
+            penalizedInCourtID,
+            penalty
+        );
         _params.pnkPenaltiesInRound += availablePenalty;
         emit TokenAndETHShift(
             account,

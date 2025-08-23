@@ -29,20 +29,25 @@ interface ISortitionModule {
         uint256 _newStake
     ) external;
 
+    function setStakePenalty(
+        address _account,
+        uint96 _courtID,
+        uint256 _penalty
+    ) external returns (uint256 pnkBalance, uint256 availablePenalty);
+
     function setJurorInactive(address _account) external;
 
     function lockStake(address _account, uint256 _relativeAmount) external;
 
     function unlockStake(address _account, uint256 _relativeAmount) external;
 
-    function penalizeStake(
-        address _account,
-        uint256 _relativeAmount
-    ) external returns (uint256 pnkBalance, uint256 availablePenalty);
-
     function notifyRandomNumber(uint256 _drawnNumber) external;
 
-    function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _nonce) external view returns (address);
+    function draw(
+        bytes32 _court,
+        uint256 _coreDisputeID,
+        uint256 _nonce
+    ) external view returns (address drawnAddress, uint96 fromSubcourtID);
 
     function getJurorBalance(
         address _juror,

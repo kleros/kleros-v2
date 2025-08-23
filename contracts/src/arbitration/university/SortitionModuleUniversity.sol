@@ -190,6 +190,38 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         uint256 _pnkWithdrawal,
         uint256 _newStake
     ) external override onlyByCore {
+        _setStake(_account, _courtID, _pnkDeposit, _pnkWithdrawal, _newStake);
+    }
+
+    function setStakePenalty(
+        address _account,
+        uint96 _courtID,
+        uint256 _penalty
+    ) external override onlyByCore returns (uint256 pnkBalance, uint256 availablePenalty) {
+        Juror storage juror = jurors[_account];
+        availablePenalty = _penalty;
+        if (juror.stakedPnk < _penalty) {
+            availablePenalty = juror.stakedPnk;
+        }
+
+        if (availablePenalty == 0) return (juror.stakedPnk, 0); // No penalty to apply.
+
+        uint256 currentStake = _stakeOf(_account, _courtID);
+        uint256 newStake = 0;
+        if (currentStake >= availablePenalty) {
+            newStake = currentStake - availablePenalty;
+        }
+        _setStake(_account, _courtID, 0, availablePenalty, newStake);
+        pnkBalance = juror.stakedPnk; // updated by _setStake()
+    }
+
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) internal {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
         if (_pnkDeposit > 0) {
@@ -237,25 +269,6 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         emit StakeLocked(_account, _relativeAmount, true);
     }
 
-    function penalizeStake(
-        address _account,
-        uint256 _relativeAmount
-    ) external override onlyByCore returns (uint256 pnkBalance, uint256 availablePenalty) {
-        Juror storage juror = jurors[_account];
-        uint256 stakedPnk = juror.stakedPnk;
-
-        if (stakedPnk >= _relativeAmount) {
-            availablePenalty = _relativeAmount;
-            juror.stakedPnk -= _relativeAmount;
-        } else {
-            availablePenalty = stakedPnk;
-            juror.stakedPnk = 0;
-        }
-
-        pnkBalance = juror.stakedPnk;
-        return (pnkBalance, availablePenalty);
-    }
-
     /// @dev Unstakes the inactive juror from all courts.
     /// `O(n * (p * log_k(j)) )` where
     /// `n` is the number of courts the juror has staked in,
@@ -293,7 +306,11 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// @dev Draw an ID from a tree using a number.
     /// Note that this function reverts if the sum of all values in the tree is 0.
     /// @return drawnAddress The drawn address.
-    function draw(bytes32, uint256, uint256) public view override returns (address drawnAddress) {
+    function draw(
+        bytes32,
+        uint256,
+        uint256
+    ) public view override returns (address drawnAddress, uint96 fromSubcourtID) {
         drawnAddress = transientJuror;
     }
 
