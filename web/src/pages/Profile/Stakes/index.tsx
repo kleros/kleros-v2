@@ -35,11 +35,11 @@ const StyledLabel = styled.label`
   font-size: ${responsiveSize(14, 16)};
 `;
 
-interface ICourts {
+interface IStakes {
   addressToQuery: `0x${string}`;
 }
 
-const Courts: React.FC<ICourts> = ({ addressToQuery }) => {
+const Stakes: React.FC<IStakes> = ({ addressToQuery }) => {
   const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(addressToQuery);
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     args: [addressToQuery, BigInt(1)],
@@ -48,11 +48,15 @@ const Courts: React.FC<ICourts> = ({ addressToQuery }) => {
   const searchParamAddress = searchParams.get("address")?.toLowerCase();
   const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;
+  const availableStake = jurorBalance?.[0];
   const lockedStake = jurorBalance?.[1];
+  const effectiveStake = stakeData?.jurorTokensPerCourts?.[0]?.effectiveStake
+    ? BigInt(stakeData.jurorTokensPerCourts[0].effectiveStake)
+    : undefined;
 
   return (
     <Container>
-      <Header lockedStake={lockedStake ?? BigInt(0)} />
+      <Header {...{ lockedStake, availableStake, effectiveStake }} />
       {isLoading ? <Skeleton /> : null}
       {!isStaked && !isLoading ? (
         <StyledLabel>{searchParamAddress ? "They" : "You"} are not staked in any court</StyledLabel>
@@ -70,4 +74,4 @@ const Courts: React.FC<ICourts> = ({ addressToQuery }) => {
   );
 };
 
-export default Courts;
+export default Stakes;
