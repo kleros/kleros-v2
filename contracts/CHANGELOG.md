@@ -8,6 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
+- **Breaking:** Stake the juror's PNK rewards instead of transferring them out ([#2099](https://github.com/kleros/kleros-v2/issues/2099))
 - **Breaking:** Replace `require()` with `revert()` and custom errors outside KlerosCore for consistency and smaller bytecode ([#2084](https://github.com/kleros/kleros-v2/issues/2084))
 - **Breaking:** Rename the interface from `RNG` to `IRNG` ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - **Breaking:** Remove the `_block` parameter from `IRNG.requestRandomness()` and `IRNG.receiveRandomness()`, not needed for the primary VRF-based RNG ([#2054](https://github.com/kleros/kleros-v2/issues/2054))

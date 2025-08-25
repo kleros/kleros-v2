@@ -846,13 +846,20 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         // Release the rest of the PNKs of the juror for this round.
         sortitionModule.unlockStake(account, pnkLocked);
 
-        // Transfer the rewards
+        // Compute the rewards
         uint256 pnkReward = _applyCoherence(_params.pnkPenaltiesInRound / _params.coherentCount, pnkCoherence);
         round.sumPnkRewardPaid += pnkReward;
         uint256 feeReward = _applyCoherence(round.totalFeesForJurors / _params.coherentCount, feeCoherence);
         round.sumFeeRewardPaid += feeReward;
-        pinakion.safeTransfer(account, pnkReward);
+
+        // Transfer the fee reward
         _transferFeeToken(round.feeToken, payable(account), feeReward);
+
+        // Stake the PNK reward if possible, by-passes delayed stakes and other checks usually done by validateStake()
+        if (!sortitionModule.setStakeReward(account, dispute.courtID, pnkReward)) {
+            pinakion.safeTransfer(account, pnkReward);
+        }
+
         emit TokenAndETHShift(
             account,
             _params.disputeID,
