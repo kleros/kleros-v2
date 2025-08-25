@@ -639,24 +639,17 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         if (msg.sender != address(disputeKits[round.disputeKitID])) revert DisputeKitOnly();
 
-        uint96 newCourtID = dispute.courtID;
-        uint256 newDisputeKitID = round.disputeKitID;
-
         // Warning: the extra round must be created before calling disputeKit.createDispute()
         Round storage extraRound = dispute.rounds.push();
 
-        if (round.nbVotes >= courts[newCourtID].jurorsForCourtJump) {
-            // Jump to parent court.
-            newCourtID = courts[newCourtID].parent;
-
-            if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
-                // Switch to classic dispute kit if parent court doesn't support the current one.
-                newDisputeKitID = DISPUTE_KIT_CLASSIC;
-            }
-
-            if (newCourtID != dispute.courtID) {
-                emit CourtJump(_disputeID, dispute.rounds.length - 1, dispute.courtID, newCourtID);
-            }
+        (uint96 newCourtID, uint256 newDisputeKitID, bool courtJump, ) = _getCourtAndDisputeKitJumps(
+            dispute,
+            round,
+            courts[dispute.courtID],
+            _disputeID
+        );
+        if (courtJump) {
+            emit CourtJump(_disputeID, dispute.rounds.length - 1, dispute.courtID, newCourtID);
         }
 
         dispute.courtID = newCourtID;
@@ -934,17 +927,22 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
-        if (round.nbVotes >= court.jurorsForCourtJump) {
+
+        (, uint256 newDisputeKitID, bool courtJump, ) = _getCourtAndDisputeKitJumps(dispute, round, court, _disputeID);
+
+        uint256 nbVotesAfterAppeal = disputeKits[newDisputeKitID].getNbVotesAfterAppeal(round.nbVotes);
+
+        if (courtJump) {
             // Jump to parent court.
             if (dispute.courtID == GENERAL_COURT) {
                 // TODO: Handle the forking when appealed in General court.
                 cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent court.
             } else {
-                cost = courts[court.parent].feeForJuror * ((round.nbVotes * 2) + 1);
+                cost = courts[court.parent].feeForJuror * nbVotesAfterAppeal;
             }
         } else {
             // Stay in current court.
-            cost = court.feeForJuror * ((round.nbVotes * 2) + 1);
+            cost = court.feeForJuror * nbVotesAfterAppeal;
         }
     }
 
@@ -1033,7 +1031,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
 
-        if (round.nbVotes < court.jurorsForCourtJump) {
+        if (!_isCourtJumping(round, court, _disputeID)) {
             return false;
         }
 
@@ -1052,6 +1050,41 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
+
+    /// @dev Returns true if the round is jumping to a parent court.
+    /// @param _round The round to check.
+    /// @param _court The court to check.
+    /// @return Whether the round is jumping to a parent court or not.
+    function _isCourtJumping(
+        Round storage _round,
+        Court storage _court,
+        uint256 _disputeID
+    ) internal view returns (bool) {
+        return
+            disputeKits[_round.disputeKitID].earlyCourtJump(_disputeID) || _round.nbVotes >= _court.jurorsForCourtJump;
+    }
+
+    function _getCourtAndDisputeKitJumps(
+        Dispute storage _dispute,
+        Round storage _round,
+        Court storage _court,
+        uint256 _disputeID
+    ) internal view returns (uint96 newCourtID, uint256 newDisputeKitID, bool courtJump, bool disputeKitJump) {
+        newCourtID = _dispute.courtID;
+        newDisputeKitID = _round.disputeKitID;
+
+        if (!_isCourtJumping(_round, _court, _disputeID)) return (newCourtID, newDisputeKitID, false, false);
+
+        // Jump to parent court.
+        newCourtID = courts[newCourtID].parent;
+        courtJump = true;
+
+        if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
+            // Switch to classic dispute kit if parent court doesn't support the current one.
+            newDisputeKitID = DISPUTE_KIT_CLASSIC;
+            disputeKitJump = true;
+        }
+    }
 
     /// @dev Internal function to transfer fee tokens (ETH or ERC20)
     /// @param _feeToken The token to transfer (NATIVE_CURRENCY for ETH).

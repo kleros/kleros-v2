@@ -627,6 +627,19 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT);
     }
 
+    /// @dev Returns true if the dispute is jumping to a parent court.
+    /// @return Whether the dispute is jumping to a parent court or not.
+    function earlyCourtJump(uint256 /* _coreDisputeID */) external pure override returns (bool) {
+        return false;
+    }
+
+    /// @dev Returns the number of votes after the appeal.
+    /// @param _currentNbVotes The number of votes before the appeal.
+    /// @return The number of votes after the appeal.
+    function getNbVotesAfterAppeal(uint256 _currentNbVotes) external pure override returns (uint256) {
+        return (_currentNbVotes * 2) + 1;
+    }
+
     /// @dev Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
