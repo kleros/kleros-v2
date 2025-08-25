@@ -18,9 +18,9 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // ************************************* //
 
     struct SubCourtStakes {
-        uint256 totalStakedInCourts;
-        uint96[MAX_STAKE_PATHS] courtIDs;
-        uint256[MAX_STAKE_PATHS] stakedInCourts;
+        uint256 totalStakedInSubCourts;
+        uint96[MAX_STAKE_PATHS] subCourtIDs;
+        uint256[MAX_STAKE_PATHS] stakedInSubCourts;
     }
 
     struct SortitionSumTree {
@@ -312,6 +312,17 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         _setStake(_account, _courtID, _pnkDeposit, _pnkWithdrawal, _newStake);
     }
 
+    /// @dev Update the state of the stakes with a PNK reward deposit, called by KC during rewards execution.
+    /// `O(n + p * log_k(j))` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _penalty The amount of PNK to be deducted.
+    /// @return pnkBalance The updated total PNK balance of the juror, including the penalty.
+    /// @return availablePenalty The amount of PNK that was actually deducted.
     function setStakePenalty(
         address _account,
         uint96 _courtID,
@@ -331,7 +342,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             newStake = currentStake - availablePenalty;
         }
         _setStake(_account, _courtID, 0, availablePenalty, newStake);
-        pnkBalance = juror.stakedPnk; // updated by _setStake()
+        pnkBalance = juror.stakedPnk; // Updated by _setStake().
     }
 
     function _setStake(
@@ -482,8 +493,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
 
         // The current court stake is the node value minus all subcourt stakes
         uint256 currentCourtStake = 0;
-        if (tree.nodes[treeIndex] > subcourtStakes.totalStakedInCourts) {
-            currentCourtStake = tree.nodes[treeIndex] - subcourtStakes.totalStakedInCourts;
+        if (tree.nodes[treeIndex] > subcourtStakes.totalStakedInSubCourts) {
+            currentCourtStake = tree.nodes[treeIndex] - subcourtStakes.totalStakedInSubCourts;
         }
 
         // Check if the drawn number falls within current court range
@@ -491,12 +502,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             // Find which subcourt range contains the drawn number
             uint256 accumulatedStake = currentCourtStake;
             for (uint256 i = 0; i < MAX_STAKE_PATHS; i++) {
-                if (subcourtStakes.stakedInCourts[i] > 0) {
-                    if (currentDrawnNumber < accumulatedStake + subcourtStakes.stakedInCourts[i]) {
-                        fromSubcourtID = subcourtStakes.courtIDs[i];
+                if (subcourtStakes.stakedInSubCourts[i] > 0) {
+                    if (currentDrawnNumber < accumulatedStake + subcourtStakes.stakedInSubCourts[i]) {
+                        fromSubcourtID = subcourtStakes.subCourtIDs[i];
                         break;
                     }
-                    accumulatedStake += subcourtStakes.stakedInCourts[i];
+                    accumulatedStake += subcourtStakes.stakedInSubCourts[i];
                 }
             }
         }
@@ -602,24 +613,24 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     ) internal {
         // Update existing stake item if found
         for (uint256 i = 0; i < MAX_STAKE_PATHS; i++) {
-            if (_subcourtStakes.courtIDs[i] == _fromSubCourtID) {
+            if (_subcourtStakes.subCourtIDs[i] == _fromSubCourtID) {
                 if (_value == 0) {
-                    delete _subcourtStakes.courtIDs[i];
-                    delete _subcourtStakes.stakedInCourts[i];
+                    delete _subcourtStakes.subCourtIDs[i];
+                    delete _subcourtStakes.stakedInSubCourts[i];
                 } else {
-                    _subcourtStakes.totalStakedInCourts += _value;
-                    _subcourtStakes.totalStakedInCourts -= _subcourtStakes.stakedInCourts[i];
-                    _subcourtStakes.stakedInCourts[i] = _value;
+                    _subcourtStakes.totalStakedInSubCourts += _value;
+                    _subcourtStakes.totalStakedInSubCourts -= _subcourtStakes.stakedInSubCourts[i];
+                    _subcourtStakes.stakedInSubCourts[i] = _value;
                 }
                 return;
             }
         }
         // Not found so add a new stake item
         for (uint256 i = 0; i < MAX_STAKE_PATHS; i++) {
-            if (_subcourtStakes.courtIDs[i] == 0) {
-                _subcourtStakes.courtIDs[i] = _fromSubCourtID;
-                _subcourtStakes.totalStakedInCourts += _value;
-                _subcourtStakes.stakedInCourts[i] = _value;
+            if (_subcourtStakes.subCourtIDs[i] == 0) {
+                _subcourtStakes.subCourtIDs[i] = _fromSubCourtID;
+                _subcourtStakes.totalStakedInSubCourts += _value;
+                _subcourtStakes.stakedInSubCourts[i] = _value;
                 return;
             }
         }
