@@ -789,7 +789,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
         // Apply the penalty to the staked PNKs.
         uint96 penalizedInCourtID = round.drawnJurorFromCourtIDs[_params.repartition];
-        (uint256 pnkBalance, uint256 availablePenalty) = sortitionModule.setStakePenalty(
+        (uint256 pnkBalance, uint256 newCourtStake, uint256 availablePenalty) = sortitionModule.setStakePenalty(
             account,
             penalizedInCourtID,
             penalty
@@ -804,10 +804,15 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             0,
             round.feeToken
         );
-        // Unstake the juror from all courts if he was inactive or his balance can't cover penalties anymore.
+
         if (pnkBalance == 0 || !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
+            // The juror is inactive or their balance is can't cover penalties anymore, unstake them from all courts.
             sortitionModule.setJurorInactive(account);
+        } else if (newCourtStake < courts[penalizedInCourtID].minStake) {
+            // The juror's balance fell below the court minStake, unstake them from the court.
+            sortitionModule.setStake(account, penalizedInCourtID, 0, 0, 0);
         }
+
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the governor.
             _transferFeeToken(round.feeToken, payable(governor), round.totalFeesForJurors);

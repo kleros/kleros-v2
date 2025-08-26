@@ -17,12 +17,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // *         Enums / Structs           * //
     // ************************************* //
 
-    struct SubCourtStakes {
-        uint256 totalStakedInSubCourts;
-        uint96[MAX_STAKE_PATHS] subCourtIDs;
-        uint256[MAX_STAKE_PATHS] stakedInSubCourts;
-    }
-
     struct SortitionSumTree {
         uint256 K; // The maximum number of children per node.
         uint256[] stack; // We use this to keep track of vacant positions in the tree after removing a leaf. This is for keeping the tree as balanced as possible without spending gas on moving nodes around.
@@ -30,7 +24,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         // Two-way mapping of IDs to node indexes. Note that node index 0 is reserved for the root node, and means the ID does not have a node.
         mapping(bytes32 stakePathID => uint256 nodeIndex) IDsToNodeIndexes;
         mapping(uint256 nodeIndex => bytes32 stakePathID) nodeIndexesToIDs;
-        mapping(bytes32 stakePathID => SubCourtStakes subcourtStakes) IDsToSubCourtStakes;
     }
 
     struct DelayedStake {
@@ -322,19 +315,21 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @param _courtID The ID of the court.
     /// @param _penalty The amount of PNK to be deducted.
     /// @return pnkBalance The updated total PNK balance of the juror, including the penalty.
+    /// @return newCourtStake The updated stake of the juror in the court.
     /// @return availablePenalty The amount of PNK that was actually deducted.
     function setStakePenalty(
         address _account,
         uint96 _courtID,
         uint256 _penalty
-    ) external override onlyByCore returns (uint256 pnkBalance, uint256 availablePenalty) {
+    ) external override onlyByCore returns (uint256 pnkBalance, uint256 newCourtStake, uint256 availablePenalty) {
         Juror storage juror = jurors[_account];
         availablePenalty = _penalty;
+        newCourtStake = stakeOf(_account, _courtID);
         if (juror.stakedPnk < _penalty) {
             availablePenalty = juror.stakedPnk;
         }
 
-        if (availablePenalty == 0) return (juror.stakedPnk, 0); // No penalty to apply.
+        if (availablePenalty == 0) return (juror.stakedPnk, newCourtStake, 0); // No penalty to apply.
 
         uint256 currentStake = stakeOf(_account, _courtID);
         uint256 newStake = 0;
@@ -342,7 +337,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             newStake = currentStake - availablePenalty;
         }
         _setStake(_account, _courtID, 0, availablePenalty, newStake);
-        pnkBalance = juror.stakedPnk; // Updated by _setStake().
+        pnkBalance = juror.stakedPnk; // updated by _setStake()
+        newCourtStake = stakeOf(_account, _courtID); // updated by _setStake()
     }
 
     function _setStake(
@@ -378,14 +374,12 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currentCourtID = _courtID;
-        uint96 fromSubCourtID = 0; // 0 means it is not coming from a subcourt.
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
-            _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID, fromSubCourtID);
+            _set(bytes32(uint256(currentCourtID)), _newStake, stakePathID);
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                fromSubCourtID = currentCourtID;
                 (currentCourtID, , , , , , ) = core.courts(currentCourtID); // Get the parent court.
             }
         }
@@ -486,31 +480,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         }
 
         bytes32 stakePathID = tree.nodeIndexesToIDs[treeIndex];
-        drawnAddress = _stakePathIDToAccount(stakePathID);
-
-        // Identify which subcourt was selected based on currentDrawnNumber
-        SubCourtStakes storage subcourtStakes = tree.IDsToSubCourtStakes[stakePathID];
-
-        // The current court stake is the node value minus all subcourt stakes
-        uint256 currentCourtStake = 0;
-        if (tree.nodes[treeIndex] > subcourtStakes.totalStakedInSubCourts) {
-            currentCourtStake = tree.nodes[treeIndex] - subcourtStakes.totalStakedInSubCourts;
-        }
-
-        // Check if the drawn number falls within current court range
-        if (currentDrawnNumber >= currentCourtStake) {
-            // Find which subcourt range contains the drawn number
-            uint256 accumulatedStake = currentCourtStake;
-            for (uint256 i = 0; i < MAX_STAKE_PATHS; i++) {
-                if (subcourtStakes.stakedInSubCourts[i] > 0) {
-                    if (currentDrawnNumber < accumulatedStake + subcourtStakes.stakedInSubCourts[i]) {
-                        fromSubcourtID = subcourtStakes.subCourtIDs[i];
-                        break;
-                    }
-                    accumulatedStake += subcourtStakes.stakedInSubCourts[i];
-                }
-            }
-        }
+        (drawnAddress, fromSubcourtID) = _stakePathIDToAccountAndCourtID(stakePathID);
     }
 
     /// @dev Get the stake of a juror in a court.
@@ -524,11 +494,11 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
 
     /// @dev Get the stake of a juror in a court.
     /// @param _key The key of the tree, corresponding to a court.
-    /// @param _ID The stake path ID, corresponding to a juror.
+    /// @param _stakePathID The stake path ID, corresponding to a juror.
     /// @return The stake of the juror in the court.
-    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256) {
+    function stakeOf(bytes32 _key, bytes32 _stakePathID) public view returns (uint256) {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint treeIndex = tree.IDsToNodeIndexes[_ID];
+        uint treeIndex = tree.IDsToNodeIndexes[_stakePathID];
         if (treeIndex == 0) {
             return 0;
         }
@@ -601,59 +571,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         }
     }
 
-    /// @dev Update the subcourt stakes.
-    /// @param _subcourtStakes The subcourt stakes.
-    /// @param _value The value to update.
-    /// @param _fromSubCourtID The ID of the subcourt from which the stake is coming from, or 0 if the stake does not come from a subcourt.
-    /// `O(1)` complexity with `MAX_STAKE_PATHS` a small constant.
-    function _updateSubCourtStakes(
-        SubCourtStakes storage _subcourtStakes,
-        uint256 _value,
-        uint96 _fromSubCourtID
-    ) internal {
-        // Update existing stake item if found
-        for (uint256 i = 0; i < MAX_STAKE_PATHS; i++) {
-            if (_subcourtStakes.subCourtIDs[i] == _fromSubCourtID) {
-                if (_value == 0) {
-                    delete _subcourtStakes.subCourtIDs[i];
-                    delete _subcourtStakes.stakedInSubCourts[i];
-                } else {
-                    _subcourtStakes.totalStakedInSubCourts += _value;
-                    _subcourtStakes.totalStakedInSubCourts -= _subcourtStakes.stakedInSubCourts[i];
-                    _subcourtStakes.stakedInSubCourts[i] = _value;
-                }
-                return;
-            }
-        }
-        // Not found so add a new stake item
-        for (uint256 i = 0; i < MAX_STAKE_PATHS; i++) {
-            if (_subcourtStakes.subCourtIDs[i] == 0) {
-                _subcourtStakes.subCourtIDs[i] = _fromSubCourtID;
-                _subcourtStakes.totalStakedInSubCourts += _value;
-                _subcourtStakes.stakedInSubCourts[i] = _value;
-                return;
-            }
-        }
-    }
-
-    /// @dev Retrieves a juror's address from the stake path ID.
-    /// @param _stakePathID The stake path ID to unpack.
-    /// @return account The account.
-    function _stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
-        assembly {
-            // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
-            }
-            account := mload(ptr)
-        }
-    }
-
     function _extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
         if (_extraData.length >= 32) {
             assembly {
@@ -668,14 +585,13 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @dev Set a value in a tree.
     /// @param _key The key of the tree.
     /// @param _value The new value.
-    /// @param _ID The ID of the value.
-    /// @param _fromSubCourtID The ID of the subcourt from which the stake is coming from, or 0 if the stake does not come from a subcourt.
+    /// @param _stakePathID The ID of the value.
     /// `O(log_k(n))` where
     /// `k` is the maximum number of children per node in the tree,
     ///  and `n` is the maximum number of nodes ever appended.
-    function _set(bytes32 _key, uint256 _value, bytes32 _ID, uint96 _fromSubCourtID) internal {
+    function _set(bytes32 _key, uint256 _value, bytes32 _stakePathID) internal {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
+        uint256 treeIndex = tree.IDsToNodeIndexes[_stakePathID];
 
         if (treeIndex == 0) {
             // No existing node.
@@ -709,8 +625,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 }
 
                 // Add label.
-                tree.IDsToNodeIndexes[_ID] = treeIndex;
-                tree.nodeIndexesToIDs[treeIndex] = _ID;
+                tree.IDsToNodeIndexes[_stakePathID] = treeIndex;
+                tree.nodeIndexesToIDs[treeIndex] = _stakePathID;
 
                 _updateParents(_key, treeIndex, true, _value);
             }
@@ -727,7 +643,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 tree.stack.push(treeIndex);
 
                 // Clear label.
-                delete tree.IDsToNodeIndexes[_ID];
+                delete tree.IDsToNodeIndexes[_stakePathID];
                 delete tree.nodeIndexesToIDs[treeIndex];
 
                 _updateParents(_key, treeIndex, false, value);
@@ -743,11 +659,9 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 _updateParents(_key, treeIndex, plusOrMinus, plusOrMinusValue);
             }
         }
-
-        _updateSubCourtStakes(tree.IDsToSubCourtStakes[_ID], _value, _fromSubCourtID);
     }
 
-    /// @dev Packs an account and a court ID into a stake path ID.
+    /// @dev Packs an account and a court ID into a stake path ID: [20 bytes of address][12 bytes of courtID] = 32 bytes total.
     /// @param _account The address of the juror to pack.
     /// @param _courtID The court ID to pack.
     /// @return stakePathID The stake path ID.
@@ -758,6 +672,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         assembly {
             // solium-disable-line security/no-inline-assembly
             let ptr := mload(0x40)
+
+            // Write account address (first 20 bytes)
             for {
                 let i := 0x00
             } lt(i, 0x14) {
@@ -765,6 +681,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
             } {
                 mstore8(add(ptr, i), byte(add(0x0c, i), _account))
             }
+
+            // Write court ID (last 12 bytes)
             for {
                 let i := 0x14
             } lt(i, 0x20) {
@@ -773,6 +691,39 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
                 mstore8(add(ptr, i), byte(i, _courtID))
             }
             stakePathID := mload(ptr)
+        }
+    }
+
+    /// @dev Retrieves both juror's address and court ID from the stake path ID.
+    /// @param _stakePathID The stake path ID to unpack.
+    /// @return account The account.
+    /// @return courtID The court ID.
+    function _stakePathIDToAccountAndCourtID(
+        bytes32 _stakePathID
+    ) internal pure returns (address account, uint96 courtID) {
+        assembly {
+            // solium-disable-line security/no-inline-assembly
+            let ptr := mload(0x40)
+
+            // Read account address (first 20 bytes)
+            for {
+                let i := 0x00
+            } lt(i, 0x14) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
+            }
+            account := mload(ptr)
+
+            // Read court ID (last 12 bytes)
+            for {
+                let i := 0x00
+            } lt(i, 0x0c) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(add(ptr, 0x14), i), byte(add(i, 0x14), _stakePathID))
+            }
+            courtID := mload(ptr)
         }
     }
 

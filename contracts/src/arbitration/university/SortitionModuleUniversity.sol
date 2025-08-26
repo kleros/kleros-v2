@@ -197,14 +197,15 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         address _account,
         uint96 _courtID,
         uint256 _penalty
-    ) external override onlyByCore returns (uint256 pnkBalance, uint256 availablePenalty) {
+    ) external override onlyByCore returns (uint256 pnkBalance, uint256 newCourtStake, uint256 availablePenalty) {
         Juror storage juror = jurors[_account];
         availablePenalty = _penalty;
+        newCourtStake = _stakeOf(_account, _courtID);
         if (juror.stakedPnk < _penalty) {
             availablePenalty = juror.stakedPnk;
         }
 
-        if (availablePenalty == 0) return (juror.stakedPnk, 0); // No penalty to apply.
+        if (availablePenalty == 0) return (juror.stakedPnk, newCourtStake, 0); // No penalty to apply.
 
         uint256 currentStake = _stakeOf(_account, _courtID);
         uint256 newStake = 0;
@@ -213,6 +214,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         }
         _setStake(_account, _courtID, 0, availablePenalty, newStake);
         pnkBalance = juror.stakedPnk; // updated by _setStake()
+        newCourtStake = _stakeOf(_account, _courtID); // updated by _setStake()
     }
 
     function _setStake(

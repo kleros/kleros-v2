@@ -33,7 +33,7 @@ interface ISortitionModule {
         address _account,
         uint96 _courtID,
         uint256 _penalty
-    ) external returns (uint256 pnkBalance, uint256 availablePenalty);
+    ) external returns (uint256 pnkBalance, uint256 newCourtStake, uint256 availablePenalty);
 
     function setJurorInactive(address _account) external;
 
