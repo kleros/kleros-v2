@@ -119,9 +119,13 @@ interface IDisputeKit {
     function earlyCourtJump(uint256 _coreDisputeID) external view returns (bool);
 
     /// @dev Returns the number of votes after the appeal.
+    /// @param _previousDisputeKit The previous Dispute Kit.
     /// @param _currentNbVotes The number of votes before the appeal.
     /// @return The number of votes after the appeal.
-    function getNbVotesAfterAppeal(uint256 _currentNbVotes) external view returns (uint256);
+    function getNbVotesAfterAppeal(
+        IDisputeKit _previousDisputeKit,
+        uint256 _currentNbVotes
+    ) external view returns (uint256); // TODO: remove previousDisputeKit
 
     /// @dev Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.

@@ -930,7 +930,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
         (, uint256 newDisputeKitID, bool courtJump, ) = _getCourtAndDisputeKitJumps(dispute, round, court, _disputeID);
 
-        uint256 nbVotesAfterAppeal = disputeKits[newDisputeKitID].getNbVotesAfterAppeal(round.nbVotes);
+        uint256 nbVotesAfterAppeal = disputeKits[newDisputeKitID].getNbVotesAfterAppeal(
+            disputeKits[round.disputeKitID],
+            round.nbVotes
+        );
 
         if (courtJump) {
             // Jump to parent court.

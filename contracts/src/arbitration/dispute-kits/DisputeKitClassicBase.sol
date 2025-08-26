@@ -636,7 +636,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @dev Returns the number of votes after the appeal.
     /// @param _currentNbVotes The number of votes before the appeal.
     /// @return The number of votes after the appeal.
-    function getNbVotesAfterAppeal(uint256 _currentNbVotes) external pure override returns (uint256) {
+    function getNbVotesAfterAppeal(
+        IDisputeKit /* _previousDisputeKit */,
+        uint256 _currentNbVotes
+    ) external pure override returns (uint256) {
         return (_currentNbVotes * 2) + 1;
     }
 
