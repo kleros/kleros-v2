@@ -6,7 +6,7 @@ import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../Kler
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";
-import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
+import {ONE_BASIS_POINT, DISPUTE_KIT_CLASSIC} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitClassicBase
 /// Abstract Dispute kit classic implementation of the Kleros v1 features including:
@@ -68,6 +68,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         public alreadyDrawn; // True if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
     mapping(uint256 coreDisputeID => bool) public coreDisputeIDToActive; // True if this dispute kit is active for this core dispute ID.
     address public wNative; // The wrapped native token for safeSend().
+    uint256 public jumpDisputeKitID; // The ID of the dispute kit in Kleros Core disputeKits array that the dispute should switch to after the court jump, in case the new court doesn't support this dispute kit.
 
     // ************************************* //
     // *              Events               * //
@@ -147,14 +148,17 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
+    /// @param _jumpDisputeKitID The ID of the dispute kit to switch to after the court jump.
     function __DisputeKitClassicBase_initialize(
         address _owner,
         KlerosCore _core,
-        address _wNative
+        address _wNative,
+        uint256 _jumpDisputeKitID
     ) internal onlyInitializing {
         owner = _owner;
         core = _core;
         wNative = _wNative;
+        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     // ************************ //
@@ -174,6 +178,12 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _owner The new value for the `owner` storage variable.
     function changeOwner(address payable _owner) external onlyByOwner {
         owner = _owner;
+    }
+
+    /// @dev Changes the dispute kit ID used for the jump.
+    /// @param _jumpDisputeKitID The new value for the `jumpDisputeKitID` storage variable.
+    function changeJumpDisputeKitID(uint256 _jumpDisputeKitID) external onlyByOwner {
+        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     /// @dev Changes the `core` storage variable.
@@ -637,6 +647,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _currentNbVotes
     ) external pure override returns (uint256) {
         return (_currentNbVotes * 2) + 1;
+    }
+
+    function getJumpDisputeKitID() external view returns (uint256) {
+        // Fall back to classic DK in case the jump ID is not defined.
+        return jumpDisputeKitID == 0 ? DISPUTE_KIT_CLASSIC : jumpDisputeKitID;
     }
 
     /// @dev Returns true if the specified voter was active in this round.

@@ -127,6 +127,10 @@ interface IDisputeKit {
         uint256 _currentNbVotes
     ) external view returns (uint256); // TODO: remove previousDisputeKit
 
+    /// @dev Returns the dispute kid ID for Kleros Core, that will be used after court jump.
+    /// @return The ID of the dispute kit in Kleros Core disputeKits array.
+    function getJumpDisputeKitID() external view returns (uint256);
+
     /// @dev Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.

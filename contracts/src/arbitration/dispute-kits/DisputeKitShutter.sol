@@ -45,8 +45,14 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
-    function initialize(address _owner, KlerosCore _core, address _wNative) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
+    /// @param _jumpDisputeKitID The ID of the dispute kit to switch to after the court jump.
+    function initialize(
+        address _owner,
+        KlerosCore _core,
+        address _wNative,
+        uint256 _jumpDisputeKitID
+    ) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
     }
 
     function reinitialize(address _wNative) external reinitializer(9) {

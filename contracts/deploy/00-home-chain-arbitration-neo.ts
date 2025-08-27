@@ -28,10 +28,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
+  const jumpDisputeKitID = 1; // Classic DK
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicNeo", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, ZeroAddress, weth.target],
+    args: [deployer, ZeroAddress, weth.target, jumpDisputeKitID],
     log: true,
   });
 
@@ -124,21 +125,21 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // Extra dispute kits
   const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, jumpDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
 
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, jumpDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
 
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, jumpDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);

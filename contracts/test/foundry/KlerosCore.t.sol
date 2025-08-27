@@ -102,10 +102,11 @@ contract KlerosCoreTest is Test {
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             owner,
             address(proxyCore),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
@@ -235,6 +236,8 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.allowance(staker2, address(core)), 1 ether, "Wrong allowance for staker2");
 
         assertEq(disputeKit.owner(), msg.sender, "Wrong DK owner");
+        assertEq(disputeKit.getJumpDisputeKitID(), DISPUTE_KIT_CLASSIC, "Wrong jump DK");
+        assertEq(disputeKit.jumpDisputeKitID(), DISPUTE_KIT_CLASSIC, "Wrong jump DK storage var");
         assertEq(address(disputeKit.core()), address(core), "Wrong core in DK");
 
         assertEq(sortitionModule.owner(), msg.sender, "Wrong SM owner");
@@ -289,10 +292,11 @@ contract KlerosCoreTest is Test {
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             owner,
             address(proxyCore),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
@@ -2115,10 +2119,11 @@ contract KlerosCoreTest is Test {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK and court to check the switch
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             owner,
             address(core),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
@@ -2939,10 +2944,11 @@ contract KlerosCoreTest is Test {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK to check castVote.
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             owner,
             address(core),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
