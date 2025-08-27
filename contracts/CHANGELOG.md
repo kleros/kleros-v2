@@ -23,6 +23,10 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Bump `hardhat` to v2.26.2 ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Bump `@kleros/vea-contracts` to v0.7.0 ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
 
+### Added
+
+- Allow the dispute kits to force an early court jump and to override the number of votes after an appeal (future-proofing) ([#2110](https://github.com/kleros/kleros-v2/issues/2110))
+
 ### Fixed
 
 - Do not pass to Voting period if all the commits are cast because it breaks the current Shutter auto-reveal process. ([#2085](https://github.com/kleros/kleros-v2/issues/2085))
