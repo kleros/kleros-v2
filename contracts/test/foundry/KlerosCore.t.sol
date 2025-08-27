@@ -10,6 +10,7 @@ import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/di
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
+import {DelayedStakes} from "../../src/libraries/DelayedStakes.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
@@ -246,8 +247,9 @@ contract KlerosCoreTest is Test {
         assertEq(sortitionModule.disputesWithoutJurors(), 0, "disputesWithoutJurors should be 0");
         assertEq(address(sortitionModule.rng()), address(rng), "Wrong RNG address");
         assertEq(sortitionModule.randomNumber(), 0, "randomNumber should be 0");
-        assertEq(sortitionModule.delayedStakeWriteIndex(), 0, "delayedStakeWriteIndex should be 0");
-        assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
+        (uint256 writeIndex, uint256 readIndex) = sortitionModule.delayedStakesQueue();
+        assertEq(writeIndex, 0, "delayedStakeWriteIndex should be 0");
+        assertEq(readIndex, 1, "Wrong delayedStakeReadIndex");
 
         (uint256 K, uint256 nodeLength) = sortitionModule.getSortitionProperties(bytes32(uint256(FORKING_COURT)));
         assertEq(K, 5, "Wrong tree K FORKING_COURT");
@@ -1031,16 +1033,15 @@ contract KlerosCoreTest is Test {
         emit SortitionModuleBase.StakeDelayed(staker1, GENERAL_COURT, 1500);
         core.setStake(GENERAL_COURT, 1500);
 
-        uint256 delayedStakeId = sortitionModule.delayedStakeWriteIndex();
-        assertEq(delayedStakeId, 1, "Wrong delayedStakeWriteIndex");
-        assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
-        (address account, uint96 courtID, uint256 stake, bool alreadyTransferred) = sortitionModule.delayedStakes(
-            delayedStakeId
-        );
-        assertEq(account, staker1, "Wrong staker account");
-        assertEq(courtID, GENERAL_COURT, "Wrong court id");
-        assertEq(stake, 1500, "Wrong amount staked in court");
-        assertEq(alreadyTransferred, false, "Should be flagged as transferred");
+        (uint256 writeIndex, uint256 readIndex) = sortitionModule.delayedStakesQueue();
+        assertEq(writeIndex, 1, "Wrong delayedStakeWriteIndex");
+        assertEq(readIndex, 1, "Wrong delayedStakeReadIndex");
+
+        DelayedStakes.Stake memory stake = sortitionModule.delayedStakes(writeIndex);
+        assertEq(stake.account, staker1, "Wrong staker account");
+        assertEq(stake.courtID, GENERAL_COURT, "Wrong court id");
+        assertEq(stake.stake, 1500, "Wrong amount staked in court");
+        assertEq(stake.alreadyTransferred, false, "Should be flagged as transferred");
 
         (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
             .getJurorBalance(staker1, GENERAL_COURT);
@@ -1179,28 +1180,28 @@ contract KlerosCoreTest is Test {
         emit SortitionModuleBase.StakeDelayed(staker1, GENERAL_COURT, 1800);
         core.setStake(GENERAL_COURT, 1800);
 
-        assertEq(sortitionModule.delayedStakeWriteIndex(), 3, "Wrong delayedStakeWriteIndex");
-        assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
-
-        (address account, uint96 courtID, uint256 stake, bool alreadyTransferred) = sortitionModule.delayedStakes(1);
+        (uint256 writeIndex, uint256 readIndex) = sortitionModule.delayedStakesQueue();
+        assertEq(writeIndex, 3, "Wrong delayedStakeWriteIndex");
+        assertEq(readIndex, 1, "Wrong delayedStakeReadIndex");
 
         // Check each delayed stake
-        assertEq(account, staker1, "Wrong staker account for the first delayed stake");
-        assertEq(courtID, GENERAL_COURT, "Wrong court ID");
-        assertEq(stake, 1500, "Wrong staking amount");
-        assertEq(alreadyTransferred, false, "Should be false");
+        DelayedStakes.Stake memory stake = sortitionModule.delayedStakes(1);
+        assertEq(stake.account, staker1, "Wrong staker account for the first delayed stake");
+        assertEq(stake.courtID, GENERAL_COURT, "Wrong court ID");
+        assertEq(stake.stake, 1500, "Wrong staking amount");
+        assertEq(stake.alreadyTransferred, false, "Should be false");
 
-        (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(2);
-        assertEq(account, staker2, "Wrong staker2 account");
-        assertEq(courtID, GENERAL_COURT, "Wrong court id for staker2");
-        assertEq(stake, 0, "Wrong amount for delayed stake of staker2");
-        assertEq(alreadyTransferred, false, "Should be false");
+        stake = sortitionModule.delayedStakes(2);
+        assertEq(stake.account, staker2, "Wrong staker2 account");
+        assertEq(stake.courtID, GENERAL_COURT, "Wrong court id for staker2");
+        assertEq(stake.stake, 0, "Wrong amount for delayed stake of staker2");
+        assertEq(stake.alreadyTransferred, false, "Should be false");
 
-        (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(3);
-        assertEq(account, staker1, "Wrong staker1 account");
-        assertEq(courtID, GENERAL_COURT, "Wrong court id for staker1");
-        assertEq(stake, 1800, "Wrong amount for delayed stake of staker1");
-        assertEq(alreadyTransferred, false, "Should be false");
+        stake = sortitionModule.delayedStakes(3);
+        assertEq(stake.account, staker1, "Wrong staker1 account");
+        assertEq(stake.courtID, GENERAL_COURT, "Wrong court id for staker1");
+        assertEq(stake.stake, 1800, "Wrong amount for delayed stake of staker1");
+        assertEq(stake.alreadyTransferred, false, "Should be false");
 
         // So far the only amount transferred was 10000 by staker2. Staker 1 has two delayed stakes, for 1500 and 1800 pnk.
         assertEq(pinakion.balanceOf(address(core)), 10000, "Wrong token balance of the core");
@@ -1229,17 +1230,18 @@ contract KlerosCoreTest is Test {
         emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1800, 1800);
         sortitionModule.executeDelayedStakes(20); // Deliberately ask for more iterations than needed
 
-        assertEq(sortitionModule.delayedStakeWriteIndex(), 3, "Wrong delayedStakeWriteIndex");
-        assertEq(sortitionModule.delayedStakeReadIndex(), 4, "Wrong delayedStakeReadIndex");
+        (writeIndex, readIndex) = sortitionModule.delayedStakesQueue();
+        assertEq(writeIndex, 3, "Wrong delayedStakeWriteIndex");
+        assertEq(readIndex, 4, "Wrong delayedStakeReadIndex");
 
         // Check that delayed stakes are nullified
-        for (uint i = 2; i <= sortitionModule.delayedStakeWriteIndex(); i++) {
-            (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(i);
+        for (uint i = 2; i <= writeIndex; i++) {
+            DelayedStakes.Stake memory stake = sortitionModule.delayedStakes(i);
 
-            assertEq(account, address(0), "Wrong staker account after delayed stake deletion");
-            assertEq(courtID, 0, "Court id should be nullified");
-            assertEq(stake, 0, "No amount to stake");
-            assertEq(alreadyTransferred, false, "Should be false");
+            assertEq(stake.account, address(0), "Wrong staker account after delayed stake deletion");
+            assertEq(stake.courtID, 0, "Court id should be nullified");
+            assertEq(stake.stake, 0, "No amount to stake");
+            assertEq(stake.alreadyTransferred, false, "Should be false");
         }
 
         assertEq(pinakion.balanceOf(staker1), 999999999999998200, "Wrong token balance of staker1");

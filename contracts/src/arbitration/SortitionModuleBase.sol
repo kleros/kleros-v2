@@ -8,11 +8,14 @@ import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {IRNG} from "../rng/IRNG.sol";
+import {DelayedStakes} from "../libraries/DelayedStakes.sol";
 import "../libraries/Constants.sol";
 
 /// @title SortitionModuleBase
 /// @dev A factory of trees that keeps track of staked values for sortition.
 abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSProxiable {
+    using DelayedStakes for DelayedStakes.Queue;
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -24,13 +27,6 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         // Two-way mapping of IDs to node indexes. Note that node index 0 is reserved for the root node, and means the ID does not have a node.
         mapping(bytes32 stakePathID => uint256 nodeIndex) IDsToNodeIndexes;
         mapping(uint256 nodeIndex => bytes32 stakePathID) nodeIndexesToIDs;
-    }
-
-    struct DelayedStake {
-        address account; // The address of the juror.
-        uint96 courtID; // The ID of the court.
-        uint256 stake; // The new stake.
-        bool alreadyTransferred; // DEPRECATED. True if tokens were already transferred before delayed stake's execution.
     }
 
     struct Juror {
@@ -54,12 +50,9 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     IRNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
     uint256 public rngLookahead; // DEPRECATED: to be removed in the next redeploy
-    uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
-    uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
+    DelayedStakes.Queue public delayedStakesQueue; // Queue for managing delayed stakes during Drawing phase.
     mapping(bytes32 treeHash => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
     mapping(address account => Juror) public jurors; // The jurors.
-    mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
-    mapping(address jurorAccount => mapping(uint96 courtId => uint256)) public latestDelayedStakeIndex; // DEPRECATED. Maps the juror to its latest delayed stake. If there is already a delayed stake for this juror then it'll be replaced. latestDelayedStakeIndex[juror][courtID].
 
     // ************************************* //
     // *              Events               * //
@@ -111,7 +104,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
         rng = _rng;
-        delayedStakeReadIndex = 1;
+        delayedStakesQueue.initialize();
     }
 
     // ************************************* //
@@ -200,19 +193,9 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// @param _iterations The number of delayed stakes to execute.
     function executeDelayedStakes(uint256 _iterations) external {
         if (phase != Phase.staking) revert NotStakingPhase();
-        if (delayedStakeWriteIndex < delayedStakeReadIndex) revert NoDelayedStakeToExecute();
-
-        uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
-            ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
-            : _iterations;
-        uint256 newDelayedStakeReadIndex = delayedStakeReadIndex + actualIterations;
-
-        for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
-            DelayedStake storage delayedStake = delayedStakes[i];
-            core.setStakeBySortitionModule(delayedStake.account, delayedStake.courtID, delayedStake.stake);
-            delete delayedStakes[i];
+        if (!delayedStakesQueue.execute(core, _iterations)) {
+            revert NoDelayedStakeToExecute();
         }
-        delayedStakeReadIndex = newDelayedStakeReadIndex;
     }
 
     function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
@@ -262,10 +245,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
 
         if (phase != Phase.staking) {
             // Store the stake change as delayed, to be applied when the phase switches back to Staking.
-            DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
-            delayedStake.account = _account;
-            delayedStake.courtID = _courtID;
-            delayedStake.stake = _newStake;
+            delayedStakesQueue.add(_account, _courtID, _newStake);
             emit StakeDelayed(_account, _courtID, _newStake);
             return (pnkDeposit, pnkWithdrawal, StakingResult.Delayed);
         }
@@ -545,6 +525,16 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         } else {
             return 0;
         }
+    }
+
+    /// @dev Get a specific delayed stake by index
+    function delayedStakes(uint256 index) external view returns (DelayedStakes.Stake memory) {
+        return delayedStakesQueue.stakes[index];
+    }
+
+    /// @dev Get the number of pending delayed stakes
+    function pendingDelayedStakesCount() external view returns (uint256) {
+        return delayedStakesQueue.pendingStakesCount();
     }
 
     // ************************************* //
