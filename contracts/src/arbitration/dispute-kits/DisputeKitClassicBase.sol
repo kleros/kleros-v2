@@ -59,7 +59,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     KlerosCore public core; // The Kleros Core arbitrator
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
@@ -124,8 +124,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *              Modifiers            * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -144,15 +144,15 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // ************************************* //
 
     /// @dev Initializer.
-    /// @param _governor The governor's address.
+    /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
     function __DisputeKitClassicBase_initialize(
-        address _governor,
+        address _owner,
         KlerosCore _core,
         address _wNative
     ) internal onlyInitializing {
-        governor = _governor;
+        owner = _owner;
         core = _core;
         wNative = _wNative;
     }
@@ -161,28 +161,24 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *      Governance      * //
     // ************************ //
 
-    /// @dev Allows the governor to call anything on behalf of the contract.
+    /// @dev Allows the owner to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes memory _data
-    ) external onlyByGovernor {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
         if (!success) revert UnsuccessfulCall();
     }
 
-    /// @dev Changes the `governor` storage variable.
-    /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address payable _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the `owner` storage variable.
+    /// @param _owner The new value for the `owner` storage variable.
+    function changeOwner(address payable _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the `core` storage variable.
     /// @param _core The new value for the `core` storage variable.
-    function changeCore(address _core) external onlyByGovernor {
+    function changeCore(address _core) external onlyByOwner {
         core = KlerosCore(_core);
     }
 
@@ -755,7 +751,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
     error KlerosCoreOnly();
     error DisputeJumpedToParentDK();
     error UnsuccessfulCall();

@@ -29,7 +29,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deployUpgradable(deployments, "KlerosCoreRuler", {
     from: deployer,
     args: [
-      deployer, // governor
+      deployer, // owner
       pnk.target,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
     ],

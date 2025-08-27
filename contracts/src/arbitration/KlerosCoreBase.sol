@@ -90,7 +90,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     address public guardian; // The guardian able to pause asset withdrawals.
     IERC20 public pinakion; // The Pinakion token contract.
     address public jurorProsecutionModule; // The module for juror's prosecution.
@@ -167,13 +167,13 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
-    modifier onlyByGuardianOrGovernor() {
-        if (guardian != msg.sender && governor != msg.sender) revert GuardianOrGovernorOnly();
+    modifier onlyByGuardianOrOwner() {
+        if (guardian != msg.sender && owner != msg.sender) revert GuardianOrOwnerOnly();
         _;
     }
 
@@ -192,7 +192,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // ************************************* //
 
     function __KlerosCoreBase_initialize(
-        address _governor,
+        address _owner,
         address _guardian,
         IERC20 _pinakion,
         address _jurorProsecutionModule,
@@ -204,7 +204,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         ISortitionModule _sortitionModuleAddress,
         address _wNative
     ) internal onlyInitializing {
-        governor = _governor;
+        owner = _owner;
         guardian = _guardian;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
@@ -257,65 +257,61 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Pause staking and reward execution. Can only be done by guardian or governor.
-    function pause() external onlyByGuardianOrGovernor whenNotPaused {
+    /// @dev Pause staking and reward execution. Can only be done by guardian or owner.
+    function pause() external onlyByGuardianOrOwner whenNotPaused {
         paused = true;
         emit Paused();
     }
 
-    /// @dev Unpause staking and reward execution. Can only be done by governor.
-    function unpause() external onlyByGovernor whenPaused {
+    /// @dev Unpause staking and reward execution. Can only be done by owner.
+    function unpause() external onlyByOwner whenPaused {
         paused = false;
         emit Unpaused();
     }
 
-    /// @dev Allows the governor to call anything on behalf of the contract.
+    /// @dev Allows the owner to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes memory _data
-    ) external onlyByGovernor {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
         if (!success) revert UnsuccessfulCall();
     }
 
-    /// @dev Changes the `governor` storage variable.
-    /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address payable _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the `owner` storage variable.
+    /// @param _owner The new value for the `owner` storage variable.
+    function changeOwner(address payable _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the `guardian` storage variable.
     /// @param _guardian The new value for the `guardian` storage variable.
-    function changeGuardian(address _guardian) external onlyByGovernor {
+    function changeGuardian(address _guardian) external onlyByOwner {
         guardian = _guardian;
     }
 
     /// @dev Changes the `pinakion` storage variable.
     /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(IERC20 _pinakion) external onlyByGovernor {
+    function changePinakion(IERC20 _pinakion) external onlyByOwner {
         pinakion = _pinakion;
     }
 
     /// @dev Changes the `jurorProsecutionModule` storage variable.
     /// @param _jurorProsecutionModule The new value for the `jurorProsecutionModule` storage variable.
-    function changeJurorProsecutionModule(address _jurorProsecutionModule) external onlyByGovernor {
+    function changeJurorProsecutionModule(address _jurorProsecutionModule) external onlyByOwner {
         jurorProsecutionModule = _jurorProsecutionModule;
     }
 
     /// @dev Changes the `_sortitionModule` storage variable.
     /// Note that the new module should be initialized for all courts.
     /// @param _sortitionModule The new value for the `sortitionModule` storage variable.
-    function changeSortitionModule(ISortitionModule _sortitionModule) external onlyByGovernor {
+    function changeSortitionModule(ISortitionModule _sortitionModule) external onlyByOwner {
         sortitionModule = _sortitionModule;
     }
 
     /// @dev Add a new supported dispute kit module to the court.
     /// @param _disputeKitAddress The address of the dispute kit contract.
-    function addNewDisputeKit(IDisputeKit _disputeKitAddress) external onlyByGovernor {
+    function addNewDisputeKit(IDisputeKit _disputeKitAddress) external onlyByOwner {
         uint256 disputeKitID = disputeKits.length;
         disputeKits.push(_disputeKitAddress);
         emit DisputeKitCreated(disputeKitID, _disputeKitAddress);
@@ -341,7 +337,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
         uint256[] memory _supportedDisputeKits
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
         if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
@@ -392,7 +388,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         Court storage court = courts[_courtID];
         if (_courtID != GENERAL_COURT && courts[court.parent].minStake > _minStake) {
             revert MinStakeLowerThanParentCourt();
@@ -423,7 +419,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _courtID The ID of the court.
     /// @param _disputeKitIDs The IDs of dispute kits which support should be added/removed.
     /// @param _enable Whether add or remove the dispute kits from the court.
-    function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external onlyByGovernor {
+    function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external onlyByOwner {
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
             if (_enable) {
                 if (_disputeKitIDs[i] == 0 || _disputeKitIDs[i] >= disputeKits.length) {
@@ -443,7 +439,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @dev Changes the supported fee tokens.
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
-    function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByGovernor {
+    function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByOwner {
         currencyRates[_feeToken].feePaymentAccepted = _accepted;
         emit AcceptedFeeToken(_feeToken, _accepted);
     }
@@ -452,7 +448,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _feeToken The fee token.
     /// @param _rateInEth The new rate of the fee token in ETH.
     /// @param _rateDecimals The new decimals of the fee token rate.
-    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByGovernor {
+    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByOwner {
         currencyRates[_feeToken].rateInEth = _rateInEth;
         currencyRates[_feeToken].rateDecimals = _rateDecimals;
         emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
@@ -795,9 +791,9 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             sortitionModule.setJurorInactive(account);
         }
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
-            // No one was coherent, send the rewards to the governor.
-            _transferFeeToken(round.feeToken, payable(governor), round.totalFeesForJurors);
-            pinakion.safeTransfer(governor, _params.pnkPenaltiesInRound);
+            // No one was coherent, send the rewards to the owner.
+            _transferFeeToken(round.feeToken, payable(owner), round.totalFeesForJurors);
+            pinakion.safeTransfer(owner, _params.pnkPenaltiesInRound);
             emit LeftoverRewardSent(
                 _params.disputeID,
                 _params.round,
@@ -863,16 +859,16 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             round.feeToken
         );
 
-        // Transfer any residual rewards to the governor. It may happen due to partial coherence of the jurors.
+        // Transfer any residual rewards to the owner. It may happen due to partial coherence of the jurors.
         if (_params.repartition == _params.numberOfVotesInRound * 2 - 1) {
             uint256 leftoverPnkReward = _params.pnkPenaltiesInRound - round.sumPnkRewardPaid;
             uint256 leftoverFeeReward = round.totalFeesForJurors - round.sumFeeRewardPaid;
             if (leftoverPnkReward != 0 || leftoverFeeReward != 0) {
                 if (leftoverPnkReward != 0) {
-                    pinakion.safeTransfer(governor, leftoverPnkReward);
+                    pinakion.safeTransfer(owner, leftoverPnkReward);
                 }
                 if (leftoverFeeReward != 0) {
-                    _transferFeeToken(round.feeToken, payable(governor), leftoverFeeReward);
+                    _transferFeeToken(round.feeToken, payable(owner), leftoverFeeReward);
                 }
                 emit LeftoverRewardSent(
                     _params.disputeID,
@@ -1217,8 +1213,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
-    error GuardianOrGovernorOnly();
+    error OwnerOnly();
+    error GuardianOrOwnerOnly();
     error DisputeKitOnly();
     error SortitionModuleOnly();
     error UnsuccessfulCall();

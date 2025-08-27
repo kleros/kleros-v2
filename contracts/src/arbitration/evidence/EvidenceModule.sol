@@ -15,14 +15,14 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
 
     // ************************************* //
     // *              Modifiers            * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -36,9 +36,9 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     }
 
     /// @dev Initializer.
-    /// @param _governor The governor's address.
-    function initialize(address _governor) external reinitializer(1) {
-        governor = _governor;
+    /// @param _owner The owner's address.
+    function initialize(address _owner) external reinitializer(1) {
+        owner = _owner;
     }
 
     function initialize2() external reinitializer(2) {
@@ -51,9 +51,9 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
 
     /**
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     * @dev Only the owner can perform upgrades (`onlyByOwner`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
@@ -72,5 +72,5 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
 }

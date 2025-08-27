@@ -23,16 +23,16 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor;
+    address public owner;
     mapping(uint256 => string) public policies;
 
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
 
-    /// @dev Requires that the sender is the governor.
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    /// @dev Requires that the sender is the owner.
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -46,9 +46,9 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     }
 
     /// @dev Constructs the `PolicyRegistry` contract.
-    /// @param _governor The governor's address.
-    function initialize(address _governor) external reinitializer(1) {
-        governor = _governor;
+    /// @param _owner The owner's address.
+    function initialize(address _owner) external reinitializer(1) {
+        owner = _owner;
     }
 
     function initialize2() external reinitializer(2) {
@@ -61,16 +61,16 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
 
     /**
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     * @dev Only the owner can perform upgrades (`onlyByOwner`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
-    /// @dev Changes the `governor` storage variable.
-    /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the `owner` storage variable.
+    /// @param _owner The new value for the `owner` storage variable.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     // ************************************* //
@@ -81,7 +81,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     /// @param _courtID The ID of the specified court.
     /// @param _courtName The name of the specified court.
     /// @param _policy The URI of the policy JSON.
-    function setPolicy(uint256 _courtID, string calldata _courtName, string calldata _policy) external onlyByGovernor {
+    function setPolicy(uint256 _courtID, string calldata _courtName, string calldata _policy) external onlyByOwner {
         policies[_courtID] = _policy;
         emit PolicyUpdate(_courtID, _courtName, policies[_courtID]);
     }
@@ -90,5 +90,5 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
 }

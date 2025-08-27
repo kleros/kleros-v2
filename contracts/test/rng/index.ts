@@ -40,7 +40,7 @@ describe("BlockHashRNG", async () => {
     await deployments.delete("BlockHashRNG");
     await deployments.deploy("BlockHashRNG", {
       from: deployer.address,
-      args: [deployer.address, deployer.address, 10], // governor, consumer, lookaheadTime (seconds)
+      args: [deployer.address, deployer.address, 10], // owner, consumer, lookaheadTime (seconds)
     });
     rng = await ethers.getContract<BlockHashRNG>("BlockHashRNG");
   });

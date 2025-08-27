@@ -23,7 +23,7 @@ contract ArbitrableExample is IArbitrableV2 {
 
     event Action(string indexed _action);
 
-    address public immutable governor;
+    address public immutable owner;
     IArbitratorV2 public arbitrator; // Arbitrator is set in constructor.
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     uint256 public templateId; // The current dispute template identifier.
@@ -36,8 +36,8 @@ contract ArbitrableExample is IArbitrableV2 {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -60,7 +60,7 @@ contract ArbitrableExample is IArbitrableV2 {
         IDisputeTemplateRegistry _templateRegistry,
         IERC20 _weth
     ) {
-        governor = msg.sender;
+        owner = msg.sender;
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
         templateRegistry = _templateRegistry;
@@ -73,22 +73,22 @@ contract ArbitrableExample is IArbitrableV2 {
     // *             Governance            * //
     // ************************************* //
 
-    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByOwner {
         arbitrator = _arbitrator;
     }
 
-    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyByGovernor {
+    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyByOwner {
         arbitratorExtraData = _arbitratorExtraData;
     }
 
-    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByGovernor {
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByOwner {
         templateRegistry = _templateRegistry;
     }
 
     function changeDisputeTemplate(
         string memory _templateData,
         string memory _templateDataMappings
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
@@ -156,7 +156,7 @@ contract ArbitrableExample is IArbitrableV2 {
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
     error TransferFailed();
     error AllowanceIncreaseFailed();
     error ArbitratorOnly();

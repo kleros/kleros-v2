@@ -359,8 +359,8 @@ describe("Staking", async () => {
       await deploy();
     });
 
-    it("Should not allow anyone except the guardian or the governor to pause", async () => {
-      await expect(core.connect(juror).pause()).to.be.revertedWithCustomError(core, "GuardianOrGovernorOnly");
+    it("Should not allow anyone except the guardian or the owner to pause", async () => {
+      await expect(core.connect(juror).pause()).to.be.revertedWithCustomError(core, "GuardianOrOwnerOnly");
     });
 
     it("Should allow the guardian to pause", async () => {
@@ -368,7 +368,7 @@ describe("Staking", async () => {
       expect(await core.paused()).to.equal(true);
     });
 
-    it("Should allow the governor to pause", async () => {
+    it("Should allow the owner to pause", async () => {
       expect(await core.pause()).to.emit(core, "Paused");
       expect(await core.paused()).to.equal(true);
     });
@@ -384,8 +384,8 @@ describe("Staking", async () => {
       await core.connect(guardian).pause();
     });
 
-    it("Should allow only the governor to unpause", async () => {
-      await expect(core.connect(guardian).unpause()).to.be.revertedWithCustomError(core, "GovernorOnly");
+    it("Should allow only the owner to unpause", async () => {
+      await expect(core.connect(guardian).unpause()).to.be.revertedWithCustomError(core, "OwnerOnly");
       expect(await core.unpause()).to.emit(core, "Unpaused");
       expect(await core.paused()).to.equal(false);
     });

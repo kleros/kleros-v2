@@ -29,7 +29,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     KlerosCoreUniversity public core; // The core arbitrator contract.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     mapping(address account => Juror) public jurors; // The jurors.
@@ -66,8 +66,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -87,8 +87,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _core The KlerosCore.
-    function initialize(address _governor, KlerosCoreUniversity _core) external reinitializer(1) {
-        governor = _governor;
+    function initialize(address _owner, KlerosCoreUniversity _core) external reinitializer(1) {
+        owner = _owner;
         core = _core;
     }
 
@@ -98,9 +98,9 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
 
     /**
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     * @dev Only the owner can perform upgrades (`onlyByOwner`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
@@ -403,7 +403,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
     error KlerosCoreOnly();
     error NotEligibleForWithdrawal();
 }
