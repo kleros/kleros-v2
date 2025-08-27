@@ -12,7 +12,7 @@ import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitShutter is DisputeKitClassicBase {
-    string public constant override version = "0.12.0";
+    string public constant override version = "0.13.0";
 
     // ************************************* //
     // *              Events               * //
@@ -55,8 +55,8 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
     }
 
-    function reinitialize(address _wNative) external reinitializer(9) {
-        wNative = _wNative;
+    function reinitialize(uint256 _jumpDisputeKitID) external reinitializer(10) {
+        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     // ************************ //
