@@ -223,7 +223,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
         courts.push();
-        sortitionModule.createTree(bytes32(uint256(FORKING_COURT)), _sortitionExtraData);
+        sortitionModule.createTree(FORKING_COURT, _sortitionExtraData);
 
         // GENERAL_COURT
         Court storage court = courts.push();
@@ -236,7 +236,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
 
-        sortitionModule.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
+        sortitionModule.createTree(GENERAL_COURT, _sortitionExtraData);
 
         uint256[] memory supportedDisputeKits = new uint256[](1);
         supportedDisputeKits[0] = DISPUTE_KIT_CLASSIC;
@@ -343,7 +343,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
         if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
 
-        uint256 courtID = courts.length;
+        uint96 courtID = uint96(courts.length);
         Court storage court = courts.push();
 
         for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
@@ -364,7 +364,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
 
-        sortitionModule.createTree(bytes32(courtID), _sortitionExtraData);
+        sortitionModule.createTree(courtID, _sortitionExtraData);
 
         // Update the parent.
         courts[_parent].children.push(courtID);

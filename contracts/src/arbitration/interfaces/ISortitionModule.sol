@@ -13,7 +13,7 @@ interface ISortitionModule {
 
     event NewPhase(Phase _phase);
 
-    function createTree(bytes32 _key, bytes memory _extraData) external;
+    function createTree(uint96 _courtID, bytes memory _extraData) external;
 
     function validateStake(
         address _account,
@@ -49,7 +49,7 @@ interface ISortitionModule {
     function notifyRandomNumber(uint256 _drawnNumber) external;
 
     function draw(
-        bytes32 _court,
+        uint96 _courtID,
         uint256 _coreDisputeID,
         uint256 _nonce
     ) external view returns (address drawnAddress, uint96 fromSubcourtID);

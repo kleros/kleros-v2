@@ -112,7 +112,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         transientJuror = _juror;
     }
 
-    function createTree(bytes32 _key, bytes memory _extraData) external {
+    function createTree(uint96 _courtID, bytes memory _extraData) external {
         // NOP
     }
 
@@ -345,11 +345,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// @dev Draw an ID from a tree using a number.
     /// Note that this function reverts if the sum of all values in the tree is 0.
     /// @return drawnAddress The drawn address.
-    function draw(
-        bytes32,
-        uint256,
-        uint256
-    ) public view override returns (address drawnAddress, uint96 fromSubcourtID) {
+    function draw(uint96, uint256, uint256) public view override returns (address drawnAddress, uint96 fromSubcourtID) {
         drawnAddress = transientJuror;
     }
 
