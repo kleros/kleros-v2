@@ -19,19 +19,19 @@ contract SortitionModule is SortitionModuleBase {
     }
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
-    /// @param _governor The governor.
+    /// @param _owner The owner.
     /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
     function initialize(
-        address _governor,
+        address _owner,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         IRNG _rng
     ) external reinitializer(1) {
-        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng);
+        __SortitionModuleBase_initialize(_owner, _core, _minStakingTime, _maxDrawingTime, _rng);
     }
 
     function initialize4() external reinitializer(4) {
@@ -43,8 +43,8 @@ contract SortitionModule is SortitionModuleBase {
     // ************************************* //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view virtual override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view virtual override onlyByOwner {
         // NOP
     }
 }

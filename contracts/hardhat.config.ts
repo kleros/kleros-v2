@@ -15,7 +15,7 @@ import "hardhat-contract-sizer";
 import "hardhat-tracer";
 require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
-require("./scripts/changeGovernor");
+require("./scripts/changeOwner");
 require("./scripts/getDisputeTemplate");
 require("./scripts/compareStorageLayout");
 require("./scripts/storage-layout");

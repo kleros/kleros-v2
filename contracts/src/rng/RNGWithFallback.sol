@@ -11,7 +11,7 @@ contract RNGWithFallback is IRNG {
     // ************************************* //
 
     IRNG public immutable rng; // RNG address.
-    address public governor; // Governor address
+    address public owner; // Owner address
     address public consumer; // Consumer address
     uint256 public fallbackTimeoutSeconds; // Time in seconds to wait before falling back to next RNG
     uint256 public requestTimestamp; // Timestamp of the current request
@@ -27,14 +27,14 @@ contract RNGWithFallback is IRNG {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @param _governor Governor address
+    /// @param _owner Owner address
     /// @param _consumer Consumer address
     /// @param _fallbackTimeoutSeconds Time in seconds to wait before falling back to next RNG
     /// @param _rng The RNG address (e.g. Chainlink)
-    constructor(address _governor, address _consumer, uint256 _fallbackTimeoutSeconds, IRNG _rng) {
+    constructor(address _owner, address _consumer, uint256 _fallbackTimeoutSeconds, IRNG _rng) {
         if (address(_rng) == address(0)) revert InvalidDefaultRNG();
 
-        governor = _governor;
+        owner = _owner;
         consumer = _consumer;
         fallbackTimeoutSeconds = _fallbackTimeoutSeconds;
         rng = _rng;
@@ -44,8 +44,8 @@ contract RNGWithFallback is IRNG {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -58,21 +58,21 @@ contract RNGWithFallback is IRNG {
     // *         Governance Functions      * //
     // ************************************* //
 
-    /// @dev Change the governor
-    /// @param _newGovernor Address of the new governor
-    function changeGovernor(address _newGovernor) external onlyByGovernor {
-        governor = _newGovernor;
+    /// @dev Change the owner
+    /// @param _newOwner Address of the new owner
+    function changeOwner(address _newOwner) external onlyByOwner {
+        owner = _newOwner;
     }
 
     /// @dev Change the consumer
     /// @param _consumer Address of the new consumer
-    function changeConsumer(address _consumer) external onlyByGovernor {
+    function changeConsumer(address _consumer) external onlyByOwner {
         consumer = _consumer;
     }
 
     /// @dev Change the fallback timeout
     /// @param _fallbackTimeoutSeconds New timeout in seconds
-    function changeFallbackTimeout(uint256 _fallbackTimeoutSeconds) external onlyByGovernor {
+    function changeFallbackTimeout(uint256 _fallbackTimeoutSeconds) external onlyByOwner {
         fallbackTimeoutSeconds = _fallbackTimeoutSeconds;
         emit FallbackTimeoutChanged(_fallbackTimeoutSeconds);
     }

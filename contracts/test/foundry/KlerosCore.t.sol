@@ -33,7 +33,7 @@ contract KlerosCoreTest is Test {
     TestERC20 wNative;
     ArbitrableExample arbitrable;
     DisputeTemplateRegistry registry;
-    address governor;
+    address owner;
     address guardian;
     address staker1;
     address staker2;
@@ -69,7 +69,7 @@ contract KlerosCoreTest is Test {
         feeToken = new TestERC20("Test", "TST");
         wNative = new TestERC20("wrapped ETH", "wETH");
 
-        governor = msg.sender;
+        owner = msg.sender;
         guardian = vm.addr(1);
         staker1 = vm.addr(2);
         staker2 = vm.addr(3);
@@ -103,7 +103,7 @@ contract KlerosCoreTest is Test {
 
         bytes memory initDataDk = abi.encodeWithSignature(
             "initialize(address,address,address)",
-            governor,
+            owner,
             address(proxyCore),
             address(wNative)
         );
@@ -113,7 +113,7 @@ contract KlerosCoreTest is Test {
 
         bytes memory initDataSm = abi.encodeWithSignature(
             "initialize(address,address,uint256,uint256,address)",
-            governor,
+            owner,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
@@ -122,12 +122,12 @@ contract KlerosCoreTest is Test {
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
         sortitionModule = SortitionModuleMock(address(proxySm));
-        vm.prank(governor);
+        vm.prank(owner);
         rng.changeConsumer(address(sortitionModule));
 
         core = KlerosCoreMock(address(proxyCore));
         core.initialize(
-            governor,
+            owner,
             guardian,
             pinakion,
             jurorProsecutionModule,
@@ -148,7 +148,7 @@ contract KlerosCoreTest is Test {
         templateDataMappings = "BBB";
         arbitratorExtraData = abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
 
-        bytes memory initDataRegistry = abi.encodeWithSignature("initialize(address)", governor);
+        bytes memory initDataRegistry = abi.encodeWithSignature("initialize(address)", owner);
         UUPSProxy proxyRegistry = new UUPSProxy(address(registryLogic), initDataRegistry);
         registry = DisputeTemplateRegistry(address(proxyRegistry));
 
@@ -163,7 +163,7 @@ contract KlerosCoreTest is Test {
     }
 
     function test_initialize() public {
-        assertEq(core.governor(), msg.sender, "Wrong governor");
+        assertEq(core.owner(), msg.sender, "Wrong owner");
         assertEq(core.guardian(), guardian, "Wrong guardian");
         assertEq(address(core.pinakion()), address(pinakion), "Wrong pinakion address");
         assertEq(core.jurorProsecutionModule(), jurorProsecutionModule, "Wrong jurorProsecutionModule address");
@@ -228,16 +228,16 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.name(), "Pinakion", "Wrong token name");
         assertEq(pinakion.symbol(), "PNK", "Wrong token symbol");
         assertEq(pinakion.totalSupply(), 1000000 ether, "Wrong total supply");
-        assertEq(pinakion.balanceOf(msg.sender), 999998 ether, "Wrong token balance of governor");
+        assertEq(pinakion.balanceOf(msg.sender), 999998 ether, "Wrong token balance of owner");
         assertEq(pinakion.balanceOf(staker1), 1 ether, "Wrong token balance of staker1");
         assertEq(pinakion.allowance(staker1, address(core)), 1 ether, "Wrong allowance for staker1");
         assertEq(pinakion.balanceOf(staker2), 1 ether, "Wrong token balance of staker2");
         assertEq(pinakion.allowance(staker2, address(core)), 1 ether, "Wrong allowance for staker2");
 
-        assertEq(disputeKit.governor(), msg.sender, "Wrong DK governor");
+        assertEq(disputeKit.owner(), msg.sender, "Wrong DK owner");
         assertEq(address(disputeKit.core()), address(core), "Wrong core in DK");
 
-        assertEq(sortitionModule.governor(), msg.sender, "Wrong SM governor");
+        assertEq(sortitionModule.owner(), msg.sender, "Wrong SM owner");
         assertEq(address(sortitionModule.core()), address(core), "Wrong core in SM");
         assertEq(uint256(sortitionModule.phase()), uint256(ISortitionModule.Phase.staking), "Phase should be 0");
         assertEq(sortitionModule.minStakingTime(), 18, "Wrong minStakingTime");
@@ -264,7 +264,7 @@ contract KlerosCoreTest is Test {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         pinakion = new PNK();
 
-        governor = msg.sender;
+        owner = msg.sender;
         guardian = vm.addr(1);
         staker1 = vm.addr(2);
         other = vm.addr(9);
@@ -290,7 +290,7 @@ contract KlerosCoreTest is Test {
 
         bytes memory initDataDk = abi.encodeWithSignature(
             "initialize(address,address,address)",
-            governor,
+            owner,
             address(proxyCore),
             address(wNative)
         );
@@ -300,7 +300,7 @@ contract KlerosCoreTest is Test {
 
         bytes memory initDataSm = abi.encodeWithSignature(
             "initialize(address,address,uint256,uint256,address)",
-            governor,
+            owner,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
@@ -309,7 +309,7 @@ contract KlerosCoreTest is Test {
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
         sortitionModule = SortitionModuleMock(address(proxySm));
-        vm.prank(governor);
+        vm.prank(owner);
         rng.changeConsumer(address(sortitionModule));
 
         core = KlerosCoreMock(address(proxyCore));
@@ -333,7 +333,7 @@ contract KlerosCoreTest is Test {
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
         core.initialize(
-            governor,
+            owner,
             guardian,
             pinakion,
             jurorProsecutionModule,
@@ -352,109 +352,109 @@ contract KlerosCoreTest is Test {
     // ****************************************** //
 
     function test_pause() public {
-        vm.expectRevert(KlerosCoreBase.GuardianOrGovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.GuardianOrOwnerOnly.selector);
         vm.prank(other);
         core.pause();
-        // Note that we must explicitly switch to the governor/guardian address to make the call, otherwise Foundry treats UUPS proxy as msg.sender.
+        // Note that we must explicitly switch to the owner/guardian address to make the call, otherwise Foundry treats UUPS proxy as msg.sender.
         vm.prank(guardian);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.Paused();
         core.pause();
         assertEq(core.paused(), true, "Wrong paused value");
-        // Switch between governor and guardian to test both. WhenNotPausedOnly modifier is triggered after governor's check.
-        vm.prank(governor);
+        // Switch between owner and guardian to test both. WhenNotPausedOnly modifier is triggered after owner's check.
+        vm.prank(owner);
         vm.expectRevert(KlerosCoreBase.WhenNotPausedOnly.selector);
         core.pause();
     }
 
     function test_unpause() public {
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.unpause();
 
         vm.expectRevert(KlerosCoreBase.WhenPausedOnly.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.unpause();
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.pause();
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.Unpaused();
         core.unpause();
         assertEq(core.paused(), false, "Wrong paused value");
     }
 
-    function test_executeGovernorProposal() public {
-        bytes memory data = abi.encodeWithSignature("changeGovernor(address)", other);
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+    function test_executeOwnerProposal() public {
+        bytes memory data = abi.encodeWithSignature("changeOwner(address)", other);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
-        core.executeGovernorProposal(address(core), 0, data);
+        core.executeOwnerProposal(address(core), 0, data);
 
         vm.expectRevert(KlerosCoreBase.UnsuccessfulCall.selector);
-        vm.prank(governor);
-        core.executeGovernorProposal(address(core), 0, data); // It'll fail because the core is not its own governor
+        vm.prank(owner);
+        core.executeOwnerProposal(address(core), 0, data); // It'll fail because the core is not its own owner
 
-        vm.prank(governor);
-        core.changeGovernor(payable(address(core)));
+        vm.prank(owner);
+        core.changeOwner(payable(address(core)));
         vm.prank(address(core));
-        core.executeGovernorProposal(address(core), 0, data);
-        assertEq(core.governor(), other, "Wrong governor");
+        core.executeOwnerProposal(address(core), 0, data);
+        assertEq(core.owner(), other, "Wrong owner");
     }
 
-    function test_changeGovernor() public {
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+    function test_changeOwner() public {
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
-        core.changeGovernor(payable(other));
-        vm.prank(governor);
-        core.changeGovernor(payable(other));
-        assertEq(core.governor(), other, "Wrong governor");
+        core.changeOwner(payable(other));
+        vm.prank(owner);
+        core.changeOwner(payable(other));
+        assertEq(core.owner(), other, "Wrong owner");
     }
 
     function test_changeGuardian() public {
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.changeGuardian(other);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeGuardian(other);
         assertEq(core.guardian(), other, "Wrong guardian");
     }
 
     function test_changePinakion() public {
         PNK fakePNK = new PNK();
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.changePinakion(fakePNK);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changePinakion(fakePNK);
         assertEq(address(core.pinakion()), address(fakePNK), "Wrong PNK");
     }
 
     function test_changeJurorProsecutionModule() public {
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.changeJurorProsecutionModule(other);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeJurorProsecutionModule(other);
         assertEq(core.jurorProsecutionModule(), other, "Wrong jurorProsecutionModule");
     }
 
     function test_changeSortitionModule() public {
         SortitionModuleMock fakeSM = new SortitionModuleMock();
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.changeSortitionModule(fakeSM);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeSortitionModule(fakeSM);
         assertEq(address(core.sortitionModule()), address(fakeSM), "Wrong sortitionModule");
     }
 
     function test_addNewDisputeKit() public {
         DisputeKitSybilResistant newDK = new DisputeKitSybilResistant();
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.addNewDisputeKit(newDK);
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitCreated(2, newDK);
         core.addNewDisputeKit(newDK);
@@ -463,7 +463,7 @@ contract KlerosCoreTest is Test {
     }
 
     function test_createCourt() public {
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         uint256[] memory supportedDK = new uint256[](2);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
@@ -481,7 +481,7 @@ contract KlerosCoreTest is Test {
         );
 
         vm.expectRevert(KlerosCoreBase.MinStakeLowerThanParentCourt.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
             true, // Hidden votes
@@ -495,7 +495,7 @@ contract KlerosCoreTest is Test {
         );
 
         vm.expectRevert(KlerosCoreBase.UnsupportedDisputeKit.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         uint256[] memory emptySupportedDK = new uint256[](0);
         core.createCourt(
             GENERAL_COURT,
@@ -510,7 +510,7 @@ contract KlerosCoreTest is Test {
         );
 
         vm.expectRevert(KlerosCoreBase.InvalidForkingCourtAsParent.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.createCourt(
             FORKING_COURT,
             true, // Hidden votes
@@ -527,7 +527,7 @@ contract KlerosCoreTest is Test {
         badSupportedDK[0] = NULL_DISPUTE_KIT; // Include NULL_DK to check that it reverts
         badSupportedDK[1] = DISPUTE_KIT_CLASSIC;
         vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
             true, // Hidden votes
@@ -543,7 +543,7 @@ contract KlerosCoreTest is Test {
         badSupportedDK[0] = DISPUTE_KIT_CLASSIC;
         badSupportedDK[1] = 2; // Check out of bounds index
         vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
             true, // Hidden votes
@@ -558,12 +558,12 @@ contract KlerosCoreTest is Test {
 
         // Add new DK to check the requirement for classic DK
         DisputeKitSybilResistant newDK = new DisputeKitSybilResistant();
-        vm.prank(governor);
+        vm.prank(owner);
         core.addNewDisputeKit(newDK);
         badSupportedDK = new uint256[](1);
         badSupportedDK[0] = 2; // Include only sybil resistant dk
         vm.expectRevert(KlerosCoreBase.MustSupportDisputeKitClassic.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
             true, // Hidden votes
@@ -576,7 +576,7 @@ contract KlerosCoreTest is Test {
             badSupportedDK
         );
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitEnabled(2, DISPUTE_KIT_CLASSIC, true);
         vm.expectEmit(true, true, true, true);
@@ -641,7 +641,7 @@ contract KlerosCoreTest is Test {
 
     function test_changeCourtParameters() public {
         // Create a 2nd court to check the minStake requirements
-        vm.prank(governor);
+        vm.prank(owner);
         uint96 newCourtID = 2;
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
@@ -657,7 +657,7 @@ contract KlerosCoreTest is Test {
             supportedDK
         );
 
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.changeCourtParameters(
             GENERAL_COURT,
@@ -669,7 +669,7 @@ contract KlerosCoreTest is Test {
             [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
         );
         vm.expectRevert(KlerosCoreBase.MinStakeLowerThanParentCourt.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         // Min stake of a parent became higher than of a child
         core.changeCourtParameters(
             GENERAL_COURT,
@@ -682,7 +682,7 @@ contract KlerosCoreTest is Test {
         );
         // Min stake of a child became lower than of a parent
         vm.expectRevert(KlerosCoreBase.MinStakeLowerThanParentCourt.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeCourtParameters(
             newCourtID,
             true, // Hidden votes
@@ -693,7 +693,7 @@ contract KlerosCoreTest is Test {
             [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
         );
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.CourtModified(
             GENERAL_COURT,
@@ -740,38 +740,38 @@ contract KlerosCoreTest is Test {
     function test_enableDisputeKits() public {
         DisputeKitSybilResistant newDK = new DisputeKitSybilResistant();
         uint256 newDkID = 2;
-        vm.prank(governor);
+        vm.prank(owner);
         core.addNewDisputeKit(newDK);
 
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = newDkID;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
         vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         supportedDK[0] = NULL_DISPUTE_KIT;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
         vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         supportedDK[0] = 3; // Out of bounds
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
         vm.expectRevert(KlerosCoreBase.CannotDisableClassicDK.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, false);
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, newDkID, true);
         supportedDK[0] = newDkID;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
         assertEq(core.isSupported(GENERAL_COURT, newDkID), true, "New DK should be supported by General court");
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, newDkID, false);
         core.enableDisputeKits(GENERAL_COURT, supportedDK, false);
@@ -779,14 +779,14 @@ contract KlerosCoreTest is Test {
     }
 
     function test_changeAcceptedFeeTokens() public {
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.changeAcceptedFeeTokens(feeToken, true);
 
         (bool accepted, , ) = core.currencyRates(feeToken);
         assertEq(accepted, false, "Token should not be accepted yet");
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.AcceptedFeeToken(feeToken, true);
         core.changeAcceptedFeeTokens(feeToken, true);
@@ -795,7 +795,7 @@ contract KlerosCoreTest is Test {
     }
 
     function test_changeCurrencyRates() public {
-        vm.expectRevert(KlerosCoreBase.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
         vm.prank(other);
         core.changeCurrencyRates(feeToken, 100, 200);
 
@@ -803,7 +803,7 @@ contract KlerosCoreTest is Test {
         assertEq(rateInEth, 0, "rateInEth should be 0");
         assertEq(rateDecimals, 0, "rateDecimals should be 0");
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.NewCurrencyRate(feeToken, 100, 200);
         core.changeCurrencyRates(feeToken, 100, 200);
@@ -833,7 +833,7 @@ contract KlerosCoreTest is Test {
         assertEq(disputeKitID, DISPUTE_KIT_CLASSIC, "Wrong disputeKitID");
 
         // Custom values.
-        vm.startPrank(governor);
+        vm.startPrank(owner);
         core.addNewDisputeKit(disputeKit);
         core.addNewDisputeKit(disputeKit);
         core.addNewDisputeKit(disputeKit);
@@ -852,12 +852,12 @@ contract KlerosCoreTest is Test {
     // *************************************** //
 
     function test_setStake_increase() public {
-        vm.prank(governor);
+        vm.prank(owner);
         core.pause();
         vm.expectRevert(KlerosCoreBase.WhenNotPausedOnly.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 1000);
-        vm.prank(governor);
+        vm.prank(owner);
         core.unpause();
 
         vm.expectRevert(KlerosCoreBase.StakingNotPossibleInThisCourt.selector);
@@ -898,8 +898,8 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.balanceOf(staker1), 999999999999998999, "Wrong token balance of staker1"); // 1 eth - 1001 wei
         assertEq(pinakion.allowance(staker1, address(core)), 999999999999998999, "Wrong allowance for staker1");
 
-        vm.expectRevert(KlerosCoreBase.StakingTransferFailed.selector); // This  error will be caught because governor didn't approve any tokens for KlerosCore
-        vm.prank(governor);
+        vm.expectRevert(KlerosCoreBase.StakingTransferFailed.selector); // This  error will be caught because owner didn't approve any tokens for KlerosCore
+        vm.prank(owner);
         core.setStake(GENERAL_COURT, 1000);
 
         // Increase stake one more time to verify the correct behavior
@@ -985,7 +985,7 @@ contract KlerosCoreTest is Test {
 
         // Create 4 courts to check the require
         for (uint96 i = GENERAL_COURT; i <= 4; i++) {
-            vm.prank(governor);
+            vm.prank(owner);
             core.createCourt(
                 GENERAL_COURT,
                 true,
@@ -1219,7 +1219,7 @@ contract KlerosCoreTest is Test {
         sortitionModule.passPhase(); // Staking. Delayed stakes can be executed now
 
         vm.prank(address(core));
-        pinakion.transfer(governor, 10000); // Dispose of the tokens of 2nd staker to make the execution fail for the 2nd delayed stake
+        pinakion.transfer(owner, 10000); // Dispose of the tokens of 2nd staker to make the execution fail for the 2nd delayed stake
         assertEq(pinakion.balanceOf(address(core)), 0, "Wrong token balance of the core");
 
         // 2 events should be emitted but the 2nd stake supersedes the first one in the end.
@@ -1257,7 +1257,7 @@ contract KlerosCoreTest is Test {
     function test_setStakeBySortitionModule() public {
         // Note that functionality of this function was checked during delayed stakes execution
         vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.setStakeBySortitionModule(staker1, GENERAL_COURT, 1000);
     }
 
@@ -1265,27 +1265,27 @@ contract KlerosCoreTest is Test {
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 12346);
 
-        KlerosCoreSnapshotProxy snapshotProxy = new KlerosCoreSnapshotProxy(governor, IKlerosCore(address(core)));
+        KlerosCoreSnapshotProxy snapshotProxy = new KlerosCoreSnapshotProxy(owner, IKlerosCore(address(core)));
         assertEq(snapshotProxy.name(), "Staked Pinakion", "Wrong name of the proxy token");
         assertEq(snapshotProxy.symbol(), "stPNK", "Wrong symbol of the proxy token");
         assertEq(snapshotProxy.decimals(), 18, "Wrong decimals of the proxy token");
-        assertEq(snapshotProxy.governor(), msg.sender, "Wrong governor");
+        assertEq(snapshotProxy.owner(), msg.sender, "Wrong owner");
         assertEq(address(snapshotProxy.core()), address(core), "Wrong core in snapshot proxy");
         assertEq(snapshotProxy.balanceOf(staker1), 12346, "Wrong stPNK balance");
 
         vm.prank(other);
-        vm.expectRevert(KlerosCoreSnapshotProxy.GovernorOnly.selector);
+        vm.expectRevert(KlerosCoreSnapshotProxy.OwnerOnly.selector);
         snapshotProxy.changeCore(IKlerosCore(other));
-        vm.prank(governor);
+        vm.prank(owner);
         snapshotProxy.changeCore(IKlerosCore(other));
         assertEq(address(snapshotProxy.core()), other, "Wrong core in snapshot proxy after change");
 
         vm.prank(other);
-        vm.expectRevert(KlerosCoreSnapshotProxy.GovernorOnly.selector);
-        snapshotProxy.changeGovernor(other);
-        vm.prank(governor);
-        snapshotProxy.changeGovernor(other);
-        assertEq(snapshotProxy.governor(), other, "Wrong governor after change");
+        vm.expectRevert(KlerosCoreSnapshotProxy.OwnerOnly.selector);
+        snapshotProxy.changeOwner(other);
+        vm.prank(owner);
+        snapshotProxy.changeOwner(other);
+        assertEq(snapshotProxy.owner(), other, "Wrong owner after change");
     }
 
     // *************************************** //
@@ -1302,9 +1302,9 @@ contract KlerosCoreTest is Test {
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         bytes memory newExtraData = abi.encodePacked(uint256(newCourtID), newNbJurors, newDkID);
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.addNewDisputeKit(disputeKit); // Just add the same dk to avoid dealing with initialization
-        vm.prank(governor);
+        vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
             true, // Hidden votes
@@ -1327,7 +1327,7 @@ contract KlerosCoreTest is Test {
         vm.prank(disputer);
         arbitrable.createDispute{value: 0.04 ether}("Action");
 
-        vm.prank(governor);
+        vm.prank(owner);
         supportedDK = new uint256[](1);
         supportedDK[0] = newDkID;
         core.enableDisputeKits(newCourtID, supportedDK, true);
@@ -1401,9 +1401,9 @@ contract KlerosCoreTest is Test {
         vm.prank(disputer);
         arbitrable.createDispute("Action", 0.18 ether);
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeAcceptedFeeTokens(feeToken, true);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeCurrencyRates(feeToken, 500, 3);
 
         vm.expectRevert(KlerosCoreBase.ArbitrationFeesNotEnough.selector);
@@ -1491,7 +1491,7 @@ contract KlerosCoreTest is Test {
         uint256 roundID = 0;
 
         // Create a child court and stake exclusively there to check that parent courts hold drawing power.
-        vm.prank(governor);
+        vm.prank(owner);
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         core.createCourt(
@@ -1542,7 +1542,7 @@ contract KlerosCoreTest is Test {
     function test_castCommit() public {
         // Change hidden votes in general court
         uint256 disputeID = 0;
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeCourtParameters(
             GENERAL_COURT,
             true, // Hidden votes
@@ -1653,7 +1653,7 @@ contract KlerosCoreTest is Test {
     function test_castCommit_timeoutCheck() public {
         // Change hidden votes in general court
         uint256 disputeID = 0;
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeCourtParameters(
             GENERAL_COURT,
             true, // Hidden votes
@@ -1857,7 +1857,7 @@ contract KlerosCoreTest is Test {
     function test_castVote_quickPassPeriod() public {
         // Change hidden votes in general court
         uint256 disputeID = 0;
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeCourtParameters(
             GENERAL_COURT,
             true, // Hidden votes
@@ -2116,7 +2116,7 @@ contract KlerosCoreTest is Test {
         // Create a new DK and court to check the switch
         bytes memory initDataDk = abi.encodeWithSignature(
             "initialize(address,address,address)",
-            governor,
+            owner,
             address(core),
             address(wNative)
         );
@@ -2130,9 +2130,9 @@ contract KlerosCoreTest is Test {
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         bytes memory newExtraData = abi.encodePacked(uint256(newCourtID), DEFAULT_NB_OF_JURORS, newDkID);
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.addNewDisputeKit(newDisputeKit);
-        vm.prank(governor);
+        vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
             hiddenVotes,
@@ -2147,7 +2147,7 @@ contract KlerosCoreTest is Test {
 
         arbitrable.changeArbitratorExtraData(newExtraData);
 
-        vm.prank(governor);
+        vm.prank(owner);
         supportedDK = new uint256[](1);
         supportedDK[0] = newDkID;
         core.enableDisputeKits(newCourtID, supportedDK, true);
@@ -2308,11 +2308,11 @@ contract KlerosCoreTest is Test {
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.pause();
         vm.expectRevert(KlerosCoreBase.WhenNotPausedOnly.selector);
         core.execute(disputeID, 0, 1);
-        vm.prank(governor);
+        vm.prank(owner);
         core.unpause();
 
         assertEq(disputeKit.getCoherentCount(disputeID, 0), 2, "Wrong coherent count");
@@ -2397,9 +2397,9 @@ contract KlerosCoreTest is Test {
         assertEq(staker1.balance, 0, "Wrong balance of the staker1");
         assertEq(staker2.balance, 0.09 ether, "Wrong balance of the staker2");
 
-        assertEq(pinakion.balanceOf(address(core)), 20500, "Wrong token balance of the core"); // Was 21500. 1000 was transferred to staker2
+        assertEq(pinakion.balanceOf(address(core)), 21500, "Wrong token balance of the core"); // Was 21500. 1000 was transferred to staker2
         assertEq(pinakion.balanceOf(staker1), 999999999999998500, "Wrong token balance of staker1");
-        assertEq(pinakion.balanceOf(staker2), 999999999999981000, "Wrong token balance of staker2"); // 20k stake and 1k added as a reward, thus -19k from the default
+        assertEq(pinakion.balanceOf(staker2), 999999999999980000, "Wrong token balance of staker2"); // 20k stake and 1k added as a reward, thus -19k from the default
     }
 
     function test_execute_NoCoherence() public {
@@ -2446,8 +2446,8 @@ contract KlerosCoreTest is Test {
         assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 1, 0, 0), 0, "Wrong penalty coherence 1 vote ID");
         assertEq(disputeKit.getDegreeOfCoherencePenalty(disputeID, 0, 2, 0, 0), 0, "Wrong penalty coherence 2 vote ID");
 
-        uint256 governorBalance = governor.balance;
-        uint256 governorTokenBalance = pinakion.balanceOf(governor);
+        uint256 ownerBalance = owner.balance;
+        uint256 ownerTokenBalance = pinakion.balanceOf(owner);
 
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.LeftoverRewardSent(disputeID, 0, 3000, 0.09 ether, IERC20(address(0)));
@@ -2460,16 +2460,16 @@ contract KlerosCoreTest is Test {
 
         assertEq(address(core).balance, 0, "Wrong balance of the core");
         assertEq(staker1.balance, 0, "Wrong balance of the staker1");
-        assertEq(governor.balance, governorBalance + 0.09 ether, "Wrong balance of the governor");
+        assertEq(owner.balance, ownerBalance + 0.09 ether, "Wrong balance of the owner");
 
         assertEq(pinakion.balanceOf(address(core)), 17000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999980000, "Wrong token balance of staker1");
-        assertEq(pinakion.balanceOf(governor), governorTokenBalance + 3000, "Wrong token balance of governor");
+        assertEq(pinakion.balanceOf(owner), ownerTokenBalance + 3000, "Wrong token balance of owner");
     }
 
     function test_execute_UnstakeInactive() public {
         // Create a 2nd court so unstaking is done in multiple courts.
-        vm.prank(governor);
+        vm.prank(owner);
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         core.createCourt(
@@ -2517,7 +2517,7 @@ contract KlerosCoreTest is Test {
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
-        uint256 governorTokenBalance = pinakion.balanceOf(governor);
+        uint256 ownerTokenBalance = pinakion.balanceOf(owner);
 
         // Note that these events are emitted only after the first iteration of execute() therefore the juror has been penalized only for 1000 PNK her.
         vm.expectEmit(true, true, true, true);
@@ -2529,8 +2529,8 @@ contract KlerosCoreTest is Test {
         core.execute(disputeID, 0, 3);
 
         assertEq(pinakion.balanceOf(address(core)), 0, "Wrong token balance of the core");
-        assertEq(pinakion.balanceOf(staker1), 999999999999997000, "Wrong token balance of staker1"); // 3000 locked PNK was withheld by the contract and given to governor.
-        assertEq(pinakion.balanceOf(governor), governorTokenBalance + 3000, "Wrong token balance of governor");
+        assertEq(pinakion.balanceOf(staker1), 999999999999997000, "Wrong token balance of staker1"); // 3000 locked PNK was withheld by the contract and given to owner.
+        assertEq(pinakion.balanceOf(owner), ownerTokenBalance + 3000, "Wrong token balance of owner");
 
         (, , , nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
         assertEq(nbCourts, 0, "Should unstake from all courts");
@@ -2660,7 +2660,7 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
 
         vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         core.transferBySortitionModule(staker1, 1000);
 
         vm.expectEmit(true, true, true, true);
@@ -2682,9 +2682,9 @@ contract KlerosCoreTest is Test {
         vm.prank(disputer);
         feeToken.approve(address(arbitrable), 1 ether);
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeAcceptedFeeTokens(feeToken, true);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeCurrencyRates(feeToken, 500, 3);
 
         vm.prank(disputer);
@@ -2736,9 +2736,9 @@ contract KlerosCoreTest is Test {
         vm.prank(disputer);
         feeToken.approve(address(arbitrable), 1 ether);
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeAcceptedFeeTokens(feeToken, true);
-        vm.prank(governor);
+        vm.prank(owner);
         core.changeCurrencyRates(feeToken, 500, 3);
 
         vm.prank(disputer);
@@ -2775,7 +2775,7 @@ contract KlerosCoreTest is Test {
         assertEq(feeToken.balanceOf(address(core)), 0, "Wrong token balance of the core");
         assertEq(feeToken.balanceOf(staker1), 0, "Wrong token balance of staker1");
         assertEq(feeToken.balanceOf(disputer), 0.82 ether, "Wrong token balance of disputer");
-        assertEq(feeToken.balanceOf(governor), 0.18 ether, "Wrong token balance of governor");
+        assertEq(feeToken.balanceOf(owner), 0.18 ether, "Wrong token balance of owner");
     }
 
     function test_executeRuling() public {
@@ -2913,11 +2913,11 @@ contract KlerosCoreTest is Test {
 
         core.executeRuling(disputeID);
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.pause();
         vm.expectRevert(DisputeKitClassicBase.CoreIsPaused.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 0, 1);
-        vm.prank(governor);
+        vm.prank(owner);
         core.unpause();
 
         assertEq(crowdfunder1.balance, 9.37 ether, "Wrong balance of the crowdfunder1");
@@ -2942,7 +2942,7 @@ contract KlerosCoreTest is Test {
         // Create a new DK to check castVote.
         bytes memory initDataDk = abi.encodeWithSignature(
             "initialize(address,address,address)",
-            governor,
+            owner,
             address(core),
             address(wNative)
         );
@@ -2950,14 +2950,14 @@ contract KlerosCoreTest is Test {
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
 
-        vm.prank(governor);
+        vm.prank(owner);
         core.addNewDisputeKit(newDisputeKit);
 
         uint256 newDkID = 2;
         uint256[] memory supportedDK = new uint256[](1);
         bytes memory newExtraData = abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, newDkID);
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, newDkID, true);
         supportedDK[0] = newDkID;
@@ -3041,13 +3041,13 @@ contract KlerosCoreTest is Test {
         uint256 fallbackTimeout = 100;
         RNGMock rngMock = new RNGMock();
         rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
-        assertEq(rngFallback.governor(), msg.sender, "Wrong governor");
+        assertEq(rngFallback.owner(), msg.sender, "Wrong owner");
         assertEq(rngFallback.consumer(), address(sortitionModule), "Wrong sortition module address");
         assertEq(address(rngFallback.rng()), address(rngMock), "Wrong RNG in fallback contract");
         assertEq(rngFallback.fallbackTimeoutSeconds(), fallbackTimeout, "Wrong fallback timeout");
         assertEq(rngFallback.requestTimestamp(), 0, "Request timestamp should be 0");
 
-        vm.prank(governor);
+        vm.prank(owner);
         sortitionModule.changeRandomNumberGenerator(rngFallback);
         assertEq(address(sortitionModule.rng()), address(rngFallback), "Wrong RNG address");
 
@@ -3081,7 +3081,7 @@ contract KlerosCoreTest is Test {
         RNGMock rngMock = new RNGMock();
         rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
 
-        vm.prank(governor);
+        vm.prank(owner);
         sortitionModule.changeRandomNumberGenerator(rngFallback);
         assertEq(address(sortitionModule.rng()), address(rngFallback), "Wrong RNG address");
 
@@ -3109,36 +3109,36 @@ contract KlerosCoreTest is Test {
         rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
 
         vm.expectRevert(IRNG.ConsumerOnly.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         rngFallback.requestRandomness();
 
         vm.expectRevert(IRNG.ConsumerOnly.selector);
-        vm.prank(governor);
+        vm.prank(owner);
         rngFallback.receiveRandomness();
 
-        vm.expectRevert(IRNG.GovernorOnly.selector);
+        vm.expectRevert(IRNG.OwnerOnly.selector);
         vm.prank(other);
-        rngFallback.changeGovernor(other);
-        vm.prank(governor);
-        rngFallback.changeGovernor(other);
-        assertEq(rngFallback.governor(), other, "Wrong governor");
+        rngFallback.changeOwner(other);
+        vm.prank(owner);
+        rngFallback.changeOwner(other);
+        assertEq(rngFallback.owner(), other, "Wrong owner");
 
-        // Change governor back for convenience
+        // Change owner back for convenience
         vm.prank(other);
-        rngFallback.changeGovernor(governor);
+        rngFallback.changeOwner(owner);
 
-        vm.expectRevert(IRNG.GovernorOnly.selector);
+        vm.expectRevert(IRNG.OwnerOnly.selector);
         vm.prank(other);
         rngFallback.changeConsumer(other);
-        vm.prank(governor);
+        vm.prank(owner);
         rngFallback.changeConsumer(other);
         assertEq(rngFallback.consumer(), other, "Wrong consumer");
 
-        vm.expectRevert(IRNG.GovernorOnly.selector);
+        vm.expectRevert(IRNG.OwnerOnly.selector);
         vm.prank(other);
         rngFallback.changeFallbackTimeout(5);
 
-        vm.prank(governor);
+        vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit RNGWithFallback.FallbackTimeoutChanged(5);
         rngFallback.changeFallbackTimeout(5);

@@ -50,7 +50,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const klerosCore = await deployUpgradable(deployments, "KlerosCoreUniversity", {
     from: deployer,
     args: [
-      deployer, // governor
+      deployer, // owner
       deployer, // instructor
       pnk.target,
       ZeroAddress, // KlerosCore is configured later

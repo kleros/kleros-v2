@@ -23,7 +23,7 @@ contract DisputeResolver is IArbitrableV2 {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The governor.
+    address public owner; // The owner.
     IArbitratorV2 public arbitrator; // The arbitrator.
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     DisputeStruct[] public disputes; // Local disputes.
@@ -36,7 +36,7 @@ contract DisputeResolver is IArbitrableV2 {
     /// @dev Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
     constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {
-        governor = msg.sender;
+        owner = msg.sender;
         arbitrator = _arbitrator;
         templateRegistry = _templateRegistry;
     }
@@ -45,20 +45,20 @@ contract DisputeResolver is IArbitrableV2 {
     // *           Governance              * //
     // ************************************* //
 
-    /// @dev Changes the governor.
-    /// @param _governor The address of the new governor.
-    function changeGovernor(address _governor) external {
-        if (governor != msg.sender) revert GovernorOnly();
-        governor = _governor;
+    /// @dev Changes the owner.
+    /// @param _owner The address of the new owner.
+    function changeOwner(address _owner) external {
+        if (owner != msg.sender) revert OwnerOnly();
+        owner = _owner;
     }
 
     function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        if (governor != msg.sender) revert GovernorOnly();
+        if (owner != msg.sender) revert OwnerOnly();
         arbitrator = _arbitrator;
     }
 
     function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
-        if (governor != msg.sender) revert GovernorOnly();
+        if (owner != msg.sender) revert OwnerOnly();
         templateRegistry = _templateRegistry;
     }
 
@@ -151,7 +151,7 @@ contract DisputeResolver is IArbitrableV2 {
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
     error ArbitratorOnly();
     error RulingOutOfBounds();
     error DisputeAlreadyRuled();

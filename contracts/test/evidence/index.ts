@@ -67,7 +67,7 @@ describe("Home Evidence contract", async () => {
     const EvidenceModule = await ethers.getContractFactory("ModeratedEvidenceModule");
     evidenceModule = await EvidenceModule.deploy(
       arbitrator.target,
-      deployer.address, // governor
+      deployer.address, // owner
       disputeTemplateRegistry.target,
       totalCostMultiplier,
       initialDepositMultiplier,
@@ -80,10 +80,10 @@ describe("Home Evidence contract", async () => {
 
   describe("Governance", async () => {
     it("Should change parameters correctly", async () => {
-      const newGovernor = await user2.getAddress();
-      await evidenceModule.changeGovernor(newGovernor);
-      expect(await evidenceModule.governor()).to.equal(newGovernor);
-      await evidenceModule.connect(user2).changeGovernor(await deployer.getAddress());
+      const newOwner = await user2.getAddress();
+      await evidenceModule.changeOwner(newOwner);
+      expect(await evidenceModule.owner()).to.equal(newOwner);
+      await evidenceModule.connect(user2).changeOwner(await deployer.getAddress());
 
       await evidenceModule.changeInitialDepositMultiplier(1);
       expect(await evidenceModule.initialDepositMultiplier()).to.equal(1);
@@ -117,29 +117,29 @@ describe("Home Evidence contract", async () => {
       expect(newArbitratorData.arbitratorExtraData).to.equal(newArbitratorExtraData, "Wrong extraData");
     });
 
-    it("Should revert if the caller is not the governor", async () => {
-      await expect(evidenceModule.connect(user2).changeGovernor(await user2.getAddress())).to.be.revertedWith(
-        "The caller must be the governor"
+    it("Should revert if the caller is not the owner", async () => {
+      await expect(evidenceModule.connect(user2).changeOwner(await user2.getAddress())).to.be.revertedWith(
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeInitialDepositMultiplier(0)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeTotalCostMultiplier(0)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeBondTimeout(0)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeDisputeTemplate(disputeTemplate, "")).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeArbitratorExtraData(arbitratorExtraData)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
     });
   });

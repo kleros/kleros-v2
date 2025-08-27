@@ -23,11 +23,11 @@ contract DisputeKitClassic is DisputeKitClassicBase {
     }
 
     /// @dev Initializer.
-    /// @param _governor The governor's address.
+    /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
-    function initialize(address _governor, KlerosCore _core, address _wNative) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
+    function initialize(address _owner, KlerosCore _core, address _wNative) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
     }
 
     function reinitialize(address _wNative) external reinitializer(9) {
@@ -39,8 +39,8 @@ contract DisputeKitClassic is DisputeKitClassicBase {
     // ************************ //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 }

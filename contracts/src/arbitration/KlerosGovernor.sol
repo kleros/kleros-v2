@@ -80,8 +80,8 @@ contract KlerosGovernor is IArbitrableV2 {
         _;
     }
 
-    modifier onlyByGovernor() {
-        if (address(this) != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (address(this) != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -147,26 +147,26 @@ contract KlerosGovernor is IArbitrableV2 {
 
     /// @dev Changes the value of the base deposit required for submitting a list.
     /// @param _submissionBaseDeposit The new value of the base deposit, in wei.
-    function changeSubmissionDeposit(uint256 _submissionBaseDeposit) external onlyByGovernor {
+    function changeSubmissionDeposit(uint256 _submissionBaseDeposit) external onlyByOwner {
         submissionBaseDeposit = _submissionBaseDeposit;
     }
 
     /// @dev Changes the time allocated for submission. Note that it can't be changed during approval period because there can be an active dispute in the old arbitrator contract
     /// and prolonging submission timeout might switch it back to submission period.
     /// @param _submissionTimeout The new duration of the submission period, in seconds.
-    function changeSubmissionTimeout(uint256 _submissionTimeout) external onlyByGovernor duringSubmissionPeriod {
+    function changeSubmissionTimeout(uint256 _submissionTimeout) external onlyByOwner duringSubmissionPeriod {
         submissionTimeout = _submissionTimeout;
     }
 
     /// @dev Changes the time allocated for list's execution.
     /// @param _executionTimeout The new duration of the execution timeout, in seconds.
-    function changeExecutionTimeout(uint256 _executionTimeout) external onlyByGovernor {
+    function changeExecutionTimeout(uint256 _executionTimeout) external onlyByOwner {
         executionTimeout = _executionTimeout;
     }
 
     /// @dev Changes list withdrawal timeout. Note that withdrawals are only possible in the first half of the submission period.
     /// @param _withdrawTimeout The new duration of withdraw period, in seconds.
-    function changeWithdrawTimeout(uint256 _withdrawTimeout) external onlyByGovernor {
+    function changeWithdrawTimeout(uint256 _withdrawTimeout) external onlyByOwner {
         withdrawTimeout = _withdrawTimeout;
     }
 
@@ -176,7 +176,7 @@ contract KlerosGovernor is IArbitrableV2 {
     function changeArbitrator(
         IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData
-    ) external onlyByGovernor duringSubmissionPeriod {
+    ) external onlyByOwner duringSubmissionPeriod {
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
     }
@@ -187,7 +187,7 @@ contract KlerosGovernor is IArbitrableV2 {
     function changeDisputeTemplate(
         string memory _templateData,
         string memory _templateDataMappings
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
@@ -414,7 +414,7 @@ contract KlerosGovernor is IArbitrableV2 {
 
     error SubmissionTimeHasEnded();
     error ApprovalTimeNotStarted();
-    error GovernorOnly();
+    error OwnerOnly();
     error WrongInputTargetAndValue();
     error WrongInputTargetAndDatasize();
     error InsufficientDeposit();

@@ -15,7 +15,7 @@ contract BlockHashRNG is IRNG {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The address that can withdraw funds.
+    address public owner; // The address that can withdraw funds.
     address public consumer; // The address that can request random numbers.
     uint256 public immutable lookaheadTime; // Minimal time in seconds between requesting and obtaining a random number.
     uint256 public requestTimestamp; // Timestamp of the current request
@@ -25,8 +25,8 @@ contract BlockHashRNG is IRNG {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -40,11 +40,11 @@ contract BlockHashRNG is IRNG {
     // ************************************* //
 
     /// @dev Constructor.
-    /// @param _governor The Governor of the contract.
+    /// @param _owner The Owner of the contract.
     /// @param _consumer The address that can request random numbers.
     /// @param _lookaheadTime The time lookahead in seconds for the random number.
-    constructor(address _governor, address _consumer, uint256 _lookaheadTime) {
-        governor = _governor;
+    constructor(address _owner, address _consumer, uint256 _lookaheadTime) {
+        owner = _owner;
         consumer = _consumer;
         lookaheadTime = _lookaheadTime;
     }
@@ -53,15 +53,15 @@ contract BlockHashRNG is IRNG {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Changes the governor of the contract.
-    /// @param _governor The new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the owner of the contract.
+    /// @param _owner The new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the consumer of the RNG.
     /// @param _consumer The new consumer.
-    function changeConsumer(address _consumer) external onlyByGovernor {
+    function changeConsumer(address _consumer) external onlyByOwner {
         consumer = _consumer;
     }
 
