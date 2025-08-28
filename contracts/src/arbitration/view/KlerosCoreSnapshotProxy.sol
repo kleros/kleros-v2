@@ -16,7 +16,7 @@ contract KlerosCoreSnapshotProxy {
     // ************************************* //
 
     IKlerosCore public core;
-    address public governor;
+    address public owner;
     string public constant name = "Staked Pinakion";
     string public constant symbol = "stPNK";
     uint8 public constant decimals = 18;
@@ -25,8 +25,8 @@ contract KlerosCoreSnapshotProxy {
     // *         Modifiers                 * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -35,10 +35,10 @@ contract KlerosCoreSnapshotProxy {
     // ************************************* //
 
     /// @dev Constructor
-    /// @param _governor The governor of the contract.
+    /// @param _owner The owner of the contract.
     /// @param _core KlerosCore to read the balance from.
-    constructor(address _governor, IKlerosCore _core) {
-        governor = _governor;
+    constructor(address _owner, IKlerosCore _core) {
+        owner = _owner;
         core = _core;
     }
 
@@ -46,15 +46,15 @@ contract KlerosCoreSnapshotProxy {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Changes the `governor` storage variable.
-    /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the `owner` storage variable.
+    /// @param _owner The new value for the `owner` storage variable.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the `core` storage variable.
     /// @param _core The new value for the `core` storage variable.
-    function changeCore(IKlerosCore _core) external onlyByGovernor {
+    function changeCore(IKlerosCore _core) external onlyByOwner {
         core = _core;
     }
 
@@ -74,5 +74,5 @@ contract KlerosCoreSnapshotProxy {
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
 }

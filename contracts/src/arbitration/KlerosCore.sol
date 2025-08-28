@@ -20,7 +20,7 @@ contract KlerosCore is KlerosCoreBase {
     }
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
-    /// @param _governor The governor's address.
+    /// @param _owner The owner's address.
     /// @param _guardian The guardian's address.
     /// @param _pinakion The address of the token contract.
     /// @param _jurorProsecutionModule The address of the juror prosecution module.
@@ -32,7 +32,7 @@ contract KlerosCore is KlerosCoreBase {
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
     /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
-        address _governor,
+        address _owner,
         address _guardian,
         IERC20 _pinakion,
         address _jurorProsecutionModule,
@@ -45,7 +45,7 @@ contract KlerosCore is KlerosCoreBase {
         address _wNative
     ) external reinitializer(1) {
         __KlerosCoreBase_initialize(
-            _governor,
+            _owner,
             _guardian,
             _pinakion,
             _jurorProsecutionModule,
@@ -68,8 +68,8 @@ contract KlerosCore is KlerosCoreBase {
     // ************************************* //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 }

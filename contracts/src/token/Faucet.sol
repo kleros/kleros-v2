@@ -10,7 +10,7 @@ contract Faucet {
     // ************************************* //
 
     IERC20 public token;
-    address public governor;
+    address public owner;
     mapping(address => bool) public withdrewAlready;
     uint256 public amount = 10_000 ether;
 
@@ -18,8 +18,8 @@ contract Faucet {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        require(address(governor) == msg.sender, "Access not allowed: Governor only.");
+    modifier onlyByOwner() {
+        require(address(owner) == msg.sender, "Access not allowed: Owner only.");
         _;
     }
 
@@ -29,23 +29,23 @@ contract Faucet {
 
     constructor(IERC20 _token) {
         token = _token;
-        governor = msg.sender;
+        owner = msg.sender;
     }
 
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
 
-    function changeGovernor(address _governor) public onlyByGovernor {
-        governor = _governor;
+    function changeOwner(address _owner) public onlyByOwner {
+        owner = _owner;
     }
 
-    function changeAmount(uint256 _amount) public onlyByGovernor {
+    function changeAmount(uint256 _amount) public onlyByOwner {
         amount = _amount;
     }
 
-    function withdraw() public onlyByGovernor {
-        token.transfer(governor, token.balanceOf(address(this)));
+    function withdraw() public onlyByOwner {
+        token.transfer(owner, token.balanceOf(address(this)));
     }
 
     // ************************************* //

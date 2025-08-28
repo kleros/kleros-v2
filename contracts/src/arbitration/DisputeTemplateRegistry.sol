@@ -14,8 +14,8 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *             Storage               * //
     // ************************************* //
 
-    /// @dev The governor of the contract.
-    address public governor;
+    /// @dev The owner of the contract.
+    address public owner;
 
     /// @dev The number of templates.
     uint256 public templates;
@@ -24,8 +24,8 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -39,9 +39,9 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     }
 
     /// @dev Initializer
-    /// @param _governor Governor of the contract.
-    function initialize(address _governor) external reinitializer(1) {
-        governor = _governor;
+    /// @param _owner Owner of the contract.
+    function initialize(address _owner) external reinitializer(1) {
+        owner = _owner;
     }
 
     function initialize2() external reinitializer(2) {
@@ -53,15 +53,15 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // ************************ //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
-    /// @dev Changes the governor of the contract.
-    /// @param _governor The new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the owner of the contract.
+    /// @param _owner The new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     // ************************************* //
@@ -85,5 +85,5 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
 }

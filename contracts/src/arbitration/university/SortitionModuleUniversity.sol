@@ -29,7 +29,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     KlerosCoreUniversity public core; // The core arbitrator contract.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     mapping(address account => Juror) public jurors; // The jurors.
@@ -66,8 +66,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -87,8 +87,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _core The KlerosCore.
-    function initialize(address _governor, KlerosCoreUniversity _core) external reinitializer(1) {
-        governor = _governor;
+    function initialize(address _owner, KlerosCoreUniversity _core) external reinitializer(1) {
+        owner = _owner;
         core = _core;
     }
 
@@ -98,9 +98,9 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
 
     /**
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     * @dev Only the owner can perform upgrades (`onlyByOwner`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
@@ -190,6 +190,40 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         uint256 _pnkWithdrawal,
         uint256 _newStake
     ) external override onlyByCore {
+        _setStake(_account, _courtID, _pnkDeposit, _pnkWithdrawal, _newStake);
+    }
+
+    /// @dev Update the state of the stakes with a PNK reward deposit, called by KC during rewards execution.
+    /// `O(n + p * log_k(j))` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _reward The amount of PNK to be deposited as a reward.
+    function setStakeReward(
+        address _account,
+        uint96 _courtID,
+        uint256 _reward
+    ) external override onlyByCore returns (bool success) {
+        if (_reward == 0) return true; // No reward to add.
+
+        uint256 currentStake = _stakeOf(_account, _courtID);
+        if (currentStake == 0) return false; // Juror has been unstaked, don't increase their stake.
+
+        uint256 newStake = currentStake + _reward;
+        _setStake(_account, _courtID, _reward, 0, newStake);
+        return true;
+    }
+
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) internal {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
         if (_pnkDeposit > 0) {
@@ -369,7 +403,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
     error KlerosCoreOnly();
     error NotEligibleForWithdrawal();
 }

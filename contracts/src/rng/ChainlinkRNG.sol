@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {VRFConsumerBaseV2Plus, IVRFCoordinatorV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import {VRFConsumerBaseV2Plus, IVRFCoordinatorV2Plus} from "./ChainlinkConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
 import "./IRNG.sol";
@@ -14,7 +14,6 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The address that can withdraw funds.
     address public consumer; // The address that can request random numbers.
     bytes32 public keyHash; // The gas lane key hash value - Defines the maximum gas price you are willing to pay for a request in wei (ID of the off-chain VRF job).
     uint256 public subscriptionId; // The unique identifier of the subscription used for funding requests.
@@ -41,8 +40,8 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -56,7 +55,7 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // ************************************* //
 
     /// @dev Constructor, initializing the implementation to reduce attack surface.
-    /// @param _governor The Governor of the contract.
+    /// @param _owner The owner of the contract.
     /// @param _consumer The address that can request random numbers.
     /// @param _vrfCoordinator The address of the VRFCoordinator contract.
     /// @param _keyHash The gas lane key hash value - Defines the maximum gas price you are willing to pay for a request in wei (ID of the off-chain VRF job).
@@ -65,15 +64,14 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     /// @param _callbackGasLimit The limit for how much gas to use for the callback request to the contract's fulfillRandomWords() function.
     /// @dev https://docs.chain.link/vrf/v2-5/subscription/get-a-random-number
     constructor(
-        address _governor,
+        address _owner,
         address _consumer,
         address _vrfCoordinator,
         bytes32 _keyHash,
         uint256 _subscriptionId,
         uint16 _requestConfirmations,
         uint32 _callbackGasLimit
-    ) VRFConsumerBaseV2Plus(_vrfCoordinator) {
-        governor = _governor;
+    ) VRFConsumerBaseV2Plus(_owner, _vrfCoordinator) {
         consumer = _consumer;
         keyHash = _keyHash;
         subscriptionId = _subscriptionId;
@@ -85,46 +83,46 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Changes the governor of the contract.
-    /// @param _governor The new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the owner of the contract.
+    /// @param _owner The new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the consumer of the RNG.
     /// @param _consumer The new consumer.
-    function changeConsumer(address _consumer) external onlyByGovernor {
+    function changeConsumer(address _consumer) external onlyByOwner {
         consumer = _consumer;
     }
 
     /// @dev Changes the VRF Coordinator of the contract.
     /// @param _vrfCoordinator The new VRF Coordinator.
-    function changeVrfCoordinator(address _vrfCoordinator) external onlyByGovernor {
+    function changeVrfCoordinator(address _vrfCoordinator) external onlyByOwner {
         s_vrfCoordinator = IVRFCoordinatorV2Plus(_vrfCoordinator);
         emit CoordinatorSet(_vrfCoordinator);
     }
 
     /// @dev Changes the key hash of the contract.
     /// @param _keyHash The new key hash.
-    function changeKeyHash(bytes32 _keyHash) external onlyByGovernor {
+    function changeKeyHash(bytes32 _keyHash) external onlyByOwner {
         keyHash = _keyHash;
     }
 
     /// @dev Changes the subscription ID of the contract.
     /// @param _subscriptionId The new subscription ID.
-    function changeSubscriptionId(uint256 _subscriptionId) external onlyByGovernor {
+    function changeSubscriptionId(uint256 _subscriptionId) external onlyByOwner {
         subscriptionId = _subscriptionId;
     }
 
     /// @dev Changes the request confirmations of the contract.
     /// @param _requestConfirmations The new request confirmations.
-    function changeRequestConfirmations(uint16 _requestConfirmations) external onlyByGovernor {
+    function changeRequestConfirmations(uint16 _requestConfirmations) external onlyByOwner {
         requestConfirmations = _requestConfirmations;
     }
 
     /// @dev Changes the callback gas limit of the contract.
     /// @param _callbackGasLimit The new callback gas limit.
-    function changeCallbackGasLimit(uint32 _callbackGasLimit) external onlyByGovernor {
+    function changeCallbackGasLimit(uint32 _callbackGasLimit) external onlyByOwner {
         callbackGasLimit = _callbackGasLimit;
     }
 

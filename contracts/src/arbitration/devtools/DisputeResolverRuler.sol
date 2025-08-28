@@ -22,7 +22,7 @@ contract DisputeResolverRuler is DisputeResolver {
         IArbitratorV2 _arbitrator,
         IDisputeTemplateRegistry _templateRegistry
     ) DisputeResolver(_arbitrator, _templateRegistry) {
-        governor = msg.sender;
+        owner = msg.sender;
     }
 
     // ************************************* //
