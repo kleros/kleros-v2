@@ -5,13 +5,13 @@ pragma solidity ^0.8.24;
 type TreeKey is bytes32;
 type CourtID is uint96;
 
-using {toTreeKey} for CourtID global;
-
-function toTreeKey(CourtID _courtID) pure returns (TreeKey) {
-    return TreeKey.wrap(bytes32(uint256(CourtID.unwrap(_courtID))));
-}
+using {SortitionTrees.toTreeKey} for CourtID global;
 
 library SortitionTrees {
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
+
     struct Tree {
         uint256 K; // The maximum number of children per node.
         uint256[] stack; // We use this to keep track of vacant positions in the tree after removing a leaf. This is for keeping the tree as balanced as possible without spending gas on moving nodes around.
@@ -20,6 +20,14 @@ library SortitionTrees {
         mapping(bytes32 stakePathID => uint256 nodeIndex) IDsToNodeIndexes;
         mapping(uint256 nodeIndex => bytes32 stakePathID) nodeIndexesToIDs;
     }
+
+    function toTreeKey(CourtID _courtID) internal pure returns (TreeKey) {
+        return TreeKey.wrap(bytes32(uint256(CourtID.unwrap(_courtID))));
+    }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
 
     /// @dev Create a sortition sum tree at the specified key.
     /// @param _trees The mapping of sortition sum trees.
@@ -174,6 +182,10 @@ library SortitionTrees {
         }
     }
 
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
     /// @dev Get the stake of a juror in a court.
     /// @param _tree The sortition sum tree.
     /// @param _stakePathID The stake path ID, corresponding to a juror.
@@ -246,6 +258,10 @@ library SortitionTrees {
             courtID := mload(ptr)
         }
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
 
     error TreeAlreadyExists();
     error KMustBeGreaterThanOne();
