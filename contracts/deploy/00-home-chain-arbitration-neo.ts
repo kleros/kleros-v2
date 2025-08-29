@@ -123,29 +123,29 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await core.changeArbitrableWhitelist(resolver.address, true);
 
   // Extra dispute kits
-  const disputeKitShutterID = 2;
   const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
     from: deployer,
     args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
+  const disputeKitShutterID = Number(await core.getDisputeKitsLength());
 
-  const disputeKitGatedID = 3;
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
     args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
+  const disputeKitGatedID = Number(await core.getDisputeKitsLength());
 
-  const disputeKitGatedShutterID = 4;
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
     args: [deployer, core.target, weth.target, disputeKitShutterID], // Does not jump to DKClassic
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
+  const disputeKitGatedShutterID = Number(await core.getDisputeKitsLength());
 
   // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {

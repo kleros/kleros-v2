@@ -104,31 +104,31 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }
 
   // Extra dispute kits
-  const disputeKitShutterID = 2;
   const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
     from: deployer,
     args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
+  const disputeKitShutterID = Number(await core.getDisputeKitsLength());
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitShutterID], true); // enable disputeKitShutter on the General Court
 
-  const disputeKitGatedID = 3;
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
     args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
+  const disputeKitGatedID = Number(await core.getDisputeKitsLength());
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true); // enable disputeKitGated on the General Court
 
-  const disputeKitGatedShutterID = 4;
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
     args: [deployer, core.target, weth.target, disputeKitShutterID], // Does not jump to DKClassic
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
+  const disputeKitGatedShutterID = Number(await core.getDisputeKitsLength());
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true); // enable disputeKitGatedShutter on the General Court
 
   // Snapshot proxy
