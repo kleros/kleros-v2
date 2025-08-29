@@ -98,7 +98,7 @@ const CourtNameSpan = styled.span`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-function flattenCourts(court, parent = null) {
+function flattenCourts(court: any, parent: any = null) {
   const current = {
     ...court,
     parentName: parent?.name ?? null,
@@ -114,7 +114,7 @@ const TopSearch: React.FC = () => {
   const items = useMemo(() => !isUndefined(data?.court) && [rootCourtToItems(data.court)], [data]);
   const isUniversity = isKlerosUniversity();
   const [search, setSearch] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const filteredCourts = useMemo(() => {
     if (!data?.court) return [];
@@ -131,31 +131,32 @@ const TopSearch: React.FC = () => {
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex((prev) => Math.min(prev + 1, filteredCourts.length - 1));
+        setSelectedIndex((prev) => (prev + 1) % filteredCourts.length);
         break;
       case "ArrowUp":
         e.preventDefault();
-        setSelectedIndex((prev) => Math.max(prev - 1, -1));
+        setSelectedIndex((prev) => {
+          const newIndex = prev - 1;
+          return newIndex < 0 ? filteredCourts.length - 1 : newIndex;
+        });
         break;
       case "Enter":
-        if (selectedIndex >= 0) {
-          navigate(`/courts/${filteredCourts[selectedIndex].id}`);
-          setSearch("");
-          setSelectedIndex(-1);
-        }
+        navigate(`/courts/${filteredCourts[selectedIndex].id}`);
+        setSearch("");
+        setSelectedIndex(0);
         break;
     }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    setSelectedIndex(-1);
+    setSelectedIndex(0);
   };
 
   const handleCourtClick = (courtId: string) => {
     navigate(`/courts/${courtId}`);
     setSearch("");
-    setSelectedIndex(-1);
+    setSelectedIndex(0);
   };
 
   return (
@@ -181,7 +182,7 @@ const TopSearch: React.FC = () => {
                 {filteredCourts.map((court, index) => (
                   <StyledCard
                     key={court.id}
-                    selected={selectedIndex === -1 && court.id === currentCourtId}
+                    selected={selectedIndex === 0 && court.id === currentCourtId}
                     keyboardSelected={index === selectedIndex}
                     onClick={() => handleCourtClick(court.id)}
                   >
