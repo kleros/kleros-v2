@@ -1079,9 +1079,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         courtJump = true;
 
         if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
+            // The current Dispute Kit is not compatible with the new court, jump to another Dispute Kit.
             newDisputeKitID = disputeKits[_round.disputeKitID].getJumpDisputeKitID();
             if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
-                // Switch to classic dispute kit if parent court doesn't support the jump DK.
+                // The new Dispute Kit is still not compatible, fall back to `DisputeKitClassic` which is always supported.
                 newDisputeKitID = DISPUTE_KIT_CLASSIC;
             }
             disputeKitJump = true;

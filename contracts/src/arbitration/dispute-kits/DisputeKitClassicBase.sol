@@ -180,16 +180,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         owner = _owner;
     }
 
-    /// @dev Changes the dispute kit ID used for the jump.
-    /// @param _jumpDisputeKitID The new value for the `jumpDisputeKitID` storage variable.
-    function changeJumpDisputeKitID(uint256 _jumpDisputeKitID) external onlyByOwner {
-        jumpDisputeKitID = _jumpDisputeKitID;
-    }
-
     /// @dev Changes the `core` storage variable.
     /// @param _core The new value for the `core` storage variable.
     function changeCore(address _core) external onlyByOwner {
         core = KlerosCore(_core);
+    }
+
+    /// @dev Changes the dispute kit ID used for the jump.
+    /// @param _jumpDisputeKitID The new value for the `jumpDisputeKitID` storage variable.
+    function changeJumpDisputeKitID(uint256 _jumpDisputeKitID) external onlyByOwner {
+        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     // ************************************* //
@@ -649,7 +649,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return (_currentNbVotes * 2) + 1;
     }
 
-    function getJumpDisputeKitID() external view returns (uint256) {
+    /// @dev Returns the dispute kid ID be used after court jump by Kleros Core.
+    /// @return The ID of the dispute kit in Kleros Core disputeKits array.
+    function getJumpDisputeKitID() external view override returns (uint256) {
         // Fall back to classic DK in case the jump ID is not defined.
         return jumpDisputeKitID == 0 ? DISPUTE_KIT_CLASSIC : jumpDisputeKitID;
     }
