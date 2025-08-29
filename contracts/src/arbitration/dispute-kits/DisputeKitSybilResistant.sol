@@ -36,17 +36,17 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     }
 
     /// @dev Initializer.
-    /// @param _governor The governor's address.
+    /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.
     /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
-        address _governor,
+        address _owner,
         KlerosCore _core,
         IProofOfHumanity _poh,
         address _wNative
     ) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
+        __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
         poh = _poh;
         singleDrawPerJuror = true;
     }
@@ -56,8 +56,8 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     // ************************ //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 

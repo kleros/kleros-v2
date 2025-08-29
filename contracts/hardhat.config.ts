@@ -15,7 +15,7 @@ import "hardhat-contract-sizer";
 import "hardhat-tracer";
 require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
-require("./scripts/changeGovernor");
+require("./scripts/changeOwner");
 require("./scripts/getDisputeTemplate");
 require("./scripts/compareStorageLayout");
 require("./scripts/storage-layout");
@@ -31,7 +31,7 @@ const config: HardhatUserConfig = {
           viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 10000,
+            runs: 2000,
           },
           outputSelection: {
             "*": {

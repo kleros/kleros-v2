@@ -27,7 +27,7 @@ contract SortitionModuleNeo is SortitionModuleBase {
     }
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
-    /// @param _governor The governor.
+    /// @param _owner The owner.
     /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
@@ -35,7 +35,7 @@ contract SortitionModuleNeo is SortitionModuleBase {
     /// @param _maxStakePerJuror The maximum amount of PNK a juror can stake in a court.
     /// @param _maxTotalStaked The maximum amount of PNK that can be staked in all courts.
     function initialize(
-        address _governor,
+        address _owner,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
@@ -43,7 +43,7 @@ contract SortitionModuleNeo is SortitionModuleBase {
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStaked
     ) external reinitializer(2) {
-        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng);
+        __SortitionModuleBase_initialize(_owner, _core, _minStakingTime, _maxDrawingTime, _rng);
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStaked = _maxTotalStaked;
     }
@@ -57,16 +57,16 @@ contract SortitionModuleNeo is SortitionModuleBase {
     // ************************************* //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
-    function changeMaxStakePerJuror(uint256 _maxStakePerJuror) external onlyByGovernor {
+    function changeMaxStakePerJuror(uint256 _maxStakePerJuror) external onlyByOwner {
         maxStakePerJuror = _maxStakePerJuror;
     }
 
-    function changeMaxTotalStaked(uint256 _maxTotalStaked) external onlyByGovernor {
+    function changeMaxTotalStaked(uint256 _maxTotalStaked) external onlyByOwner {
         maxTotalStaked = _maxTotalStaked;
     }
 

@@ -51,7 +51,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     mapping(uint256 => bytes32) public disputeIDtoEvidenceID; // One-to-one relationship between the dispute and the evidence.
     ArbitratorData[] public arbitratorDataList; // Stores the arbitrator data of the contract. Updated each time the data is changed.
     IArbitratorV2 public immutable arbitrator; // The trusted arbitrator to resolve potential disputes. If it needs to be changed, a new contract can be deployed.
-    address public governor; // The address that can make governance changes to the parameters of the contract.
+    address public owner; // The address that can make governance changes to the parameters of the contract.
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     uint256 public bondTimeout; // The time in seconds during which the last moderation status can be challenged.
     uint256 public totalCostMultiplier; // Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
@@ -61,8 +61,8 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyGovernor() {
-        require(msg.sender == governor, "The caller must be the governor");
+    modifier onlyOwner() {
+        require(msg.sender == owner, "The caller must be the owner");
         _;
     }
 
@@ -93,7 +93,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
     /// @dev Constructor.
     /// @param _arbitrator The trusted arbitrator to resolve potential disputes.
-    /// @param _governor The trusted governor of the contract.
+    /// @param _owner The trusted owner of the contract.
     /// @param _totalCostMultiplier Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
     /// @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
     /// @param _bondTimeout The time in seconds during which the last moderation status can be challenged.
@@ -102,7 +102,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     /// @param _templateDataMappings The dispute template data mappings.
     constructor(
         IArbitratorV2 _arbitrator,
-        address _governor,
+        address _owner,
         IDisputeTemplateRegistry _templateRegistry,
         uint256 _totalCostMultiplier,
         uint256 _initialDepositMultiplier,
@@ -112,7 +112,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         string memory _templateDataMappings
     ) {
         arbitrator = _arbitrator;
-        governor = _governor;
+        owner = _owner;
         templateRegistry = _templateRegistry;
 
         totalCostMultiplier = _totalCostMultiplier; // For example 15000, which would provide a 100% reward to the dispute winner.
@@ -132,28 +132,28 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Change the governor of the contract.
-    /// @param _governor The address of the new governor.
-    function changeGovernor(address _governor) external onlyGovernor {
-        governor = _governor;
+    /// @dev Change the owner of the contract.
+    /// @param _owner The address of the new owner.
+    function changeOwner(address _owner) external onlyOwner {
+        owner = _owner;
     }
 
     /// @dev Change the proportion of arbitration fees that must be paid as fee stake by parties when there is no winner or loser (e.g. when the arbitrator refused to rule).
     /// @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
-    function changeInitialDepositMultiplier(uint256 _initialDepositMultiplier) external onlyGovernor {
+    function changeInitialDepositMultiplier(uint256 _initialDepositMultiplier) external onlyOwner {
         initialDepositMultiplier = _initialDepositMultiplier;
     }
 
     /// @dev Change the proportion of arbitration fees that must be paid as fee stake by the winner of the previous round.
     /// @param _totalCostMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
-    function changeTotalCostMultiplier(uint256 _totalCostMultiplier) external onlyGovernor {
+    function changeTotalCostMultiplier(uint256 _totalCostMultiplier) external onlyOwner {
         totalCostMultiplier = _totalCostMultiplier;
     }
 
     /// @dev Change the time window within which evidence submissions and removals can be contested.
     /// Ongoing moderations will start using the latest bondTimeout available after calling moderate() again.
     /// @param _bondTimeout Multiplier of arbitration fees that must be paid as fee stake. In basis points.
-    function changeBondTimeout(uint256 _bondTimeout) external onlyGovernor {
+    function changeBondTimeout(uint256 _bondTimeout) external onlyOwner {
         bondTimeout = _bondTimeout;
     }
 
@@ -162,7 +162,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     function changeDisputeTemplate(
         string calldata _templateData,
         string memory _templateDataMappings
-    ) external onlyGovernor {
+    ) external onlyOwner {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
         uint256 newDisputeTemplateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
         arbitratorDataList.push(
@@ -175,7 +175,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
     /// @dev Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.
     /// @param _arbitratorExtraData The extra data used by the new arbitrator.
-    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyGovernor {
+    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyOwner {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
         arbitratorDataList.push(
             ArbitratorData({

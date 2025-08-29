@@ -12,7 +12,7 @@ contract RandomizerRNG is IRNG {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The address that can withdraw funds.
+    address public owner; // The address that can withdraw funds.
     address public consumer; // The address that can request random numbers.
     IRandomizer public randomizer; // Randomizer address.
     uint256 public callbackGasLimit; // Gas limit for the Randomizer.ai callback.
@@ -36,8 +36,8 @@ contract RandomizerRNG is IRNG {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -51,11 +51,11 @@ contract RandomizerRNG is IRNG {
     // ************************************* //
 
     /// @dev Constructor
-    /// @param _governor The Governor of the contract.
+    /// @param _owner The Owner of the contract.
     /// @param _consumer The address that can request random numbers.
     /// @param _randomizer The Randomizer.ai oracle contract.
-    constructor(address _governor, address _consumer, IRandomizer _randomizer) {
-        governor = _governor;
+    constructor(address _owner, address _consumer, IRandomizer _randomizer) {
+        owner = _owner;
         consumer = _consumer;
         randomizer = _randomizer;
         callbackGasLimit = 50000;
@@ -65,33 +65,33 @@ contract RandomizerRNG is IRNG {
     // *      Governance      * //
     // ************************ //
 
-    /// @dev Changes the governor of the contract.
-    /// @param _governor The new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the owner of the contract.
+    /// @param _owner The new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the consumer of the RNG.
     /// @param _consumer The new consumer.
-    function changeConsumer(address _consumer) external onlyByGovernor {
+    function changeConsumer(address _consumer) external onlyByOwner {
         consumer = _consumer;
     }
 
     /// @dev Change the Randomizer callback gas limit.
     /// @param _callbackGasLimit the new limit.
-    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByGovernor {
+    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByOwner {
         callbackGasLimit = _callbackGasLimit;
     }
 
     /// @dev Change the Randomizer address.
     /// @param _randomizer the new Randomizer address.
-    function setRandomizer(address _randomizer) external onlyByGovernor {
+    function setRandomizer(address _randomizer) external onlyByOwner {
         randomizer = IRandomizer(_randomizer);
     }
 
-    /// @dev Allows the governor to withdraw randomizer funds.
+    /// @dev Allows the owner to withdraw randomizer funds.
     /// @param _amount Amount to withdraw in wei.
-    function randomizerWithdraw(uint256 _amount) external onlyByGovernor {
+    function randomizerWithdraw(uint256 _amount) external onlyByOwner {
         randomizer.clientWithdrawTo(msg.sender, _amount);
     }
 

@@ -28,7 +28,7 @@ contract KlerosCoreNeo is KlerosCoreBase {
     }
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
-    /// @param _governor The governor's address.
+    /// @param _owner The owner's address.
     /// @param _guardian The guardian's address.
     /// @param _pinakion The address of the token contract.
     /// @param _jurorProsecutionModule The address of the juror prosecution module.
@@ -41,7 +41,7 @@ contract KlerosCoreNeo is KlerosCoreBase {
     /// @param _jurorNft NFT contract to vet the jurors.
     /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
-        address _governor,
+        address _owner,
         address _guardian,
         IERC20 _pinakion,
         address _jurorProsecutionModule,
@@ -55,7 +55,7 @@ contract KlerosCoreNeo is KlerosCoreBase {
         address _wNative
     ) external reinitializer(2) {
         __KlerosCoreBase_initialize(
-            _governor,
+            _owner,
             _guardian,
             _pinakion,
             _jurorProsecutionModule,
@@ -79,21 +79,21 @@ contract KlerosCoreNeo is KlerosCoreBase {
     // ************************************* //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
     /// @dev Changes the `jurorNft` storage variable.
     /// @param _jurorNft The new value for the `jurorNft` storage variable.
-    function changeJurorNft(IERC721 _jurorNft) external onlyByGovernor {
+    function changeJurorNft(IERC721 _jurorNft) external onlyByOwner {
         jurorNft = _jurorNft;
     }
 
     /// @dev Adds or removes an arbitrable from whitelist.
     /// @param _arbitrable Arbitrable address.
     /// @param _allowed Whether add or remove permission.
-    function changeArbitrableWhitelist(address _arbitrable, bool _allowed) external onlyByGovernor {
+    function changeArbitrableWhitelist(address _arbitrable, bool _allowed) external onlyByOwner {
         arbitrableWhitelist[_arbitrable] = _allowed;
     }
 

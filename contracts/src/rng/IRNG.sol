@@ -11,6 +11,6 @@ interface IRNG {
     /// @return randomNumber Random number or 0 if not available
     function receiveRandomness() external returns (uint256 randomNumber);
 
-    error GovernorOnly();
+    error OwnerOnly();
     error ConsumerOnly();
 }

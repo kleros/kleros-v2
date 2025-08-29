@@ -44,7 +44,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     KlerosCore public core; // The core arbitrator contract.
     Phase public phase; // The current phase.
     uint256 public minStakingTime; // The time after which the phase can be switched to Drawing if there are open disputes.
@@ -100,13 +100,13 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // ************************************* //
 
     function __SortitionModuleBase_initialize(
-        address _governor,
+        address _owner,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         IRNG _rng
     ) internal onlyInitializing {
-        governor = _governor;
+        owner = _owner;
         core = _core;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
@@ -119,8 +119,8 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -133,27 +133,27 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Changes the governor of the contract.
-    /// @param _governor The new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the owner of the contract.
+    /// @param _owner The new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
-    function changeMinStakingTime(uint256 _minStakingTime) external onlyByGovernor {
+    function changeMinStakingTime(uint256 _minStakingTime) external onlyByOwner {
         minStakingTime = _minStakingTime;
     }
 
     /// @dev Changes the `maxDrawingTime` storage variable.
     /// @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
-    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByGovernor {
+    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByOwner {
         maxDrawingTime = _maxDrawingTime;
     }
 
     /// @dev Changes the `rng` storage variable.
     /// @param _rng The new random number generator.
-    function changeRandomNumberGenerator(IRNG _rng) external onlyByGovernor {
+    function changeRandomNumberGenerator(IRNG _rng) external onlyByOwner {
         rng = _rng;
         if (phase == Phase.generating) {
             rng.requestRandomness();
@@ -304,6 +304,30 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
         uint256 _newStake
     ) external override onlyByCore {
         _setStake(_account, _courtID, _pnkDeposit, _pnkWithdrawal, _newStake);
+    }
+
+    /// @dev Update the state of the stakes with a PNK reward deposit, called by KC during rewards execution.
+    /// `O(n + p * log_k(j))` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _reward The amount of PNK to be deposited as a reward.
+    function setStakeReward(
+        address _account,
+        uint96 _courtID,
+        uint256 _reward
+    ) external override onlyByCore returns (bool success) {
+        if (_reward == 0) return true; // No reward to add.
+
+        uint256 currentStake = stakeOf(_account, _courtID);
+        if (currentStake == 0) return false; // Juror has been unstaked, don't increase their stake.
+
+        uint256 newStake = currentStake + _reward;
+        _setStake(_account, _courtID, _reward, 0, newStake);
+        return true;
     }
 
     function _setStake(
@@ -687,7 +711,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
     error KlerosCoreOnly();
     error MinStakingTimeNotPassed();
     error NoDisputesThatNeedJurors();

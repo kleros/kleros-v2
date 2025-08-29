@@ -8,9 +8,11 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
+- **Breaking:** Stake the juror's PNK rewards instead of transferring them out ([#2099](https://github.com/kleros/kleros-v2/issues/2099))
 - **Breaking:** Replace `require()` with `revert()` and custom errors outside KlerosCore for consistency and smaller bytecode ([#2084](https://github.com/kleros/kleros-v2/issues/2084))
 - **Breaking:** Rename the interface from `RNG` to `IRNG` ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - **Breaking:** Remove the `_block` parameter from `IRNG.requestRandomness()` and `IRNG.receiveRandomness()`, not needed for the primary VRF-based RNG ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+- **Breaking:** Rename `governor` to `owner` in order to comply with the lightweight ownership standard [ERC-5313](https://eipsinsight.com/ercs/erc-5313) ([#2112](https://github.com/kleros/kleros-v2/issues/2112))
 - Make the primary VRF-based RNG fall back to `BlockhashRNG` if the VRF request is not fulfilled within a timeout ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Authenticate the calls to the RNGs to prevent 3rd parties from depleting the Chainlink VRF subscription funds ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Use `block.timestamp` rather than `block.number` for `BlockhashRNG` for better reliability on Arbitrum as block production is sporadic depending on network conditions. ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
@@ -21,6 +23,10 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Consolidate the constant `ALPHA_DIVISOR` with `ONE_BASIS_POINTS` ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
 - Bump `hardhat` to v2.26.2 ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Bump `@kleros/vea-contracts` to v0.7.0 ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
+
+### Added
+
+- Allow the dispute kits to force an early court jump and to override the number of votes after an appeal (future-proofing) ([#2110](https://github.com/kleros/kleros-v2/issues/2110))
 
 ### Fixed
 
