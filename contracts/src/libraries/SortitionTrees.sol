@@ -205,26 +205,8 @@ library SortitionTrees {
     function toStakePathID(address _account, uint96 _courtID) internal pure returns (bytes32 stakePathID) {
         assembly {
             // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-
-            // Write account address (first 20 bytes)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(ptr, i), byte(add(0x0c, i), _account))
-            }
-
-            // Write court ID (last 12 bytes)
-            for {
-                let i := 0x14
-            } lt(i, 0x20) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(ptr, i), byte(i, _courtID))
-            }
-            stakePathID := mload(ptr)
+            // Pack address (20 bytes) and courtID (12 bytes) into a single bytes32
+            stakePathID := or(shl(96, _account), _courtID)
         }
     }
 
@@ -235,27 +217,9 @@ library SortitionTrees {
     function toAccountAndCourtID(bytes32 _stakePathID) internal pure returns (address account, uint96 courtID) {
         assembly {
             // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-
-            // Read account address (first 20 bytes)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
-            }
-            account := mload(ptr)
-
-            // Read court ID (last 12 bytes)
-            for {
-                let i := 0x00
-            } lt(i, 0x0c) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(add(ptr, 0x14), i), byte(add(i, 0x14), _stakePathID))
-            }
-            courtID := mload(ptr)
+            // Unpack address (first 20 bytes) and courtID (last 12 bytes) from the stake path ID
+            account := shr(96, _stakePathID) // Right shift by 96 bits to get the address
+            courtID := and(_stakePathID, 0xffffffffffffffffffffffff) // Mask the lower 96 bits to get the court ID
         }
     }
 
