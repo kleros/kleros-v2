@@ -735,8 +735,10 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
                 );
             }
         }
+        // round.pnkPenalties is now updated incrementally inside _executePenalties.
+        // Keep this assignment only as a defensive sync in case of future changes.
         if (round.pnkPenalties != pnkPenaltiesInRound) {
-            round.pnkPenalties = pnkPenaltiesInRound; // Reentrancy risk: breaks Check-Effect-Interact
+            round.pnkPenalties = pnkPenaltiesInRound;
         }
     }
 
@@ -771,6 +773,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         // Apply the penalty to the staked PNKs.
         (uint256 pnkBalance, uint256 availablePenalty) = sortitionModule.penalizeStake(account, penalty);
+        // Update storage immediately for consistency across calls.
+        round.pnkPenalties += availablePenalty;
         _params.pnkPenaltiesInRound += availablePenalty;
         emit TokenAndETHShift(
             account,
@@ -794,11 +798,12 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
                 // The dispute fees were paid in ERC20
                 round.feeToken.safeTransfer(owner, round.totalFeesForJurors);
             }
-            pinakion.safeTransfer(owner, _params.pnkPenaltiesInRound);
+            // Use storage value since it's now updated incrementally
+            pinakion.safeTransfer(owner, round.pnkPenalties);
             emit LeftoverRewardSent(
                 _params.disputeID,
                 _params.round,
-                _params.pnkPenaltiesInRound,
+                round.pnkPenalties,
                 round.totalFeesForJurors,
                 round.feeToken
             );
@@ -868,7 +873,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         // Transfer any residual rewards to the owner. It may happen due to partial coherence of the jurors.
         if (_params.repartition == _params.numberOfVotesInRound * 2 - 1) {
-            uint256 leftoverPnkReward = _params.pnkPenaltiesInRound - round.sumPnkRewardPaid;
+            // Use storage value since penalties are now updated incrementally
+            uint256 leftoverPnkReward = round.pnkPenalties - round.sumPnkRewardPaid;
             uint256 leftoverFeeReward = round.totalFeesForJurors - round.sumFeeRewardPaid;
             if (leftoverPnkReward != 0 || leftoverFeeReward != 0) {
                 if (leftoverPnkReward != 0) {
