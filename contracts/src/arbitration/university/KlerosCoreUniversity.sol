@@ -735,9 +735,9 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
                 );
             }
         }
-        // round.pnkPenalties is now updated incrementally inside _executePenalties.
-        // Keep this assignment only as a defensive sync in case of future changes.
-        if (round.pnkPenalties != pnkPenaltiesInRound) {
+        // round.pnkPenalties is updated incrementally in _executePenalties.
+        // Only sync forward to avoid clobbering higher storage in reentrancy scenarios.
+        if (pnkPenaltiesInRound > round.pnkPenalties) {
             round.pnkPenalties = pnkPenaltiesInRound;
         }
     }
