@@ -5,8 +5,12 @@ import { Address } from "viem";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import { klerosCoreAddress } from "hooks/contracts/generated";
+import { useSupportedDisputeKits } from "hooks/queries/useSupportedDisputeKits";
+import { useDisputeKitAddressesAll } from "hooks/useDisputeKitAddresses";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isEmpty, isUndefined } from "utils/index";
+
+import { DisputeKits } from "src/consts";
 
 export const MIN_DISPUTE_BATCH_SIZE = 2;
 
@@ -22,6 +26,12 @@ export type AliasArray = {
   name: string;
   address: string | Address;
   isValid?: boolean;
+};
+
+export type DisputeKitOption = {
+  text: DisputeKits;
+  value: number;
+  gated: boolean;
 };
 
 export type Alias = Record<string, string>;
@@ -83,6 +93,7 @@ interface INewDisputeContext {
   setIsBatchCreation: (isBatchCreation: boolean) => void;
   batchSize: number;
   setBatchSize: (batchSize?: number) => void;
+  disputeKitOptions: DisputeKitOption[];
 }
 
 const getInitialDisputeData = (): IDisputeData => ({
@@ -137,6 +148,22 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  const { data: supportedDisputeKits } = useSupportedDisputeKits(disputeData.courtId);
+  const { availableDisputeKits } = useDisputeKitAddressesAll();
+
+  const disputeKitOptions: DisputeKitOption[] = useMemo(() => {
+    return (
+      supportedDisputeKits?.court?.supportedDisputeKits.map((dk) => {
+        const text = availableDisputeKits[dk.address.toLowerCase()] ?? "";
+        return {
+          text,
+          value: Number(dk.id),
+          gated: text === DisputeKits.Gated || text === DisputeKits.GatedShutter,
+        };
+      }) || []
+    );
+  }, [supportedDisputeKits, availableDisputeKits]);
+
   const contextValues = useMemo(
     () => ({
       disputeData,
@@ -151,6 +178,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setIsBatchCreation,
       batchSize,
       setBatchSize,
+      disputeKitOptions,
     }),
     [
       disputeData,
@@ -163,6 +191,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setIsBatchCreation,
       batchSize,
       setBatchSize,
+      disputeKitOptions,
     ]
   );
 
