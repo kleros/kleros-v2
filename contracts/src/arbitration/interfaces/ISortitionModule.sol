@@ -18,7 +18,8 @@ interface ISortitionModule {
     function validateStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake
+        uint256 _newStake,
+        bool _noDelay
     ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
 
     function setStake(
@@ -37,7 +38,9 @@ interface ISortitionModule {
 
     function setStakeReward(address _account, uint96 _courtID, uint256 _reward) external returns (bool success);
 
-    function setJurorInactive(address _account) external;
+    function unstakeByCoreFromAllCourts(address _account) external;
+
+    function unstakeByCore(address _account, uint96 _courtID) external;
 
     function lockStake(address _account, uint256 _relativeAmount) external;
 

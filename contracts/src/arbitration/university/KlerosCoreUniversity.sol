@@ -452,7 +452,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external {
-        _setStake(msg.sender, _courtID, _newStake, OnError.Revert);
+        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
     /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
@@ -461,7 +461,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _newStake The new stake.
     function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
-        _setStake(_account, _courtID, _newStake, OnError.Return);
+        _setStake(_account, _courtID, _newStake, true, OnError.Return);
     }
 
     /// @dev Transfers PNK to the juror by SortitionModule.
@@ -791,7 +791,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         if (pnkBalance == 0 || !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
             // The juror is inactive or their balance is can't cover penalties anymore, unstake them from all courts.
-            sortitionModule.setJurorInactive(account);
+            sortitionModule.unstakeByCoreFromAllCourts(account);
         } else if (newCourtStake < courts[penalizedInCourtID].minStake) {
             // The juror's balance fell below the court minStake, unstake them from the court.
             sortitionModule.setStake(account, penalizedInCourtID, 0, 0, 0);
@@ -1080,9 +1080,16 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
+    /// @param _noDelay True if the stake change should not be delayed.
     /// @param _onError Whether to revert or return false on error.
     /// @return Whether the stake was successfully set or not.
-    function _setStake(address _account, uint96 _courtID, uint256 _newStake, OnError _onError) internal returns (bool) {
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _noDelay,
+        OnError _onError
+    ) internal returns (bool) {
         if (_courtID == FORKING_COURT || _courtID >= courts.length) {
             _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
             return false;
@@ -1094,7 +1101,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.validateStake(
             _account,
             _courtID,
-            _newStake
+            _newStake,
+            _noDelay
         );
         if (stakingResult != StakingResult.Successful) {
             _stakingFailed(_onError, stakingResult);

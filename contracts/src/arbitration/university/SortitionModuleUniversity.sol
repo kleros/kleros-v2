@@ -139,7 +139,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     function validateStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake
+        uint256 _newStake,
+        bool /*_noDelay*/
     )
         external
         view
@@ -302,11 +303,23 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
     /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
     /// @param _account The juror to unstake.
-    function setJurorInactive(address _account) external override onlyByCore {
+    function unstakeByCoreFromAllCourts(address _account) external override onlyByCore {
         uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
             core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
         }
+    }
+
+    /// @dev Unstakes the inactive juror from a specific court.
+    /// `O(n * (p * log_k(j)) )` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The juror to unstake.
+    /// @param _courtID The ID of the court.
+    function unstakeByCore(address _account, uint96 _courtID) external override onlyByCore {
+        core.setStakeBySortitionModule(_account, _courtID, 0);
     }
 
     /// @dev Gives back the locked PNKs in case the juror fully unstaked earlier.
