@@ -3,6 +3,7 @@ import styled, { useTheme } from "styled-components";
 
 import { StatusBanner } from "subgraph-status";
 
+import { isMaintenanceMode } from "consts/index";
 import { getGraphqlUrl } from "utils/getGraphqlUrl";
 
 import DesktopHeader from "./DesktopHeader";
@@ -35,11 +36,27 @@ const StyledBanner = styled(StatusBanner)`
   }
 `;
 
+const MaintenanceBanner = styled.div`
+  position: sticky !important;
+  z-index: 15;
+  top: 0;
+  width: 100%;
+  background-color: rgb(154, 47, 8);
+  color: #ffc46b;
+  padding: 12px 24px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+`;
+
 const Header: React.FC = () => {
   const theme = useTheme();
 
   return (
     <Container>
+      {isMaintenanceMode() && (
+        <MaintenanceBanner>🚧 Maintenance mode: some features are temporarily disabled.</MaintenanceBanner>
+      )}
       <StyledBanner
         autoHide
         watcherOptions={{ threshold: 5000, interval: 60_000 }} // 5000 blocks threshold, 60 sec interval check

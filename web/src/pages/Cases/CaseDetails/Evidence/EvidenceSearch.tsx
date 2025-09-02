@@ -5,6 +5,8 @@ import { useAccount } from "wagmi";
 
 import { Button, Searchbar } from "@kleros/ui-components-library";
 
+import { isMaintenanceMode } from "consts/index";
+
 import { isUndefined } from "src/utils";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -57,7 +59,7 @@ const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch, evidence
         <EnsureChain>
           <StyledButton
             text="Submit Evidence"
-            disabled={typeof address === "undefined" || isModalOpen}
+            disabled={typeof address === "undefined" || isModalOpen || isMaintenanceMode()}
             isLoading={isModalOpen}
             onClick={() => setIsModalOpen(true)}
           />

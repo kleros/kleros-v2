@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 import { useAtlasProvider } from "@kleros/kleros-app";
 import { Button } from "@kleros/ui-components-library";
 
+import { isMaintenanceMode } from "consts/index";
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 const Container = styled.div`
@@ -50,7 +51,7 @@ const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, clas
       <Button
         text={buttonText ?? "Sign In"}
         onClick={handleClick}
-        disabled={isSigningIn || !address}
+        disabled={isSigningIn || !address || isMaintenanceMode()}
         isLoading={isSigningIn}
         {...{ className }}
       />

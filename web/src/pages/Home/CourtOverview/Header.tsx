@@ -5,6 +5,8 @@ import { Button } from "@kleros/ui-components-library";
 
 import Bookmark from "svgs/icons/bookmark.svg";
 
+import { isMaintenanceMode } from "consts/index";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 import { InternalLink } from "components/InternalLink";
@@ -27,11 +29,13 @@ const StyledInternalLink = styled(InternalLink)`
 `;
 
 const Header: React.FC = () => {
+  const maintenanceMode = isMaintenanceMode();
+
   return (
     <StyledHeader>
       <StyledH1>Court Overview</StyledH1>
-      <StyledInternalLink to={"/resolver"}>
-        <Button small Icon={Bookmark} text="Create a Case" />
+      <StyledInternalLink to={maintenanceMode ? "#" : "/resolver"}>
+        <Button small Icon={Bookmark} text="Create a Case" disabled={maintenanceMode} />
       </StyledInternalLink>
     </StyledHeader>
   );

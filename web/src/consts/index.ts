@@ -38,6 +38,8 @@ export const getArbitratorType = (): ArbitratorTypes =>
 
 export const getDevToolsUrl = () => import.meta.env.REACT_APP_DEVTOOLS_URL || "https://devtools.v2.kleros.builders";
 
+export const isMaintenanceMode = () => import.meta.env.REACT_APP_MAINTENANCE_MODE === "true";
+
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
 
