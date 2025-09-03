@@ -129,7 +129,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
-  const disputeKitShutterID = Number(await core.getDisputeKitsLength());
+  const disputeKitShutterID = (await core.getDisputeKitsLength()) - 1n;
 
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
@@ -137,7 +137,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
-  const disputeKitGatedID = Number(await core.getDisputeKitsLength());
+  const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
 
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
@@ -145,7 +145,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
-  const disputeKitGatedShutterID = Number(await core.getDisputeKitsLength());
+  const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
 
   // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {

@@ -110,7 +110,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
-  const disputeKitShutterID = Number(await core.getDisputeKitsLength());
+  const disputeKitShutterID = (await core.getDisputeKitsLength()) - 1n;
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitShutterID], true); // enable disputeKitShutter on the General Court
 
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
@@ -119,7 +119,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
-  const disputeKitGatedID = Number(await core.getDisputeKitsLength());
+  const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true); // enable disputeKitGated on the General Court
 
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
@@ -128,7 +128,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
-  const disputeKitGatedShutterID = Number(await core.getDisputeKitsLength());
+  const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true); // enable disputeKitGatedShutter on the General Court
 
   // Snapshot proxy
