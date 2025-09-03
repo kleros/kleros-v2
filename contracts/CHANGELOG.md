@@ -13,6 +13,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - **Breaking:** Rename the interface from `RNG` to `IRNG` ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - **Breaking:** Remove the `_block` parameter from `IRNG.requestRandomness()` and `IRNG.receiveRandomness()`, not needed for the primary VRF-based RNG ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - **Breaking:** Rename `governor` to `owner` in order to comply with the lightweight ownership standard [ERC-5313](https://eipsinsight.com/ercs/erc-5313) ([#2112](https://github.com/kleros/kleros-v2/issues/2112))
+- **Breaking:** Add a new state variable `jumpDisputeKitID` to the `DisputeKitClassicBase` contract ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
 - Make the primary VRF-based RNG fall back to `BlockhashRNG` if the VRF request is not fulfilled within a timeout ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Authenticate the calls to the RNGs to prevent 3rd parties from depleting the Chainlink VRF subscription funds ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Use `block.timestamp` rather than `block.number` for `BlockhashRNG` for better reliability on Arbitrum as block production is sporadic depending on network conditions. ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
@@ -27,6 +28,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 ### Added
 
 - Allow the dispute kits to force an early court jump and to override the number of votes after an appeal (future-proofing) ([#2110](https://github.com/kleros/kleros-v2/issues/2110))
+- Allow the dispute kits to specify which new dispute kit to use when a court jump occurs ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
 
 ### Fixed
 
