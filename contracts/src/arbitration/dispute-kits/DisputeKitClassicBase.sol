@@ -332,7 +332,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             //  Save the votes.
             for (uint256 i = 0; i < _voteIDs.length; i++) {
                 if (round.votes[_voteIDs[i]].account != _juror) revert JurorHasToOwnTheVote();
-                if (hiddenVotes && getExpectedVoteHash(localDisputeID, localRoundID, _voteIDs[i]) != actualVoteHash)
+                if (hiddenVotes && _getExpectedVoteHash(localDisputeID, localRoundID, _voteIDs[i]) != actualVoteHash)
                     revert HashDoesNotMatchHiddenVoteCommitment();
                 if (round.votes[_voteIDs[i]].voted) revert VoteAlreadyCast();
                 round.votes[_voteIDs[i]].choice = _choice;
@@ -744,7 +744,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _localRoundID The ID of the round in the Dispute Kit.
     /// @param _voteID The ID of the vote.
     /// @return The expected vote hash.
-    function getExpectedVoteHash(
+    function _getExpectedVoteHash(
         uint256 _localDisputeID,
         uint256 _localRoundID,
         uint256 _voteID

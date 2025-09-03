@@ -164,12 +164,16 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         }
     }
 
+    // ************************************* //
+    // *            Internal               * //
+    // ************************************* //
+
     /// @dev Returns the expected vote hash for a given vote.
     /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
     /// @param _localRoundID The ID of the round in the Dispute Kit.
     /// @param _voteID The ID of the vote.
     /// @return The expected vote hash.
-    function getExpectedVoteHash(
+    function _getExpectedVoteHash(
         uint256 _localDisputeID,
         uint256 _localRoundID,
         uint256 _voteID
