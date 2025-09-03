@@ -56,6 +56,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(pinakion.allowance(staker2, address(core)), 1 ether, "Wrong allowance for staker2");
 
         assertEq(disputeKit.owner(), msg.sender, "Wrong DK owner");
+        assertEq(disputeKit.getJumpDisputeKitID(), DISPUTE_KIT_CLASSIC, "Wrong jump DK");
+        assertEq(disputeKit.jumpDisputeKitID(), DISPUTE_KIT_CLASSIC, "Wrong jump DK storage var");
         assertEq(address(disputeKit.core()), address(core), "Wrong core in DK");
 
         assertEq(sortitionModule.owner(), msg.sender, "Wrong SM owner");
@@ -110,10 +112,11 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             newOwner,
             address(proxyCore),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);

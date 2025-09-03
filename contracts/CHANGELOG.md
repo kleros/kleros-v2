@@ -16,6 +16,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - **Breaking:** Apply the penalties to the stakes in the Sortition Tree ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - **Breaking:** Make `SortitionModule.getJurorBalance().stakedInCourt` include the penalties ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - **Breaking:** Add a new field `drawnJurorFromCourtIDs` to the `Round` struct in `KlerosCoreBase` and `KlerosCoreUniversity` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
+- **Breaking:** Add a new state variable `jumpDisputeKitID` to the `DisputeKitClassicBase` contract ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
 - Make `IDisputeKit.draw()` and `ISortitionModule.draw()` return the court ID from which the juror was drawn ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - Rename `SortitionModule.setJurorInactive()` to `SortitionModule.forcedUnstakeAllCourts()` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - Allow stake changes to by-pass delayed stakes when initiated by the SortitionModule by setting the `_noDelay` parameter to `true` in `SortitionModule.validateStake()` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
@@ -35,6 +36,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 ### Added
 
 - Allow the dispute kits to force an early court jump and to override the number of votes after an appeal (future-proofing) ([#2110](https://github.com/kleros/kleros-v2/issues/2110))
+- Allow the dispute kits to specify which new dispute kit to use when a court jump occurs ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
 
 ### Fixed
 

@@ -28,10 +28,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
+  const classicDisputeKitID = 1; // Classic DK
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicNeo", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, ZeroAddress, weth.target],
+    args: [deployer, ZeroAddress, weth.target, classicDisputeKitID],
     log: true,
   });
 
@@ -124,24 +125,27 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // Extra dispute kits
   const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
+  const disputeKitShutterID = (await core.getDisputeKitsLength()) - 1n;
 
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
+  const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
 
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, disputeKitShutterID], // Does not jump to DKClassic
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
+  const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
 
   // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {

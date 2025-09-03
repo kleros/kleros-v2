@@ -28,7 +28,7 @@ interface IBalanceHolderERC1155 {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitGatedShutter is DisputeKitClassicBase {
-    string public constant override version = "0.12.0";
+    string public constant override version = "0.13.0";
 
     // ************************************* //
     // *              Events               * //
@@ -61,12 +61,18 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
-    function initialize(address _owner, KlerosCore _core, address _wNative) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
+    /// @param _jumpDisputeKitID The ID of the dispute kit to switch to after the court jump.
+    function initialize(
+        address _owner,
+        KlerosCore _core,
+        address _wNative,
+        uint256 _jumpDisputeKitID
+    ) external reinitializer(1) {
+        __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
     }
 
-    function reinitialize(address _wNative) external reinitializer(9) {
-        wNative = _wNative;
+    function reinitialize(uint256 _jumpDisputeKitID) external reinitializer(10) {
+        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     // ************************ //

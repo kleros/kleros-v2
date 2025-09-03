@@ -115,10 +115,11 @@ abstract contract KlerosCore_TestBase is Test {
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             owner,
             address(proxyCore),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);

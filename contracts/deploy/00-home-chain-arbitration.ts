@@ -34,9 +34,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
+  const classicDisputeKitID = 1; // Classic DK
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
-    args: [deployer, ZeroAddress, weth.target],
+    args: [deployer, ZeroAddress, weth.target, classicDisputeKitID],
     log: true,
   });
 
@@ -105,27 +106,30 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // Extra dispute kits
   const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
-  await core.enableDisputeKits(Courts.GENERAL, [2], true); // enable disputeKitShutter on the General Court
+  const disputeKitShutterID = (await core.getDisputeKitsLength()) - 1n;
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitShutterID], true); // enable disputeKitShutter on the General Court
 
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, classicDisputeKitID],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
-  await core.enableDisputeKits(Courts.GENERAL, [3], true); // enable disputeKitGated on the General Court
+  const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true); // enable disputeKitGated on the General Court
 
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, disputeKitShutterID], // Does not jump to DKClassic
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
-  await core.enableDisputeKits(Courts.GENERAL, [4], true); // enable disputeKitGatedShutter on the General Court
+  const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true); // enable disputeKitGatedShutter on the General Court
 
   // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {
