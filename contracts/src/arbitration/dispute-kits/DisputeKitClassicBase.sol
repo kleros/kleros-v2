@@ -232,9 +232,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         ISortitionModule sortitionModule = core.sortitionModule();
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
-
-        (drawnAddress, fromSubcourtID) = sortitionModule.draw(key, _coreDisputeID, _nonce);
+        (drawnAddress, fromSubcourtID) = sortitionModule.draw(courtID, _coreDisputeID, _nonce);
         if (drawnAddress == address(0)) {
             // Sortition can return 0 address if no one has staked yet.
             return (drawnAddress, fromSubcourtID);
