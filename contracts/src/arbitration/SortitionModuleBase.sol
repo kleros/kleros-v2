@@ -436,7 +436,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
     /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
     /// @param _account The juror to unstake.
-    function unstakeByCoreFromAllCourts(address _account) external override onlyByCore {
+    function forcedUnstakeAllCourts(address _account) external override onlyByCore {
         uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
             core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
@@ -451,7 +451,7 @@ abstract contract SortitionModuleBase is ISortitionModule, Initializable, UUPSPr
     /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
     /// @param _account The juror to unstake.
     /// @param _courtID The ID of the court.
-    function unstakeByCore(address _account, uint96 _courtID) external override onlyByCore {
+    function forcedUnstake(address _account, uint96 _courtID) external override onlyByCore {
         core.setStakeBySortitionModule(_account, _courtID, 0);
     }
 

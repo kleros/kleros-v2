@@ -796,10 +796,10 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
 
         if (pnkBalance == 0 || !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
             // The juror is inactive or their balance is can't cover penalties anymore, unstake them from all courts.
-            sortitionModule.unstakeByCoreFromAllCourts(account);
+            sortitionModule.forcedUnstakeAllCourts(account);
         } else if (newCourtStake < courts[penalizedInCourtID].minStake) {
             // The juror's balance fell below the court minStake, unstake them from the court.
-            sortitionModule.unstakeByCore(account, penalizedInCourtID);
+            sortitionModule.forcedUnstake(account, penalizedInCourtID);
         }
 
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {

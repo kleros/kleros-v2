@@ -38,9 +38,9 @@ interface ISortitionModule {
 
     function setStakeReward(address _account, uint96 _courtID, uint256 _reward) external returns (bool success);
 
-    function unstakeByCoreFromAllCourts(address _account) external;
+    function forcedUnstakeAllCourts(address _account) external;
 
-    function unstakeByCore(address _account, uint96 _courtID) external;
+    function forcedUnstake(address _account, uint96 _courtID) external;
 
     function lockStake(address _account, uint256 _relativeAmount) external;
 
