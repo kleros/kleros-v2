@@ -59,6 +59,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 repartitions; // A counter of reward repartitions made in this round.
         uint256 pnkPenalties; // The amount of PNKs collected from penalties in this round.
         address[] drawnJurors; // Addresses of the jurors that were drawn in this round.
+        uint96[] drawnJurorFromCourtIDs; // The courtIDs where the juror was drawn from, possibly their stake in a subcourt.
         uint256 sumFeeRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
@@ -451,7 +452,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external {
-        _setStake(msg.sender, _courtID, _newStake, OnError.Revert);
+        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
     /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
@@ -460,7 +461,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _newStake The new stake.
     function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
-        _setStake(_account, _courtID, _newStake, OnError.Return);
+        _setStake(_account, _courtID, _newStake, true, OnError.Return);
     }
 
     /// @dev Transfers PNK to the juror by SortitionModule.
@@ -595,13 +596,14 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         {
             IDisputeKit disputeKit = disputeKits[round.disputeKitID];
             uint256 iteration = round.drawIterations + 1;
-            address drawnAddress = disputeKit.draw(_disputeID, iteration);
+            (address drawnAddress, uint96 fromSubcourtID) = disputeKit.draw(_disputeID, iteration);
             if (drawnAddress == address(0)) {
                 revert NoJurorDrawn();
             }
             sortitionModule.lockStake(drawnAddress, round.pnkAtStakePerJuror);
             emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
             round.drawnJurors.push(drawnAddress);
+            round.drawnJurorFromCourtIDs.push(fromSubcourtID != 0 ? fromSubcourtID : dispute.courtID);
             if (round.drawnJurors.length == round.nbVotes) {
                 sortitionModule.postDrawHook(_disputeID, currentRound);
             }
@@ -770,7 +772,12 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         sortitionModule.unlockStake(account, penalty);
 
         // Apply the penalty to the staked PNKs.
-        (uint256 pnkBalance, uint256 availablePenalty) = sortitionModule.penalizeStake(account, penalty);
+        uint96 penalizedInCourtID = round.drawnJurorFromCourtIDs[_params.repartition];
+        (uint256 pnkBalance, uint256 newCourtStake, uint256 availablePenalty) = sortitionModule.setStakePenalty(
+            account,
+            penalizedInCourtID,
+            penalty
+        );
         _params.pnkPenaltiesInRound += availablePenalty;
         emit TokenAndETHShift(
             account,
@@ -781,10 +788,15 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             0,
             round.feeToken
         );
-        // Unstake the juror from all courts if he was inactive or his balance can't cover penalties anymore.
+
         if (pnkBalance == 0 || !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
-            sortitionModule.setJurorInactive(account);
+            // The juror is inactive or their balance is can't cover penalties anymore, unstake them from all courts.
+            sortitionModule.forcedUnstakeAllCourts(account);
+        } else if (newCourtStake < courts[penalizedInCourtID].minStake) {
+            // The juror's balance fell below the court minStake, unstake them from the court.
+            sortitionModule.forcedUnstake(account, penalizedInCourtID);
         }
+
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the owner.
             if (round.feeToken == NATIVE_CURRENCY) {
@@ -1068,9 +1080,16 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
+    /// @param _noDelay True if the stake change should not be delayed.
     /// @param _onError Whether to revert or return false on error.
     /// @return Whether the stake was successfully set or not.
-    function _setStake(address _account, uint96 _courtID, uint256 _newStake, OnError _onError) internal returns (bool) {
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _noDelay,
+        OnError _onError
+    ) internal returns (bool) {
         if (_courtID == FORKING_COURT || _courtID >= courts.length) {
             _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
             return false;
@@ -1082,7 +1101,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.validateStake(
             _account,
             _courtID,
-            _newStake
+            _newStake,
+            _noDelay
         );
         if (stakingResult != StakingResult.Successful) {
             _stakingFailed(_onError, stakingResult);

@@ -109,7 +109,7 @@ describe("DisputeKitGated", async () => {
 
       await core
         .connect(juror)
-        .setStake(Courts.GENERAL, thousandPNK(10), { gasLimit: 300000 })
+        .setStake(Courts.GENERAL, thousandPNK(10), { gasLimit: 500000 })
         .then((tx) => tx.wait());
 
       expect(await sortitionModule.getJurorBalance(juror.address, 1)).to.deep.equal([
