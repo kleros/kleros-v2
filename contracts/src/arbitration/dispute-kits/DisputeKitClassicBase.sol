@@ -234,7 +234,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     function draw(
         uint256 _coreDisputeID,
         uint256 _nonce
-    ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress) {
+    ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress, uint96 fromSubcourtID) {
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
         uint256 localRoundID = dispute.rounds.length - 1;
@@ -242,12 +242,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         ISortitionModule sortitionModule = core.sortitionModule();
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
-
-        drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
+        (drawnAddress, fromSubcourtID) = sortitionModule.draw(courtID, _coreDisputeID, _nonce);
         if (drawnAddress == address(0)) {
             // Sortition can return 0 address if no one has staked yet.
-            return drawnAddress;
+            return (drawnAddress, fromSubcourtID);
         }
 
         if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
