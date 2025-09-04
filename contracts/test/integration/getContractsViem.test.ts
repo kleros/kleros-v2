@@ -78,13 +78,13 @@ const universityContractMapping: ContractMapping = {
 };
 
 const mainnetContractMapping: ContractMapping = {
-  klerosCore: { name: "KlerosCoreNeo" },
-  sortition: { name: "SortitionModuleNeo" },
-  disputeKitClassic: { name: "DisputeKitClassicNeo" },
-  disputeKitShutter: { name: "DisputeKitShutterNeo" },
-  disputeKitGated: { name: "DisputeKitGatedNeo" },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo" },
-  disputeResolver: { name: "DisputeResolverNeo" },
+  klerosCore: { name: "KlerosCore" },
+  sortition: { name: "SortitionModule" },
+  disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
