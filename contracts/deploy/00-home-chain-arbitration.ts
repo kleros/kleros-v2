@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;

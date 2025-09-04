@@ -28,12 +28,12 @@ function generate() { #deploymentDir #explorerUrl
     done
 }
 
-echo "### V2 Neo (prelaunch)"
+echo "### V2 Mainnet"
 echo "#### Arbitrum One"
 echo
 generate "$SCRIPT_DIR/../deployments/arbitrum" "https://arbiscan.io/address/" | grep -v 'DAI\|WETH\|PNKFaucet'
 echo
-echo "### Official Testnet"
+echo "### V2 Testnet"
 echo "#### Arbitrum Sepolia"
 echo
 generate "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://sepolia.arbiscan.io/address/"
@@ -47,7 +47,7 @@ echo
 generate "$SCRIPT_DIR/../deployments/chiado" "https://gnosis-chiado.blockscout.com/address/"
 echo
 
-echo "### Devnet"
+echo "### V2 Devnet (unstable)"
 echo "#### Arbitrum Sepolia"
 echo
 generate "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://sepolia.arbiscan.io/address/"
