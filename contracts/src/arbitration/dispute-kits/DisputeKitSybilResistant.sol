@@ -18,7 +18,7 @@ interface IProofOfHumanity {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitSybilResistant is DisputeKitClassicBase {
-    string public constant override version = "0.12.0";
+    string public constant override version = "0.13.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -40,13 +40,15 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.
     /// @param _wNative The wrapped native token address, typically wETH.
+    /// @param _jumpDisputeKitID The ID of the dispute kit to switch to after the court jump.
     function initialize(
         address _owner,
         KlerosCore _core,
         IProofOfHumanity _poh,
-        address _wNative
+        address _wNative,
+        uint256 _jumpDisputeKitID
     ) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
+        __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
         poh = _poh;
         singleDrawPerJuror = true;
     }

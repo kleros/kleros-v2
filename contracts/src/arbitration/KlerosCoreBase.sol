@@ -60,6 +60,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256 repartitions; // A counter of reward repartitions made in this round.
         uint256 pnkPenalties; // The amount of PNKs collected from penalties in this round.
         address[] drawnJurors; // Addresses of the jurors that were drawn in this round.
+        uint96[] drawnJurorFromCourtIDs; // The courtIDs where the juror was drawn from, possibly their stake in a subcourt.
         uint256 sumFeeRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
@@ -222,7 +223,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
         courts.push();
-        sortitionModule.createTree(bytes32(uint256(FORKING_COURT)), _sortitionExtraData);
+        sortitionModule.createTree(FORKING_COURT, _sortitionExtraData);
 
         // GENERAL_COURT
         Court storage court = courts.push();
@@ -235,7 +236,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
 
-        sortitionModule.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
+        sortitionModule.createTree(GENERAL_COURT, _sortitionExtraData);
 
         uint256[] memory supportedDisputeKits = new uint256[](1);
         supportedDisputeKits[0] = DISPUTE_KIT_CLASSIC;
@@ -342,7 +343,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
         if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
 
-        uint256 courtID = courts.length;
+        uint96 courtID = uint96(courts.length);
         Court storage court = courts.push();
 
         for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
@@ -363,7 +364,7 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
 
-        sortitionModule.createTree(bytes32(courtID), _sortitionExtraData);
+        sortitionModule.createTree(courtID, _sortitionExtraData);
 
         // Update the parent.
         courts[_parent].children.push(courtID);
@@ -463,16 +464,16 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external virtual whenNotPaused {
-        _setStake(msg.sender, _courtID, _newStake, OnError.Revert);
+        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
-    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
+    /// @dev Sets the stake of a specified account in a court without delaying stake changes, typically to apply a delayed stake or unstake inactive jurors.
     /// @param _account The account whose stake is being set.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
-        _setStake(_account, _courtID, _newStake, OnError.Return);
+        _setStake(_account, _courtID, _newStake, true, OnError.Return);
     }
 
     /// @dev Transfers PNK to the juror by SortitionModule.
@@ -606,13 +607,14 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         uint256 startIndex = round.drawIterations; // for gas: less storage reads
         uint256 i;
         while (i < _iterations && round.drawnJurors.length < round.nbVotes) {
-            address drawnAddress = disputeKit.draw(_disputeID, startIndex + i++);
+            (address drawnAddress, uint96 fromSubcourtID) = disputeKit.draw(_disputeID, startIndex + i++);
             if (drawnAddress == address(0)) {
                 continue;
             }
             sortitionModule.lockStake(drawnAddress, round.pnkAtStakePerJuror);
             emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
             round.drawnJurors.push(drawnAddress);
+            round.drawnJurorFromCourtIDs.push(fromSubcourtID != 0 ? fromSubcourtID : dispute.courtID);
             if (round.drawnJurors.length == round.nbVotes) {
                 sortitionModule.postDrawHook(_disputeID, currentRound);
             }
@@ -775,7 +777,12 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         sortitionModule.unlockStake(account, penalty);
 
         // Apply the penalty to the staked PNKs.
-        (uint256 pnkBalance, uint256 availablePenalty) = sortitionModule.penalizeStake(account, penalty);
+        uint96 penalizedInCourtID = round.drawnJurorFromCourtIDs[_params.repartition];
+        (uint256 pnkBalance, uint256 newCourtStake, uint256 availablePenalty) = sortitionModule.setStakePenalty(
+            account,
+            penalizedInCourtID,
+            penalty
+        );
         _params.pnkPenaltiesInRound += availablePenalty;
         emit TokenAndETHShift(
             account,
@@ -786,10 +793,15 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
             0,
             round.feeToken
         );
-        // Unstake the juror from all courts if he was inactive or his balance can't cover penalties anymore.
+
         if (pnkBalance == 0 || !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
-            sortitionModule.setJurorInactive(account);
+            // The juror is inactive or their balance is can't cover penalties anymore, unstake them from all courts.
+            sortitionModule.forcedUnstakeAllCourts(account);
+        } else if (newCourtStake < courts[penalizedInCourtID].minStake) {
+            // The juror's balance fell below the court minStake, unstake them from the court.
+            sortitionModule.forcedUnstake(account, penalizedInCourtID);
         }
+
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the owner.
             _transferFeeToken(round.feeToken, payable(owner), round.totalFeesForJurors);
@@ -1079,8 +1091,12 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         courtJump = true;
 
         if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
-            // Switch to classic dispute kit if parent court doesn't support the current one.
-            newDisputeKitID = DISPUTE_KIT_CLASSIC;
+            // The current Dispute Kit is not compatible with the new court, jump to another Dispute Kit.
+            newDisputeKitID = disputeKits[_round.disputeKitID].getJumpDisputeKitID();
+            if (newDisputeKitID == NULL_DISPUTE_KIT || !courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
+                // The new Dispute Kit is not defined or still not compatible, fall back to `DisputeKitClassic` which is always supported.
+                newDisputeKitID = DISPUTE_KIT_CLASSIC;
+            }
             disputeKitJump = true;
         }
     }
@@ -1126,9 +1142,16 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
     /// @param _account The account to set the stake for.
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
+    /// @param _noDelay True if the stake change should not be delayed.
     /// @param _onError Whether to revert or return false on error.
     /// @return Whether the stake was successfully set or not.
-    function _setStake(address _account, uint96 _courtID, uint256 _newStake, OnError _onError) internal returns (bool) {
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _noDelay,
+        OnError _onError
+    ) internal returns (bool) {
         if (_courtID == FORKING_COURT || _courtID >= courts.length) {
             _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
             return false;
@@ -1140,7 +1163,8 @@ abstract contract KlerosCoreBase is IArbitratorV2, Initializable, UUPSProxiable 
         (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.validateStake(
             _account,
             _courtID,
-            _newStake
+            _newStake,
+            _noDelay
         );
         if (stakingResult != StakingResult.Successful && stakingResult != StakingResult.Delayed) {
             _stakingFailed(_onError, stakingResult);

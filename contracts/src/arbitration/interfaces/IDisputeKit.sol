@@ -48,7 +48,10 @@ interface IDisputeKit {
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _nonce Nonce.
     /// @return drawnAddress The drawn address.
-    function draw(uint256 _coreDisputeID, uint256 _nonce) external returns (address drawnAddress);
+    function draw(
+        uint256 _coreDisputeID,
+        uint256 _nonce
+    ) external returns (address drawnAddress, uint96 fromSubcourtID);
 
     // ************************************* //
     // *           Public Views            * //
@@ -126,6 +129,10 @@ interface IDisputeKit {
         IDisputeKit _previousDisputeKit,
         uint256 _currentNbVotes
     ) external view returns (uint256); // TODO: remove previousDisputeKit
+
+    /// @dev Returns the dispute kid ID be used after court jump by Kleros Core.
+    /// @return The ID of the dispute kit in Kleros Core disputeKits array.
+    function getJumpDisputeKitID() external view returns (uint256);
 
     /// @dev Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.

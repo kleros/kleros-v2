@@ -6,7 +6,7 @@ import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../Kler
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";
-import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
+import {ONE_BASIS_POINT, DISPUTE_KIT_CLASSIC} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitClassicBase
 /// Abstract Dispute kit classic implementation of the Kleros v1 features including:
@@ -68,6 +68,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         public alreadyDrawn; // True if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
     mapping(uint256 coreDisputeID => bool) public coreDisputeIDToActive; // True if this dispute kit is active for this core dispute ID.
     address public wNative; // The wrapped native token for safeSend().
+    uint256 public jumpDisputeKitID; // The ID of the dispute kit in Kleros Core disputeKits array that the dispute should switch to after the court jump, in case the new court doesn't support this dispute kit.
 
     // ************************************* //
     // *              Events               * //
@@ -147,14 +148,17 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
+    /// @param _jumpDisputeKitID The ID of the dispute kit to switch to after the court jump.
     function __DisputeKitClassicBase_initialize(
         address _owner,
         KlerosCore _core,
-        address _wNative
+        address _wNative,
+        uint256 _jumpDisputeKitID
     ) internal onlyInitializing {
         owner = _owner;
         core = _core;
         wNative = _wNative;
+        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     // ************************ //
@@ -180,6 +184,12 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _core The new value for the `core` storage variable.
     function changeCore(address _core) external onlyByOwner {
         core = KlerosCore(_core);
+    }
+
+    /// @dev Changes the dispute kit ID used for the jump.
+    /// @param _jumpDisputeKitID The new value for the `jumpDisputeKitID` storage variable.
+    function changeJumpDisputeKitID(uint256 _jumpDisputeKitID) external onlyByOwner {
+        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     // ************************************* //
@@ -224,7 +234,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     function draw(
         uint256 _coreDisputeID,
         uint256 _nonce
-    ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress) {
+    ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress, uint96 fromSubcourtID) {
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
         uint256 localRoundID = dispute.rounds.length - 1;
@@ -232,12 +242,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         ISortitionModule sortitionModule = core.sortitionModule();
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
-
-        drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
+        (drawnAddress, fromSubcourtID) = sortitionModule.draw(courtID, _coreDisputeID, _nonce);
         if (drawnAddress == address(0)) {
             // Sortition can return 0 address if no one has staked yet.
-            return drawnAddress;
+            return (drawnAddress, fromSubcourtID);
         }
 
         if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
@@ -310,19 +318,21 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
         if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+        Dispute storage dispute = disputes[localDisputeID];
         if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
 
-        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        uint256 localRoundID = dispute.rounds.length - 1;
+        Round storage round = dispute.rounds[localRoundID];
         {
             (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
             (, bool hiddenVotes, , , , , ) = core.courts(courtID);
-            bytes32 voteHash = hashVote(_choice, _salt, _justification);
+            bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
 
             //  Save the votes.
             for (uint256 i = 0; i < _voteIDs.length; i++) {
                 if (round.votes[_voteIDs[i]].account != _juror) revert JurorHasToOwnTheVote();
-                if (hiddenVotes && round.votes[_voteIDs[i]].commit != voteHash)
+                if (hiddenVotes && _getExpectedVoteHash(localDisputeID, localRoundID, _voteIDs[i]) != actualVoteHash)
                     revert HashDoesNotMatchHiddenVoteCommitment();
                 if (round.votes[_voteIDs[i]].voted) revert VoteAlreadyCast();
                 round.votes[_voteIDs[i]].choice = _choice;
@@ -476,15 +486,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
      * @dev Computes the hash of a vote using ABI encoding
      * @dev The unused parameters may be used by overriding contracts.
      * @param _choice The choice being voted for
-     * @param _justification The justification for the vote
      * @param _salt A random salt for commitment
      * @return bytes32 The hash of the encoded vote parameters
      */
     function hashVote(
         uint256 _choice,
         uint256 _salt,
-        string memory _justification
-    ) public pure virtual returns (bytes32) {
+        string memory /*_justification*/
+    ) public view virtual returns (bytes32) {
         return keccak256(abi.encodePacked(_choice, _salt));
     }
 
@@ -639,6 +648,13 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return (_currentNbVotes * 2) + 1;
     }
 
+    /// @dev Returns the dispute kid ID be used after court jump by Kleros Core.
+    /// @return The ID of the dispute kit in Kleros Core disputeKits array.
+    function getJumpDisputeKitID() external view override returns (uint256) {
+        // Fall back to classic DK in case the jump ID is not defined.
+        return jumpDisputeKitID == 0 ? DISPUTE_KIT_CLASSIC : jumpDisputeKitID;
+    }
+
     /// @dev Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
@@ -723,17 +739,29 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *            Internal               * //
     // ************************************* //
 
+    /// @dev Returns the expected vote hash for a given vote.
+    /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
+    /// @param _localRoundID The ID of the round in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @return The expected vote hash.
+    function _getExpectedVoteHash(
+        uint256 _localDisputeID,
+        uint256 _localRoundID,
+        uint256 _voteID
+    ) internal view virtual returns (bytes32) {
+        return disputes[_localDisputeID].rounds[_localRoundID].votes[_voteID].commit;
+    }
+
     /// @dev Checks that the chosen address satisfies certain conditions for being drawn.
     /// Note that we don't check the minStake requirement here because of the implicit staking in parent courts.
     /// minStake is checked directly during staking process however it's possible for the juror to get drawn
     /// while having < minStake if it is later increased by governance.
     /// This issue is expected and harmless.
-    /// @param _round The round in which the juror is being drawn.
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
     /// @return result Whether the address passes the check or not.
     function _postDrawCheck(
-        Round storage _round,
+        Round storage /*_round*/,
         uint256 _coreDisputeID,
         address _juror
     ) internal view virtual returns (bool result) {

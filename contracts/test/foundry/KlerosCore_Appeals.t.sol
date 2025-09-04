@@ -146,7 +146,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 2);
     }
 
-    function test_appeal_fullFundingNoSwitch() public {
+    function test_appeal_fullFundingNoJump() public {
         uint256 disputeID = 0;
 
         vm.prank(staker1);
@@ -208,15 +208,18 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
     }
 
-    function test_appeal_fullFundingDKCourtSwitch() public {
+    function test_appeal_fullFundingCourtJumpAndDKJumpToClassic() public {
+        // Setup: dk2 supported by court2 with dk2._jumpDisputeKitID == DISPUTE_KIT_CLASSIC
+        // Ensure that court2 jumps to GENERAL_COURT and dk2 jumps to DISPUTE_KIT_CLASSIC
         uint256 disputeID = 0;
         DisputeKitClassic dkLogic = new DisputeKitClassic();
-        // Create a new DK and court to check the switch
+        // Create a new DK and court to check the jump
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             owner,
             address(core),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
@@ -249,6 +252,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         supportedDK = new uint256[](1);
         supportedDK[0] = newDkID;
         core.enableDisputeKits(newCourtID, supportedDK, true);
+        assertEq(core.isSupported(newCourtID, newDkID), true, "New DK should be supported by new court");
 
         vm.prank(staker1);
         core.setStake(newCourtID, 20000);
@@ -278,7 +282,6 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(crowdfunder1);
         newDisputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1);
-        vm.prank(crowdfunder2);
 
         assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
 
@@ -292,6 +295,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         emit KlerosCoreBase.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
         emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.evidence);
+        vm.prank(crowdfunder2);
         newDisputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
         (, bool jumped, ) = newDisputeKit.disputes(disputeID);
@@ -322,6 +326,144 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         core.draw(disputeID, 1);
 
         (address account, , , ) = disputeKit.getVoteInfo(disputeID, 1, 0);
+        assertEq(account, staker1, "Wrong drawn account in the classic DK");
+    }
+
+    function test_appeal_fullFundingCourtJumpAndDKJumpToNonClassic() public {
+        // Setup:
+        // dk2 supported by GENERAL_COURT, which is a non-DISPUTE_KIT_CLASSIC
+        // dk3 supported by court2, with dk3._jumpDisputeKitID == dk2
+        // Ensure that court2 jumps to GENERAL_COURT and dk3 jumps to dk2
+        uint256 disputeID = 0;
+        uint96 newCourtID = 2;
+        uint256 dkID2 = 2;
+        uint256 dkID3 = 3;
+
+        DisputeKitClassic dkLogic = new DisputeKitClassic();
+
+        bytes memory initDataDk2 = abi.encodeWithSignature(
+            "initialize(address,address,address,uint256)",
+            owner,
+            address(core),
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
+        );
+        UUPSProxy proxyDk2 = new UUPSProxy(address(dkLogic), initDataDk2);
+        DisputeKitClassic disputeKit2 = DisputeKitClassic(address(proxyDk2));
+
+        bytes memory initDataDk3 = abi.encodeWithSignature(
+            "initialize(address,address,address,uint256)",
+            owner,
+            address(core),
+            address(wNative),
+            dkID2
+        );
+        UUPSProxy proxyDk3 = new UUPSProxy(address(dkLogic), initDataDk3);
+        DisputeKitClassic disputeKit3 = DisputeKitClassic(address(proxyDk3));
+
+        vm.prank(owner);
+        core.addNewDisputeKit(disputeKit2);
+        vm.prank(owner);
+        core.addNewDisputeKit(disputeKit3);
+
+        uint256[] memory supportedDK = new uint256[](2);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        supportedDK[1] = dkID3;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT,
+            hiddenVotes,
+            minStake,
+            alpha,
+            feeForJuror,
+            3, // jurors for jump. Low number to ensure jump after the first appeal
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
+            sortitionExtraData,
+            supportedDK
+        );
+        assertEq(core.isSupported(newCourtID, dkID3), true, "dkID3 should be supported by new court");
+
+        vm.prank(owner);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        supportedDK[1] = dkID2;
+        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
+        assertEq(core.isSupported(GENERAL_COURT, dkID2), true, "dkID2 should be supported by GENERAL_COURT");
+
+        bytes memory newExtraData = abi.encodePacked(uint256(newCourtID), DEFAULT_NB_OF_JURORS, dkID3);
+        arbitrable.changeArbitratorExtraData(newExtraData);
+
+        vm.prank(staker1);
+        core.setStake(newCourtID, 20000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.disputeKitID, dkID3, "Wrong DK ID");
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+
+        vm.prank(staker1);
+        disputeKit3.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        vm.prank(crowdfunder1);
+        disputeKit3.fundAppeal{value: 0.63 ether}(disputeID, 1);
+
+        assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
+
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCoreBase.CourtJump(disputeID, 1, newCourtID, GENERAL_COURT);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCoreBase.DisputeKitJump(disputeID, 1, dkID3, dkID2);
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCoreBase.AppealDecision(disputeID, arbitrable);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.evidence);
+        vm.prank(crowdfunder2);
+        disputeKit3.fundAppeal{value: 0.42 ether}(disputeID, 2);
+
+        (, bool jumped, ) = disputeKit3.disputes(disputeID);
+        assertEq(jumped, true, "jumped should be true");
+        assertEq(
+            (disputeKit3.getFundedChoices(disputeID)).length,
+            2,
+            "No fresh round created so the number of funded choices should be 2"
+        );
+
+        round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.disputeKitID, dkID2, "Wrong DK ID");
+        assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, GENERAL_COURT, "Wrong court ID");
+
+        (, jumped, ) = disputeKit2.disputes(disputeID);
+        assertEq(jumped, false, "jumped should be false in the DK that dispute jumped to");
+
+        // Check jump modifier
+        vm.prank(address(core));
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
+        disputeKit3.draw(disputeID, 1);
+
+        // And check that draw in the new round works
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCoreBase.Draw(staker1, disputeID, 1, 0); // roundID = 1 VoteID = 0
+        core.draw(disputeID, 1);
+
+        (address account, , , ) = disputeKit2.getVoteInfo(disputeID, 1, 0);
         assertEq(account, staker1, "Wrong drawn account in the classic DK");
     }
 
