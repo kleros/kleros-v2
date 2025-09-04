@@ -469,7 +469,6 @@ describe("Staking", async () => {
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
           await pnk.approve(core.target, PNK(1000));
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           await expect(core.setStake(2, PNK(3000)))
             .to.emit(sortition, "StakeDelayed")
             .withArgs(deployer, 2, PNK(3000));
@@ -481,10 +480,9 @@ describe("Staking", async () => {
         });
 
         it("Should store the delayed stake for later", async () => {
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000), false]);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000)]);
         });
       });
 
@@ -507,9 +505,8 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(2);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
-          expect(await sortition.latestDelayedStakeIndex(deployer, 1)).to.be.equal(0); // Deprecated. Always 0
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 2nd delayed stake got deleted
         });
 
         it("Should transfer PNK after delayed stake execution", async () => {
@@ -535,7 +532,6 @@ describe("Staking", async () => {
         it("Should delay the stake decrease", async () => {
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           await expect(core.setStake(2, PNK(1000)))
             .to.emit(sortition, "StakeDelayed")
             .withArgs(deployer, 2, PNK(1000));
@@ -547,10 +543,9 @@ describe("Staking", async () => {
         });
 
         it("Should store the delayed stake for later", async () => {
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000), false]);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000)]);
         });
       });
 
@@ -572,9 +567,8 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(2);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
-          expect(await sortition.latestDelayedStakeIndex(deployer, 1)).to.be.equal(0); // Deprecated. Always 0
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 2nd delayed stake got deleted
         });
 
         it("Should withdraw some PNK", async () => {
@@ -600,7 +594,6 @@ describe("Staking", async () => {
         it("Should delay the stake decrease", async () => {
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           await expect(core.setStake(2, PNK(1000)))
             .to.emit(sortition, "StakeDelayed")
             .withArgs(deployer, 2, PNK(1000));
@@ -612,17 +605,15 @@ describe("Staking", async () => {
         });
 
         it("Should store the delayed stake for later", async () => {
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000), false]);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000)]);
         });
       });
 
       describe("When stake is increased back to the previous amount", () => {
         it("Should delay the stake increase", async () => {
           balanceBefore = await pnk.balanceOf(deployer);
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           await expect(core.setStake(2, PNK(2000)))
             .to.emit(sortition, "StakeDelayed")
             .withArgs(deployer, 2, PNK(2000));
@@ -634,11 +625,10 @@ describe("Staking", async () => {
         });
 
         it("Should store the delayed stake for later", async () => {
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000), false]);
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000)]);
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000)]);
         });
       });
 
@@ -663,9 +653,8 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(3);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 2nd delayed stake got deleted
         });
 
         it("Should not transfer any PNK", async () => {
@@ -692,7 +681,6 @@ describe("Staking", async () => {
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
           await pnk.approve(core.target, PNK(1000));
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           await expect(core.setStake(2, PNK(3000)))
             .to.emit(sortition, "StakeDelayed")
             .withArgs(deployer, 2, PNK(3000));
@@ -704,17 +692,15 @@ describe("Staking", async () => {
         });
 
         it("Should store the delayed stake for later", async () => {
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000), false]);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000)]);
         });
       });
 
       describe("When stake is decreased back to the previous amount", () => {
         it("Should cancel out the stake decrease back", async () => {
           balanceBefore = await pnk.balanceOf(deployer);
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           await expect(core.setStake(2, PNK(2000)))
             .to.emit(sortition, "StakeDelayed")
             .withArgs(deployer, 2, PNK(2000));
@@ -726,11 +712,10 @@ describe("Staking", async () => {
         });
 
         it("Should store the delayed stake for later", async () => {
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000), false]);
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000)]);
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000)]);
         });
       });
 
@@ -753,9 +738,8 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(3);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
-          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // Deprecated. Always 0
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0]); // the 2nd delayed stake got deleted
         });
 
         it("Should not transfer any PNK", async () => {

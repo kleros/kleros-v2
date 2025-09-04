@@ -41,7 +41,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         mapping(address account => mapping(uint256 choiceId => uint256)) contributions; // Maps contributors to their contributions for each choice.
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
-        uint256 nbVotes; // Maximal number of votes this dispute can get.
+        mapping(address drawnAddress => bool) alreadyDrawn; // True if the address has already been drawn, false by default.
     }
 
     struct Vote {
@@ -64,12 +64,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
     bool public singleDrawPerJuror; // Whether each juror can only draw once per dispute, false by default.
-    mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(address drawnAddress => bool)))
-        public alreadyDrawn; // True if the address has already been drawn, false by default. To be added to the Round struct when fully redeploying rather than upgrading.
     mapping(uint256 coreDisputeID => bool) public coreDisputeIDToActive; // True if this dispute kit is active for this core dispute ID.
     address public wNative; // The wrapped native token for safeSend().
     uint256 public jumpDisputeKitID; // The ID of the dispute kit in Kleros Core disputeKits array that the dispute should switch to after the court jump, in case the new court doesn't support this dispute kit.
 
+    uint256[50] private __gap; // Reserved slots for future upgrades.
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -201,12 +200,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _numberOfChoices Number of choices of the dispute
     /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.
-    /// @param _nbVotes Number of votes for this dispute.
     function createDispute(
         uint256 _coreDisputeID,
         uint256 _numberOfChoices,
         bytes calldata _extraData,
-        uint256 _nbVotes
+        uint256 /*_nbVotes*/
     ) external override onlyByCore {
         uint256 localDisputeID = disputes.length;
         Dispute storage dispute = disputes.push();
@@ -218,7 +216,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID) - 1] = dispute.rounds.length;
 
         Round storage round = dispute.rounds.push();
-        round.nbVotes = _nbVotes;
         round.tied = true;
 
         coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
@@ -250,7 +247,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
-            alreadyDrawn[localDisputeID][localRoundID][drawnAddress] = true;
+            round.alreadyDrawn[drawnAddress] = true;
         } else {
             drawnAddress = address(0);
         }
@@ -422,7 +419,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
                 dispute.coreRoundIDToLocal[coreRoundID + 1] = dispute.rounds.length;
 
                 Round storage newRound = dispute.rounds.push();
-                newRound.nbVotes = core.getNumberOfVotes(_coreDisputeID);
                 newRound.tied = true;
             }
             core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices, dispute.extraData);
@@ -768,8 +764,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         if (singleDrawPerJuror) {
             uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
             Dispute storage dispute = disputes[localDisputeID];
-            uint256 localRoundID = dispute.rounds.length - 1;
-            result = !alreadyDrawn[localDisputeID][localRoundID][_juror];
+            Round storage round = dispute.rounds[dispute.rounds.length - 1];
+            result = !round.alreadyDrawn[_juror];
         } else {
             result = true;
         }

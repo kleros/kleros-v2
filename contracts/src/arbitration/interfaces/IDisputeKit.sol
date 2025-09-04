@@ -35,7 +35,7 @@ interface IDisputeKit {
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _numberOfChoices Number of choices of the dispute
     /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.
-    /// @param _nbVotes Maximal number of votes this dispute can get. DEPRECATED as we don't need to pass it now. KC handles the count.
+    /// @param _nbVotes Maximal number of votes this dispute can get. Added for future-proofing.
     function createDispute(
         uint256 _coreDisputeID,
         uint256 _numberOfChoices,
