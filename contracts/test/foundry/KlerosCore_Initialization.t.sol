@@ -123,12 +123,14 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address)",
+            "initialize(address,address,uint256,uint256,address,uint256,uint256)",
             newOwner,
             address(proxyCore),
             newMinStakingTime,
             newMaxDrawingTime,
-            newRng
+            newRng,
+            type(int256).max,
+            type(int256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);

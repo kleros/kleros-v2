@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {SortitionModuleBase} from "../../src/arbitration/SortitionModuleBase.sol";
+import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
 import {RNGMock} from "../../src/test/RNGMock.sol";
 import "../../src/libraries/Constants.sol";
@@ -34,7 +34,7 @@ contract KlerosCore_RNGTest is KlerosCore_TestBase {
         sortitionModule.passPhase(); // Generating
         assertEq(rngFallback.requestTimestamp(), block.timestamp, "Wrong request timestamp");
 
-        vm.expectRevert(SortitionModuleBase.RandomNumberNotReady.selector);
+        vm.expectRevert(SortitionModule.RandomNumberNotReady.selector);
         sortitionModule.passPhase();
 
         vm.warp(block.timestamp + fallbackTimeout + 1);

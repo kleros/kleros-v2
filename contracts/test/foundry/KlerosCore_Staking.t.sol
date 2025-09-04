@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
-import {SortitionModuleBase} from "../../src/arbitration/SortitionModuleBase.sol";
+import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
 import "../../src/libraries/Constants.sol";
@@ -39,7 +39,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1001, 1001);
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, 1001, 1001);
         core.setStake(GENERAL_COURT, 1001);
 
         (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
@@ -65,7 +65,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         // Increase stake one more time to verify the correct behavior
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 2000, 2000);
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, 2000, 2000);
         core.setStake(GENERAL_COURT, 2000);
 
         (totalStaked, totalLocked, stakedInCourt, nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
@@ -188,7 +188,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeDelayed(staker1, GENERAL_COURT, 1500);
+        emit SortitionModule.StakeDelayed(staker1, GENERAL_COURT, 1500);
         core.setStake(GENERAL_COURT, 1500);
 
         uint256 delayedStakeId = sortitionModule.delayedStakeWriteIndex();
@@ -234,7 +234,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeDelayed(staker1, GENERAL_COURT, 1800);
+        emit SortitionModule.StakeDelayed(staker1, GENERAL_COURT, 1800);
         core.setStake(GENERAL_COURT, 1800);
 
         (uint256 totalStaked, , uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
@@ -301,7 +301,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         vm.prank(staker2);
         core.setStake(GENERAL_COURT, 10000);
 
-        vm.expectRevert(SortitionModuleBase.NoDelayedStakeToExecute.selector);
+        vm.expectRevert(SortitionModule.NoDelayedStakeToExecute.selector);
         sortitionModule.executeDelayedStakes(5);
 
         // Set the stake and create a dispute to advance the phase
@@ -314,13 +314,13 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         uint256 disputeID = 0;
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
-        vm.expectRevert(SortitionModuleBase.NotStakingPhase.selector);
+        vm.expectRevert(SortitionModule.NotStakingPhase.selector);
         sortitionModule.executeDelayedStakes(5);
 
         // Create delayed stake
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeDelayed(staker1, GENERAL_COURT, 1500);
+        emit SortitionModule.StakeDelayed(staker1, GENERAL_COURT, 1500);
         core.setStake(GENERAL_COURT, 1500);
 
         assertEq(pinakion.balanceOf(address(core)), 10000, "Wrong token balance of the core"); // Balance should not increase because the stake was delayed
@@ -329,14 +329,14 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         // Create delayed stake for another staker
         vm.prank(staker2);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeDelayed(staker2, GENERAL_COURT, 0);
+        emit SortitionModule.StakeDelayed(staker2, GENERAL_COURT, 0);
         core.setStake(GENERAL_COURT, 0);
         assertEq(pinakion.balanceOf(staker2), 999999999999990000, "Wrong token balance of staker2"); // Balance should not change since wrong phase
 
         // Create another delayed stake for staker1 on top of it to check the execution
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeDelayed(staker1, GENERAL_COURT, 1800);
+        emit SortitionModule.StakeDelayed(staker1, GENERAL_COURT, 1800);
         core.setStake(GENERAL_COURT, 1800);
 
         assertEq(sortitionModule.delayedStakeWriteIndex(), 3, "Wrong delayedStakeWriteIndex");
@@ -384,9 +384,9 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
 
         // 2 events should be emitted but the 2nd stake supersedes the first one in the end.
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1500, 1500);
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, 1500, 1500);
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 1800, 1800);
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, 1800, 1800);
         sortitionModule.executeDelayedStakes(20); // Deliberately ask for more iterations than needed
 
         assertEq(sortitionModule.delayedStakeWriteIndex(), 3, "Wrong delayedStakeWriteIndex");

@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
-import {SortitionModuleBase} from "../../src/arbitration/SortitionModuleBase.sol";
+import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
 import {IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {IERC20} from "../../src/libraries/SafeERC20.sol";
@@ -96,16 +96,16 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         );
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker1, 1000, true);
+        emit SortitionModule.StakeLocked(staker1, 1000, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 0, -int256(1000), 0, IERC20(address(0)));
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker2, 0, true);
+        emit SortitionModule.StakeLocked(staker2, 0, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, IERC20(address(0)));
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker2, 0, true);
+        emit SortitionModule.StakeLocked(staker2, 0, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, IERC20(address(0)));
         core.execute(disputeID, 0, 3); // Do 3 iterations to check penalties first
@@ -121,16 +121,16 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(round.pnkPenalties, 1000, "Wrong pnkPenalties");
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker1, 0, true);
+        emit SortitionModule.StakeLocked(staker1, 0, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 0, 0, 0, IERC20(address(0)));
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker2, 1000, true);
+        emit SortitionModule.StakeLocked(staker2, 1000, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 500, 0.045 ether, IERC20(address(0)));
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker2, 1000, true);
+        emit SortitionModule.StakeLocked(staker2, 1000, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 500, 0.045 ether, IERC20(address(0)));
         core.execute(disputeID, 0, 10); // Finish the iterations. We need only 3 but check that it corrects the count.
@@ -272,11 +272,11 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         // Note that these events are emitted only after the first iteration of execute() therefore the juror has been penalized only for 1000 PNK her.
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, newCourtID, 19000, 39000); // 1000 PNK penalty for voteID 0
+        emit SortitionModule.StakeSet(staker1, newCourtID, 19000, 39000); // 1000 PNK penalty for voteID 0
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, newCourtID, 0, 20000); // Starting with 40000 we first nullify the stake and remove 19000 and then remove penalty once since there was only first iteration (40000 - 20000 - 1000)
+        emit SortitionModule.StakeSet(staker1, newCourtID, 0, 20000); // Starting with 40000 we first nullify the stake and remove 19000 and then remove penalty once since there was only first iteration (40000 - 20000 - 1000)
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0, 2000); // 2000 PNK should remain in balance to cover penalties since the first 1000 of locked pnk was already unlocked
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, 0, 2000); // 2000 PNK should remain in balance to cover penalties since the first 1000 of locked pnk was already unlocked
         core.execute(disputeID, 0, 3);
 
         assertEq(pinakion.balanceOf(address(core)), 0, "Wrong token balance of the core");
@@ -335,7 +335,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.passPeriod(disputeID); // Execution
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0, 0); // Juror should have no stake left and should be unstaked from the court automatically.
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, 0, 0); // Juror should have no stake left and should be unstaked from the court automatically.
         core.execute(disputeID, 0, 6);
 
         assertEq(pinakion.balanceOf(address(core)), 0, "Wrong token balance of the core");
@@ -397,7 +397,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.passPeriod(disputeID); // Execution
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 0, 0); // Juror balance should be below minStake and should be unstaked from the court automatically.
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, 0, 0); // Juror balance should be below minStake and should be unstaked from the court automatically.
         core.execute(disputeID, 0, 6);
 
         assertEq(pinakion.balanceOf(address(core)), 11000, "Wrong token balance of the core");
@@ -460,11 +460,11 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
 
-        vm.expectRevert(SortitionModuleBase.NotEligibleForWithdrawal.selector);
+        vm.expectRevert(SortitionModule.NotEligibleForWithdrawal.selector);
         sortitionModule.withdrawLeftoverPNK(staker1);
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.LeftoverPNK(staker1, 1000);
+        emit SortitionModule.LeftoverPNK(staker1, 1000);
         core.execute(disputeID, 0, 6);
 
         (totalStaked, totalLocked, , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
@@ -485,7 +485,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.transferBySortitionModule(staker1, 1000);
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.LeftoverPNKWithdrawn(staker1, 1000);
+        emit SortitionModule.LeftoverPNKWithdrawn(staker1, 1000);
         sortitionModule.withdrawLeftoverPNK(staker1);
 
         (totalStaked, , , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);

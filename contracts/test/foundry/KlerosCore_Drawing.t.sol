@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
-import {SortitionModuleBase} from "../../src/arbitration/SortitionModuleBase.sol";
+import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -24,7 +24,7 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         sortitionModule.passPhase(); // Drawing phase
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker1, 1000, false);
+        emit SortitionModule.StakeLocked(staker1, 1000, false);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.Draw(staker1, disputeID, roundID, 0); // VoteID = 0
 

@@ -9,7 +9,7 @@ import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
-import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
+import {SortitionModuleMock, SortitionModule} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
@@ -126,12 +126,14 @@ abstract contract KlerosCore_TestBase is Test {
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address)",
+            "initialize(address,address,uint256,uint256,address,uint256,uint256)",
             owner,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
-            rng
+            rng,
+            type(int256).max,
+            type(int256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
