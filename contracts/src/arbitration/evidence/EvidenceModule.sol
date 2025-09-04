@@ -9,7 +9,7 @@ import "../../proxy/Initializable.sol";
 
 /// @title Evidence Module
 contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -37,12 +37,8 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
 
     /// @dev Initializer.
     /// @param _owner The owner's address.
-    function initialize(address _owner) external reinitializer(1) {
+    function initialize(address _owner) external initializer {
         owner = _owner;
-    }
-
-    function initialize2() external reinitializer(2) {
-        // NOP
     }
 
     // ************************ //

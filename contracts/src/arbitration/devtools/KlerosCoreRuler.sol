@@ -13,7 +13,7 @@ import "../../libraries/Constants.sol";
 contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -175,11 +175,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _owner The owner's address.
     /// @param _pinakion The address of the token contract.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
-    function initialize(
-        address _owner,
-        IERC20 _pinakion,
-        uint256[4] memory _courtParameters
-    ) external reinitializer(1) {
+    function initialize(address _owner, IERC20 _pinakion, uint256[4] memory _courtParameters) external initializer {
         owner = _owner;
         pinakion = _pinakion;
 
@@ -208,10 +204,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             _courtParameters[3],
             court.timesPerPeriod
         );
-    }
-
-    function initialize2() external reinitializer(2) {
-        // NOP
     }
 
     // ************************************* //

@@ -15,7 +15,7 @@ import "../../libraries/Constants.sol";
 contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -207,7 +207,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         ISortitionModuleUniversity _sortitionModuleAddress
-    ) external reinitializer(1) {
+    ) external initializer {
         owner = _owner;
         instructor = _instructor;
         pinakion = _pinakion;

@@ -7,7 +7,7 @@ import {SortitionModuleBase, KlerosCore, IRNG} from "./SortitionModuleBase.sol";
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
 contract SortitionModule is SortitionModuleBase {
-    string public constant override version = "0.9.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *            Constructor            * //
@@ -30,12 +30,8 @@ contract SortitionModule is SortitionModuleBase {
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         IRNG _rng
-    ) external reinitializer(1) {
+    ) external initializer {
         __SortitionModuleBase_initialize(_owner, _core, _minStakingTime, _maxDrawingTime, _rng);
-    }
-
-    function initialize4() external reinitializer(4) {
-        // NOP
     }
 
     // ************************************* //

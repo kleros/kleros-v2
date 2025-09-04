@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 contract KlerosCoreNeo is KlerosCoreBase {
-    string public constant override version = "0.10.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -68,10 +68,6 @@ contract KlerosCoreNeo is KlerosCoreBase {
             _wNative
         );
         jurorNft = _jurorNft;
-    }
-
-    function reinitialize(address _wNative) external reinitializer(6) {
-        wNative = _wNative;
     }
 
     // ************************************* //

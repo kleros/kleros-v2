@@ -7,7 +7,7 @@ import "../proxy/Initializable.sol";
 /// @title PolicyRegistry
 /// @dev A contract to maintain a policy for each court.
 contract PolicyRegistry is UUPSProxiable, Initializable {
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *              Events               * //
@@ -47,12 +47,8 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
 
     /// @dev Constructs the `PolicyRegistry` contract.
     /// @param _owner The owner's address.
-    function initialize(address _owner) external reinitializer(1) {
+    function initialize(address _owner) external initializer {
         owner = _owner;
-    }
-
-    function initialize2() external reinitializer(2) {
-        // NOP
     }
 
     // ************************************* //

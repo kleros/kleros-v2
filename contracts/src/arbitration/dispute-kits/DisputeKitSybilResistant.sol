@@ -18,7 +18,7 @@ interface IProofOfHumanity {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitSybilResistant is DisputeKitClassicBase {
-    string public constant override version = "0.13.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -47,7 +47,7 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
         IProofOfHumanity _poh,
         address _wNative,
         uint256 _jumpDisputeKitID
-    ) external reinitializer(1) {
+    ) external initializer {
         __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
         poh = _poh;
         singleDrawPerJuror = true;

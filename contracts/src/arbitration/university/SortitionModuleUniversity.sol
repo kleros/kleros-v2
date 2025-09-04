@@ -12,7 +12,7 @@ import "../../libraries/Constants.sol";
 /// @title SortitionModuleUniversity
 /// @dev An adapted version of the SortitionModule contract for educational purposes.
 contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable, Initializable {
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -87,7 +87,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _core The KlerosCore.
-    function initialize(address _owner, KlerosCoreUniversity _core) external reinitializer(1) {
+    function initialize(address _owner, KlerosCoreUniversity _core) external initializer {
         owner = _owner;
         core = _core;
     }

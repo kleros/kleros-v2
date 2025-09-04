@@ -81,7 +81,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         address _veaOutbox,
         uint256 _homeChainID,
         address _homeGateway
-    ) external reinitializer(1) {
+    ) external initializer {
         owner = _owner;
         veaOutbox = _veaOutbox;
         homeChainID = _homeChainID;
