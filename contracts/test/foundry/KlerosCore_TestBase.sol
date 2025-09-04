@@ -132,8 +132,8 @@ abstract contract KlerosCore_TestBase is Test {
             minStakingTime,
             maxDrawingTime,
             rng,
-            type(int256).max,
-            type(int256).max
+            type(uint256).max,
+            type(uint256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);

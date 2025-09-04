@@ -45,6 +45,9 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(core.isSupported(GENERAL_COURT, NULL_DISPUTE_KIT), false, "General court null dk should be false");
         assertEq(core.isSupported(GENERAL_COURT, DISPUTE_KIT_CLASSIC), true, "General court classic dk should be true");
         assertEq(core.paused(), false, "Wrong paused value");
+        assertEq(core.wNative(), address(wNative), "Wrong wNative");
+        assertEq(address(core.jurorNft()), address(0), "Wrong jurorNft");
+        assertEq(core.arbitrableWhitelistEnabled(), false, "Wrong arbitrableWhitelistEnabled");
 
         assertEq(pinakion.name(), "Pinakion", "Wrong token name");
         assertEq(pinakion.symbol(), "PNK", "Wrong token symbol");
@@ -71,6 +74,9 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(sortitionModule.randomNumber(), 0, "randomNumber should be 0");
         assertEq(sortitionModule.delayedStakeWriteIndex(), 0, "delayedStakeWriteIndex should be 0");
         assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
+        assertEq(sortitionModule.maxStakePerJuror(), type(uint256).max, "Wrong maxStakePerJuror");
+        assertEq(sortitionModule.maxTotalStaked(), type(uint256).max, "Wrong maxTotalStaked");
+        assertEq(sortitionModule.totalStaked(), 0, "Wrong totalStaked");
 
         (uint256 K, uint256 nodeLength) = sortitionModule.getSortitionProperties(bytes32(uint256(FORKING_COURT)));
         assertEq(K, 5, "Wrong tree K FORKING_COURT");
@@ -129,8 +135,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             newMinStakingTime,
             newMaxDrawingTime,
             newRng,
-            type(int256).max,
-            type(int256).max
+            type(uint256).max,
+            type(uint256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
