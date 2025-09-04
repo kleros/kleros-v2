@@ -15,28 +15,31 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - **Breaking:** Rename `governor` to `owner` in order to comply with the lightweight ownership standard [ERC-5313](https://eipsinsight.com/ercs/erc-5313) ([#2112](https://github.com/kleros/kleros-v2/issues/2112))
 - **Breaking:** Apply the penalties to the stakes in the Sortition Tree ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - **Breaking:** Make `SortitionModule.getJurorBalance().stakedInCourt` include the penalties ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
-- **Breaking:** Add a new field `drawnJurorFromCourtIDs` to the `Round` struct in `KlerosCoreBase` and `KlerosCoreUniversity` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
-- **Breaking:** Add a new state variable `jumpDisputeKitID` to the `DisputeKitClassicBase` contract ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
 - Make `IDisputeKit.draw()` and `ISortitionModule.draw()` return the court ID from which the juror was drawn ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - Rename `SortitionModule.setJurorInactive()` to `SortitionModule.forcedUnstakeAllCourts()` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
-- Allow stake changes to by-pass delayed stakes when initiated by the SortitionModule by setting the `_noDelay` parameter to `true` in `SortitionModule.validateStake()` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - Make the primary VRF-based RNG fall back to `BlockhashRNG` if the VRF request is not fulfilled within a timeout ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Authenticate the calls to the RNGs to prevent 3rd parties from depleting the Chainlink VRF subscription funds ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Use `block.timestamp` rather than `block.number` for `BlockhashRNG` for better reliability on Arbitrum as block production is sporadic depending on network conditions. ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - Replace the `bytes32 _key` parameter in `SortitionTrees.createTree()` and `SortitionTrees.draw()` by `uint96 courtID` ([#2113](https://github.com/kleros/kleros-v2/issues/2113))
 - Extract the sortition sum trees logic into a library `SortitionTrees` ([#2113](https://github.com/kleros/kleros-v2/issues/2113))
+- Make `IDisputeKit.getDegreeOfCoherenceReward()` multi-dimensional so different calculations may be applied to PNK rewards, fee rewards and PNK penalties (future-proofing) ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
+- Consolidate the constant `ALPHA_DIVISOR` with `ONE_BASIS_POINTS` ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
 - Set the Hardhat Solidity version to v0.8.30 and enable the IR pipeline ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Set the Foundry Solidity version to v0.8.30 and enable the IR pipeline ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
 - Widen the allowed solc version to any v0.8.x for the interfaces only ([#2083](https://github.com/kleros/kleros-v2/issues/2083))
-- Make `IDisputeKit.getDegreeOfCoherenceReward()` multi-dimensional so different calculations may be applied to PNK rewards, fee rewards and PNK penalties (future-proofing) ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
-- Consolidate the constant `ALPHA_DIVISOR` with `ONE_BASIS_POINTS` ([#2090](https://github.com/kleros/kleros-v2/issues/2090))
 - Bump `hardhat` to v2.26.2 ([#2069](https://github.com/kleros/kleros-v2/issues/2069))
 - Bump `@kleros/vea-contracts` to v0.7.0 ([#2073](https://github.com/kleros/kleros-v2/issues/2073))
 
 ### Added
 
+- **Breaking:** Add a new field `drawnJurorFromCourtIDs` to the `Round` struct in `KlerosCoreBase` and `KlerosCoreUniversity` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
+- **Breaking:** Add a new state variable `jumpDisputeKitID` to the `DisputeKitClassicBase` contract ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
+- **Breaking:** Add a parameter `_recoveryCommit` to the event `DisputeKitShutter.CommitCastShutter` ([#2100](https://github.com/kleros/kleros-v2/issues/2100))
+- **Breaking:** Add a storage variable `recoveryCommitments` to `DisputeKitShutter` ([#2100](https://github.com/kleros/kleros-v2/issues/2100))
+- Allow the Shutter commitment to be recovered by the juror using only the salt and the choice, without having to provide the justification ([#2100](https://github.com/kleros/kleros-v2/issues/2100))
 - Allow the dispute kits to force an early court jump and to override the number of votes after an appeal (future-proofing) ([#2110](https://github.com/kleros/kleros-v2/issues/2110))
 - Allow the dispute kits to specify which new dispute kit to use when a court jump occurs ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
+- Allow stake changes to by-pass delayed stakes when initiated by the SortitionModule by setting the `_noDelay` parameter to `true` in `SortitionModule.validateStake()` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 
 ### Fixed
 

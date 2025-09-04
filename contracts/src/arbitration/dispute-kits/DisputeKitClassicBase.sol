@@ -318,19 +318,21 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
         if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+        Dispute storage dispute = disputes[localDisputeID];
         if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
 
-        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        uint256 localRoundID = dispute.rounds.length - 1;
+        Round storage round = dispute.rounds[localRoundID];
         {
             (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
             (, bool hiddenVotes, , , , , ) = core.courts(courtID);
-            bytes32 voteHash = hashVote(_choice, _salt, _justification);
+            bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
 
             //  Save the votes.
             for (uint256 i = 0; i < _voteIDs.length; i++) {
                 if (round.votes[_voteIDs[i]].account != _juror) revert JurorHasToOwnTheVote();
-                if (hiddenVotes && round.votes[_voteIDs[i]].commit != voteHash)
+                if (hiddenVotes && _getExpectedVoteHash(localDisputeID, localRoundID, _voteIDs[i]) != actualVoteHash)
                     revert HashDoesNotMatchHiddenVoteCommitment();
                 if (round.votes[_voteIDs[i]].voted) revert VoteAlreadyCast();
                 round.votes[_voteIDs[i]].choice = _choice;
@@ -484,15 +486,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
      * @dev Computes the hash of a vote using ABI encoding
      * @dev The unused parameters may be used by overriding contracts.
      * @param _choice The choice being voted for
-     * @param _justification The justification for the vote
      * @param _salt A random salt for commitment
      * @return bytes32 The hash of the encoded vote parameters
      */
     function hashVote(
         uint256 _choice,
         uint256 _salt,
-        string memory _justification
-    ) public pure virtual returns (bytes32) {
+        string memory /*_justification*/
+    ) public view virtual returns (bytes32) {
         return keccak256(abi.encodePacked(_choice, _salt));
     }
 
@@ -738,17 +739,29 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *            Internal               * //
     // ************************************* //
 
+    /// @dev Returns the expected vote hash for a given vote.
+    /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
+    /// @param _localRoundID The ID of the round in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @return The expected vote hash.
+    function _getExpectedVoteHash(
+        uint256 _localDisputeID,
+        uint256 _localRoundID,
+        uint256 _voteID
+    ) internal view virtual returns (bytes32) {
+        return disputes[_localDisputeID].rounds[_localRoundID].votes[_voteID].commit;
+    }
+
     /// @dev Checks that the chosen address satisfies certain conditions for being drawn.
     /// Note that we don't check the minStake requirement here because of the implicit staking in parent courts.
     /// minStake is checked directly during staking process however it's possible for the juror to get drawn
     /// while having < minStake if it is later increased by governance.
     /// This issue is expected and harmless.
-    /// @param _round The round in which the juror is being drawn.
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
     /// @return result Whether the address passes the check or not.
     function _postDrawCheck(
-        Round storage _round,
+        Round storage /*_round*/,
         uint256 _coreDisputeID,
         address _juror
     ) internal view virtual returns (bool result) {
