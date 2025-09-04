@@ -8,7 +8,7 @@ import "./interfaces/IDisputeTemplateRegistry.sol";
 /// @title Dispute Template Registry
 /// @dev A contract to maintain a registry of dispute templates.
 contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Initializable {
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -40,12 +40,8 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
 
     /// @dev Initializer
     /// @param _owner Owner of the contract.
-    function initialize(address _owner) external reinitializer(1) {
+    function initialize(address _owner) external initializer {
         owner = _owner;
-    }
-
-    function initialize2() external reinitializer(2) {
-        // NOP
     }
 
     // ************************ //

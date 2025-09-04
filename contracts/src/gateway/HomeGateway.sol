@@ -72,7 +72,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         uint256 _foreignChainID,
         address _foreignGateway,
         IERC20 _feeToken
-    ) external reinitializer(1) {
+    ) external initializer {
         owner = _owner;
         arbitrator = _arbitrator;
         veaInbox = _veaInbox;

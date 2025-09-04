@@ -7,7 +7,7 @@ import {SortitionModuleBase, KlerosCore, IRNG, StakingResult} from "./SortitionM
 /// @title SortitionModuleNeo
 /// @dev A factory of trees that keeps track of staked values for sortition.
 contract SortitionModuleNeo is SortitionModuleBase {
-    string public constant override version = "0.9.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -46,10 +46,6 @@ contract SortitionModuleNeo is SortitionModuleBase {
         __SortitionModuleBase_initialize(_owner, _core, _minStakingTime, _maxDrawingTime, _rng);
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStaked = _maxTotalStaked;
-    }
-
-    function initialize4() external reinitializer(4) {
-        // NOP
     }
 
     // ************************************* //

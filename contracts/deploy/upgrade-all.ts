@@ -98,11 +98,11 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   await upgrade(disputeKitShutter, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGated, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGatedShutter, "reinitialize", [wETH.address]);
-  await upgrade(disputeTemplateRegistry, "initialize2", []);
-  await upgrade(evidence, "initialize2", []);
+  await upgrade(disputeTemplateRegistry, "reinitialize", []);
+  await upgrade(evidence, "reinitialize", []);
   await upgrade(core, "reinitialize", [wETH.address]);
-  await upgrade(policyRegistry, "initialize2", []);
-  await upgrade(sortition, "initialize4", []);
+  await upgrade(policyRegistry, "reinitialize", []);
+  await upgrade(sortition, "reinitialize", []);
 };
 
 deployUpgradeAll.tags = ["UpgradeAll"];
