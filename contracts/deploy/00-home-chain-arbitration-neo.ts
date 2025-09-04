@@ -119,6 +119,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [core.target, disputeTemplateRegistry.target],
     log: true,
   });
+  console.log(`core.changeArbitrableWhitelistEnabled(true)`);
+  await core.changeArbitrableWhitelistEnabled(true);
   console.log(`core.changeArbitrableWhitelist(${resolver.address}, true)`);
   await core.changeArbitrableWhitelist(resolver.address, true);
 

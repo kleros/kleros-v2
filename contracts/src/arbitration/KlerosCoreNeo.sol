@@ -16,6 +16,7 @@ contract KlerosCoreNeo is KlerosCoreBase {
     // ************************************* //
 
     mapping(address => bool) public arbitrableWhitelist; // Arbitrable whitelist.
+    bool public arbitrableWhitelistEnabled; // Whether the arbitrable whitelist is enabled.
     IERC721 public jurorNft; // Eligible jurors NFT.
 
     // ************************************* //
@@ -93,6 +94,11 @@ contract KlerosCoreNeo is KlerosCoreBase {
         arbitrableWhitelist[_arbitrable] = _allowed;
     }
 
+    /// @dev Enables or disables the arbitrable whitelist.
+    function changeArbitrableWhitelistEnabled(bool _enabled) external onlyByOwner {
+        arbitrableWhitelistEnabled = _enabled;
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
@@ -117,7 +123,7 @@ contract KlerosCoreNeo is KlerosCoreBase {
         IERC20 _feeToken,
         uint256 _feeAmount
     ) internal override returns (uint256 disputeID) {
-        if (!arbitrableWhitelist[msg.sender]) revert ArbitrableNotWhitelisted();
+        if (arbitrableWhitelistEnabled && !arbitrableWhitelist[msg.sender]) revert ArbitrableNotWhitelisted();
         return super._createDispute(_numberOfChoices, _extraData, _feeToken, _feeAmount);
     }
 

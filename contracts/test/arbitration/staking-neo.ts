@@ -128,24 +128,10 @@ describe("Staking", async () => {
     SHOULD BEHAVE LIKE A NEO ARBITRATOR
   ************************************************************************************************/
 
-  describe("When arbitrable is not whitelisted", () => {
+  describe("When arbitrable whitelist is disabled", () => {
     before("Setup", async () => {
       await deployUnhappy();
-      await core.changeArbitrableWhitelist(resolver.target, false);
-    });
-
-    it("Should fail to create a dispute", async () => {
-      const arbitrationCost = ETH(0.5);
-      await expect(
-        resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost })
-      ).to.be.revertedWithCustomError(core, "ArbitrableNotWhitelisted");
-    });
-  });
-
-  describe("When arbitrable is whitelisted", () => {
-    before("Setup", async () => {
-      await deployUnhappy();
-      await core.changeArbitrableWhitelist(resolver.target, true);
+      await core.changeArbitrableWhitelistEnabled(false);
     });
 
     it("Should create a dispute", async () => {
@@ -153,6 +139,39 @@ describe("Staking", async () => {
       expect(await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost }))
         .to.emit(core, "DisputeCreation")
         .withArgs(0, resolver.target);
+    });
+  });
+
+  describe("When arbitrable whitelist is enabled", () => {
+    before("Setup", async () => {
+      await deployUnhappy();
+      await core.changeArbitrableWhitelistEnabled(true);
+    });
+
+    describe("When arbitrable is not whitelisted", () => {
+      before("Setup", async () => {
+        await core.changeArbitrableWhitelist(resolver.target, false);
+      });
+
+      it("Should fail to create a dispute", async () => {
+        const arbitrationCost = ETH(0.5);
+        await expect(
+          resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost })
+        ).to.be.revertedWithCustomError(core, "ArbitrableNotWhitelisted");
+      });
+    });
+
+    describe("When arbitrable is whitelisted", () => {
+      before("Setup", async () => {
+        await core.changeArbitrableWhitelist(resolver.target, true);
+      });
+
+      it("Should create a dispute", async () => {
+        const arbitrationCost = ETH(0.5);
+        expect(await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost }))
+          .to.emit(core, "DisputeCreation")
+          .withArgs(0, resolver.target);
+      });
     });
   });
 
