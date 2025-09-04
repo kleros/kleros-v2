@@ -175,32 +175,51 @@ describe("Staking", async () => {
     });
   });
 
-  describe("When juror has no NFT", async () => {
+  describe("When juror NFT is not set", async () => {
     before("Setup", async () => {
       await deployUnhappy();
+      await core.changeJurorNft(ethers.ZeroAddress);
     });
 
-    it("Should not be able to stake", async () => {
-      await pnk.connect(juror).approve(core.target, PNK(1000));
-      await expect(core.connect(juror).setStake(1, PNK(1000))).to.be.revertedWithCustomError(
-        core,
-        "NotEligibleForStaking"
-      );
+    describe("When juror has no NFT", async () => {
+      it("Should be able to stake", async () => {
+        await pnk.connect(juror).approve(core.target, PNK(1000));
+        await expect(await core.connect(juror).setStake(1, PNK(1000)))
+          .to.emit(sortition, "StakeSet")
+          .withArgs(juror.address, 1, PNK(1000), PNK(1000));
+        expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
+      });
     });
   });
 
-  describe("When juror does have a NFT", async () => {
-    before("Setup", async () => {
-      await deployUnhappy();
-      await nft.safeMint(juror.address);
+  describe("When juror NFT is set", async () => {
+    describe("When juror has no NFT", async () => {
+      before("Setup", async () => {
+        await deployUnhappy();
+      });
+
+      it("Should not be able to stake", async () => {
+        await pnk.connect(juror).approve(core.target, PNK(1000));
+        await expect(core.connect(juror).setStake(1, PNK(1000))).to.be.revertedWithCustomError(
+          core,
+          "NotEligibleForStaking"
+        );
+      });
     });
 
-    it("Should be able to stake", async () => {
-      await pnk.connect(juror).approve(core.target, PNK(1000));
-      await expect(await core.connect(juror).setStake(1, PNK(1000)))
-        .to.emit(sortition, "StakeSet")
-        .withArgs(juror.address, 1, PNK(1000), PNK(1000));
-      expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
+    describe("When juror does have a NFT", async () => {
+      before("Setup", async () => {
+        await deployUnhappy();
+        await nft.safeMint(juror.address);
+      });
+
+      it("Should be able to stake", async () => {
+        await pnk.connect(juror).approve(core.target, PNK(1000));
+        await expect(await core.connect(juror).setStake(1, PNK(1000)))
+          .to.emit(sortition, "StakeSet")
+          .withArgs(juror.address, 1, PNK(1000), PNK(1000));
+        expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
+      });
     });
   });
 
