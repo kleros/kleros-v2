@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
 import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
 import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
@@ -138,12 +138,12 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
 
         KlerosCoreMock newCore = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitCreated(DISPUTE_KIT_CLASSIC, newDisputeKit);
+        emit KlerosCore.DisputeKitCreated(DISPUTE_KIT_CLASSIC, newDisputeKit);
         vm.expectEmit(true, true, true, true);
 
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
-        emit KlerosCoreBase.CourtCreated(
+        emit KlerosCore.CourtCreated(
             GENERAL_COURT,
             FORKING_COURT,
             false,
@@ -155,7 +155,7 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             supportedDK
         );
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
+        emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
         newCore.initialize(
             newOwner,
             newGuardian,
@@ -167,7 +167,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             newTimesPerPeriod,
             newSortitionExtraData,
             newSortitionModule,
-            address(wNative)
+            address(wNative),
+            IERC721(address(0))
         );
     }
 }

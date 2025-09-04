@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModuleBase} from "../../src/arbitration/SortitionModuleBase.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
@@ -14,26 +14,26 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
     function test_setStake_increase() public {
         vm.prank(owner);
         core.pause();
-        vm.expectRevert(KlerosCoreBase.WhenNotPausedOnly.selector);
+        vm.expectRevert(KlerosCore.WhenNotPausedOnly.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 1000);
         vm.prank(owner);
         core.unpause();
 
-        vm.expectRevert(KlerosCoreBase.StakingNotPossibleInThisCourt.selector);
+        vm.expectRevert(KlerosCore.StakingNotPossibleInThisCourt.selector);
         vm.prank(staker1);
         core.setStake(FORKING_COURT, 1000);
 
         uint96 badCourtID = 2;
-        vm.expectRevert(KlerosCoreBase.StakingNotPossibleInThisCourt.selector);
+        vm.expectRevert(KlerosCore.StakingNotPossibleInThisCourt.selector);
         vm.prank(staker1);
         core.setStake(badCourtID, 1000);
 
-        vm.expectRevert(KlerosCoreBase.StakingLessThanCourtMinStake.selector);
+        vm.expectRevert(KlerosCore.StakingLessThanCourtMinStake.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 800);
 
-        vm.expectRevert(KlerosCoreBase.StakingZeroWhenNoStake.selector);
+        vm.expectRevert(KlerosCore.StakingZeroWhenNoStake.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 0);
 
@@ -58,7 +58,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         assertEq(pinakion.balanceOf(staker1), 999999999999998999, "Wrong token balance of staker1"); // 1 eth - 1001 wei
         assertEq(pinakion.allowance(staker1, address(core)), 999999999999998999, "Wrong allowance for staker1");
 
-        vm.expectRevert(KlerosCoreBase.StakingTransferFailed.selector); // This  error will be caught because owner didn't approve any tokens for KlerosCore
+        vm.expectRevert(KlerosCore.StakingTransferFailed.selector); // This  error will be caught because owner didn't approve any tokens for KlerosCore
         vm.prank(owner);
         core.setStake(GENERAL_COURT, 1000);
 
@@ -111,7 +111,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         vm.prank(address(core));
         pinakion.transfer(staker1, 1); // Manually send 1 token to make the withdrawal fail
 
-        vm.expectRevert(KlerosCoreBase.UnstakingTransferFailed.selector);
+        vm.expectRevert(KlerosCore.UnstakingTransferFailed.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 0);
 
@@ -165,7 +165,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         assertEq(courts.length, 4, "Wrong courts count");
 
         uint96 excessiveCourtID = 5;
-        vm.expectRevert(KlerosCoreBase.StakingInTooManyCourts.selector);
+        vm.expectRevert(KlerosCore.StakingInTooManyCourts.selector);
         vm.prank(staker1);
         core.setStake(excessiveCourtID, 2000);
     }
@@ -416,7 +416,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
 
     function test_setStakeBySortitionModule() public {
         // Note that functionality of this function was checked during delayed stakes execution
-        vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
+        vm.expectRevert(KlerosCore.SortitionModuleOnly.selector);
         vm.prank(owner);
         core.setStakeBySortitionModule(staker1, GENERAL_COURT, 1000);
     }

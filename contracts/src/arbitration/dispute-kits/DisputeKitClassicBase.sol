@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../KlerosCore.sol";
+import {KlerosCore, IDisputeKit, ISortitionModule} from "../KlerosCore.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";
@@ -273,7 +273,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bytes32 _commit
     ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        if (period != KlerosCoreBase.Period.commit) revert NotCommitPeriod();
+        if (period != KlerosCore.Period.commit) revert NotCommitPeriod();
         if (_commit == bytes32(0)) revert EmptyCommit();
         if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
@@ -314,7 +314,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         address _juror
     ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        if (period != KlerosCoreBase.Period.vote) revert NotVotePeriod();
+        if (period != KlerosCore.Period.vote) revert NotVotePeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
         if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
@@ -517,7 +517,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         ruling = tied ? 0 : round.winningChoice;
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         // Override the final ruling if only one side funded the appeals.
-        if (period == KlerosCoreBase.Period.execution) {
+        if (period == KlerosCore.Period.execution) {
             uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
             if (fundedChoices.length == 1) {
                 ruling = fundedChoices[0];

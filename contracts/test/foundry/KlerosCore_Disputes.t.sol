@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
-import {IArbitratorV2} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
+import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
 import {IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import "../../src/libraries/Constants.sol";
@@ -38,11 +38,11 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
 
         arbitrable.changeArbitratorExtraData(newExtraData);
 
-        vm.expectRevert(KlerosCoreBase.ArbitrationFeesNotEnough.selector);
+        vm.expectRevert(KlerosCore.ArbitrationFeesNotEnough.selector);
         vm.prank(disputer);
         arbitrable.createDispute{value: newFee * newNbJurors - 1}("Action");
 
-        vm.expectRevert(KlerosCoreBase.DisputeKitNotSupportedByCourt.selector);
+        vm.expectRevert(KlerosCore.DisputeKitNotSupportedByCourt.selector);
         vm.prank(disputer);
         arbitrable.createDispute{value: 0.04 ether}("Action");
 
@@ -64,18 +64,18 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         (
             uint96 courtID,
             IArbitrableV2 arbitrated,
-            KlerosCoreBase.Period period,
+            KlerosCore.Period period,
             bool ruled,
             uint256 lastPeriodChange
         ) = core.disputes(disputeID);
 
         assertEq(courtID, newCourtID, "Wrong court ID");
         assertEq(address(arbitrated), address(arbitrable), "Wrong arbitrable");
-        assertEq(uint256(period), uint256(KlerosCoreBase.Period.evidence), "Wrong period");
+        assertEq(uint256(period), uint256(KlerosCore.Period.evidence), "Wrong period");
         assertEq(ruled, false, "Should not be ruled");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
         assertEq(round.disputeKitID, newDkID, "Wrong DK ID");
         assertEq(round.pnkAtStakePerJuror, 4000, "Wrong pnkAtStakePerJuror"); // minStake * alpha / divisor = 2000 * 20000/10000
         assertEq(round.totalFeesForJurors, 0.04 ether, "Wrong totalFeesForJurors");
@@ -116,7 +116,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         vm.prank(disputer);
         feeToken.approve(address(arbitrable), 1 ether);
 
-        vm.expectRevert(KlerosCoreBase.TokenNotAccepted.selector);
+        vm.expectRevert(KlerosCore.TokenNotAccepted.selector);
         vm.prank(disputer);
         arbitrable.createDispute("Action", 0.18 ether);
 
@@ -125,11 +125,11 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.changeCurrencyRates(feeToken, 500, 3);
 
-        vm.expectRevert(KlerosCoreBase.ArbitrationFeesNotEnough.selector);
+        vm.expectRevert(KlerosCore.ArbitrationFeesNotEnough.selector);
         vm.prank(disputer);
         arbitrable.createDispute("Action", 0.18 ether - 1);
 
-        vm.expectRevert(KlerosCoreBase.TransferFailed.selector);
+        vm.expectRevert(KlerosCore.TransferFailed.selector);
         vm.prank(address(arbitrable)); // Bypass createDispute in arbitrable to avoid transfer checks there and make the arbitrable call KC directly
         core.createDispute(2, arbitratorExtraData, feeToken, 0.18 ether);
 
@@ -137,7 +137,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         vm.prank(disputer);
         arbitrable.createDispute("Action", 0.18 ether);
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(0, 0);
+        KlerosCore.Round memory round = core.getRoundInfo(0, 0);
         assertEq(round.totalFeesForJurors, 0.18 ether, "Wrong totalFeesForJurors");
         assertEq(round.nbVotes, 3, "Wrong nbVotes");
         assertEq(address(round.feeToken), address(feeToken), "Wrong feeToken");
