@@ -85,7 +85,7 @@ contract SortitionModuleNeo is SortitionModuleBase {
         uint256 stakeChange = stakeIncrease ? _newStake - currentStake : currentStake - _newStake;
         Juror storage juror = jurors[_account];
         if (stakeIncrease) {
-            if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
+            if (juror.stakedPnk + stakeChange > maxStakePerJuror || currentStake + stakeChange > maxStakePerJuror) {
                 return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
             }
             if (totalStaked + stakeChange > maxTotalStaked) {
