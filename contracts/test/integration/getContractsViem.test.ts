@@ -77,7 +77,7 @@ const universityContractMapping: ContractMapping = {
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
 
-const neoContractMapping: ContractMapping = {
+const mainnetContractMapping: ContractMapping = {
   klerosCore: { name: "KlerosCoreNeo" },
   sortition: { name: "SortitionModuleNeo" },
   disputeKitClassic: { name: "DisputeKitClassicNeo" },
@@ -240,10 +240,10 @@ describe("getContractsViem", () => {
     await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
-  it("should return correct contract instances for mainnetNeo", async () => {
+  it("should return correct contract instances for mainnet", async () => {
     const contracts = getContracts({
       publicClient: arbitrumClient,
-      deployment: "mainnetNeo",
+      deployment: "mainnet",
     });
 
     // Verify chain ID
@@ -262,7 +262,7 @@ describe("getContractsViem", () => {
     expect(contracts.randomizerRng).to.not.be.undefined;
 
     // Verify deployed addresses
-    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, neoContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, mainnetContractMapping);
   });
 
   it("should throw error for unsupported deployment", () => {

@@ -203,7 +203,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         },
       });
 
-    case "mainnetNeo":
+    case "mainnet":
       return getCommonConfigs({
         chainId,
         configs: {

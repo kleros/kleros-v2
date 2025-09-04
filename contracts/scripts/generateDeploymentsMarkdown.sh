@@ -15,6 +15,7 @@ IGNORED_ARTIFACTS=(
 function generate() { #deploymentDir #explorerUrl
     deploymentDir=$1
     explorerUrl=$2
+    # shellcheck disable=SC2068
     for f in $(ls -1 $deploymentDir/*.json 2>/dev/null | grep -v ${IGNORED_ARTIFACTS[@]/#/-e } | sort); do
         contractName=$(basename $f .json)
         address=$(cat $f | jq -r .address)

@@ -2,7 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-if [[ $# < 2 ]]
+if [[ $# -lt 2 ]]
 then
   echo "usage: $(basename $0) network address"
   exit 1

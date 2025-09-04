@@ -92,10 +92,6 @@ import {
   KlerosCoreUniversity__factory,
   SortitionModuleUniversity,
   SortitionModuleUniversity__factory,
-  KlerosCoreNeo,
-  KlerosCoreNeo__factory,
-  SortitionModuleNeo,
-  SortitionModuleNeo__factory,
 } from "../typechain-types";
 import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 
@@ -171,8 +167,8 @@ function getCommonFactories(
 
 export const getContracts = async (provider: ethers.Provider, deployment: DeploymentName) => {
   const { chainId } = deployments[deployment];
-  let klerosCore: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
-  let sortition: SortitionModule | SortitionModuleNeo | SortitionModuleUniversity;
+  let klerosCore: KlerosCore | KlerosCoreUniversity;
+  let sortition: SortitionModule | SortitionModuleUniversity;
   let commonFactories: CommonFactories;
 
   switch (deployment) {
@@ -247,9 +243,9 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
         chainId
       );
       break;
-    case "mainnetNeo":
-      klerosCore = KlerosCoreNeo__factory.connect(getAddress(mainnetCoreConfig, chainId), provider);
-      sortition = SortitionModuleNeo__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
+    case "mainnet":
+      klerosCore = KlerosCore__factory.connect(getAddress(mainnetCoreConfig, chainId), provider);
+      sortition = SortitionModule__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: mainnetDkcConfig,

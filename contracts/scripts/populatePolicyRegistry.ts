@@ -4,7 +4,7 @@ import policiesV1Mainnet from "../config/policies.v1.mainnet.json";
 import policiesV1GnosisChain from "../config/policies.v1.gnosischain.json";
 import policiesV2ArbitrumTestnet from "../config/policies.v2.testnet.json";
 import policiesV2ArbitrumDevnet from "../config/policies.v2.devnet.json";
-import policiesV2MainnetNeo from "../config/policies.v2.mainnet-neo.json";
+import policiesV2Mainnet from "../config/policies.v2.mainnet.json";
 import { isDevnet } from "../deploy/utils";
 import { execute, writeTransactionBatch } from "./utils/execution";
 
@@ -19,13 +19,13 @@ enum Sources {
   V1_GNOSIS,
   V2_DEVNET,
   V2_TESTNET,
-  V2_MAINNET_NEO,
+  V2_MAINNET,
 }
 
 task("populate:policy-registry", "Populates the policy registry for each court")
   .addOptionalParam(
     "from",
-    "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo (default: auto depending on the network)",
+    "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet (default: auto depending on the network)",
     undefined
   )
   .addOptionalParam("start", "The starting index for the courts to populate (default: 0)", 0, types.int)
@@ -53,7 +53,7 @@ task("populate:policy-registry", "Populates the policy registry for each court")
     if (taskArgs.from) {
       from = Sources[taskArgs.from.toUpperCase() as keyof typeof Sources];
       if (from === undefined) {
-        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo");
+        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet");
         return;
       }
     } else {
@@ -88,8 +88,8 @@ task("populate:policy-registry", "Populates the policy registry for each court")
         policiesV2 = policiesV2ArbitrumTestnet;
         break;
       }
-      case Sources.V2_MAINNET_NEO: {
-        policiesV2 = policiesV2MainnetNeo;
+      case Sources.V2_MAINNET: {
+        policiesV2 = policiesV2Mainnet;
         break;
       }
       default:
