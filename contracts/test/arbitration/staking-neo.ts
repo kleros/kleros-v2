@@ -3,8 +3,8 @@ import {
   PNK,
   RandomizerRNG,
   RandomizerMock,
-  SortitionModuleNeo,
-  KlerosCoreNeo,
+  SortitionModule,
+  KlerosCore,
   TestERC721,
   DisputeResolver,
   ChainlinkRNG,
@@ -41,8 +41,8 @@ describe("Staking", async () => {
   let juror: HardhatEthersSigner;
   let guardian: HardhatEthersSigner;
   let pnk: PNK;
-  let core: KlerosCoreNeo;
-  let sortition: SortitionModuleNeo;
+  let core: KlerosCore;
+  let sortition: SortitionModule;
   let rng: ChainlinkRNG;
   let vrfCoordinator: ChainlinkVRFCoordinatorV2Mock;
   let nft: TestERC721;
@@ -52,16 +52,16 @@ describe("Staking", async () => {
   const deployUnhappy = async () => {
     ({ deployer } = await getNamedAccounts());
 
-    await deployments.fixture(["ArbitrationNeo"], {
+    await deployments.fixture(["ArbitrationMainnet"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
     pnk = await ethers.getContract<PNK>("PNK");
-    core = await ethers.getContract<KlerosCoreNeo>("KlerosCoreNeo");
-    sortition = await ethers.getContract<SortitionModuleNeo>("SortitionModuleNeo");
+    core = await ethers.getContract<KlerosCore>("KlerosCore");
+    sortition = await ethers.getContract<SortitionModule>("SortitionModule");
     rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
     vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
-    resolver = await ethers.getContract<DisputeResolver>("DisputeResolverNeo");
+    resolver = await ethers.getContract<DisputeResolver>("DisputeResolver");
     nft = await ethers.getContract<TestERC721>("KlerosV2NeoEarlyUser");
 
     // Juror signer setup and funding

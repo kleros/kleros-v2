@@ -487,6 +487,12 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
     }
 
+    /// @dev Changes the `jurorNft` storage variable.
+    /// @param _jurorNft The new value for the `jurorNft` storage variable.
+    function changeJurorNft(IERC721 _jurorNft) external onlyByOwner {
+        jurorNft = _jurorNft;
+    }
+
     /// @dev Adds or removes an arbitrable from whitelist.
     /// @param _arbitrable Arbitrable address.
     /// @param _allowed Whether add or remove permission.
@@ -507,7 +513,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
-    function setStake(uint96 _courtID, uint256 _newStake) external virtual whenNotPaused {
+    function setStake(uint96 _courtID, uint256 _newStake) external whenNotPaused {
         if (address(jurorNft) != address(0) && jurorNft.balanceOf(msg.sender) == 0) revert NotEligibleForStaking();
         _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
@@ -559,7 +565,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         bytes memory _extraData,
         IERC20 _feeToken,
         uint256 _feeAmount
-    ) internal virtual returns (uint256 disputeID) {
+    ) internal returns (uint256 disputeID) {
         if (arbitrableWhitelistEnabled && !arbitrableWhitelist[msg.sender]) revert ArbitrableNotWhitelisted();
         (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
         if (!courts[courtID].supportedDisputeKits[disputeKitID]) revert DisputeKitNotSupportedByCourt();
@@ -1236,7 +1242,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     }
 
     /// @dev It may revert depending on the _onError parameter.
-    function _stakingFailed(OnError _onError, StakingResult _result) internal pure virtual {
+    function _stakingFailed(OnError _onError, StakingResult _result) internal pure {
         if (_onError == OnError.Return) return;
         if (_result == StakingResult.StakingTransferFailed) revert StakingTransferFailed();
         if (_result == StakingResult.UnstakingTransferFailed) revert UnstakingTransferFailed();

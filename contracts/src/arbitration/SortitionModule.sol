@@ -278,7 +278,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         uint96 _courtID,
         uint256 _newStake,
         bool _noDelay
-    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+    ) internal returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = stakeOf(_account, _courtID);
         bool stakeIncrease = _newStake > currentStake;
@@ -319,13 +319,12 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
             totalStaked += stakeChange;
         } else {
             pnkWithdrawal = stakeChange;
-            totalStaked -= stakeChange;
-
-            // Ensure locked tokens remain in the contract. They can only be released during Execution.
             uint256 possibleWithdrawal = juror.stakedPnk > juror.lockedPnk ? juror.stakedPnk - juror.lockedPnk : 0;
             if (pnkWithdrawal > possibleWithdrawal) {
+                // Ensure locked tokens remain in the contract. They can only be released during Execution.
                 pnkWithdrawal = possibleWithdrawal;
             }
+            totalStaked -= pnkWithdrawal;
         }
         return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
@@ -417,7 +416,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         uint256 _pnkDeposit,
         uint256 _pnkWithdrawal,
         uint256 _newStake
-    ) internal virtual {
+    ) internal {
         Juror storage juror = jurors[_account];
         if (_pnkDeposit > 0) {
             uint256 currentStake = stakeOf(_account, _courtID);
