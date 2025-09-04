@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -53,7 +53,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rngWithFallback.target],
+    args: [
+      deployer,
+      klerosCoreAddress,
+      minStakingTime,
+      maxFreezingTime,
+      rngWithFallback.target,
+      ethers.MaxUint256, // maxStakePerJuror
+      ethers.MaxUint256, // maxTotalStaked
+    ],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -75,6 +83,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
       weth.target,
+      ZeroAddress, // jurorNft
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)

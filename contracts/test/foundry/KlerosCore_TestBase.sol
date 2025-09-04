@@ -3,13 +3,13 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol"; // Import the console for logging
-import {KlerosCoreMock, KlerosCoreBase} from "../../src/test/KlerosCoreMock.sol";
-import {IArbitratorV2} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCoreMock, KlerosCore, IERC721} from "../../src/test/KlerosCoreMock.sol";
+import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
-import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
+import {SortitionModuleMock, SortitionModule} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
@@ -126,12 +126,14 @@ abstract contract KlerosCore_TestBase is Test {
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address)",
+            "initialize(address,address,uint256,uint256,address,uint256,uint256)",
             owner,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
-            rng
+            rng,
+            type(uint256).max,
+            type(uint256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
@@ -151,7 +153,8 @@ abstract contract KlerosCore_TestBase is Test {
             timesPerPeriod,
             sortitionExtraData,
             sortitionModule,
-            address(wNative)
+            address(wNative),
+            IERC721(address(0))
         );
         vm.prank(staker1);
         pinakion.approve(address(core), 1 ether);

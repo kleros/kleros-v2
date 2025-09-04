@@ -7,7 +7,7 @@ const { bold } = print.colors;
 
 task("change-owner", "Changes the owner for all the contracts")
   .addPositionalParam("newOwner", "The address of the new owner")
-  .addOptionalParam("coreType", "The type of core to use between base, neo, university (default: base)", Cores.BASE)
+  .addOptionalParam("coreType", "The type of core to use between base, university (default: base)", Cores.BASE)
   .setAction(async (taskArgs, hre) => {
     const newOwner = taskArgs.newOwner;
     if (!isAddress(newOwner)) {
@@ -27,7 +27,7 @@ task("change-owner", "Changes the owner for all the contracts")
 
     const coreType = Cores[taskArgs.coreType.toUpperCase() as keyof typeof Cores];
     if (coreType === undefined) {
-      console.error("Invalid core type, must be one of base, neo, university");
+      console.error("Invalid core type, must be one of base, university");
       return;
     }
     console.log("Using core type %s", coreType);

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
-import {SortitionModuleBase} from "../../src/arbitration/SortitionModuleBase.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
+import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -24,9 +24,9 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         sortitionModule.passPhase(); // Drawing phase
 
         vm.expectEmit(true, true, true, true);
-        emit SortitionModuleBase.StakeLocked(staker1, 1000, false);
+        emit SortitionModule.StakeLocked(staker1, 1000, false);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Draw(staker1, disputeID, roundID, 0); // VoteID = 0
+        emit KlerosCore.Draw(staker1, disputeID, roundID, 0); // VoteID = 0
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS); // Do 3 iterations and see that the juror will get drawn 3 times despite low stake.
 
@@ -61,7 +61,7 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS); // No one is staked so check that the empty addresses are not drawn.
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, roundID);
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, roundID);
         assertEq(round.drawIterations, 3, "Wrong drawIterations number");
 
         (, , , , uint256 nbVoters, ) = disputeKit.getRoundInfo(disputeID, roundID, 0);
@@ -106,16 +106,16 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         assertEq(courtID, GENERAL_COURT, "Wrong court ID of the dispute");
 
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Draw(staker1, disputeID, roundID, 0);
+        emit KlerosCore.Draw(staker1, disputeID, roundID, 0);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Draw(staker1, disputeID, roundID, 1);
+        emit KlerosCore.Draw(staker1, disputeID, roundID, 1);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Draw(staker1, disputeID, roundID, 2);
+        emit KlerosCore.Draw(staker1, disputeID, roundID, 2);
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
         assertEq(sortitionModule.disputesWithoutJurors(), 0, "Wrong disputesWithoutJurors count");
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, roundID);
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, roundID);
         assertEq(round.drawIterations, 3, "Wrong drawIterations number");
 
         (, , , , uint256 nbVoters, ) = disputeKit.getRoundInfo(disputeID, roundID, 0);

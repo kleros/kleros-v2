@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import "../../src/libraries/Constants.sol";
@@ -42,34 +42,34 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         // Simulate the call from dispute kit to check the requires unrelated to caller
         vm.prank(address(disputeKit));
-        vm.expectRevert(KlerosCoreBase.DisputeNotAppealable.selector);
+        vm.expectRevert(KlerosCore.DisputeNotAppealable.selector);
         core.appeal{value: 0.21 ether}(disputeID, 2, arbitratorExtraData);
 
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.AppealPossible(disputeID, arbitrable);
+        emit KlerosCore.AppealPossible(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.appeal);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.appeal);
         core.passPeriod(disputeID);
 
-        (, , KlerosCoreBase.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
         (start, end) = core.appealPeriod(0);
-        assertEq(uint256(period), uint256(KlerosCoreBase.Period.appeal), "Wrong period");
+        assertEq(uint256(period), uint256(KlerosCore.Period.appeal), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
         assertEq(core.appealCost(0), 0.21 ether, "Wrong appealCost");
         assertEq(start, lastPeriodChange, "Appeal period start is incorrect");
         assertEq(end, lastPeriodChange + timesPerPeriod[3], "Appeal period end is incorrect");
 
-        vm.expectRevert(KlerosCoreBase.AppealPeriodNotPassed.selector);
+        vm.expectRevert(KlerosCore.AppealPeriodNotPassed.selector);
         core.passPeriod(disputeID);
 
         // Simulate the call from dispute kit to check the requires unrelated to caller
         vm.prank(address(disputeKit));
-        vm.expectRevert(KlerosCoreBase.AppealFeesNotEnough.selector);
+        vm.expectRevert(KlerosCore.AppealFeesNotEnough.selector);
         core.appeal{value: 0.21 ether - 1}(disputeID, 2, arbitratorExtraData);
         vm.deal(address(disputeKit), 0); // Nullify the balance so it doesn't get in the way.
 
         vm.prank(staker1);
-        vm.expectRevert(KlerosCoreBase.DisputeKitOnly.selector);
+        vm.expectRevert(KlerosCore.DisputeKitOnly.selector);
         core.appeal{value: 0.21 ether}(disputeID, 2, arbitratorExtraData);
 
         vm.prank(crowdfunder1);
@@ -177,9 +177,9 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(crowdfunder2);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.AppealDecision(disputeID, arbitrable);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.evidence);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
         disputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
         assertEq((disputeKit.getFundedChoices(disputeID)).length, 0, "No funded choices in the fresh round");
@@ -194,17 +194,17 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count after appeal");
         assertEq(core.getNumberOfRounds(disputeID), 2, "Wrong number of rounds");
 
-        (, , KlerosCoreBase.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
-        assertEq(uint256(period), uint256(KlerosCoreBase.Period.evidence), "Wrong period");
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        assertEq(uint256(period), uint256(KlerosCore.Period.evidence), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 1); // Check the new round
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1); // Check the new round
         assertEq(round.pnkAtStakePerJuror, 1000, "Wrong pnkAtStakePerJuror");
         assertEq(round.totalFeesForJurors, 0.21 ether, "Wrong totalFeesForJurors");
         assertEq(round.nbVotes, 7, "Wrong nbVotes");
 
         core.draw(disputeID, 7);
-        emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.vote); // Check that we don't have to wait for the timeout to pass the evidence period after appeal
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.vote); // Check that we don't have to wait for the timeout to pass the evidence period after appeal
         core.passPeriod(disputeID);
     }
 
@@ -263,7 +263,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
         assertEq(round.disputeKitID, newDkID, "Wrong DK ID");
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -286,15 +286,15 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
 
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.CourtJump(disputeID, 1, newCourtID, GENERAL_COURT);
+        emit KlerosCore.CourtJump(disputeID, 1, newCourtID, GENERAL_COURT);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitJump(disputeID, 1, newDkID, DISPUTE_KIT_CLASSIC);
+        emit KlerosCore.DisputeKitJump(disputeID, 1, newDkID, DISPUTE_KIT_CLASSIC);
         vm.expectEmit(true, true, true, true);
         emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.AppealDecision(disputeID, arbitrable);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.evidence);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
         vm.prank(crowdfunder2);
         newDisputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
@@ -322,7 +322,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         // And check that draw in the new round works
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Draw(staker1, disputeID, 1, 0); // roundID = 1 VoteID = 0
+        emit KlerosCore.Draw(staker1, disputeID, 1, 0); // roundID = 1 VoteID = 0
         core.draw(disputeID, 1);
 
         (address account, , , ) = disputeKit.getVoteInfo(disputeID, 1, 0);
@@ -401,7 +401,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
-        KlerosCoreBase.Round memory round = core.getRoundInfo(disputeID, 0);
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
         assertEq(round.disputeKitID, dkID3, "Wrong DK ID");
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
@@ -424,15 +424,15 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
 
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.CourtJump(disputeID, 1, newCourtID, GENERAL_COURT);
+        emit KlerosCore.CourtJump(disputeID, 1, newCourtID, GENERAL_COURT);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitJump(disputeID, 1, dkID3, dkID2);
+        emit KlerosCore.DisputeKitJump(disputeID, 1, dkID3, dkID2);
         vm.expectEmit(true, true, true, true);
         emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.AppealDecision(disputeID, arbitrable);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.evidence);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
         vm.prank(crowdfunder2);
         disputeKit3.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
@@ -460,7 +460,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         // And check that draw in the new round works
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Draw(staker1, disputeID, 1, 0); // roundID = 1 VoteID = 0
+        emit KlerosCore.Draw(staker1, disputeID, 1, 0); // roundID = 1 VoteID = 0
         core.draw(disputeID, 1);
 
         (address account, , , ) = disputeKit2.getVoteInfo(disputeID, 1, 0);
@@ -497,7 +497,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         // Should pass to execution period without waiting for the 2nd half of the appeal.
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.NewPeriod(disputeID, KlerosCoreBase.Period.execution);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.execution);
         core.passPeriod(disputeID);
     }
 }

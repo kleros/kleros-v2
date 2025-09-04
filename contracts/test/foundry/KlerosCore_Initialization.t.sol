@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
 import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
 import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
@@ -45,6 +45,9 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(core.isSupported(GENERAL_COURT, NULL_DISPUTE_KIT), false, "General court null dk should be false");
         assertEq(core.isSupported(GENERAL_COURT, DISPUTE_KIT_CLASSIC), true, "General court classic dk should be true");
         assertEq(core.paused(), false, "Wrong paused value");
+        assertEq(core.wNative(), address(wNative), "Wrong wNative");
+        assertEq(address(core.jurorNft()), address(0), "Wrong jurorNft");
+        assertEq(core.arbitrableWhitelistEnabled(), false, "Wrong arbitrableWhitelistEnabled");
 
         assertEq(pinakion.name(), "Pinakion", "Wrong token name");
         assertEq(pinakion.symbol(), "PNK", "Wrong token symbol");
@@ -71,6 +74,9 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(sortitionModule.randomNumber(), 0, "randomNumber should be 0");
         assertEq(sortitionModule.delayedStakeWriteIndex(), 0, "delayedStakeWriteIndex should be 0");
         assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
+        assertEq(sortitionModule.maxStakePerJuror(), type(uint256).max, "Wrong maxStakePerJuror");
+        assertEq(sortitionModule.maxTotalStaked(), type(uint256).max, "Wrong maxTotalStaked");
+        assertEq(sortitionModule.totalStaked(), 0, "Wrong totalStaked");
 
         (uint256 K, uint256 nodeLength) = sortitionModule.getSortitionProperties(bytes32(uint256(FORKING_COURT)));
         assertEq(K, 5, "Wrong tree K FORKING_COURT");
@@ -123,12 +129,14 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address)",
+            "initialize(address,address,uint256,uint256,address,uint256,uint256)",
             newOwner,
             address(proxyCore),
             newMinStakingTime,
             newMaxDrawingTime,
-            newRng
+            newRng,
+            type(uint256).max,
+            type(uint256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
@@ -138,12 +146,12 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
 
         KlerosCoreMock newCore = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitCreated(DISPUTE_KIT_CLASSIC, newDisputeKit);
+        emit KlerosCore.DisputeKitCreated(DISPUTE_KIT_CLASSIC, newDisputeKit);
         vm.expectEmit(true, true, true, true);
 
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
-        emit KlerosCoreBase.CourtCreated(
+        emit KlerosCore.CourtCreated(
             GENERAL_COURT,
             FORKING_COURT,
             false,
@@ -155,7 +163,7 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             supportedDK
         );
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
+        emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
         newCore.initialize(
             newOwner,
             newGuardian,
@@ -167,7 +175,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             newTimesPerPeriod,
             newSortitionExtraData,
             newSortitionModule,
-            address(wNative)
+            address(wNative),
+            IERC721(address(0))
         );
     }
 }

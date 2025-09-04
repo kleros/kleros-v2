@@ -39,13 +39,13 @@ import {
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
 } from "./testnet.viem";
 import {
-  klerosCoreNeoConfig as mainnetCoreConfig,
-  sortitionModuleNeoConfig as mainnetSortitionConfig,
-  disputeKitClassicNeoConfig as mainnetDkClassicConfig,
-  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
-  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
-  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
-  disputeResolverNeoConfig as mainnetDrConfig,
+  klerosCoreConfig as mainnetCoreConfig,
+  sortitionModuleConfig as mainnetSortitionConfig,
+  disputeKitClassicConfig as mainnetDkClassicConfig,
+  disputeKitShutterConfig as mainnetDkShutterConfig,
+  disputeKitGatedConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterConfig as mainnetDkGatedShutterConfig,
+  disputeResolverConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
   policyRegistryConfig as mainnetPolicyRegistryConfig,
@@ -203,7 +203,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         },
       });
 
-    case "mainnetNeo":
+    case "mainnet":
       return getCommonConfigs({
         chainId,
         configs: {
