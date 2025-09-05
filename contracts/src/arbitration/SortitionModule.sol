@@ -27,7 +27,6 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         address account; // The address of the juror.
         uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
-        bool alreadyTransferred; // DEPRECATED. True if tokens were already transferred before delayed stake's execution.
     }
 
     struct Juror {
@@ -46,17 +45,14 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     uint256 public minStakingTime; // The time after which the phase can be switched to Drawing if there are open disputes.
     uint256 public maxDrawingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
-    uint256 public randomNumberRequestBlock; // DEPRECATED: to be removed in the next redeploy
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     IRNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
-    uint256 public rngLookahead; // DEPRECATED: to be removed in the next redeploy
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(TreeKey key => SortitionTrees.Tree) sortitionSumTrees; // The mapping of sortition trees by keys.
     mapping(address account => Juror) public jurors; // The jurors.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
-    mapping(address jurorAccount => mapping(uint96 courtId => uint256)) public latestDelayedStakeIndex; // DEPRECATED. Maps the juror to its latest delayed stake. If there is already a delayed stake for this juror then it'll be replaced. latestDelayedStakeIndex[juror][courtID].
     uint256 public maxStakePerJuror;
     uint256 public maxTotalStaked;
     uint256 public totalStaked;
