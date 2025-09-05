@@ -1,5 +1,0 @@
-{
-  "*.{js,jsx,ts,tsx}": "prettier --write --config prettier-config/.prettierrc.js",
-  "*.{md,html,json}": "prettier --write --config prettier-config/.prettierrc.js",
-  "*.sol": "prettier --write --config prettier-config/.prettierrc.js"
-}

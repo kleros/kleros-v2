@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-act workflow_dispatch -j buildAndDeploy --input graph_environment=graph-studio-devnet,update=true --env network=arbitrum-sepolia-devnet
