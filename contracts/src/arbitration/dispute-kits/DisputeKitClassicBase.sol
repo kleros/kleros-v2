@@ -27,6 +27,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bool jumped; // True if dispute jumped to a parent dispute kit and won't be handled by this DK anymore.
         mapping(uint256 => uint256) coreRoundIDToLocal; // Maps id of the round in the core contract to the index of the round of related local dispute.
         bytes extraData; // Extradata for the dispute.
+        uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
     struct Round {
@@ -42,6 +43,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
         mapping(address drawnAddress => bool) alreadyDrawn; // True if the address has already been drawn, false by default.
+        uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
     struct Vote {
@@ -49,6 +51,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bytes32 commit; // The commit of the juror. For courts with hidden votes.
         uint256 choice; // The choice of the juror.
         bool voted; // True if the vote has been cast.
+        uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
     // ************************************* //
@@ -246,7 +249,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         }
 
         if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
-            round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
+            Vote storage vote = round.votes.push();
+            vote.account = drawnAddress;
             round.alreadyDrawn[drawnAddress] = true;
         } else {
             drawnAddress = address(0);
