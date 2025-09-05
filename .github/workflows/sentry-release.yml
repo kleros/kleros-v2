@@ -1,0 +1,84 @@
+name: Sentry Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      
+permissions:  # added using https://github.com/step-security/secure-workflows
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: Master
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+    steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
+      with:
+        disable-sudo: true
+        egress-policy: block
+        allowed-endpoints: >
+          binaries.soliditylang.org:443
+          classic.yarnpkg.com:443
+          github.com:443
+          nightly.yarnpkg.com:443
+          nodejs.org:443
+          objects.githubusercontent.com:443
+          registry.yarnpkg.com:443
+          registry.npmjs.org:443
+          54.185.253.63:443
+          sentry.io:443
+
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        submodules: recursive
+
+    - name: Set up corepack (for yarn)
+      run: |
+        corepack enable
+        corepack prepare yarn@4.5.1 --activate
+        yarn set version 4.5.1
+  
+    - name: Setup Node.js environment
+      uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+      with:
+        node-version: 20.x   
+        cache: yarn
+  
+    - name: Cache node modules
+      uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: | 
+          ~/.npm
+          **/node_modules
+        key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-
+
+    - name: Install dependencies and build
+      run: |
+        . web/.env.mainnet-neo.public
+        yarn build:web:ci
+
+    - name: Set version
+      id: set-version
+      run: echo "version=v$(cat package.json | jq -r .version)-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      working-directory: web
+
+    - name: Create Sentry release
+      uses: getsentry/action-release@ffb64465339ef6fb868e2fc261318d78ae0ed8d9 # v1.10.5
+      env:
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      with:
+        environment: production
+        version: ${{ steps.set-version.outputs.version }}
+        sourcemaps: ./web/dist
+

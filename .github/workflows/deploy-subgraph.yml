@@ -1,0 +1,99 @@
+name: Deploy the Subgraph
+
+on:
+  workflow_dispatch:
+    inputs:
+      graph_environment:
+        description: The Graph environment to deploy to
+        required: true
+        default: 'graph-studio-devnet'
+        type: choice
+        options:
+          - graph-studio-devnet
+          - graph-studio-testnet
+          - graph-studio-mainnet
+      subgraph:
+        description: The name of the subgraph to deploy
+        required: true
+        default: 'core'
+        type: choice
+        options:
+          - core
+          - drt
+      update:
+        description: Whether to update the subgraph with the current artifacts for the selected network.
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  buildAndDeploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.graph_environment }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
+        with:
+          egress-policy: audit
+
+      - name: Validate Network environment variable
+        if:   ${{!startsWith(vars.NETWORK, 'arbitrum')}}
+        run:  echo ${{vars.NETWORK}} && exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 20
+
+      - name: Install Yarn if running locally
+        if: ${{ env.ACT }}
+        run: npm install -g yarn
+
+      - name: Install the dependencies
+        run: yarn install
+
+      - name: Install jq and yq
+        if: ${{ inputs.update }}  
+        run: |
+          mkdir bin
+          wget -qO bin/jq https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
+          wget -qO bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod a+x bin/jq bin/yq 
+
+      - name: Update the subgraph definition
+        if: ${{ inputs.update }}
+        run: |
+          export PATH=$PWD/../bin:$PATH
+          yarn update:${{ inputs.subgraph }}:${{ vars.NETWORK }}
+        working-directory: subgraph
+
+      - name: Build the subgraph
+        run: |
+          yarn codegen:${{ inputs.subgraph }}
+          yarn build:${{ inputs.subgraph }}
+        working-directory: subgraph
+        
+      - name: Authenticate with TheGraph Studio
+        run: yarn graph auth "${{ secrets.SUBGRAPH_AUTH_TOKEN }}" --studio
+        working-directory: subgraph
+
+      - name: Deploy the subgraph
+        run: |
+          # working around a graph bug which doesn't exit 1 on error: https://github.com/graphprotocol/graph-tooling/issues/1570
+          error=$(yarn deploy:${{ inputs.subgraph }}:${{ vars.NETWORK }})
+          echo "$error"
+          if [[ $error == *"Error"* ]]
+          then
+            echo "exiting..."
+            exit 1 
+          else
+            echo "deployed successfully"
+            exit 0
+          fi
+        working-directory: subgraph
