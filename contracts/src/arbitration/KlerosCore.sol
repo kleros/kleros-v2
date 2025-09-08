@@ -52,7 +52,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Period period; // The current period of the dispute.
         bool ruled; // True if the ruling has been executed, false otherwise.
         uint256 lastPeriodChange; // The last time the period was changed.
-        Round[] rounds;
+        Round[] rounds; // Rounds of the dispute.
     }
 
     struct Round {
@@ -83,9 +83,9 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     }
 
     struct CurrencyRate {
-        bool feePaymentAccepted;
-        uint64 rateInEth;
-        uint8 rateDecimals;
+        bool feePaymentAccepted; // True if this token is supported as payment method.
+        uint64 rateInEth; // Rate of the fee token in ETH.
+        uint8 rateDecimals; // Decimals of the fee token rate.
     }
 
     // ************************************* //
@@ -113,10 +113,38 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     // *              Events               * //
     // ************************************* //
 
+    /// @dev Emitted when period is passed.
+    /// @param _disputeID ID of the related dispute.
+    /// @param _period The new period.
     event NewPeriod(uint256 indexed _disputeID, Period _period);
+
+    /// @dev Emitted when appeal period starts.
+    /// @param _disputeID ID of the related dispute.
+    /// @param _arbitrable The arbitrable contract.
     event AppealPossible(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
+
+    /// @dev Emitted when the dispute is successfully appealed.
+    /// @param _disputeID ID of the related dispute.
+    /// @param _arbitrable The arbitrable contract.
     event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
+
+    /// @dev Emitted when an address is successfully drawn.
+    /// @param _address The drawn address.
+    /// @param _disputeID ID of the related dispute.
+    /// @param _roundID ID of the related round.
+    /// @param _voteID ID of the vote given to the drawn juror.
     event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID);
+
+    /// @dev Emitted when a new court is created.
+    /// @param _courtID ID of the new court.
+    /// @param _parent ID of the parent court.
+    /// @param _hiddenVotes Whether the court has hidden votes or not.
+    /// @param _minStake The `minStake` property value of the court.
+    /// @param _alpha The `alpha` property value of the court.
+    /// @param _feeForJuror The `feeForJuror` property value of the court.
+    /// @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
+    /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
+    /// @param _supportedDisputeKits Indexes of dispute kits that this court will support.
     event CourtCreated(
         uint96 indexed _courtID,
         uint96 indexed _parent,
@@ -128,6 +156,15 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256[4] _timesPerPeriod,
         uint256[] _supportedDisputeKits
     );
+
+    /// @dev Emitted when court's parameters are changed.
+    /// @param _courtID ID of the court.
+    /// @param _hiddenVotes Whether the court has hidden votes or not.
+    /// @param _minStake The `minStake` property value of the court.
+    /// @param _alpha The `alpha` property value of the court.
+    /// @param _feeForJuror The `feeForJuror` property value of the court.
+    /// @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
+    /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
     event CourtModified(
         uint96 indexed _courtID,
         bool _hiddenVotes,
@@ -137,20 +174,50 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 _jurorsForCourtJump,
         uint256[4] _timesPerPeriod
     );
+
+    /// @dev Emitted when a dispute kit is created.
+    /// @param _disputeKitID ID of the new dispute kit.
+    /// @param _disputeKitAddress Address of the new dispute kit.
     event DisputeKitCreated(uint256 indexed _disputeKitID, IDisputeKit indexed _disputeKitAddress);
+
+    /// @dev Emitted when a dispute kit is enabled/disabled in a court.
+    /// @param _courtID ID of the related court.
+    /// @param _disputeKitID ID of the dispute kit.
+    /// @param _enable Whether the dispute kit has been enabled or disabled.
     event DisputeKitEnabled(uint96 indexed _courtID, uint256 indexed _disputeKitID, bool indexed _enable);
+
+    /// @dev Emitted when a dispute jumps to a new court.
+    /// @param _disputeID ID of the dispute.
+    /// @param _roundID ID of the round.
+    /// @param _fromCourtID ID of the previous court.
+    /// @param _toCourtID ID of the new court.
     event CourtJump(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
         uint96 indexed _fromCourtID,
         uint96 _toCourtID
     );
+
+    /// @dev Emitted when a dispute jumps to a new dispute kit.
+    /// @param _disputeID ID of the dispute.
+    /// @param _roundID ID of the round.
+    /// @param _fromDisputeKitID ID of the previous dispute kit.
+    /// @param _toDisputeKitID ID of the new dispute kit.
     event DisputeKitJump(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
         uint256 indexed _fromDisputeKitID,
         uint256 _toDisputeKitID
     );
+
+    /// @dev Emitted when juror's balance shifts after penalties/rewards has been processed.
+    /// @param _account Juror's address.
+    /// @param _disputeID ID of the dispute.
+    /// @param _roundID ID of the round.
+    /// @param _degreeOfCoherency Juror's degree of coherency in this round.
+    /// @param _pnkAmount Amount of PNK shifted.
+    /// @param _feeAmount Amount of fee shifted.
+    /// @param _feeToken Address of the fee token.
     event TokenAndETHShift(
         address indexed _account,
         uint256 indexed _disputeID,
@@ -160,6 +227,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         int256 _feeAmount,
         IERC20 _feeToken
     );
+
+    /// @dev Emitted when leftover reward sent to owner.
+    /// @param _disputeID ID of the dispute.
+    /// @param _roundID ID of the round.
+    /// @param _pnkAmount Amount of PNK sent.
+    /// @param _feeAmount Amount of fee sent.
+    /// @param _feeToken Address of the fee token.
     event LeftoverRewardSent(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
@@ -167,7 +241,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 _feeAmount,
         IERC20 _feeToken
     );
+
+    /// @dev Emitted when this contract is paused.
     event Paused();
+
+    /// @dev Emitted when this contract is unpaused.
     event Unpaused();
 
     // ************************************* //
@@ -413,6 +491,14 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         );
     }
 
+    /// @dev Changes the parameters of the court.
+    /// @param _courtID ID of the court.
+    /// @param _hiddenVotes The `hiddenVotes` property value of the court.
+    /// @param _minStake The `minStake` property value of the court.
+    /// @param _alpha The `alpha` property value of the court.
+    /// @param _feeForJuror The `feeForJuror` property value of the court.
+    /// @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
+    /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
     function changeCourtParameters(
         uint96 _courtID,
         bool _hiddenVotes,
@@ -795,7 +881,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             }
         }
         if (round.pnkPenalties != pnkPenaltiesInRound) {
-            round.pnkPenalties = pnkPenaltiesInRound; // Reentrancy risk: breaks Check-Effect-Interact
+            round.pnkPenalties = pnkPenaltiesInRound; // Note: Check-Effect-Interaction pattern is compromised here, but in the current state it doesn't cause any issues.
         }
     }
 
@@ -816,7 +902,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _params.pnkAtStakePerJurorInRound
         );
 
-        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
+        // Extra check to guard against degree exceeding 1, though it should be ensured by the dispute kit.
         if (coherence > ONE_BASIS_POINT) {
             coherence = ONE_BASIS_POINT;
         }
@@ -885,7 +971,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _params.pnkAtStakePerJurorInRound
         );
 
-        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
+        // Extra check to guard against degree exceeding 1, though it should be ensured by the dispute kit.
         if (pnkCoherence > ONE_BASIS_POINT) {
             pnkCoherence = ONE_BASIS_POINT;
         }
@@ -908,7 +994,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         // Transfer the fee reward
         _transferFeeToken(round.feeToken, payable(account), feeReward);
 
-        // Stake the PNK reward if possible, by-passes delayed stakes and other checks usually done by validateStake()
+        // Stake the PNK reward if possible, bypasses delayed stakes and other checks done by validateStake()
         if (!sortitionModule.setStakeReward(account, dispute.courtID, pnkReward)) {
             pinakion.safeTransfer(account, pnkReward);
         }
@@ -1102,10 +1188,16 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         return !courts[court.parent].supportedDisputeKits[round.disputeKitID];
     }
 
+    /// @dev Returns the length of disputeKits array.
+    /// @return disputeKits length.
     function getDisputeKitsLength() external view returns (uint256) {
         return disputeKits.length;
     }
 
+    /// @dev Converts ETH into tokens.
+    /// @param _toToken The token to convert ETH into.
+    /// @param _amountInEth ETH amount.
+    /// @return Amount of tokens.
     function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
         return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
     }
@@ -1127,6 +1219,15 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             disputeKits[_round.disputeKitID].earlyCourtJump(_disputeID) || _round.nbVotes >= _court.jurorsForCourtJump;
     }
 
+    /// @dev Checks whether a dispute will jump to new court/DK, and returns new court and DK.
+    /// @param _dispute Dispute data.
+    /// @param _round Round ID.
+    /// @param _court Current court ID.
+    /// @param _disputeID Dispute ID.
+    /// @return newCourtID Court ID after jump.
+    /// @return newDisputeKitID Dispute kit ID after jump.
+    /// @return courtJump Whether the dispute jumps to a new court or not.
+    /// @return disputeKitJump Whether the dispute jumps to a new dispute kit or not.
     function _getCourtAndDisputeKitJumps(
         Dispute storage _dispute,
         Round storage _round,

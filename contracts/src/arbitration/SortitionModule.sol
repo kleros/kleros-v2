@@ -53,9 +53,9 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     mapping(TreeKey key => SortitionTrees.Tree) sortitionSumTrees; // The mapping of sortition trees by keys.
     mapping(address account => Juror) public jurors; // The jurors.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
-    uint256 public maxStakePerJuror;
-    uint256 public maxTotalStaked;
-    uint256 public totalStaked;
+    uint256 public maxStakePerJuror; // The maximum amount of PNK a juror can stake in a court.
+    uint256 public maxTotalStaked; // The maximum amount of PNK that can be staked in all courts.
+    uint256 public totalStaked; // The amount that is currently staked in all courts.
 
     // ************************************* //
     // *              Events               * //
@@ -178,10 +178,14 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         }
     }
 
+    /// @dev Changes the `maxStakePerJuror` storage variable.
+    /// @param _maxStakePerJuror The new `maxStakePerJuror` storage variable.
     function changeMaxStakePerJuror(uint256 _maxStakePerJuror) external onlyByOwner {
         maxStakePerJuror = _maxStakePerJuror;
     }
 
+    /// @dev Changes the `maxTotalStaked` storage variable.
+    /// @param _maxTotalStaked The new `maxTotalStaked` storage variable.
     function changeMaxTotalStaked(uint256 _maxTotalStaked) external onlyByOwner {
         maxTotalStaked = _maxTotalStaked;
     }
@@ -190,6 +194,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     // *         State Modifiers           * //
     // ************************************* //
 
+    /// @dev Passes the phase.
     function passPhase() external {
         if (phase == Phase.staking) {
             if (block.timestamp - lastPhaseChange < minStakingTime) revert MinStakingTimeNotPassed();
@@ -239,10 +244,12 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         delayedStakeReadIndex = newDelayedStakeReadIndex;
     }
 
+    /// @dev Triggers the state changes after dispute creation.
     function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors++;
     }
 
+    /// @dev Triggers the state changes after drawing.
     function postDrawHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors--;
     }
@@ -452,11 +459,17 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
     }
 
+    /// @dev Locks the tokens of the drawn juror.
+    /// @param _account The address of the juror.
+    /// @param _relativeAmount The amount to lock.
     function lockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
         jurors[_account].lockedPnk += _relativeAmount;
         emit StakeLocked(_account, _relativeAmount, false);
     }
 
+    /// @dev Unlocks the tokens of the drawn juror.
+    /// @param _account The address of the juror.
+    /// @param _relativeAmount The amount to unlock.
     function unlockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
         Juror storage juror = jurors[_account];
         juror.lockedPnk -= _relativeAmount;
@@ -573,10 +586,16 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         return jurors[_juror].courtIDs;
     }
 
+    /// @dev Checks if the juror is staked in any court.
+    /// @param _juror The address of the juror.
+    /// @return Whether the juror is staked or not.
     function isJurorStaked(address _juror) external view override returns (bool) {
         return jurors[_juror].stakedPnk > 0;
     }
 
+    /// @dev Checks if the juror has any leftover PNK in the contract.
+    /// @param _juror The address of the juror.
+    /// @return Whether the juror has leftover PNK.
     function getJurorLeftoverPNK(address _juror) public view override returns (uint256) {
         Juror storage juror = jurors[_juror];
         if (juror.courtIDs.length == 0 && juror.lockedPnk == 0) {
@@ -590,6 +609,9 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     // *            Internal               * //
     // ************************************* //
 
+    /// @dev Converts sortition extradata into K value of sortition tree.
+    /// @param _extraData Sortition extra data.
+    /// @return K The value of K.
     function _extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
         if (_extraData.length >= 32) {
             assembly {

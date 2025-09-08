@@ -132,6 +132,14 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         emit CommitCastShutter(_coreDisputeID, msg.sender, _commit, _recoveryCommit, _identity, _encryptedVote);
     }
 
+    /// @dev Version of `castVote` function designed specifically for Shutter.
+    /// `O(n)` where
+    /// `n` is the number of votes.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _voteIDs The IDs of the votes.
+    /// @param _choice The choice.
+    /// @param _salt The salt for the commit if the votes were hidden.
+    /// @param _justification Justification of the choice.
     function castVoteShutter(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
@@ -154,13 +162,11 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *           Public Views            * //
     // ************************************* //
 
-    /**
-     * @dev Computes the hash of a vote using ABI encoding
-     * @param _choice The choice being voted for
-     * @param _justification The justification for the vote
-     * @param _salt A random salt for commitment
-     * @return bytes32 The hash of the encoded vote parameters
-     */
+    /// @dev Computes the hash of a vote using ABI encoding
+    /// @param _choice The choice being voted for
+    /// @param _salt A random salt for commitment
+    /// @param _justification The justification for the vote
+    /// @return bytes32 The hash of the encoded vote parameters
     function hashVote(
         uint256 _choice,
         uint256 _salt,
@@ -180,11 +186,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Returns the expected vote hash for a given vote.
-    /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
-    /// @param _localRoundID The ID of the round in the Dispute Kit.
-    /// @param _voteID The ID of the vote.
-    /// @return The expected vote hash.
+    /// @inheritdoc DisputeKitClassicBase
     function _getExpectedVoteHash(
         uint256 _localDisputeID,
         uint256 _localRoundID,

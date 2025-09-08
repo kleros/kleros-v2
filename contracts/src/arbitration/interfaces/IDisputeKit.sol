@@ -107,11 +107,13 @@ interface IDisputeKit {
     function areCommitsAllCast(uint256 _coreDisputeID) external view returns (bool);
 
     /// @dev Returns true if all of the jurors have cast their votes for the last round.
+    /// Note that this function is to be called directly by the core contract and is not for off-chain usage.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @return Whether all of the jurors have cast their votes for the last round.
     function areVotesAllCast(uint256 _coreDisputeID) external view returns (bool);
 
     /// @dev Returns true if the appeal funding is finished prematurely (e.g. when losing side didn't fund).
+    /// Note that this function is to be called directly by the core contract and is not for off-chain usage.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @return Whether the appeal funding is finished.
     function isAppealFunded(uint256 _coreDisputeID) external view returns (bool);
@@ -128,9 +130,9 @@ interface IDisputeKit {
     function getNbVotesAfterAppeal(
         IDisputeKit _previousDisputeKit,
         uint256 _currentNbVotes
-    ) external view returns (uint256); // TODO: remove previousDisputeKit
+    ) external view returns (uint256);
 
-    /// @dev Returns the dispute kid ID be used after court jump by Kleros Core.
+    /// @dev Returns the dispute kit ID to be used after court jump by Kleros Core.
     /// @return The ID of the dispute kit in Kleros Core disputeKits array.
     function getJumpDisputeKitID() external view returns (uint256);
 
@@ -141,6 +143,16 @@ interface IDisputeKit {
     /// @return Whether the voter was active or not.
     function isVoteActive(uint256 _coreDisputeID, uint256 _coreRoundID, uint256 _voteID) external view returns (bool);
 
+    /// @dev Returns the info of the specified round in the core contract.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _choice The choice to query.
+    /// @return winningChoice The winning choice of this round.
+    /// @return tied Whether it's a tie or not.
+    /// @return totalVoted Number of jurors who cast the vote already.
+    /// @return totalCommited Number of jurors who cast the commit already (only relevant for hidden votes).
+    /// @return nbVoters Total number of voters in this round.
+    /// @return choiceCount Number of votes cast for the queried choice.
     function getRoundInfo(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -157,6 +169,14 @@ interface IDisputeKit {
             uint256 choiceCount
         );
 
+    /// @dev Returns the vote information for a given vote ID.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
+    /// @param _voteID The ID of the vote.
+    /// @return account The address of the juror who cast the vote.
+    /// @return commit The commit of the vote.
+    /// @return choice The choice that got the vote.
+    /// @return voted Whether the vote was cast or not.
     function getVoteInfo(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,

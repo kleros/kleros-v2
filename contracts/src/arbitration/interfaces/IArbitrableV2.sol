@@ -10,7 +10,7 @@ import "./IArbitratorV2.sol";
 /// - Define the action taken when a ruling is received by the contract.
 /// - Allow dispute creation. For this a function must call arbitrator.createDispute{value: _fee}(_choices,_extraData);
 interface IArbitrableV2 {
-    /// @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.
+    /// @dev To be emitted when a dispute is created to link the correct template to the disputeID.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.
