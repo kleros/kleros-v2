@@ -560,7 +560,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     /// @dev Gets the balance of a juror in a court.
     /// @param _juror The address of the juror.
     /// @param _courtID The ID of the court.
-    /// @return totalStaked The total amount of tokens staked including locked tokens and penalty deductions. Equivalent to the effective stake in the General court.
+    /// @return totalStakedPnk The total amount of tokens staked including locked tokens and penalty deductions. Equivalent to the effective stake in the General court.
     /// @return totalLocked The total amount of tokens locked in disputes.
     /// @return stakedInCourt The amount of tokens staked in the specified court including locked tokens and penalty deductions.
     /// @return nbCourts The number of courts the juror has directly staked in.
@@ -571,10 +571,10 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         external
         view
         override
-        returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts)
+        returns (uint256 totalStakedPnk, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts)
     {
         Juror storage juror = jurors[_juror];
-        totalStaked = juror.stakedPnk;
+        totalStakedPnk = juror.stakedPnk;
         totalLocked = juror.lockedPnk;
         stakedInCourt = stakeOf(_juror, _courtID);
         nbCourts = juror.courtIDs.length;

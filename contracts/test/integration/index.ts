@@ -76,28 +76,28 @@ describe("Integration tests", async () => {
 
     await core.setStake(1, ONE_THOUSAND_PNK);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK);
+      expect(result.totalStakedPnk).to.equal(ONE_THOUSAND_PNK);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_HUNDRED_PNK * 5n);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK * 5n);
+      expect(result.totalStakedPnk).to.equal(ONE_HUNDRED_PNK * 5n);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, 0);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(0);
+      expect(result.totalStakedPnk).to.equal(0);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_THOUSAND_PNK * 4n);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK * 4n);
+      expect(result.totalStakedPnk).to.equal(ONE_THOUSAND_PNK * 4n);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
@@ -203,6 +203,10 @@ describe("Integration tests", async () => {
   };
 });
 
-const logJurorBalance = async (result: { totalStaked: bigint; totalLocked: bigint }) => {
-  console.log("staked=%s, locked=%s", ethers.formatUnits(result.totalStaked), ethers.formatUnits(result.totalLocked));
+const logJurorBalance = async (result: { totalStakedPnk: bigint; totalLocked: bigint }) => {
+  console.log(
+    "staked=%s, locked=%s",
+    ethers.formatUnits(result.totalStakedPnk),
+    ethers.formatUnits(result.totalLocked)
+  );
 };
