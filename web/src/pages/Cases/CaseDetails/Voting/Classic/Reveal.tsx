@@ -150,11 +150,12 @@ const getSaltAndChoice = async (
   const salt = keccak256(rawSalt);
 
   // when dispute is invalid, just add RFA to the answers array
-  if (answers.length === 0) {
-    answers.unshift({ id: "0x0", title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" });
-  }
+  const candidates =
+    answers?.length > 0
+      ? answers
+      : [{ id: "0x0", title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" } as Answer];
 
-  const { choice } = answers.reduce<{ found: boolean; choice: bigint }>(
+  const { choice } = candidates.reduce<{ found: boolean; choice: bigint }>(
     (acc, answer) => {
       if (acc.found) return acc;
       const innerCommit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(answer.id), BigInt(salt)]));
