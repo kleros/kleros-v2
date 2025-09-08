@@ -149,6 +149,11 @@ const getSaltAndChoice = async (
   if (isUndefined(rawSalt)) return;
   const salt = keccak256(rawSalt);
 
+  // when dispute is invalid, just add RFA to the answers array
+  if (answers.length === 0) {
+    answers.unshift({ id: "0x0", title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" });
+  }
+
   const { choice } = answers.reduce<{ found: boolean; choice: bigint }>(
     (acc, answer) => {
       if (acc.found) return acc;
