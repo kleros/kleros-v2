@@ -18,7 +18,7 @@ dotenv.config();
 
 const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardhatChainName?: string) => {
   const artifactSuffix =
-    type === ArbitratorTypes.vanilla
+    type === ArbitratorTypes.vanilla || type === ArbitratorTypes.neo
       ? ""
       : ArbitratorTypes[type].toString().charAt(0).toUpperCase() + ArbitratorTypes[type].toString().slice(1);
   const vanillaArtifacts = [
@@ -59,7 +59,7 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
           // console.debug(`Skipping ${name} for deployment type ${ArbitratorTypes[type]}`);
           continue;
         }
-        if (type !== ArbitratorTypes.vanilla) {
+        if (type === ArbitratorTypes.university) {
           nameWithoutSuffix = name.slice(0, -artifactSuffix.length);
           // console.debug(`Using ${nameWithoutSuffix} instead of ${name}`);
         }
