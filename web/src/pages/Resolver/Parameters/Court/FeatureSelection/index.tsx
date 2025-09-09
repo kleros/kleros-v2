@@ -59,14 +59,14 @@ const FeatureSelection: React.FC = () => {
       if (!defaultKit) return;
 
       // some kits like gated can have two feature sets, one for gatedERC20 and other for ERC1155
-      if (defaultKit?.featureSets.length > 0) {
+      if (defaultKit?.featureSets.length > 1) {
         if ((disputeData?.disputeKitData as IGatedDisputeData)?.isERC1155) {
           // defaultKit.featureSets[0][0] - is either Classic or Shutter
           setSelected([defaultKit.featureSets[0][0], Features.GatedErc1155]);
         } else {
           setSelected([defaultKit.featureSets[0][0], Features.GatedErc20]);
         }
-      } else {
+      } else if (defaultKit.featureSets.length === 1) {
         setSelected(defaultKit.featureSets[0]);
       }
     }
