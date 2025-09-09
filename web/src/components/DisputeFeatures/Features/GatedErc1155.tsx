@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from "react";
+import React, { Fragment, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import { Field } from "@kleros/ui-components-library";
 
+import { Features } from "consts/disputeFeature";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC1155Validation } from "hooks/useTokenAddressValidation";
 
@@ -38,7 +39,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     error: validationError,
   } = useERC1155Validation({
     address: tokenGateAddress,
-    enabled: validationEnabled,
+    enabled: validationEnabled && props.checked,
   });
 
   const [validationMessage, variant] = useMemo(() => {
@@ -89,7 +90,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
   };
 
   return (
-    <>
+    <Fragment key={Features.GatedErc1155}>
       <WithHelpTooltip
         tooltipMsg="Only jurors who possess the token or NFT indicated below can be selected as jurors for this case.
         Add the token address below."
@@ -114,7 +115,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
           />
         </FieldContainer>
       ) : null}
-    </>
+    </Fragment>
   );
 };
 

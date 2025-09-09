@@ -59,7 +59,7 @@ const FeatureSelection: React.FC = () => {
       if (!defaultKit) return;
 
       // some kits like gated can have two feature sets, one for gatedERC20 and other for ERC1155
-      if (defaultKit?.allowSubset) {
+      if (defaultKit?.featureSets.length > 0) {
         if ((disputeData?.disputeKitData as IGatedDisputeData)?.isERC1155) {
           // defaultKit.featureSets[0][0] - is either Classic or Shutter
           setSelected([defaultKit.featureSets[0][0], Features.GatedErc1155]);
@@ -141,7 +141,7 @@ const FeatureSelection: React.FC = () => {
           <>
             {GroupsUI[groupName]({
               children: (
-                <Fragment>
+                <Fragment key={groupName}>
                   {features.map((feature) =>
                     FeatureUIs[feature]({
                       name: groupName,

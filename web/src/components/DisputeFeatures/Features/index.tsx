@@ -19,7 +19,7 @@ export type RadioInput = {
   onClick: () => void;
 };
 
-export type FeatureUI = (props: RadioInput) => JSX.Element;
+export type FeatureUI = React.FC<RadioInput>;
 
 export const StyledRadio = styled(Radio)`
   font-size: 14px;
@@ -33,6 +33,7 @@ export const FeatureUIs: Record<Features, FeatureUI> = {
       tooltipMsg={`The jurors' votes are hidden. 
         Nobody can see them before the voting period completes. 
         (It takes place in one step via Shutter Network)`}
+      key={Features.ShieldedVote}
     >
       <StyledRadio label="Single-step via Shutter Network" small {...props} />
     </WithHelpTooltip>
@@ -41,7 +42,7 @@ export const FeatureUIs: Record<Features, FeatureUI> = {
   [Features.ClassicVote]: (props: RadioInput) => <ClassicVote {...props} />,
 
   [Features.ClassicEligibility]: (props: RadioInput) => (
-    <StyledRadio label="All the jurors in this court" small {...props} />
+    <StyledRadio key={Features.ClassicEligibility} label="All the jurors in this court" small {...props} />
   ),
 
   [Features.GatedErc20]: (props: RadioInput) => <GatedErc20 {...props} />,

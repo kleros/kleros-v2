@@ -25,11 +25,6 @@ export interface DisputeKit {
    * if either subset matches the selected feature array this dispute kit is selected
    */
   featureSets: Features[][];
-  /**
-   * If true => kit accepts any subset of a featureSet.
-   * If false => must be an exact match.
-   */
-  allowSubset?: boolean;
 
   type: "general" | "gated";
 }
@@ -62,7 +57,6 @@ export const disputeKits: DisputeKits = [
       [Features.ClassicVote, Features.GatedErc20],
       [Features.ClassicVote, Features.GatedErc1155],
     ],
-    allowSubset: true,
     type: "gated",
   },
   {
@@ -71,7 +65,6 @@ export const disputeKits: DisputeKits = [
       [Features.ShieldedVote, Features.GatedErc20],
       [Features.ShieldedVote, Features.GatedErc1155],
     ],
-    allowSubset: true,
     type: "gated",
   },
 ];
@@ -84,12 +77,6 @@ function normalize(features: Features[]): string {
 /** Check if `a` is exactly the same as `b` (order-insensitive) */
 function arraysEqual(a: Features[], b: Features[]): boolean {
   return normalize(a) === normalize(b);
-}
-
-/** Check if `a` is a superset of `b` */
-function includesAll(a: Features[], b: Features[]): boolean {
-  const setA = new Set(a);
-  return b.every((x) => setA.has(x));
 }
 
 /**
@@ -119,10 +106,7 @@ export function toggleFeature(selected: Features[], feature: Features, groups: F
 export function findMatchingKits(selected: Features[], kits: DisputeKits): DisputeKit[] {
   return kits.filter((kit) =>
     kit.featureSets.some(
-      (set) =>
-        kit.allowSubset
-          ? includesAll(selected, set) // kit allows subset
-          : arraysEqual(set, selected) // strict exact match
+      (set) => arraysEqual(set, selected) // strict exact match
     )
   );
 }

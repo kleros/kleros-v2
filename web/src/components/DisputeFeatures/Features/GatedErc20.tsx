@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from "react";
+import React, { Fragment, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import { Field } from "@kleros/ui-components-library";
 
+import { Features } from "consts/disputeFeature";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC20ERC721Validation } from "hooks/useTokenAddressValidation";
 
@@ -79,7 +80,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
   };
 
   return (
-    <>
+    <Fragment key={Features.GatedErc20}>
       <WithHelpTooltip
         tooltipMsg="Only jurors who possess the token or NFT indicated below can be selected as jurors for this case.
         Add the token address below."
@@ -98,7 +99,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
           />
         </FieldContainer>
       ) : null}
-    </>
+    </Fragment>
   );
 };
 

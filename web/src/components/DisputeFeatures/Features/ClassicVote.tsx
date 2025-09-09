@@ -1,5 +1,6 @@
 import React from "react";
 
+import { Features } from "consts/disputeFeature";
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
 import { useCourtDetails } from "queries/useCourtDetails";
@@ -22,6 +23,7 @@ const ClassicVote: React.FC<RadioInput> = (props) => {
           : `The jurors' votes are not hidden. 
         Everybody can see the justification and voted choice before the voting period completes.`
       }
+      key={Features.ClassicVote}
     >
       <StyledRadio label={isCommitEnabled ? "Two-steps commit-reveal" : "Classic one step voting"} small {...props} />
     </WithHelpTooltip>
