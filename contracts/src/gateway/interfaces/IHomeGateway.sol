@@ -14,8 +14,6 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
     /// @param _arbitrableDisputeID The identifier of the dispute in the Arbitrable contract.
     /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.
-    /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.
-    /// @param _templateUri IPFS path to the dispute template starting with '/ipfs/'. Should not be used with _templateId.
     event CrossChainDisputeIncoming(
         IArbitratorV2 _arbitrator,
         uint256 _arbitrableChainId,
@@ -23,8 +21,7 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
         uint256 indexed _arbitrableDisputeID,
         uint256 indexed _arbitratorDisputeID,
         uint256 _externalDisputeID,
-        uint256 _templateId,
-        string _templateUri
+        uint256 _templateId
     );
 
     // Workaround stack too deep for relayCreateDispute()
@@ -35,7 +32,6 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
         uint256 foreignDisputeID;
         uint256 externalDisputeID;
         uint256 templateId;
-        string templateUri;
         uint256 choices;
         bytes extraData;
     }

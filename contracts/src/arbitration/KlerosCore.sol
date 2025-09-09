@@ -216,31 +216,33 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _account Juror's address.
     /// @param _disputeID ID of the dispute.
     /// @param _roundID ID of the round.
-    /// @param _degreeOfCoherency Juror's degree of coherency in this round.
-    /// @param _pnkAmount Amount of PNK shifted.
-    /// @param _feeAmount Amount of fee shifted.
+    /// @param _degreeOfCoherencyPnk Juror's degree of coherency in this round applied to PNK.
+    /// @param _degreeOfCoherencyFee Juror's degree of coherency in this round applied to the dispute fee.
+    /// @param _amountPnk Amount of PNK shifted.
+    /// @param _amountFee Amount of fee shifted.
     /// @param _feeToken Address of the fee token.
     event TokenAndETHShift(
         address indexed _account,
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _degreeOfCoherency,
-        int256 _pnkAmount,
-        int256 _feeAmount,
+        uint256 _degreeOfCoherencyPnk,
+        uint256 _degreeOfCoherencyFee,
+        int256 _amountPnk,
+        int256 _amountFee,
         IERC20 _feeToken
     );
 
     /// @dev Emitted when leftover reward sent to owner.
     /// @param _disputeID ID of the dispute.
     /// @param _roundID ID of the round.
-    /// @param _pnkAmount Amount of PNK sent.
-    /// @param _feeAmount Amount of fee sent.
+    /// @param _amountPnk Amount of PNK sent.
+    /// @param _amountFee Amount of fee sent.
     /// @param _feeToken Address of the fee token.
     event LeftoverRewardSent(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _pnkAmount,
-        uint256 _feeAmount,
+        uint256 _amountPnk,
+        uint256 _amountFee,
         IERC20 _feeToken
     );
 
@@ -929,6 +931,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _params.disputeID,
             _params.round,
             coherence,
+            0,
             -int256(availablePenalty),
             0,
             round.feeToken
@@ -1006,6 +1009,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _params.disputeID,
             _params.round,
             pnkCoherence,
+            feeCoherence,
             int256(pnkReward),
             int256(feeReward),
             round.feeToken

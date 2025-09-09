@@ -151,7 +151,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         disputeHashtoID[disputeHash] = disputeID;
         relayedData.relayer = msg.sender;
 
-        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
+        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId);
 
         emit CrossChainDisputeIncoming(
             arbitrator,
@@ -160,8 +160,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             _params.foreignDisputeID,
             disputeID,
             _params.externalDisputeID,
-            _params.templateId,
-            _params.templateUri
+            _params.templateId
         );
     }
 
@@ -193,7 +192,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         relayedData.relayer = msg.sender;
 
         // Not strictly necessary for functionality, only to satisfy IArbitrableV2
-        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
+        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId);
 
         emit CrossChainDisputeIncoming(
             arbitrator,
@@ -202,8 +201,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             _params.foreignDisputeID,
             disputeID,
             _params.externalDisputeID,
-            _params.templateId,
-            _params.templateUri
+            _params.templateId
         );
     }
 

@@ -300,7 +300,7 @@ contract KlerosGovernor is IArbitrableV2 {
             // Check in case arbitration cost increased after the submission. It's unlikely that its increase won't be covered by the base deposit, but technically possible.
             session.sumDeposit = session.sumDeposit > arbitrationCost ? session.sumDeposit - arbitrationCost : 0;
             reservedETH = reservedETH > arbitrationCost ? reservedETH - arbitrationCost : 0;
-            emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, templateId, "");
+            emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, templateId);
         }
     }
 

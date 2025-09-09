@@ -33,7 +33,6 @@ contract DisputeResolverRuler is DisputeResolver {
         bytes calldata _arbitratorExtraData,
         string memory _disputeTemplate,
         string memory _disputeTemplateDataMappings,
-        string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
     ) internal override returns (uint256 arbitratorDisputeID) {
         if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
@@ -47,7 +46,7 @@ contract DisputeResolverRuler is DisputeResolver {
         arbitratorDisputeID = IKlerosCoreRulerFragment(address(arbitrator)).getNextDisputeID();
         arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId);
 
         arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
     }

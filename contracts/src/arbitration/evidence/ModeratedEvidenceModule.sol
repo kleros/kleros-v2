@@ -269,8 +269,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
                 arbitrator,
                 evidenceData.disputeID,
                 uint256(_evidenceID),
-                arbitratorData.disputeTemplateId,
-                ""
+                arbitratorData.disputeTemplateId
             );
             evidenceData.disputed = true;
             moderation.bondDeadline = 0;

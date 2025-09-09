@@ -117,8 +117,7 @@ describe("Integration tests", async () => {
         foreignGateway.target,
         1,
         46619385602526556702049273755915206310773794210139929511467397410441395547901n,
-        0,
-        ""
+        0
       );
     if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
@@ -134,7 +133,7 @@ describe("Integration tests", async () => {
     // Relayer tx
     const tx2 = await homeGateway
       .connect(relayer)
-      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
+      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,uint256,bytes))"](
         {
           foreignBlockHash: ethers.toBeHex(lastBlock.hash),
           foreignChainID: 31337,
@@ -142,7 +141,6 @@ describe("Integration tests", async () => {
           foreignDisputeID: disputeId,
           externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
           templateId: 0,
-          templateUri: "",
           choices: 2,
           extraData: "0x00",
         },

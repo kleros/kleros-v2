@@ -84,23 +84,8 @@ contract DisputeResolver is IArbitrableV2 {
                 _arbitratorExtraData,
                 _disputeTemplate,
                 _disputeTemplateDataMappings,
-                "",
                 _numberOfRulingOptions
             );
-    }
-
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
-    /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
-    /// @param _disputeTemplateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'.
-    /// @param _numberOfRulingOptions Number of ruling options.
-    /// @return disputeID Dispute id (on arbitrator side) of the created dispute.
-    function createDisputeForTemplateUri(
-        bytes calldata _arbitratorExtraData,
-        string calldata _disputeTemplateUri,
-        uint256 _numberOfRulingOptions
-    ) external payable returns (uint256 disputeID) {
-        return _createDispute(_arbitratorExtraData, "", "", _disputeTemplateUri, _numberOfRulingOptions);
     }
 
     /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
@@ -127,7 +112,6 @@ contract DisputeResolver is IArbitrableV2 {
         bytes calldata _arbitratorExtraData,
         string memory _disputeTemplate,
         string memory _disputeTemplateDataMappings,
-        string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
     ) internal virtual returns (uint256 arbitratorDisputeID) {
         if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
@@ -144,7 +128,7 @@ contract DisputeResolver is IArbitrableV2 {
         );
         arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId);
     }
 
     // ************************************* //
