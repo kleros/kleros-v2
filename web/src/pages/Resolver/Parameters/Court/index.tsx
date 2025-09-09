@@ -52,13 +52,14 @@ const AlertMessageContainer = styled.div`
 `;
 
 const Court: React.FC = () => {
-  const { disputeData, setDisputeData } = useNewDisputeContext();
+  const { disputeData, setDisputeData, setSelectedFeatures } = useNewDisputeContext();
   const { data: courtTree } = useCourtTree();
   const items = useMemo(() => !isUndefined(courtTree?.court) && [rootCourtToItems(courtTree.court)], [courtTree]);
 
   const handleCourtChange = (courtId: string) => {
     if (disputeData.courtId !== courtId) {
-      setDisputeData({ ...disputeData, courtId, disputeKitId: undefined });
+      setDisputeData({ ...disputeData, courtId, disputeKitId: undefined, disputeKitData: undefined });
+      setSelectedFeatures([]);
     }
   };
 
@@ -83,7 +84,7 @@ const Court: React.FC = () => {
           variant="info"
         />
       </AlertMessageContainer>
-      <FeatureSelection />
+      {isUndefined(disputeData.courtId) ? null : <FeatureSelection />}
       <NavigationButtons prevRoute="/resolver/description" nextRoute="/resolver/category" />
     </Container>
   );

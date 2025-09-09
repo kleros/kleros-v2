@@ -4,9 +4,8 @@ import { useLocation } from "react-router-dom";
 import { Address } from "viem";
 
 import { DEFAULT_CHAIN } from "consts/chains";
+import { Features } from "consts/disputeFeature";
 import { klerosCoreAddress } from "hooks/contracts/generated";
-import { useSupportedDisputeKits } from "hooks/queries/useSupportedDisputeKits";
-import { useDisputeKitAddressesAll } from "hooks/useDisputeKitAddresses";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isEmpty, isUndefined } from "utils/index";
 
@@ -93,7 +92,8 @@ interface INewDisputeContext {
   setIsBatchCreation: (isBatchCreation: boolean) => void;
   batchSize: number;
   setBatchSize: (batchSize?: number) => void;
-  disputeKitOptions: DisputeKitOption[];
+  selectedFeatures: Features[];
+  setSelectedFeatures: React.Dispatch<React.SetStateAction<Features[]>>;
 }
 
 const getInitialDisputeData = (): IDisputeData => ({
@@ -129,6 +129,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isPolicyUploading, setIsPolicyUploading] = useState<boolean>(false);
   const [isBatchCreation, setIsBatchCreation] = useState<boolean>(false);
   const [batchSize, setBatchSize] = useLocalStorage<number>("disputeBatchSize", MIN_DISPUTE_BATCH_SIZE);
+  const [selectedFeatures, setSelectedFeatures] = useState<Features[]>([]);
 
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
   const location = useLocation();
@@ -148,22 +149,6 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  const { data: supportedDisputeKits } = useSupportedDisputeKits(disputeData.courtId);
-  const { availableDisputeKits } = useDisputeKitAddressesAll();
-
-  const disputeKitOptions: DisputeKitOption[] = useMemo(() => {
-    return (
-      supportedDisputeKits?.court?.supportedDisputeKits.map((dk) => {
-        const text = availableDisputeKits[dk.address.toLowerCase()] ?? "";
-        return {
-          text,
-          value: Number(dk.id),
-          gated: text === DisputeKits.Gated || text === DisputeKits.GatedShutter,
-        };
-      }) || []
-    );
-  }, [supportedDisputeKits, availableDisputeKits]);
-
   const contextValues = useMemo(
     () => ({
       disputeData,
@@ -178,7 +163,8 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setIsBatchCreation,
       batchSize,
       setBatchSize,
-      disputeKitOptions,
+      selectedFeatures,
+      setSelectedFeatures,
     }),
     [
       disputeData,
@@ -191,7 +177,8 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setIsBatchCreation,
       batchSize,
       setBatchSize,
-      disputeKitOptions,
+      selectedFeatures,
+      setSelectedFeatures,
     ]
   );
 
