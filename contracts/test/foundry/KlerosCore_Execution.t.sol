@@ -11,6 +11,7 @@ import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_ExecutionTest
 /// @dev Tests for KlerosCore execution, rewards, and ruling finalization
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
     function test_execute() public {
         uint256 disputeID = 0;

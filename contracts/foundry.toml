@@ -10,6 +10,9 @@ src = 'src'
 out = 'out'
 libs = ['../node_modules', 'lib']
 
+[lint]
+severity = ['high', 'medium']
+
 [rpc_endpoints]
 arbitrumSepolia = "https://sepolia-rollup.arbitrum.io/rpc"
 arbitrum = "https://arb1.arbitrum.io/rpc"

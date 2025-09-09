@@ -10,6 +10,7 @@ import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_StakingTest
 /// @dev Tests for KlerosCore staking mechanics and stake management
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 contract KlerosCore_StakingTest is KlerosCore_TestBase {
     function test_setStake_increase() public {
         vm.prank(owner);

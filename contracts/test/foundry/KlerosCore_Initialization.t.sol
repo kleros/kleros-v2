@@ -14,8 +14,9 @@ import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_InitializationTest
 /// @dev Tests for KlerosCore initialization and basic configuration
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 contract KlerosCore_InitializationTest is KlerosCore_TestBase {
-    function test_initialize() public {
+    function test_initialize() public view {
         assertEq(core.owner(), msg.sender, "Wrong owner");
         assertEq(core.guardian(), guardian, "Wrong guardian");
         assertEq(address(core.pinakion()), address(pinakion), "Wrong pinakion address");
@@ -96,7 +97,6 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         address newOwner = msg.sender;
         address newGuardian = vm.addr(1);
         address newStaker1 = vm.addr(2);
-        address newOther = vm.addr(9);
         address newJurorProsecutionModule = vm.addr(8);
         uint256 newMinStake = 1000;
         uint256 newAlpha = 10000;

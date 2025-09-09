@@ -10,6 +10,7 @@ import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_DisputesTest
 /// @dev Tests for KlerosCore dispute creation and management
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 contract KlerosCore_DisputesTest is KlerosCore_TestBase {
     function test_createDispute_eth() public {
         // Create a new court and DK to test non-standard extra data

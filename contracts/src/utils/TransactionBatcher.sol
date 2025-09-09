@@ -17,6 +17,7 @@ contract TransactionBatcher {
         bytes[] memory datas
     ) public payable {
         for (uint256 i = 0; i < targets.length; i++) {
+            /// forge-lint: disable-next-line(unchecked-call)
             targets[i].call{value: values[i]}(datas[i]); // Intentionally ignoring return value.
         }
     }

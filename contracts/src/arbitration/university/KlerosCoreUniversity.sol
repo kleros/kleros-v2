@@ -851,9 +851,9 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         sortitionModule.unlockStake(account, pnkLocked);
 
         // Compute the rewards
-        uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * pnkCoherence) / ONE_BASIS_POINT;
+        uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * pnkCoherence) / ONE_BASIS_POINT; /// forge-lint: disable-line(divide-before-multiply)
         round.sumPnkRewardPaid += pnkReward;
-        uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * feeCoherence) / ONE_BASIS_POINT;
+        uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * feeCoherence) / ONE_BASIS_POINT; /// forge-lint: disable-line(divide-before-multiply)
         round.sumFeeRewardPaid += feeReward;
 
         // Transfer the fee reward
