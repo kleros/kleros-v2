@@ -47,10 +47,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     }
 
     struct Vote {
+        bool voted; // True if the vote has been cast.
         address account; // The address of the juror.
         bytes32 commit; // The commit of the juror. For courts with hidden votes.
         uint256 choice; // The choice of the juror.
-        bool voted; // True if the vote has been cast.
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
@@ -72,6 +72,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     uint256 public jumpDisputeKitID; // The ID of the dispute kit in Kleros Core disputeKits array that the dispute should switch to after the court jump, in case the new court doesn't support this dispute kit.
 
     uint256[50] private __gap; // Reserved slots for future upgrades.
+
     // ************************************* //
     // *              Events               * //
     // ************************************* //
