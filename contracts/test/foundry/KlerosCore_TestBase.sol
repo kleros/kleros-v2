@@ -223,8 +223,7 @@ abstract contract KlerosCore_TestBase is Test {
         uint256 expectedMinStake,
         uint256 expectedAlpha,
         uint256 expectedFeeForJuror,
-        uint256 expectedJurorsForJump,
-        bool expectedDisabled
+        uint256 expectedJurorsForJump
     ) internal {
         (
             uint96 courtParent,
@@ -232,8 +231,7 @@ abstract contract KlerosCore_TestBase is Test {
             uint256 courtMinStake,
             uint256 courtAlpha,
             uint256 courtFeeForJuror,
-            uint256 courtJurorsForCourtJump,
-            bool courtDisabled
+            uint256 courtJurorsForCourtJump
         ) = core.courts(courtId);
 
         assertEq(courtParent, expectedParent, "Wrong court parent");
@@ -242,7 +240,6 @@ abstract contract KlerosCore_TestBase is Test {
         assertEq(courtAlpha, expectedAlpha, "Wrong alpha value");
         assertEq(courtFeeForJuror, expectedFeeForJuror, "Wrong feeForJuror value");
         assertEq(courtJurorsForCourtJump, expectedJurorsForJump, "Wrong jurorsForCourtJump value");
-        assertEq(courtDisabled, expectedDisabled, "Wrong disabled state");
     }
 
     /// @dev Helper function to check times per period

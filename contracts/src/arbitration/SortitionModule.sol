@@ -453,7 +453,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currentCourtID, , , , , , ) = core.courts(currentCourtID); // Get the parent court.
+                (currentCourtID, , , , , ) = core.courts(currentCourtID); // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);

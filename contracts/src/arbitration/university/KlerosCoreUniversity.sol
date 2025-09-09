@@ -39,7 +39,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 jurorsForCourtJump; // The appeal after the one that reaches this number of jurors will go to the parent court if any.
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
         mapping(uint256 disputeKitId => bool) supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
-        bool disabled; // True if the court is disabled. Unused for now, will be implemented later.
+        uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
     struct Dispute {
@@ -49,6 +49,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         bool ruled; // True if the ruling has been executed, false otherwise.
         uint256 lastPeriodChange; // The last time the period was changed.
         Round[] rounds;
+        uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
     struct Round {
@@ -64,6 +65,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
         uint256 drawIterations; // The number of iterations passed drawing the jurors for this round.
+        uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
     // Workaround "stack too deep" errors

@@ -280,7 +280,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currentCourtID, , , , , , ) = core.courts(currentCourtID);
+                (currentCourtID, , , , , ) = core.courts(currentCourtID);
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);

@@ -320,7 +320,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[localRoundID];
         {
             (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-            (, bool hiddenVotes, , , , , ) = core.courts(courtID);
+            (, bool hiddenVotes, , , , ) = core.courts(courtID);
             bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
 
             //  Save the votes.
@@ -585,7 +585,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , , ) = core.courts(courtID);
+        (, bool hiddenVotes, , , , ) = core.courts(courtID);
         uint256 expectedTotalVoted = hiddenVotes ? round.totalCommitted : round.votes.length;
 
         return round.totalVoted == expectedTotalVoted;

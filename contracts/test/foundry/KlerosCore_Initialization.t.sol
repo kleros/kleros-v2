@@ -23,8 +23,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(address(core.sortitionModule()), address(sortitionModule), "Wrong sortitionModule address");
         assertEq(core.getDisputeKitsLength(), 2, "Wrong DK array length");
 
-        _assertCourtParameters(FORKING_COURT, FORKING_COURT, false, 0, 0, 0, 0, false);
-        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, false, 1000, 10000, 0.03 ether, 511, false);
+        _assertCourtParameters(FORKING_COURT, FORKING_COURT, false, 0, 0, 0, 0);
+        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, false, 1000, 10000, 0.03 ether, 511);
 
         uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
         assertEq(children.length, 0, "No children");
