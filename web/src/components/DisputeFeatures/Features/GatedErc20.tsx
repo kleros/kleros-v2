@@ -82,8 +82,8 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.GatedErc20}>
       <WithHelpTooltip
-        tooltipMsg="Only jurors who possess the token or NFT indicated below can be selected as jurors for this case.
-        Add the token address below."
+        tooltipMsg="Only the jurors who possess the specified token or NFT 
+        can be selected as jurors for this case. Please input the token details below."
       >
         <StyledRadio label="Jurors owning at least 1 token ERC-20 or ERC-721" small {...props} />
       </WithHelpTooltip>

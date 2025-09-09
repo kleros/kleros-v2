@@ -30,9 +30,9 @@ export const StyledRadio = styled(Radio)`
 export const FeatureUIs: Record<Features, FeatureUI> = {
   [Features.ShieldedVote]: (props: RadioInput) => (
     <WithHelpTooltip
-      tooltipMsg={`The jurors' votes are hidden. 
+      tooltipMsg={`The jurors votes are hidden. 
         Nobody can see them before the voting period completes. 
-        (It takes place in one step via Shutter Network)`}
+        It takes place in a single step via Shutter Network`}
       key={Features.ShieldedVote}
     >
       <StyledRadio label="Single-step via Shutter Network" small {...props} />

@@ -17,15 +17,15 @@ const ClassicVote: React.FC<RadioInput> = (props) => {
     <WithHelpTooltip
       tooltipMsg={
         isCommitEnabled
-          ? `The jurors' votes are hidden. 
+          ? `The jurors votes are hidden. 
         Nobody can see them before the voting period completes. 
-        (It takes place in two steps commit-reveal)`
-          : `The jurors' votes are not hidden. 
+        It takes place in a two-step commit-reveal process.`
+          : `The jurors votes are not hidden. 
         Everybody can see the justification and voted choice before the voting period completes.`
       }
       key={Features.ClassicVote}
     >
-      <StyledRadio label={isCommitEnabled ? "Two-steps commit-reveal" : "Classic one step voting"} small {...props} />
+      <StyledRadio label={isCommitEnabled ? "Two-step commit-reveal" : "Disabled"} small {...props} />
     </WithHelpTooltip>
   );
 };

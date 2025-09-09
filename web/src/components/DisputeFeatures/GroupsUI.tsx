@@ -36,7 +36,7 @@ export const GroupsUI: Record<Group, GroupUI> = {
     <Container key={Group.Voting}>
       <HeaderContainer>
         <Header>Shielded Voting</Header>
-        <SubTitle>It hides the jurors&apos; votes until the end of the voting period.</SubTitle>
+        <SubTitle>This feature hides the jurors votes until the end of the voting period.</SubTitle>
       </HeaderContainer>
       {children}
     </Container>
@@ -45,7 +45,7 @@ export const GroupsUI: Record<Group, GroupUI> = {
     <Container key={Group.Eligibility}>
       <HeaderContainer>
         <Header>Jurors Eligibility</Header>
-        <SubTitle>Who can be selected as a juror?.</SubTitle>
+        <SubTitle>This feature determines who can be selected as a juror.</SubTitle>
       </HeaderContainer>
       {children}
     </Container>

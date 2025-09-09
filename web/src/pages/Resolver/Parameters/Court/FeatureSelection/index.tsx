@@ -34,7 +34,7 @@ const Container = styled(Card)`
 `;
 
 const SubTitle = styled.p`
-  font-size: 14px;
+  font-size: 18px;
   color: ${({ theme }) => theme.secondaryBlue};
   padding: 0;
   margin: 0;
@@ -134,7 +134,7 @@ const FeatureSelection: React.FC = () => {
 
   return (
     <Container>
-      <SubTitle>Additional features available in this court:</SubTitle>
+      <SubTitle>Features in this Court</SubTitle>
 
       {Object.entries(courtGroups).length > 0 ? (
         Object.entries(courtGroups).map(([groupName, features], index) => (
