@@ -131,23 +131,23 @@ describe("Integration tests", async () => {
       throw new Error("Block hash is null - cannot calculate dispute hash");
     }
     // Relayer tx
-    const tx2 = await homeGateway
-      .connect(relayer)
-      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,uint256,bytes))"](
-        {
-          foreignBlockHash: ethers.toBeHex(lastBlock.hash),
-          foreignChainID: 31337,
-          foreignArbitrable: arbitrable.target,
-          foreignDisputeID: disputeId,
-          externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
-          templateId: 0,
-          choices: 2,
-          extraData: "0x00",
-        },
-        { value: arbitrationCost }
-      );
-    expect(tx2).to.emit(homeGateway, "DisputeRequest");
-    await tx2.wait();
+    await expect(
+      homeGateway
+        .connect(relayer)
+        ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,uint256,bytes))"](
+          {
+            foreignBlockHash: ethers.toBeHex(lastBlock.hash),
+            foreignChainID: 31337,
+            foreignArbitrable: arbitrable.target,
+            foreignDisputeID: disputeId,
+            externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
+            templateId: 0,
+            choices: 2,
+            extraData: "0x00",
+          },
+          { value: arbitrationCost }
+        )
+    ).to.emit(homeGateway, "DisputeRequest");
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
@@ -186,12 +186,16 @@ describe("Integration tests", async () => {
 
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
-    expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
+    await expect(core.execute(0, 0, 1000))
+      .to.emit(core, "TokenAndETHShift")
+      .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n, ethers.ZeroAddress);
 
-    const tx4 = await core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 });
+    await expect(core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }))
+      .to.emit(core, "Ruling")
+      .withArgs(homeGateway.target, 0, 0)
+      .and.to.emit(arbitrable, "Ruling")
+      .withArgs(foreignGateway.target, 1, 0); // The ForeignGateway starts counting disputeID from 1.
     console.log("Ruling executed on KlerosCore");
-    expect(tx4).to.emit(core, "Ruling").withArgs(homeGateway.target, 0, 0);
-    expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.target, 1, 0); // The ForeignGateway starts counting disputeID from 1.
   });
 
   const mineBlocks = async (n: number) => {

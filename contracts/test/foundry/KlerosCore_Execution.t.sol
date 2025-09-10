@@ -103,12 +103,6 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker2, 0, true);
-        vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, 0, IERC20(address(0))); // penalties but amounts are 0
-        vm.expectEmit(true, true, true, true);
-        emit SortitionModule.StakeLocked(staker2, 0, true);
-        vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, 0, IERC20(address(0))); // penalties but amounts are 0
         core.execute(disputeID, 0, 3); // Do 3 iterations to check penalties first
 
         (uint256 totalStaked, uint256 totalLocked, , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
@@ -123,8 +117,6 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker1, 0, true);
-        vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 0, 0, 0, 0, IERC20(address(0))); // rewards but amounts are 0
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker2, 1000, true);
@@ -537,8 +529,6 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.passPeriod(disputeID); // Execution
 
         // Check only once per penalty and per reward
-        vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 10000, 0, 0, 0, feeToken); // penalties but amounts are 0
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 10000, 10000, 0, 0.06 ether, feeToken); // rewards
         core.execute(disputeID, 0, 6);
