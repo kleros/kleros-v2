@@ -87,8 +87,6 @@
     "watch": "hardhat watch",
     "natspec-smells": "natspec-smells",
     "docgen": "hardhat docgen",
-    "docserve": "scripts/docPreprocess.sh && forge doc --serve",
-    "docbuild": "scripts/docPreprocess.sh && forge doc --build --out dist && scripts/docPostprocess.sh",
     "populate:courts:devnet": "hardhat populate:courts --from v2_devnet  --network arbitrumSepoliaDevnet",
     "populate:courts:testnet": "hardhat populate:courts --from v2_testnet  --network arbitrumSepolia",
     "populate:courts:mainnet": "hardhat populate:courts --from v2_mainnet  --network arbitrum",

@@ -12,7 +12,7 @@ import {IRNG} from "../rng/IRNG.sol";
 import "../libraries/Constants.sol";
 
 /// @title SortitionModule
-/// @dev A factory of trees that keeps track of staked values for sortition.
+/// @notice A factory of trees that keeps track of staked values for sortition.
 contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     using SortitionTrees for SortitionTrees.Tree;
     using SortitionTrees for mapping(TreeKey key => SortitionTrees.Tree);
@@ -80,12 +80,12 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     /// @param _unlock Whether the stake is locked or unlocked.
     event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unlock);
 
-    /// @dev Emitted when leftover PNK is available.
+    /// @notice Emitted when leftover PNK is available.
     /// @param _account The account of the juror.
     /// @param _amount The amount of PNK available.
     event LeftoverPNK(address indexed _account, uint256 _amount);
 
-    /// @dev Emitted when leftover PNK is withdrawn.
+    /// @notice Emitted when leftover PNK is withdrawn.
     /// @param _account The account of the juror withdrawing PNK.
     /// @param _amount The amount of PNK withdrawn.
     event LeftoverPNKWithdrawn(address indexed _account, uint256 _amount);
@@ -99,7 +99,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         _disableInitializers();
     }
 
-    /// @dev Initializer (constructor equivalent for upgradable contracts).
+    /// @notice Initializer (constructor equivalent for upgradable contracts).
     /// @param _owner The owner.
     /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
@@ -151,25 +151,25 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         // NOP
     }
 
-    /// @dev Changes the owner of the contract.
+    /// @notice Changes the owner of the contract.
     /// @param _owner The new owner.
     function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
     }
 
-    /// @dev Changes the `minStakingTime` storage variable.
+    /// @notice Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
     function changeMinStakingTime(uint256 _minStakingTime) external onlyByOwner {
         minStakingTime = _minStakingTime;
     }
 
-    /// @dev Changes the `maxDrawingTime` storage variable.
+    /// @notice Changes the `maxDrawingTime` storage variable.
     /// @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
     function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByOwner {
         maxDrawingTime = _maxDrawingTime;
     }
 
-    /// @dev Changes the `rng` storage variable.
+    /// @notice Changes the `rng` storage variable.
     /// @param _rng The new random number generator.
     function changeRandomNumberGenerator(IRNG _rng) external onlyByOwner {
         rng = _rng;
@@ -178,13 +178,13 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         }
     }
 
-    /// @dev Changes the `maxStakePerJuror` storage variable.
+    /// @notice Changes the `maxStakePerJuror` storage variable.
     /// @param _maxStakePerJuror The new `maxStakePerJuror` storage variable.
     function changeMaxStakePerJuror(uint256 _maxStakePerJuror) external onlyByOwner {
         maxStakePerJuror = _maxStakePerJuror;
     }
 
-    /// @dev Changes the `maxTotalStaked` storage variable.
+    /// @notice Changes the `maxTotalStaked` storage variable.
     /// @param _maxTotalStaked The new `maxTotalStaked` storage variable.
     function changeMaxTotalStaked(uint256 _maxTotalStaked) external onlyByOwner {
         maxTotalStaked = _maxTotalStaked;
@@ -514,7 +514,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Get the stake of a juror in a court.
+    /// @notice Get the stake of a juror in a court.
     /// @param _juror The address of the juror.
     /// @param _courtID The ID of the court.
     /// @return value The stake of the juror in the court.
@@ -524,7 +524,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         return sortitionSumTrees[key].stakeOf(stakePathID);
     }
 
-    /// @dev Converts sortition extradata into K value of sortition tree.
+    /// @notice Converts sortition extradata into K value of sortition tree.
     /// @param _extraData Sortition extra data.
     /// @return K The value of K.
     function _extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {

@@ -9,14 +9,14 @@ interface IKlerosCoreRulerFragment {
 }
 
 /// @title DisputeResolverRuler
-/// It extends DisputeResolver for testing purposes of the automatic ruling modes.
-/// The arbitrator disputeID must be known before dispute creation, otherwise the dispute cannot be retrieved during the immediate call to rule().
+/// @notice Extension of the DisputeResolver for development tooling and testing of the automatic ruling modes.
+/// @dev The arbitrator disputeID must be known before dispute creation, otherwise the dispute cannot be retrieved during the immediate call to rule().
 contract DisputeResolverRuler is DisputeResolver {
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @notice Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
     constructor(
         IArbitratorV2 _arbitrator,

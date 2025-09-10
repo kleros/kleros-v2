@@ -9,7 +9,7 @@ import {SafeSend} from "../../libraries/SafeSend.sol";
 import {ONE_BASIS_POINT, DISPUTE_KIT_CLASSIC} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitClassicBase
-/// Abstract Dispute kit classic implementation of the Kleros v1 features including:
+/// @notice Abstract Dispute kit classic implementation of the Kleros v1 features including:
 /// - a drawing system: proportional to staked PNK,
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
@@ -77,20 +77,20 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *              Events               * //
     // ************************************* //
 
-    /// @dev To be emitted when a dispute is created.
+    /// @notice To be emitted when a dispute is created.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _numberOfChoices The number of choices available in the dispute.
     /// @param _extraData The extra data for the dispute.
     event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices, bytes _extraData);
 
-    /// @dev To be emitted when a vote commitment is cast.
+    /// @notice To be emitted when a vote commitment is cast.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _juror The address of the juror casting the vote commitment.
     /// @param _voteIDs The identifiers of the votes in the dispute.
     /// @param _commit The commitment of the juror.
     event CommitCast(uint256 indexed _coreDisputeID, address indexed _juror, uint256[] _voteIDs, bytes32 _commit);
 
-    /// @dev To be emitted when a funding contribution is made.
+    /// @notice To be emitted when a funding contribution is made.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _coreRoundID The identifier of the round in the Arbitrator contract.
     /// @param _choice The choice that is being funded.
@@ -104,7 +104,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _amount
     );
 
-    /// @dev To be emitted when the contributed funds are withdrawn.
+    /// @notice To be emitted when the contributed funds are withdrawn.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _coreRoundID The identifier of the round in the Arbitrator contract.
     /// @param _choice The choice that is being funded.
@@ -118,7 +118,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _amount
     );
 
-    /// @dev To be emitted when a choice is fully funded for an appeal.
+    /// @notice To be emitted when a choice is fully funded for an appeal.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _coreRoundID The identifier of the round in the Arbitrator contract.
     /// @param _choice The choice that is being funded.
@@ -147,7 +147,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
@@ -168,7 +168,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *      Governance      * //
     // ************************ //
 
-    /// @dev Allows the owner to call anything on behalf of the contract.
+    /// @notice Allows the owner to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
@@ -177,19 +177,19 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         if (!success) revert UnsuccessfulCall();
     }
 
-    /// @dev Changes the `owner` storage variable.
+    /// @notice Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
     function changeOwner(address payable _owner) external onlyByOwner {
         owner = _owner;
     }
 
-    /// @dev Changes the `core` storage variable.
+    /// @notice Changes the `core` storage variable.
     /// @param _core The new value for the `core` storage variable.
     function changeCore(address _core) external onlyByOwner {
         core = KlerosCore(_core);
     }
 
-    /// @dev Changes the dispute kit ID used for the jump.
+    /// @notice Changes the dispute kit ID used for the jump.
     /// @param _jumpDisputeKitID The new value for the `jumpDisputeKitID` storage variable.
     function changeJumpDisputeKitID(uint256 _jumpDisputeKitID) external onlyByOwner {
         jumpDisputeKitID = _jumpDisputeKitID;
@@ -250,10 +250,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         }
     }
 
-    /// @dev Sets the caller's commit for the specified votes. It can be called multiple times during the
-    /// commit period, each call overrides the commits of the previous one.
-    /// `O(n)` where
-    /// `n` is the number of votes.
+    /// @notice Sets the caller's commit for the specified votes.
+    ///
+    /// @dev It can be called multiple times during the commit period, each call overrides the commits of the previous one.
+    /// `O(n)` where `n` is the number of votes.
+    ///
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _commit The commitment hash.
@@ -281,9 +282,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commit);
     }
 
-    /// @dev Sets the caller's choices for the specified votes.
-    /// `O(n)` where
-    /// `n` is the number of votes.
+    /// @notice Sets the caller's choices for the specified votes.
+    ///
+    /// @dev `O(n)` where `n` is the number of votes.
+    ///
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _choice The choice.
@@ -353,7 +355,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         emit VoteCast(_coreDisputeID, _juror, _voteIDs, _choice, _justification);
     }
 
-    /// @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.
+    /// @notice Manages contributions, and appeals a dispute if at least two choices are fully funded.
     /// Note that the surplus deposit will be reimbursed.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
     /// @param _choice A choice that receives funding.
@@ -424,8 +426,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         if (msg.value > contribution) payable(msg.sender).safeSend(msg.value - contribution, wNative);
     }
 
-    /// @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
-    /// Note that withdrawals are not possible if the core contract is paused.
+    /// @notice Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
+    /// @dev Withdrawals are not possible if the core contract is paused.
     /// @param _coreDisputeID Index of the dispute in Kleros Core contract.
     /// @param _beneficiary The address whose rewards to withdraw.
     /// @param _coreRoundID The round in the Kleros Core contract the caller wants to withdraw from.
@@ -475,7 +477,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Computes the hash of a vote using ABI encoding
+    /// @notice Computes the hash of a vote using ABI encoding
     /// @dev The unused parameters may be used by overriding contracts.
     /// @param _choice The choice being voted for
     /// @param _salt A random salt for commitment
@@ -488,7 +490,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return keccak256(abi.encodePacked(_choice, _salt));
     }
 
-    /// @dev Returns the rulings that were fully funded in the latest appeal round.
+    /// @notice Returns the rulings that were fully funded in the latest appeal round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @return fundedChoices Fully funded rulings.
     function getFundedChoices(uint256 _coreDisputeID) public view returns (uint256[] memory fundedChoices) {
@@ -662,14 +664,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         );
     }
 
-    /// @dev Returns the number of rounds in a dispute.
+    /// @notice Returns the number of rounds in a dispute.
     /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
     /// @return The number of rounds in the dispute.
     function getNumberOfRounds(uint256 _localDisputeID) external view returns (uint256) {
         return disputes[_localDisputeID].rounds.length;
     }
 
-    /// @dev Returns the local dispute ID and round ID for a given core dispute ID and core round ID.
+    /// @notice Returns the local dispute ID and round ID for a given core dispute ID and core round ID.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _coreRoundID The ID of the round in Kleros Core.
     /// @return localDisputeID The ID of the dispute in the Dispute Kit.
@@ -697,7 +699,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Returns the expected vote hash for a given vote.
+    /// @notice Returns the expected vote hash for a given vote.
     /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
     /// @param _localRoundID The ID of the round in the Dispute Kit.
     /// @param _voteID The ID of the vote.
@@ -710,11 +712,13 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return disputes[_localDisputeID].rounds[_localRoundID].votes[_voteID].commit;
     }
 
-    /// @dev Checks that the chosen address satisfies certain conditions for being drawn.
-    /// Note that we don't check the minStake requirement here because of the implicit staking in parent courts.
+    /// @notice Checks that the chosen address satisfies certain conditions for being drawn.
+    ///
+    /// @dev No need to check the minStake requirement here because of the implicit staking in parent courts.
     /// minStake is checked directly during staking process however it's possible for the juror to get drawn
     /// while having < minStake if it is later increased by governance.
     /// This issue is expected and harmless.
+    ///
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
     /// @return result Whether the address passes the check or not.

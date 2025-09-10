@@ -9,8 +9,8 @@ import "../libraries/Constants.sol";
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
 
-/// Home Gateway
-/// Counterpart of `ForeignGateway`
+/// @title Home Gateway
+/// @notice Counterpart of `ForeignGateway`
 contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
@@ -43,7 +43,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    /// @dev Requires that the sender is the owner.
+    /// @notice Requires that the sender is the owner.
     modifier onlyByOwner() {
         if (owner != msg.sender) revert OwnerOnly();
         _;
@@ -58,7 +58,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         _disableInitializers();
     }
 
-    /// @dev Constructs the `PolicyRegistry` contract.
+    /// @notice Constructs the `PolicyRegistry` contract.
     /// @param _owner The owner's address.
     /// @param _arbitrator The address of the arbitrator.
     /// @param _veaInbox The address of the vea inbox.
@@ -93,31 +93,31 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         // NOP
     }
 
-    /// @dev Changes the owner.
+    /// @notice Changes the owner.
     /// @param _owner The address of the new owner.
     function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
     }
 
-    /// @dev Changes the arbitrator.
+    /// @notice Changes the arbitrator.
     /// @param _arbitrator The address of the new arbitrator.
     function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByOwner {
         arbitrator = _arbitrator;
     }
 
-    /// @dev Changes the vea inbox, useful to increase the claim deposit.
+    /// @notice Changes the vea inbox, useful to increase the claim deposit.
     /// @param _veaInbox The address of the new vea inbox.
     function changeVea(IVeaInbox _veaInbox) external onlyByOwner {
         veaInbox = _veaInbox;
     }
 
-    /// @dev Changes the foreign gateway.
+    /// @notice Changes the foreign gateway.
     /// @param _foreignGateway The address of the new foreign gateway.
     function changeForeignGateway(address _foreignGateway) external onlyByOwner {
         foreignGateway = _foreignGateway;
     }
 
-    /// @dev Changes the fee token.
+    /// @notice Changes the fee token.
     /// @param _feeToken The address of the new fee token.
     function changeFeeToken(IERC20 _feeToken) external onlyByOwner {
         feeToken = _feeToken;

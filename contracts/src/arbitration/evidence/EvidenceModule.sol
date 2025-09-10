@@ -35,7 +35,7 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     function initialize(address _owner) external initializer {
         owner = _owner;
@@ -57,9 +57,9 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    /// @dev Submits evidence for a dispute.
-    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
-    /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
+    /// @notice Submits evidence for a dispute.
+    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsibility to submit the right evidence group ID.
+    /// @param _evidence Stringified evidence object, example: `{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}`.
     function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
         emit Evidence(_externalDisputeID, msg.sender, _evidence);
     }

@@ -27,6 +27,7 @@ contract RNGWithFallback is IRNG {
     // *            Constructor            * //
     // ************************************* //
 
+    /// @notice Constructor
     /// @param _owner Owner address
     /// @param _consumer Consumer address
     /// @param _fallbackTimeoutSeconds Time in seconds to wait before falling back to next RNG
@@ -58,19 +59,19 @@ contract RNGWithFallback is IRNG {
     // *         Governance Functions      * //
     // ************************************* //
 
-    /// @dev Change the owner
+    /// @notice Change the owner
     /// @param _newOwner Address of the new owner
     function changeOwner(address _newOwner) external onlyByOwner {
         owner = _newOwner;
     }
 
-    /// @dev Change the consumer
+    /// @notice Change the consumer
     /// @param _consumer Address of the new consumer
     function changeConsumer(address _consumer) external onlyByOwner {
         consumer = _consumer;
     }
 
-    /// @dev Change the fallback timeout
+    /// @notice Change the fallback timeout
     /// @param _fallbackTimeoutSeconds New timeout in seconds
     function changeFallbackTimeout(uint256 _fallbackTimeoutSeconds) external onlyByOwner {
         fallbackTimeoutSeconds = _fallbackTimeoutSeconds;
@@ -81,14 +82,14 @@ contract RNGWithFallback is IRNG {
     // *         State Modifiers          * //
     // ************************************* //
 
-    /// @dev Request a random number from the primary RNG
+    /// @notice Request a random number from the primary RNG
     /// @dev The consumer is trusted not to make concurrent requests.
     function requestRandomness() external override onlyByConsumer {
         requestTimestamp = block.timestamp;
         rng.requestRandomness();
     }
 
-    /// @dev Receive the random number from the primary RNG with fallback to the blockhash RNG if the primary RNG does not respond passed a timeout.
+    /// @notice Receive the random number from the primary RNG with fallback to the blockhash RNG if the primary RNG does not respond passed a timeout.
     /// @return randomNumber Random number or 0 if not available
     function receiveRandomness() external override onlyByConsumer returns (uint256 randomNumber) {
         randomNumber = rng.receiveRandomness();
