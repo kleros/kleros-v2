@@ -108,6 +108,14 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *         State Modifiers           * //
     // ************************************* //
 
+    function passPhase() external override onlyByCore {
+        // NOP
+    }
+
+    function executeDelayedStakes(uint256 _iterations) external override onlyByCore {
+        // NOP
+    }
+
     function setTransientJuror(address _juror) external override onlyByCore {
         transientJuror = _juror;
     }
@@ -123,10 +131,6 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     function postDrawHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors--;
     }
-
-    /// @dev Saves the random number to use it in sortition. Not used by this contract because the storing of the number is inlined in passPhase().
-    /// @param _randomNumber Random number returned by RNG contract.
-    function notifyRandomNumber(uint256 _randomNumber) public override {}
 
     /// @dev Validate the specified juror's new stake for a court.
     /// Note: no state changes should be made when returning stakingResult != Successful, otherwise delayed stakes might break invariants.
