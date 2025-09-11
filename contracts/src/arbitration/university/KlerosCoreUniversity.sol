@@ -144,7 +144,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 indexed _fromDisputeKitID,
         uint256 _toDisputeKitID
     );
-    event TokenAndETHShift(
+    event JurorRewardPenalty(
         address indexed _account,
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
@@ -782,7 +782,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             penalty
         );
         _params.pnkPenaltiesInRound += availablePenalty;
-        emit TokenAndETHShift(
+        emit JurorRewardPenalty(
             account,
             _params.disputeID,
             _params.round,
@@ -872,7 +872,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             pinakion.safeTransfer(account, pnkReward);
         }
 
-        emit TokenAndETHShift(
+        emit JurorRewardPenalty(
             account,
             _params.disputeID,
             _params.round,

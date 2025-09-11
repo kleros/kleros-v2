@@ -94,7 +94,7 @@ describe("KlerosCoreRuler", async () => {
       .withArgs(resolver.target, RulingMode.automaticRandom, disputeID, anyValue, anyValue, anyValue)
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.target, disputeID, anyValue)
-      .and.to.emit(core, "TokenAndETHShift")
+      .and.to.emit(core, "JurorRewardPenalty")
       .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
       .and.to.emit(resolver, "DisputeRequest")
       .withArgs(core.target, disputeID, localDisputeID, templateId)
@@ -118,7 +118,7 @@ describe("KlerosCoreRuler", async () => {
       .withArgs(resolver.target, RulingMode.automaticPreset, disputeID, 2, true, false)
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.target, disputeID, 2)
-      .and.to.emit(core, "TokenAndETHShift")
+      .and.to.emit(core, "JurorRewardPenalty")
       .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
       .and.to.emit(resolver, "DisputeRequest")
       .withArgs(core.target, disputeID, localDisputeID, templateId)
@@ -153,7 +153,7 @@ describe("KlerosCoreRuler", async () => {
       .withArgs(core.target, disputeID, 3);
 
     await expect(core.execute(disputeID, 0))
-      .and.to.emit(core, "TokenAndETHShift")
+      .and.to.emit(core, "JurorRewardPenalty")
       .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress);
   });
 });

@@ -187,7 +187,7 @@ describe("Integration tests", async () => {
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     await expect(core.execute(0, 0, 1000))
-      .to.emit(core, "TokenAndETHShift")
+      .to.emit(core, "JurorRewardPenalty")
       .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n, ethers.ZeroAddress);
 
     await expect(core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }))
