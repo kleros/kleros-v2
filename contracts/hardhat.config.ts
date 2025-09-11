@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
           viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 2000,
+            runs: 1000,
           },
           outputSelection: {
             "*": {
