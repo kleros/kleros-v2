@@ -1,11 +1,11 @@
 import { task, types } from "hardhat/config";
-import { KlerosCore, KlerosCoreNeo, KlerosCoreUniversity } from "../typechain-types";
+import { KlerosCore, KlerosCoreUniversity } from "../typechain-types";
 import { BigNumberish, toBigInt, toNumber } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
 import courtsV2ArbitrumDevnet from "../config/courts.v2.devnet.json";
-import courtsV2MainnetNeo from "../config/courts.v2.mainnet-neo.json";
+import courtsV2Mainnet from "../config/courts.v2.mainnet.json";
 import { isDevnet } from "../deploy/utils";
 import { execute, writeTransactionBatch } from "./utils/execution";
 import { getContracts, Cores } from "./utils/contracts";
@@ -21,7 +21,7 @@ enum Sources {
   V1_GNOSIS,
   V2_DEVNET,
   V2_TESTNET,
-  V2_MAINNET_NEO,
+  V2_MAINNET,
 }
 
 type Court = {
@@ -43,7 +43,7 @@ const TEN_THOUSAND_GWEI = 10n ** 13n;
 task("populate:courts", "Populates the courts and their parameters")
   .addOptionalParam(
     "from",
-    "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo (default: auto depending on the network)",
+    "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet (default: auto depending on the network)",
     undefined
   )
   .addOptionalParam("start", "The starting index for the courts to populate (default: 0)", 0, types.int)
@@ -53,7 +53,7 @@ task("populate:courts", "Populates the courts and their parameters")
     undefined,
     types.int
   )
-  .addOptionalParam("coreType", "The type of core to use between base, neo, university (default: base)", Cores.BASE)
+  .addOptionalParam("coreType", "The type of core to use between base, university (default: base)", Cores.BASE)
   .addFlag("reverse", "Iterates the courts in reverse order, useful to increase minStake in the child courts first")
   .addFlag("forceV1ParametersToDev", "Use development values for the v1 courts parameters")
   .setAction(async (taskArgs, hre) => {
@@ -74,7 +74,7 @@ task("populate:courts", "Populates the courts and their parameters")
     if (taskArgs.from) {
       from = Sources[taskArgs.from.toUpperCase() as keyof typeof Sources];
       if (from === undefined) {
-        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo");
+        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet");
         return;
       }
     } else {
@@ -84,7 +84,7 @@ task("populate:courts", "Populates the courts and their parameters")
 
     const coreType = Cores[taskArgs.coreType.toUpperCase() as keyof typeof Cores];
     if (coreType === undefined) {
-      console.error("Invalid core type, must be one of base, neo, university");
+      console.error("Invalid core type, must be one of base, university");
       return;
     }
     console.log("Using core type %s", coreType);
@@ -133,8 +133,8 @@ task("populate:courts", "Populates the courts and their parameters")
         courtsV2 = courtsV2ArbitrumTestnet;
         break;
       }
-      case Sources.V2_MAINNET_NEO: {
-        courtsV2 = courtsV2MainnetNeo;
+      case Sources.V2_MAINNET: {
+        courtsV2 = courtsV2Mainnet;
         break;
       }
       default:

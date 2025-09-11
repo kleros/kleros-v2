@@ -15,7 +15,7 @@ const main = async () => {
     client: client,
   });
 
-  await disputeKit.read.governor().then(console.log);
+  await disputeKit.read.owner().then(console.log);
 
   // --------------------------------------------------
 

@@ -77,7 +77,7 @@ interface IKlerosLiquid is IArbitratorV1 {
 
     function changeSubcourtTimesPerPeriod(uint96 _subcourtID, uint256[4] calldata _timesPerPeriod) external;
 
-    function executeGovernorProposal(address _destination, uint256 _amount, bytes calldata _data) external;
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes calldata _data) external;
 
     // Getters
     function getVote(

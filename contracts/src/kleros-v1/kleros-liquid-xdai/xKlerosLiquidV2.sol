@@ -9,7 +9,7 @@ import {ITokenController} from "../interfaces/ITokenController.sol";
 import {WrappedPinakion} from "./WrappedPinakion.sol";
 import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
 
-import {SortitionSumTreeFactory} from "../../libraries/SortitionSumTreeFactory.sol";
+import {SortitionSumTreeFactory} from "../libraries/SortitionSumTreeFactory.sol";
 import "../../gateway/interfaces/IForeignGateway.sol";
 
 /// @title xKlerosLiquidV2
@@ -141,9 +141,8 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     uint256 public constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
-    uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     // General Contracts
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     WrappedPinakion public pinakion; // The Pinakion token contract.
     IRandomAuRa public RNGenerator; // The random number generator contract.
     // General Dynamic
@@ -198,9 +197,9 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
         _;
     }
 
-    /// @dev Requires that the sender is the governor. Note that the governor is expected to not be malicious.
-    modifier onlyByGovernor() {
-        require(governor == msg.sender);
+    /// @dev Requires that the sender is the owner. Note that the owner is expected to not be malicious.
+    modifier onlyByOwner() {
+        require(owner == msg.sender);
         _;
     }
 
@@ -209,7 +208,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     // ************************************* //
 
     /// @dev Constructs the KlerosLiquid contract.
-    /// @param _governor The governor's address.
+    /// @param _owner The owner's address.
     /// @param _pinakion The address of the token contract.
     /// @param _RNGenerator The address of the random number generator contract.
     /// @param _minStakingTime The minimum time that the staking phase should last.
@@ -220,7 +219,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @param _sortitionSumTreeK The number of children per node of the general court's sortition sum tree.
     /// @param _foreignGateway Foreign gateway on xDai.
     function initialize(
-        address _governor,
+        address _owner,
         WrappedPinakion _pinakion,
         IRandomAuRa _RNGenerator,
         uint256 _minStakingTime,
@@ -232,7 +231,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
         IForeignGateway _foreignGateway
     ) public initializer {
         // Initialize contract.
-        governor = _governor;
+        owner = _owner;
         pinakion = _pinakion;
         RNGenerator = _RNGenerator;
         minStakingTime = _minStakingTime;
@@ -265,34 +264,30 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Lets the governor call anything on behalf of the contract.
+    /// @dev Lets the owner call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes memory _data
-    ) external onlyByGovernor {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
         require(success, "Unsuccessful call");
     }
 
-    /// @dev Changes the `governor` storage variable.
-    /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the `owner` storage variable.
+    /// @param _owner The new value for the `owner` storage variable.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the `pinakion` storage variable.
     /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(WrappedPinakion _pinakion) external onlyByGovernor {
+    function changePinakion(WrappedPinakion _pinakion) external onlyByOwner {
         pinakion = _pinakion;
     }
 
     /// @dev Changes the `RNGenerator` storage variable.
     /// @param _RNGenerator The new value for the `RNGenerator` storage variable.
-    function changeRNGenerator(IRandomAuRa _RNGenerator) external onlyByGovernor {
+    function changeRNGenerator(IRandomAuRa _RNGenerator) external onlyByOwner {
         RNGenerator = _RNGenerator;
         if (phase == Phase.generating) {
             RNBlock = RNGenerator.nextCommitPhaseStartBlock() + RNGenerator.collectRoundLength();
@@ -301,19 +296,19 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
 
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
-    function changeMinStakingTime(uint256 _minStakingTime) external onlyByGovernor {
+    function changeMinStakingTime(uint256 _minStakingTime) external onlyByOwner {
         minStakingTime = _minStakingTime;
     }
 
     /// @dev Changes the `maxDrawingTime` storage variable.
     /// @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
-    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByGovernor {
+    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByOwner {
         maxDrawingTime = _maxDrawingTime;
     }
 
     /// @dev Changes the `foreignGateway` storage variable.
     /// @param _foreignGateway The new value for the `foreignGateway` storage variable.
-    function changeForeignGateway(IForeignGateway _foreignGateway) external onlyByGovernor {
+    function changeForeignGateway(IForeignGateway _foreignGateway) external onlyByOwner {
         foreignGateway = _foreignGateway;
     }
 
@@ -335,7 +330,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod,
         uint256 _sortitionSumTreeK
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         require(
             courts[_parent].minStake <= _minStake,
             "A subcourt cannot be a child of a subcourt with a higher minimum stake."
@@ -361,7 +356,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @dev Changes the `minStake` property value of a specified subcourt. Don't set to a value lower than its parent's `minStake` property value.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _minStake The new value for the `minStake` property value.
-    function changeSubcourtMinStake(uint96 _subcourtID, uint256 _minStake) external onlyByGovernor {
+    function changeSubcourtMinStake(uint96 _subcourtID, uint256 _minStake) external onlyByOwner {
         require(_subcourtID == 0 || courts[courts[_subcourtID].parent].minStake <= _minStake);
         for (uint256 i = 0; i < courts[_subcourtID].children.length; i++) {
             require(
@@ -376,31 +371,28 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @dev Changes the `alpha` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _alpha The new value for the `alpha` property value.
-    function changeSubcourtAlpha(uint96 _subcourtID, uint256 _alpha) external onlyByGovernor {
+    function changeSubcourtAlpha(uint96 _subcourtID, uint256 _alpha) external onlyByOwner {
         courts[_subcourtID].alpha = _alpha;
     }
 
     /// @dev Changes the `feeForJuror` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _feeForJuror The new value for the `feeForJuror` property value.
-    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
+    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByOwner {
         courts[_subcourtID].feeForJuror = _feeForJuror;
     }
 
     /// @dev Changes the `jurorsForCourtJump` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _jurorsForCourtJump The new value for the `jurorsForCourtJump` property value.
-    function changeSubcourtJurorsForJump(uint96 _subcourtID, uint256 _jurorsForCourtJump) external onlyByGovernor {
+    function changeSubcourtJurorsForJump(uint96 _subcourtID, uint256 _jurorsForCourtJump) external onlyByOwner {
         courts[_subcourtID].jurorsForCourtJump = _jurorsForCourtJump;
     }
 
     /// @dev Changes the `timesPerPeriod` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _timesPerPeriod The new value for the `timesPerPeriod` property value.
-    function changeSubcourtTimesPerPeriod(
-        uint96 _subcourtID,
-        uint256[4] memory _timesPerPeriod
-    ) external onlyByGovernor {
+    function changeSubcourtTimesPerPeriod(uint96 _subcourtID, uint256[4] memory _timesPerPeriod) external onlyByOwner {
         courts[_subcourtID].timesPerPeriod = _timesPerPeriod;
     }
 

@@ -21,6 +21,7 @@ fi
 # Generate the Hardhat coverage report
 yarn clean
 echo "Building contracts with Hardhat..."
+export VIA_IR=false
 yarn build
 echo "Running Hardhat coverage..."
 yarn hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --show-stack-traces --testfiles "test/**/*.ts"

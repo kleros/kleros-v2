@@ -6,14 +6,16 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title SafeERC20
-/// @dev Wrappers around ERC20 operations that throw on failure (when the token
-/// contract returns false). Tokens that return no value (and instead revert or
-/// throw on failure) are also supported, non-reverting calls are assumed to be
-/// successful.
+///
+/// @notice Wrappers around ERC20 operations
+///
+/// @dev Throws on failure (when the token contract returns false).
+/// Tokens that return no value (and instead revert or throw on failure) are also supported.
+/// Non-reverting calls are assumed to be successful.
 /// To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,
 /// which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
 library SafeERC20 {
-    /// @dev Increases the allowance granted to `spender` by the caller.
+    /// @notice Increases the allowance granted to `spender` by the caller.
     /// @param _token Token to transfer.
     /// @param _spender The address which will spend the funds.
     /// @param _addedValue The amount of tokens to increase the allowance by.
@@ -22,7 +24,7 @@ library SafeERC20 {
         return true;
     }
 
-    /// @dev Calls transfer() without reverting.
+    /// @notice Calls transfer() without reverting.
     /// @param _token Token to transfer.
     /// @param _to Recipient address.
     /// @param _value Amount transferred.
@@ -32,7 +34,7 @@ library SafeERC20 {
         return (success && (data.length == 0 || abi.decode(data, (bool))));
     }
 
-    /// @dev Calls transferFrom() without reverting.
+    /// @notice Calls transferFrom() without reverting.
     /// @param _token Token to transfer.
     /// @param _from Sender address.
     /// @param _to Recipient address.

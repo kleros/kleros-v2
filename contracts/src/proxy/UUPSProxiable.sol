@@ -4,7 +4,8 @@ pragma solidity ^0.8.24;
 
 /// @title UUPS Proxiable
 /// @author Simon Malatrait <simon.malatrait@grenoble-inp.org>
-/// @dev This contract implements an upgradeability mechanism designed for UUPS proxies.
+/// @notice This contract implements an upgradeability mechanism designed for UUPS proxies.
+///
 /// @dev Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/UUPSUpgradeable.sol>
 /// The functions included here can perform an upgrade of an UUPS Proxy, when this contract is set as the implementation behind such a proxy.
 ///
@@ -21,7 +22,7 @@ abstract contract UUPSProxiable {
     // *             Event                 * //
     // ************************************* //
 
-    /// @dev Emitted when the `implementation` has been successfully upgraded.
+    /// @notice Emitted when the `implementation` has been successfully upgraded.
     /// @param newImplementation Address of the new implementation the proxy is now forwarding calls to.
     event Upgraded(address indexed newImplementation);
 
@@ -29,13 +30,13 @@ abstract contract UUPSProxiable {
     // *             Error                 * //
     // ************************************* //
 
-    /// @dev The call is from an unauthorized context.
+    /// @notice The call is from an unauthorized context.
     error UUPSUnauthorizedCallContext();
 
-    /// @dev The storage `slot` is unsupported as a UUID.
+    /// @notice The storage `slot` is unsupported as a UUID.
     error UUPSUnsupportedProxiableUUID(bytes32 slot);
 
-    /// @dev The `implementation` is not UUPS-compliant
+    /// @notice The `implementation` is not UUPS-compliant
     error InvalidImplementation(address implementation);
 
     /// Failed Delegated call
@@ -68,7 +69,7 @@ abstract contract UUPSProxiable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Upgrade mechanism including access control and UUPS-compliance.
+    /// @notice Upgrade mechanism including access control and UUPS-compliance.
     /// @param newImplementation Address of the new implementation contract.
     /// @param data Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded
     /// function call, and allows initializing the storage of the proxy like a Solidity constructor.
@@ -110,10 +111,10 @@ abstract contract UUPSProxiable {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the
+    /// @notice Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the
     /// implementation. It is used to validate the implementation's compatibility when performing an upgrade.
     ///
-    /// IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
+    /// @dev IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
     /// bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
     /// function revert if invoked through a proxy. This is guaranteed by the if statement.
     function proxiableUUID() external view virtual returns (bytes32) {
@@ -124,7 +125,7 @@ abstract contract UUPSProxiable {
         return IMPLEMENTATION_SLOT;
     }
 
-    /// @dev Returns the version of the implementation.
+    /// @notice Returns the version of the implementation.
     /// @return Version string.
     function version() external view virtual returns (string memory);
 

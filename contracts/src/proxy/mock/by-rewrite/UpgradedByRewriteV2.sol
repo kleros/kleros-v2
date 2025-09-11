@@ -10,7 +10,7 @@ contract UpgradedByRewrite is UUPSProxiable, Initializable {
     //------------------------
     // V1 State
     //------------------------
-    address public governor;
+    address public owner;
     uint256 public counter;
     uint256[50] __gap;
 
@@ -29,7 +29,7 @@ contract UpgradedByRewrite is UUPSProxiable, Initializable {
     }
 
     function _authorizeUpgrade(address) internal view override {
-        require(governor == msg.sender, "No privilege to upgrade");
+        require(owner == msg.sender, "No privilege to upgrade");
     }
 
     function increment() external {

@@ -6,7 +6,8 @@ import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
 import {SafeSend} from "../libraries/SafeSend.sol";
 import "./interfaces/IDisputeTemplateRegistry.sol";
 
-/// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
+/// @title KlerosGovernor for V2.
+/// @dev Appeal and evidence submission is handled by the court.
 contract KlerosGovernor is IArbitrableV2 {
     using SafeSend for address payable;
 
@@ -70,18 +71,18 @@ contract KlerosGovernor is IArbitrableV2 {
 
     modifier duringSubmissionPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
-        require(block.timestamp - lastApprovalTime <= submissionTimeout + offset, "Submission time has ended.");
+        if (block.timestamp - lastApprovalTime > submissionTimeout + offset) revert SubmissionTimeHasEnded();
         _;
     }
 
     modifier duringApprovalPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
-        require(block.timestamp - lastApprovalTime > submissionTimeout + offset, "Approval time not started yet.");
+        if (block.timestamp - lastApprovalTime <= submissionTimeout + offset) revert ApprovalTimeNotStarted();
         _;
     }
 
-    modifier onlyByGovernor() {
-        require(address(this) == msg.sender, "Only the governor allowed.");
+    modifier onlyByOwner() {
+        if (address(this) != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -89,7 +90,7 @@ contract KlerosGovernor is IArbitrableV2 {
     // *              Events               * //
     // ************************************* //
 
-    /// @dev Emitted when a new list is submitted.
+    /// @notice Emitted when a new list is submitted.
     /// @param _listID The index of the transaction list in the array of lists.
     /// @param _submitter The address that submitted the list.
     /// @param _session The number of the current session.
@@ -106,7 +107,7 @@ contract KlerosGovernor is IArbitrableV2 {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor.
+    /// @notice Constructor.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitratorExtraData Extra data for the arbitrator.
     /// @param _templateData The dispute template data.
@@ -145,49 +146,51 @@ contract KlerosGovernor is IArbitrableV2 {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Changes the value of the base deposit required for submitting a list.
+    /// @notice Changes the value of the base deposit required for submitting a list.
     /// @param _submissionBaseDeposit The new value of the base deposit, in wei.
-    function changeSubmissionDeposit(uint256 _submissionBaseDeposit) external onlyByGovernor {
+    function changeSubmissionDeposit(uint256 _submissionBaseDeposit) external onlyByOwner {
         submissionBaseDeposit = _submissionBaseDeposit;
     }
 
-    /// @dev Changes the time allocated for submission. Note that it can't be changed during approval period because there can be an active dispute in the old arbitrator contract
+    /// @notice Changes the time allocated for submission.
+    /// @dev It cannot be changed during approval period because there can be an active dispute in the old arbitrator contract
     /// and prolonging submission timeout might switch it back to submission period.
     /// @param _submissionTimeout The new duration of the submission period, in seconds.
-    function changeSubmissionTimeout(uint256 _submissionTimeout) external onlyByGovernor duringSubmissionPeriod {
+    function changeSubmissionTimeout(uint256 _submissionTimeout) external onlyByOwner duringSubmissionPeriod {
         submissionTimeout = _submissionTimeout;
     }
 
-    /// @dev Changes the time allocated for list's execution.
+    /// @notice Changes the time allocated for list's execution.
     /// @param _executionTimeout The new duration of the execution timeout, in seconds.
-    function changeExecutionTimeout(uint256 _executionTimeout) external onlyByGovernor {
+    function changeExecutionTimeout(uint256 _executionTimeout) external onlyByOwner {
         executionTimeout = _executionTimeout;
     }
 
-    /// @dev Changes list withdrawal timeout. Note that withdrawals are only possible in the first half of the submission period.
+    /// @notice Changes list withdrawal timeout. Note that withdrawals are only possible in the first half of the submission period.
     /// @param _withdrawTimeout The new duration of withdraw period, in seconds.
-    function changeWithdrawTimeout(uint256 _withdrawTimeout) external onlyByGovernor {
+    function changeWithdrawTimeout(uint256 _withdrawTimeout) external onlyByOwner {
         withdrawTimeout = _withdrawTimeout;
     }
 
-    /// @dev Changes the arbitrator of the contract. Note that it can't be changed during approval period because there can be an active dispute in the old arbitrator contract.
+    /// @notice Changes the arbitrator of the contract.
+    /// @dev It cannot be changed during approval period because there can be an active dispute in the old arbitrator contract.
     /// @param _arbitrator The new trusted arbitrator.
     /// @param _arbitratorExtraData The extra data used by the new arbitrator.
     function changeArbitrator(
         IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData
-    ) external onlyByGovernor duringSubmissionPeriod {
+    ) external onlyByOwner duringSubmissionPeriod {
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
     }
 
-    /// @dev Update the dispute template data.
+    /// @notice Update the dispute template data.
     /// @param _templateData The new dispute template data.
     /// @param _templateDataMappings The new dispute template data mappings.
     function changeDisputeTemplate(
         string memory _templateData,
         string memory _templateDataMappings
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
@@ -195,7 +198,7 @@ contract KlerosGovernor is IArbitrableV2 {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Creates transaction list based on input parameters and submits it for potential approval and execution.
+    /// @notice Creates transaction list based on input parameters and submits it for potential approval and execution.
     /// @param _target List of addresses to call.
     /// @param _value List of values required for respective addresses.
     /// @param _data Concatenated calldata of all transactions of this list.
@@ -208,14 +211,14 @@ contract KlerosGovernor is IArbitrableV2 {
         uint256[] memory _dataSize,
         string memory _description
     ) external payable duringSubmissionPeriod {
-        require(_target.length == _value.length, "Wrong input: target and value");
-        require(_target.length == _dataSize.length, "Wrong input: target and datasize");
+        if (_target.length != _value.length) revert WrongInputTargetAndValue();
+        if (_target.length != _dataSize.length) revert WrongInputTargetAndDatasize();
         Session storage session = sessions[sessions.length - 1];
         Submission storage submission = submissions.push();
         submission.submitter = payable(msg.sender);
         // Do the assignment first to avoid creating a new variable and bypass a 'stack too deep' error.
         submission.deposit = submissionBaseDeposit + arbitrator.arbitrationCost(arbitratorExtraData);
-        require(msg.value >= submission.deposit, "Not enough ETH to cover deposit");
+        if (msg.value < submission.deposit) revert InsufficientDeposit();
 
         bytes32 listHash;
         bytes32 currentTxHash;
@@ -233,7 +236,7 @@ contract KlerosGovernor is IArbitrableV2 {
             currentTxHash = keccak256(abi.encodePacked(transaction.target, transaction.value, transaction.data));
             listHash = keccak256(abi.encodePacked(currentTxHash, listHash));
         }
-        require(!session.alreadySubmitted[listHash], "List already submitted");
+        if (session.alreadySubmitted[listHash]) revert ListAlreadySubmitted();
         session.alreadySubmitted[listHash] = true;
         submission.listHash = listHash;
         submission.submissionTime = block.timestamp;
@@ -249,18 +252,18 @@ contract KlerosGovernor is IArbitrableV2 {
         reservedETH += submission.deposit;
     }
 
-    /// @dev Withdraws submitted transaction list. Reimburses submission deposit.
-    /// Withdrawal is only possible during the first half of the submission period and during withdrawTimeout after the submission is made.
+    /// @notice Withdraws submitted transaction list. Reimburses submission deposit.
+    /// @dev Withdrawal is only possible during the first half of the submission period and during withdrawTimeout after the submission is made.
     /// @param _submissionID Submission's index in the array of submitted lists of the current sesssion.
     /// @param _listHash Hash of a withdrawing list.
     function withdrawTransactionList(uint256 _submissionID, bytes32 _listHash) external {
         Session storage session = sessions[sessions.length - 1];
         Submission storage submission = submissions[session.submittedLists[_submissionID]];
-        require(block.timestamp - lastApprovalTime <= submissionTimeout / 2, "Should be in first half");
-        // This require statement is an extra check to prevent _submissionID linking to the wrong list because of index swap during withdrawal.
-        require(submission.listHash == _listHash, "Wrong list hash");
-        require(submission.submitter == msg.sender, "Only submitter can withdraw");
-        require(block.timestamp - submission.submissionTime <= withdrawTimeout, "Withdrawing time has passed.");
+        if (block.timestamp - lastApprovalTime > submissionTimeout / 2) revert ShouldOnlyWithdrawInFirstHalf();
+        // This is an extra check to prevent _submissionID linking to the wrong list because of index swap during withdrawal.
+        if (submission.listHash != _listHash) revert WrongListHash();
+        if (submission.submitter != msg.sender) revert OnlySubmitterCanWithdraw();
+        if (block.timestamp - submission.submissionTime > withdrawTimeout) revert WithdrawingTimeHasPassed();
         session.submittedLists[_submissionID] = session.submittedLists[session.submittedLists.length - 1];
         session.alreadySubmitted[_listHash] = false;
         session.submittedLists.pop();
@@ -269,11 +272,11 @@ contract KlerosGovernor is IArbitrableV2 {
         payable(msg.sender).transfer(submission.deposit);
     }
 
-    /// @dev Approves a transaction list or creates a dispute if more than one list was submitted.
-    /// If nothing was submitted changes session.
+    /// @notice Approves a transaction list or creates a dispute if more than one list was submitted.
+    /// @dev If nothing was submitted changes session.
     function executeSubmissions() external duringApprovalPeriod {
         Session storage session = sessions[sessions.length - 1];
-        require(session.status == Status.NoDispute, "Already disputed");
+        if (session.status != Status.NoDispute) revert AlreadyDisputed();
         if (session.submittedLists.length == 0) {
             lastApprovalTime = block.timestamp;
             session.status = Status.Resolved;
@@ -300,19 +303,20 @@ contract KlerosGovernor is IArbitrableV2 {
             // Check in case arbitration cost increased after the submission. It's unlikely that its increase won't be covered by the base deposit, but technically possible.
             session.sumDeposit = session.sumDeposit > arbitrationCost ? session.sumDeposit - arbitrationCost : 0;
             reservedETH = reservedETH > arbitrationCost ? reservedETH - arbitrationCost : 0;
-            emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, templateId, "");
+            emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, templateId);
         }
     }
 
-    /// @dev Gives a ruling for a dispute. Must be called by the arbitrator.
+    /// @notice Gives a ruling for a dispute.
+    /// @dev Must be called by the arbitrator.
     /// @param _disputeID ID of the dispute in the Arbitrator contract.
     /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refuse to arbitrate".
     /// Note If the final ruling is "0" nothing is approved and deposits will stay locked in the contract.
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         Session storage session = sessions[sessions.length - 1];
-        require(msg.sender == address(arbitrator), "Only arbitrator allowed");
-        require(session.status == Status.DisputeCreated, "Wrong status");
-        require(_ruling <= session.submittedLists.length, "Ruling is out of bounds.");
+        if (msg.sender != address(arbitrator)) revert OnlyArbitratorAllowed();
+        if (session.status != Status.DisputeCreated) revert NotDisputed();
+        if (_ruling > session.submittedLists.length) revert RulingOutOfBounds();
 
         if (_ruling != 0) {
             Submission storage submission = submissions[session.submittedLists[_ruling - 1]];
@@ -332,14 +336,14 @@ contract KlerosGovernor is IArbitrableV2 {
         emit Ruling(IArbitratorV2(msg.sender), _disputeID, _ruling);
     }
 
-    /// @dev Executes selected transactions of the list.
+    /// @notice Executes selected transactions of the list.
     /// @param _listID The index of the transaction list in the array of lists.
     /// @param _cursor Index of the transaction from which to start executing.
     /// @param _count Number of transactions to execute. Executes until the end if set to "0" or number higher than number of transactions in the list.
     function executeTransactionList(uint256 _listID, uint256 _cursor, uint256 _count) external {
         Submission storage submission = submissions[_listID];
-        require(submission.approved, "Should be approved");
-        require(block.timestamp - submission.approvalTime <= executionTimeout, "Time to execute has passed");
+        if (!submission.approved) revert SubmissionNotApproved();
+        if (block.timestamp - submission.approvalTime > executionTimeout) revert TimeToExecuteHasPassed();
         for (uint256 i = _cursor; i < submission.txs.length && (_count == 0 || i < _cursor + _count); i++) {
             Transaction storage transaction = submission.txs[i];
             uint256 expendableFunds = getExpendableFunds();
@@ -347,23 +351,23 @@ contract KlerosGovernor is IArbitrableV2 {
                 (bool callResult, ) = transaction.target.call{value: transaction.value}(transaction.data);
                 // An extra check to prevent re-entrancy through target call.
                 if (callResult == true) {
-                    require(!transaction.executed, "Already executed");
+                    if (transaction.executed) revert AlreadyExecuted();
                     transaction.executed = true;
                 }
             }
         }
     }
 
-    /// @dev Receive function to receive funds for the execution of transactions.
+    /// @notice Receive function to receive funds for the execution of transactions.
     receive() external payable {}
 
-    /// @dev Gets the sum of contract funds that are used for the execution of transactions.
+    /// @notice Gets the sum of contract funds that are used for the execution of transactions.
     /// @return Contract balance without reserved ETH.
     function getExpendableFunds() public view returns (uint256) {
         return address(this).balance - reservedETH;
     }
 
-    /// @dev Gets the info of the specific transaction in the specific list.
+    /// @notice Gets the info of the specific transaction in the specific list.
     /// @param _listID The index of the transaction list in the array of lists.
     /// @param _transactionIndex The index of the transaction.
     /// @return target The target of the transaction.
@@ -379,8 +383,11 @@ contract KlerosGovernor is IArbitrableV2 {
         return (transaction.target, transaction.value, transaction.data, transaction.executed);
     }
 
-    /// @dev Gets the array of submitted lists in the session.
-    /// Note that this function is O(n), where n is the number of submissions in the session. This could exceed the gas limit, therefore this function should only be used for interface display and not by other contracts.
+    /// @notice Gets the array of submitted lists in the session.
+    ///
+    /// @dev This function is O(n), where `n` is the number of submissions in the session.
+    /// This could exceed the gas limit, therefore this function should only be used for interface display and not by other contracts.
+    ///
     /// @param _session The ID of the session.
     /// @return submittedLists Indexes of lists that were submitted during the session.
     function getSubmittedLists(uint256 _session) external view returns (uint256[] memory submittedLists) {
@@ -388,7 +395,7 @@ contract KlerosGovernor is IArbitrableV2 {
         submittedLists = session.submittedLists;
     }
 
-    /// @dev Gets the number of transactions in the list.
+    /// @notice Gets the number of transactions in the list.
     /// @param _listID The index of the transaction list in the array of lists.
     /// @return txCount The number of transactions in the list.
     function getNumberOfTransactions(uint256 _listID) external view returns (uint256 txCount) {
@@ -396,15 +403,38 @@ contract KlerosGovernor is IArbitrableV2 {
         return submission.txs.length;
     }
 
-    /// @dev Gets the number of lists created in contract's lifetime.
+    /// @notice Gets the number of lists created in contract's lifetime.
     /// @return The number of created lists.
     function getNumberOfCreatedLists() external view returns (uint256) {
         return submissions.length;
     }
 
-    /// @dev Gets the number of the ongoing session.
+    /// @notice Gets the number of the ongoing session.
     /// @return The number of the ongoing session.
     function getCurrentSessionNumber() external view returns (uint256) {
         return sessions.length - 1;
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error SubmissionTimeHasEnded();
+    error ApprovalTimeNotStarted();
+    error OwnerOnly();
+    error WrongInputTargetAndValue();
+    error WrongInputTargetAndDatasize();
+    error InsufficientDeposit();
+    error ListAlreadySubmitted();
+    error ShouldOnlyWithdrawInFirstHalf();
+    error WrongListHash();
+    error OnlySubmitterCanWithdraw();
+    error WithdrawingTimeHasPassed();
+    error AlreadyDisputed();
+    error OnlyArbitratorAllowed();
+    error NotDisputed();
+    error RulingOutOfBounds();
+    error SubmissionNotApproved();
+    error TimeToExecuteHasPassed();
+    error AlreadyExecuted();
 }

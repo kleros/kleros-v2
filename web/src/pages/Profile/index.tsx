@@ -1,24 +1,27 @@
 import React, { useMemo } from "react";
-
 import styled, { css } from "styled-components";
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
+
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
+
 import { Dispute_Filter, OrderDirection, UserDetailsFragment } from "src/graphql/graphql";
+
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
 import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
-import Courts from "./Courts";
+
 import JurorInfo from "./JurorInfo";
+import Stakes from "./Stakes";
 
 const Container = styled.div`
   width: 100%;
@@ -110,7 +113,7 @@ const Profile: React.FC = () => {
       {isConnected || searchParamAddress ? (
         <>
           <JurorInfo {...{ addressToQuery }} />
-          <Courts {...{ addressToQuery }} />
+          <Stakes {...{ addressToQuery }} />
           <StyledCasesDisplay
             title={`${searchParamAddress ? "Their" : "My"} Cases`}
             disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}

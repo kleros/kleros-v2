@@ -7,7 +7,7 @@ import "../interfaces/IDisputeTemplateRegistry.sol";
 import "../../libraries/SafeERC20.sol";
 
 /// @title ArbitrableExample
-/// An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
+/// @notice An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
 contract ArbitrableExample is IArbitrableV2 {
     using SafeERC20 for IERC20;
 
@@ -21,9 +21,17 @@ contract ArbitrableExample is IArbitrableV2 {
         uint256 numberOfRulingOptions; // The number of choices the arbitrator can give.
     }
 
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
+
     event Action(string indexed _action);
 
-    address public immutable governor;
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    address public immutable owner;
     IArbitratorV2 public arbitrator; // Arbitrator is set in constructor.
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     uint256 public templateId; // The current dispute template identifier.
@@ -36,8 +44,8 @@ contract ArbitrableExample is IArbitrableV2 {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        require(msg.sender == governor, "Only the governor allowed.");
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -45,7 +53,7 @@ contract ArbitrableExample is IArbitrableV2 {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @notice Constructor
     /// @param _arbitrator The arbitrator to rule on created disputes.
     /// @param _templateData The dispute template data.
     /// @param _templateDataMappings The dispute template data mappings.
@@ -60,7 +68,7 @@ contract ArbitrableExample is IArbitrableV2 {
         IDisputeTemplateRegistry _templateRegistry,
         IERC20 _weth
     ) {
-        governor = msg.sender;
+        owner = msg.sender;
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
         templateRegistry = _templateRegistry;
@@ -73,22 +81,22 @@ contract ArbitrableExample is IArbitrableV2 {
     // *             Governance            * //
     // ************************************* //
 
-    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByOwner {
         arbitrator = _arbitrator;
     }
 
-    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyByGovernor {
+    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyByOwner {
         arbitratorExtraData = _arbitratorExtraData;
     }
 
-    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByGovernor {
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByOwner {
         templateRegistry = _templateRegistry;
     }
 
     function changeDisputeTemplate(
         string memory _templateData,
         string memory _templateDataMappings
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
@@ -96,8 +104,8 @@ contract ArbitrableExample is IArbitrableV2 {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
+    /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @dev No need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _action The action that requires arbitration.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
     function createDispute(string calldata _action) external payable returns (uint256 disputeID) {
@@ -111,11 +119,11 @@ contract ArbitrableExample is IArbitrableV2 {
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId);
     }
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
+    /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @dev No need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _action The action that requires arbitration.
     /// @param _feeInWeth Amount of fees in WETH for the arbitrator.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
@@ -126,29 +134,38 @@ contract ArbitrableExample is IArbitrableV2 {
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 
-        require(weth.safeTransferFrom(msg.sender, address(this), _feeInWeth), "Transfer failed");
-        require(weth.increaseAllowance(address(arbitrator), _feeInWeth), "Allowance increase failed");
+        if (!weth.safeTransferFrom(msg.sender, address(this), _feeInWeth)) revert TransferFailed();
+        if (!weth.increaseAllowance(address(arbitrator), _feeInWeth)) revert AllowanceIncreaseFailed();
 
         disputeID = arbitrator.createDispute(numberOfRulingOptions, arbitratorExtraData, weth, _feeInWeth);
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId);
     }
 
-    /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
-    /// @param _arbitratorDisputeID ID of the dispute in arbitrator contract.
-    /// @param _ruling The ruling choice of the arbitration.
+    /// @inheritdoc IArbitrableV2
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
-        require(msg.sender == address(arbitrator), "Only the arbitrator can execute this.");
-        require(_ruling <= dispute.numberOfRulingOptions, "Invalid ruling.");
-        require(dispute.isRuled == false, "This dispute has been ruled already.");
+        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
+        if (_ruling > dispute.numberOfRulingOptions) revert RulingOutOfBounds();
+        if (dispute.isRuled) revert DisputeAlreadyRuled();
 
         dispute.isRuled = true;
         dispute.ruling = _ruling;
 
         emit Ruling(IArbitratorV2(msg.sender), _arbitratorDisputeID, dispute.ruling);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error OwnerOnly();
+    error TransferFailed();
+    error AllowanceIncreaseFailed();
+    error ArbitratorOnly();
+    error RulingOutOfBounds();
+    error DisputeAlreadyRuled();
 }

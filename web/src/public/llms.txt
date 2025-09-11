@@ -1,0 +1,9 @@
+# v2.kleros.builders llms.txt
+
+> Facilitates decentralized arbitration by allowing users to create, manage, and resolve dispute cases through crowdsourced juror consensus, rewarding jurors with cryptocurrency for coherent votes on disputes on the blockchain-based Kleros platform.
+
+- [Kleros Dispute Dashboard](https://v2.kleros.builders): Dashboard for managing and viewing decentralized dispute cases, jurors, and court statistics on Kleros platform.
+- [Kleros Dispute Cases](https://v2.kleros.builders/#/cases/display/1/desc/all): Provide a platform for viewing and managing decentralized dispute resolution cases.
+- [Kleros Decentralized Courts](https://v2.kleros.builders/#/courts): Facilitate decentralized dispute resolution by allowing users to stake tokens, participate as jurors, and view court cases.
+- [Kleros Jurors Leaderboard](https://v2.kleros.builders/#/jurors/1/desc/all): Display ranking and statistics of jurors based on coherent voting and rewards in the Kleros decentralized arbitration system.
+- [Get PNK Token](https://v2.kleros.builders/#/get-pnk): Facilitates cross-chain swaps of PNK tokens typically between the Ethereum and Arbitrum networks.

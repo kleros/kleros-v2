@@ -6,7 +6,8 @@ import "../interfaces/IDisputeTemplateRegistry.sol";
 pragma solidity ^0.8.24;
 
 /// @title DisputeResolver
-/// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
+/// @notice DisputeResolver contract
+/// @dev Adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
 contract DisputeResolver is IArbitrableV2 {
     // ************************************* //
     // *         Enums / Structs           * //
@@ -23,7 +24,7 @@ contract DisputeResolver is IArbitrableV2 {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The governor.
+    address public owner; // The owner.
     IArbitratorV2 public arbitrator; // The arbitrator.
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     DisputeStruct[] public disputes; // Local disputes.
@@ -33,10 +34,10 @@ contract DisputeResolver is IArbitrableV2 {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @notice Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
     constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {
-        governor = msg.sender;
+        owner = msg.sender;
         arbitrator = _arbitrator;
         templateRegistry = _templateRegistry;
     }
@@ -45,20 +46,20 @@ contract DisputeResolver is IArbitrableV2 {
     // *           Governance              * //
     // ************************************* //
 
-    /// @dev Changes the governor.
-    /// @param _governor The address of the new governor.
-    function changeGovernor(address _governor) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
-        governor = _governor;
+    /// @notice Changes the owner.
+    /// @param _owner The address of the new owner.
+    function changeOwner(address _owner) external {
+        if (owner != msg.sender) revert OwnerOnly();
+        owner = _owner;
     }
 
     function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (owner != msg.sender) revert OwnerOnly();
         arbitrator = _arbitrator;
     }
 
     function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (owner != msg.sender) revert OwnerOnly();
         templateRegistry = _templateRegistry;
     }
 
@@ -66,8 +67,8 @@ contract DisputeResolver is IArbitrableV2 {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
+    /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @dev No need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
     /// @param _disputeTemplate Dispute template.
     /// @param _disputeTemplateDataMappings The data mappings.
@@ -84,34 +85,17 @@ contract DisputeResolver is IArbitrableV2 {
                 _arbitratorExtraData,
                 _disputeTemplate,
                 _disputeTemplateDataMappings,
-                "",
                 _numberOfRulingOptions
             );
     }
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
-    /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
-    /// @param _disputeTemplateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'.
-    /// @param _numberOfRulingOptions Number of ruling options.
-    /// @return disputeID Dispute id (on arbitrator side) of the created dispute.
-    function createDisputeForTemplateUri(
-        bytes calldata _arbitratorExtraData,
-        string calldata _disputeTemplateUri,
-        uint256 _numberOfRulingOptions
-    ) external payable returns (uint256 disputeID) {
-        return _createDispute(_arbitratorExtraData, "", "", _disputeTemplateUri, _numberOfRulingOptions);
-    }
-
-    /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
-    /// @param _arbitratorDisputeID ID of the dispute in arbitrator contract.
-    /// @param _ruling The ruling choice of the arbitration.
+    /// @inheritdoc IArbitrableV2
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = arbitratorDisputeIDToLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
-        require(msg.sender == address(arbitrator), "Only the arbitrator can execute this.");
-        require(_ruling <= dispute.numberOfRulingOptions, "Invalid ruling.");
-        require(!dispute.isRuled, "This dispute has been ruled already.");
+        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
+        if (_ruling > dispute.numberOfRulingOptions) revert RulingOutOfBounds();
+        if (dispute.isRuled) revert DisputeAlreadyRuled();
 
         dispute.isRuled = true;
         dispute.ruling = _ruling;
@@ -127,10 +111,9 @@ contract DisputeResolver is IArbitrableV2 {
         bytes calldata _arbitratorExtraData,
         string memory _disputeTemplate,
         string memory _disputeTemplateDataMappings,
-        string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
     ) internal virtual returns (uint256 arbitratorDisputeID) {
-        require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
+        if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
 
         arbitratorDisputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
         uint256 localDisputeID = disputes.length;
@@ -144,6 +127,16 @@ contract DisputeResolver is IArbitrableV2 {
         );
         arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error OwnerOnly();
+    error ArbitratorOnly();
+    error RulingOutOfBounds();
+    error DisputeAlreadyRuled();
+    error ShouldBeAtLeastTwoRulingOptions();
 }

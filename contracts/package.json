@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Smart contracts for Kleros version 2",
   "main": "./cjs/deployments/index.js",
   "module": "./esm/deployments/index.js",
@@ -87,15 +87,13 @@
     "watch": "hardhat watch",
     "natspec-smells": "natspec-smells",
     "docgen": "hardhat docgen",
-    "docserve": "scripts/docPreprocess.sh && forge doc --serve",
-    "docbuild": "scripts/docPreprocess.sh && forge doc --build --out dist && scripts/docPostprocess.sh",
     "populate:courts:devnet": "hardhat populate:courts --from v2_devnet  --network arbitrumSepoliaDevnet",
     "populate:courts:testnet": "hardhat populate:courts --from v2_testnet  --network arbitrumSepolia",
-    "populate:courts:mainnetNeo": "hardhat populate:courts --core-type neo --from v2_mainnet_neo  --network arbitrum",
-    "populate:policiesUris": "scripts/setPoliciesURIs.sh config/policies.v2.{devnet,testnet,mainnet-neo}.json",
+    "populate:courts:mainnet": "hardhat populate:courts --from v2_mainnet  --network arbitrum",
+    "populate:policiesUris": "scripts/setPoliciesURIs.sh config/policies.v2.{devnet,testnet,mainnet}.json",
     "populate:policies:devnet": "hardhat populate:policy-registry --from v2_devnet --network arbitrumSepoliaDevnet",
     "populate:policies:testnet": "hardhat populate:policy-registry --from v2_testnet --network arbitrumSepolia",
-    "populate:policies:mainnetNeo": "hardhat populate:policy-registry --from v2_mainnet_neo --network arbitrum",
+    "populate:policies:mainnet": "hardhat populate:policy-registry --from v2_mainnet --network arbitrum",
     "release:patch": "scripts/publish.sh patch",
     "release:minor": "scripts/publish.sh minor",
     "release:major": "scripts/publish.sh major",
@@ -121,7 +119,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.17.6",
     "@types/sinon": "^17.0.4",
-    "@wagmi/cli": "^2.2.0",
+    "@wagmi/cli": "^2.3.2",
     "abitype": "^0.10.3",
     "chai": "^4.5.0",
     "dotenv": "^16.6.1",
@@ -131,7 +129,7 @@
     "gluegun": "^5.2.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
-    "hardhat": "2.25.0",
+    "hardhat": "2.26.2",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^1.0.4",
     "hardhat-deploy-ethers": "^0.4.2",
@@ -154,10 +152,17 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^1.4.0",
-    "@kleros/vea-contracts": "^0.6.0",
+    "@kleros/vea-contracts": "^0.7.0",
     "@openzeppelin/contracts": "^5.4.0",
     "@shutter-network/shutter-sdk": "0.0.2",
-    "isomorphic-fetch": "^3.0.0",
+    "isomorphic-fetch": "^3.0.0"
+  },
+  "peerDependencies": {
     "viem": "^2.24.1"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": false
+    }
   }
 }

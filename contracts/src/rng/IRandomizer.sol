@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity >=0.8.0 <0.9.0;
 
-// Randomizer protocol interface
+// @title Randomizer protocol interface
 interface IRandomizer {
     function request(uint256 callbackGasLimit) external returns (uint256);
 

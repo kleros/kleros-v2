@@ -26,7 +26,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
 
     IArbitratorV2 public immutable foreignGateway;
     IKlerosLiquid public immutable klerosLiquid;
-    address public governor;
+    address public owner;
     mapping(uint256 disputeId => uint256 gatewayDisputeId) public klerosLiquidDisputeIDtoGatewayDisputeID;
     mapping(uint256 gatewayDisputeId => DisputeData) public disputes; // disputes[gatewayDisputeID]
     mapping(address account => uint256 tokenAmount) public frozenTokens; // frozenTokens[account] locked token which shouldn't have been blocked.
@@ -36,8 +36,8 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        require(governor == msg.sender);
+    modifier onlyByOwner() {
+        require(owner == msg.sender);
         _;
     }
 
@@ -45,13 +45,13 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor. Before this contract is made the new governor of KlerosLiquid, the evidence period of all subcourts has to be set to uint(-1).
+    /// @dev Constructor. Before this contract is made the new owner of KlerosLiquid, the evidence period of all subcourts has to be set to uint(-1).
     /// @param _klerosLiquid The trusted arbitrator to resolve potential disputes.
-    /// @param _governor The trusted governor of the contract.
+    /// @param _owner The trusted owner of the contract.
     /// @param _foreignGateway The trusted gateway that acts as an arbitrator, relaying disputes to v2.
-    constructor(IKlerosLiquid _klerosLiquid, address _governor, IArbitratorV2 _foreignGateway) {
+    constructor(IKlerosLiquid _klerosLiquid, address _owner, IArbitratorV2 _foreignGateway) {
         klerosLiquid = _klerosLiquid;
-        governor = _governor;
+        owner = _owner;
         foreignGateway = _foreignGateway;
     }
 
@@ -59,23 +59,19 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Lets the governor call anything on behalf of the contract.
+    /// @dev Lets the owner call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes calldata _data
-    ) external onlyByGovernor {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes calldata _data) external onlyByOwner {
         (bool success, ) = _destination.call{value: _amount}(_data); // solium-disable-line security/no-call-value
         require(success, "Call execution failed.");
     }
 
-    /// @dev Changes the `governor` storage variable.
-    /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the `owner` storage variable.
+    /// @param _owner The new value for the `owner` storage variable.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     // ************************************* //
@@ -94,7 +90,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
         require(KlerosLiquidDispute.period == IKlerosLiquid.Period.evidence, "Invalid dispute period.");
         require(votesLengths.length == 1, "Cannot relay appeals.");
 
-        klerosLiquid.executeGovernorProposal(address(this), totalFeesForJurors[0], "");
+        klerosLiquid.executeOwnerProposal(address(this), totalFeesForJurors[0], "");
 
         uint256 minJurors = votesLengths[0];
         bytes memory extraData = abi.encode(KlerosLiquidDispute.subcourtID, minJurors);
@@ -125,7 +121,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
         IKlerosLiquid.Dispute memory klerosLiquidDispute = klerosLiquid.disputes(dispute.klerosLiquidDisputeID);
 
         bytes memory data = abi.encodeCall(IArbitrableV2.rule, (dispute.klerosLiquidDisputeID, _ruling));
-        klerosLiquid.executeGovernorProposal(klerosLiquidDispute.arbitrated, 0, data);
+        klerosLiquid.executeOwnerProposal(klerosLiquidDispute.arbitrated, 0, data);
     }
 
     /// @dev Registers jurors' tokens which where locked due to relaying a given dispute. These tokens don't count as locked.

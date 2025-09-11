@@ -7,10 +7,6 @@ import "./UUPSProxy.sol";
 /// Workaround to get meaningful names for the proxy contracts
 /// Otherwise all the contracts are called `UUPSProxy` on the chain explorers
 
-contract DisputeKitClassicNeoProxy is UUPSProxy {
-    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
-}
-
 contract DisputeKitClassicUniversityProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
@@ -51,10 +47,6 @@ contract HomeGatewayToEthereumProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
-contract KlerosCoreNeoProxy is UUPSProxy {
-    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
-}
-
 contract KlerosCoreRulerProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
@@ -72,10 +64,6 @@ contract PolicyRegistryProxy is UUPSProxy {
 }
 
 contract RandomizerRNGProxy is UUPSProxy {
-    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
-}
-
-contract SortitionModuleNeoProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 

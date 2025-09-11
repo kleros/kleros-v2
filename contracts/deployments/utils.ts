@@ -10,7 +10,7 @@ export const deployments = {
   testnet: {
     chainId: arbitrumSepolia.id,
   },
-  mainnetNeo: {
+  mainnet: {
     chainId: arbitrum.id,
   },
 } as const;

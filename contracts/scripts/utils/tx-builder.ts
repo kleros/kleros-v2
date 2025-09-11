@@ -1,6 +1,6 @@
 import { arbitrum } from "viem/chains";
 
-const governor = "0x66e8DE9B42308c6Ca913D1EE041d6F6fD037A57e";
+const owner = "0x66e8DE9B42308c6Ca913D1EE041d6F6fD037A57e";
 const deployer = "0xf1C7c037891525E360C59f708739Ac09A7670c59";
 
 // Transaction batch example: https://github.com/safe-global/safe-wallet-monorepo/blob/8bbf3b82edc347b70a038629cd9afd45eb1ed38a/apps/web/cypress/fixtures/test-working-batch.json
@@ -12,7 +12,7 @@ export const template = ({ name, transactions }: { name: string; transactions: B
     name,
     description: "", // Not used because the Safe app doesn't show it
     txBuilderVersion: "1.18.0",
-    createdFromSafeAddress: governor,
+    createdFromSafeAddress: owner,
     createdFromOwnerAddress: deployer,
   },
   transactions,
@@ -42,4 +42,4 @@ export interface BuilderTransaction {
   contractInputsValues: null;
 }
 
-export const transactionBuilderUrl = `https://app.safe.global/apps/open?safe=arb1:${governor}&appUrl=https%3A%2F%2Fapps-portal.safe.global%2Ftx-builder`;
+export const transactionBuilderUrl = `https://app.safe.global/apps/open?safe=arb1:${owner}&appUrl=https%3A%2F%2Fapps-portal.safe.global%2Ftx-builder`;
