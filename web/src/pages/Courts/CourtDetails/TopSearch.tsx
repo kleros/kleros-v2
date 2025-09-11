@@ -72,15 +72,17 @@ const SearchResultsContainer = styled(OverlayScrollbarsComponent)`
   border-top-right-radius: 0;
 `;
 
-const StyledCard = styled(Card)<{ selected: boolean }>`
+const StyledCard = styled(Card)<{ selected: boolean; keyboardSelected: boolean }>`
   ${hoverShortTransitionTiming}
   height: auto;
   width: 100%;
-  padding: ${({ selected }) => (selected ? "16px 13px" : "16px")};
+  padding: ${({ selected, keyboardSelected }) => (selected || keyboardSelected ? "16px 13px" : "16px")};
   cursor: pointer;
   border: none;
-  border-left: ${({ selected, theme }) => (selected ? `3px solid ${theme.primaryBlue}` : "none")};
-  background-color: ${({ selected, theme }) => (selected ? theme.mediumBlue : "transparent")};
+  border-left: ${({ selected, keyboardSelected, theme }) =>
+    selected || keyboardSelected ? `3px solid ${theme.primaryBlue}` : "none"};
+  background-color: ${({ selected, keyboardSelected, theme }) =>
+    selected || keyboardSelected ? theme.mediumBlue : "transparent"};
   border-radius: 0;
 
   :hover {
@@ -96,7 +98,7 @@ const CourtNameSpan = styled.span`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-function flattenCourts(court, parent = null) {
+function flattenCourts(court: any, parent: any = null) {
   const current = {
     ...court,
     parentName: parent?.name ?? null,
@@ -112,6 +114,7 @@ const TopSearch: React.FC = () => {
   const items = useMemo(() => !isUndefined(data?.court) && [rootCourtToItems(data.court)], [data]);
   const isUniversity = isKlerosUniversity();
   const [search, setSearch] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const filteredCourts = useMemo(() => {
     if (!data?.court) return [];
@@ -121,6 +124,40 @@ const TopSearch: React.FC = () => {
 
     return [selectedCourt, ...courts.filter((c) => c.id !== currentCourtId)];
   }, [data, search, currentCourtId]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!search || filteredCourts.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % filteredCourts.length);
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedIndex((prev) => {
+          const newIndex = prev - 1;
+          return newIndex < 0 ? filteredCourts.length - 1 : newIndex;
+        });
+        break;
+      case "Enter":
+        navigate(`/courts/${filteredCourts[selectedIndex].id}`);
+        setSearch("");
+        setSelectedIndex(0);
+        break;
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setSelectedIndex(0);
+  };
+
+  const handleCourtClick = (courtId: string) => {
+    navigate(`/courts/${courtId}`);
+    setSearch("");
+    setSelectedIndex(0);
+  };
 
   return (
     <Container>
@@ -137,18 +174,17 @@ const TopSearch: React.FC = () => {
               type="text"
               placeholder="Search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
             />
             {search && filteredCourts.length > 0 && (
               <SearchResultsContainer>
-                {filteredCourts.map((court) => (
+                {filteredCourts.map((court, index) => (
                   <StyledCard
                     key={court.id}
-                    selected={court.id === currentCourtId}
-                    onClick={() => {
-                      navigate(`/courts/${court.id}`);
-                      setSearch("");
-                    }}
+                    selected={selectedIndex === 0 && court.id === currentCourtId}
+                    keyboardSelected={index === selectedIndex}
+                    onClick={() => handleCourtClick(court.id)}
                   >
                     {court.parentName && <CourtParentSpan>{court.parentName} / </CourtParentSpan>}
                     <CourtNameSpan>{court.name}</CourtNameSpan>
