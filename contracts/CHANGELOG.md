@@ -54,6 +54,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 ### Fixed
 
 - Do not pass to Voting period if all the commits are cast because it breaks the current Shutter auto-reveal process. ([#2085](https://github.com/kleros/kleros-v2/issues/2085))
+- Do not emit the `KlerosCore.TokenAndETHShift` event if the both the PNK and fee amounts are zero ([#2135](https://github.com/kleros/kleros-v2/issues/2135))
+- Do not make PNK or ETH transfers if the amounts are zero ([#2135](https://github.com/kleros/kleros-v2/issues/2135))
 
 ## [0.12.0] - 2025-08-05
 
