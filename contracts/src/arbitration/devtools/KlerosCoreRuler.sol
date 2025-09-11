@@ -126,7 +126,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint96 indexed _fromCourtID,
         uint96 _toCourtID
     );
-    event TokenAndETHShift(
+    event JurorRewardPenalty(
         address indexed _account,
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
@@ -519,7 +519,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);
         }
-        emit TokenAndETHShift(
+        emit JurorRewardPenalty(
             account,
             _disputeID,
             _round,

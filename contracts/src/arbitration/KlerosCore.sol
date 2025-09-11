@@ -221,7 +221,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _amountPnk Amount of PNK shifted.
     /// @param _amountFee Amount of fee shifted.
     /// @param _feeToken Address of the fee token.
-    event TokenAndETHShift(
+    event JurorRewardPenalty(
         address indexed _account,
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
@@ -927,7 +927,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         );
         if (availablePenalty != 0) {
             _params.pnkPenaltiesInRound += availablePenalty;
-            emit TokenAndETHShift(
+            emit JurorRewardPenalty(
                 account,
                 _params.disputeID,
                 _params.round,
@@ -1009,7 +1009,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             }
         }
         if (pnkReward != 0 || feeReward != 0) {
-            emit TokenAndETHShift(
+            emit JurorRewardPenalty(
                 account,
                 _params.disputeID,
                 _params.round,
