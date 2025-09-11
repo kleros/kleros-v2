@@ -21,10 +21,6 @@ library SortitionTrees {
         mapping(uint256 nodeIndex => bytes32 stakePathID) nodeIndexesToIDs;
     }
 
-    function toTreeKey(CourtID _courtID) internal pure returns (TreeKey) {
-        return TreeKey.wrap(bytes32(uint256(CourtID.unwrap(_courtID))));
-    }
-
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
@@ -191,6 +187,13 @@ library SortitionTrees {
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
+
+    /// @notice Converts a court ID to a tree key.
+    /// @param _courtID The court ID to convert.
+    /// @return The tree key.
+    function toTreeKey(CourtID _courtID) internal pure returns (TreeKey) {
+        return TreeKey.wrap(bytes32(uint256(CourtID.unwrap(_courtID))));
+    }
 
     /// @notice Get the stake of a juror in a court.
     /// @param _tree The sortition sum tree.
