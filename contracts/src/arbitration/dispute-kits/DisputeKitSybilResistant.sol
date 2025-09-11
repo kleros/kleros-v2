@@ -5,14 +5,14 @@ pragma solidity ^0.8.24;
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 interface IProofOfHumanity {
-    /// @dev Return true if the submission is registered and not expired.
+    /// @notice Return true if the submission is registered and not expired.
     /// @param _submissionID The address of the submission.
     /// @return Whether the submission is registered or not.
     function isRegistered(address _submissionID) external view returns (bool);
 }
 
 /// @title DisputeKitSybilResistant
-/// Dispute kit implementation adapted from DisputeKitClassic
+/// @notice Dispute kit implementation adapted from DisputeKitClassic
 /// - a drawing system: at most 1 vote per juror registered on Proof of Humanity,
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
@@ -35,7 +35,7 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.

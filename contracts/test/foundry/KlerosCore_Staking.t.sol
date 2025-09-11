@@ -10,6 +10,7 @@ import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_StakingTest
 /// @dev Tests for KlerosCore staking mechanics and stake management
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 contract KlerosCore_StakingTest is KlerosCore_TestBase {
     function test_setStake_increase() public {
         vm.prank(owner);
@@ -194,13 +195,10 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         uint256 delayedStakeId = sortitionModule.delayedStakeWriteIndex();
         assertEq(delayedStakeId, 1, "Wrong delayedStakeWriteIndex");
         assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
-        (address account, uint96 courtID, uint256 stake, bool alreadyTransferred) = sortitionModule.delayedStakes(
-            delayedStakeId
-        );
+        (address account, uint96 courtID, uint256 stake) = sortitionModule.delayedStakes(delayedStakeId);
         assertEq(account, staker1, "Wrong staker account");
         assertEq(courtID, GENERAL_COURT, "Wrong court id");
         assertEq(stake, 1500, "Wrong amount staked in court");
-        assertEq(alreadyTransferred, false, "Should be flagged as transferred");
 
         (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
             .getJurorBalance(staker1, GENERAL_COURT);
@@ -342,25 +340,22 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         assertEq(sortitionModule.delayedStakeWriteIndex(), 3, "Wrong delayedStakeWriteIndex");
         assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
 
-        (address account, uint96 courtID, uint256 stake, bool alreadyTransferred) = sortitionModule.delayedStakes(1);
+        (address account, uint96 courtID, uint256 stake) = sortitionModule.delayedStakes(1);
 
         // Check each delayed stake
         assertEq(account, staker1, "Wrong staker account for the first delayed stake");
         assertEq(courtID, GENERAL_COURT, "Wrong court ID");
         assertEq(stake, 1500, "Wrong staking amount");
-        assertEq(alreadyTransferred, false, "Should be false");
 
-        (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(2);
+        (account, courtID, stake) = sortitionModule.delayedStakes(2);
         assertEq(account, staker2, "Wrong staker2 account");
         assertEq(courtID, GENERAL_COURT, "Wrong court id for staker2");
         assertEq(stake, 0, "Wrong amount for delayed stake of staker2");
-        assertEq(alreadyTransferred, false, "Should be false");
 
-        (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(3);
+        (account, courtID, stake) = sortitionModule.delayedStakes(3);
         assertEq(account, staker1, "Wrong staker1 account");
         assertEq(courtID, GENERAL_COURT, "Wrong court id for staker1");
         assertEq(stake, 1800, "Wrong amount for delayed stake of staker1");
-        assertEq(alreadyTransferred, false, "Should be false");
 
         // So far the only amount transferred was 10000 by staker2. Staker 1 has two delayed stakes, for 1500 and 1800 pnk.
         assertEq(pinakion.balanceOf(address(core)), 10000, "Wrong token balance of the core");
@@ -394,12 +389,11 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
 
         // Check that delayed stakes are nullified
         for (uint i = 2; i <= sortitionModule.delayedStakeWriteIndex(); i++) {
-            (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(i);
+            (account, courtID, stake) = sortitionModule.delayedStakes(i);
 
             assertEq(account, address(0), "Wrong staker account after delayed stake deletion");
             assertEq(courtID, 0, "Court id should be nullified");
             assertEq(stake, 0, "No amount to stake");
-            assertEq(alreadyTransferred, false, "Should be false");
         }
 
         assertEq(pinakion.balanceOf(staker1), 999999999999998200, "Wrong token balance of staker1");

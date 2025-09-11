@@ -5,7 +5,7 @@ pragma solidity ^0.8.28;
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 /// @title DisputeKitShutter
-/// Added functionality: shielded voting.
+/// @notice Added functionality: shielded voting.
 /// Dispute kit implementation of the Kleros v1 features including:
 /// - a drawing system: proportional to staked PNK,
 /// - a vote aggregation system: plurality,
@@ -31,7 +31,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     // *              Events               * //
     // ************************************* //
 
-    /// @dev Emitted when a vote is cast.
+    /// @notice Emitted when a vote is cast.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _juror The address of the juror casting the vote commitment.
     /// @param _commit The commitment hash.
@@ -56,7 +56,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
@@ -84,10 +84,11 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Sets the caller's commit for the specified votes. It can be called multiple times during the
-    /// commit period, each call overrides the commits of the previous one.
-    /// `O(n)` where
-    /// `n` is the number of votes.
+    /// @notice Sets the caller's commit for the specified votes.
+    ///
+    /// @dev It can be called multiple times during the commit period, each call overrides the commits of the previous one.
+    /// `O(n)` where `n` is the number of votes.
+    ///
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _commit The commitment hash including the justification.
@@ -116,6 +117,13 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         emit CommitCastShutter(_coreDisputeID, msg.sender, _commit, _recoveryCommit, _identity, _encryptedVote);
     }
 
+    /// @notice Version of `castVote` function designed specifically for Shutter.
+    /// @dev `O(n)` where `n` is the number of votes.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _voteIDs The IDs of the votes.
+    /// @param _choice The choice.
+    /// @param _salt The salt for the commit if the votes were hidden.
+    /// @param _justification Justification of the choice.
     function castVoteShutter(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
@@ -138,13 +146,11 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     // *           Public Views            * //
     // ************************************* //
 
-    /**
-     * @dev Computes the hash of a vote using ABI encoding
-     * @param _choice The choice being voted for
-     * @param _justification The justification for the vote
-     * @param _salt A random salt for commitment
-     * @return bytes32 The hash of the encoded vote parameters
-     */
+    /// @notice Computes the hash of a vote using ABI encoding
+    /// @param _choice The choice being voted for
+    /// @param _salt A random salt for commitment
+    /// @param _justification The justification for the vote
+    /// @return bytes32 The hash of the encoded vote parameters
     function hashVote(
         uint256 _choice,
         uint256 _salt,
@@ -164,7 +170,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Returns the expected vote hash for a given vote.
+    /// @notice Returns the expected vote hash for a given vote.
     /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
     /// @param _localRoundID The ID of the round in the Dispute Kit.
     /// @param _voteID The ID of the vote.

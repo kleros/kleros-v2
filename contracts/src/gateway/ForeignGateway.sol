@@ -7,8 +7,8 @@ import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
 import "../libraries/Constants.sol";
 
-/// Foreign Gateway
-/// Counterpart of `HomeGateway`
+/// @title Foreign Gateway
+/// @notice Counterpart of `HomeGateway`
 contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     string public constant override version = "0.8.0";
 
@@ -71,7 +71,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         _disableInitializers();
     }
 
-    /// @dev Constructs the `PolicyRegistry` contract.
+    /// @notice Constructs the `PolicyRegistry` contract.
     /// @param _owner The owner's address.
     /// @param _veaOutbox The address of the VeaOutbox.
     /// @param _homeChainID The chainID of the home chain.
@@ -101,14 +101,14 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         // NOP
     }
 
-    /// @dev Changes the owner.
+    /// @notice Changes the owner.
     /// @param _owner The address of the new owner.
     function changeOwner(address _owner) external {
         if (owner != msg.sender) revert OwnerOnly();
         owner = _owner;
     }
 
-    /// @dev Changes the outbox.
+    /// @notice Changes the outbox.
     /// @param _veaOutbox The address of the new outbox.
     /// @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
     function changeVea(address _veaOutbox, uint256 _gracePeriod) external onlyByOwner {
@@ -118,14 +118,14 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         veaOutbox = _veaOutbox;
     }
 
-    /// @dev Changes the home gateway.
+    /// @notice Changes the home gateway.
     /// @param _homeGateway The address of the new home gateway.
     function changeHomeGateway(address _homeGateway) external {
         if (owner != msg.sender) revert OwnerOnly();
         homeGateway = _homeGateway;
     }
 
-    /// @dev Changes the `feeForJuror` property value of a specified court.
+    /// @notice Changes the `feeForJuror` property value of a specified court.
     /// @param _courtID The ID of the court on the v2 arbitrator. Not to be confused with the courtID on KlerosLiquid.
     /// @param _feeForJuror The new value for the `feeForJuror` property value.
     function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByOwner {

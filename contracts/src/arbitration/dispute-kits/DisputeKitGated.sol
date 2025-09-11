@@ -5,7 +5,7 @@ pragma solidity ^0.8.24;
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 interface IBalanceHolder {
-    /// @dev Returns the number of tokens in `owner` account.
+    /// @notice Returns the number of tokens in `owner` account.
     /// @dev Compatible with ERC-20 and ERC-721.
     /// @param owner The address of the owner.
     /// @return balance The number of tokens in `owner` account.
@@ -13,7 +13,7 @@ interface IBalanceHolder {
 }
 
 interface IBalanceHolderERC1155 {
-    /// @dev Returns the balance of an ERC-1155 token.
+    /// @notice Returns the balance of an ERC-1155 token.
     /// @param account The address of the token holder
     /// @param id ID of the token
     /// @return The token balance
@@ -21,7 +21,7 @@ interface IBalanceHolderERC1155 {
 }
 
 /// @title DisputeKitGated
-/// Dispute kit implementation adapted from DisputeKitClassic
+/// @notice Dispute kit implementation adapted from DisputeKitClassic
 /// - a drawing system: proportional to staked PNK with a non-zero balance of `tokenGate` where `tokenGate` is an ERC20, ERC721 or ERC1155
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
@@ -38,7 +38,7 @@ contract DisputeKitGated is DisputeKitClassicBase {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
@@ -66,13 +66,13 @@ contract DisputeKitGated is DisputeKitClassicBase {
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Extracts token gating information from the extra data.
+    /// @notice Extracts token gating information from the extra data.
     /// @param _extraData The extra data bytes array with the following encoding:
-    ///        - bytes 0-31: uint96 courtID, not used here
-    ///        - bytes 32-63: uint256 minJurors, not used here
-    ///        - bytes 64-95: uint256 disputeKitID, not used here
-    ///        - bytes 96-127: uint256 packedTokenGateAndFlag (address tokenGate in bits 0-159, bool isERC1155 in bit 160)
-    ///        - bytes 128-159: uint256 tokenId
+    /// - bytes 0-31: uint96 courtID, not used here
+    /// - bytes 32-63: uint256 minJurors, not used here
+    /// - bytes 64-95: uint256 disputeKitID, not used here
+    /// - bytes 96-127: uint256 packedTokenGateAndFlag (address tokenGate in bits 0-159, bool isERC1155 in bit 160)
+    /// - bytes 128-159: uint256 tokenId
     /// @return tokenGate The address of the token contract used for gating access.
     /// @return isERC1155 True if the token is an ERC-1155, false for ERC-20/ERC-721.
     /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).

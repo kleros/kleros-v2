@@ -5,7 +5,7 @@ pragma solidity ^0.8.24;
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 interface IBalanceHolder {
-    /// @dev Returns the number of tokens in `owner` account.
+    /// @notice Returns the number of tokens in `owner` account.
     /// @dev Compatible with ERC-20 and ERC-721.
     /// @param owner The address of the owner.
     /// @return balance The number of tokens in `owner` account.
@@ -13,7 +13,7 @@ interface IBalanceHolder {
 }
 
 interface IBalanceHolderERC1155 {
-    /// @dev Returns the balance of an ERC-1155 token.
+    /// @notice Returns the balance of an ERC-1155 token.
     /// @param account The address of the token holder
     /// @param id ID of the token
     /// @return The token balance
@@ -21,7 +21,7 @@ interface IBalanceHolderERC1155 {
 }
 
 /// @title DisputeKitGatedShutter
-/// Added functionality: shielded voting.
+/// @notice Added functionality: shielded voting.
 /// Dispute kit implementation adapted from DisputeKitClassic
 /// - a drawing system: proportional to staked PNK with a non-zero balance of `tokenGate` where `tokenGate` is an ERC20, ERC721 or ERC1155
 /// - a vote aggregation system: plurality,
@@ -72,7 +72,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
@@ -100,10 +100,11 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Sets the caller's commit for the specified votes. It can be called multiple times during the
-    /// commit period, each call overrides the commits of the previous one.
-    /// `O(n)` where
-    /// `n` is the number of votes.
+    /// @notice Sets the caller's commit for the specified votes.
+    ///
+    /// @dev It can be called multiple times during the commit period, each call overrides the commits of the previous one.
+    /// `O(n)` where `n` is the number of votes.
+    ///
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _commit The commitment hash including the justification.
@@ -132,6 +133,13 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         emit CommitCastShutter(_coreDisputeID, msg.sender, _commit, _recoveryCommit, _identity, _encryptedVote);
     }
 
+    /// @notice Version of the `castVote` function designed specifically for Shutter.
+    /// @dev `O(n)` where `n` is the number of votes.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _voteIDs The IDs of the votes.
+    /// @param _choice The choice.
+    /// @param _salt The salt for the commit if the votes were hidden.
+    /// @param _justification Justification of the choice.
     function castVoteShutter(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
@@ -154,13 +162,11 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *           Public Views            * //
     // ************************************* //
 
-    /**
-     * @dev Computes the hash of a vote using ABI encoding
-     * @param _choice The choice being voted for
-     * @param _justification The justification for the vote
-     * @param _salt A random salt for commitment
-     * @return bytes32 The hash of the encoded vote parameters
-     */
+    /// @notice Computes the hash of a vote using ABI encoding
+    /// @param _choice The choice being voted for
+    /// @param _salt A random salt for commitment
+    /// @param _justification The justification for the vote
+    /// @return bytes32 The hash of the encoded vote parameters
     function hashVote(
         uint256 _choice,
         uint256 _salt,
@@ -180,11 +186,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Returns the expected vote hash for a given vote.
-    /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
-    /// @param _localRoundID The ID of the round in the Dispute Kit.
-    /// @param _voteID The ID of the vote.
-    /// @return The expected vote hash.
+    /// @inheritdoc DisputeKitClassicBase
     function _getExpectedVoteHash(
         uint256 _localDisputeID,
         uint256 _localRoundID,
@@ -197,13 +199,13 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         }
     }
 
-    /// @dev Extracts token gating information from the extra data.
+    /// @notice Extracts token gating information from the extra data.
     /// @param _extraData The extra data bytes array with the following encoding:
-    ///        - bytes 0-31: uint96 courtID, not used here
-    ///        - bytes 32-63: uint256 minJurors, not used here
-    ///        - bytes 64-95: uint256 disputeKitID, not used here
-    ///        - bytes 96-127: uint256 packedTokenGateAndFlag (address tokenGate in bits 0-159, bool isERC1155 in bit 160)
-    ///        - bytes 128-159: uint256 tokenId
+    /// - bytes 0-31: uint96 courtID, not used here
+    /// - bytes 32-63: uint256 minJurors, not used here
+    /// - bytes 64-95: uint256 disputeKitID, not used here
+    /// - bytes 96-127: uint256 packedTokenGateAndFlag (address tokenGate in bits 0-159, bool isERC1155 in bit 160)
+    /// - bytes 128-159: uint256 tokenId
     /// @return tokenGate The address of the token contract used for gating access.
     /// @return isERC1155 True if the token is an ERC-1155, false for ERC-20/ERC-721.
     /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).

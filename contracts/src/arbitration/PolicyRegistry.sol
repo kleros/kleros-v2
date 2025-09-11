@@ -5,7 +5,7 @@ import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
 
 /// @title PolicyRegistry
-/// @dev A contract to maintain a policy for each court.
+/// @notice A contract to maintain a policy for each court.
 contract PolicyRegistry is UUPSProxiable, Initializable {
     string public constant override version = "2.0.0";
 
@@ -13,7 +13,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     // *              Events               * //
     // ************************************* //
 
-    /// @dev Emitted when a policy is updated.
+    /// @notice Emitted when a policy is updated.
     /// @param _courtID The ID of the policy's court.
     /// @param _courtName The name of the policy's court.
     /// @param _policy The URI of the policy JSON.
@@ -30,7 +30,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    /// @dev Requires that the sender is the owner.
+    /// @notice Requires that the sender is the owner.
     modifier onlyByOwner() {
         if (owner != msg.sender) revert OwnerOnly();
         _;
@@ -45,7 +45,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
         _disableInitializers();
     }
 
-    /// @dev Constructs the `PolicyRegistry` contract.
+    /// @notice Constructs the `PolicyRegistry` contract.
     /// @param _owner The owner's address.
     function initialize(address _owner) external initializer {
         owner = _owner;
@@ -63,7 +63,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
         // NOP
     }
 
-    /// @dev Changes the `owner` storage variable.
+    /// @notice Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
     function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
@@ -73,7 +73,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Sets the policy for the specified court.
+    /// @notice Sets the policy for the specified court.
     /// @param _courtID The ID of the specified court.
     /// @param _courtName The name of the specified court.
     /// @param _policy The URI of the policy JSON.

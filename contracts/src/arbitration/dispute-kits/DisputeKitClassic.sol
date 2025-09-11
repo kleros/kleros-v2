@@ -5,7 +5,7 @@ pragma solidity ^0.8.24;
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 /// @title DisputeKitClassic
-/// Dispute kit implementation of the Kleros v1 features including:
+/// @notice Dispute kit implementation of the Kleros v1 features including:
 /// - a drawing system: proportional to staked PNK,
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
@@ -22,7 +22,7 @@ contract DisputeKitClassic is DisputeKitClassicBase {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.

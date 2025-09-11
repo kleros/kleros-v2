@@ -13,12 +13,12 @@ contract IncrementalNG is IRNG {
         number = _start;
     }
 
-    /// @dev Request a random number.
+    /// @notice Request a random number.
     function requestRandomness() external override {
         // nop
     }
 
-    /// @dev Get the "random number" (which is always the same).
+    /// @notice Get the "random number" (which is always the same).
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
     function receiveRandomness() external override returns (uint256 randomNumber) {
         unchecked {

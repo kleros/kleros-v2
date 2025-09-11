@@ -266,7 +266,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             supportedDK
         );
 
-        _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50, false);
+        _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50);
 
         uint256[] memory children = core.getCourtChildren(2);
         assertEq(children.length, 0, "No children");
@@ -356,7 +356,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
         );
 
-        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50, false);
+        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50);
         _assertTimesPerPeriod(GENERAL_COURT, [uint256(10), uint256(20), uint256(30), uint256(40)]);
     }
 

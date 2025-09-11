@@ -23,6 +23,7 @@ import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/K
 
 /// @title KlerosCore_TestBase
 /// @dev Abstract base contract for KlerosCore tests containing shared setup and utilities
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 abstract contract KlerosCore_TestBase is Test {
     event Initialized(uint64 version);
 
@@ -223,17 +224,15 @@ abstract contract KlerosCore_TestBase is Test {
         uint256 expectedMinStake,
         uint256 expectedAlpha,
         uint256 expectedFeeForJuror,
-        uint256 expectedJurorsForJump,
-        bool expectedDisabled
-    ) internal {
+        uint256 expectedJurorsForJump
+    ) internal view {
         (
             uint96 courtParent,
             bool courtHiddenVotes,
             uint256 courtMinStake,
             uint256 courtAlpha,
             uint256 courtFeeForJuror,
-            uint256 courtJurorsForCourtJump,
-            bool courtDisabled
+            uint256 courtJurorsForCourtJump
         ) = core.courts(courtId);
 
         assertEq(courtParent, expectedParent, "Wrong court parent");
@@ -242,11 +241,10 @@ abstract contract KlerosCore_TestBase is Test {
         assertEq(courtAlpha, expectedAlpha, "Wrong alpha value");
         assertEq(courtFeeForJuror, expectedFeeForJuror, "Wrong feeForJuror value");
         assertEq(courtJurorsForCourtJump, expectedJurorsForJump, "Wrong jurorsForCourtJump value");
-        assertEq(courtDisabled, expectedDisabled, "Wrong disabled state");
     }
 
     /// @dev Helper function to check times per period
-    function _assertTimesPerPeriod(uint96 courtId, uint256[4] memory expectedTimes) internal {
+    function _assertTimesPerPeriod(uint96 courtId, uint256[4] memory expectedTimes) internal view {
         uint256[4] memory courtTimesPerPeriod = core.getTimesPerPeriod(courtId);
         for (uint256 i = 0; i < 4; i++) {
             assertEq(courtTimesPerPeriod[i], expectedTimes[i], "Wrong times per period");

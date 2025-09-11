@@ -11,6 +11,7 @@ import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_ExecutionTest
 /// @dev Tests for KlerosCore execution, rewards, and ruling finalization
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
     function test_execute() public {
         uint256 disputeID = 0;
@@ -98,16 +99,16 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker1, 1000, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 0, -int256(1000), 0, IERC20(address(0)));
+        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 0, 0, -int256(1000), 0, IERC20(address(0))); // penalties
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker2, 0, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, IERC20(address(0)));
+        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, 0, IERC20(address(0))); // penalties but amounts are 0
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker2, 0, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, IERC20(address(0)));
+        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 0, 0, 0, IERC20(address(0))); // penalties but amounts are 0
         core.execute(disputeID, 0, 3); // Do 3 iterations to check penalties first
 
         (uint256 totalStaked, uint256 totalLocked, , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
@@ -123,16 +124,16 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker1, 0, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 0, 0, 0, IERC20(address(0)));
+        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 0, 0, 0, 0, IERC20(address(0))); // rewards but amounts are 0
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker2, 1000, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 500, 0.045 ether, IERC20(address(0)));
+        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 10000, 500, 0.045 ether, IERC20(address(0))); // rewards
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker2, 1000, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 500, 0.045 ether, IERC20(address(0)));
+        emit KlerosCore.TokenAndETHShift(staker2, disputeID, 0, 10000, 10000, 500, 0.045 ether, IERC20(address(0))); // rewards
         core.execute(disputeID, 0, 10); // Finish the iterations. We need only 3 but check that it corrects the count.
 
         (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
@@ -537,9 +538,9 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         // Check only once per penalty and per reward
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 10000, 0, 0, feeToken);
+        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 10000, 0, 0, 0, feeToken); // penalties but amounts are 0
         vm.expectEmit(true, true, true, true);
-        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 10000, 0, 0.06 ether, feeToken);
+        emit KlerosCore.TokenAndETHShift(staker1, disputeID, 0, 10000, 10000, 0, 0.06 ether, feeToken); // rewards
         core.execute(disputeID, 0, 6);
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);

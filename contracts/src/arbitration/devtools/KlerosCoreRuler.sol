@@ -130,16 +130,17 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         address indexed _account,
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _degreeOfCoherency,
-        int256 _pnkAmount,
-        int256 _feeAmount,
+        uint256 _degreeOfCoherencyPnk,
+        uint256 _degreeOfCoherencyFee,
+        int256 _amountPnk,
+        int256 _amountFee,
         IERC20 _feeToken
     );
     event LeftoverRewardSent(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _pnkAmount,
-        uint256 _feeAmount,
+        uint256 _amountPnk,
+        uint256 _amountFee,
         IERC20 _feeToken
     );
     event AutoRuled(
@@ -518,7 +519,16 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);
         }
-        emit TokenAndETHShift(account, _disputeID, _round, 1, int256(0), int256(feeReward), round.feeToken);
+        emit TokenAndETHShift(
+            account,
+            _disputeID,
+            _round,
+            ONE_BASIS_POINT,
+            ONE_BASIS_POINT,
+            int256(0),
+            int256(feeReward),
+            round.feeToken
+        );
     }
 
     /// @dev Executes a specified dispute's ruling.

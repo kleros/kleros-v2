@@ -70,9 +70,9 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     // *              Events               * //
     // ************************************* //
 
-    /// @dev To be raised when a moderated evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
+    /// @notice To be raised when a moderated evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
     /// @param _arbitrator The arbitrator of the contract.
-    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
+    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsibility to submit the right evidence group ID.
     /// @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
     /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     event ModeratedEvidence(
@@ -82,7 +82,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         string _evidence
     );
 
-    /// @dev Indicate that a party has to pay a fee or would otherwise be considered as losing.
+    /// @notice Indicate that a party has to pay a fee or would otherwise be considered as losing.
     /// @param _evidenceID The ID of the evidence being moderated.
     /// @param _currentWinner The party who is currently winning.
     event ModerationStatusChanged(bytes32 indexed _evidenceID, Party _currentWinner);
@@ -91,7 +91,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor.
+    /// @notice Constructor.
     /// @param _arbitrator The trusted arbitrator to resolve potential disputes.
     /// @param _owner The trusted owner of the contract.
     /// @param _totalCostMultiplier Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
@@ -132,32 +132,32 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Change the owner of the contract.
+    /// @notice Change the owner of the contract.
     /// @param _owner The address of the new owner.
     function changeOwner(address _owner) external onlyOwner {
         owner = _owner;
     }
 
-    /// @dev Change the proportion of arbitration fees that must be paid as fee stake by parties when there is no winner or loser (e.g. when the arbitrator refused to rule).
+    /// @notice Change the proportion of arbitration fees that must be paid as fee stake by parties when there is no winner or loser (e.g. when the arbitrator refused to rule).
     /// @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
     function changeInitialDepositMultiplier(uint256 _initialDepositMultiplier) external onlyOwner {
         initialDepositMultiplier = _initialDepositMultiplier;
     }
 
-    /// @dev Change the proportion of arbitration fees that must be paid as fee stake by the winner of the previous round.
+    /// @notice Change the proportion of arbitration fees that must be paid as fee stake by the winner of the previous round.
     /// @param _totalCostMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
     function changeTotalCostMultiplier(uint256 _totalCostMultiplier) external onlyOwner {
         totalCostMultiplier = _totalCostMultiplier;
     }
 
-    /// @dev Change the time window within which evidence submissions and removals can be contested.
+    /// @notice Change the time window within which evidence submissions and removals can be contested.
     /// Ongoing moderations will start using the latest bondTimeout available after calling moderate() again.
     /// @param _bondTimeout Multiplier of arbitration fees that must be paid as fee stake. In basis points.
     function changeBondTimeout(uint256 _bondTimeout) external onlyOwner {
         bondTimeout = _bondTimeout;
     }
 
-    /// @dev Update the dispute template data.
+    /// @notice Update the dispute template data.
     /// @param _templateData The new dispute template data.
     function changeDisputeTemplate(
         string calldata _templateData,
@@ -173,7 +173,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         );
     }
 
-    /// @dev Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.
+    /// @notice Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.
     /// @param _arbitratorExtraData The extra data used by the new arbitrator.
     function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyOwner {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
@@ -189,8 +189,8 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Submits evidence.
-    /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
+    /// @notice Submits evidence.
+    /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsibility to submit the right evidence group ID.
     /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external payable {
         // Optimization opportunity: map evidenceID to an incremental index that can be safely assumed to be less than a small uint.
@@ -217,7 +217,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         emit ModeratedEvidence(arbitrator, _evidenceGroupID, msg.sender, _evidence);
     }
 
-    /// @dev Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
+    /// @notice Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
     /// Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _side (only for optimistic rollups).
     /// @param _evidenceID Unique identifier of the evidence submission.
     /// @param _side The side to contribute to.
@@ -269,8 +269,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
                 arbitrator,
                 evidenceData.disputeID,
                 uint256(_evidenceID),
-                arbitratorData.disputeTemplateId,
-                ""
+                arbitratorData.disputeTemplateId
             );
             evidenceData.disputed = true;
             moderation.bondDeadline = 0;
@@ -282,7 +281,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         emit ModerationStatusChanged(_evidenceID, moderation.currentWinner);
     }
 
-    /// @dev Resolves a moderation event once the timeout has passed.
+    /// @notice Resolves a moderation event once the timeout has passed.
     /// @param _evidenceID Unique identifier of the evidence submission.
     function resolveModerationMarket(bytes32 _evidenceID) external {
         // Moderation market resolutions are not final.
@@ -298,7 +297,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         evidenceData.ruling = moderation.currentWinner;
     }
 
-    /// @dev Make a fee contribution.
+    /// @notice Make a fee contribution.
     /// @param _moderation The moderation to contribute to.
     /// @param _side The side to contribute to.
     /// @param _contributor The contributor.
@@ -327,7 +326,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         return contribution;
     }
 
-    /// @dev Returns the contribution value and remainder from available ETH and required amount.
+    /// @notice Returns the contribution value and remainder from available ETH and required amount.
     /// @param _available The amount of ETH available for the contribution.
     /// @param _requiredAmount The amount of ETH required for the contribution.
     /// @return taken The amount of ETH taken.
@@ -342,9 +341,11 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         return (_requiredAmount, remainder);
     }
 
-    /// @dev Withdraws contributions of moderations. Reimburses contributions if the appeal was not fully funded.
-    /// If the appeal was fully funded, sends the fee stake rewards and reimbursements proportional to the contributions made to the winner of a dispute.
+    /// @notice Withdraws contributions of moderations. Reimburses contributions if the appeal was not fully funded.
+    ///
+    /// @dev If the appeal was fully funded, sends the fee stake rewards and reimbursements proportional to the contributions made to the winner of a dispute.
     /// Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _moderationID (only for optimistic rollups).
+    ///
     /// @param _beneficiary The address that made contributions.
     /// @param _evidenceID The ID of the associated evidence submission.
     /// @param _moderationID The ID of the moderatino occurence.
@@ -379,10 +380,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         _beneficiary.send(reward); // It is the user responsibility to accept ETH.
     }
 
-    /// @dev Give a ruling for a dispute. Must be called by the arbitrator to enforce the final ruling.
-    /// The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
-    /// @param _disputeID ID of the dispute in the Arbitrator contract.
-    /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
+    /// @inheritdoc IArbitrableV2
     function rule(uint256 _disputeID, uint256 _ruling) public override {
         bytes32 evidenceID = disputeIDtoEvidenceID[_disputeID];
         EvidenceData storage evidenceData = evidences[evidenceID];
@@ -405,7 +403,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Gets the number of moderation events of the specific evidence submission.
+    /// @notice Gets the number of moderation events of the specific evidence submission.
     /// @param _evidenceID The ID of the evidence submission.
     /// @return The number of moderations.
     function getNumberOfModerations(bytes32 _evidenceID) external view returns (uint256) {
@@ -413,7 +411,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         return evidenceData.moderations.length;
     }
 
-    /// @dev Gets the contributions made by a party for a given moderation.
+    /// @notice Gets the contributions made by a party for a given moderation.
     /// @param _evidenceID The ID of the evidence submission.
     /// @param _moderationID The ID of the moderation occurence.
     /// @param _contributor The address of the contributor.
@@ -428,7 +426,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         contributions = moderation.contributions[_contributor];
     }
 
-    /// @dev Gets the information of a moderation event.
+    /// @notice Gets the information of a moderation event.
     /// @param _evidenceID The ID of the evidence submission.
     /// @param _moderationID The ID of the moderation occurence.
     /// @return paidFees currentWinner feeRewards The moderation information.
@@ -441,7 +439,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         return (moderation.paidFees, moderation.currentWinner, moderation.feeRewards);
     }
 
-    /// @dev Gets the last arbitrator data index, which is used for current new submissions.
+    /// @notice Gets the last arbitrator data index, which is used for current new submissions.
     /// @return The last arbitrator data index.
     function getCurrentArbitratorIndex() external view returns (uint256) {
         return arbitratorDataList.length - 1;
