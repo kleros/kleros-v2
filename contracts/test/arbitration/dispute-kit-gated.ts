@@ -123,7 +123,7 @@ describe("DisputeKitGated", async () => {
     const extraData = encodeExtraData(courtId, minJurors, disputeKitId, tokenGate, isERC1155, tokenId);
     // console.log("extraData", extraData);
 
-    const tokenInfo = await disputeKitGated.extraDataToTokenInfo(extraData);
+    const tokenInfo = await disputeKitGated._extraDataToTokenInfo(extraData);
     expect(tokenInfo[0]).to.equal(tokenGate);
     expect(tokenInfo[1]).to.equal(isERC1155);
     expect(tokenInfo[2]).to.equal(tokenId);

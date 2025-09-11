@@ -209,7 +209,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// @return tokenGate The address of the token contract used for gating access.
     /// @return isERC1155 True if the token is an ERC-1155, false for ERC-20/ERC-721.
     /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).
-    function _extraDataToTokenInfo(
+    function __extraDataToTokenInfo(
         bytes memory _extraData
     ) internal pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
         // Need at least 160 bytes to safely read the parameters
@@ -237,7 +237,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         // Get the local dispute and extract token info from extraData
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
-        (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
+        (address tokenGate, bool isERC1155, uint256 tokenId) = __extraDataToTokenInfo(dispute.extraData);
 
         // If no token gate is specified, allow all jurors
         if (tokenGate == address(0)) return true;
