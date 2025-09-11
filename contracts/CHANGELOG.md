@@ -8,6 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
+- **Breaking:** Rename `KlerosCore.TokenAndETHShift` into `KlerosCore.JurorRewardPenalty` ([#2136](https://github.com/kleros/kleros-v2/issues/2136))
 - **Breaking:** Add event parameter `KlerosCore.TokenAndETHShift._degreeOfCoherencyFee` and renamed the other parameters to `_degreeOfCoherencyPnk`, `_amountPnk`, `_amountFee` ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
 - **Breaking:** Move state variable `DisputeKitClassicBase.nbVotes` to the `Round` struct ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
 - **Breaking:** Stake the juror's PNK rewards instead of transferring them out ([#2099](https://github.com/kleros/kleros-v2/issues/2099))
