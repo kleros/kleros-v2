@@ -267,7 +267,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currentCourtID, , , , , , ) = core.courts(currentCourtID);
+                (currentCourtID, , , , , ) = core.courts(currentCourtID);
                 // currentCourtID = courts.get(currentCourtID).parent;
             }
         }
