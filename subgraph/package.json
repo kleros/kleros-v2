@@ -69,13 +69,13 @@
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
   "volta": {
-    "node": "20.18.3"
+    "node": "20.19.5"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.38.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.96.0",
+    "@graphprotocol/graph-cli": "^0.97.0",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "eslint": "^9.15.0",
