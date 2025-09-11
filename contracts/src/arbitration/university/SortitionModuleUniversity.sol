@@ -3,6 +3,7 @@
 pragma solidity ^0.8.24;
 
 import "./KlerosCoreUniversity.sol";
+import "../CourtRegistry.sol";
 import "./ISortitionModuleUniversity.sol";
 import "../interfaces/IDisputeKit.sol";
 import "../../proxy/UUPSProxiable.sol";
@@ -258,6 +259,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
 
         bool finished = false;
         uint96 currentCourtID = _courtID;
+        // CourtRegistry courts = core.courts();
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             juror.stakesByCourtID[currentCourtID] += _newStake;
@@ -265,7 +267,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currentCourtID, , , , , ) = core.courts(currentCourtID);
+                (currentCourtID, , , , , , ) = core.courts(currentCourtID);
+                // currentCourtID = courts.get(currentCourtID).parent;
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);

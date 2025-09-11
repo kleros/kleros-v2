@@ -3,6 +3,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore} from "./KlerosCore.sol";
+import {CourtRegistry} from "./CourtRegistry.sol";
 import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {Initializable} from "../proxy/Initializable.sol";
@@ -402,6 +403,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         bytes32 stakePathID = SortitionTrees.toStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currentCourtID = _courtID;
+        CourtRegistry courts = core.courts();
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             TreeKey key = CourtID.wrap(currentCourtID).toTreeKey();
@@ -409,7 +411,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currentCourtID, , , , , ) = core.courts(currentCourtID); // Get the parent court.
+                currentCourtID = courts.get(currentCourtID).parent; // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
