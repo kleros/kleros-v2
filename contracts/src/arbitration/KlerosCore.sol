@@ -925,17 +925,19 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             penalizedInCourtID,
             penalty
         );
-        _params.pnkPenaltiesInRound += availablePenalty;
-        emit TokenAndETHShift(
-            account,
-            _params.disputeID,
-            _params.round,
-            coherence,
-            0,
-            -int256(availablePenalty),
-            0,
-            round.feeToken
-        );
+        if (availablePenalty != 0) {
+            _params.pnkPenaltiesInRound += availablePenalty;
+            emit TokenAndETHShift(
+                account,
+                _params.disputeID,
+                _params.round,
+                coherence,
+                0,
+                -int256(availablePenalty),
+                0,
+                round.feeToken
+            );
+        }
 
         if (pnkBalance == 0 || !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
             // The juror is inactive or their balance is can't cover penalties anymore, unstake them from all courts.
@@ -996,24 +998,28 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 feeReward = _applyCoherence(round.totalFeesForJurors / _params.coherentCount, feeCoherence);
         round.sumFeeRewardPaid += feeReward;
 
-        // Transfer the fee reward
-        _transferFeeToken(round.feeToken, payable(account), feeReward);
-
-        // Stake the PNK reward if possible, bypasses delayed stakes and other checks done by validateStake()
-        if (!sortitionModule.setStakeReward(account, dispute.courtID, pnkReward)) {
-            pinakion.safeTransfer(account, pnkReward);
+        if (feeReward != 0) {
+            // Transfer the fee reward
+            _transferFeeToken(round.feeToken, payable(account), feeReward);
         }
-
-        emit TokenAndETHShift(
-            account,
-            _params.disputeID,
-            _params.round,
-            pnkCoherence,
-            feeCoherence,
-            int256(pnkReward),
-            int256(feeReward),
-            round.feeToken
-        );
+        if (pnkReward != 0) {
+            // Stake the PNK reward if possible, bypasses delayed stakes and other checks done by validateStake()
+            if (!sortitionModule.setStakeReward(account, dispute.courtID, pnkReward)) {
+                pinakion.safeTransfer(account, pnkReward);
+            }
+        }
+        if (pnkReward != 0 || feeReward != 0) {
+            emit TokenAndETHShift(
+                account,
+                _params.disputeID,
+                _params.round,
+                pnkCoherence,
+                feeCoherence,
+                int256(pnkReward),
+                int256(feeReward),
+                round.feeToken
+            );
+        }
 
         // Transfer any residual rewards to the owner. It may happen due to partial coherence of the jurors.
         if (_params.repartition == _params.numberOfVotesInRound * 2 - 1) {
