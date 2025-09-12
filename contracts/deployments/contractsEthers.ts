@@ -18,6 +18,7 @@ import {
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
+  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
@@ -206,7 +207,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
         {
           dkClassicConfig: devnetDkClassicUniversityConfig,
           drConfig: devnetDrUniversityConfig,
-          dtrConfig: devnetDtrConfig,
+          dtrConfig: devnetDtrUniversityConfig,
           evidenceConfig: devnetEvidenceConfig,
           policyRegistryConfig: devnetPolicyRegistryConfig,
           batcherConfig: devnetBatcherConfig,

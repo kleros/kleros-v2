@@ -19,6 +19,7 @@ import {
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
+  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
@@ -172,7 +173,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         sortition: getContractConfig({ config: devnetSortitionUniversityConfig, chainId }),
         disputeKitClassic: getContractConfig({ config: devnetDkClassicUniversityConfig, chainId }),
         disputeResolver: getContractConfig({ config: devnetDrUniversityConfig, chainId }),
-        disputeTemplateRegistry: getContractConfig({ config: devnetDtrConfig, chainId }), // FIXME: should not be shared with devnet
+        disputeTemplateRegistry: getContractConfig({ config: devnetDtrUniversityConfig, chainId }),
         evidence: getContractConfig({ config: devnetEvidenceConfig, chainId }), // Not arbitrator specific
         policyRegistry: getContractConfig({ config: devnetPolicyRegistryConfig, chainId }), // Not arbitrator specific
         transactionBatcher: getContractConfig({ config: devnetBatcherConfig, chainId }), // Not arbitrator specific
