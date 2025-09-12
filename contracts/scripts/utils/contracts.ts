@@ -41,6 +41,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutter",
       disputeKitGated: "DisputeKitGated",
       disputeKitGatedShutter: "DisputeKitGatedShutter",
+      disputeTemplateRegistry: "DisputeTemplateRegistry",
       disputeResolver: "DisputeResolver",
     },
     [Cores.UNIVERSITY]: {
@@ -50,6 +51,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutterUniversity",
       disputeKitGated: "DisputeKitGatedUniversity",
       disputeKitGatedShutter: "DisputeKitGatedShutterUniversity",
+      disputeTemplateRegistry: "DisputeTemplateRegistryUniversity",
       disputeResolver: "DisputeResolverUniversity",
     },
   };
@@ -59,7 +61,6 @@ export const getContractNames = (coreType: Core) => {
   return {
     ...coreSpecificNames[coreType],
     evidence: "EvidenceModule",
-    disputeTemplateRegistry: "DisputeTemplateRegistry",
     policyRegistry: "PolicyRegistry",
     batcher: "TransactionBatcher",
     chainlinkRng: "ChainlinkRNG",

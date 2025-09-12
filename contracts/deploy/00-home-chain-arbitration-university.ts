@@ -24,10 +24,19 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
+  await deployUpgradable(deployments, "DisputeTemplateRegistryUniversity", {
+    from: deployer,
+    contract: "DisputeTemplateRegistry",
+    args: [deployer],
+    log: true,
+  });
+
+  return;
+
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, ZeroAddress, weth.target],
+    args: [deployer, ZeroAddress, weth.target, 1],
     log: true,
   });
 

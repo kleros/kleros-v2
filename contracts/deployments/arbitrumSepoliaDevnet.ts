@@ -4221,7 +4221,7 @@ export default {
       ],
     },
     DisputeKitClassicUniversity: {
-      address: "0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5",
+      address: "0x82F2089442979A6b56c80274D144575980092F91",
       abi: [
         {
           stateMutability: "payable",
@@ -4238,7 +4238,57 @@ export default {
         },
         {
           inputs: [],
+          name: "AppealFeeIsAlreadyPaid",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "AppealPeriodIsOver",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "AppealPeriodIsOverForLoser",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ChoiceOutOfBounds",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "CoreIsPaused",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DisputeJumpedToParentDK",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DisputeNotResolved",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "EmptyCommit",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "EmptyVoteIDs",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "HashDoesNotMatchHiddenVoteCommitment",
           type: "error",
         },
         {
@@ -4254,7 +4304,37 @@ export default {
         },
         {
           inputs: [],
+          name: "JurorHasToOwnTheVote",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "KlerosCoreOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotActiveForCoreDisputeID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotCommitPeriod",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotVotePeriod",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOnly",
           type: "error",
         },
         {
@@ -4271,6 +4351,16 @@ export default {
             },
           ],
           name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UnsuccessfulCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "VoteAlreadyCast",
           type: "error",
         },
         {
@@ -4519,19 +4609,6 @@ export default {
         },
         {
           inputs: [],
-          name: "ONE_BASIS_POINT",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
           name: "WINNER_STAKE_MULTIPLIER",
           outputs: [
             {
@@ -4653,12 +4730,25 @@ export default {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "_jumpDisputeKitID",
+              type: "uint256",
+            },
+          ],
+          name: "changeJumpDisputeKitID",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address payable",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
           ],
-          name: "changeGovernor",
+          name: "changeOwner",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -4671,6 +4761,25 @@ export default {
               internalType: "contract KlerosCore",
               name: "",
               type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
             },
           ],
           stateMutability: "view",
@@ -4714,7 +4823,7 @@ export default {
             },
             {
               internalType: "uint256",
-              name: "_nbVotes",
+              name: "",
               type: "uint256",
             },
           ],
@@ -4801,8 +4910,32 @@ export default {
               name: "drawnAddress",
               type: "address",
             },
+            {
+              internalType: "uint96",
+              name: "fromSubcourtID",
+              type: "uint96",
+            },
           ],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "earlyCourtJump",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "pure",
           type: "function",
         },
         {
@@ -4823,7 +4956,7 @@ export default {
               type: "bytes",
             },
           ],
-          name: "executeGovernorProposal",
+          name: "executeOwnerProposal",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -4898,11 +5031,55 @@ export default {
               type: "uint256",
             },
           ],
-          name: "getDegreeOfCoherence",
+          name: "getDegreeOfCoherencePenalty",
           outputs: [
             {
               internalType: "uint256",
+              name: "pnkCoherence",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
               name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherenceReward",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkCoherence",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "feeCoherence",
               type: "uint256",
             },
           ],
@@ -4923,6 +5100,91 @@ export default {
               internalType: "uint256[]",
               name: "fundedChoices",
               type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getJumpDisputeKitID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IDisputeKit",
+              name: "",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_currentNbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "getNbVotesAfterAppeal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -4965,7 +5227,7 @@ export default {
             },
             {
               internalType: "uint256",
-              name: "totalCommited",
+              name: "totalCommitted",
               type: "uint256",
             },
             {
@@ -5027,13 +5289,29 @@ export default {
           type: "function",
         },
         {
-          inputs: [],
-          name: "governor",
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
           outputs: [
             {
-              internalType: "address",
+              internalType: "bytes32",
               name: "",
-              type: "address",
+              type: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -5043,7 +5321,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
             {
@@ -5051,10 +5329,39 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_jumpDisputeKitID",
+              type: "uint256",
+            },
           ],
           name: "initialize",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -5088,12 +5395,51 @@ export default {
         },
         {
           inputs: [],
+          name: "jumpDisputeKitID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "proxiableUUID",
           outputs: [
             {
               internalType: "bytes32",
               name: "",
               type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
             },
           ],
           stateMutability: "view",
@@ -5115,6 +5461,32 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -5170,7 +5542,7 @@ export default {
       ],
     },
     DisputeKitClassicUniversity_Implementation: {
-      address: "0x87e863b94d2CB79A8aB53bD87Dc4A10E11C0918B",
+      address: "0x602ADa1cE706404BFb5417e497cdDae934436081",
       abi: [
         {
           inputs: [],
@@ -5184,7 +5556,57 @@ export default {
         },
         {
           inputs: [],
+          name: "AppealFeeIsAlreadyPaid",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "AppealPeriodIsOver",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "AppealPeriodIsOverForLoser",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ChoiceOutOfBounds",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "CoreIsPaused",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DisputeJumpedToParentDK",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DisputeNotResolved",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "EmptyCommit",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "EmptyVoteIDs",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "HashDoesNotMatchHiddenVoteCommitment",
           type: "error",
         },
         {
@@ -5200,7 +5622,37 @@ export default {
         },
         {
           inputs: [],
+          name: "JurorHasToOwnTheVote",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "KlerosCoreOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotActiveForCoreDisputeID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotCommitPeriod",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotVotePeriod",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOnly",
           type: "error",
         },
         {
@@ -5217,6 +5669,16 @@ export default {
             },
           ],
           name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UnsuccessfulCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "VoteAlreadyCast",
           type: "error",
         },
         {
@@ -5465,19 +5927,6 @@ export default {
         },
         {
           inputs: [],
-          name: "ONE_BASIS_POINT",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
           name: "WINNER_STAKE_MULTIPLIER",
           outputs: [
             {
@@ -5599,12 +6048,25 @@ export default {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "_jumpDisputeKitID",
+              type: "uint256",
+            },
+          ],
+          name: "changeJumpDisputeKitID",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address payable",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
           ],
-          name: "changeGovernor",
+          name: "changeOwner",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -5617,6 +6079,25 @@ export default {
               internalType: "contract KlerosCore",
               name: "",
               type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "coreDisputeIDToActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
             },
           ],
           stateMutability: "view",
@@ -5660,7 +6141,7 @@ export default {
             },
             {
               internalType: "uint256",
-              name: "_nbVotes",
+              name: "",
               type: "uint256",
             },
           ],
@@ -5747,8 +6228,32 @@ export default {
               name: "drawnAddress",
               type: "address",
             },
+            {
+              internalType: "uint96",
+              name: "fromSubcourtID",
+              type: "uint96",
+            },
           ],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "earlyCourtJump",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "pure",
           type: "function",
         },
         {
@@ -5769,7 +6274,7 @@ export default {
               type: "bytes",
             },
           ],
-          name: "executeGovernorProposal",
+          name: "executeOwnerProposal",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -5844,11 +6349,55 @@ export default {
               type: "uint256",
             },
           ],
-          name: "getDegreeOfCoherence",
+          name: "getDegreeOfCoherencePenalty",
           outputs: [
             {
               internalType: "uint256",
+              name: "pnkCoherence",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
               name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "getDegreeOfCoherenceReward",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkCoherence",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "feeCoherence",
               type: "uint256",
             },
           ],
@@ -5869,6 +6418,91 @@ export default {
               internalType: "uint256[]",
               name: "fundedChoices",
               type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getJumpDisputeKitID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_coreRoundID",
+              type: "uint256",
+            },
+          ],
+          name: "getLocalDisputeRoundID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "localDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "localRoundID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IDisputeKit",
+              name: "",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_currentNbVotes",
+              type: "uint256",
+            },
+          ],
+          name: "getNbVotesAfterAppeal",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_localDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -5911,7 +6545,7 @@ export default {
             },
             {
               internalType: "uint256",
-              name: "totalCommited",
+              name: "totalCommitted",
               type: "uint256",
             },
             {
@@ -5973,13 +6607,29 @@ export default {
           type: "function",
         },
         {
-          inputs: [],
-          name: "governor",
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_choice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_salt",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          name: "hashVote",
           outputs: [
             {
-              internalType: "address",
+              internalType: "bytes32",
               name: "",
-              type: "address",
+              type: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -5989,7 +6639,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
             {
@@ -5997,10 +6647,39 @@ export default {
               name: "_core",
               type: "address",
             },
+            {
+              internalType: "address",
+              name: "_wNative",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_jumpDisputeKitID",
+              type: "uint256",
+            },
           ],
           name: "initialize",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_coreDisputeID",
+              type: "uint256",
+            },
+          ],
+          name: "isAppealFunded",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -6034,12 +6713,51 @@ export default {
         },
         {
           inputs: [],
+          name: "jumpDisputeKitID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "proxiableUUID",
           outputs: [
             {
               internalType: "bytes32",
               name: "",
               type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "singleDrawPerJuror",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
             },
           ],
           stateMutability: "view",
@@ -6061,6 +6779,32 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "wNative",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -6100,7 +6844,7 @@ export default {
       ],
     },
     DisputeKitClassicUniversity_Proxy: {
-      address: "0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5",
+      address: "0x82F2089442979A6b56c80274D144575980092F91",
       abi: [
         {
           inputs: [
@@ -15279,7 +16023,7 @@ export default {
       ],
     },
     DisputeResolverUniversity: {
-      address: "0x2Aa1a94307E772BeE42E9EfbD137b1053F1fCfd4",
+      address: "0x8a7902Ef9a5308C7DF0A68A28EEDd6D83436993D",
       abi: [
         {
           inputs: [
@@ -15296,6 +16040,31 @@ export default {
           ],
           stateMutability: "nonpayable",
           type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "ArbitratorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DisputeAlreadyRuled",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RulingOutOfBounds",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ShouldBeAtLeastTwoRulingOptions",
+          type: "error",
         },
         {
           anonymous: false,
@@ -15323,12 +16092,6 @@ export default {
               internalType: "uint256",
               name: "_templateId",
               type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "_templateUri",
-              type: "string",
             },
           ],
           name: "DisputeRequest",
@@ -15408,11 +16171,11 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
           ],
-          name: "changeGovernor",
+          name: "changeOwner",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -15467,35 +16230,6 @@ export default {
         {
           inputs: [
             {
-              internalType: "bytes",
-              name: "_arbitratorExtraData",
-              type: "bytes",
-            },
-            {
-              internalType: "string",
-              name: "_disputeTemplateUri",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "_numberOfRulingOptions",
-              type: "uint256",
-            },
-          ],
-          name: "createDisputeForTemplateUri",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "disputeID",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
               internalType: "uint256",
               name: "",
               type: "uint256",
@@ -15529,7 +16263,7 @@ export default {
         },
         {
           inputs: [],
-          name: "governor",
+          name: "owner",
           outputs: [
             {
               internalType: "address",
@@ -15830,6 +16564,532 @@ export default {
           ],
           stateMutability: "nonpayable",
           type: "constructor",
+        },
+      ],
+    },
+    DisputeTemplateRegistryUniversity: {
+      address: "0x75A5D16e9A699162506E4d79D68CF646e6600ba1",
+      abi: [
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_templateId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "string",
+              name: "_templateTag",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_templateData",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_templateDataMappings",
+              type: "string",
+            },
+          ],
+          name: "DisputeTemplate",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_owner",
+              type: "address",
+            },
+          ],
+          name: "changeOwner",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_owner",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_templateTag",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_templateData",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_templateDataMappings",
+              type: "string",
+            },
+          ],
+          name: "setDisputeTemplate",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "templateId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "templates",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+      ],
+    },
+    DisputeTemplateRegistryUniversity_Implementation: {
+      address: "0xC3f638389635bF33E019c845FdaF2ed9bca3DF67",
+      abi: [
+        {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_templateId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "string",
+              name: "_templateTag",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_templateData",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_templateDataMappings",
+              type: "string",
+            },
+          ],
+          name: "DisputeTemplate",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_owner",
+              type: "address",
+            },
+          ],
+          name: "changeOwner",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_owner",
+              type: "address",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_templateTag",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_templateData",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_templateDataMappings",
+              type: "string",
+            },
+          ],
+          name: "setDisputeTemplate",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "templateId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "templates",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
+    DisputeTemplateRegistryUniversity_Proxy: {
+      address: "0x75A5D16e9A699162506E4d79D68CF646e6600ba1",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
         },
       ],
     },
@@ -21727,7 +22987,7 @@ export default {
       ],
     },
     KlerosCoreUniversity: {
-      address: "0x5AB37F38778Bc175852fA353056591D91c744ce6",
+      address: "0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f",
       abi: [
         {
           stateMutability: "payable",
@@ -21764,22 +23024,12 @@ export default {
         },
         {
           inputs: [],
-          name: "ArraysLengthMismatch",
-          type: "error",
-        },
-        {
-          inputs: [],
           name: "CannotDisableClassicDK",
           type: "error",
         },
         {
           inputs: [],
           name: "CommitPeriodNotPassed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "DepthLevelMax",
           type: "error",
         },
         {
@@ -21815,16 +23065,6 @@ export default {
         {
           inputs: [],
           name: "FailedDelegateCall",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "GovernorOnly",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "GovernorOrInstructorOnly",
           type: "error",
         },
         {
@@ -21885,6 +23125,16 @@ export default {
         },
         {
           inputs: [],
+          name: "OwnerOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOrInstructorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "RulingAlreadyExecuted",
           type: "error",
         },
@@ -21905,12 +23155,17 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingNotPossibeInThisCourt",
+          name: "StakingNotPossibleInThisCourt",
           type: "error",
         },
         {
           inputs: [],
           name: "StakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingZeroWhenNoStake",
           type: "error",
         },
         {
@@ -22026,9 +23281,9 @@ export default {
           inputs: [
             {
               indexed: true,
-              internalType: "uint256",
+              internalType: "uint96",
               name: "_courtID",
-              type: "uint256",
+              type: "uint96",
             },
             {
               indexed: true,
@@ -22305,6 +23560,12 @@ export default {
           inputs: [
             {
               indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: true,
               internalType: "uint256",
               name: "_disputeID",
               type: "uint256",
@@ -22318,13 +23579,62 @@ export default {
             {
               indexed: false,
               internalType: "uint256",
-              name: "_pnkAmount",
+              name: "_degreeOfCoherencyPnk",
               type: "uint256",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "_feeAmount",
+              name: "_degreeOfCoherencyFee",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_amountPnk",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_amountFee",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "JurorRewardPenalty",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountPnk",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountFee",
               type: "uint256",
             },
             {
@@ -22404,55 +23714,6 @@ export default {
             },
           ],
           name: "Ruling",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "_account",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_disputeID",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_roundID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_degreeOfCoherency",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "int256",
-              name: "_pnkAmount",
-              type: "int256",
-            },
-            {
-              indexed: false,
-              internalType: "int256",
-              name: "_feeAmount",
-              type: "int256",
-            },
-            {
-              indexed: false,
-              internalType: "contract IERC20",
-              name: "_feeToken",
-              type: "address",
-            },
-          ],
-          name: "TokenAndETHShift",
           type: "event",
         },
         {
@@ -22677,19 +23938,6 @@ export default {
         {
           inputs: [
             {
-              internalType: "address payable",
-              name: "_governor",
-              type: "address",
-            },
-          ],
-          name: "changeGovernor",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
               internalType: "address",
               name: "_instructor",
               type: "address",
@@ -22709,6 +23957,19 @@ export default {
             },
           ],
           name: "changeJurorProsecutionModule",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_owner",
+              type: "address",
+            },
+          ],
+          name: "changeOwner",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -22802,11 +24063,6 @@ export default {
               internalType: "uint256",
               name: "jurorsForCourtJump",
               type: "uint256",
-            },
-            {
-              internalType: "bool",
-              name: "disabled",
-              type: "bool",
             },
           ],
           stateMutability: "view",
@@ -23116,7 +24372,7 @@ export default {
               type: "bytes",
             },
           ],
-          name: "executeGovernorProposal",
+          name: "executeOwnerProposal",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -23198,6 +24454,30 @@ export default {
               type: "uint256",
             },
           ],
+          name: "getPnkAtStakePerJuror",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
           name: "getRoundInfo",
           outputs: [
             {
@@ -23238,6 +24518,11 @@ export default {
                   type: "address[]",
                 },
                 {
+                  internalType: "uint96[]",
+                  name: "drawnJurorFromCourtIDs",
+                  type: "uint96[]",
+                },
+                {
                   internalType: "uint256",
                   name: "sumFeeRewardPaid",
                   type: "uint256",
@@ -23256,6 +24541,11 @@ export default {
                   internalType: "uint256",
                   name: "drawIterations",
                   type: "uint256",
+                },
+                {
+                  internalType: "uint256[10]",
+                  name: "__gap",
+                  type: "uint256[10]",
                 },
               ],
               internalType: "struct KlerosCoreUniversity.Round",
@@ -23286,23 +24576,10 @@ export default {
           type: "function",
         },
         {
-          inputs: [],
-          name: "governor",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "address",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
             {
@@ -23421,6 +24698,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -23494,11 +24784,6 @@ export default {
               name: "_newStake",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
           name: "setStakeBySortitionModule",
           outputs: [],
@@ -23522,6 +24807,24 @@ export default {
           inputs: [
             {
               internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "transferBySortitionModule",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
               name: "newImplementation",
               type: "address",
             },
@@ -23534,6 +24837,19 @@ export default {
           name: "upgradeToAndCall",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -23555,7 +24871,7 @@ export default {
       ],
     },
     KlerosCoreUniversity_Implementation: {
-      address: "0xF74DaBfC5F5dbdBD07636637204d9C35326D2906",
+      address: "0xb75b0cc01af4aD0D65D50082ae0717004D479Aa0",
       abi: [
         {
           inputs: [],
@@ -23589,22 +24905,12 @@ export default {
         },
         {
           inputs: [],
-          name: "ArraysLengthMismatch",
-          type: "error",
-        },
-        {
-          inputs: [],
           name: "CannotDisableClassicDK",
           type: "error",
         },
         {
           inputs: [],
           name: "CommitPeriodNotPassed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "DepthLevelMax",
           type: "error",
         },
         {
@@ -23640,16 +24946,6 @@ export default {
         {
           inputs: [],
           name: "FailedDelegateCall",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "GovernorOnly",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "GovernorOrInstructorOnly",
           type: "error",
         },
         {
@@ -23710,6 +25006,16 @@ export default {
         },
         {
           inputs: [],
+          name: "OwnerOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOrInstructorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "RulingAlreadyExecuted",
           type: "error",
         },
@@ -23730,12 +25036,17 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingNotPossibeInThisCourt",
+          name: "StakingNotPossibleInThisCourt",
           type: "error",
         },
         {
           inputs: [],
           name: "StakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingZeroWhenNoStake",
           type: "error",
         },
         {
@@ -23851,9 +25162,9 @@ export default {
           inputs: [
             {
               indexed: true,
-              internalType: "uint256",
+              internalType: "uint96",
               name: "_courtID",
-              type: "uint256",
+              type: "uint96",
             },
             {
               indexed: true,
@@ -24130,6 +25441,12 @@ export default {
           inputs: [
             {
               indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: true,
               internalType: "uint256",
               name: "_disputeID",
               type: "uint256",
@@ -24143,13 +25460,62 @@ export default {
             {
               indexed: false,
               internalType: "uint256",
-              name: "_pnkAmount",
+              name: "_degreeOfCoherencyPnk",
               type: "uint256",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "_feeAmount",
+              name: "_degreeOfCoherencyFee",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_amountPnk",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_amountFee",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "JurorRewardPenalty",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountPnk",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountFee",
               type: "uint256",
             },
             {
@@ -24229,55 +25595,6 @@ export default {
             },
           ],
           name: "Ruling",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "_account",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_disputeID",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_roundID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_degreeOfCoherency",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "int256",
-              name: "_pnkAmount",
-              type: "int256",
-            },
-            {
-              indexed: false,
-              internalType: "int256",
-              name: "_feeAmount",
-              type: "int256",
-            },
-            {
-              indexed: false,
-              internalType: "contract IERC20",
-              name: "_feeToken",
-              type: "address",
-            },
-          ],
-          name: "TokenAndETHShift",
           type: "event",
         },
         {
@@ -24502,19 +25819,6 @@ export default {
         {
           inputs: [
             {
-              internalType: "address payable",
-              name: "_governor",
-              type: "address",
-            },
-          ],
-          name: "changeGovernor",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
               internalType: "address",
               name: "_instructor",
               type: "address",
@@ -24534,6 +25838,19 @@ export default {
             },
           ],
           name: "changeJurorProsecutionModule",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_owner",
+              type: "address",
+            },
+          ],
+          name: "changeOwner",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -24627,11 +25944,6 @@ export default {
               internalType: "uint256",
               name: "jurorsForCourtJump",
               type: "uint256",
-            },
-            {
-              internalType: "bool",
-              name: "disabled",
-              type: "bool",
             },
           ],
           stateMutability: "view",
@@ -24941,7 +26253,7 @@ export default {
               type: "bytes",
             },
           ],
-          name: "executeGovernorProposal",
+          name: "executeOwnerProposal",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -25023,6 +26335,30 @@ export default {
               type: "uint256",
             },
           ],
+          name: "getPnkAtStakePerJuror",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
           name: "getRoundInfo",
           outputs: [
             {
@@ -25063,6 +26399,11 @@ export default {
                   type: "address[]",
                 },
                 {
+                  internalType: "uint96[]",
+                  name: "drawnJurorFromCourtIDs",
+                  type: "uint96[]",
+                },
+                {
                   internalType: "uint256",
                   name: "sumFeeRewardPaid",
                   type: "uint256",
@@ -25081,6 +26422,11 @@ export default {
                   internalType: "uint256",
                   name: "drawIterations",
                   type: "uint256",
+                },
+                {
+                  internalType: "uint256[10]",
+                  name: "__gap",
+                  type: "uint256[10]",
                 },
               ],
               internalType: "struct KlerosCoreUniversity.Round",
@@ -25111,23 +26457,10 @@ export default {
           type: "function",
         },
         {
-          inputs: [],
-          name: "governor",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "address",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
             {
@@ -25246,6 +26579,19 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -25319,11 +26665,6 @@ export default {
               name: "_newStake",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
           name: "setStakeBySortitionModule",
           outputs: [],
@@ -25347,6 +26688,24 @@ export default {
           inputs: [
             {
               internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "transferBySortitionModule",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
               name: "newImplementation",
               type: "address",
             },
@@ -25361,10 +26720,23 @@ export default {
           stateMutability: "payable",
           type: "function",
         },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
       ],
     },
     KlerosCoreUniversity_Proxy: {
-      address: "0x5AB37F38778Bc175852fA353056591D91c744ce6",
+      address: "0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f",
       abi: [
         {
           inputs: [
@@ -30005,7 +31377,7 @@ export default {
       ],
     },
     SortitionModuleUniversity: {
-      address: "0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79",
+      address: "0x9f55804177e7E44E558616cD7d06B865788214cA",
       abi: [
         {
           stateMutability: "payable",
@@ -30038,7 +31410,22 @@ export default {
         },
         {
           inputs: [],
+          name: "KlerosCoreOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotEligibleForWithdrawal",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOnly",
           type: "error",
         },
         {
@@ -30068,6 +31455,44 @@ export default {
             },
           ],
           name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "LeftoverPNK",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "LeftoverPNKWithdrawn",
           type: "event",
         },
         {
@@ -30129,6 +31554,12 @@ export default {
               name: "_amount",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountAllCourts",
+              type: "uint256",
+            },
           ],
           name: "StakeSet",
           type: "event",
@@ -30180,9 +31611,9 @@ export default {
         {
           inputs: [
             {
-              internalType: "bytes32",
-              name: "_key",
-              type: "bytes32",
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
             },
             {
               internalType: "bytes",
@@ -30211,9 +31642,9 @@ export default {
         {
           inputs: [
             {
-              internalType: "bytes32",
+              internalType: "uint96",
               name: "",
-              type: "bytes32",
+              type: "uint96",
             },
             {
               internalType: "uint256",
@@ -30233,8 +31664,57 @@ export default {
               name: "drawnAddress",
               type: "address",
             },
+            {
+              internalType: "uint96",
+              name: "fromSubcourtID",
+              type: "uint96",
+            },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_iterations",
+              type: "uint256",
+            },
+          ],
+          name: "executeDelayedStakes",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+          ],
+          name: "forcedUnstake",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+          ],
+          name: "forcedUnstakeAllCourts",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -30296,13 +31776,19 @@ export default {
           type: "function",
         },
         {
-          inputs: [],
-          name: "governor",
-          outputs: [
+          inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "_juror",
               type: "address",
+            },
+          ],
+          name: "getJurorLeftoverPNK",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -30312,7 +31798,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
             {
@@ -30388,32 +31874,21 @@ export default {
           type: "function",
         },
         {
-          inputs: [
+          inputs: [],
+          name: "owner",
+          outputs: [
             {
-              internalType: "uint256",
-              name: "_randomNumber",
-              type: "uint256",
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
-          name: "notifyRandomNumber",
-          outputs: [],
-          stateMutability: "nonpayable",
+          stateMutability: "view",
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_account",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "_relativeAmount",
-              type: "uint256",
-            },
-          ],
-          name: "penalizeStake",
+          inputs: [],
+          name: "passPhase",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -30456,8 +31931,28 @@ export default {
               name: "_account",
               type: "address",
             },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_newStake",
+              type: "uint256",
+            },
           ],
-          name: "setJurorInactive",
+          name: "setStake",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -30476,31 +31971,55 @@ export default {
             },
             {
               internalType: "uint256",
-              name: "_newStake",
+              name: "_penalty",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
-          name: "setStake",
+          name: "setStakePenalty",
           outputs: [
             {
               internalType: "uint256",
-              name: "pnkDeposit",
+              name: "pnkBalance",
               type: "uint256",
             },
             {
               internalType: "uint256",
-              name: "pnkWithdrawal",
+              name: "newCourtStake",
               type: "uint256",
             },
             {
-              internalType: "enum StakingResult",
-              name: "stakingResult",
-              type: "uint8",
+              internalType: "uint256",
+              name: "availablePenalty",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_reward",
+              type: "uint256",
+            },
+          ],
+          name: "setStakeReward",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "success",
+              type: "bool",
             },
           ],
           stateMutability: "nonpayable",
@@ -30559,6 +32078,76 @@ export default {
           inputs: [
             {
               internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_newStake",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          name: "validateStake",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+          ],
+          name: "withdrawLeftoverPNK",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
               name: "_implementation",
               type: "address",
             },
@@ -30574,7 +32163,7 @@ export default {
       ],
     },
     SortitionModuleUniversity_Implementation: {
-      address: "0x5CAD621D69E0535422aCFaCC0017bC32beC7A486",
+      address: "0x270e3D63d3d275604df0a1Bd312E1255DCd96936",
       abi: [
         {
           inputs: [],
@@ -30604,7 +32193,22 @@ export default {
         },
         {
           inputs: [],
+          name: "KlerosCoreOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotEligibleForWithdrawal",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OwnerOnly",
           type: "error",
         },
         {
@@ -30634,6 +32238,44 @@ export default {
             },
           ],
           name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "LeftoverPNK",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "LeftoverPNKWithdrawn",
           type: "event",
         },
         {
@@ -30695,6 +32337,12 @@ export default {
               name: "_amount",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_amountAllCourts",
+              type: "uint256",
+            },
           ],
           name: "StakeSet",
           type: "event",
@@ -30746,9 +32394,9 @@ export default {
         {
           inputs: [
             {
-              internalType: "bytes32",
-              name: "_key",
-              type: "bytes32",
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
             },
             {
               internalType: "bytes",
@@ -30777,9 +32425,9 @@ export default {
         {
           inputs: [
             {
-              internalType: "bytes32",
+              internalType: "uint96",
               name: "",
-              type: "bytes32",
+              type: "uint96",
             },
             {
               internalType: "uint256",
@@ -30799,8 +32447,57 @@ export default {
               name: "drawnAddress",
               type: "address",
             },
+            {
+              internalType: "uint96",
+              name: "fromSubcourtID",
+              type: "uint96",
+            },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_iterations",
+              type: "uint256",
+            },
+          ],
+          name: "executeDelayedStakes",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+          ],
+          name: "forcedUnstake",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+          ],
+          name: "forcedUnstakeAllCourts",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -30862,13 +32559,19 @@ export default {
           type: "function",
         },
         {
-          inputs: [],
-          name: "governor",
-          outputs: [
+          inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "_juror",
               type: "address",
+            },
+          ],
+          name: "getJurorLeftoverPNK",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -30878,7 +32581,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "_governor",
+              name: "_owner",
               type: "address",
             },
             {
@@ -30954,32 +32657,21 @@ export default {
           type: "function",
         },
         {
-          inputs: [
+          inputs: [],
+          name: "owner",
+          outputs: [
             {
-              internalType: "uint256",
-              name: "_randomNumber",
-              type: "uint256",
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
-          name: "notifyRandomNumber",
-          outputs: [],
-          stateMutability: "nonpayable",
+          stateMutability: "view",
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_account",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "_relativeAmount",
-              type: "uint256",
-            },
-          ],
-          name: "penalizeStake",
+          inputs: [],
+          name: "passPhase",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -31022,8 +32714,28 @@ export default {
               name: "_account",
               type: "address",
             },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_newStake",
+              type: "uint256",
+            },
           ],
-          name: "setJurorInactive",
+          name: "setStake",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -31042,31 +32754,55 @@ export default {
             },
             {
               internalType: "uint256",
-              name: "_newStake",
+              name: "_penalty",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "_alreadyTransferred",
-              type: "bool",
-            },
           ],
-          name: "setStake",
+          name: "setStakePenalty",
           outputs: [
             {
               internalType: "uint256",
-              name: "pnkDeposit",
+              name: "pnkBalance",
               type: "uint256",
             },
             {
               internalType: "uint256",
-              name: "pnkWithdrawal",
+              name: "newCourtStake",
               type: "uint256",
             },
             {
-              internalType: "enum StakingResult",
-              name: "stakingResult",
-              type: "uint8",
+              internalType: "uint256",
+              name: "availablePenalty",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_reward",
+              type: "uint256",
+            },
+          ],
+          name: "setStakeReward",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "success",
+              type: "bool",
             },
           ],
           stateMutability: "nonpayable",
@@ -31121,10 +32857,80 @@ export default {
           stateMutability: "payable",
           type: "function",
         },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "uint256",
+              name: "_newStake",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          name: "validateStake",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "pnkDeposit",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "pnkWithdrawal",
+              type: "uint256",
+            },
+            {
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "version",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+          ],
+          name: "withdrawLeftoverPNK",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
       ],
     },
     SortitionModuleUniversity_Proxy: {
-      address: "0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79",
+      address: "0x9f55804177e7E44E558616cD7d06B865788214cA",
       abi: [
         {
           inputs: [
@@ -32953,7 +34759,7 @@ export default {
       ],
     },
     VeaInboxArbToEthTestnet: {
-      address: "0xE12daFE59Bc3A996362d54b37DFd2BA9279cAd06",
+      address: "0xAA4F00c86bf956C0Fae603D030CBc2dA7f8B7C5B",
       abi: [
         {
           inputs: [
@@ -33502,7 +35308,7 @@ export default {
       ],
     },
     VeaInboxArbToGnosisTestnet: {
-      address: "0x62403e9Fbac618301175C89fb21920e4FF235A6a",
+      address: "0xa0d410b202D69C36871d5135ce42fC7D379BBB1c",
       abi: [
         {
           inputs: [
