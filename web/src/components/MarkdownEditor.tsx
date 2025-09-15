@@ -31,33 +31,47 @@ import InfoIcon from "svgs/icons/info-circle.svg";
 const Container = styled.div<{ isEmpty: boolean }>`
   width: 100%;
 
-  [class*="mdxeditor"] {
-    background-color: ${({ theme }) => theme.whiteBackground} !important;
+  [class*="mdxeditor-toolbar"] {
+    background-color: ${({ theme }) => theme.lightGrey};
     border: 1px solid ${({ theme }) => theme.stroke} !important;
     border-radius: 3px;
     font-family: "Open Sans", sans-serif;
-  }
 
-  [class*="toolbar"] {
-    background-color: ${({ theme }) => theme.lightGrey} !important;
-    border-bottom: none !important;
-
-    button {
-      color: ${({ theme }) => theme.whiteBackground} !important;
+    * svg {
+      color: ${({ theme }) => theme.primaryText} !important;
     }
 
-    svg {
-      fill: ${({ theme }) => theme.whiteBackground} !important;
-    }
-
-    select {
+    [class*="selectTrigger"] {
       background-color: ${({ theme }) => theme.whiteBackground} !important;
       color: ${({ theme }) => theme.primaryText} !important;
+      cursor: pointer !important;
+    }
+
+    button:hover {
+      background-color: ${({ theme }) => theme.lightGrey}80 !important;
+      cursor: pointer;
+    }
+
+    button[data-state="on"],
+    button[aria-pressed="true"] {
+      background-color: ${({ theme }) => theme.whiteBackground} !important;
+    }
+
+    button:disabled,
+    button[data-disabled="true"] {
+      opacity: 0.4 !important;
+      cursor: not-allowed !important;
+
+      svg {
+        color: ${({ theme }) => theme.secondaryText} !important;
+      }
     }
   }
 
   [class*="contentEditable"] {
     background-color: ${({ theme }) => theme.whiteBackground} !important;
+    border: 1px solid ${({ theme }) => theme.stroke} !important;
+    border-radius: 3px;
     color: ${({ theme }) => theme.primaryText} !important;
     min-height: 200px;
     padding: 16px;
@@ -165,7 +179,19 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({
   const editorRef = useRef<MDXEditorMethods>(null);
 
   const handleChange = (markdown: string) => {
-    onChange(markdown);
+    const cleanedMarkdown = markdown === "\u200B" ? "" : markdown.replace(/^\u200B/, "");
+    onChange(cleanedMarkdown);
+  };
+
+  const handleContainerClick = () => {
+    if (isEmpty && editorRef.current) {
+      editorRef.current.setMarkdown("\u200B");
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.focus();
+        }
+      }, 0);
+    }
   };
 
   const isEmpty = !value || value.trim() === "";
@@ -204,7 +230,7 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({
   };
 
   return (
-    <Container isEmpty={isEmpty}>
+    <Container isEmpty={isEmpty} onClick={handleContainerClick}>
       <MDXEditor ref={editorRef} {...editorProps} />
       {showMessage && (
         <MessageContainer>

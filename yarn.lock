@@ -6791,7 +6791,7 @@ __metadata:
     "@kleros/ui-components-library": "npm:^2.20.0"
     "@lifi/wallet-management": "npm:^3.7.1"
     "@lifi/widget": "npm:^3.18.1"
-    "@mdxeditor/editor": "npm:^3.44.2"
+    "@mdxeditor/editor": "npm:^3.45.0"
     "@reown/appkit": "npm:^1.7.1"
     "@reown/appkit-adapter-wagmi": "npm:^1.7.1"
     "@sentry/react": "npm:^7.120.0"
@@ -7635,7 +7635,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdxeditor/editor@npm:^3.44.2":
+"@mdxeditor/editor@npm:^3.45.0":
   version: 3.45.0
   resolution: "@mdxeditor/editor@npm:3.45.0"
   dependencies:
