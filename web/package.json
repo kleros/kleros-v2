@@ -91,6 +91,7 @@
     "@kleros/ui-components-library": "^2.20.0",
     "@lifi/wallet-management": "^3.7.1",
     "@lifi/widget": "^3.18.1",
+    "@mdxeditor/editor": "^3.44.2",
     "@reown/appkit": "^1.7.1",
     "@reown/appkit-adapter-wagmi": "^1.7.1",
     "@sentry/react": "^7.120.0",
