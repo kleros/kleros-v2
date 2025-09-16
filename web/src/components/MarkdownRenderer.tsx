@@ -10,9 +10,11 @@ import {
   markdownShortcutPlugin,
   linkPlugin,
   tablePlugin,
+  codeBlockPlugin,
 } from "@mdxeditor/editor";
 
 import { sanitizeMarkdown } from "utils/markdownSanitization";
+import { isValidUrl } from "utils/urlValidation";
 
 import { MDXRendererContainer } from "styles/mdxEditorTheme";
 
@@ -33,14 +35,18 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
   const editorProps: MDXEditorProps = {
     markdown: sanitizedContent,
     readOnly: true,
+    suppressHtmlProcessing: true,
     plugins: [
       headingsPlugin(),
       listsPlugin(),
       quotePlugin(),
       thematicBreakPlugin(),
       markdownShortcutPlugin(),
-      linkPlugin(),
+      linkPlugin({
+        validateUrl: (url) => isValidUrl(url),
+      }),
       tablePlugin(),
+      codeBlockPlugin({ defaultCodeBlockLanguage: "text" }),
     ],
   };
 

@@ -27,6 +27,7 @@ import {
 import InfoIcon from "svgs/icons/info-circle.svg";
 
 import { sanitizeMarkdown } from "utils/markdownSanitization";
+import { isValidUrl } from "utils/urlValidation";
 
 import { MDXEditorContainer, MDXEditorGlobalStyles } from "styles/mdxEditorTheme";
 
@@ -103,13 +104,16 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({
     markdown: value,
     onChange: handleChange,
     placeholder,
+    suppressHtmlProcessing: true,
     plugins: [
       headingsPlugin(),
       listsPlugin(),
       quotePlugin(),
       thematicBreakPlugin(),
       markdownShortcutPlugin(),
-      linkPlugin(),
+      linkPlugin({
+        validateUrl: (url) => isValidUrl(url),
+      }),
       linkDialogPlugin(),
       tablePlugin(),
       toolbarPlugin({
