@@ -24,14 +24,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
-  await deployUpgradable(deployments, "DisputeTemplateRegistryUniversity", {
+  const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistryUniversity", {
     from: deployer,
     contract: "DisputeTemplateRegistry",
     args: [deployer],
     log: true,
   });
-
-  return;
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
@@ -89,16 +87,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.error("Failed to change currency rates for token, with error:", e);
   }
 
-  const disputeTemplateRegistry = await getContractOrDeployUpgradable(hre, "DisputeTemplateRegistry", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-
   await deploy("DisputeResolverUniversity", {
     from: deployer,
     contract: "DisputeResolver",
-    args: [core.target, disputeTemplateRegistry.target],
+    args: [core.target, disputeTemplateRegistry.address],
     log: true,
   });
 };
