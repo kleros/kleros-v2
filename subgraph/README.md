@@ -65,3 +65,5 @@ Pick the appropriate network. There should be a corresponding yarn script in the
 
 Then reach out to a maintainer and request his approval.
 <img width="1265" alt="image" src="https://github.com/kleros/gtcr-subgraph/assets/22213980/3cea54fb-8382-42c4-a44a-37b4bfbeecee">
+
+x
