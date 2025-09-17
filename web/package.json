@@ -131,6 +131,8 @@
     "styled-components": "^5.3.3",
     "subgraph-status": "^1.2.4",
     "viem": "^2.24.1",
-    "wagmi": "^2.14.15"
+    "wagmi": "^2.14.15",
+    "dompurify": "^3.2.6",
+    "@types/dompurify": "^3.2.0"
   }
 }
