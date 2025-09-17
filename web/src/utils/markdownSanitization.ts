@@ -47,6 +47,7 @@ export const sanitizeMarkdown = (markdown: string): string => {
   // Optional: Remove encoded protocols/entities as before
   sanitized = sanitized.replace(/javascript:/gi, "");
   sanitized = sanitized.replace(/vbscript:/gi, "");
+  sanitized = sanitized.replace(/data:/gi, "");
   sanitized = sanitized.replace(/&#x[0-9a-f]+;/gi, "");
   sanitized = sanitized.replace(/&#[0-9]+;/gi, "");
 
