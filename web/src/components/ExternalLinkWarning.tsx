@@ -18,6 +18,7 @@ const StyledModal = styled(Modal)`
   margin-right: -50%;
   transform: translate(-50%, -50%);
   height: auto;
+  max-height: 90vh;
   width: min(90%, 480px);
   border: 1px solid ${({ theme }) => theme.stroke};
   border-radius: 8px;
@@ -25,6 +26,7 @@ const StyledModal = styled(Modal)`
   padding: 32px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   z-index: 10002;
+  overflow-y: auto;
 `;
 
 const Overlay = styled.div`
