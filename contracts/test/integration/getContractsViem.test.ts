@@ -66,7 +66,7 @@ const universityContractMapping: ContractMapping = {
   disputeKitGated: { name: "DisputeKitGatedUniversity", optional: true },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutterUniversity", optional: true },
   disputeResolver: { name: "DisputeResolverUniversity" },
-  disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
+  disputeTemplateRegistry: { name: "DisputeTemplateRegistryUniversity" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
