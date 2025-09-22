@@ -44,10 +44,3 @@ export const isValidUrl = (url: string): boolean => {
     return false;
   }
 };
-
-export const sanitizeUrl = (url: string): string => {
-  if (!isValidUrl(url)) {
-    return "#";
-  }
-  return url;
-};

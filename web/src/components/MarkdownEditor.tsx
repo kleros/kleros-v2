@@ -13,20 +13,21 @@ import {
   linkPlugin,
   linkDialogPlugin,
   tablePlugin,
+  codeBlockPlugin,
+  codeMirrorPlugin,
   toolbarPlugin,
   UndoRedo,
   BoldItalicUnderlineToggles,
-  CodeToggle,
   ListsToggle,
   CreateLink,
   InsertTable,
+  InsertCodeBlock,
   BlockTypeSelect,
   Separator,
 } from "@mdxeditor/editor";
 
 import InfoIcon from "svgs/icons/info-circle.svg";
 
-import { sanitizeMarkdown } from "utils/markdownSanitization";
 import { isValidUrl } from "utils/urlValidation";
 
 import { MDXEditorContainer, MDXEditorGlobalStyles } from "styles/mdxEditorTheme";
@@ -82,9 +83,13 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({
   const editorRef = useRef<MDXEditorMethods>(null);
 
   const handleChange = (markdown: string) => {
-    const cleanedMarkdown = markdown === "\u200B" ? "" : markdown.replace(/^\u200B/, "");
-    const sanitizedMarkdown = sanitizeMarkdown(cleanedMarkdown);
-    onChange(sanitizedMarkdown);
+    let cleanedMarkdown = markdown === "\u200B" ? "" : markdown.replace(/^\u200B/, "");
+    // Remove ALL escape characters - no exceptions
+    cleanedMarkdown = cleanedMarkdown.replace(/\\([`[]*_#|>-+=~^{}()!&<$%\\])/g, "$1");
+    // Also handle multiple consecutive backslashes that might accumulate
+    cleanedMarkdown = cleanedMarkdown.replace(/\\+/g, "");
+
+    onChange(cleanedMarkdown);
   };
 
   const handleContainerClick = () => {
@@ -116,13 +121,19 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({
       }),
       linkDialogPlugin(),
       tablePlugin(),
+      codeBlockPlugin({ defaultCodeBlockLanguage: "text" }),
+      codeMirrorPlugin({
+        codeBlockLanguages: {
+          text: "Code",
+        },
+      }),
       toolbarPlugin({
         toolbarContents: () => (
           <>
             <UndoRedo />
             <Separator />
             <BoldItalicUnderlineToggles />
-            <CodeToggle />
+            <InsertCodeBlock />
             <Separator />
             <BlockTypeSelect />
             <Separator />

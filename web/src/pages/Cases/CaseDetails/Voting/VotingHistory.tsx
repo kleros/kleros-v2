@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
-import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
@@ -19,6 +18,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
+import MarkdownRenderer from "components/MarkdownRenderer";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 
 import PendingVotesBox from "./PendingVotesBox";
@@ -47,8 +47,8 @@ const StyledTitle = styled.h1`
   margin-bottom: 0;
   font-size: ${responsiveSize(18, 24)};
 `;
-const ReactMarkdownWrapper = styled.div``;
-const StyledReactMarkDown = styled(ReactMarkdown)`
+const MarkdownWrapper = styled.div``;
+const StyledMarkdownRenderer = styled(MarkdownRenderer)`
   max-width: inherit;
   word-wrap: break-word;
   p {
@@ -95,11 +95,11 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           {isQuestion && (
             <>
               {disputeDetails.question ? (
-                <ReactMarkdownWrapper dir="auto">
-                  <StyledReactMarkDown>{disputeDetails.question}</StyledReactMarkDown>
-                </ReactMarkdownWrapper>
+                <MarkdownWrapper dir="auto">
+                  <StyledMarkdownRenderer content={disputeDetails.question} />
+                </MarkdownWrapper>
               ) : (
-                <StyledReactMarkDown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</StyledReactMarkDown>
+                <StyledMarkdownRenderer content={isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR} />
               )}
             </>
           )}

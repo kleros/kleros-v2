@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
@@ -21,6 +20,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
 import MarkdownEditor from "components/MarkdownEditor";
+import MarkdownRenderer from "components/MarkdownRenderer";
 
 const Container = styled.div`
   width: 100%;
@@ -39,7 +39,7 @@ const StyledEnsureChain = styled(EnsureChain)`
   margin: 8px auto;
 `;
 
-const ReactMarkdownWrapper = styled.div``;
+const MarkdownWrapper = styled.div``;
 interface IReveal {
   arbitrable?: `0x${string}`;
   voteIDs: string[];
@@ -110,9 +110,9 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
         <StyledInfoCard msg="Failed to commit on time." />
       ) : isRevealPeriod ? (
         <>
-          <ReactMarkdownWrapper dir="auto">
-            <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
-          </ReactMarkdownWrapper>
+          <MarkdownWrapper dir="auto">
+            <MarkdownRenderer content={disputeDetails?.question ?? ""} />
+          </MarkdownWrapper>
           <MarkdownEditor value={justification} onChange={setJustification} />
           <StyledEnsureChain>
             <StyledButton

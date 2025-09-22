@@ -1,6 +1,10 @@
 import styled, { createGlobalStyle, css } from "styled-components";
 
 const sharedContentStyles = css`
+  .mdxeditor-root-contenteditable div {
+    padding: 0;
+  }
+
   .mdxeditor-root-contenteditable p {
     color: ${({ theme }) => theme.primaryText} !important;
     margin: 0 0 12px 0;
@@ -26,20 +30,29 @@ const sharedContentStyles = css`
   }
 
   .mdxeditor-root-contenteditable pre {
-    background-color: ${({ theme }) => theme.lightGrey} !important;
+    background-color: ${({ theme }) => theme.lightBackground} !important;
     color: ${({ theme }) => theme.primaryText} !important;
+    border: 1px solid ${({ theme }) => theme.stroke} !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    margin: 12px 0 !important;
+    font-family: "Fira Code", monospace !important;
+    font-size: 14px !important;
   }
 
   .mdxeditor-root-contenteditable a {
     color: ${({ theme }) => theme.primaryBlue} !important;
   }
 
-  .mdxeditor-root-contenteditable span[class*="_code_"] {
-    background-color: ${({ theme }) => theme.lightGrey} !important;
-    color: ${({ theme }) => theme.secondaryText} !important;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-size: 0.9em;
+  .mdxeditor-root-contenteditable span[class*="_code_"],
+  .mdxeditor-root-contenteditable code {
+    background-color: ${({ theme }) => theme.lightBackground} !important;
+    color: ${({ theme }) => theme.primaryText} !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-family: "Fira Code", monospace !important;
+    border: 1px solid ${({ theme }) => theme.stroke} !important;
   }
 
   .mdxeditor-root-contenteditable th {
@@ -130,6 +143,39 @@ export const MDXEditorContainer = styled.div`
 `;
 
 export const MDXEditorGlobalStyles = createGlobalStyle`
+  .cm-editor {
+    background-color: ${({ theme }) => theme.lightBackground} !important;
+    border: 1px solid ${({ theme }) => theme.stroke} !important;
+    border-radius: 6px !important;
+  }
+
+  .cm-content {
+    color: ${({ theme }) => theme.primaryText} !important;
+    font-family: "Fira Code", monospace !important;
+    font-size: 14px !important;
+    padding: 12px !important;
+  }
+
+  .cm-focused {
+    outline: none !important;
+  }
+
+  [class*="codeMirrorToolbar"] {
+    background-color: transparent !important;
+  }
+
+  [class*="cm-gutterElement"] {
+    color: ${({ theme }) => theme.secondaryText} !important;
+  }
+
+  [class*="codeMirrorWrapper"] {
+    border: 1px solid ${({ theme }) => theme.stroke} !important;
+  }
+
+  [class*="activeLineGutter"] {
+    background-color: transparent !important;
+  }
+
   /* Global styles for all MDXEditor popups and overlays */
   [class*="linkDialogPopoverContent"],
   [class*="selectTrigger"],
@@ -201,30 +247,4 @@ export const MDXEditorGlobalStyles = createGlobalStyle`
       background-color: ${({ theme }) => theme.lightGrey} !important;
     }
   }
-`;
-
-export const MDXRendererContainer = styled.div`
-  width: 100%;
-
-  .mdxeditor-toolbar {
-    display: none !important;
-  }
-
-  .mdxeditor-root-contenteditable {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-
-  .mdxeditor-root-contenteditable span[class*="_code_"] {
-    background-color: ${({ theme }) => theme.lightGrey} !important;
-    color: ${({ theme }) => theme.secondaryText} !important;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-size: 0.9em;
-  }
-
-  ${sharedContentStyles}
 `;
