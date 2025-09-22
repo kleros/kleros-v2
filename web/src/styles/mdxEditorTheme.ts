@@ -1,8 +1,11 @@
 import styled, { createGlobalStyle, css } from "styled-components";
 
 const sharedContentStyles = css`
-  .mdxeditor-root-contenteditable div {
-    padding: 0;
+  .mdxeditor-root-contenteditable {
+    transition: background-color 0.1s ease !important;
+    :hover {
+      background-color: ${({ theme }) => theme.lightGrey}60 !important;
+    }
   }
 
   .mdxeditor-root-contenteditable p {
