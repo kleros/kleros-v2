@@ -175,6 +175,7 @@ export const MDXEditorGlobalStyles = createGlobalStyle`
 
   [class*="codeMirrorWrapper"] {
     border: 1px solid ${({ theme }) => theme.stroke} !important;
+    padding: 0 !important;
   }
 
   [class*="activeLineGutter"] {
