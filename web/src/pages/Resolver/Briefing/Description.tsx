@@ -17,8 +17,7 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledMarkdownEditor = styled(MarkdownEditor)`
-  width: 84vw;
+const MarkdownEditorContainer = styled.div`
   ${landscapeStyle(
     () => css`
       width: ${responsiveSize(442, 700, 900)};
@@ -49,12 +48,14 @@ const Description: React.FC = () => {
   return (
     <Container ref={containerRef}>
       <Header text="Describe the case" />
-      <StyledMarkdownEditor
-        value={disputeData.description}
-        onChange={handleWrite}
-        placeholder="eg. Bob hired Alice to develop a website for him. Bob claims the contract was not fully respected, and the website was delivered incomplete. For that reason, he wants to pay part of the agreed payment: 150 DAI. On the other hand, Alice claims she should receive the full payment: 250 DAI."
-        showMessage={false}
-      />
+      <MarkdownEditorContainer>
+        <MarkdownEditor
+          value={disputeData.description}
+          onChange={handleWrite}
+          placeholder="eg. Bob hired Alice to develop a website for him, but Bob failed to deliver..."
+          showMessage={false}
+        />
+      </MarkdownEditorContainer>
       <NavigationButtons prevRoute="/resolver/title" nextRoute="/resolver/court" />
     </Container>
   );

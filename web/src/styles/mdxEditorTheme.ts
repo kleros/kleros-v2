@@ -69,6 +69,8 @@ export const MDXEditorContainer = styled.div`
   width: 100%;
 
   .mdxeditor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
     background-color: ${({ theme }) => theme.lightGrey} !important;
     border: 1px solid ${({ theme }) => theme.stroke} !important;
     border-radius: 3px;
