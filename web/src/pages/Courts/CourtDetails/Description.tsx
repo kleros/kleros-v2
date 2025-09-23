@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-import ReactMarkdown from "react-markdown";
 import { Routes, Route, Navigate, useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+
 import { Tabs } from "@kleros/ui-components-library";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
+import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const Container = styled.div`
@@ -18,7 +19,7 @@ const TextContainer = styled.div`
   padding: 12px 0;
 `;
 
-const StyledReactMarkdown = styled(ReactMarkdown)`
+const StyledMarkdownRenderer = styled(MarkdownRenderer)`
   p {
     word-break: break-word;
   }
@@ -127,6 +128,6 @@ const Description: React.FC = () => {
 };
 
 const formatMarkdown = (markdown?: string) =>
-  markdown ? <StyledReactMarkdown>{markdown.replace(/\n/g, "  \n")}</StyledReactMarkdown> : <StyledSkeleton />;
+  markdown ? <StyledMarkdownRenderer content={markdown} /> : <StyledSkeleton />;
 
 export default Description;

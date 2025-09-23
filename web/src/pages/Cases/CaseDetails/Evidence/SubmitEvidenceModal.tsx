@@ -5,7 +5,7 @@ import Modal from "react-modal";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { Roles, useAtlasProvider } from "@kleros/kleros-app";
-import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
+import { Button, FileUploader } from "@kleros/ui-components-library";
 
 import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
 import { wrapWithToast, errorToast, infoToast, successToast } from "utils/wrapWithToast";
@@ -14,6 +14,7 @@ import { getFileUploaderMsg, isEmpty } from "src/utils";
 
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
+import MarkdownEditor from "components/MarkdownEditor";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -36,9 +37,12 @@ const StyledModal = styled(Modal)`
   gap: 16px;
 `;
 
-const StyledTextArea = styled(Textarea)`
+const EditorContainer = styled.div`
   width: 100%;
-  height: 200px;
+
+  [class*="contentEditable"] {
+    min-height: 200px;
+  }
 `;
 
 const StyledFileUploader = styled(FileUploader)`
@@ -93,12 +97,14 @@ const SubmitEvidenceModal: React.FC<{
   return (
     <StyledModal {...{ isOpen }} shouldCloseOnEsc shouldCloseOnOverlayClick onRequestClose={close}>
       <h1>Submit New Evidence</h1>
-      <StyledTextArea
-        dir="auto"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Your Arguments"
-      />
+      <EditorContainer>
+        <MarkdownEditor
+          value={message}
+          onChange={setMessage}
+          placeholder="Describe your evidence in detail..."
+          showMessage={false}
+        />
+      </EditorContainer>
       <StyledFileUploader
         callback={(file: File) => setFile(file)}
         msg={getFileUploaderMsg(Roles.Evidence, roleRestrictions)}
