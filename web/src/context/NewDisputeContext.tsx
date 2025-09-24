@@ -4,9 +4,12 @@ import { useLocation } from "react-router-dom";
 import { Address } from "viem";
 
 import { DEFAULT_CHAIN } from "consts/chains";
+import { Features } from "consts/disputeFeature";
 import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isEmpty, isUndefined } from "utils/index";
+
+import { DisputeKits } from "src/consts";
 
 export const MIN_DISPUTE_BATCH_SIZE = 2;
 
@@ -22,6 +25,12 @@ export type AliasArray = {
   name: string;
   address: string | Address;
   isValid?: boolean;
+};
+
+export type DisputeKitOption = {
+  text: DisputeKits;
+  value: number;
+  gated: boolean;
 };
 
 export type Alias = Record<string, string>;
@@ -83,6 +92,8 @@ interface INewDisputeContext {
   setIsBatchCreation: (isBatchCreation: boolean) => void;
   batchSize: number;
   setBatchSize: (batchSize?: number) => void;
+  selectedFeatures: Features[];
+  setSelectedFeatures: React.Dispatch<React.SetStateAction<Features[]>>;
 }
 
 const getInitialDisputeData = (): IDisputeData => ({
@@ -118,6 +129,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isPolicyUploading, setIsPolicyUploading] = useState<boolean>(false);
   const [isBatchCreation, setIsBatchCreation] = useState<boolean>(false);
   const [batchSize, setBatchSize] = useLocalStorage<number>("disputeBatchSize", MIN_DISPUTE_BATCH_SIZE);
+  const [selectedFeatures, setSelectedFeatures] = useState<Features[]>([]);
 
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
   const location = useLocation();
@@ -151,6 +163,8 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setIsBatchCreation,
       batchSize,
       setBatchSize,
+      selectedFeatures,
+      setSelectedFeatures,
     }),
     [
       disputeData,
@@ -163,6 +177,8 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setIsBatchCreation,
       batchSize,
       setBatchSize,
+      selectedFeatures,
+      setSelectedFeatures,
     ]
   );
 
