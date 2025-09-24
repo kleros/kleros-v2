@@ -97,6 +97,10 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
             assertEq(commitStored, keccak256(abi.encodePacked(YES, salt)), "Incorrect commit");
         }
 
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.AlreadyCommittedThisVote.selector);
+        disputeKit.castCommit(disputeID, voteIDs, commit);
+
         // Check reveal in the next period
         vm.warp(block.timestamp + timesPerPeriod[1]);
         core.passPeriod(disputeID);
