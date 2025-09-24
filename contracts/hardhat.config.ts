@@ -28,10 +28,11 @@ const config: HardhatUserConfig = {
       {
         version: "0.8.30",
         settings: {
+          evmVersion: "cancun",
           viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 2000,
+            runs: 1000,
           },
           outputSelection: {
             "*": {

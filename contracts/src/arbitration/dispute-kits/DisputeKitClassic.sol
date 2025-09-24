@@ -5,13 +5,13 @@ pragma solidity ^0.8.24;
 import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
 
 /// @title DisputeKitClassic
-/// Dispute kit implementation of the Kleros v1 features including:
+/// @notice Dispute kit implementation of the Kleros v1 features including:
 /// - a drawing system: proportional to staked PNK,
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitClassic is DisputeKitClassicBase {
-    string public constant override version = "0.12.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *            Constructor            * //
@@ -22,16 +22,18 @@ contract DisputeKitClassic is DisputeKitClassicBase {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
+    /// @notice Initializer.
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
-    function initialize(address _owner, KlerosCore _core, address _wNative) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
-    }
-
-    function reinitialize(address _wNative) external reinitializer(9) {
-        wNative = _wNative;
+    /// @param _jumpDisputeKitID The ID of the dispute kit to switch to after the court jump.
+    function initialize(
+        address _owner,
+        KlerosCore _core,
+        address _wNative,
+        uint256 _jumpDisputeKitID
+    ) external initializer {
+        __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
     }
 
     // ************************ //

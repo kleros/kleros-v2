@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { prompt, print } from "gluegun";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
-import { getContractNames, getContractNamesFromNetwork } from "../scripts/utils/contracts";
+import { getContractNamesFromNetwork } from "../scripts/utils/contracts";
 
 const { bold } = print.colors;
 
@@ -36,21 +36,7 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
     try {
       print.highlight(`🔍 Validating upgrade of ${bold(contractName)}`);
 
-      const contractNameWithoutNeo = contractName.replace(/Neo.*$/, "");
       let compareStorageOptions = { contract: contractName } as any;
-      if (hre.network.name === "arbitrum") {
-        switch (contractName) {
-          case "KlerosCoreNeo":
-          case "SortitionModuleNeo":
-            compareStorageOptions = { deployedArtifact: `${contractName}_Implementation`, contract: contractName };
-            break;
-          default:
-            compareStorageOptions = {
-              deployedArtifact: `${contractName}_Implementation`,
-              contract: contractNameWithoutNeo,
-            };
-        }
-      }
       await hre.run("compare-storage", compareStorageOptions);
       print.newline();
       print.highlight(`💣 Upgrading ${bold(contractName)}`);
@@ -65,25 +51,12 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
       }
       print.info(`Upgrading ${contractName}...`);
 
-      switch (contractName) {
-        case "DisputeKitClassicNeo":
-        case "DisputeResolverNeo":
-          await deployUpgradable(deployments, contractName, {
-            contract: contractName,
-            newImplementation: contractNameWithoutNeo,
-            initializer,
-            from: deployer,
-            args, // Warning: do not reinitialize existing state variables, only the new ones
-          });
-          break;
-        default:
-          await deployUpgradable(deployments, contractName, {
-            newImplementation: contractName,
-            initializer,
-            from: deployer,
-            args, // Warning: do not reinitialize existing state variables, only the new ones
-          });
-      }
+      await deployUpgradable(deployments, contractName, {
+        newImplementation: contractName,
+        initializer,
+        from: deployer,
+        args, // Warning: do not reinitialize existing state variables, only the new ones
+      });
       print.info(`Verifying ${contractName} on Etherscan...`);
       await hre.run("etherscan-verify", { contractName: `${contractName}_Implementation` });
     } catch (err) {
@@ -98,11 +71,11 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   await upgrade(disputeKitShutter, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGated, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGatedShutter, "reinitialize", [wETH.address]);
-  await upgrade(disputeTemplateRegistry, "initialize2", []);
-  await upgrade(evidence, "initialize2", []);
+  await upgrade(disputeTemplateRegistry, "reinitialize", []);
+  await upgrade(evidence, "reinitialize", []);
   await upgrade(core, "reinitialize", [wETH.address]);
-  await upgrade(policyRegistry, "initialize2", []);
-  await upgrade(sortition, "initialize4", []);
+  await upgrade(policyRegistry, "reinitialize", []);
+  await upgrade(sortition, "reinitialize", []);
 };
 
 deployUpgradeAll.tags = ["UpgradeAll"];

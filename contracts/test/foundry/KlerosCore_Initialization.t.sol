@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
 import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
 import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
@@ -14,8 +14,9 @@ import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_InitializationTest
 /// @dev Tests for KlerosCore initialization and basic configuration
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 contract KlerosCore_InitializationTest is KlerosCore_TestBase {
-    function test_initialize() public {
+    function test_initialize() public view {
         assertEq(core.owner(), msg.sender, "Wrong owner");
         assertEq(core.guardian(), guardian, "Wrong guardian");
         assertEq(address(core.pinakion()), address(pinakion), "Wrong pinakion address");
@@ -23,8 +24,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(address(core.sortitionModule()), address(sortitionModule), "Wrong sortitionModule address");
         assertEq(core.getDisputeKitsLength(), 2, "Wrong DK array length");
 
-        _assertCourtParameters(FORKING_COURT, FORKING_COURT, false, 0, 0, 0, 0, false);
-        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, false, 1000, 10000, 0.03 ether, 511, false);
+        _assertCourtParameters(FORKING_COURT, FORKING_COURT, false, 0, 0, 0, 0);
+        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, false, 1000, 10000, 0.03 ether, 511);
 
         uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
         assertEq(children.length, 0, "No children");
@@ -45,6 +46,9 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(core.isSupported(GENERAL_COURT, NULL_DISPUTE_KIT), false, "General court null dk should be false");
         assertEq(core.isSupported(GENERAL_COURT, DISPUTE_KIT_CLASSIC), true, "General court classic dk should be true");
         assertEq(core.paused(), false, "Wrong paused value");
+        assertEq(core.wNative(), address(wNative), "Wrong wNative");
+        assertEq(address(core.jurorNft()), address(0), "Wrong jurorNft");
+        assertEq(core.arbitrableWhitelistEnabled(), false, "Wrong arbitrableWhitelistEnabled");
 
         assertEq(pinakion.name(), "Pinakion", "Wrong token name");
         assertEq(pinakion.symbol(), "PNK", "Wrong token symbol");
@@ -56,6 +60,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(pinakion.allowance(staker2, address(core)), 1 ether, "Wrong allowance for staker2");
 
         assertEq(disputeKit.owner(), msg.sender, "Wrong DK owner");
+        assertEq(disputeKit.getJumpDisputeKitID(), DISPUTE_KIT_CLASSIC, "Wrong jump DK");
+        assertEq(disputeKit.jumpDisputeKitID(), DISPUTE_KIT_CLASSIC, "Wrong jump DK storage var");
         assertEq(address(disputeKit.core()), address(core), "Wrong core in DK");
 
         assertEq(sortitionModule.owner(), msg.sender, "Wrong SM owner");
@@ -69,6 +75,9 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(sortitionModule.randomNumber(), 0, "randomNumber should be 0");
         assertEq(sortitionModule.delayedStakeWriteIndex(), 0, "delayedStakeWriteIndex should be 0");
         assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
+        assertEq(sortitionModule.maxStakePerJuror(), type(uint256).max, "Wrong maxStakePerJuror");
+        assertEq(sortitionModule.maxTotalStaked(), type(uint256).max, "Wrong maxTotalStaked");
+        assertEq(sortitionModule.totalStaked(), 0, "Wrong totalStaked");
 
         (uint256 K, uint256 nodeLength) = sortitionModule.getSortitionProperties(bytes32(uint256(FORKING_COURT)));
         assertEq(K, 5, "Wrong tree K FORKING_COURT");
@@ -88,7 +97,6 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         address newOwner = msg.sender;
         address newGuardian = vm.addr(1);
         address newStaker1 = vm.addr(2);
-        address newOther = vm.addr(9);
         address newJurorProsecutionModule = vm.addr(8);
         uint256 newMinStake = 1000;
         uint256 newAlpha = 10000;
@@ -110,22 +118,25 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
+            "initialize(address,address,address,uint256)",
             newOwner,
             address(proxyCore),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address)",
+            "initialize(address,address,uint256,uint256,address,uint256,uint256)",
             newOwner,
             address(proxyCore),
             newMinStakingTime,
             newMaxDrawingTime,
-            newRng
+            newRng,
+            type(uint256).max,
+            type(uint256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
@@ -135,12 +146,12 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
 
         KlerosCoreMock newCore = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitCreated(DISPUTE_KIT_CLASSIC, newDisputeKit);
+        emit KlerosCore.DisputeKitCreated(DISPUTE_KIT_CLASSIC, newDisputeKit);
         vm.expectEmit(true, true, true, true);
 
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
-        emit KlerosCoreBase.CourtCreated(
+        emit KlerosCore.CourtCreated(
             GENERAL_COURT,
             FORKING_COURT,
             false,
@@ -152,7 +163,7 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             supportedDK
         );
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
+        emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
         newCore.initialize(
             newOwner,
             newGuardian,
@@ -164,7 +175,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             newTimesPerPeriod,
             newSortitionExtraData,
             newSortitionModule,
-            address(wNative)
+            address(wNative),
+            IERC721(address(0))
         );
     }
 }

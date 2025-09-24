@@ -2630,25 +2630,43 @@ export const disputeKitClassicConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x82F2089442979A6b56c80274D144575980092F91)
  */
 export const disputeKitClassicUniversityAbi = [
   { type: "fallback", stateMutability: "payable" },
   { type: "receive", stateMutability: "payable" },
   { type: "error", inputs: [], name: "AlreadyInitialized" },
+  { type: "error", inputs: [], name: "AppealFeeIsAlreadyPaid" },
+  { type: "error", inputs: [], name: "AppealPeriodIsOver" },
+  { type: "error", inputs: [], name: "AppealPeriodIsOverForLoser" },
+  { type: "error", inputs: [], name: "ChoiceOutOfBounds" },
+  { type: "error", inputs: [], name: "CoreIsPaused" },
+  { type: "error", inputs: [], name: "DisputeJumpedToParentDK" },
+  { type: "error", inputs: [], name: "DisputeNotResolved" },
+  { type: "error", inputs: [], name: "EmptyCommit" },
+  { type: "error", inputs: [], name: "EmptyVoteIDs" },
   { type: "error", inputs: [], name: "FailedDelegateCall" },
+  { type: "error", inputs: [], name: "HashDoesNotMatchHiddenVoteCommitment" },
   {
     type: "error",
     inputs: [{ name: "implementation", internalType: "address", type: "address" }],
     name: "InvalidImplementation",
   },
+  { type: "error", inputs: [], name: "JurorHasToOwnTheVote" },
+  { type: "error", inputs: [], name: "KlerosCoreOnly" },
+  { type: "error", inputs: [], name: "NotActiveForCoreDisputeID" },
+  { type: "error", inputs: [], name: "NotCommitPeriod" },
   { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "NotVotePeriod" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
   {
     type: "error",
     inputs: [{ name: "slot", internalType: "bytes32", type: "bytes32" }],
     name: "UUPSUnsupportedProxiableUUID",
   },
+  { type: "error", inputs: [], name: "UnsuccessfulCall" },
+  { type: "error", inputs: [], name: "VoteAlreadyCast" },
   {
     type: "event",
     anonymous: false,
@@ -2884,13 +2902,6 @@ export const disputeKitClassicUniversityAbi = [
   {
     type: "function",
     inputs: [],
-    name: "ONE_BASIS_POINT",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [],
     name: "WINNER_STAKE_MULTIPLIER",
     outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
@@ -2942,8 +2953,15 @@ export const disputeKitClassicUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_governor", internalType: "address payable", type: "address" }],
-    name: "changeGovernor",
+    inputs: [{ name: "_jumpDisputeKitID", internalType: "uint256", type: "uint256" }],
+    name: "changeJumpDisputeKitID",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address payable", type: "address" }],
+    name: "changeOwner",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -2952,6 +2970,13 @@ export const disputeKitClassicUniversityAbi = [
     inputs: [],
     name: "core",
     outputs: [{ name: "", internalType: "contract KlerosCore", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "coreDisputeIDToActive",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
   {
@@ -2967,7 +2992,7 @@ export const disputeKitClassicUniversityAbi = [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       { name: "_numberOfChoices", internalType: "uint256", type: "uint256" },
       { name: "_extraData", internalType: "bytes", type: "bytes" },
-      { name: "_nbVotes", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "uint256", type: "uint256" },
     ],
     name: "createDispute",
     outputs: [],
@@ -3002,8 +3027,18 @@ export const disputeKitClassicUniversityAbi = [
       { name: "_nonce", internalType: "uint256", type: "uint256" },
     ],
     name: "draw",
-    outputs: [{ name: "drawnAddress", internalType: "address", type: "address" }],
+    outputs: [
+      { name: "drawnAddress", internalType: "address", type: "address" },
+      { name: "fromSubcourtID", internalType: "uint96", type: "uint96" },
+    ],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    name: "earlyCourtJump",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "pure",
   },
   {
     type: "function",
@@ -3012,7 +3047,7 @@ export const disputeKitClassicUniversityAbi = [
       { name: "_amount", internalType: "uint256", type: "uint256" },
       { name: "_data", internalType: "bytes", type: "bytes" },
     ],
-    name: "executeGovernorProposal",
+    name: "executeOwnerProposal",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -3045,8 +3080,24 @@ export const disputeKitClassicUniversityAbi = [
       { name: "", internalType: "uint256", type: "uint256" },
       { name: "", internalType: "uint256", type: "uint256" },
     ],
-    name: "getDegreeOfCoherence",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    name: "getDegreeOfCoherencePenalty",
+    outputs: [{ name: "pnkCoherence", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
+      { name: "_voteID", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "uint256", type: "uint256" },
+    ],
+    name: "getDegreeOfCoherenceReward",
+    outputs: [
+      { name: "pnkCoherence", internalType: "uint256", type: "uint256" },
+      { name: "feeCoherence", internalType: "uint256", type: "uint256" },
+    ],
     stateMutability: "view",
   },
   {
@@ -3054,6 +3105,43 @@ export const disputeKitClassicUniversityAbi = [
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "getFundedChoices",
     outputs: [{ name: "fundedChoices", internalType: "uint256[]", type: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "getJumpDisputeKitID",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
+    ],
+    name: "getLocalDisputeRoundID",
+    outputs: [
+      { name: "localDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "localRoundID", internalType: "uint256", type: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "", internalType: "contract IDisputeKit", type: "address" },
+      { name: "_currentNbVotes", internalType: "uint256", type: "uint256" },
+    ],
+    name: "getNbVotesAfterAppeal",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "pure",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_localDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getNumberOfRounds",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -3068,7 +3156,7 @@ export const disputeKitClassicUniversityAbi = [
       { name: "winningChoice", internalType: "uint256", type: "uint256" },
       { name: "tied", internalType: "bool", type: "bool" },
       { name: "totalVoted", internalType: "uint256", type: "uint256" },
-      { name: "totalCommited", internalType: "uint256", type: "uint256" },
+      { name: "totalCommitted", internalType: "uint256", type: "uint256" },
       { name: "nbVoters", internalType: "uint256", type: "uint256" },
       { name: "choiceCount", internalType: "uint256", type: "uint256" },
     ],
@@ -3092,20 +3180,33 @@ export const disputeKitClassicUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [],
-    name: "governor",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [
+      { name: "_choice", internalType: "uint256", type: "uint256" },
+      { name: "_salt", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "string", type: "string" },
+    ],
+    name: "hashVote",
+    outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
     stateMutability: "view",
   },
   {
     type: "function",
     inputs: [
-      { name: "_governor", internalType: "address", type: "address" },
+      { name: "_owner", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
+      { name: "_jumpDisputeKitID", internalType: "uint256", type: "uint256" },
     ],
     name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -3121,8 +3222,29 @@ export const disputeKitClassicUniversityAbi = [
   {
     type: "function",
     inputs: [],
+    name: "jumpDisputeKitID",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
     name: "proxiableUUID",
     outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "singleDrawPerJuror",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
   {
@@ -3134,6 +3256,20 @@ export const disputeKitClassicUniversityAbi = [
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -3162,14 +3298,14 @@ export const disputeKitClassicUniversityAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x82F2089442979A6b56c80274D144575980092F91)
  */
 export const disputeKitClassicUniversityAddress = {
-  421614: "0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5",
+  421614: "0x82F2089442979A6b56c80274D144575980092F91",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x82F2089442979A6b56c80274D144575980092F91)
  */
 export const disputeKitClassicUniversityConfig = {
   address: disputeKitClassicUniversityAddress,
@@ -3181,24 +3317,42 @@ export const disputeKitClassicUniversityConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x87e863b94d2CB79A8aB53bD87Dc4A10E11C0918B)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x602ADa1cE706404BFb5417e497cdDae934436081)
  */
 export const disputeKitClassicUniversityImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
   { type: "error", inputs: [], name: "AlreadyInitialized" },
+  { type: "error", inputs: [], name: "AppealFeeIsAlreadyPaid" },
+  { type: "error", inputs: [], name: "AppealPeriodIsOver" },
+  { type: "error", inputs: [], name: "AppealPeriodIsOverForLoser" },
+  { type: "error", inputs: [], name: "ChoiceOutOfBounds" },
+  { type: "error", inputs: [], name: "CoreIsPaused" },
+  { type: "error", inputs: [], name: "DisputeJumpedToParentDK" },
+  { type: "error", inputs: [], name: "DisputeNotResolved" },
+  { type: "error", inputs: [], name: "EmptyCommit" },
+  { type: "error", inputs: [], name: "EmptyVoteIDs" },
   { type: "error", inputs: [], name: "FailedDelegateCall" },
+  { type: "error", inputs: [], name: "HashDoesNotMatchHiddenVoteCommitment" },
   {
     type: "error",
     inputs: [{ name: "implementation", internalType: "address", type: "address" }],
     name: "InvalidImplementation",
   },
+  { type: "error", inputs: [], name: "JurorHasToOwnTheVote" },
+  { type: "error", inputs: [], name: "KlerosCoreOnly" },
+  { type: "error", inputs: [], name: "NotActiveForCoreDisputeID" },
+  { type: "error", inputs: [], name: "NotCommitPeriod" },
   { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "NotVotePeriod" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
   {
     type: "error",
     inputs: [{ name: "slot", internalType: "bytes32", type: "bytes32" }],
     name: "UUPSUnsupportedProxiableUUID",
   },
+  { type: "error", inputs: [], name: "UnsuccessfulCall" },
+  { type: "error", inputs: [], name: "VoteAlreadyCast" },
   {
     type: "event",
     anonymous: false,
@@ -3434,13 +3588,6 @@ export const disputeKitClassicUniversityImplementationAbi = [
   {
     type: "function",
     inputs: [],
-    name: "ONE_BASIS_POINT",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [],
     name: "WINNER_STAKE_MULTIPLIER",
     outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
@@ -3492,8 +3639,15 @@ export const disputeKitClassicUniversityImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_governor", internalType: "address payable", type: "address" }],
-    name: "changeGovernor",
+    inputs: [{ name: "_jumpDisputeKitID", internalType: "uint256", type: "uint256" }],
+    name: "changeJumpDisputeKitID",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address payable", type: "address" }],
+    name: "changeOwner",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -3502,6 +3656,13 @@ export const disputeKitClassicUniversityImplementationAbi = [
     inputs: [],
     name: "core",
     outputs: [{ name: "", internalType: "contract KlerosCore", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "coreDisputeIDToActive",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
   {
@@ -3517,7 +3678,7 @@ export const disputeKitClassicUniversityImplementationAbi = [
       { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
       { name: "_numberOfChoices", internalType: "uint256", type: "uint256" },
       { name: "_extraData", internalType: "bytes", type: "bytes" },
-      { name: "_nbVotes", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "uint256", type: "uint256" },
     ],
     name: "createDispute",
     outputs: [],
@@ -3552,8 +3713,18 @@ export const disputeKitClassicUniversityImplementationAbi = [
       { name: "_nonce", internalType: "uint256", type: "uint256" },
     ],
     name: "draw",
-    outputs: [{ name: "drawnAddress", internalType: "address", type: "address" }],
+    outputs: [
+      { name: "drawnAddress", internalType: "address", type: "address" },
+      { name: "fromSubcourtID", internalType: "uint96", type: "uint96" },
+    ],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    name: "earlyCourtJump",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "pure",
   },
   {
     type: "function",
@@ -3562,7 +3733,7 @@ export const disputeKitClassicUniversityImplementationAbi = [
       { name: "_amount", internalType: "uint256", type: "uint256" },
       { name: "_data", internalType: "bytes", type: "bytes" },
     ],
-    name: "executeGovernorProposal",
+    name: "executeOwnerProposal",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -3595,8 +3766,24 @@ export const disputeKitClassicUniversityImplementationAbi = [
       { name: "", internalType: "uint256", type: "uint256" },
       { name: "", internalType: "uint256", type: "uint256" },
     ],
-    name: "getDegreeOfCoherence",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    name: "getDegreeOfCoherencePenalty",
+    outputs: [{ name: "pnkCoherence", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
+      { name: "_voteID", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "uint256", type: "uint256" },
+    ],
+    name: "getDegreeOfCoherenceReward",
+    outputs: [
+      { name: "pnkCoherence", internalType: "uint256", type: "uint256" },
+      { name: "feeCoherence", internalType: "uint256", type: "uint256" },
+    ],
     stateMutability: "view",
   },
   {
@@ -3604,6 +3791,43 @@ export const disputeKitClassicUniversityImplementationAbi = [
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "getFundedChoices",
     outputs: [{ name: "fundedChoices", internalType: "uint256[]", type: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "getJumpDisputeKitID",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_coreDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
+    ],
+    name: "getLocalDisputeRoundID",
+    outputs: [
+      { name: "localDisputeID", internalType: "uint256", type: "uint256" },
+      { name: "localRoundID", internalType: "uint256", type: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "", internalType: "contract IDisputeKit", type: "address" },
+      { name: "_currentNbVotes", internalType: "uint256", type: "uint256" },
+    ],
+    name: "getNbVotesAfterAppeal",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "pure",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_localDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getNumberOfRounds",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -3618,7 +3842,7 @@ export const disputeKitClassicUniversityImplementationAbi = [
       { name: "winningChoice", internalType: "uint256", type: "uint256" },
       { name: "tied", internalType: "bool", type: "bool" },
       { name: "totalVoted", internalType: "uint256", type: "uint256" },
-      { name: "totalCommited", internalType: "uint256", type: "uint256" },
+      { name: "totalCommitted", internalType: "uint256", type: "uint256" },
       { name: "nbVoters", internalType: "uint256", type: "uint256" },
       { name: "choiceCount", internalType: "uint256", type: "uint256" },
     ],
@@ -3642,20 +3866,33 @@ export const disputeKitClassicUniversityImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [],
-    name: "governor",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [
+      { name: "_choice", internalType: "uint256", type: "uint256" },
+      { name: "_salt", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "string", type: "string" },
+    ],
+    name: "hashVote",
+    outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
     stateMutability: "view",
   },
   {
     type: "function",
     inputs: [
-      { name: "_governor", internalType: "address", type: "address" },
+      { name: "_owner", internalType: "address", type: "address" },
       { name: "_core", internalType: "contract KlerosCore", type: "address" },
+      { name: "_wNative", internalType: "address", type: "address" },
+      { name: "_jumpDisputeKitID", internalType: "uint256", type: "uint256" },
     ],
     name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -3671,8 +3908,29 @@ export const disputeKitClassicUniversityImplementationAbi = [
   {
     type: "function",
     inputs: [],
+    name: "jumpDisputeKitID",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
     name: "proxiableUUID",
     outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "singleDrawPerJuror",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
   {
@@ -3684,6 +3942,20 @@ export const disputeKitClassicUniversityImplementationAbi = [
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "wNative",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -3704,14 +3976,14 @@ export const disputeKitClassicUniversityImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x87e863b94d2CB79A8aB53bD87Dc4A10E11C0918B)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x602ADa1cE706404BFb5417e497cdDae934436081)
  */
 export const disputeKitClassicUniversityImplementationAddress = {
-  421614: "0x87e863b94d2CB79A8aB53bD87Dc4A10E11C0918B",
+  421614: "0x602ADa1cE706404BFb5417e497cdDae934436081",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x87e863b94d2CB79A8aB53bD87Dc4A10E11C0918B)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x602ADa1cE706404BFb5417e497cdDae934436081)
  */
 export const disputeKitClassicUniversityImplementationConfig = {
   address: disputeKitClassicUniversityImplementationAddress,
@@ -3723,7 +3995,7 @@ export const disputeKitClassicUniversityImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x82F2089442979A6b56c80274D144575980092F91)
  */
 export const disputeKitClassicUniversityProxyAbi = [
   {
@@ -3739,14 +4011,14 @@ export const disputeKitClassicUniversityProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x82F2089442979A6b56c80274D144575980092F91)
  */
 export const disputeKitClassicUniversityProxyAddress = {
-  421614: "0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5",
+  421614: "0x82F2089442979A6b56c80274D144575980092F91",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x82F2089442979A6b56c80274D144575980092F91)
  */
 export const disputeKitClassicUniversityProxyConfig = {
   address: disputeKitClassicUniversityProxyAddress,
@@ -9062,7 +9334,7 @@ export const disputeResolverRulerConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2Aa1a94307E772BeE42E9EfbD137b1053F1fCfd4)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x8a7902Ef9a5308C7DF0A68A28EEDd6D83436993D)
  */
 export const disputeResolverUniversityAbi = [
   {
@@ -9081,6 +9353,11 @@ export const disputeResolverUniversityAbi = [
     ],
     stateMutability: "nonpayable",
   },
+  { type: "error", inputs: [], name: "ArbitratorOnly" },
+  { type: "error", inputs: [], name: "DisputeAlreadyRuled" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "RulingOutOfBounds" },
+  { type: "error", inputs: [], name: "ShouldBeAtLeastTwoRulingOptions" },
   {
     type: "event",
     anonymous: false,
@@ -9107,12 +9384,6 @@ export const disputeResolverUniversityAbi = [
         name: "_templateId",
         internalType: "uint256",
         type: "uint256",
-        indexed: false,
-      },
-      {
-        name: "_templateUri",
-        internalType: "string",
-        type: "string",
         indexed: false,
       },
     ],
@@ -9172,8 +9443,8 @@ export const disputeResolverUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_governor", internalType: "address", type: "address" }],
-    name: "changeGovernor",
+    inputs: [{ name: "_owner", internalType: "address", type: "address" }],
+    name: "changeOwner",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -9212,21 +9483,6 @@ export const disputeResolverUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [
-      { name: "_arbitratorExtraData", internalType: "bytes", type: "bytes" },
-      { name: "_disputeTemplateUri", internalType: "string", type: "string" },
-      {
-        name: "_numberOfRulingOptions",
-        internalType: "uint256",
-        type: "uint256",
-      },
-    ],
-    name: "createDisputeForTemplateUri",
-    outputs: [{ name: "disputeID", internalType: "uint256", type: "uint256" }],
-    stateMutability: "payable",
-  },
-  {
-    type: "function",
     inputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     name: "disputes",
     outputs: [
@@ -9244,7 +9500,7 @@ export const disputeResolverUniversityAbi = [
   {
     type: "function",
     inputs: [],
-    name: "governor",
+    name: "owner",
     outputs: [{ name: "", internalType: "address", type: "address" }],
     stateMutability: "view",
   },
@@ -9278,14 +9534,14 @@ export const disputeResolverUniversityAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2Aa1a94307E772BeE42E9EfbD137b1053F1fCfd4)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x8a7902Ef9a5308C7DF0A68A28EEDd6D83436993D)
  */
 export const disputeResolverUniversityAddress = {
-  421614: "0x2Aa1a94307E772BeE42E9EfbD137b1053F1fCfd4",
+  421614: "0x8a7902Ef9a5308C7DF0A68A28EEDd6D83436993D",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2Aa1a94307E772BeE42E9EfbD137b1053F1fCfd4)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x8a7902Ef9a5308C7DF0A68A28EEDd6D83436993D)
  */
 export const disputeResolverUniversityConfig = {
   address: disputeResolverUniversityAddress,
@@ -9470,6 +9726,372 @@ export const disputeTemplateRegistryAddress = {
 export const disputeTemplateRegistryConfig = {
   address: disputeTemplateRegistryAddress,
   abi: disputeTemplateRegistryAbi,
+} as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DisputeTemplateRegistryUniversity
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x75A5D16e9A699162506E4d79D68CF646e6600ba1)
+ */
+export const disputeTemplateRegistryUniversityAbi = [
+  { type: "fallback", stateMutability: "payable" },
+  { type: "receive", stateMutability: "payable" },
+  { type: "error", inputs: [], name: "AlreadyInitialized" },
+  { type: "error", inputs: [], name: "FailedDelegateCall" },
+  {
+    type: "error",
+    inputs: [{ name: "implementation", internalType: "address", type: "address" }],
+    name: "InvalidImplementation",
+  },
+  { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
+  {
+    type: "error",
+    inputs: [{ name: "slot", internalType: "bytes32", type: "bytes32" }],
+    name: "UUPSUnsupportedProxiableUUID",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_templateId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_templateTag",
+        internalType: "string",
+        type: "string",
+        indexed: true,
+      },
+      {
+        name: "_templateData",
+        internalType: "string",
+        type: "string",
+        indexed: false,
+      },
+      {
+        name: "_templateDataMappings",
+        internalType: "string",
+        type: "string",
+        indexed: false,
+      },
+    ],
+    name: "DisputeTemplate",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "version",
+        internalType: "uint64",
+        type: "uint64",
+        indexed: false,
+      },
+    ],
+    name: "Initialized",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "newImplementation",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+    ],
+    name: "Upgraded",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address", type: "address" }],
+    name: "changeOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address", type: "address" }],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "proxiableUUID",
+    outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_templateTag", internalType: "string", type: "string" },
+      { name: "_templateData", internalType: "string", type: "string" },
+      { name: "_templateDataMappings", internalType: "string", type: "string" },
+    ],
+    name: "setDisputeTemplate",
+    outputs: [{ name: "templateId", internalType: "uint256", type: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "templates",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "newImplementation", internalType: "address", type: "address" },
+      { name: "data", internalType: "bytes", type: "bytes" },
+    ],
+    name: "upgradeToAndCall",
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "constructor",
+    inputs: [
+      { name: "_implementation", internalType: "address", type: "address" },
+      { name: "_data", internalType: "bytes", type: "bytes" },
+    ],
+    stateMutability: "nonpayable",
+  },
+] as const;
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x75A5D16e9A699162506E4d79D68CF646e6600ba1)
+ */
+export const disputeTemplateRegistryUniversityAddress = {
+  421614: "0x75A5D16e9A699162506E4d79D68CF646e6600ba1",
+} as const;
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x75A5D16e9A699162506E4d79D68CF646e6600ba1)
+ */
+export const disputeTemplateRegistryUniversityConfig = {
+  address: disputeTemplateRegistryUniversityAddress,
+  abi: disputeTemplateRegistryUniversityAbi,
+} as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DisputeTemplateRegistryUniversity_Implementation
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC3f638389635bF33E019c845FdaF2ed9bca3DF67)
+ */
+export const disputeTemplateRegistryUniversityImplementationAbi = [
+  { type: "constructor", inputs: [], stateMutability: "nonpayable" },
+  { type: "error", inputs: [], name: "AlreadyInitialized" },
+  { type: "error", inputs: [], name: "FailedDelegateCall" },
+  {
+    type: "error",
+    inputs: [{ name: "implementation", internalType: "address", type: "address" }],
+    name: "InvalidImplementation",
+  },
+  { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
+  {
+    type: "error",
+    inputs: [{ name: "slot", internalType: "bytes32", type: "bytes32" }],
+    name: "UUPSUnsupportedProxiableUUID",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_templateId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_templateTag",
+        internalType: "string",
+        type: "string",
+        indexed: true,
+      },
+      {
+        name: "_templateData",
+        internalType: "string",
+        type: "string",
+        indexed: false,
+      },
+      {
+        name: "_templateDataMappings",
+        internalType: "string",
+        type: "string",
+        indexed: false,
+      },
+    ],
+    name: "DisputeTemplate",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "version",
+        internalType: "uint64",
+        type: "uint64",
+        indexed: false,
+      },
+    ],
+    name: "Initialized",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "newImplementation",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+    ],
+    name: "Upgraded",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address", type: "address" }],
+    name: "changeOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address", type: "address" }],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "proxiableUUID",
+    outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_templateTag", internalType: "string", type: "string" },
+      { name: "_templateData", internalType: "string", type: "string" },
+      { name: "_templateDataMappings", internalType: "string", type: "string" },
+    ],
+    name: "setDisputeTemplate",
+    outputs: [{ name: "templateId", internalType: "uint256", type: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "templates",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "newImplementation", internalType: "address", type: "address" },
+      { name: "data", internalType: "bytes", type: "bytes" },
+    ],
+    name: "upgradeToAndCall",
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+] as const;
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC3f638389635bF33E019c845FdaF2ed9bca3DF67)
+ */
+export const disputeTemplateRegistryUniversityImplementationAddress = {
+  421614: "0xC3f638389635bF33E019c845FdaF2ed9bca3DF67",
+} as const;
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC3f638389635bF33E019c845FdaF2ed9bca3DF67)
+ */
+export const disputeTemplateRegistryUniversityImplementationConfig = {
+  address: disputeTemplateRegistryUniversityImplementationAddress,
+  abi: disputeTemplateRegistryUniversityImplementationAbi,
+} as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DisputeTemplateRegistryUniversity_Proxy
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x75A5D16e9A699162506E4d79D68CF646e6600ba1)
+ */
+export const disputeTemplateRegistryUniversityProxyAbi = [
+  {
+    type: "constructor",
+    inputs: [
+      { name: "_implementation", internalType: "address", type: "address" },
+      { name: "_data", internalType: "bytes", type: "bytes" },
+    ],
+    stateMutability: "nonpayable",
+  },
+  { type: "fallback", stateMutability: "payable" },
+  { type: "receive", stateMutability: "payable" },
+] as const;
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x75A5D16e9A699162506E4d79D68CF646e6600ba1)
+ */
+export const disputeTemplateRegistryUniversityProxyAddress = {
+  421614: "0x75A5D16e9A699162506E4d79D68CF646e6600ba1",
+} as const;
+
+/**
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x75A5D16e9A699162506E4d79D68CF646e6600ba1)
+ */
+export const disputeTemplateRegistryUniversityProxyConfig = {
+  address: disputeTemplateRegistryUniversityProxyAddress,
+  abi: disputeTemplateRegistryUniversityProxyAbi,
 } as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -10945,12 +11567,6 @@ export const iHomeGatewayAbi = [
         type: "uint256",
         indexed: false,
       },
-      {
-        name: "_templateUri",
-        internalType: "string",
-        type: "string",
-        indexed: false,
-      },
     ],
     name: "CrossChainDisputeIncoming",
   },
@@ -10980,12 +11596,6 @@ export const iHomeGatewayAbi = [
         name: "_templateId",
         internalType: "uint256",
         type: "uint256",
-        indexed: false,
-      },
-      {
-        name: "_templateUri",
-        internalType: "string",
-        type: "string",
         indexed: false,
       },
     ],
@@ -11081,16 +11691,14 @@ export const iHomeGatewayAbi = [
             type: "uint256",
           },
           { name: "templateId", internalType: "uint256", type: "uint256" },
-          { name: "templateUri", internalType: "string", type: "string" },
           { name: "choices", internalType: "uint256", type: "uint256" },
           { name: "extraData", internalType: "bytes", type: "bytes" },
         ],
       },
-      { name: "_feeAmount", internalType: "uint256", type: "uint256" },
     ],
     name: "relayCreateDispute",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
   },
   {
     type: "function",
@@ -11122,15 +11730,15 @@ export const iHomeGatewayAbi = [
             type: "uint256",
           },
           { name: "templateId", internalType: "uint256", type: "uint256" },
-          { name: "templateUri", internalType: "string", type: "string" },
           { name: "choices", internalType: "uint256", type: "uint256" },
           { name: "extraData", internalType: "bytes", type: "bytes" },
         ],
       },
+      { name: "_feeAmount", internalType: "uint256", type: "uint256" },
     ],
     name: "relayCreateDispute",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -14457,7 +15065,7 @@ export const klerosCoreSnapshotProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5AB37F38778Bc175852fA353056591D91c744ce6)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f)
  */
 export const klerosCoreUniversityAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -14467,10 +15075,8 @@ export const klerosCoreUniversityAbi = [
   { type: "error", inputs: [], name: "AppealFeesNotEnough" },
   { type: "error", inputs: [], name: "AppealPeriodNotPassed" },
   { type: "error", inputs: [], name: "ArbitrationFeesNotEnough" },
-  { type: "error", inputs: [], name: "ArraysLengthMismatch" },
   { type: "error", inputs: [], name: "CannotDisableClassicDK" },
   { type: "error", inputs: [], name: "CommitPeriodNotPassed" },
-  { type: "error", inputs: [], name: "DepthLevelMax" },
   { type: "error", inputs: [], name: "DisputeKitNotSupportedByCourt" },
   { type: "error", inputs: [], name: "DisputeKitOnly" },
   { type: "error", inputs: [], name: "DisputeNotAppealable" },
@@ -14478,8 +15084,6 @@ export const klerosCoreUniversityAbi = [
   { type: "error", inputs: [], name: "DisputeStillDrawing" },
   { type: "error", inputs: [], name: "EvidenceNotPassedAndNotAppeal" },
   { type: "error", inputs: [], name: "FailedDelegateCall" },
-  { type: "error", inputs: [], name: "GovernorOnly" },
-  { type: "error", inputs: [], name: "GovernorOrInstructorOnly" },
   { type: "error", inputs: [], name: "InstructorOnly" },
   { type: "error", inputs: [], name: "InvalidDisputKitParent" },
   { type: "error", inputs: [], name: "InvalidForkingCourtAsParent" },
@@ -14494,12 +15098,15 @@ export const klerosCoreUniversityAbi = [
   { type: "error", inputs: [], name: "NotEvidencePeriod" },
   { type: "error", inputs: [], name: "NotExecutionPeriod" },
   { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "OwnerOrInstructorOnly" },
   { type: "error", inputs: [], name: "RulingAlreadyExecuted" },
   { type: "error", inputs: [], name: "SortitionModuleOnly" },
   { type: "error", inputs: [], name: "StakingInTooManyCourts" },
   { type: "error", inputs: [], name: "StakingLessThanCourtMinStake" },
-  { type: "error", inputs: [], name: "StakingNotPossibeInThisCourt" },
+  { type: "error", inputs: [], name: "StakingNotPossibleInThisCourt" },
   { type: "error", inputs: [], name: "StakingTransferFailed" },
+  { type: "error", inputs: [], name: "StakingZeroWhenNoStake" },
   { type: "error", inputs: [], name: "TokenNotAccepted" },
   { type: "error", inputs: [], name: "TransferFailed" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -14571,8 +15178,8 @@ export const klerosCoreUniversityAbi = [
     inputs: [
       {
         name: "_courtID",
-        internalType: "uint256",
-        type: "uint256",
+        internalType: "uint96",
+        type: "uint96",
         indexed: true,
       },
       {
@@ -14844,6 +15451,12 @@ export const klerosCoreUniversityAbi = [
     anonymous: false,
     inputs: [
       {
+        name: "_account",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
         name: "_disputeID",
         internalType: "uint256",
         type: "uint256",
@@ -14856,13 +15469,62 @@ export const klerosCoreUniversityAbi = [
         indexed: true,
       },
       {
-        name: "_pnkAmount",
+        name: "_degreeOfCoherencyPnk",
         internalType: "uint256",
         type: "uint256",
         indexed: false,
       },
       {
-        name: "_feeAmount",
+        name: "_degreeOfCoherencyFee",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "_amountPnk",
+        internalType: "int256",
+        type: "int256",
+        indexed: false,
+      },
+      {
+        name: "_amountFee",
+        internalType: "int256",
+        type: "int256",
+        indexed: false,
+      },
+      {
+        name: "_feeToken",
+        internalType: "contract IERC20",
+        type: "address",
+        indexed: false,
+      },
+    ],
+    name: "JurorRewardPenalty",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_disputeID",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_roundID",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_amountPnk",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "_amountFee",
         internalType: "uint256",
         type: "uint256",
         indexed: false,
@@ -14944,55 +15606,6 @@ export const klerosCoreUniversityAbi = [
       },
     ],
     name: "Ruling",
-  },
-  {
-    type: "event",
-    anonymous: false,
-    inputs: [
-      {
-        name: "_account",
-        internalType: "address",
-        type: "address",
-        indexed: true,
-      },
-      {
-        name: "_disputeID",
-        internalType: "uint256",
-        type: "uint256",
-        indexed: true,
-      },
-      {
-        name: "_roundID",
-        internalType: "uint256",
-        type: "uint256",
-        indexed: true,
-      },
-      {
-        name: "_degreeOfCoherency",
-        internalType: "uint256",
-        type: "uint256",
-        indexed: false,
-      },
-      {
-        name: "_pnkAmount",
-        internalType: "int256",
-        type: "int256",
-        indexed: false,
-      },
-      {
-        name: "_feeAmount",
-        internalType: "int256",
-        type: "int256",
-        indexed: false,
-      },
-      {
-        name: "_feeToken",
-        internalType: "contract IERC20",
-        type: "address",
-        indexed: false,
-      },
-    ],
-    name: "TokenAndETHShift",
   },
   {
     type: "event",
@@ -15107,13 +15720,6 @@ export const klerosCoreUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_governor", internalType: "address payable", type: "address" }],
-    name: "changeGovernor",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
     inputs: [{ name: "_instructor", internalType: "address", type: "address" }],
     name: "changeInstructor",
     outputs: [],
@@ -15129,6 +15735,13 @@ export const klerosCoreUniversityAbi = [
       },
     ],
     name: "changeJurorProsecutionModule",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address payable", type: "address" }],
+    name: "changeOwner",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -15173,7 +15786,6 @@ export const klerosCoreUniversityAbi = [
       { name: "alpha", internalType: "uint256", type: "uint256" },
       { name: "feeForJuror", internalType: "uint256", type: "uint256" },
       { name: "jurorsForCourtJump", internalType: "uint256", type: "uint256" },
-      { name: "disabled", internalType: "bool", type: "bool" },
     ],
     stateMutability: "view",
   },
@@ -15312,7 +15924,7 @@ export const klerosCoreUniversityAbi = [
       { name: "_amount", internalType: "uint256", type: "uint256" },
       { name: "_data", internalType: "bytes", type: "bytes" },
     ],
-    name: "executeGovernorProposal",
+    name: "executeOwnerProposal",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -15350,6 +15962,16 @@ export const klerosCoreUniversityAbi = [
       { name: "_disputeID", internalType: "uint256", type: "uint256" },
       { name: "_round", internalType: "uint256", type: "uint256" },
     ],
+    name: "getPnkAtStakePerJuror",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_disputeID", internalType: "uint256", type: "uint256" },
+      { name: "_round", internalType: "uint256", type: "uint256" },
+    ],
     name: "getRoundInfo",
     outputs: [
       {
@@ -15373,6 +15995,11 @@ export const klerosCoreUniversityAbi = [
           { name: "pnkPenalties", internalType: "uint256", type: "uint256" },
           { name: "drawnJurors", internalType: "address[]", type: "address[]" },
           {
+            name: "drawnJurorFromCourtIDs",
+            internalType: "uint96[]",
+            type: "uint96[]",
+          },
+          {
             name: "sumFeeRewardPaid",
             internalType: "uint256",
             type: "uint256",
@@ -15388,6 +16015,7 @@ export const klerosCoreUniversityAbi = [
             type: "address",
           },
           { name: "drawIterations", internalType: "uint256", type: "uint256" },
+          { name: "__gap", internalType: "uint256[10]", type: "uint256[10]" },
         ],
       },
     ],
@@ -15408,15 +16036,8 @@ export const klerosCoreUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [],
-    name: "governor",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
     inputs: [
-      { name: "_governor", internalType: "address", type: "address" },
+      { name: "_owner", internalType: "address", type: "address" },
       { name: "_instructor", internalType: "address", type: "address" },
       { name: "_pinakion", internalType: "contract IERC20", type: "address" },
       {
@@ -15483,6 +16104,13 @@ export const klerosCoreUniversityAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_disputeID", internalType: "uint256", type: "uint256" }],
     name: "passPeriod",
     outputs: [],
@@ -15518,7 +16146,6 @@ export const klerosCoreUniversityAbi = [
       { name: "_account", internalType: "address", type: "address" },
       { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_newStake", internalType: "uint256", type: "uint256" },
-      { name: "_alreadyTransferred", internalType: "bool", type: "bool" },
     ],
     name: "setStakeBySortitionModule",
     outputs: [],
@@ -15540,12 +16167,29 @@ export const klerosCoreUniversityAbi = [
   {
     type: "function",
     inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_amount", internalType: "uint256", type: "uint256" },
+    ],
+    name: "transferBySortitionModule",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
       { name: "newImplementation", internalType: "address", type: "address" },
       { name: "data", internalType: "bytes", type: "bytes" },
     ],
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
   },
   {
     type: "constructor",
@@ -15558,14 +16202,14 @@ export const klerosCoreUniversityAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5AB37F38778Bc175852fA353056591D91c744ce6)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f)
  */
 export const klerosCoreUniversityAddress = {
-  421614: "0x5AB37F38778Bc175852fA353056591D91c744ce6",
+  421614: "0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5AB37F38778Bc175852fA353056591D91c744ce6)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f)
  */
 export const klerosCoreUniversityConfig = {
   address: klerosCoreUniversityAddress,
@@ -15577,7 +16221,7 @@ export const klerosCoreUniversityConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xF74DaBfC5F5dbdBD07636637204d9C35326D2906)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb75b0cc01af4aD0D65D50082ae0717004D479Aa0)
  */
 export const klerosCoreUniversityImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -15586,10 +16230,8 @@ export const klerosCoreUniversityImplementationAbi = [
   { type: "error", inputs: [], name: "AppealFeesNotEnough" },
   { type: "error", inputs: [], name: "AppealPeriodNotPassed" },
   { type: "error", inputs: [], name: "ArbitrationFeesNotEnough" },
-  { type: "error", inputs: [], name: "ArraysLengthMismatch" },
   { type: "error", inputs: [], name: "CannotDisableClassicDK" },
   { type: "error", inputs: [], name: "CommitPeriodNotPassed" },
-  { type: "error", inputs: [], name: "DepthLevelMax" },
   { type: "error", inputs: [], name: "DisputeKitNotSupportedByCourt" },
   { type: "error", inputs: [], name: "DisputeKitOnly" },
   { type: "error", inputs: [], name: "DisputeNotAppealable" },
@@ -15597,8 +16239,6 @@ export const klerosCoreUniversityImplementationAbi = [
   { type: "error", inputs: [], name: "DisputeStillDrawing" },
   { type: "error", inputs: [], name: "EvidenceNotPassedAndNotAppeal" },
   { type: "error", inputs: [], name: "FailedDelegateCall" },
-  { type: "error", inputs: [], name: "GovernorOnly" },
-  { type: "error", inputs: [], name: "GovernorOrInstructorOnly" },
   { type: "error", inputs: [], name: "InstructorOnly" },
   { type: "error", inputs: [], name: "InvalidDisputKitParent" },
   { type: "error", inputs: [], name: "InvalidForkingCourtAsParent" },
@@ -15613,12 +16253,15 @@ export const klerosCoreUniversityImplementationAbi = [
   { type: "error", inputs: [], name: "NotEvidencePeriod" },
   { type: "error", inputs: [], name: "NotExecutionPeriod" },
   { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "OwnerOrInstructorOnly" },
   { type: "error", inputs: [], name: "RulingAlreadyExecuted" },
   { type: "error", inputs: [], name: "SortitionModuleOnly" },
   { type: "error", inputs: [], name: "StakingInTooManyCourts" },
   { type: "error", inputs: [], name: "StakingLessThanCourtMinStake" },
-  { type: "error", inputs: [], name: "StakingNotPossibeInThisCourt" },
+  { type: "error", inputs: [], name: "StakingNotPossibleInThisCourt" },
   { type: "error", inputs: [], name: "StakingTransferFailed" },
+  { type: "error", inputs: [], name: "StakingZeroWhenNoStake" },
   { type: "error", inputs: [], name: "TokenNotAccepted" },
   { type: "error", inputs: [], name: "TransferFailed" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -15690,8 +16333,8 @@ export const klerosCoreUniversityImplementationAbi = [
     inputs: [
       {
         name: "_courtID",
-        internalType: "uint256",
-        type: "uint256",
+        internalType: "uint96",
+        type: "uint96",
         indexed: true,
       },
       {
@@ -15963,6 +16606,12 @@ export const klerosCoreUniversityImplementationAbi = [
     anonymous: false,
     inputs: [
       {
+        name: "_account",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
         name: "_disputeID",
         internalType: "uint256",
         type: "uint256",
@@ -15975,13 +16624,62 @@ export const klerosCoreUniversityImplementationAbi = [
         indexed: true,
       },
       {
-        name: "_pnkAmount",
+        name: "_degreeOfCoherencyPnk",
         internalType: "uint256",
         type: "uint256",
         indexed: false,
       },
       {
-        name: "_feeAmount",
+        name: "_degreeOfCoherencyFee",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "_amountPnk",
+        internalType: "int256",
+        type: "int256",
+        indexed: false,
+      },
+      {
+        name: "_amountFee",
+        internalType: "int256",
+        type: "int256",
+        indexed: false,
+      },
+      {
+        name: "_feeToken",
+        internalType: "contract IERC20",
+        type: "address",
+        indexed: false,
+      },
+    ],
+    name: "JurorRewardPenalty",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_disputeID",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_roundID",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_amountPnk",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "_amountFee",
         internalType: "uint256",
         type: "uint256",
         indexed: false,
@@ -16063,55 +16761,6 @@ export const klerosCoreUniversityImplementationAbi = [
       },
     ],
     name: "Ruling",
-  },
-  {
-    type: "event",
-    anonymous: false,
-    inputs: [
-      {
-        name: "_account",
-        internalType: "address",
-        type: "address",
-        indexed: true,
-      },
-      {
-        name: "_disputeID",
-        internalType: "uint256",
-        type: "uint256",
-        indexed: true,
-      },
-      {
-        name: "_roundID",
-        internalType: "uint256",
-        type: "uint256",
-        indexed: true,
-      },
-      {
-        name: "_degreeOfCoherency",
-        internalType: "uint256",
-        type: "uint256",
-        indexed: false,
-      },
-      {
-        name: "_pnkAmount",
-        internalType: "int256",
-        type: "int256",
-        indexed: false,
-      },
-      {
-        name: "_feeAmount",
-        internalType: "int256",
-        type: "int256",
-        indexed: false,
-      },
-      {
-        name: "_feeToken",
-        internalType: "contract IERC20",
-        type: "address",
-        indexed: false,
-      },
-    ],
-    name: "TokenAndETHShift",
   },
   {
     type: "event",
@@ -16226,13 +16875,6 @@ export const klerosCoreUniversityImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_governor", internalType: "address payable", type: "address" }],
-    name: "changeGovernor",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
     inputs: [{ name: "_instructor", internalType: "address", type: "address" }],
     name: "changeInstructor",
     outputs: [],
@@ -16248,6 +16890,13 @@ export const klerosCoreUniversityImplementationAbi = [
       },
     ],
     name: "changeJurorProsecutionModule",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address payable", type: "address" }],
+    name: "changeOwner",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -16292,7 +16941,6 @@ export const klerosCoreUniversityImplementationAbi = [
       { name: "alpha", internalType: "uint256", type: "uint256" },
       { name: "feeForJuror", internalType: "uint256", type: "uint256" },
       { name: "jurorsForCourtJump", internalType: "uint256", type: "uint256" },
-      { name: "disabled", internalType: "bool", type: "bool" },
     ],
     stateMutability: "view",
   },
@@ -16431,7 +17079,7 @@ export const klerosCoreUniversityImplementationAbi = [
       { name: "_amount", internalType: "uint256", type: "uint256" },
       { name: "_data", internalType: "bytes", type: "bytes" },
     ],
-    name: "executeGovernorProposal",
+    name: "executeOwnerProposal",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -16469,6 +17117,16 @@ export const klerosCoreUniversityImplementationAbi = [
       { name: "_disputeID", internalType: "uint256", type: "uint256" },
       { name: "_round", internalType: "uint256", type: "uint256" },
     ],
+    name: "getPnkAtStakePerJuror",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_disputeID", internalType: "uint256", type: "uint256" },
+      { name: "_round", internalType: "uint256", type: "uint256" },
+    ],
     name: "getRoundInfo",
     outputs: [
       {
@@ -16492,6 +17150,11 @@ export const klerosCoreUniversityImplementationAbi = [
           { name: "pnkPenalties", internalType: "uint256", type: "uint256" },
           { name: "drawnJurors", internalType: "address[]", type: "address[]" },
           {
+            name: "drawnJurorFromCourtIDs",
+            internalType: "uint96[]",
+            type: "uint96[]",
+          },
+          {
             name: "sumFeeRewardPaid",
             internalType: "uint256",
             type: "uint256",
@@ -16507,6 +17170,7 @@ export const klerosCoreUniversityImplementationAbi = [
             type: "address",
           },
           { name: "drawIterations", internalType: "uint256", type: "uint256" },
+          { name: "__gap", internalType: "uint256[10]", type: "uint256[10]" },
         ],
       },
     ],
@@ -16527,15 +17191,8 @@ export const klerosCoreUniversityImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [],
-    name: "governor",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
     inputs: [
-      { name: "_governor", internalType: "address", type: "address" },
+      { name: "_owner", internalType: "address", type: "address" },
       { name: "_instructor", internalType: "address", type: "address" },
       { name: "_pinakion", internalType: "contract IERC20", type: "address" },
       {
@@ -16602,6 +17259,13 @@ export const klerosCoreUniversityImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "_disputeID", internalType: "uint256", type: "uint256" }],
     name: "passPeriod",
     outputs: [],
@@ -16637,7 +17301,6 @@ export const klerosCoreUniversityImplementationAbi = [
       { name: "_account", internalType: "address", type: "address" },
       { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_newStake", internalType: "uint256", type: "uint256" },
-      { name: "_alreadyTransferred", internalType: "bool", type: "bool" },
     ],
     name: "setStakeBySortitionModule",
     outputs: [],
@@ -16659,6 +17322,16 @@ export const klerosCoreUniversityImplementationAbi = [
   {
     type: "function",
     inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_amount", internalType: "uint256", type: "uint256" },
+    ],
+    name: "transferBySortitionModule",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
       { name: "newImplementation", internalType: "address", type: "address" },
       { name: "data", internalType: "bytes", type: "bytes" },
     ],
@@ -16666,17 +17339,24 @@ export const klerosCoreUniversityImplementationAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xF74DaBfC5F5dbdBD07636637204d9C35326D2906)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb75b0cc01af4aD0D65D50082ae0717004D479Aa0)
  */
 export const klerosCoreUniversityImplementationAddress = {
-  421614: "0xF74DaBfC5F5dbdBD07636637204d9C35326D2906",
+  421614: "0xb75b0cc01af4aD0D65D50082ae0717004D479Aa0",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xF74DaBfC5F5dbdBD07636637204d9C35326D2906)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb75b0cc01af4aD0D65D50082ae0717004D479Aa0)
  */
 export const klerosCoreUniversityImplementationConfig = {
   address: klerosCoreUniversityImplementationAddress,
@@ -16688,7 +17368,7 @@ export const klerosCoreUniversityImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5AB37F38778Bc175852fA353056591D91c744ce6)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f)
  */
 export const klerosCoreUniversityProxyAbi = [
   {
@@ -16704,14 +17384,14 @@ export const klerosCoreUniversityProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5AB37F38778Bc175852fA353056591D91c744ce6)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f)
  */
 export const klerosCoreUniversityProxyAddress = {
-  421614: "0x5AB37F38778Bc175852fA353056591D91c744ce6",
+  421614: "0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5AB37F38778Bc175852fA353056591D91c744ce6)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA34dBBD0E5e1d09bd683455f9dbC393797BC558f)
  */
 export const klerosCoreUniversityProxyConfig = {
   address: klerosCoreUniversityProxyAddress,
@@ -19560,7 +20240,7 @@ export const sortitionModuleConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x9f55804177e7E44E558616cD7d06B865788214cA)
  */
 export const sortitionModuleUniversityAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -19572,7 +20252,10 @@ export const sortitionModuleUniversityAbi = [
     inputs: [{ name: "implementation", internalType: "address", type: "address" }],
     name: "InvalidImplementation",
   },
+  { type: "error", inputs: [], name: "KlerosCoreOnly" },
+  { type: "error", inputs: [], name: "NotEligibleForWithdrawal" },
   { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
   {
     type: "error",
@@ -19591,6 +20274,44 @@ export const sortitionModuleUniversityAbi = [
       },
     ],
     name: "Initialized",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_account",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_amount",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "LeftoverPNK",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_account",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_amount",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "LeftoverPNKWithdrawn",
   },
   {
     type: "event",
@@ -19647,6 +20368,12 @@ export const sortitionModuleUniversityAbi = [
         type: "uint256",
         indexed: false,
       },
+      {
+        name: "_amountAllCourts",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
     ],
     name: "StakeSet",
   },
@@ -19689,7 +20416,7 @@ export const sortitionModuleUniversityAbi = [
   {
     type: "function",
     inputs: [
-      { name: "_key", internalType: "bytes32", type: "bytes32" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_extraData", internalType: "bytes", type: "bytes" },
     ],
     name: "createTree",
@@ -19706,13 +20433,40 @@ export const sortitionModuleUniversityAbi = [
   {
     type: "function",
     inputs: [
-      { name: "", internalType: "bytes32", type: "bytes32" },
+      { name: "", internalType: "uint96", type: "uint96" },
       { name: "", internalType: "uint256", type: "uint256" },
       { name: "", internalType: "uint256", type: "uint256" },
     ],
     name: "draw",
-    outputs: [{ name: "drawnAddress", internalType: "address", type: "address" }],
+    outputs: [
+      { name: "drawnAddress", internalType: "address", type: "address" },
+      { name: "fromSubcourtID", internalType: "uint96", type: "uint96" },
+    ],
     stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_iterations", internalType: "uint256", type: "uint256" }],
+    name: "executeDelayedStakes",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+    ],
+    name: "forcedUnstake",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_account", internalType: "address", type: "address" }],
+    name: "forcedUnstakeAllCourts",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -19738,15 +20492,15 @@ export const sortitionModuleUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [],
-    name: "governor",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [{ name: "_juror", internalType: "address", type: "address" }],
+    name: "getJurorLeftoverPNK",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
     type: "function",
     inputs: [
-      { name: "_governor", internalType: "address", type: "address" },
+      { name: "_owner", internalType: "address", type: "address" },
       {
         name: "_core",
         internalType: "contract KlerosCoreUniversity",
@@ -19786,18 +20540,15 @@ export const sortitionModuleUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_randomNumber", internalType: "uint256", type: "uint256" }],
-    name: "notifyRandomNumber",
-    outputs: [],
-    stateMutability: "nonpayable",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
   },
   {
     type: "function",
-    inputs: [
-      { name: "_account", internalType: "address", type: "address" },
-      { name: "_relativeAmount", internalType: "uint256", type: "uint256" },
-    ],
-    name: "penalizeStake",
+    inputs: [],
+    name: "passPhase",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -19820,8 +20571,14 @@ export const sortitionModuleUniversityAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_account", internalType: "address", type: "address" }],
-    name: "setJurorInactive",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_pnkDeposit", internalType: "uint256", type: "uint256" },
+      { name: "_pnkWithdrawal", internalType: "uint256", type: "uint256" },
+      { name: "_newStake", internalType: "uint256", type: "uint256" },
+    ],
+    name: "setStake",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -19830,19 +20587,25 @@ export const sortitionModuleUniversityAbi = [
     inputs: [
       { name: "_account", internalType: "address", type: "address" },
       { name: "_courtID", internalType: "uint96", type: "uint96" },
-      { name: "_newStake", internalType: "uint256", type: "uint256" },
-      { name: "_alreadyTransferred", internalType: "bool", type: "bool" },
+      { name: "_penalty", internalType: "uint256", type: "uint256" },
     ],
-    name: "setStake",
+    name: "setStakePenalty",
     outputs: [
-      { name: "pnkDeposit", internalType: "uint256", type: "uint256" },
-      { name: "pnkWithdrawal", internalType: "uint256", type: "uint256" },
-      {
-        name: "stakingResult",
-        internalType: "enum StakingResult",
-        type: "uint8",
-      },
+      { name: "pnkBalance", internalType: "uint256", type: "uint256" },
+      { name: "newCourtStake", internalType: "uint256", type: "uint256" },
+      { name: "availablePenalty", internalType: "uint256", type: "uint256" },
     ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_reward", internalType: "uint256", type: "uint256" },
+    ],
+    name: "setStakeReward",
+    outputs: [{ name: "success", internalType: "bool", type: "bool" }],
     stateMutability: "nonpayable",
   },
   {
@@ -19871,6 +20634,40 @@ export const sortitionModuleUniversityAbi = [
     name: "upgradeToAndCall",
     outputs: [],
     stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_newStake", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "bool", type: "bool" },
+    ],
+    name: "validateStake",
+    outputs: [
+      { name: "pnkDeposit", internalType: "uint256", type: "uint256" },
+      { name: "pnkWithdrawal", internalType: "uint256", type: "uint256" },
+      {
+        name: "stakingResult",
+        internalType: "enum StakingResult",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_account", internalType: "address", type: "address" }],
+    name: "withdrawLeftoverPNK",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "constructor",
@@ -19883,14 +20680,14 @@ export const sortitionModuleUniversityAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x9f55804177e7E44E558616cD7d06B865788214cA)
  */
 export const sortitionModuleUniversityAddress = {
-  421614: "0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79",
+  421614: "0x9f55804177e7E44E558616cD7d06B865788214cA",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x9f55804177e7E44E558616cD7d06B865788214cA)
  */
 export const sortitionModuleUniversityConfig = {
   address: sortitionModuleUniversityAddress,
@@ -19902,7 +20699,7 @@ export const sortitionModuleUniversityConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5CAD621D69E0535422aCFaCC0017bC32beC7A486)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x270e3D63d3d275604df0a1Bd312E1255DCd96936)
  */
 export const sortitionModuleUniversityImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -19913,7 +20710,10 @@ export const sortitionModuleUniversityImplementationAbi = [
     inputs: [{ name: "implementation", internalType: "address", type: "address" }],
     name: "InvalidImplementation",
   },
+  { type: "error", inputs: [], name: "KlerosCoreOnly" },
+  { type: "error", inputs: [], name: "NotEligibleForWithdrawal" },
   { type: "error", inputs: [], name: "NotInitializing" },
+  { type: "error", inputs: [], name: "OwnerOnly" },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
   {
     type: "error",
@@ -19932,6 +20732,44 @@ export const sortitionModuleUniversityImplementationAbi = [
       },
     ],
     name: "Initialized",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_account",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_amount",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "LeftoverPNK",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_account",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_amount",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "LeftoverPNKWithdrawn",
   },
   {
     type: "event",
@@ -19988,6 +20826,12 @@ export const sortitionModuleUniversityImplementationAbi = [
         type: "uint256",
         indexed: false,
       },
+      {
+        name: "_amountAllCourts",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
     ],
     name: "StakeSet",
   },
@@ -20030,7 +20874,7 @@ export const sortitionModuleUniversityImplementationAbi = [
   {
     type: "function",
     inputs: [
-      { name: "_key", internalType: "bytes32", type: "bytes32" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_extraData", internalType: "bytes", type: "bytes" },
     ],
     name: "createTree",
@@ -20047,13 +20891,40 @@ export const sortitionModuleUniversityImplementationAbi = [
   {
     type: "function",
     inputs: [
-      { name: "", internalType: "bytes32", type: "bytes32" },
+      { name: "", internalType: "uint96", type: "uint96" },
       { name: "", internalType: "uint256", type: "uint256" },
       { name: "", internalType: "uint256", type: "uint256" },
     ],
     name: "draw",
-    outputs: [{ name: "drawnAddress", internalType: "address", type: "address" }],
+    outputs: [
+      { name: "drawnAddress", internalType: "address", type: "address" },
+      { name: "fromSubcourtID", internalType: "uint96", type: "uint96" },
+    ],
     stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_iterations", internalType: "uint256", type: "uint256" }],
+    name: "executeDelayedStakes",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+    ],
+    name: "forcedUnstake",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_account", internalType: "address", type: "address" }],
+    name: "forcedUnstakeAllCourts",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -20079,15 +20950,15 @@ export const sortitionModuleUniversityImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [],
-    name: "governor",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [{ name: "_juror", internalType: "address", type: "address" }],
+    name: "getJurorLeftoverPNK",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
     type: "function",
     inputs: [
-      { name: "_governor", internalType: "address", type: "address" },
+      { name: "_owner", internalType: "address", type: "address" },
       {
         name: "_core",
         internalType: "contract KlerosCoreUniversity",
@@ -20127,18 +20998,15 @@ export const sortitionModuleUniversityImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_randomNumber", internalType: "uint256", type: "uint256" }],
-    name: "notifyRandomNumber",
-    outputs: [],
-    stateMutability: "nonpayable",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
   },
   {
     type: "function",
-    inputs: [
-      { name: "_account", internalType: "address", type: "address" },
-      { name: "_relativeAmount", internalType: "uint256", type: "uint256" },
-    ],
-    name: "penalizeStake",
+    inputs: [],
+    name: "passPhase",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -20161,8 +21029,14 @@ export const sortitionModuleUniversityImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "_account", internalType: "address", type: "address" }],
-    name: "setJurorInactive",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_pnkDeposit", internalType: "uint256", type: "uint256" },
+      { name: "_pnkWithdrawal", internalType: "uint256", type: "uint256" },
+      { name: "_newStake", internalType: "uint256", type: "uint256" },
+    ],
+    name: "setStake",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -20171,19 +21045,25 @@ export const sortitionModuleUniversityImplementationAbi = [
     inputs: [
       { name: "_account", internalType: "address", type: "address" },
       { name: "_courtID", internalType: "uint96", type: "uint96" },
-      { name: "_newStake", internalType: "uint256", type: "uint256" },
-      { name: "_alreadyTransferred", internalType: "bool", type: "bool" },
+      { name: "_penalty", internalType: "uint256", type: "uint256" },
     ],
-    name: "setStake",
+    name: "setStakePenalty",
     outputs: [
-      { name: "pnkDeposit", internalType: "uint256", type: "uint256" },
-      { name: "pnkWithdrawal", internalType: "uint256", type: "uint256" },
-      {
-        name: "stakingResult",
-        internalType: "enum StakingResult",
-        type: "uint8",
-      },
+      { name: "pnkBalance", internalType: "uint256", type: "uint256" },
+      { name: "newCourtStake", internalType: "uint256", type: "uint256" },
+      { name: "availablePenalty", internalType: "uint256", type: "uint256" },
     ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_reward", internalType: "uint256", type: "uint256" },
+    ],
+    name: "setStakeReward",
+    outputs: [{ name: "success", internalType: "bool", type: "bool" }],
     stateMutability: "nonpayable",
   },
   {
@@ -20213,17 +21093,51 @@ export const sortitionModuleUniversityImplementationAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [
+      { name: "_account", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_newStake", internalType: "uint256", type: "uint256" },
+      { name: "", internalType: "bool", type: "bool" },
+    ],
+    name: "validateStake",
+    outputs: [
+      { name: "pnkDeposit", internalType: "uint256", type: "uint256" },
+      { name: "pnkWithdrawal", internalType: "uint256", type: "uint256" },
+      {
+        name: "stakingResult",
+        internalType: "enum StakingResult",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_account", internalType: "address", type: "address" }],
+    name: "withdrawLeftoverPNK",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5CAD621D69E0535422aCFaCC0017bC32beC7A486)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x270e3D63d3d275604df0a1Bd312E1255DCd96936)
  */
 export const sortitionModuleUniversityImplementationAddress = {
-  421614: "0x5CAD621D69E0535422aCFaCC0017bC32beC7A486",
+  421614: "0x270e3D63d3d275604df0a1Bd312E1255DCd96936",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5CAD621D69E0535422aCFaCC0017bC32beC7A486)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x270e3D63d3d275604df0a1Bd312E1255DCd96936)
  */
 export const sortitionModuleUniversityImplementationConfig = {
   address: sortitionModuleUniversityImplementationAddress,
@@ -20235,7 +21149,7 @@ export const sortitionModuleUniversityImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x9f55804177e7E44E558616cD7d06B865788214cA)
  */
 export const sortitionModuleUniversityProxyAbi = [
   {
@@ -20251,14 +21165,14 @@ export const sortitionModuleUniversityProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x9f55804177e7E44E558616cD7d06B865788214cA)
  */
 export const sortitionModuleUniversityProxyAddress = {
-  421614: "0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79",
+  421614: "0x9f55804177e7E44E558616cD7d06B865788214cA",
 } as const;
 
 /**
- * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79)
+ * [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x9f55804177e7E44E558616cD7d06B865788214cA)
  */
 export const sortitionModuleUniversityProxyConfig = {
   address: sortitionModuleUniversityProxyAddress,

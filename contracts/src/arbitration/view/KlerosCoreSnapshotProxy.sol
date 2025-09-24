@@ -9,7 +9,7 @@ interface IKlerosCore {
 }
 
 /// @title KlerosCoreSnapshotProxy
-/// Proxy contract for V2 that exposes staked PNK with balanceOf() function for Snapshot voting.
+/// @notice Proxy contract for V2 that exposes staked PNK with balanceOf() function for Snapshot voting.
 contract KlerosCoreSnapshotProxy {
     // ************************************* //
     // *         State Modifiers           * //
@@ -34,7 +34,7 @@ contract KlerosCoreSnapshotProxy {
     // *         Constructor               * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @notice Constructor
     /// @param _owner The owner of the contract.
     /// @param _core KlerosCore to read the balance from.
     constructor(address _owner, IKlerosCore _core) {
@@ -46,13 +46,13 @@ contract KlerosCoreSnapshotProxy {
     // *             Governance            * //
     // ************************************* //
 
-    /// @dev Changes the `owner` storage variable.
+    /// @notice Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
     function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
     }
 
-    /// @dev Changes the `core` storage variable.
+    /// @notice Changes the `core` storage variable.
     /// @param _core The new value for the `core` storage variable.
     function changeCore(IKlerosCore _core) external onlyByOwner {
         core = _core;
@@ -62,8 +62,8 @@ contract KlerosCoreSnapshotProxy {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Returns the amount of PNK staked in KlerosV2 for a particular address.
-    /// Note: Proxy doesn't need to differentiate between courts so we pass 0 as courtID.
+    /// @notice Returns the amount of PNK staked in KlerosV2 for a particular address.
+    /// @dev Proxy doesn't need to differentiate between courts so we pass 0 as courtID.
     /// @param _account The address to query.
     /// @return totalStaked Total amount staked in V2 by the address.
     function balanceOf(address _account) external view returns (uint256 totalStaked) {

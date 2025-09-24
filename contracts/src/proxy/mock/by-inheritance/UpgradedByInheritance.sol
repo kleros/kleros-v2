@@ -20,7 +20,7 @@ contract UpgradedByInheritanceV1 is UUPSProxiable, Initializable {
         _disableInitializers();
     }
 
-    function initialize(address _owner) external virtual reinitializer(1) {
+    function initialize(address _owner) external virtual initializer {
         owner = _owner;
         counter = 1;
     }
@@ -61,7 +61,7 @@ contract UpgradedByInheritanceV3Bad is UpgradedByInheritanceV2 {
         _disableInitializers();
     }
 
-    function initializeV3() external reinitializer(1) {
+    function initializeV3() external initializer {
         // Wrong reinitializer version.
     }
 }

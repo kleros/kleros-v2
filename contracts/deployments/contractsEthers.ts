@@ -18,6 +18,7 @@ import {
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
+  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
@@ -38,13 +39,13 @@ import {
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
 } from "./testnet.viem";
 import {
-  klerosCoreNeoConfig as mainnetCoreConfig,
-  sortitionModuleNeoConfig as mainnetSortitionConfig,
-  disputeKitClassicNeoConfig as mainnetDkcConfig,
-  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
-  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
-  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
-  disputeResolverNeoConfig as mainnetDrConfig,
+  klerosCoreConfig as mainnetCoreConfig,
+  sortitionModuleConfig as mainnetSortitionConfig,
+  disputeKitClassicConfig as mainnetDkcConfig,
+  disputeKitShutterConfig as mainnetDkShutterConfig,
+  disputeKitGatedConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterConfig as mainnetDkGatedShutterConfig,
+  disputeResolverConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
   policyRegistryConfig as mainnetPolicyRegistryConfig,
@@ -92,10 +93,6 @@ import {
   KlerosCoreUniversity__factory,
   SortitionModuleUniversity,
   SortitionModuleUniversity__factory,
-  KlerosCoreNeo,
-  KlerosCoreNeo__factory,
-  SortitionModuleNeo,
-  SortitionModuleNeo__factory,
 } from "../typechain-types";
 import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 
@@ -171,8 +168,8 @@ function getCommonFactories(
 
 export const getContracts = async (provider: ethers.Provider, deployment: DeploymentName) => {
   const { chainId } = deployments[deployment];
-  let klerosCore: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
-  let sortition: SortitionModule | SortitionModuleNeo | SortitionModuleUniversity;
+  let klerosCore: KlerosCore | KlerosCoreUniversity;
+  let sortition: SortitionModule | SortitionModuleUniversity;
   let commonFactories: CommonFactories;
 
   switch (deployment) {
@@ -210,7 +207,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
         {
           dkClassicConfig: devnetDkClassicUniversityConfig,
           drConfig: devnetDrUniversityConfig,
-          dtrConfig: devnetDtrConfig,
+          dtrConfig: devnetDtrUniversityConfig,
           evidenceConfig: devnetEvidenceConfig,
           policyRegistryConfig: devnetPolicyRegistryConfig,
           batcherConfig: devnetBatcherConfig,
@@ -247,9 +244,9 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
         chainId
       );
       break;
-    case "mainnetNeo":
-      klerosCore = KlerosCoreNeo__factory.connect(getAddress(mainnetCoreConfig, chainId), provider);
-      sortition = SortitionModuleNeo__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
+    case "mainnet":
+      klerosCore = KlerosCore__factory.connect(getAddress(mainnetCoreConfig, chainId), provider);
+      sortition = SortitionModule__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: mainnetDkcConfig,

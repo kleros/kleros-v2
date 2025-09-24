@@ -7,7 +7,7 @@ import "../interfaces/IDisputeTemplateRegistry.sol";
 import "../../libraries/SafeERC20.sol";
 
 /// @title ArbitrableExample
-/// An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
+/// @notice An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
 contract ArbitrableExample is IArbitrableV2 {
     using SafeERC20 for IERC20;
 
@@ -21,7 +21,15 @@ contract ArbitrableExample is IArbitrableV2 {
         uint256 numberOfRulingOptions; // The number of choices the arbitrator can give.
     }
 
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
+
     event Action(string indexed _action);
+
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
 
     address public immutable owner;
     IArbitratorV2 public arbitrator; // Arbitrator is set in constructor.
@@ -45,7 +53,7 @@ contract ArbitrableExample is IArbitrableV2 {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @notice Constructor
     /// @param _arbitrator The arbitrator to rule on created disputes.
     /// @param _templateData The dispute template data.
     /// @param _templateDataMappings The dispute template data mappings.
@@ -96,8 +104,8 @@ contract ArbitrableExample is IArbitrableV2 {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
+    /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @dev No need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _action The action that requires arbitration.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
     function createDispute(string calldata _action) external payable returns (uint256 disputeID) {
@@ -111,11 +119,11 @@ contract ArbitrableExample is IArbitrableV2 {
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId);
     }
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
+    /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @dev No need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _action The action that requires arbitration.
     /// @param _feeInWeth Amount of fees in WETH for the arbitrator.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
@@ -133,12 +141,10 @@ contract ArbitrableExample is IArbitrableV2 {
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId);
     }
 
-    /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
-    /// @param _arbitratorDisputeID ID of the dispute in arbitrator contract.
-    /// @param _ruling The ruling choice of the arbitration.
+    /// @inheritdoc IArbitrableV2
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];

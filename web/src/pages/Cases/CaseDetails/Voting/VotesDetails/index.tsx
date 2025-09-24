@@ -14,6 +14,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
 import InfoCard from "components/InfoCard";
+import MarkdownRenderer from "components/MarkdownRenderer";
 
 import AccordionTitle from "./AccordionTitle";
 
@@ -84,10 +85,13 @@ const VotedText = styled.label`
   }
 `;
 
-const JustificationText = styled(VotedText)`
+const JustificationContainer = styled.div`
   line-height: 1.25;
-  ::before {
+
+  &::before {
     content: "Justification: ";
+    color: ${({ theme }) => theme.primaryText};
+    font-size: 16px;
   }
 `;
 
@@ -117,7 +121,9 @@ const AccordionContent: React.FC<{
       {!isUndefined(choice) && <VotedText dir="auto">{getVoteChoice(choice, answers)}</VotedText>}
 
       {justification ? (
-        <JustificationText dir="auto">{justification}</JustificationText>
+        <JustificationContainer dir="auto">
+          <MarkdownRenderer content={justification} />
+        </JustificationContainer>
       ) : (
         <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
       )}

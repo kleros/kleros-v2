@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
@@ -18,9 +17,11 @@ import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
+
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
-import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -66,17 +67,6 @@ const Index = styled.p`
 `;
 
 const ReactMarkdownWrapper = styled.div``;
-const StyledReactMarkdown = styled(ReactMarkdown)`
-  a {
-    font-size: 16px;
-  }
-  code {
-    color: ${({ theme }) => theme.secondaryText};
-  }
-  p {
-    margin: 0;
-  }
-`;
 
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
@@ -227,10 +217,12 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         </IndexAndName>
         {name && description ? (
           <ReactMarkdownWrapper dir="auto">
-            <StyledReactMarkdown>{description}</StyledReactMarkdown>
+            <MarkdownRenderer content={description} />
           </ReactMarkdownWrapper>
         ) : (
-          <p>{evidence}</p>
+          <ReactMarkdownWrapper dir="auto">
+            <MarkdownRenderer content={evidence} />
+          </ReactMarkdownWrapper>
         )}
       </TopContent>
       <BottomShade>

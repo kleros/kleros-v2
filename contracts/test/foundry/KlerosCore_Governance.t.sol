@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCoreBase} from "../../src/arbitration/KlerosCoreBase.sol";
-import {IArbitratorV2} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
+import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {PNK} from "../../src/token/PNK.sol";
@@ -13,27 +13,27 @@ import "../../src/libraries/Constants.sol";
 /// @dev Tests for KlerosCore governance functions (owner/guardian operations)
 contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
     function test_pause() public {
-        vm.expectRevert(KlerosCoreBase.GuardianOrOwnerOnly.selector);
+        vm.expectRevert(KlerosCore.GuardianOrOwnerOnly.selector);
         vm.prank(other);
         core.pause();
         // Note that we must explicitly switch to the owner/guardian address to make the call, otherwise Foundry treats UUPS proxy as msg.sender.
         vm.prank(guardian);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Paused();
+        emit KlerosCore.Paused();
         core.pause();
         assertEq(core.paused(), true, "Wrong paused value");
         // Switch between owner and guardian to test both. WhenNotPausedOnly modifier is triggered after owner's check.
         vm.prank(owner);
-        vm.expectRevert(KlerosCoreBase.WhenNotPausedOnly.selector);
+        vm.expectRevert(KlerosCore.WhenNotPausedOnly.selector);
         core.pause();
     }
 
     function test_unpause() public {
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.unpause();
 
-        vm.expectRevert(KlerosCoreBase.WhenPausedOnly.selector);
+        vm.expectRevert(KlerosCore.WhenPausedOnly.selector);
         vm.prank(owner);
         core.unpause();
 
@@ -41,18 +41,18 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         core.pause();
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.Unpaused();
+        emit KlerosCore.Unpaused();
         core.unpause();
         assertEq(core.paused(), false, "Wrong paused value");
     }
 
     function test_executeOwnerProposal() public {
         bytes memory data = abi.encodeWithSignature("changeOwner(address)", other);
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.executeOwnerProposal(address(core), 0, data);
 
-        vm.expectRevert(KlerosCoreBase.UnsuccessfulCall.selector);
+        vm.expectRevert(KlerosCore.UnsuccessfulCall.selector);
         vm.prank(owner);
         core.executeOwnerProposal(address(core), 0, data); // It'll fail because the core is not its own owner
 
@@ -64,7 +64,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
     }
 
     function test_changeOwner() public {
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changeOwner(payable(other));
         vm.prank(owner);
@@ -73,7 +73,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
     }
 
     function test_changeGuardian() public {
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changeGuardian(other);
         vm.prank(owner);
@@ -83,7 +83,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
     function test_changePinakion() public {
         PNK fakePNK = new PNK();
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changePinakion(fakePNK);
         vm.prank(owner);
@@ -92,7 +92,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
     }
 
     function test_changeJurorProsecutionModule() public {
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changeJurorProsecutionModule(other);
         vm.prank(owner);
@@ -102,7 +102,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
     function test_changeSortitionModule() public {
         SortitionModuleMock fakeSM = new SortitionModuleMock();
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changeSortitionModule(fakeSM);
         vm.prank(owner);
@@ -112,19 +112,19 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
     function test_addNewDisputeKit() public {
         DisputeKitSybilResistant newDK = new DisputeKitSybilResistant();
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.addNewDisputeKit(newDK);
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitCreated(2, newDK);
+        emit KlerosCore.DisputeKitCreated(2, newDK);
         core.addNewDisputeKit(newDK);
         assertEq(address(core.disputeKits(2)), address(newDK), "Wrong address of new DK");
         assertEq(core.getDisputeKitsLength(), 3, "Wrong DK array length");
     }
 
     function test_createCourt() public {
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         uint256[] memory supportedDK = new uint256[](2);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
@@ -141,7 +141,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             supportedDK
         );
 
-        vm.expectRevert(KlerosCoreBase.MinStakeLowerThanParentCourt.selector);
+        vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
         vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
@@ -155,7 +155,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             supportedDK
         );
 
-        vm.expectRevert(KlerosCoreBase.UnsupportedDisputeKit.selector);
+        vm.expectRevert(KlerosCore.UnsupportedDisputeKit.selector);
         vm.prank(owner);
         uint256[] memory emptySupportedDK = new uint256[](0);
         core.createCourt(
@@ -170,7 +170,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             emptySupportedDK
         );
 
-        vm.expectRevert(KlerosCoreBase.InvalidForkingCourtAsParent.selector);
+        vm.expectRevert(KlerosCore.InvalidForkingCourtAsParent.selector);
         vm.prank(owner);
         core.createCourt(
             FORKING_COURT,
@@ -187,7 +187,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         uint256[] memory badSupportedDK = new uint256[](2);
         badSupportedDK[0] = NULL_DISPUTE_KIT; // Include NULL_DK to check that it reverts
         badSupportedDK[1] = DISPUTE_KIT_CLASSIC;
-        vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
+        vm.expectRevert(KlerosCore.WrongDisputeKitIndex.selector);
         vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
@@ -203,7 +203,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
         badSupportedDK[0] = DISPUTE_KIT_CLASSIC;
         badSupportedDK[1] = 2; // Check out of bounds index
-        vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
+        vm.expectRevert(KlerosCore.WrongDisputeKitIndex.selector);
         vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
@@ -223,7 +223,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         core.addNewDisputeKit(newDK);
         badSupportedDK = new uint256[](1);
         badSupportedDK[0] = 2; // Include only sybil resistant dk
-        vm.expectRevert(KlerosCoreBase.MustSupportDisputeKitClassic.selector);
+        vm.expectRevert(KlerosCore.MustSupportDisputeKitClassic.selector);
         vm.prank(owner);
         core.createCourt(
             GENERAL_COURT,
@@ -239,11 +239,11 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(2, DISPUTE_KIT_CLASSIC, true);
+        emit KlerosCore.DisputeKitEnabled(2, DISPUTE_KIT_CLASSIC, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(2, 2, true);
+        emit KlerosCore.DisputeKitEnabled(2, 2, true);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.CourtCreated(
+        emit KlerosCore.CourtCreated(
             2,
             GENERAL_COURT,
             true,
@@ -266,7 +266,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             supportedDK
         );
 
-        _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50, false);
+        _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50);
 
         uint256[] memory children = core.getCourtChildren(2);
         assertEq(children.length, 0, "No children");
@@ -299,7 +299,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             supportedDK
         );
 
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changeCourtParameters(
             GENERAL_COURT,
@@ -310,7 +310,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
         );
-        vm.expectRevert(KlerosCoreBase.MinStakeLowerThanParentCourt.selector);
+        vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
         vm.prank(owner);
         // Min stake of a parent became higher than of a child
         core.changeCourtParameters(
@@ -323,7 +323,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
         );
         // Min stake of a child became lower than of a parent
-        vm.expectRevert(KlerosCoreBase.MinStakeLowerThanParentCourt.selector);
+        vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
         vm.prank(owner);
         core.changeCourtParameters(
             newCourtID,
@@ -337,7 +337,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.CourtModified(
+        emit KlerosCore.CourtModified(
             GENERAL_COURT,
             true,
             2000,
@@ -356,7 +356,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
         );
 
-        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50, false);
+        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50);
         _assertTimesPerPeriod(GENERAL_COURT, [uint256(10), uint256(20), uint256(30), uint256(40)]);
     }
 
@@ -366,43 +366,43 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.addNewDisputeKit(newDK);
 
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = newDkID;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
-        vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
+        vm.expectRevert(KlerosCore.WrongDisputeKitIndex.selector);
         vm.prank(owner);
         supportedDK[0] = NULL_DISPUTE_KIT;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
-        vm.expectRevert(KlerosCoreBase.WrongDisputeKitIndex.selector);
+        vm.expectRevert(KlerosCore.WrongDisputeKitIndex.selector);
         vm.prank(owner);
         supportedDK[0] = 3; // Out of bounds
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
-        vm.expectRevert(KlerosCoreBase.CannotDisableClassicDK.selector);
+        vm.expectRevert(KlerosCore.CannotDisableClassicDK.selector);
         vm.prank(owner);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, false);
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, newDkID, true);
+        emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, newDkID, true);
         supportedDK[0] = newDkID;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
         assertEq(core.isSupported(GENERAL_COURT, newDkID), true, "New DK should be supported by General court");
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit KlerosCoreBase.DisputeKitEnabled(GENERAL_COURT, newDkID, false);
+        emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, newDkID, false);
         core.enableDisputeKits(GENERAL_COURT, supportedDK, false);
         assertEq(core.isSupported(GENERAL_COURT, newDkID), false, "New DK should be disabled in General court");
     }
 
     function test_changeAcceptedFeeTokens() public {
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changeAcceptedFeeTokens(feeToken, true);
 
@@ -418,7 +418,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
     }
 
     function test_changeCurrencyRates() public {
-        vm.expectRevert(KlerosCoreBase.OwnerOnly.selector);
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
         vm.prank(other);
         core.changeCurrencyRates(feeToken, 100, 200);
 

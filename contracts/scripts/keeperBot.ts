@@ -6,7 +6,6 @@ import {
   DisputeKitGatedShutter,
   DisputeKitShutter,
   SortitionModule,
-  SortitionModuleNeo,
 } from "../typechain-types";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
@@ -49,7 +48,7 @@ const getContracts = async () => {
     throw new Error("University is not supported yet");
   }
   const contracts = await getContractsForCoreType(hre, coreType);
-  return { ...contracts, sortition: contracts.sortition as SortitionModule | SortitionModuleNeo };
+  return { ...contracts, sortition: contracts.sortition as SortitionModule };
 };
 
 type Contribution = {
@@ -277,9 +276,7 @@ const isRngReady = async () => {
       return true;
     }
   } else if (currentRng === blockHashRNG?.target && blockHashRNG !== null) {
-    const requestBlock = await sortition.randomNumberRequestBlock();
-    const lookahead = await sortition.rngLookahead();
-    const n = await blockHashRNG.receiveRandomness.staticCall(requestBlock + lookahead);
+    const n = await blockHashRNG.receiveRandomness.staticCall();
     if (Number(n) === 0) {
       logger.info("BlockHashRNG is NOT ready yet");
       return false;

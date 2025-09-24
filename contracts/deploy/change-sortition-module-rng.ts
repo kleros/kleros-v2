@@ -1,8 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { HomeChains, isMainnet, isSkipped } from "./utils";
+import { HomeChains, isSkipped } from "./utils";
 import { ethers } from "hardhat";
-import { ChainlinkRNG, SortitionModule, SortitionModuleNeo } from "../typechain-types";
+import { ChainlinkRNG, SortitionModule } from "../typechain-types";
 
 const task: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { getNamedAccounts, getChainId } = hre;
@@ -13,15 +13,7 @@ const task: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const chainlinkRng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
-
-  let sortitionModule: SortitionModule | SortitionModuleNeo;
-  if (isMainnet(hre.network)) {
-    console.log("Using SortitionModuleNeo");
-    sortitionModule = await ethers.getContract<SortitionModuleNeo>("SortitionModuleNeo");
-  } else {
-    console.log("Using SortitionModule");
-    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
-  }
+  const sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
 
   console.log(`chainlinkRng.changeConsumer(${sortitionModule.target})`);
   await chainlinkRng.changeConsumer(sortitionModule.target);

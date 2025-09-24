@@ -94,10 +94,10 @@ describe("KlerosCoreRuler", async () => {
       .withArgs(resolver.target, RulingMode.automaticRandom, disputeID, anyValue, anyValue, anyValue)
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.target, disputeID, anyValue)
-      .and.to.emit(core, "TokenAndETHShift")
-      .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ZeroAddress)
+      .and.to.emit(core, "JurorRewardPenalty")
+      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.target, disputeID, localDisputeID, templateId, "")
+      .withArgs(core.target, disputeID, localDisputeID, templateId)
       .and.to.emit(resolver, "Ruling")
       .withArgs(core.target, disputeID, anyValue);
   });
@@ -118,10 +118,10 @@ describe("KlerosCoreRuler", async () => {
       .withArgs(resolver.target, RulingMode.automaticPreset, disputeID, 2, true, false)
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.target, disputeID, 2)
-      .and.to.emit(core, "TokenAndETHShift")
-      .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ZeroAddress)
+      .and.to.emit(core, "JurorRewardPenalty")
+      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.target, disputeID, localDisputeID, templateId, "")
+      .withArgs(core.target, disputeID, localDisputeID, templateId)
       .and.to.emit(resolver, "Ruling")
       .withArgs(core.target, disputeID, 2);
   });
@@ -139,7 +139,7 @@ describe("KlerosCoreRuler", async () => {
       .to.emit(core, "DisputeCreation")
       .withArgs(disputeID, resolver.target)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.target, disputeID, localDisputeID, templateId, "");
+      .withArgs(core.target, disputeID, localDisputeID, templateId);
 
     await expect(core.connect(deployer).executeRuling(disputeID, 3, true, true)).revertedWithCustomError(
       core,
@@ -153,8 +153,8 @@ describe("KlerosCoreRuler", async () => {
       .withArgs(core.target, disputeID, 3);
 
     await expect(core.execute(disputeID, 0))
-      .and.to.emit(core, "TokenAndETHShift")
-      .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ZeroAddress);
+      .and.to.emit(core, "JurorRewardPenalty")
+      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress);
   });
 });
 

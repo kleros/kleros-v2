@@ -5,7 +5,7 @@ import { type BuilderTransaction, template, transaction, transactionBuilderUrl }
 const governableAbi = [
   {
     inputs: [],
-    name: "owner",
+    name: "governor",
     outputs: [
       {
         internalType: "address",
@@ -25,7 +25,7 @@ export const execute = async (tx: ContractTransaction) => {
   const { ethers } = hre;
 
   const contract = await ethers.getContractAt(governableAbi, tx.to);
-  const owner = await contract.owner();
+  const owner = await contract.governor();
   const isContract = (await ethers.provider.getCode(owner)).length > 2;
   if (isContract) {
     // Don't execute, just log the tx. It must be submitted for execution separately.
