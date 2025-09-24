@@ -11,6 +11,7 @@ import {
   findMatchingKits,
   getDisabledOptions,
   getVisibleFeaturesForCourt,
+  Group,
   toggleFeature,
 } from "consts/disputeFeature";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
@@ -101,6 +102,17 @@ const FeatureSelection: React.FC = () => {
     });
   };
 
+  const handleGroupDisable = (group: Group) => {
+    const groupFeatures = courtGroups[group];
+    // we have a feature selected from this group
+    for (const feature of groupFeatures) {
+      if (selected.includes(feature)) {
+        // turn off this feature
+        handleToggle(feature);
+      }
+    }
+  };
+
   // if each group only has one feature, select them by default
   // This should not clash with the initial selection logic,
   // as it only runs when there's one disputeKit and featureSet to pick
@@ -140,6 +152,7 @@ const FeatureSelection: React.FC = () => {
         Object.entries(courtGroups).map(([groupName, features], index) => (
           <>
             {GroupsUI[groupName]({
+              clearAll: () => handleGroupDisable(groupName as Group),
               children: (
                 <Fragment key={groupName}>
                   {features.map((feature) =>
