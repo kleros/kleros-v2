@@ -35,6 +35,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         sortitionModule.passPhase(); // Drawing phase
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
+        uint256 NO = 0;
         uint256 YES = 1;
         uint256 salt = 123455678;
         uint256[] memory voteIDs = new uint256[](1);
@@ -79,6 +80,16 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         (, bytes32 commitStored, , ) = disputeKit.getVoteInfo(0, 0, 0);
         assertEq(commitStored, keccak256(abi.encodePacked(YES, salt)), "Incorrect commit");
 
+        // Cast again with the same voteID to check that the count doesn't increase.
+        bytes32 newCommit = keccak256(abi.encodePacked(NO, salt));
+        vm.prank(staker1);
+        disputeKit.castCommit(disputeID, voteIDs, newCommit);
+
+        (, , , totalCommited, , ) = disputeKit.getRoundInfo(disputeID, 0, 0);
+        assertEq(totalCommited, 1, "totalCommited should still be 1");
+        (, commitStored, , ) = disputeKit.getVoteInfo(0, 0, 0);
+        assertEq(commitStored, keccak256(abi.encodePacked(NO, salt)), "Incorrect commit after recommitting");
+
         voteIDs = new uint256[](2); // Create the leftover votes subset
         voteIDs[0] = 1;
         voteIDs[1] = 2;
@@ -96,10 +107,6 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
             (, commitStored, , ) = disputeKit.getVoteInfo(0, 0, i);
             assertEq(commitStored, keccak256(abi.encodePacked(YES, salt)), "Incorrect commit");
         }
-
-        vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.AlreadyCommittedThisVote.selector);
-        disputeKit.castCommit(disputeID, voteIDs, commit);
 
         // Check reveal in the next period
         vm.warp(block.timestamp + timesPerPeriod[1]);

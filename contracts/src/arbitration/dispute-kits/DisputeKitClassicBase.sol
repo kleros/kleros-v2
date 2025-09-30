@@ -274,12 +274,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        // Introduce a counter so we don't count a re-commited votes.
+        uint256 commitCount;
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            if (round.votes[_voteIDs[i]].commit != bytes32(0)) revert AlreadyCommittedThisVote();
             if (round.votes[_voteIDs[i]].account != msg.sender) revert JurorHasToOwnTheVote();
+            if (round.votes[_voteIDs[i]].commit == bytes32(0)) {
+                commitCount++;
+            }
             round.votes[_voteIDs[i]].commit = _commit;
         }
-        round.totalCommitted += _voteIDs.length;
+        round.totalCommitted += commitCount;
         emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commit);
     }
 
@@ -760,5 +764,4 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     error AppealFeeIsAlreadyPaid();
     error DisputeNotResolved();
     error CoreIsPaused();
-    error AlreadyCommittedThisVote();
 }
