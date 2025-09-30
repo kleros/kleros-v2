@@ -7,6 +7,7 @@ import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
 import "../../src/libraries/Constants.sol";
+import {console} from "forge-std/console.sol";
 
 /// @title KlerosCore_StakingTest
 /// @dev Tests for KlerosCore staking mechanics and stake management
@@ -370,7 +371,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         assertEq(stakedInCourt, 0, "Wrong amount staked in court");
         assertEq(nbCourts, 0, "Wrong number of courts");
 
-        vm.warp(block.timestamp + minStakingTime);
+        vm.warp(block.timestamp + maxDrawingTime);
         sortitionModule.passPhase(); // Staking. Delayed stakes can be executed now
 
         vm.prank(address(core));
@@ -440,5 +441,181 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         vm.prank(owner);
         snapshotProxy.changeOwner(other);
         assertEq(snapshotProxy.owner(), other, "Wrong owner after change");
+    }
+
+    function testFuzz_setStake(uint256 firstStake, uint256 secondStake) public {
+        uint256 stakerSupply = totalSupply / 10;
+
+        vm.prank(owner);
+        pinakion.transfer(staker1, stakerSupply - 1 ether); // 1 eth was transferred in the initial setup so offset that value.
+        vm.assume(firstStake >= minStake && firstStake <= stakerSupply);
+        vm.assume(secondStake >= minStake && secondStake <= stakerSupply);
+
+        vm.prank(staker1);
+        pinakion.approve(address(core), firstStake);
+
+        vm.prank(staker1);
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, firstStake, firstStake);
+        core.setStake(GENERAL_COURT, firstStake);
+
+        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
+            .getJurorBalance(staker1, GENERAL_COURT);
+        assertEq(totalStaked, firstStake, "Wrong amount total staked");
+        assertEq(totalLocked, 0, "Wrong amount locked");
+        assertEq(stakedInCourt, firstStake, "Wrong amount staked in court");
+        assertEq(nbCourts, 1, "Wrong number of courts");
+
+        uint96[] memory courts = sortitionModule.getJurorCourtIDs(staker1);
+        assertEq(courts.length, 1, "Wrong courts count");
+        assertEq(courts[0], GENERAL_COURT, "Wrong court id");
+        assertEq(sortitionModule.isJurorStaked(staker1), true, "Juror should be staked");
+
+        assertEq(pinakion.balanceOf(address(core)), firstStake, "Wrong token balance of the core");
+        assertEq(pinakion.balanceOf(staker1), stakerSupply - firstStake, "Wrong token balance of staker1");
+        assertEq(pinakion.allowance(staker1, address(core)), 0, "Allowance should be spent for staker1");
+
+        // Change the stake and see if everything is correct.
+        vm.prank(staker1);
+        pinakion.approve(address(core), secondStake);
+
+        vm.prank(staker1);
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, secondStake, secondStake);
+        core.setStake(GENERAL_COURT, secondStake);
+
+        (totalStaked, totalLocked, stakedInCourt, nbCourts) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
+        assertEq(totalStaked, secondStake, "Wrong amount total staked secondStake");
+        assertEq(totalLocked, 0, "Wrong amount locked secondStake");
+        assertEq(stakedInCourt, secondStake, "Wrong amount staked in court secondStake");
+        assertEq(nbCourts, 1, "Number of courts should not increase secondStake");
+
+        assertEq(pinakion.balanceOf(address(core)), secondStake, "Wrong token balance of the core secondStake");
+        assertEq(pinakion.balanceOf(staker1), stakerSupply - secondStake, "Wrong token balance of staker1 secondStake");
+
+        bool stakeIncrease = secondStake > firstStake;
+        // If stake decrease new allowance won't be spent, if it increases it will only spent (secondStake - firstStake) difference.
+        uint256 newAllowance = stakeIncrease ? firstStake : secondStake;
+        assertEq(pinakion.allowance(staker1, address(core)), newAllowance, "Incorrect allowance secondStake");
+    }
+
+    function testFuzz_setStake_differentCourts(uint256 firstStake, uint256 secondStake) public {
+        uint256 stakerSupply = totalSupply / 10;
+
+        vm.prank(owner);
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        core.createCourt(
+            GENERAL_COURT,
+            hiddenVotes,
+            minStake,
+            alpha,
+            feeForJuror,
+            jurorsForCourtJump,
+            timesPerPeriod, // Times per period
+            sortitionExtraData, // Sortition extra data
+            supportedDK
+        );
+
+        uint96 newCourtID = 2;
+
+        vm.prank(owner);
+        pinakion.transfer(staker1, stakerSupply - 1 ether); // 1 eth was transferred in the initial setup so offset that value.
+        vm.assume(firstStake >= minStake && firstStake <= stakerSupply / 2); // Split the supply into two because courts are different now
+        vm.assume(secondStake >= minStake && secondStake <= stakerSupply / 2);
+
+        vm.prank(staker1);
+        pinakion.approve(address(core), firstStake);
+
+        vm.prank(staker1);
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModule.StakeSet(staker1, GENERAL_COURT, firstStake, firstStake);
+        core.setStake(GENERAL_COURT, firstStake);
+
+        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
+            .getJurorBalance(staker1, GENERAL_COURT);
+        assertEq(totalStaked, firstStake, "Wrong amount total staked");
+        assertEq(totalLocked, 0, "Wrong amount locked");
+        assertEq(stakedInCourt, firstStake, "Wrong amount staked in court");
+        assertEq(nbCourts, 1, "Wrong number of courts");
+
+        uint96[] memory courts = sortitionModule.getJurorCourtIDs(staker1);
+        assertEq(courts.length, 1, "Wrong courts count");
+        assertEq(courts[0], GENERAL_COURT, "Wrong court id");
+        assertEq(sortitionModule.isJurorStaked(staker1), true, "Juror should be staked");
+
+        assertEq(pinakion.balanceOf(address(core)), firstStake, "Wrong token balance of the core");
+        assertEq(pinakion.balanceOf(staker1), stakerSupply - firstStake, "Wrong token balance of staker1");
+        assertEq(pinakion.allowance(staker1, address(core)), 0, "Allowance should be spent for staker1");
+
+        // Stake the juror in a different court.
+        vm.prank(staker1);
+        pinakion.approve(address(core), secondStake);
+
+        vm.prank(staker1);
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModule.StakeSet(staker1, newCourtID, secondStake, firstStake + secondStake);
+        core.setStake(newCourtID, secondStake);
+
+        (totalStaked, totalLocked, stakedInCourt, nbCourts) = sortitionModule.getJurorBalance(staker1, newCourtID);
+        assertEq(totalStaked, secondStake + firstStake, "Wrong amount total staked secondStake");
+        assertEq(totalLocked, 0, "Wrong amount locked secondStake");
+        assertEq(stakedInCourt, secondStake, "Wrong amount staked in court secondStake");
+        assertEq(nbCourts, 2, "Number of courts should increase");
+
+        assertEq(
+            pinakion.balanceOf(address(core)),
+            secondStake + firstStake,
+            "Wrong token balance of the core secondStake"
+        );
+        assertEq(
+            pinakion.balanceOf(staker1),
+            stakerSupply - secondStake - firstStake,
+            "Wrong token balance of staker1 secondStake"
+        );
+
+        assertEq(pinakion.allowance(staker1, address(core)), 0, "Allowance should be spent for staker1 secondStake");
+    }
+
+    function testFuzz_delayedStakes(uint256 iterations) public {
+        // Test with large numbers but do not trigger possible overflow
+        vm.assume(iterations < 2 ** 128);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+        uint256 disputeID = 0;
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        // Create delayed stakes
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 1500);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2500);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 3500);
+
+        // Create delayed stake for another staker
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 1000);
+
+        assertEq(sortitionModule.delayedStakeWriteIndex(), 4, "Wrong delayedStakeWriteIndex");
+        assertEq(sortitionModule.delayedStakeReadIndex(), 1, "Wrong delayedStakeReadIndex");
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking. Delayed stakes can be executed now
+
+        sortitionModule.executeDelayedStakes(iterations);
+
+        uint256 actualIterations = iterations > 4 ? sortitionModule.delayedStakeWriteIndex() : iterations;
+        uint256 newDelayedStakeReadIndex = 1 + actualIterations;
+
+        assertEq(sortitionModule.delayedStakeWriteIndex(), 4, "Wrong delayedStakeWriteIndex");
+        assertEq(sortitionModule.delayedStakeReadIndex(), newDelayedStakeReadIndex, "Wrong delayedStakeReadIndex");
     }
 }

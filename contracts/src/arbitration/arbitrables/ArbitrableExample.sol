@@ -40,6 +40,8 @@ contract ArbitrableExample is IArbitrableV2 {
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
 
+    uint256 public numberOfRulingOptions = 2;
+
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
@@ -100,6 +102,10 @@ contract ArbitrableExample is IArbitrableV2 {
         templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
+    function changeNumberOfRulingOptions(uint256 _numberOfRulingOptions) external onlyByOwner {
+        numberOfRulingOptions = _numberOfRulingOptions;
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
@@ -111,7 +117,6 @@ contract ArbitrableExample is IArbitrableV2 {
     function createDispute(string calldata _action) external payable returns (uint256 disputeID) {
         emit Action(_action);
 
-        uint256 numberOfRulingOptions = 2;
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 
@@ -130,7 +135,6 @@ contract ArbitrableExample is IArbitrableV2 {
     function createDispute(string calldata _action, uint256 _feeInWeth) external returns (uint256 disputeID) {
         emit Action(_action);
 
-        uint256 numberOfRulingOptions = 2;
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 

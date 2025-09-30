@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
+import {KlerosCore, IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
@@ -493,5 +493,60 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         assertEq(totalVoted, 3, "totalVoted should be 3");
         assertEq(totalCommited, 0, "totalCommited should be 0");
         assertEq(choiceCount, 3, "choiceCount should be 3");
+    }
+
+    function testFuzz_castVote(uint256 numberOfOptions, uint256 choice1, uint256 choice2) public {
+        uint256 disputeID = 0;
+
+        arbitrable.changeNumberOfRulingOptions(numberOfOptions);
+
+        // Have only 2 options for 3 jurors to create a majority
+        vm.assume(choice1 <= numberOfOptions);
+        vm.assume(choice2 <= numberOfOptions);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        // Split the stakers' votes. The first staker will get VoteID 0 and the second will take the rest.
+        core.draw(disputeID, 1);
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking phase to stake the 2nd voter
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 2); // Assign leftover votes to staker2
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, choice1, 0, "XYZ"); // Staker1 only got 1 vote because of low stake
+
+        voteIDs = new uint256[](2);
+        voteIDs[0] = 1;
+        voteIDs[1] = 2;
+        vm.prank(staker2);
+        disputeKit.castVote(disputeID, voteIDs, choice2, 0, "XYZ");
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        vm.expectEmit(true, true, true, true);
+        emit IArbitrableV2.Ruling(IArbitratorV2(address(core)), disputeID, choice2);
+        core.executeRuling(disputeID);
     }
 }

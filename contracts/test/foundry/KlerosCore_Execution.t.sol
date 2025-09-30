@@ -748,4 +748,103 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(crowdfunder2.balance, 10 ether, "Wrong balance of the crowdfunder2");
         assertEq(address(disputeKit).balance, 0, "Wrong balance of the DK");
     }
+
+    function testFuzz_executeIterations(uint256 iterations) public {
+        uint256 disputeID = 0;
+        uint256 roundID = 0;
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 3);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 1, roundID, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        core.execute(disputeID, roundID, iterations);
+
+        uint256 iterationsCount = iterations < DEFAULT_NB_OF_JURORS * 2 ? iterations : DEFAULT_NB_OF_JURORS * 2;
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, roundID);
+        assertEq(round.repartitions, iterationsCount, "Wrong repartitions");
+    }
+
+    function testFuzz_executeIterations_nbJurors(uint256 iterations, uint256 disputeValue) public {
+        uint256 disputeID = 0;
+        uint256 roundID = 0;
+
+        uint256 arbitrationCost = core.arbitrationCost(arbitratorExtraData);
+        // Cap it to 10 eth, so the number of jurors is not astronomical.
+        vm.assume(disputeValue >= arbitrationCost && disputeValue <= 10 ether);
+        vm.deal(disputer, 10 ether);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: disputeValue}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        uint256 nbJurors = disputeValue / feeForJuror;
+
+        core.draw(disputeID, nbJurors);
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, roundID);
+        assertEq(round.totalFeesForJurors, disputeValue, "Wrong totalFeesForJurors");
+        assertEq(round.nbVotes, nbJurors, "Wrong nbVotes");
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](nbJurors);
+        for (uint256 i = 0; i < voteIDs.length; i++) {
+            voteIDs[i] = i;
+        }
+
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        core.execute(disputeID, roundID, iterations);
+
+        uint256 iterationsCount = iterations < nbJurors * 2 ? iterations : nbJurors * 2;
+        round = core.getRoundInfo(disputeID, roundID);
+
+        assertEq(round.repartitions, iterationsCount, "Wrong repartitions");
+
+        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(
+            staker1,
+            GENERAL_COURT
+        );
+
+        uint256 pnkAtStake = (minStake * alpha) / ONE_BASIS_POINT;
+        uint256 unlockedTokens = iterationsCount < nbJurors ? 0 : (iterationsCount - nbJurors) * pnkAtStake;
+        assertEq(totalStaked, 2000, "Wrong amount total staked");
+        assertEq(totalLocked, (pnkAtStake * nbJurors) - unlockedTokens, "Wrong amount locked");
+        assertEq(stakedInCourt, 2000, "Wrong amount staked in court");
+    }
 }
