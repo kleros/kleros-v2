@@ -121,4 +121,90 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         (, , , , uint256 nbVoters, ) = disputeKit.getRoundInfo(disputeID, roundID, 0);
         assertEq(nbVoters, 3, "nbVoters should be 3");
     }
+
+    function testFuzz_drawIterations(uint256 iterations) public {
+        uint256 disputeID = 0;
+        uint256 roundID = 0;
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, iterations);
+
+        uint256 iterationsCount;
+        uint256 disputesWithoutJurors;
+        if (iterations < DEFAULT_NB_OF_JURORS) {
+            iterationsCount = iterations;
+            disputesWithoutJurors = 1;
+        } else {
+            iterationsCount = DEFAULT_NB_OF_JURORS;
+            disputesWithoutJurors = 0;
+        }
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, roundID);
+        assertEq(round.drawIterations, iterationsCount, "Wrong drawIterations number");
+        assertEq(round.nbVotes, DEFAULT_NB_OF_JURORS, "Wrong nbVotes");
+
+        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(
+            staker1,
+            GENERAL_COURT
+        );
+        uint256 pnkAtStake = (minStake * alpha) / ONE_BASIS_POINT;
+        assertEq(totalStaked, 2000, "Wrong amount total staked");
+        assertEq(totalLocked, pnkAtStake * iterationsCount, "Wrong amount locked"); // 1000 per draw
+        assertEq(stakedInCourt, 2000, "Wrong amount staked in court");
+        assertEq(sortitionModule.disputesWithoutJurors(), disputesWithoutJurors, "Wrong disputesWithoutJurors count");
+    }
+
+    function testFuzz_drawIterations_nbJurors(uint256 iterations, uint256 disputeValue) public {
+        uint256 disputeID = 0;
+        uint256 roundID = 0;
+
+        uint256 arbitrationCost = core.arbitrationCost(arbitratorExtraData);
+        // Cap it to 10 eth, so the number of jurors is not astronomical.
+        vm.assume(disputeValue >= arbitrationCost && disputeValue <= 10 ether);
+        vm.deal(disputer, 10 ether);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: disputeValue}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, iterations);
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, roundID);
+        assertEq(round.totalFeesForJurors, disputeValue, "Wrong totalFeesForJurors");
+        assertEq(round.nbVotes, disputeValue / feeForJuror, "Wrong nbVotes");
+
+        uint256 iterationsCount;
+        uint256 disputesWithoutJurors;
+        if (iterations < round.nbVotes) {
+            iterationsCount = iterations;
+            disputesWithoutJurors = 1;
+        } else {
+            iterationsCount = round.nbVotes;
+            disputesWithoutJurors = 0;
+        }
+
+        assertEq(round.drawIterations, iterationsCount, "Wrong drawIterations number");
+        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(
+            staker1,
+            GENERAL_COURT
+        );
+        uint256 pnkAtStake = (minStake * alpha) / ONE_BASIS_POINT;
+        assertEq(totalStaked, 2000, "Wrong amount total staked");
+        assertEq(totalLocked, pnkAtStake * iterationsCount, "Wrong amount locked");
+        assertEq(stakedInCourt, 2000, "Wrong amount staked in court");
+        assertEq(sortitionModule.disputesWithoutJurors(), disputesWithoutJurors, "Wrong disputesWithoutJurors count");
+    }
 }

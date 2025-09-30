@@ -94,7 +94,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(jumped, false, "jumped should be false");
         assertEq(extraData, newExtraData, "Wrong extra data");
         assertEq(disputeKit.coreDisputeIDToLocal(0), disputeID, "Wrong local disputeID");
-        assertEq(disputeKit.coreDisputeIDToActive(0), true, "Wrong disputes length");
+        assertEq(disputeKit.coreDisputeIDToActive(0), true, "Dispute should be active in this DK");
 
         (
             uint256 winningChoice,
@@ -145,5 +145,50 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
 
         assertEq(feeToken.balanceOf(address(core)), 0.18 ether, "Wrong token balance of the core");
         assertEq(feeToken.balanceOf(disputer), 0.82 ether, "Wrong token balance of the disputer");
+    }
+
+    function testFuzz_createDispute_msgValue(uint256 disputeValue) public {
+        uint256 disputeID = 0;
+        uint256 arbitrationCost = core.arbitrationCost(arbitratorExtraData);
+
+        // Cap it to 10 eth, so the number of jurors is not astronomical.
+        vm.assume(disputeValue >= arbitrationCost && disputeValue <= 10 ether);
+        vm.deal(disputer, 10 ether);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: disputeValue}("Action");
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.totalFeesForJurors, disputeValue, "Wrong totalFeesForJurors");
+        assertEq(round.nbVotes, disputeValue / feeForJuror, "Wrong nbVotes");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, disputeValue / feeForJuror);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](disputeValue / feeForJuror);
+        for (uint256 i = 0; i < voteIDs.length; i++) {
+            voteIDs[i] = i;
+        }
+
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        vm.expectEmit(true, true, true, true);
+        emit IArbitrableV2.Ruling(IArbitratorV2(address(core)), disputeID, 1);
+        core.executeRuling(disputeID);
     }
 }

@@ -500,4 +500,130 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.execution);
         core.passPeriod(disputeID);
     }
+
+    function testFuzz_appeal(uint256 numberOfOptions, uint256 choice1, uint256 choice2, uint256 choice3) public {
+        uint256 disputeID = 0;
+
+        arbitrable.changeNumberOfRulingOptions(numberOfOptions);
+
+        // Have only 2 options for 3 jurors to create a majority
+        vm.assume(choice1 <= numberOfOptions);
+        vm.assume(choice2 <= numberOfOptions);
+        vm.assume(choice3 <= numberOfOptions); // Will be used for appeal
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        (uint256 numberOfChoices, , ) = disputeKit.disputes(disputeID);
+
+        assertEq(numberOfChoices, numberOfOptions, "Wrong numberOfChoices");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        // Split the stakers' votes. The first staker will get VoteID 0 and the second will take the rest.
+        core.draw(disputeID, 1);
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking phase to stake the 2nd voter
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 2); // Assign leftover votes to staker2
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, choice1, 0, "XYZ"); // Staker1 only got 1 vote because of low stake
+
+        voteIDs = new uint256[](2);
+        voteIDs[0] = 1;
+        voteIDs[1] = 2;
+        vm.prank(staker2);
+        disputeKit.castVote(disputeID, voteIDs, choice2, 0, "XYZ");
+        core.passPeriod(disputeID); // Appeal
+
+        vm.assume(choice3 != choice2);
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 0.63 ether}(disputeID, choice3); // Fund the losing choice. Total cost will be 0.63 (0.21 + 0.21 * (20000/10000))
+
+        assertEq((disputeKit.getFundedChoices(disputeID)).length, 1, "1 choice should be funded");
+
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 0.42 ether}(disputeID, choice2); // Fund the winning choice. Total cost will be 0.42 (0.21 + 0.21 * (10000/10000))
+
+        assertEq((disputeKit.getFundedChoices(disputeID)).length, 0, "No funded choices in a fresh round");
+    }
+
+    function testFuzz_fundAppeal_msgValue(uint256 appealValue) public {
+        uint256 disputeID = 0;
+
+        vm.assume(appealValue <= 10 ether);
+        vm.deal(crowdfunder1, 10 ether);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        // Split the stakers' votes. The first staker will get VoteID 0 and the second will take the rest.
+        core.draw(disputeID, 1);
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking phase to stake the 2nd voter
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 2); // Assign leftover votes to staker2
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ"); // Staker1 only got 1 vote because of low stake
+
+        voteIDs = new uint256[](2);
+        voteIDs[0] = 1;
+        voteIDs[1] = 2;
+        vm.prank(staker2);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+        core.passPeriod(disputeID); // Appeal
+
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: appealValue}(disputeID, 1); // Fund the losing choice
+
+        if (appealValue >= 0.63 ether) {
+            // 0.63 eth is the required amount for losing side.
+            assertEq((disputeKit.getFundedChoices(disputeID)).length, 1, "One choice should be funded");
+            // Dispute kit shouldn't demand more value than necessary
+            assertEq(crowdfunder1.balance, 9.37 ether, "Wrong balance of the crowdfunder");
+            assertEq(address(disputeKit).balance, 0.63 ether, "Wrong balance of the DK");
+        } else {
+            assertEq((disputeKit.getFundedChoices(disputeID)).length, 0, "No choices should be funded");
+            assertEq(crowdfunder1.balance, 10 ether - appealValue, "Wrong balance of the crowdfunder");
+            assertEq(address(disputeKit).balance, appealValue, "Wrong balance of the DK");
+        }
+    }
 }
