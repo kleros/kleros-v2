@@ -1398,7 +1398,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     error DisputeKitOnly();
     error SortitionModuleOnly();
     error UnsuccessfulCall();
-    error InvalidDisputKitParent();
+    error InvalidDisputeKitParent();
     error MinStakeLowerThanParentCourt();
     error UnsupportedDisputeKit();
     error InvalidForkingCourtAsParent();

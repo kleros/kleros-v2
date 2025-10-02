@@ -1173,7 +1173,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     error DisputeKitOnly();
     error SortitionModuleOnly();
     error UnsuccessfulCall();
-    error InvalidDisputKitParent();
+    error InvalidDisputeKitParent();
     error MinStakeLowerThanParentCourt();
     error UnsupportedDisputeKit();
     error InvalidForkingCourtAsParent();

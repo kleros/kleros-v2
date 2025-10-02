@@ -343,14 +343,14 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
 
         if (availablePenalty == 0) return (juror.stakedPnk, newCourtStake, 0); // No penalty to apply.
 
-        uint256 currentStake = _stakeOf(_account, _courtID);
+        uint256 currentStake = newCourtStake;
         uint256 newStake = 0;
         if (currentStake >= availablePenalty) {
             newStake = currentStake - availablePenalty;
         }
         _setStake(_account, _courtID, 0, availablePenalty, newStake);
         pnkBalance = juror.stakedPnk; // updated by _setStake()
-        newCourtStake = _stakeOf(_account, _courtID); // updated by _setStake()
+        newCourtStake = newStake;
     }
 
     /// @inheritdoc ISortitionModule
