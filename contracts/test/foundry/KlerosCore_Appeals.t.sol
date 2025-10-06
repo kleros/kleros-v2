@@ -467,6 +467,289 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(account, staker1, "Wrong drawn account in the classic DK");
     }
 
+    function test_appeal_recurringDK() public {
+        // Test the behaviour when dispute jumps from DK3 to DK2 and then back to DK3 again.
+
+        // Setup: create 2 more courts to facilitate appeal jump. Create 2 more DK.
+        // Set General Court as parent to court2, and court2 as parent to court3. dk2 as jump DK for dk3, and dk3 as jump DK for dk2.
+        // Ensure DK2 is supported by Court2 and DK3 is supported by court3.
+        // Preemptively add DK3 support for General court.
+
+        // Initial dispute starts with Court3, DK3.
+        // Jumps to Court2, DK2.
+        // Then jumps to General Court, DK3.
+        uint256 disputeID = 0;
+
+        uint96 courtID2 = 2;
+        uint96 courtID3 = 3;
+
+        uint256 dkID2 = 2;
+        uint256 dkID3 = 3;
+
+        DisputeKitClassic dkLogic = new DisputeKitClassic();
+
+        bytes memory initDataDk2 = abi.encodeWithSignature(
+            "initialize(address,address,address,uint256)",
+            owner,
+            address(core),
+            address(wNative),
+            dkID3
+        );
+        UUPSProxy proxyDk2 = new UUPSProxy(address(dkLogic), initDataDk2);
+        DisputeKitClassic disputeKit2 = DisputeKitClassic(address(proxyDk2));
+
+        bytes memory initDataDk3 = abi.encodeWithSignature(
+            "initialize(address,address,address,uint256)",
+            owner,
+            address(core),
+            address(wNative),
+            dkID2
+        );
+        UUPSProxy proxyDk3 = new UUPSProxy(address(dkLogic), initDataDk3);
+        DisputeKitClassic disputeKit3 = DisputeKitClassic(address(proxyDk3));
+
+        vm.prank(owner);
+        core.addNewDisputeKit(disputeKit2);
+        vm.prank(owner);
+        core.addNewDisputeKit(disputeKit3);
+
+        uint256[] memory supportedDK = new uint256[](2);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        supportedDK[1] = dkID2;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT,
+            hiddenVotes,
+            minStake,
+            alpha,
+            feeForJuror,
+            7, // jurors for jump. Minimal number to ensure jump after the first appeal
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
+            sortitionExtraData,
+            supportedDK
+        );
+        assertEq(core.isSupported(courtID2, dkID2), true, "dkID2 should be supported by Court2");
+
+        (uint96 courtParent, , , , , uint256 courtJurorsForCourtJump) = core.courts(courtID2);
+        assertEq(courtParent, GENERAL_COURT, "Wrong court parent for court2");
+        assertEq(courtJurorsForCourtJump, 7, "Wrong jurors for jump value for court2");
+
+        supportedDK = new uint256[](2);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        supportedDK[1] = dkID3;
+        vm.prank(owner);
+        core.createCourt(
+            courtID2,
+            hiddenVotes,
+            minStake,
+            alpha,
+            feeForJuror,
+            3, // jurors for jump. Minimal number to ensure jump after the first appeal
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
+            sortitionExtraData,
+            supportedDK
+        );
+        assertEq(core.isSupported(courtID3, dkID3), true, "dkID3 should be supported by Court3");
+
+        (courtParent, , , , , courtJurorsForCourtJump) = core.courts(courtID3);
+        assertEq(courtParent, courtID2, "Wrong court parent for court3");
+        assertEq(courtJurorsForCourtJump, 3, "Wrong jurors for jump value for court3");
+
+        vm.prank(owner);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        supportedDK[1] = dkID3;
+        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
+        assertEq(core.isSupported(GENERAL_COURT, dkID3), true, "dkID3 should be supported by GENERAL_COURT");
+
+        bytes memory newExtraData = abi.encodePacked(uint256(courtID3), DEFAULT_NB_OF_JURORS, dkID3);
+        arbitrable.changeArbitratorExtraData(newExtraData);
+
+        vm.prank(staker1);
+        core.setStake(courtID3, 20000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        // Round1 //
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.disputeKitID, dkID3, "Wrong DK ID");
+
+        assertEq(disputeKit3.coreDisputeIDToActive(disputeID), true, "Should be true for dk3");
+        assertEq(disputeKit3.coreDisputeIDToLocal(disputeID), 0, "Wrong local dispute ID to core dispute ID");
+        assertEq(disputeKit3.getNumberOfRounds(0), 1, "Wrong number of rounds dk3"); // local dispute id
+        (, uint256 localRoundID) = disputeKit3.getLocalDisputeRoundID(disputeID, 0);
+        assertEq(localRoundID, 0, "Wrong local round ID dk3");
+
+        (, bool jumped, ) = disputeKit3.disputes(0);
+        assertEq(jumped, false, "jumped should be false in dk3");
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+
+        vm.prank(staker1);
+        disputeKit3.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        vm.prank(crowdfunder1);
+        disputeKit3.fundAppeal{value: 0.63 ether}(disputeID, 1);
+
+        assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
+
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtJump(disputeID, 1, courtID3, courtID2);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.DisputeKitJump(disputeID, 1, dkID3, dkID2);
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
+        vm.prank(crowdfunder2);
+        disputeKit3.fundAppeal{value: 0.42 ether}(disputeID, 2);
+
+        // Round2 //
+
+        (, jumped, ) = disputeKit3.disputes(0);
+        assertEq(jumped, true, "jumped should be true in dk3");
+        assertEq(
+            (disputeKit3.getFundedChoices(disputeID)).length,
+            2,
+            "No fresh round created so the number of funded choices should be 2"
+        );
+
+        assertEq(disputeKit3.coreDisputeIDToActive(disputeID), true, "Should still be true for dk3");
+        assertEq(disputeKit3.coreDisputeIDToLocal(disputeID), 0, "core to local ID should not change for dk3");
+        assertEq(disputeKit3.getNumberOfRounds(0), 1, "Wrong number of rounds dk3"); // local dispute id
+        (, localRoundID) = disputeKit3.getLocalDisputeRoundID(disputeID, 0);
+        assertEq(localRoundID, 0, "Local round ID should not change dk3");
+
+        round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.disputeKitID, dkID2, "Wrong DK ID");
+        assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, courtID2, "Wrong court ID after jump");
+
+        (, jumped, ) = disputeKit2.disputes(0);
+        assertEq(jumped, false, "jumped should be false in the DK that dispute jumped to");
+
+        assertEq(disputeKit2.coreDisputeIDToActive(disputeID), true, "Should be true for dk2");
+        assertEq(disputeKit2.coreDisputeIDToLocal(disputeID), 0, "Wrong local dispute ID to core dispute ID dk2");
+        assertEq(disputeKit2.getNumberOfRounds(0), 1, "Wrong number of rounds dk2"); // local dispute id
+        (, localRoundID) = disputeKit2.getLocalDisputeRoundID(disputeID, 1);
+        assertEq(localRoundID, 0, "Wrong local round ID for dk2");
+
+        vm.prank(address(core));
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
+        disputeKit3.draw(disputeID, 1);
+
+        core.draw(disputeID, 7); // New round requires 7 jurors
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        voteIDs = new uint256[](7);
+        for (uint256 i = 0; i < voteIDs.length; i++) {
+            voteIDs[i] = i;
+        }
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
+        disputeKit3.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        vm.prank(staker1);
+        disputeKit2.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
+        disputeKit3.fundAppeal{value: 1.35 ether}(disputeID, 1);
+
+        assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
+
+        vm.prank(crowdfunder1);
+        // appealCost is 0.45. (0.03 * 15)
+        disputeKit2.fundAppeal{value: 1.35 ether}(disputeID, 1); // 0.45 + (0.45 * 20000/10000).
+
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtJump(disputeID, 2, courtID2, GENERAL_COURT);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.DisputeKitJump(disputeID, 2, dkID2, dkID3);
+        vm.prank(crowdfunder2);
+        disputeKit2.fundAppeal{value: 0.9 ether}(disputeID, 2); // 0.45 + (0.45 * 10000/10000).
+
+        // Round3 //
+
+        (, jumped, ) = disputeKit2.disputes(0);
+        assertEq(jumped, true, "jumped should be true in dk2");
+        assertEq(
+            (disputeKit2.getFundedChoices(disputeID)).length,
+            2,
+            "No fresh round created so the number of funded choices should be 2 for dk2"
+        );
+        assertEq(
+            disputeKit3.getFundedChoices(disputeID).length,
+            0,
+            "Should be 0 funded choices in dk3 because fresh round"
+        );
+
+        assertEq(disputeKit3.coreDisputeIDToActive(disputeID), true, "Should be true for dk3 round3");
+        assertEq(disputeKit3.coreDisputeIDToLocal(disputeID), 0, "core to local ID should stay the same for dk3");
+        assertEq(disputeKit3.getNumberOfRounds(0), 2, "Wrong number of rounds dk3 round3"); // local dispute id
+        (, localRoundID) = disputeKit3.getLocalDisputeRoundID(disputeID, 2);
+        assertEq(localRoundID, 1, "Wrong local round id for dk3 round3");
+
+        round = core.getRoundInfo(disputeID, 2);
+        assertEq(round.disputeKitID, dkID3, "Wrong DK ID");
+        assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
+        (courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, GENERAL_COURT, "Wrong court ID after jump");
+
+        (, jumped, ) = disputeKit3.disputes(0); // local dispute id
+        assertEq(jumped, false, "jumped should be false in the DK that dispute jumped to");
+
+        assertEq(disputeKit2.coreDisputeIDToActive(disputeID), true, "Should be true for dk2 round3");
+        assertEq(
+            disputeKit2.coreDisputeIDToLocal(disputeID),
+            0,
+            "Wrong local dispute ID to core dispute ID dk2 round3"
+        );
+        assertEq(disputeKit2.getNumberOfRounds(0), 1, "Wrong number of rounds dk2 round3"); // local dispute id
+        (, localRoundID) = disputeKit2.getLocalDisputeRoundID(disputeID, 1);
+        assertEq(localRoundID, 0, "Wrong local round ID for dk2 round3");
+
+        vm.prank(address(core));
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
+        disputeKit2.draw(disputeID, 1);
+
+        core.draw(disputeID, 15); // New round requires 15 jurors
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        voteIDs = new uint256[](15);
+        for (uint256 i = 0; i < voteIDs.length; i++) {
+            voteIDs[i] = i;
+        }
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToParentDK.selector);
+        disputeKit2.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        vm.prank(staker1);
+        disputeKit3.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+    }
+
     function test_appeal_quickPassPeriod() public {
         uint256 disputeID = 0;
 

@@ -206,20 +206,28 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bytes calldata _extraData,
         uint256 /*_nbVotes*/
     ) external override onlyByCore {
-        uint256 localDisputeID = disputes.length;
-        Dispute storage dispute = disputes.push();
+        uint256 localDisputeID;
+        Dispute storage dispute;
+        // Check if this dk wasn't already active before. Can happen if DK1 jumps to DK2 and then back to DK1.
+        if (coreDisputeIDToActive[_coreDisputeID]) {
+            localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+            dispute = disputes[localDisputeID];
+            dispute.jumped = false;
+        } else {
+            localDisputeID = disputes.length;
+            dispute = disputes.push();
+            coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
+            coreDisputeIDToActive[_coreDisputeID] = true;
+        }
+
         dispute.numberOfChoices = _numberOfChoices;
         dispute.extraData = _extraData;
-        dispute.jumped = false; // Possibly true if this DK has jumped in a previous round.
-
         // New round in the Core should be created before the dispute creation in DK.
         dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID) - 1] = dispute.rounds.length;
 
         Round storage round = dispute.rounds.push();
         round.tied = true;
 
-        coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
-        coreDisputeIDToActive[_coreDisputeID] = true;
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
