@@ -1366,7 +1366,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     function _extraDataToCourtIDMinJurorsDisputeKit(
         bytes memory _extraData
     ) internal view returns (uint96 courtID, uint256 minJurors, uint256 disputeKitID) {
-        // Note that if the extradata doesn't contain 32 bytes for the dispute kit ID it'll return the default 0 index.
+        // Note that if the _extraData doesn't contain 32 bytes, default values are used.
         if (_extraData.length >= 64) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
@@ -1381,7 +1381,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
                 minJurors = DEFAULT_NB_OF_JURORS;
             }
             if (disputeKitID == NULL_DISPUTE_KIT || disputeKitID >= disputeKits.length) {
-                disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
+                disputeKitID = DISPUTE_KIT_CLASSIC;
             }
         } else {
             courtID = GENERAL_COURT;
