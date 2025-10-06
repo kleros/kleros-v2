@@ -50,7 +50,7 @@ interface IArbitratorV2 {
     ) external payable returns (uint256 disputeID);
 
     /// @notice Create a dispute and pay for the fees in a supported ERC20 token.
-    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData)` in the supported ERC20 token.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData, _feeToken)` in the supported ERC20 token.
     /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
     /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
     /// @param _feeToken The ERC20 token used to pay fees.

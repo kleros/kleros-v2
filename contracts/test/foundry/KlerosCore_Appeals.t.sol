@@ -127,7 +127,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOver.selector);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriod.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1);
         core.passPeriod(disputeID);
 
@@ -135,14 +135,14 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + ((end - start) / 2 + 1));
-        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOverForLoser.selector);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriodForLoser.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1); // Losing choice
 
         disputeKit.fundAppeal(disputeID, 2); // Winning choice funding should not revert yet
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + (end - start) / 2); // Warp one more to cover the whole period
-        vm.expectRevert(DisputeKitClassicBase.AppealPeriodIsOver.selector);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriod.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 2);
     }
 

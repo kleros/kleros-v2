@@ -78,7 +78,7 @@ interface ISortitionModule {
         uint256 _newStake
     ) external;
 
-    /// @notice Update the state of the stakes with a PNK reward deposit, called by KC during rewards execution.
+    /// @notice Update the state of the stakes with a PNK penalty, called by KC during rewards execution.
     ///
     /// @dev `O(n + p * log_k(j))` where
     /// `n` is the number of courts the juror has staked in,

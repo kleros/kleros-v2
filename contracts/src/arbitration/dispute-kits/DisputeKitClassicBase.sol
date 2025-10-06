@@ -370,7 +370,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
-        if (block.timestamp < appealPeriodStart || block.timestamp >= appealPeriodEnd) revert AppealPeriodIsOver();
+        if (block.timestamp < appealPeriodStart || block.timestamp >= appealPeriodEnd) revert NotAppealPeriod();
 
         uint256 multiplier;
         (uint256 ruling, , ) = this.currentRuling(_coreDisputeID);
@@ -381,7 +381,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
                 block.timestamp - appealPeriodStart >=
                 ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT
             ) {
-                revert AppealPeriodIsOverForLoser();
+                revert NotAppealPeriodForLoser();
             }
             multiplier = LOSER_STAKE_MULTIPLIER;
         }
@@ -759,8 +759,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     error ChoiceOutOfBounds();
     error HashDoesNotMatchHiddenVoteCommitment();
     error VoteAlreadyCast();
-    error AppealPeriodIsOver();
-    error AppealPeriodIsOverForLoser();
+    error NotAppealPeriod();
+    error NotAppealPeriodForLoser();
     error AppealFeeIsAlreadyPaid();
     error DisputeNotResolved();
     error CoreIsPaused();
