@@ -310,7 +310,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
         );
-        vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
+        vm.expectRevert(abi.encodeWithSelector(KlerosCore.MinStakeHigherThanChildCourt.selector, newCourtID));
         vm.prank(owner);
         // Min stake of a parent became higher than of a child
         core.changeCourtParameters(

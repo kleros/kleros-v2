@@ -424,7 +424,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         sortitionModule = _sortitionModule;
     }
 
-    /// @notice Add a new supported dispute kit module to the court.
+    /// @notice Add a new supported dispute kit, without enabling it.
+    /// Use `enableDisputeKits()` to enable the dispute kit for a specific court.
     /// @param _disputeKitAddress The address of the dispute kit contract.
     function addNewDisputeKit(IDisputeKit _disputeKitAddress) external onlyByOwner {
         uint256 disputeKitID = disputeKits.length;
@@ -461,7 +462,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Court storage court = courts.push();
 
         for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
-            if (_supportedDisputeKits[i] == 0 || _supportedDisputeKits[i] >= disputeKits.length) {
+            if (_supportedDisputeKits[i] == NULL_DISPUTE_KIT || _supportedDisputeKits[i] >= disputeKits.length) {
                 revert WrongDisputeKitIndex();
             }
             _enableDisputeKit(uint96(courtID), _supportedDisputeKits[i], true);
@@ -483,7 +484,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         // Update the parent.
         courts[_parent].children.push(courtID);
         emit CourtCreated(
-            uint96(courtID),
+            courtID,
             _parent,
             _hiddenVotes,
             _minStake,
@@ -518,7 +519,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         }
         for (uint256 i = 0; i < court.children.length; i++) {
             if (courts[court.children[i]].minStake < _minStake) {
-                revert MinStakeLowerThanParentCourt();
+                revert MinStakeHigherThanChildCourt(court.children[i]);
             }
         }
         court.minStake = _minStake;
@@ -544,10 +545,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _enable Whether add or remove the dispute kits from the court.
     function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external onlyByOwner {
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
+            if (_disputeKitIDs[i] == NULL_DISPUTE_KIT || _disputeKitIDs[i] >= disputeKits.length) {
+                revert WrongDisputeKitIndex();
+            }
             if (_enable) {
-                if (_disputeKitIDs[i] == 0 || _disputeKitIDs[i] >= disputeKits.length) {
-                    revert WrongDisputeKitIndex();
-                }
                 _enableDisputeKit(_courtID, _disputeKitIDs[i], true);
             } else {
                 // Classic dispute kit must be supported by all courts.
@@ -940,7 +941,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         }
 
         if (pnkBalance == 0 || !disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
-            // The juror is inactive or their balance is can't cover penalties anymore, unstake them from all courts.
+            // The juror is inactive or their balance can't cover penalties anymore, unstake them from all courts.
             sortitionModule.forcedUnstakeAllCourts(account);
         } else if (newCourtStake < courts[penalizedInCourtID].minStake) {
             // The juror's balance fell below the court minStake, unstake them from the court.
@@ -1400,6 +1401,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     error UnsuccessfulCall();
     error InvalidDisputeKitParent();
     error MinStakeLowerThanParentCourt();
+    error MinStakeHigherThanChildCourt(uint256 _childCourtID);
     error UnsupportedDisputeKit();
     error InvalidForkingCourtAsParent();
     error WrongDisputeKitIndex();
