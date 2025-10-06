@@ -31,11 +31,21 @@ contract DisputeResolver is IArbitrableV2 {
     mapping(uint256 => uint256) public arbitratorDisputeIDToLocalID; // Maps arbitrator-side dispute IDs to local dispute IDs.
 
     // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
+        _;
+    }
+
+    // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
     /// @notice Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
+    /// @param _templateRegistry The dispute template registry.
     constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {
         owner = msg.sender;
         arbitrator = _arbitrator;
@@ -48,18 +58,15 @@ contract DisputeResolver is IArbitrableV2 {
 
     /// @notice Changes the owner.
     /// @param _owner The address of the new owner.
-    function changeOwner(address _owner) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
     }
 
-    function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByOwner {
         arbitrator = _arbitrator;
     }
 
-    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByOwner {
         templateRegistry = _templateRegistry;
     }
 
