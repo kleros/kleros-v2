@@ -969,12 +969,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Dispute storage dispute = disputes[_params.disputeID];
         Round storage round = dispute.rounds[_params.round];
         IDisputeKit disputeKit = disputeKits[round.disputeKitID];
+        uint256 repartition = _params.repartition % _params.numberOfVotesInRound;
 
         // [0, 1] value that determines how coherent the juror was in this round, in basis points.
         (uint256 pnkCoherence, uint256 feeCoherence) = disputeKit.getDegreeOfCoherenceReward(
             _params.disputeID,
             _params.round,
-            _params.repartition % _params.numberOfVotesInRound,
+            repartition,
             _params.feePerJurorInRound,
             _params.pnkAtStakePerJurorInRound
         );
@@ -987,7 +988,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             feeCoherence = ONE_BASIS_POINT;
         }
 
-        address account = round.drawnJurors[_params.repartition % _params.numberOfVotesInRound];
+        address account = round.drawnJurors[repartition];
         uint256 pnkLocked = _applyCoherence(round.pnkAtStakePerJuror, pnkCoherence);
 
         // Release the rest of the PNKs of the juror for this round.
@@ -1004,8 +1005,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _transferFeeToken(round.feeToken, payable(account), feeReward);
         }
         if (pnkReward != 0) {
+            uint96 rewardedInCourtID = round.drawnJurorFromCourtIDs[repartition];
+
             // Stake the PNK reward if possible, bypasses delayed stakes and other checks done by validateStake()
-            if (!sortitionModule.setStakeReward(account, dispute.courtID, pnkReward)) {
+            if (!sortitionModule.setStakeReward(account, rewardedInCourtID, pnkReward)) {
                 pinakion.safeTransfer(account, pnkReward);
             }
         }
