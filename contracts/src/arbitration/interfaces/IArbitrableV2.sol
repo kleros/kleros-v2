@@ -17,14 +17,8 @@ interface IArbitrableV2 {
     /// @notice To be emitted when a dispute is created to link the correct template to the disputeID.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
-    /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.
     /// @param _templateId The identifier of the dispute template.
-    event DisputeRequest(
-        IArbitratorV2 indexed _arbitrator,
-        uint256 indexed _arbitratorDisputeID,
-        uint256 _externalDisputeID,
-        uint256 _templateId
-    );
+    event DisputeRequest(IArbitratorV2 indexed _arbitrator, uint256 indexed _arbitratorDisputeID, uint256 _templateId);
 
     /// @notice To be raised when a ruling is given.
     /// @param _arbitrator The arbitrator giving the ruling.

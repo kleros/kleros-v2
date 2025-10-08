@@ -134,7 +134,7 @@ contract DisputeResolver is IArbitrableV2 {
         );
         arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, templateId);
     }
 
     // ************************************* //

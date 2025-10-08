@@ -72,12 +72,12 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
     /// @notice To be raised when a moderated evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
     /// @param _arbitrator The arbitrator of the contract.
-    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsibility to submit the right evidence group ID.
+    /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
     /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     event ModeratedEvidence(
         IArbitratorV2 indexed _arbitrator,
-        uint256 indexed _externalDisputeID,
+        uint256 indexed _arbitratorDisputeID,
         address indexed _party,
         string _evidence
     );
@@ -214,7 +214,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         moderation.arbitratorDataID = arbitratorDataList.length - 1;
 
         // When evidence is submitted for a foreign arbitrable, the arbitrator field of Evidence is ignored.
-        emit ModeratedEvidence(arbitrator, _evidenceGroupID, msg.sender, _evidence);
+        emit ModeratedEvidence(arbitrator, evidenceData.disputeID, msg.sender, _evidence);
     }
 
     /// @notice Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
@@ -265,12 +265,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
             );
             disputeIDtoEvidenceID[evidenceData.disputeID] = _evidenceID;
 
-            emit DisputeRequest(
-                arbitrator,
-                evidenceData.disputeID,
-                uint256(_evidenceID),
-                arbitratorData.disputeTemplateId
-            );
+            emit DisputeRequest(arbitrator, evidenceData.disputeID, arbitratorData.disputeTemplateId);
             evidenceData.disputed = true;
             moderation.bondDeadline = 0;
             moderation.currentWinner = Party.None;

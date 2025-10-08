@@ -58,10 +58,10 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // ************************************* //
 
     /// @notice Submits evidence for a dispute.
-    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsibility to submit the right evidence group ID.
+    /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _evidence Stringified evidence object, example: `{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}`.
-    function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
-        emit Evidence(_externalDisputeID, msg.sender, _evidence);
+    function submitEvidence(uint256 _arbitratorDisputeID, string calldata _evidence) external {
+        emit Evidence(_arbitratorDisputeID, msg.sender, _evidence);
     }
 
     // ************************************* //

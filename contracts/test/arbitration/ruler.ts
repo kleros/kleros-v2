@@ -97,7 +97,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "JurorRewardPenalty")
       .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.target, disputeID, localDisputeID, templateId)
+      .withArgs(core.target, disputeID, templateId)
       .and.to.emit(resolver, "Ruling")
       .withArgs(core.target, disputeID, anyValue);
   });
@@ -121,7 +121,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "JurorRewardPenalty")
       .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.target, disputeID, localDisputeID, templateId)
+      .withArgs(core.target, disputeID, templateId)
       .and.to.emit(resolver, "Ruling")
       .withArgs(core.target, disputeID, 2);
   });
@@ -139,7 +139,7 @@ describe("KlerosCoreRuler", async () => {
       .to.emit(core, "DisputeCreation")
       .withArgs(disputeID, resolver.target)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.target, disputeID, localDisputeID, templateId);
+      .withArgs(core.target, disputeID, templateId);
 
     await expect(core.connect(deployer).executeRuling(disputeID, 3, true, true)).revertedWithCustomError(
       core,

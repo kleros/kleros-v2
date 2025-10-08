@@ -154,9 +154,9 @@ describe("Home Evidence contract", async () => {
       if (receipt === null) throw new Error("Receipt is null");
       const evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
 
-      const [_arbitrator, _externalDisputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
+      const [_arbitrator, _disputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
       expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
-      expect(_externalDisputeID).to.equal(1234, "Wrong external dispute ID.");
+      expect(_disputeID).to.equal(0, "Wrong dispute ID.");
       expect(_party).to.equal(user1.address, "Wrong submitter.");
       expect(_evidence).to.equal(newEvidence, "Wrong evidence message.");
 
@@ -261,14 +261,10 @@ describe("Home Evidence contract", async () => {
       });
       let receipt = await tx.wait();
       if (receipt === null) throw new Error("Receipt is null");
-      let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
-        "DisputeRequest",
-        receipt
-      ).args;
+      let [_arbitrator, _disputeID, _templateId, _templateUri] = getEmittedEvent("DisputeRequest", receipt).args;
       expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
-      expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
+      expect(_disputeID).to.equal(0, "Wrong dispute ID.");
       expect(_templateId).to.equal(1, "Wrong template ID.");
-      expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
 
       await expect(
         evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
