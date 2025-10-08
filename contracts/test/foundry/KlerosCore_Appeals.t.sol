@@ -748,6 +748,48 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         disputeKit3.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        vm.warp(block.timestamp + timesPerPeriod[2]);
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        core.executeRuling(disputeID); // winning choice is 2
+
+        // Appeal Rewards for Round 1 //
+        disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 0, 1); // wrong side, no reward
+        vm.expectEmit();
+        emit DisputeKitClassicBase.Withdrawal(disputeID, 0, 2, payable(crowdfunder2), 0.84 ether);
+        disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 0, 2); // REWARDS
+        disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 0, 1); // wrong DK, no reward
+        disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 0, 2); // wrong DK, no reward
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 0, 1); // wrong DK, no reward
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 0, 2); // wrong DK, no reward
+
+        // Appeal Rewards for Round 2 //
+        disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1, 1); // wrong DK, no reward
+        disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 1, 2); // wrong DK, no reward
+        disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1, 1); // wrong side, no reward
+        vm.expectEmit();
+        emit DisputeKitClassicBase.Withdrawal(disputeID, 1, 2, payable(crowdfunder2), 1.8 ether);
+        disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 1, 2); // REWARDS
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1, 1); // wrong DK, no reward
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 1, 2); // wrong DK, no reward
+
+        // Appeal Rewards for Round 3 //
+        disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 2, 1); // no appeal, no reward
+        disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2, 2); // no appeal, no reward
+        disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 2, 1); // no appeal, no reward
+        disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2, 2); // no appeal, no reward
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 2, 1); // wrong DK, no reward
+        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2, 2); // wrong DK, no reward
     }
 
     function test_appeal_quickPassPeriod() public {
