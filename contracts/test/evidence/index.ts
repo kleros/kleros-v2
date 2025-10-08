@@ -23,6 +23,7 @@ describe("Home Evidence contract", async () => {
     ["uint256", "uint256"],
     [1, 1] // courtId 1, minJurors 1
   );
+  const arbitrable = "0x1234567890123456789012345678901234567890"; // Dummy arbitrable address
   const appealTimeout = 100;
   const bondTimeout = 60 * 10;
   const totalCostMultiplier = 15000n;
@@ -147,15 +148,19 @@ describe("Home Evidence contract", async () => {
   describe("Evidence Submission", () => {
     it("Should submit evidence correctly.", async () => {
       const newEvidence = "Irrefutable evidence";
-      const tx = await evidenceModule.connect(user1).submitEvidence(1234, newEvidence, {
+      const tx = await evidenceModule.connect(user1).submitEvidence(arbitrable, 1234, newEvidence, {
         value: minRequiredDeposit,
       }); // id: 0
       const receipt = await tx.wait();
       if (receipt === null) throw new Error("Receipt is null");
       const evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
 
-      const [_arbitrator, _externalDisputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
+      const [_arbitrator, _arbitrable, _externalDisputeID, _party, _evidence] = getEmittedEvent(
+        "ModeratedEvidence",
+        receipt
+      ).args;
       expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
+      expect(_arbitrable).to.equal(arbitrable, "Wrong arbitrable.");
       expect(_externalDisputeID).to.equal(1234, "Wrong external dispute ID.");
       expect(_party).to.equal(user1.address, "Wrong submitter.");
       expect(_evidence).to.equal(newEvidence, "Wrong evidence message.");
@@ -169,11 +174,11 @@ describe("Home Evidence contract", async () => {
 
     it("Should not allowed the same evidence twice for the same external dispute id.", async () => {
       const newEvidence = "Irrefutable evidence";
-      await evidenceModule.submitEvidence(1234, newEvidence, {
+      await evidenceModule.submitEvidence(arbitrable, 1234, newEvidence, {
         value: minRequiredDeposit,
       });
       await expect(
-        evidenceModule.submitEvidence(1234, newEvidence, {
+        evidenceModule.submitEvidence(arbitrable, 1234, newEvidence, {
           value: minRequiredDeposit,
         })
       ).to.be.revertedWith("Evidence already submitted.");
@@ -182,7 +187,7 @@ describe("Home Evidence contract", async () => {
     it("Should revert if deposit is too low.", async () => {
       const newEvidence = "Irrefutable evidence";
       await expect(
-        evidenceModule.submitEvidence(1234, newEvidence, {
+        evidenceModule.submitEvidence(arbitrable, 1234, newEvidence, {
           value: minRequiredDeposit - 1n,
         })
       ).to.be.revertedWith("Insufficient funding.");
@@ -192,7 +197,7 @@ describe("Home Evidence contract", async () => {
   describe("Moderation", () => {
     beforeEach("Initialize posts and comments", async () => {
       const newEvidence = "Irrefutable evidence";
-      await evidenceModule.connect(user1).submitEvidence(1234, newEvidence, {
+      await evidenceModule.connect(user1).submitEvidence(arbitrable, 1234, newEvidence, {
         value: minRequiredDeposit,
       });
       evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
