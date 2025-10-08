@@ -131,9 +131,9 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // ************************************* //
 
     /// @notice Request a random number.
+    /// @dev Ensure that the subscription is set and funded.
     /// @dev Consumer only.
     function requestRandomness() external override onlyByConsumer {
-        // Will revert if subscription is not set and funded.
         uint256 requestId = s_vrfCoordinator.requestRandomWords(
             VRFV2PlusClient.RandomWordsRequest({
                 keyHash: keyHash,
