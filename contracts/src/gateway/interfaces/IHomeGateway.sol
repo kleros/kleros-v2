@@ -18,14 +18,12 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
     /// @param _arbitrable The address of the Arbitrable contract.
     /// @param _arbitrableDisputeID The identifier of the dispute in the Arbitrable contract.
     /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
-    /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.
     event CrossChainDisputeIncoming(
         IArbitratorV2 _arbitrator,
         uint256 _arbitrableChainId,
         address indexed _arbitrable,
         uint256 indexed _arbitrableDisputeID,
         uint256 indexed _arbitratorDisputeID,
-        uint256 _externalDisputeID,
         uint256 _templateId
     );
 
@@ -39,7 +37,6 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
         uint256 foreignChainID;
         address foreignArbitrable;
         uint256 foreignDisputeID;
-        uint256 externalDisputeID;
         uint256 templateId;
         uint256 choices;
         bytes extraData;

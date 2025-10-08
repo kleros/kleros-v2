@@ -111,14 +111,7 @@ describe("Integration tests", async () => {
     await expect(tx)
       .to.emit(foreignGateway, "CrossChainDisputeOutgoing")
       .withArgs(anyValue, arbitrable.target, 1, 2, "0x00");
-    await expect(tx)
-      .to.emit(arbitrable, "DisputeRequest")
-      .withArgs(
-        foreignGateway.target,
-        1,
-        46619385602526556702049273755915206310773794210139929511467397410441395547901n,
-        0
-      );
+    await expect(tx).to.emit(arbitrable, "DisputeRequest").withArgs(foreignGateway.target, 1, 0);
     if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     if (lastBlock === null) throw new Error("lastBlock is null");
@@ -132,21 +125,18 @@ describe("Integration tests", async () => {
     }
     // Relayer tx
     await expect(
-      homeGateway
-        .connect(relayer)
-        ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,uint256,bytes))"](
-          {
-            foreignBlockHash: ethers.toBeHex(lastBlock.hash),
-            foreignChainID: 31337,
-            foreignArbitrable: arbitrable.target,
-            foreignDisputeID: disputeId,
-            externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
-            templateId: 0,
-            choices: 2,
-            extraData: "0x00",
-          },
-          { value: arbitrationCost }
-        )
+      homeGateway.connect(relayer)["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"](
+        {
+          foreignBlockHash: ethers.toBeHex(lastBlock.hash),
+          foreignChainID: 31337,
+          foreignArbitrable: arbitrable.target,
+          foreignDisputeID: disputeId,
+          templateId: 0,
+          choices: 2,
+          extraData: "0x00",
+        },
+        { value: arbitrationCost }
+      )
     ).to.emit(homeGateway, "DisputeRequest");
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime

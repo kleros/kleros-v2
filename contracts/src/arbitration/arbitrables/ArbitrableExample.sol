@@ -123,8 +123,7 @@ contract ArbitrableExample is IArbitrableV2 {
         disputeID = arbitrator.createDispute{value: msg.value}(numberOfRulingOptions, arbitratorExtraData);
         externalIDtoLocalID[disputeID] = localDisputeID;
 
-        uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId);
+        emit DisputeRequest(arbitrator, disputeID, templateId);
     }
 
     /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
@@ -144,8 +143,7 @@ contract ArbitrableExample is IArbitrableV2 {
         disputeID = arbitrator.createDispute(numberOfRulingOptions, arbitratorExtraData, weth, _feeInWeth);
         externalIDtoLocalID[disputeID] = localDisputeID;
 
-        uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId);
+        emit DisputeRequest(arbitrator, disputeID, templateId);
     }
 
     /// @inheritdoc IArbitrableV2

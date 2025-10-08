@@ -46,7 +46,7 @@ contract DisputeResolverRuler is DisputeResolver {
         arbitratorDisputeID = IKlerosCoreRulerFragment(address(arbitrator)).getNextDisputeID();
         arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, templateId);
 
         arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
     }

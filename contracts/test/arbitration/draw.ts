@@ -154,13 +154,12 @@ describe("Draw Benchmark", async () => {
     // Relayer tx
     await homeGateway
       .connect(await ethers.getSigner(relayer))
-      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,uint256,bytes))"](
+      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"](
         {
           foreignBlockHash: lastBlock?.hash,
           foreignChainID: 31337,
           foreignArbitrable: arbitrable.target,
           foreignDisputeID: disputeId,
-          externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
           templateId: 0,
           choices: 2,
           extraData: `0x000000000000000000000000000000000000000000000000000000000000000${createDisputeCourtId}0000000000000000000000000000000000000000000000000000000000000003`,
