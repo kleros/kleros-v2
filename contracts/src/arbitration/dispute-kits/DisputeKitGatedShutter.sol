@@ -118,7 +118,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         bytes32 _recoveryCommit,
         bytes32 _identity,
         bytes calldata _encryptedVote
-    ) external notJumped(_coreDisputeID) {
+    ) external isActive(_coreDisputeID) {
         if (_recoveryCommit == bytes32(0)) revert EmptyRecoveryCommit();
 
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
