@@ -108,14 +108,14 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _recoveryCommit The commitment hash without the justification.
-    /// @param _justification Justification of the choice.
+    /// @param _justificationHash Hash of the justification of the choice.
     /// @param _identity The Shutter identity used for encryption.
     /// @param _encryptedVote The Shutter encrypted vote.
     function castCommitShutter(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _recoveryCommit,
-        string memory _justification,
+        bytes32 _justificationHash,
         bytes32 _identity,
         bytes calldata _encryptedVote
     ) external notJumped(_coreDisputeID) {
@@ -128,8 +128,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
             recoveryCommitments[localDisputeID][localRoundID][_voteIDs[i]] = _recoveryCommit;
         }
         // Construct Shutter commit out of recovery commit + justification.
-        bytes32 justificationHash = keccak256(bytes(_justification));
-        bytes32 commit = keccak256(abi.encode(_recoveryCommit, justificationHash));
+        bytes32 commit = keccak256(abi.encode(_recoveryCommit, _justificationHash));
         // `_castCommit()` ensures that the caller owns the vote
         _castCommit(_coreDisputeID, _voteIDs, commit);
         emit CommitCastShutter(_coreDisputeID, msg.sender, commit, _recoveryCommit, _identity, _encryptedVote);
