@@ -7,6 +7,7 @@ import {
   testERC721Gating,
   testERC1155Gating,
   testWhitelistIntegration,
+  testNoTokenGateAddress,
   TokenGatedTestContext,
 } from "./helpers/dispute-kit-gated-common";
 
@@ -38,4 +39,5 @@ describe("DisputeKitGated", async () => {
   testERC721Gating(() => context);
   testERC1155Gating(() => context);
   testWhitelistIntegration(() => context);
+  testNoTokenGateAddress(() => context);
 });

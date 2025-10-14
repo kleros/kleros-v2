@@ -623,3 +623,82 @@ export function testWhitelistIntegration(context: () => TokenGatedTestContext) {
     });
   });
 }
+
+export function testNoTokenGateAddress(context: () => TokenGatedTestContext) {
+  describe("No Token Gate Edge Case (address(0))", async () => {
+    it("Should verify that address(0) is supported by default", async () => {
+      const ctx = context();
+      await expectTokenSupported(ctx, ethers.ZeroAddress, true);
+    });
+
+    it("Should allow dispute creation with address(0) as tokenGate", async () => {
+      const ctx = context();
+      // Create dispute with address(0) as tokenGate - should not revert
+      await expect(createDisputeWithToken(ctx, ethers.ZeroAddress, false, 0)).to.not.be.reverted;
+    });
+
+    it("Should draw all staked jurors when tokenGate is address(0)", async () => {
+      const ctx = context();
+      // Neither juror has any special tokens, but both are staked
+      const nbOfJurors = 15n;
+      const tx = await stakeAndDraw(
+        ctx,
+        Courts.GENERAL,
+        nbOfJurors,
+        ctx.gatedDisputeKitID,
+        ethers.ZeroAddress,
+        false,
+        0
+      ).then((tx) => tx.wait());
+
+      // Both jurors should be eligible for drawing since there's no token gate
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === ctx.core.target) || [];
+      expect(drawLogs.length).to.equal(nbOfJurors);
+
+      // Verify that draws include both jurors (not just one)
+      const drawnJurors = new Set(drawLogs.map((log: any) => log.args[0]));
+      expect(drawnJurors.size).to.be.greaterThan(1, "Should draw from multiple jurors");
+    });
+
+    it("Should behave like non-gated dispute kit when tokenGate is address(0)", async () => {
+      const ctx = context();
+      // Verify that with address(0), jurors don't need any token balance
+      const nbOfJurors = 3n;
+
+      // Ensure jurors have no DAI tokens
+      expect(await ctx.dai.balanceOf(ctx.juror1.address)).to.equal(0);
+      expect(await ctx.dai.balanceOf(ctx.juror2.address)).to.equal(0);
+
+      const tx = await stakeAndDraw(
+        ctx,
+        Courts.GENERAL,
+        nbOfJurors,
+        ctx.gatedDisputeKitID,
+        ethers.ZeroAddress,
+        false,
+        0
+      ).then((tx) => tx.wait());
+
+      // Jurors should still be drawn despite having no tokens
+      const drawLogs =
+        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === ctx.core.target) || [];
+      expect(drawLogs).to.have.length(nbOfJurors);
+    });
+
+    it("Should parse address(0) correctly from insufficient extraData", async () => {
+      const ctx = context();
+      // Create extraData that's too short (less than 160 bytes)
+      // This should return address(0) from _extraDataToTokenInfo
+      const shortExtraData = ethers.AbiCoder.defaultAbiCoder().encode(
+        ["uint256", "uint256", "uint256"],
+        [Courts.GENERAL, 3, ctx.gatedDisputeKitID]
+      );
+
+      const tokenInfo = await ctx.disputeKit.extraDataToTokenInfo(shortExtraData);
+      expect(tokenInfo[0]).to.equal(ethers.ZeroAddress);
+      expect(tokenInfo[1]).to.equal(false);
+      expect(tokenInfo[2]).to.equal(0);
+    });
+  });
+}
