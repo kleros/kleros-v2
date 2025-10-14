@@ -721,14 +721,14 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.passPeriod(disputeID); // Execution
 
         vm.expectRevert(DisputeKitClassicBase.DisputeNotResolved.selector);
-        disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 0, 1);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 1);
 
         core.executeRuling(disputeID);
 
         vm.prank(owner);
         core.pause();
         vm.expectRevert(DisputeKitClassicBase.CoreIsPaused.selector);
-        disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 0, 1);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 1);
         vm.prank(owner);
         core.unpause();
 
@@ -737,12 +737,12 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(address(disputeKit).balance, 1.04 ether, "Wrong balance of the DK");
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 0, 1, crowdfunder1, 0.63 ether);
-        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 0, 1);
+        emit DisputeKitClassicBase.Withdrawal(disputeID, 1, crowdfunder1, 0.63 ether);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1);
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 0, 2, crowdfunder2, 0.41 ether);
-        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 0, 2);
+        emit DisputeKitClassicBase.Withdrawal(disputeID, 2, crowdfunder2, 0.41 ether);
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2);
 
         assertEq(crowdfunder1.balance, 10 ether, "Wrong balance of the crowdfunder1");
         assertEq(crowdfunder2.balance, 10 ether, "Wrong balance of the crowdfunder2");

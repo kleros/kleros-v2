@@ -24,7 +24,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     struct Dispute {
         Round[] rounds; // Rounds of the dispute. 0 is the default round, and [1, ..n] are the appeal rounds.
         uint256 numberOfChoices; // The number of choices jurors have when voting. This does not include choice `0` which is reserved for "refuse to arbitrate".
-        bool jumped; // True if dispute jumped to a parent dispute kit and won't be handled by this DK anymore.
         mapping(uint256 => uint256) coreRoundIDToLocal; // Maps id of the round in the core contract to the index of the round of related local dispute.
         bytes extraData; // Extradata for the dispute.
         uint256[10] __gap; // Reserved slots for future upgrades.
@@ -54,6 +53,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
+    struct Active {
+        bool dispute; // True if at least one round in the dispute has been active on this Dispute Kit. False if the dispute is unknown to this Dispute Kit.
+        bool currentRound; // True if the dispute's current round is active on this Dispute Kit. False if the dispute has jumped to another Dispute Kit.
+    }
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -67,7 +71,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
     bool public singleDrawPerJuror; // Whether each juror can only draw once per dispute, false by default.
-    mapping(uint256 coreDisputeID => bool) public coreDisputeIDToActive; // True if this dispute kit is active for this core dispute ID.
+    mapping(uint256 coreDisputeID => Active) public coreDisputeIDToActive; // Active status of the dispute and the current round.
     address public wNative; // The wrapped native token for safeSend().
     uint256 public jumpDisputeKitID; // The ID of the dispute kit in Kleros Core disputeKits array that the dispute should switch to after the court jump, in case the new court doesn't support this dispute kit.
 
@@ -106,17 +110,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
     /// @notice To be emitted when the contributed funds are withdrawn.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
-    /// @param _coreRoundID The identifier of the round in the Arbitrator contract.
     /// @param _choice The choice that is being funded.
     /// @param _contributor The address of the contributor.
     /// @param _amount The amount withdrawn.
-    event Withdrawal(
-        uint256 indexed _coreDisputeID,
-        uint256 indexed _coreRoundID,
-        uint256 _choice,
-        address indexed _contributor,
-        uint256 _amount
-    );
+    event Withdrawal(uint256 indexed _coreDisputeID, uint256 _choice, address indexed _contributor, uint256 _amount);
 
     /// @notice To be emitted when a choice is fully funded for an appeal.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
@@ -138,8 +135,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         _;
     }
 
-    modifier notJumped(uint256 _coreDisputeID) {
-        if (disputes[coreDisputeIDToLocal[_coreDisputeID]].jumped) revert DisputeJumpedToParentDK();
+    modifier isActive(uint256 _coreDisputeID) {
+        if (!coreDisputeIDToActive[_coreDisputeID].dispute) revert DisputeUnknownInThisDisputeKit();
+        if (!coreDisputeIDToActive[_coreDisputeID].currentRound) revert DisputeJumpedToAnotherDisputeKit();
         _;
     }
 
@@ -208,25 +206,26 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ) external override onlyByCore {
         uint256 localDisputeID;
         Dispute storage dispute;
-        // Check if this dk wasn't already active before. Can happen if DK1 jumps to DK2 and then back to DK1.
-        if (coreDisputeIDToActive[_coreDisputeID]) {
+        Active storage active = coreDisputeIDToActive[_coreDisputeID];
+        if (active.dispute) {
+            // The dispute has already been created in this DK in a previous round. E.g. if DK1 jumps to DK2 and then back to DK1.
             localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
             dispute = disputes[localDisputeID];
-            dispute.jumped = false;
         } else {
+            // The dispute has not been created in this DK yet.
             localDisputeID = disputes.length;
             dispute = disputes.push();
             coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
-            coreDisputeIDToActive[_coreDisputeID] = true;
         }
 
+        active.dispute = true;
+        active.currentRound = true;
         dispute.numberOfChoices = _numberOfChoices;
         dispute.extraData = _extraData;
-        // New round in the Core should be created before the dispute creation in DK.
-        dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID) - 1] = dispute.rounds.length;
 
-        Round storage round = dispute.rounds.push();
-        round.tied = true;
+        // KlerosCore.Round must have been already created.
+        dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID) - 1] = dispute.rounds.length;
+        dispute.rounds.push().tied = true;
 
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
@@ -235,7 +234,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     function draw(
         uint256 _coreDisputeID,
         uint256 _nonce
-    ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress, uint96 fromSubcourtID) {
+    ) external override onlyByCore isActive(_coreDisputeID) returns (address drawnAddress, uint96 fromSubcourtID) {
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
         uint256 localRoundID = dispute.rounds.length - 1;
@@ -274,11 +273,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit
-    ) internal notJumped(_coreDisputeID) {
+    ) internal isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.commit) revert NotCommitPeriod();
         if (_commit == bytes32(0)) revert EmptyCommit();
-        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
@@ -321,11 +319,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _salt,
         string memory _justification,
         address _juror
-    ) internal notJumped(_coreDisputeID) {
+    ) internal isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.vote) revert NotVotePeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
-        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
@@ -372,10 +369,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// Note that the surplus deposit will be reimbursed.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
     /// @param _choice A choice that receives funding.
-    function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable notJumped(_coreDisputeID) {
+    function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable isActive(_coreDisputeID) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
-        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
         if (block.timestamp < appealPeriodStart || block.timestamp >= appealPeriodEnd) revert NotAppealPeriod();
@@ -425,7 +421,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
             if (core.isDisputeKitJumping(_coreDisputeID)) {
                 // Don't create a new round in case of a jump, and remove local dispute from the flow.
-                dispute.jumped = true;
+                coreDisputeIDToActive[_coreDisputeID].currentRound = false;
             } else {
                 // Don't subtract 1 from length since both round arrays haven't been updated yet.
                 dispute.coreRoundIDToLocal[coreRoundID + 1] = dispute.rounds.length;
@@ -441,48 +437,50 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
     /// @notice Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
     /// @dev Withdrawals are not possible if the core contract is paused.
+    /// @dev It can be called after the dispute has jumped to another dispute kit.
     /// @param _coreDisputeID Index of the dispute in Kleros Core contract.
     /// @param _beneficiary The address whose rewards to withdraw.
-    /// @param _coreRoundID The round in the Kleros Core contract the caller wants to withdraw from.
     /// @param _choice The ruling option that the caller wants to withdraw from.
     /// @return amount The withdrawn amount.
     function withdrawFeesAndRewards(
         uint256 _coreDisputeID,
         address payable _beneficiary,
-        uint256 _coreRoundID,
         uint256 _choice
     ) external returns (uint256 amount) {
         (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
         if (!isRuled) revert DisputeNotResolved();
         if (core.paused()) revert CoreIsPaused();
-        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
+        if (!coreDisputeIDToActive[_coreDisputeID].dispute) revert DisputeUnknownInThisDisputeKit();
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
         (uint256 finalRuling, , ) = core.currentRuling(_coreDisputeID);
 
-        if (!round.hasPaid[_choice]) {
-            // Allow to reimburse if funding was unsuccessful for this ruling option.
-            amount = round.contributions[_beneficiary][_choice];
-        } else {
-            // Funding was successful for this ruling option.
-            if (_choice == finalRuling) {
-                // This ruling option is the ultimate winner.
-                amount = round.paidFees[_choice] > 0
-                    ? (round.contributions[_beneficiary][_choice] * round.feeRewards) / round.paidFees[_choice]
-                    : 0;
-            } else if (!round.hasPaid[finalRuling]) {
-                // The ultimate winner was not funded in this round. In this case funded ruling option(s) are reimbursed.
-                amount =
-                    (round.contributions[_beneficiary][_choice] * round.feeRewards) /
-                    (round.paidFees[round.fundedChoices[0]] + round.paidFees[round.fundedChoices[1]]);
+        for (uint256 i = 0; i < dispute.rounds.length; i++) {
+            Round storage round = dispute.rounds[i];
+
+            if (!round.hasPaid[_choice]) {
+                // Allow to reimburse if funding was unsuccessful for this ruling option.
+                amount += round.contributions[_beneficiary][_choice];
+            } else {
+                // Funding was successful for this ruling option.
+                if (_choice == finalRuling) {
+                    // This ruling option is the ultimate winner.
+                    amount += round.paidFees[_choice] > 0
+                        ? (round.contributions[_beneficiary][_choice] * round.feeRewards) / round.paidFees[_choice]
+                        : 0;
+                } else if (!round.hasPaid[finalRuling]) {
+                    // The ultimate winner was not funded in this round. In this case funded ruling option(s) are reimbursed.
+                    amount +=
+                        (round.contributions[_beneficiary][_choice] * round.feeRewards) /
+                        (round.paidFees[round.fundedChoices[0]] + round.paidFees[round.fundedChoices[1]]);
+                }
             }
+            round.contributions[_beneficiary][_choice] = 0;
         }
-        round.contributions[_beneficiary][_choice] = 0;
 
         if (amount != 0) {
             _beneficiary.safeSend(amount, wNative);
-            emit Withdrawal(_coreDisputeID, _coreRoundID, _choice, _beneficiary, amount);
+            emit Withdrawal(_coreDisputeID, _choice, _beneficiary, amount);
         }
     }
 
@@ -756,11 +754,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
     error OwnerOnly();
     error KlerosCoreOnly();
-    error DisputeJumpedToParentDK();
+    error DisputeJumpedToAnotherDisputeKit();
+    error DisputeUnknownInThisDisputeKit();
     error UnsuccessfulCall();
     error NotCommitPeriod();
     error EmptyCommit();
-    error NotActiveForCoreDisputeID();
     error JurorHasToOwnTheVote();
     error NotVotePeriod();
     error EmptyVoteIDs();

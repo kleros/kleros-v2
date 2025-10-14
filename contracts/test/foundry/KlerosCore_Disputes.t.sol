@@ -88,13 +88,15 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(address(round.feeToken), address(0), "feeToken should be 0");
         assertEq(round.drawIterations, 0, "drawIterations should be 0");
 
-        (uint256 numberOfChoices, bool jumped, bytes memory extraData) = disputeKit.disputes(disputeID);
-
+        (uint256 numberOfChoices, bytes memory extraData) = disputeKit.disputes(disputeID);
         assertEq(numberOfChoices, 2, "Wrong numberOfChoices");
-        assertEq(jumped, false, "jumped should be false");
         assertEq(extraData, newExtraData, "Wrong extra data");
+
+        (bool dispute, bool currentRound) = disputeKit.coreDisputeIDToActive(0);
+        assertEq(dispute, true, "Dispute should be active in this DK");
+        assertEq(currentRound, true, "Current round should be active in this DK");
+
         assertEq(disputeKit.coreDisputeIDToLocal(0), disputeID, "Wrong local disputeID");
-        assertEq(disputeKit.coreDisputeIDToActive(0), true, "Dispute should be active in this DK");
 
         (
             uint256 winningChoice,
