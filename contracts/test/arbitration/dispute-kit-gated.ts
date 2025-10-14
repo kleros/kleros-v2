@@ -5,7 +5,7 @@ import {
   KlerosCore,
   SortitionModule,
   IncrementalNG,
-  DisputeKitGated,
+  DisputeKitGatedMock,
   TestERC20,
   TestERC721,
   TestERC1155,
@@ -14,6 +14,7 @@ import { expect } from "chai";
 import { Courts } from "../../deploy/utils";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployERC1155, deployERC721 } from "../../deploy/utils/deployTokens";
+import { deployUpgradable } from "../../deploy/utils/deployUpgradable";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -26,7 +27,7 @@ describe("DisputeKitGated", async () => {
   let deployer: string;
   let juror1: HardhatEthersSigner;
   let juror2: HardhatEthersSigner;
-  let disputeKitGated: DisputeKitGated;
+  let disputeKitGated: DisputeKitGatedMock;
   let pnk: PNK;
   let dai: TestERC20;
   let core: KlerosCore;
@@ -47,11 +48,24 @@ describe("DisputeKitGated", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    disputeKitGated = await ethers.getContract<DisputeKitGated>("DisputeKitGated");
+
     pnk = await ethers.getContract<PNK>("PNK");
     dai = await ethers.getContract<TestERC20>("DAI");
+    const weth = await ethers.getContract<TestERC20>("WETH");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
     sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
+
+    const deploymentResult = await deployUpgradable(deployments, "DisputeKitGatedMock", {
+      from: deployer,
+      proxyAlias: "UUPSProxy",
+      args: [deployer, core.target, weth.target, 1],
+      log: true,
+    });
+    await core.addNewDisputeKit(deploymentResult.address);
+    const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
+    await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true); // enable disputeKitGated on the General Court
+
+    disputeKitGated = await ethers.getContract<DisputeKitGatedMock>("DisputeKitGatedMock");
 
     // Make the tests more deterministic with this dummy RNG
     await deployments.deploy("IncrementalNG", {
@@ -123,7 +137,7 @@ describe("DisputeKitGated", async () => {
     const extraData = encodeExtraData(courtId, minJurors, disputeKitId, tokenGate, isERC1155, tokenId);
     // console.log("extraData", extraData);
 
-    const tokenInfo = await disputeKitGated._extraDataToTokenInfo(extraData);
+    const tokenInfo = await disputeKitGated.extraDataToTokenInfo(extraData);
     expect(tokenInfo[0]).to.equal(tokenGate);
     expect(tokenInfo[1]).to.equal(isERC1155);
     expect(tokenInfo[2]).to.equal(tokenId);

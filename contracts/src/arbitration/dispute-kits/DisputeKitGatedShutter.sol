@@ -34,6 +34,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *             Storage               * //
     // ************************************* //
 
+    mapping(address token => bool supported) public supportedTokens; // Whether the token is supported or not.
     mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(uint256 voteID => bytes32 recoveryCommitment)))
         public recoveryCommitments;
 
@@ -96,9 +97,33 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         // NOP
     }
 
+    /// @notice Changes the supported tokens.
+    /// @param _tokens The tokens to support.
+    /// @param _supported Whether the tokens are supported or not.
+    function changeSupportedTokens(address[] memory _tokens, bool _supported) external onlyByOwner {
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            supportedTokens[_tokens[i]] = _supported;
+        }
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
+
+    /// @inheritdoc DisputeKitClassicBase
+    function createDispute(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _numberOfChoices,
+        bytes calldata _extraData,
+        uint256 _nbVotes
+    ) public override {
+        (address tokenGate, , ) = _extraDataToTokenInfo(_extraData);
+        if (!supportedTokens[tokenGate]) revert TokenNotSupported(tokenGate);
+
+        // super.createDispute() ensures access control onlyByCore.
+        super.createDispute(_coreDisputeID, _coreRoundID, _numberOfChoices, _extraData, _nbVotes);
+    }
 
     /// @notice Sets the caller's commit for the specified votes.
     ///
@@ -209,7 +234,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// @return tokenGate The address of the token contract used for gating access.
     /// @return isERC1155 True if the token is an ERC-1155, false for ERC-20/ERC-721.
     /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).
-    function __extraDataToTokenInfo(
+    function _extraDataToTokenInfo(
         bytes memory _extraData
     ) internal pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
         // Need at least 160 bytes to safely read the parameters
@@ -237,7 +262,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         // Get the local dispute and extract token info from extraData
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
-        (address tokenGate, bool isERC1155, uint256 tokenId) = __extraDataToTokenInfo(dispute.extraData);
+        (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
 
         // If no token gate is specified, allow all jurors
         if (tokenGate == address(0)) return true;
@@ -254,5 +279,6 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *              Errors               * //
     // ************************************* //
 
+    error TokenNotSupported(address tokenGate);
     error EmptyRecoveryCommit();
 }
