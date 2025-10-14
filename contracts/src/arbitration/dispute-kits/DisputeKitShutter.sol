@@ -102,7 +102,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         bytes32 _recoveryCommit,
         bytes32 _identity,
         bytes calldata _encryptedVote
-    ) external isActive(_coreDisputeID) {
+    ) external {
         if (_recoveryCommit == bytes32(0)) revert EmptyRecoveryCommit();
 
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
@@ -112,7 +112,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
             recoveryCommitments[localDisputeID][localRoundID][_voteIDs[i]] = _recoveryCommit;
         }
 
-        // `_castCommit()` ensures that the caller owns the vote
+        // `_castCommit()` ensures that the caller owns the vote and that dispute is active
         _castCommit(_coreDisputeID, _voteIDs, _commit);
         emit CommitCastShutter(_coreDisputeID, msg.sender, _commit, _recoveryCommit, _identity, _encryptedVote);
     }
