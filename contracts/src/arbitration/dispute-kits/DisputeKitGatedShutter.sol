@@ -107,15 +107,15 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     ///
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
-    /// @param _commit The commitment hash including the justification.
     /// @param _recoveryCommit The commitment hash without the justification.
+    /// @param _justification Justification of the choice.
     /// @param _identity The Shutter identity used for encryption.
     /// @param _encryptedVote The Shutter encrypted vote.
     function castCommitShutter(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
-        bytes32 _commit,
         bytes32 _recoveryCommit,
+        string memory _justification,
         bytes32 _identity,
         bytes calldata _encryptedVote
     ) external notJumped(_coreDisputeID) {
@@ -127,10 +127,12 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             recoveryCommitments[localDisputeID][localRoundID][_voteIDs[i]] = _recoveryCommit;
         }
-
+        // Construct Shutter commit out of recovery commit + justification.
+        bytes32 justificationHash = keccak256(bytes(_justification));
+        bytes32 commit = keccak256(abi.encode(_recoveryCommit, justificationHash));
         // `_castCommit()` ensures that the caller owns the vote
-        _castCommit(_coreDisputeID, _voteIDs, _commit);
-        emit CommitCastShutter(_coreDisputeID, msg.sender, _commit, _recoveryCommit, _identity, _encryptedVote);
+        _castCommit(_coreDisputeID, _voteIDs, commit);
+        emit CommitCastShutter(_coreDisputeID, msg.sender, commit, _recoveryCommit, _identity, _encryptedVote);
     }
 
     /// @notice Version of the `castVote` function designed specifically for Shutter.
@@ -178,7 +180,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         } else {
             // Caller is not the juror, hash with `_justification`.
             bytes32 justificationHash = keccak256(bytes(_justification));
-            return keccak256(abi.encode(_choice, _salt, justificationHash));
+            return keccak256(abi.encode(keccak256(abi.encodePacked(_choice, _salt)), justificationHash));
         }
     }
 

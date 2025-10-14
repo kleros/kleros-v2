@@ -101,7 +101,7 @@ describe("DisputeKitShutter", async () => {
     // Full commitment: hash(choice, salt, justificationHash)
     const justificationHash = ethers.keccak256(ethers.toUtf8Bytes(justification));
     const fullCommit = ethers.keccak256(
-      ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256", "bytes32"], [choice, salt, justificationHash])
+      ethers.AbiCoder.defaultAbiCoder().encode(["bytes32", "bytes32"], [recoveryCommit, justificationHash])
     );
 
     return { fullCommit, recoveryCommit };
@@ -221,7 +221,7 @@ describe("DisputeKitShutter", async () => {
         await expect(
           disputeKitShutter
             .connect(juror1)
-            .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote)
+            .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote)
         )
           .to.emit(disputeKitShutter, "CommitCastShutter")
           .withArgs(disputeId, juror1.address, fullCommit, recoveryCommit, identity, encryptedVote);
@@ -243,7 +243,7 @@ describe("DisputeKitShutter", async () => {
         const { fullCommit: commit1, recoveryCommit: recovery1 } = generateCommitments(1n, 111n, "First justification");
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, commit1, recovery1, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recovery1, "First justification", identity, encryptedVote);
 
         // Second commitment (overwrites first)
         const { fullCommit: commit2, recoveryCommit: recovery2 } = generateCommitments(
@@ -253,7 +253,7 @@ describe("DisputeKitShutter", async () => {
         );
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, commit2, recovery2, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recovery2, "Second justification", identity, encryptedVote);
 
         // Verify only the second commitment is stored
         const localDisputeId = await disputeKitShutter.coreDisputeIDToLocal(disputeId);
@@ -269,14 +269,13 @@ describe("DisputeKitShutter", async () => {
         await advanceToCommitPeriod(disputeId);
 
         const voteIDs = await getVoteIDsForJuror(disputeId, juror1);
-        const { fullCommit } = generateCommitments(choice, salt, justification);
 
         await expect(
           disputeKitShutter.connect(juror1).castCommitShutter(
             disputeId,
             voteIDs,
-            fullCommit,
             ethers.ZeroHash, // Empty recovery commit
+            justification,
             identity,
             encryptedVote
           )
@@ -294,7 +293,7 @@ describe("DisputeKitShutter", async () => {
         await expect(
           disputeKitShutter
             .connect(juror1)
-            .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote)
+            .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote)
         ).to.be.revertedWithCustomError(disputeKitShutter, "NotCommitPeriod");
       });
 
@@ -310,8 +309,8 @@ describe("DisputeKitShutter", async () => {
           disputeKitShutter.connect(juror2).castCommitShutter(
             disputeId,
             voteIDs, // Using juror1's vote IDs
-            fullCommit,
             recoveryCommit,
+            justification,
             identity,
             encryptedVote
           )
@@ -333,7 +332,7 @@ describe("DisputeKitShutter", async () => {
         // Juror commits
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -360,7 +359,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -386,7 +385,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -412,7 +411,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -438,7 +437,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -466,7 +465,7 @@ describe("DisputeKitShutter", async () => {
         // Juror commits
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -500,7 +499,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -529,7 +528,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -555,7 +554,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -581,7 +580,7 @@ describe("DisputeKitShutter", async () => {
 
         await disputeKitShutter
           .connect(juror1)
-          .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+          .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
         await advanceToVotePeriod(disputeId);
 
@@ -609,7 +608,7 @@ describe("DisputeKitShutter", async () => {
 
       await disputeKitShutter
         .connect(juror1)
-        .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, identity, encryptedVote);
+        .castCommitShutter(disputeId, voteIDs, recoveryCommit, justification, identity, encryptedVote);
 
       await advanceToVotePeriod(disputeId);
 
@@ -624,8 +623,12 @@ describe("DisputeKitShutter", async () => {
     it("Should correctly compute hash for normal flow", async () => {
       // Test hashVote function directly
       const justificationHash = ethers.keccak256(ethers.toUtf8Bytes(justification));
+      const recoveryCommit = ethers.keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [choice, salt])
+      );
+
       const expectedHash = ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256", "bytes32"], [choice, salt, justificationHash])
+        ethers.AbiCoder.defaultAbiCoder().encode(["bytes32", "bytes32"], [recoveryCommit, justificationHash])
       );
 
       // When called by non-juror (normal case), should include justification
@@ -648,11 +651,11 @@ describe("DisputeKitShutter", async () => {
       // Both jurors commit
       await disputeKitShutter
         .connect(juror1)
-        .castCommitShutter(disputeId, voteIDsJuror1, commit1, recovery1, identity, encryptedVote);
+        .castCommitShutter(disputeId, voteIDsJuror1, recovery1, "Juror 1 justification", identity, encryptedVote);
 
       await disputeKitShutter
         .connect(juror2)
-        .castCommitShutter(disputeId, voteIDsJuror2, commit2, recovery2, identity, encryptedVote);
+        .castCommitShutter(disputeId, voteIDsJuror2, recovery2, "Juror 2 justification", identity, encryptedVote);
 
       await advanceToVotePeriod(disputeId);
 
@@ -693,7 +696,7 @@ describe("DisputeKitShutter", async () => {
 
       await disputeKitShutter
         .connect(juror1)
-        .castCommitShutter(disputeId, voteIDsJuror1, fullCommit, recoveryCommit, identity, encryptedVote);
+        .castCommitShutter(disputeId, voteIDsJuror1, recoveryCommit, justification, identity, encryptedVote);
 
       // Juror2 commits with a different choice
       const differentChoice = 2n;
@@ -706,7 +709,7 @@ describe("DisputeKitShutter", async () => {
 
       await disputeKitShutter
         .connect(juror2)
-        .castCommitShutter(disputeId, voteIDsJuror2, commit2, recovery2, identity, encryptedVote);
+        .castCommitShutter(disputeId, voteIDsJuror2, recovery2, justification, identity, encryptedVote);
 
       await advanceToVotePeriod(disputeId);
 
