@@ -341,6 +341,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
                 if (round.votes[_voteIDs[i]].account != _juror) revert JurorHasToOwnTheVote();
                 if (hiddenVotes && _getExpectedVoteHash(localDisputeID, localRoundID, _voteIDs[i]) != actualVoteHash)
                     revert HashDoesNotMatchHiddenVoteCommitment();
+                if (!_checkJustification(localDisputeID, localRoundID, _voteIDs[i], _justification, _salt))
+                    revert WrongJustification();
                 if (round.votes[_voteIDs[i]].voted) revert VoteAlreadyCast();
                 round.votes[_voteIDs[i]].choice = _choice;
                 round.votes[_voteIDs[i]].voted = true;
@@ -724,6 +726,18 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return disputes[_localDisputeID].rounds[_localRoundID].votes[_voteID].commit;
     }
 
+    /// @notice Returns true if submitted justification matches. Only used by specific Dispute Kits (eg Shutter).
+    /// @return Whether justification matches or not.
+    function _checkJustification(
+        uint256 /*_localDisputeID*/,
+        uint256 /*_localRoundID*/,
+        uint256 /*_voteID*/,
+        string memory /*_justification*/,
+        uint256 /*_salt*/
+    ) internal view virtual returns (bool) {
+        return true;
+    }
+
     /// @notice Checks that the chosen address satisfies certain conditions for being drawn.
     ///
     /// @dev No need to check the minStake requirement here because of the implicit staking in parent courts.
@@ -771,4 +785,5 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     error AppealFeeIsAlreadyPaid();
     error DisputeNotResolved();
     error CoreIsPaused();
+    error WrongJustification();
 }
