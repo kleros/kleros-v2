@@ -32,6 +32,7 @@ interface IDisputeKit {
 
     /// @notice Creates a local dispute and maps it to the dispute ID in the Core contract.
     /// @dev Access restricted to Kleros Core only.
+    /// @dev The new `KlerosCore.Round` must be created before calling this function.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _numberOfChoices Number of choices of the dispute
     /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.

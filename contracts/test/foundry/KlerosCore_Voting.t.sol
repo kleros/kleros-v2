@@ -456,13 +456,14 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         core.passPeriod(disputeID); // Vote
 
         // Check that the new DK has the info but not the old one.
-
-        assertEq(disputeKit.coreDisputeIDToActive(disputeID), false, "Should be false for old DK");
+        (bool disputeActive, ) = disputeKit.coreDisputeIDToActive(disputeID);
+        assertEq(disputeActive, false, "Should be false for old DK");
 
         // This is the DK where dispute was created. Core dispute points to index 1 because new DK has two disputes.
+        (disputeActive, ) = newDisputeKit.coreDisputeIDToActive(disputeID);
+        assertEq(disputeActive, true, "Should be active for new DK");
         assertEq(newDisputeKit.coreDisputeIDToLocal(disputeID), 1, "Wrong local dispute ID for new DK");
-        assertEq(newDisputeKit.coreDisputeIDToActive(disputeID), true, "Should be active for new DK");
-        (uint256 numberOfChoices, , bytes memory extraData) = newDisputeKit.disputes(1);
+        (uint256 numberOfChoices, bytes memory extraData) = newDisputeKit.disputes(1);
         assertEq(numberOfChoices, 2, "Wrong numberOfChoices in new DK");
         assertEq(extraData, newExtraData, "Wrong extra data");
 
@@ -473,7 +474,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         // Deliberately cast votes using the old DK to see if the exception will be caught.
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.NotActiveForCoreDisputeID.selector);
+        vm.expectRevert(DisputeKitClassicBase.DisputeUnknownInThisDisputeKit.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         // And check the new DK.
