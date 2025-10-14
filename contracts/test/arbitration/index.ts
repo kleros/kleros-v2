@@ -74,7 +74,7 @@ describe("DisputeKitClassic", async () => {
 
   it("Should create a dispute", async () => {
     await expect(
-      disputeKit.connect(deployer).createDispute(0, 0, ethers.toBeHex(3), "0x00")
+      disputeKit.connect(deployer).createDispute(0, 0, 0, ethers.toBeHex(3), "0x00")
     ).to.be.revertedWithCustomError(disputeKit, "KlerosCoreOnly");
 
     const tx = await core

@@ -200,6 +200,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @inheritdoc IDisputeKit
     function createDispute(
         uint256 _coreDisputeID,
+        uint256 _coreRoundID,
         uint256 _numberOfChoices,
         bytes calldata _extraData,
         uint256 /*_nbVotes*/
@@ -224,7 +225,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         dispute.extraData = _extraData;
 
         // KlerosCore.Round must have been already created.
-        dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID) - 1] = dispute.rounds.length;
+        dispute.coreRoundIDToLocal[_coreRoundID] = dispute.rounds.length;
         dispute.rounds.push().tied = true;
 
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);

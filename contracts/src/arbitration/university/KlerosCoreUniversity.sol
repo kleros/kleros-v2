@@ -531,7 +531,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
 
-        disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
+        disputeKit.createDispute(disputeID, 0, _numberOfChoices, _extraData, round.nbVotes);
         emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
@@ -634,6 +634,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         // Warning: the extra round must be created before calling disputeKit.createDispute()
         Round storage extraRound = dispute.rounds.push();
+        uint256 extraRoundID = dispute.rounds.length - 1;
 
         if (round.nbVotes >= courts[newCourtID].jurorsForCourtJump) {
             // Jump to parent court.
@@ -645,7 +646,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             }
 
             if (newCourtID != dispute.courtID) {
-                emit CourtJump(_disputeID, dispute.rounds.length - 1, dispute.courtID, newCourtID);
+                emit CourtJump(_disputeID, extraRoundID, dispute.courtID, newCourtID);
             }
         }
 
@@ -659,13 +660,14 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
 
-        sortitionModule.createDisputeHook(_disputeID, dispute.rounds.length - 1);
+        sortitionModule.createDisputeHook(_disputeID, extraRoundID);
 
         // Dispute kit was changed, so create a dispute in the new DK contract.
         if (extraRound.disputeKitID != round.disputeKitID) {
             emit DisputeKitJump(_disputeID, dispute.rounds.length - 1, round.disputeKitID, extraRound.disputeKitID);
             disputeKits[extraRound.disputeKitID].createDispute(
                 _disputeID,
+                extraRoundID,
                 _numberOfChoices,
                 _extraData,
                 extraRound.nbVotes

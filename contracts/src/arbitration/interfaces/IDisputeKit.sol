@@ -34,11 +34,13 @@ interface IDisputeKit {
     /// @dev Access restricted to Kleros Core only.
     /// @dev The new `KlerosCore.Round` must be created before calling this function.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
     /// @param _numberOfChoices Number of choices of the dispute
     /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.
     /// @param _nbVotes Maximal number of votes this dispute can get. Added for future-proofing.
     function createDispute(
         uint256 _coreDisputeID,
+        uint256 _coreRoundID,
         uint256 _numberOfChoices,
         bytes calldata _extraData,
         uint256 _nbVotes
