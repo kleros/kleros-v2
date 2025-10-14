@@ -30,6 +30,8 @@ interface IBalanceHolderERC1155 {
 contract DisputeKitGatedShutter is DisputeKitClassicBase {
     string public constant override version = "2.0.0";
 
+    address private constant NO_TOKEN_GATE = address(0);
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -85,6 +87,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         uint256 _jumpDisputeKitID
     ) external initializer {
         __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
+        supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
     }
 
     // ************************ //
@@ -265,7 +268,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
 
         // If no token gate is specified, allow all jurors
-        if (tokenGate == address(0)) return true;
+        if (tokenGate == NO_TOKEN_GATE) return true;
 
         // Check juror's token balance
         if (isERC1155) {
