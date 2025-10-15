@@ -229,7 +229,7 @@ export async function setupTokenGatedTest(config: TokenGatedTestConfig): Promise
     PNK: PNK_AMOUNT,
   };
 
-  // Whitelist all tokens by default to make existing tests work
+  // Whitelist all tokens by default
   await whitelistTokens(context, [dai.target, nft721.target, nft1155.target], true);
 
   return context;
@@ -390,7 +390,7 @@ export function testERC20Gating(context: () => TokenGatedTestContext) {
 
     it("Should draw only the jurors who have some DAI balance", async () => {
       const ctx = context();
-      ctx.dai.transfer(ctx.juror1.address, 1);
+      await ctx.dai.transfer(ctx.juror1.address, 1);
 
       const nbOfJurors = 15n;
       const tx = await stakeAndDraw(

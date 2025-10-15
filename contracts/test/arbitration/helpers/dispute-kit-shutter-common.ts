@@ -731,26 +731,31 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
 
 export function testHashFunctionBehavior(context: () => ShutterTestContext) {
   describe("Hash Function Behavior", () => {
-    it("Should return different hashes for juror vs non-juror callers", async () => {
+    it("Should compute different hashes for juror recovery vs non-juror normal flow", async () => {
       const ctx = context();
-      const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
-      await advanceToCommitPeriod(ctx, disputeId);
 
-      const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
+      // Test 1: Verify hashVote matches generateCommitments for non-juror case
       const { fullCommit, recoveryCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+      const nonJurorHash = await ctx.disputeKit.hashVote(ctx.choice, ctx.salt, ctx.justification);
+      expect(nonJurorHash).to.equal(fullCommit, "Non-juror hash should match full commitment");
 
-      await ctx.disputeKit
-        .connect(ctx.juror1)
-        .castCommitShutter(disputeId, voteIDs, fullCommit, recoveryCommit, ctx.identity, ctx.encryptedVote);
+      // Test 2: Verify the two commitment types are different
+      expect(fullCommit).to.not.equal(recoveryCommit, "Full and recovery commitments should differ");
 
-      await advanceToVotePeriod(ctx, disputeId);
+      // Test 3: Calculate what the juror hash would be and verify it matches recovery commitment
+      const jurorExpectedHash = ethers.keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [ctx.choice, ctx.salt])
+      );
+      expect(jurorExpectedHash).to.equal(recoveryCommit, "Juror hash calculation should match recovery commitment");
 
-      // During castVoteShutter, the contract should use different hash logic
-      // For juror: hash(choice, salt)
-      // For non-juror: hash(choice, salt, justificationHash)
+      // Test 4: Verify that changing justification affects non-juror hash but not juror hash
+      const differentJustification = "Different justification";
+      const { fullCommit: newFullCommit } = generateCommitments(ctx.choice, ctx.salt, differentJustification);
+      const newNonJurorHash = await ctx.disputeKit.hashVote(ctx.choice, ctx.salt, differentJustification);
 
-      // This is tested implicitly by the recovery flow tests above
-      // The juror can reveal with any justification, while non-juror must provide exact justification
+      expect(newNonJurorHash).to.equal(newFullCommit, "New non-juror hash should match new full commitment");
+      expect(newNonJurorHash).to.not.equal(nonJurorHash, "Non-juror hash should change with justification");
+      // Note: juror hash would remain the same (recoveryCommit) regardless of justification
     });
 
     it("Should correctly compute hash for normal flow", async () => {

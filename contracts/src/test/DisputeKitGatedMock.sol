@@ -4,8 +4,8 @@ pragma solidity ^0.8.24;
 
 import "../arbitration/dispute-kits/DisputeKitGated.sol";
 
-/// @title KlerosCoreMock
-/// KlerosCore with view functions to use in Foundry tests.
+/// @title DisputeKitGatedMock
+/// DisputeKitGated with view functions to use in the tests.
 contract DisputeKitGatedMock is DisputeKitGated {
     function extraDataToTokenInfo(
         bytes memory _extraData
