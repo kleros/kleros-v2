@@ -150,22 +150,39 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     }
 
     // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
+    /// @notice Computes the hash of a justification using ABI encoding
+    /// @param _salt A random salt for commitment
+    /// @param _justification The justification for the vote
+    /// @return bytes32 The hash of the encoded justification
+    function hashJustification(uint256 _salt, string memory _justification) public pure returns (bytes32) {
+        return keccak256(abi.encode(_salt, keccak256(bytes(_justification))));
+    }
+
+    // ************************************* //
     // *            Internal               * //
     // ************************************* //
 
     /// @inheritdoc DisputeKitClassicBase
-    function _checkJustification(
+    function _verifyHiddenVoteCommitments(
         uint256 _localDisputeID,
         uint256 _localRoundID,
-        uint256 _voteID,
+        uint256[] calldata _voteIDs,
+        uint256 _choice,
         string memory _justification,
         uint256 _salt
-    ) internal view override returns (bool) {
-        if (!callerIsJuror) {
-            bytes32 justificationCommit = justificationCommitments[_localDisputeID][_localRoundID][_voteID];
-            return justificationCommit == keccak256(abi.encode(_salt, keccak256(bytes(_justification))));
-        } else {
-            return true;
+    ) internal view override {
+        super._verifyHiddenVoteCommitments(_localDisputeID, _localRoundID, _voteIDs, _choice, _justification, _salt);
+
+        // The juror is allowed to reveal without verifying the justification commitment for recovery purposes.
+        if (callerIsJuror) return;
+
+        bytes32 actualJustificationHash = hashJustification(_salt, _justification);
+        for (uint256 i = 0; i < _voteIDs.length; i++) {
+            if (justificationCommitments[_localDisputeID][_localRoundID][_voteIDs[i]] != actualJustificationHash)
+                revert WrongJustification();
         }
     }
 
@@ -174,4 +191,5 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     // ************************************* //
 
     error EmptyJustificationCommit();
+    error WrongJustification();
 }

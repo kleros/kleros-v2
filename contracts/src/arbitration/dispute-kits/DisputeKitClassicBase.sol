@@ -334,15 +334,13 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         {
             (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
             (, bool hiddenVotes, , , , ) = core.courts(courtID);
-            bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
+            if (hiddenVotes) {
+                _verifyHiddenVoteCommitments(localDisputeID, localRoundID, _voteIDs, _choice, _justification, _salt);
+            }
 
             //  Save the votes.
             for (uint256 i = 0; i < _voteIDs.length; i++) {
                 if (round.votes[_voteIDs[i]].account != _juror) revert JurorHasToOwnTheVote();
-                if (hiddenVotes && _getExpectedVoteHash(localDisputeID, localRoundID, _voteIDs[i]) != actualVoteHash)
-                    revert HashDoesNotMatchHiddenVoteCommitment();
-                if (!_checkJustification(localDisputeID, localRoundID, _voteIDs[i], _justification, _salt))
-                    revert WrongJustification();
                 if (round.votes[_voteIDs[i]].voted) revert VoteAlreadyCast();
                 round.votes[_voteIDs[i]].choice = _choice;
                 round.votes[_voteIDs[i]].voted = true;
@@ -713,29 +711,26 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *            Internal               * //
     // ************************************* //
 
-    /// @notice Returns the expected vote hash for a given vote.
+    /// @notice Verifies that revealed choice and justification match the hidden vote commitments.
     /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
     /// @param _localRoundID The ID of the round in the Dispute Kit.
-    /// @param _voteID The ID of the vote.
-    /// @return The expected vote hash.
-    function _getExpectedVoteHash(
+    /// @param _voteIDs The IDs of the votes.
+    /// @param _choice The choice.
+    /// @param _justification The justification.
+    /// @param _salt The salt.
+    function _verifyHiddenVoteCommitments(
         uint256 _localDisputeID,
         uint256 _localRoundID,
-        uint256 _voteID
-    ) internal view virtual returns (bytes32) {
-        return disputes[_localDisputeID].rounds[_localRoundID].votes[_voteID].commit;
-    }
-
-    /// @notice Returns true if submitted justification matches. Only used by specific Dispute Kits (eg Shutter).
-    /// @return Whether justification matches or not.
-    function _checkJustification(
-        uint256 /*_localDisputeID*/,
-        uint256 /*_localRoundID*/,
-        uint256 /*_voteID*/,
-        string memory /*_justification*/,
-        uint256 /*_salt*/
-    ) internal view virtual returns (bool) {
-        return true;
+        uint256[] calldata _voteIDs,
+        uint256 _choice,
+        string memory _justification,
+        uint256 _salt
+    ) internal view virtual {
+        bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
+        for (uint256 i = 0; i < _voteIDs.length; i++) {
+            if (disputes[_localDisputeID].rounds[_localRoundID].votes[i].commit != actualVoteHash)
+                revert HashDoesNotMatchHiddenVoteCommitment();
+        }
     }
 
     /// @notice Checks that the chosen address satisfies certain conditions for being drawn.
@@ -785,5 +780,4 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     error AppealFeeIsAlreadyPaid();
     error DisputeNotResolved();
     error CoreIsPaused();
-    error WrongJustification();
 }
