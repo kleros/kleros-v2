@@ -729,7 +729,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             if (disputes[_localDisputeID].rounds[_localRoundID].votes[_voteIDs[i]].commit != actualVoteHash)
-                revert HashDoesNotMatchHiddenVoteCommitment();
+                revert ChoiceCommitmentMismatch();
         }
     }
 
@@ -773,7 +773,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     error NotVotePeriod();
     error EmptyVoteIDs();
     error ChoiceOutOfBounds();
-    error HashDoesNotMatchHiddenVoteCommitment();
+    error ChoiceCommitmentMismatch();
     error VoteAlreadyCast();
     error NotAppealPeriod();
     error NotAppealPeriodForLoser();

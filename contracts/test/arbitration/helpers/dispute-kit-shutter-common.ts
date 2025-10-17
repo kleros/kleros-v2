@@ -502,7 +502,7 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
             ctx.salt,
             ctx.justification
           )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "HashDoesNotMatchHiddenVoteCommitment");
+        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
       });
 
       it("Should revert if wrong salt provided", async () => {
@@ -528,7 +528,7 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
             wrongSalt, // Wrong salt
             ctx.justification
           )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "HashDoesNotMatchHiddenVoteCommitment");
+        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
       });
 
       it("Should revert if wrong justification provided", async () => {
@@ -554,7 +554,7 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
             ctx.salt,
             wrongJustification // Wrong justification
           )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "WrongJustification");
+        ).to.be.revertedWithCustomError(ctx.disputeKit, "JustificationCommitmentMismatch");
       });
 
       it("Should revert if vote already cast", async () => {
@@ -675,7 +675,7 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
             ctx.salt,
             ""
           )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "HashDoesNotMatchHiddenVoteCommitment");
+        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
       });
 
       it("Should revert if wrong salt in recovery", async () => {
@@ -701,7 +701,7 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
             wrongSalt, // Wrong salt
             ""
           )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "HashDoesNotMatchHiddenVoteCommitment");
+        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
       });
 
       it("Should revert if non-juror tries to reveal without correct full commitment", async () => {
@@ -727,7 +727,7 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
             ctx.salt,
             "" // No justification - would work for juror but not for others
           )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "WrongJustification");
+        ).to.be.revertedWithCustomError(ctx.disputeKit, "JustificationCommitmentMismatch");
       });
     });
   });
@@ -846,7 +846,7 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
           ctx.salt,
           ctx.justification
         )
-      ).to.be.revertedWithCustomError(ctx.disputeKit, "HashDoesNotMatchHiddenVoteCommitment");
+      ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
     });
   });
 }

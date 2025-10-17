@@ -114,11 +114,11 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         // Check the require with the wrong choice and then with the wrong salt
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.HashDoesNotMatchHiddenVoteCommitment.selector);
+        vm.expectRevert(DisputeKitClassicBase.ChoiceCommitmentMismatch.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, salt, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.HashDoesNotMatchHiddenVoteCommitment.selector);
+        vm.expectRevert(DisputeKitClassicBase.ChoiceCommitmentMismatch.selector);
         disputeKit.castVote(disputeID, voteIDs, YES, salt - 1, "XYZ");
 
         vm.prank(staker1);

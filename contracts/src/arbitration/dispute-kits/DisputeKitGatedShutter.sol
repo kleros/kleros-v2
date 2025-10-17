@@ -226,7 +226,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         bytes32 actualJustificationHash = hashJustification(_salt, _justification);
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             if (justificationCommitments[_localDisputeID][_localRoundID][_voteIDs[i]] != actualJustificationHash)
-                revert WrongJustification();
+                revert JustificationCommitmentMismatch();
         }
     }
 
@@ -287,5 +287,5 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
 
     error TokenNotSupported(address tokenGate);
     error EmptyJustificationCommit();
-    error WrongJustification();
+    error JustificationCommitmentMismatch();
 }
