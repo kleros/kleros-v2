@@ -15,7 +15,6 @@ import {
   testCommitPhase,
   testNormalFlowBotReveals,
   testRecoveryFlowJurorReveals,
-  testHashFunctionBehavior,
   testEdgeCasesAndSecurity,
   ShutterTestContext,
 } from "./helpers/dispute-kit-shutter-common";
@@ -68,7 +67,6 @@ describe("DisputeKitGatedShutter", async () => {
     testCommitPhase(() => shutterContext);
     testNormalFlowBotReveals(() => shutterContext);
     testRecoveryFlowJurorReveals(() => shutterContext);
-    testHashFunctionBehavior(() => shutterContext);
     testEdgeCasesAndSecurity(() => shutterContext);
   });
 });

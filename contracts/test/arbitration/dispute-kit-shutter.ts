@@ -3,7 +3,6 @@ import {
   testCommitPhase,
   testNormalFlowBotReveals,
   testRecoveryFlowJurorReveals,
-  testHashFunctionBehavior,
   testEdgeCasesAndSecurity,
   ShutterTestContext,
 } from "./helpers/dispute-kit-shutter-common";
@@ -33,6 +32,5 @@ describe("DisputeKitShutter", async () => {
   testCommitPhase(() => context);
   testNormalFlowBotReveals(() => context);
   testRecoveryFlowJurorReveals(() => context);
-  testHashFunctionBehavior(() => context);
   testEdgeCasesAndSecurity(() => context);
 });
