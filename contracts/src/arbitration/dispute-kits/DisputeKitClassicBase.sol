@@ -728,7 +728,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ) internal view virtual {
         bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            if (disputes[_localDisputeID].rounds[_localRoundID].votes[i].commit != actualVoteHash)
+            if (disputes[_localDisputeID].rounds[_localRoundID].votes[_voteIDs[i]].commit != actualVoteHash)
                 revert HashDoesNotMatchHiddenVoteCommitment();
         }
     }
