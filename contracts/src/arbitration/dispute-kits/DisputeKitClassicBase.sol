@@ -204,7 +204,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _numberOfChoices,
         bytes calldata _extraData,
         uint256 /*_nbVotes*/
-    ) external override onlyByCore {
+    ) public virtual override onlyByCore {
         uint256 localDisputeID;
         Dispute storage dispute;
         Active storage active = coreDisputeIDToActive[_coreDisputeID];

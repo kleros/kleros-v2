@@ -29,6 +29,14 @@ interface IBalanceHolderERC1155 {
 contract DisputeKitGated is DisputeKitClassicBase {
     string public constant override version = "2.0.0";
 
+    address private constant NO_TOKEN_GATE = address(0);
+
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    mapping(address token => bool supported) public supportedTokens; // Whether the token is supported or not.
+
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
@@ -50,6 +58,7 @@ contract DisputeKitGated is DisputeKitClassicBase {
         uint256 _jumpDisputeKitID
     ) external initializer {
         __DisputeKitClassicBase_initialize(_owner, _core, _wNative, _jumpDisputeKitID);
+        supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
     }
 
     // ************************ //
@@ -60,6 +69,34 @@ contract DisputeKitGated is DisputeKitClassicBase {
     ///      Only the owner can perform upgrades (`onlyByOwner`)
     function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
+    }
+
+    /// @notice Changes the supported tokens.
+    /// @param _tokens The tokens to support.
+    /// @param _supported Whether the tokens are supported or not.
+    function changeSupportedTokens(address[] memory _tokens, bool _supported) external onlyByOwner {
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            supportedTokens[_tokens[i]] = _supported;
+        }
+    }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
+    /// @inheritdoc DisputeKitClassicBase
+    function createDispute(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _numberOfChoices,
+        bytes calldata _extraData,
+        uint256 _nbVotes
+    ) public override {
+        (address tokenGate, , ) = _extraDataToTokenInfo(_extraData);
+        if (!supportedTokens[tokenGate]) revert TokenNotSupported(tokenGate);
+
+        // super.createDispute() ensures access control onlyByCore.
+        super.createDispute(_coreDisputeID, _coreRoundID, _numberOfChoices, _extraData, _nbVotes);
     }
 
     // ************************************* //
@@ -78,7 +115,7 @@ contract DisputeKitGated is DisputeKitClassicBase {
     /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).
     function _extraDataToTokenInfo(
         bytes memory _extraData
-    ) public pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
+    ) internal pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
         // Need at least 160 bytes to safely read the parameters
         if (_extraData.length < 160) return (address(0), false, 0);
 
@@ -107,7 +144,7 @@ contract DisputeKitGated is DisputeKitClassicBase {
         (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
 
         // If no token gate is specified, allow all jurors
-        if (tokenGate == address(0)) return true;
+        if (tokenGate == NO_TOKEN_GATE) return true;
 
         // Check juror's token balance
         if (isERC1155) {
@@ -116,4 +153,10 @@ contract DisputeKitGated is DisputeKitClassicBase {
             return IBalanceHolder(tokenGate).balanceOf(_juror) > 0;
         }
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error TokenNotSupported(address tokenGate);
 }
