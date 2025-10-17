@@ -5,6 +5,7 @@ import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
+import {Vm} from "forge-std/Vm.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_DrawingTest
@@ -46,6 +47,22 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
             assertEq(choice, 0, "Choice should be empty");
             assertEq(voted, false, "Voted should be false");
         }
+
+        // Try drawing even more...
+        vm.recordLogs();
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS); // Should not revert, nor draw any juror, nor change state.
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+
+        // Verify no Draw events were emitted
+        bytes32 drawEventSignature = keccak256("Draw(address,uint256,uint256,uint256)");
+        for (uint256 i = 0; i < entries.length; i++) {
+            assertFalse(entries[i].topics[0] == drawEventSignature, "Draw event should not be emitted");
+        }
+
+        assertEq(totalStaked, 1500, "Wrong amount total staked");
+        assertEq(totalLocked, 3000, "Wrong amount locked");
+        assertEq(stakedInCourt, 1500, "Wrong amount staked in court");
+        assertEq(sortitionModule.disputesWithoutJurors(), 0, "Wrong disputesWithoutJurors count");
     }
 
     function test_draw_noEmptyAddresses() public {
