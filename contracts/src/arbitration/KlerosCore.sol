@@ -613,9 +613,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _account The account whose stake is being set.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
-    function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external {
+    /// @return True if the stake was set successfully.
+    function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external returns (bool) {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
-        _setStake(_account, _courtID, _newStake, true, OnError.Return);
+        return _setStake(_account, _courtID, _newStake, true, OnError.Return);
     }
 
     /// @notice Transfers PNK to the juror by SortitionModule.

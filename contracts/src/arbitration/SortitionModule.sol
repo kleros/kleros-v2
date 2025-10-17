@@ -74,6 +74,12 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     /// @param _amount The amount of tokens staked in the court.
     event StakeDelayed(address indexed _address, uint96 indexed _courtID, uint256 _amount);
 
+    /// @notice Emitted when a juror's stake is delayed execution fails.
+    /// @param _address The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _amount The amount of tokens staked in the court.
+    event StakeDelayedExecutionFailed(address indexed _address, uint96 indexed _courtID, uint256 _amount);
+
     /// @notice Emitted when a juror's stake is locked.
     /// @param _address The address of the juror.
     /// @param _relativeAmount The amount of tokens locked.
@@ -235,7 +241,9 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
 
         for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
             DelayedStake storage delayedStake = delayedStakes[i];
-            core.setStakeBySortitionModule(delayedStake.account, delayedStake.courtID, delayedStake.stake);
+            if (!core.setStakeBySortitionModule(delayedStake.account, delayedStake.courtID, delayedStake.stake)) {
+                emit StakeDelayedExecutionFailed(delayedStake.account, delayedStake.courtID, delayedStake.stake);
+            }
             delete delayedStakes[i];
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
