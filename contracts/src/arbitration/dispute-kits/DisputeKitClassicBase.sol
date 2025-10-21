@@ -58,6 +58,15 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bool currentRound; // True if the dispute's current round is active on this Dispute Kit. False if the dispute has jumped to another Dispute Kit.
     }
 
+    struct NextRoundSettings {
+        uint256 nbVotes; // The number of votes in the next round.
+        uint256 jumpDisputeKitID; // The ID of the dispute kit in Kleros Core disputeKits array that the dispute should jump to.
+        uint96 jumpCourtID; // The ID of the court in Kleros Core courts array that the dispute should jump to.
+        bool earlyDisputeKitJump; // True if the dispute should jump to a different dispute kit before jumping to an incompatible court, false otherwise.
+        bool earlyCourtJump; // True if the court should jump to a different court before exceeding the current `court.jurorsForCourtJump` threshold, false otherwise.
+        bool enabled; // True if the settings are enabled, false otherwise.
+    }
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -73,7 +82,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     bool public singleDrawPerJuror; // Whether each juror can only draw once per dispute, false by default.
     mapping(uint256 coreDisputeID => Active) public coreDisputeIDToActive; // Active status of the dispute and the current round.
     address public wNative; // The wrapped native token for safeSend().
-    uint256 public jumpDisputeKitID; // The ID of the dispute kit in Kleros Core disputeKits array that the dispute should switch to after the court jump, in case the new court doesn't support this dispute kit.
+    mapping(uint96 currentCourtID => NextRoundSettings) public courtIDToNextRoundSettings; // The settings for the next round.
 
     uint256[50] private __gap; // Reserved slots for future upgrades.
 
@@ -149,17 +158,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
-    /// @param _jumpDisputeKitID The ID of the dispute kit to switch to after the court jump.
     function __DisputeKitClassicBase_initialize(
         address _owner,
         KlerosCore _core,
-        address _wNative,
-        uint256 _jumpDisputeKitID
+        address _wNative
     ) internal onlyInitializing {
         owner = _owner;
         core = _core;
         wNative = _wNative;
-        jumpDisputeKitID = _jumpDisputeKitID;
     }
 
     // ************************ //
@@ -187,10 +193,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         core = KlerosCore(_core);
     }
 
-    /// @notice Changes the dispute kit ID used for the jump.
-    /// @param _jumpDisputeKitID The new value for the `jumpDisputeKitID` storage variable.
-    function changeJumpDisputeKitID(uint256 _jumpDisputeKitID) external onlyByOwner {
-        jumpDisputeKitID = _jumpDisputeKitID;
+    /// @notice Changes the settings for the next round.
+    /// @param _currentCourtID The ID of the current court.
+    /// @param _nextRoundSettings The settings for the next round.
+    function changeNextRoundSettings(
+        uint96 _currentCourtID,
+        NextRoundSettings memory _nextRoundSettings
+    ) external onlyByOwner {
+        courtIDToNextRoundSettings[_currentCourtID] = _nextRoundSettings;
     }
 
     // ************************************* //
@@ -420,7 +430,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             // At least two sides are fully funded.
             round.feeRewards = round.feeRewards - appealCost;
 
-            if (core.isDisputeKitJumping(_coreDisputeID)) {
+            (, , , , bool isDisputeKitJumping) = core.getCourtAndDisputeKitJumps(_coreDisputeID);
+            if (isDisputeKitJumping) {
                 // Don't create a new round in case of a jump, and remove local dispute from the flow.
                 coreDisputeIDToActive[_coreDisputeID].currentRound = false;
             } else {
@@ -617,22 +628,45 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     }
 
     /// @inheritdoc IDisputeKit
-    function earlyCourtJump(uint256 /* _coreDisputeID */) external pure override returns (bool) {
-        return false;
-    }
-
-    /// @inheritdoc IDisputeKit
-    function getNbVotesAfterAppeal(
-        IDisputeKit /* _previousDisputeKit */,
-        uint256 _currentNbVotes
-    ) external pure override returns (uint256) {
-        return (_currentNbVotes * 2) + 1;
-    }
-
-    /// @inheritdoc IDisputeKit
-    function getJumpDisputeKitID() external view override returns (uint256) {
-        // Fall back to classic DK in case the jump ID is not defined.
-        return jumpDisputeKitID == 0 ? DISPUTE_KIT_CLASSIC : jumpDisputeKitID;
+    function getCourtAndDisputeKitJumps(
+        uint256 /* _coreDisputeID */,
+        uint96 _currentCourtID,
+        uint96 _parentCourtID,
+        uint256 _currentCourtJurorsForJump,
+        uint256 _currentRoundNbVotes
+    )
+        public
+        view
+        virtual
+        override
+        returns (
+            uint96 newCourtID,
+            uint256 newDisputeKitID,
+            uint256 newRoundNbVotes,
+            bool courtJump,
+            bool disputeKitJump
+        )
+    {
+        NextRoundSettings storage nextRoundSettings = courtIDToNextRoundSettings[_currentCourtID];
+        if (nextRoundSettings.enabled) {
+            newRoundNbVotes = nextRoundSettings.nbVotes;
+            newCourtID = nextRoundSettings.jumpCourtID;
+            newDisputeKitID = nextRoundSettings.jumpDisputeKitID;
+            courtJump = nextRoundSettings.earlyCourtJump;
+            disputeKitJump = nextRoundSettings.earlyDisputeKitJump;
+        }
+        if (nextRoundSettings.nbVotes == 0) {
+            newRoundNbVotes = (_currentRoundNbVotes * 2) + 1;
+        }
+        if (!courtJump) {
+            courtJump = (newRoundNbVotes >= _currentCourtJurorsForJump);
+        }
+        if (newCourtID == 0) {
+            newCourtID = courtJump ? _parentCourtID : _currentCourtID;
+        }
+        if (newDisputeKitID == 0) {
+            newDisputeKitID = DISPUTE_KIT_CLASSIC;
+        }
     }
 
     /// @inheritdoc IDisputeKit

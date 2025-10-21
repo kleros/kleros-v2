@@ -51,6 +51,7 @@ interface IDisputeKit {
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _nonce Nonce.
     /// @return drawnAddress The drawn address.
+    /// @return fromSubcourtID The subcourt ID from which the juror was drawn.
     function draw(
         uint256 _coreDisputeID,
         uint256 _nonce
@@ -123,23 +124,34 @@ interface IDisputeKit {
     /// @return Whether the appeal funding is finished.
     function isAppealFunded(uint256 _coreDisputeID) external view returns (bool);
 
-    /// @dev Returns true if the dispute is jumping to a parent court.
+    /// @notice Returns the court and dispute kit jumps for a given dispute.
+    /// @dev This function does not check for compatibility between `newDisputeKitID` and `newCourtID`, this is the Core's responsibility.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @return Whether the dispute is jumping to a parent court or not.
-    function earlyCourtJump(uint256 _coreDisputeID) external view returns (bool);
-
-    /// @notice Returns the number of votes after the appeal.
-    /// @param _previousDisputeKit The previous Dispute Kit.
-    /// @param _currentNbVotes The number of votes before the appeal.
-    /// @return The number of votes after the appeal.
-    function getNbVotesAfterAppeal(
-        IDisputeKit _previousDisputeKit,
-        uint256 _currentNbVotes
-    ) external view returns (uint256);
-
-    /// @notice Returns the dispute kit ID to be used after court jump by Kleros Core.
-    /// @return The ID of the dispute kit in Kleros Core disputeKits array.
-    function getJumpDisputeKitID() external view returns (uint256);
+    /// @param _currentCourtID The ID of the current court.
+    /// @param _parentCourtID The ID of the parent court.
+    /// @param _currentCourtJurorsForJump The court jump threshold defined by the current court.
+    /// @param _currentRoundNbVotes The number of votes in the current round.
+    /// @return newCourtID Court ID after jump.
+    /// @return newDisputeKitID Dispute kit ID after jump.
+    /// @return newRoundNbVotes The number of votes in the new round.
+    /// @return courtJump Whether the dispute jumps to a new court or not.
+    /// @return disputeKitJump Whether the dispute jumps to a new dispute kit or not.
+    function getCourtAndDisputeKitJumps(
+        uint256 _coreDisputeID,
+        uint96 _currentCourtID,
+        uint96 _parentCourtID,
+        uint256 _currentCourtJurorsForJump,
+        uint256 _currentRoundNbVotes
+    )
+        external
+        view
+        returns (
+            uint96 newCourtID,
+            uint256 newDisputeKitID,
+            uint256 newRoundNbVotes,
+            bool courtJump,
+            bool disputeKitJump
+        );
 
     /// @notice Returns true if the specified voter was active in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
