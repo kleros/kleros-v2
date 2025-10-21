@@ -180,7 +180,7 @@ export async function setupTokenGatedTest(config: TokenGatedTestConfig): Promise
   const deploymentResult = await deployUpgradable(deployments, config.contractName, {
     from: deployer,
     proxyAlias: "UUPSProxy",
-    args: [deployer, core.target, weth.target, 1],
+    args: [deployer, core.target, weth.target],
     log: true,
   });
   await core.addNewDisputeKit(deploymentResult.address);
