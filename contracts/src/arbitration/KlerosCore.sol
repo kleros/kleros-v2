@@ -785,13 +785,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Round storage extraRound = dispute.rounds.push();
         uint256 extraRoundID = dispute.rounds.length - 1;
 
-        (uint96 newCourtID, uint256 newDisputeKitID, , bool courtJump, ) = _getCourtAndDisputeKitJumps(
+        (uint96 newCourtID, uint256 newDisputeKitID, ) = _getCompatibleNextRoundSettings(
             dispute,
             round,
             courts[dispute.courtID],
             _disputeID
         );
-        if (courtJump) {
+        if (newCourtID != dispute.courtID) {
             emit CourtJump(_disputeID, extraRoundID, dispute.courtID, newCourtID);
         }
 
@@ -1086,14 +1086,14 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
 
-        (, , uint256 nbVotesAfterAppeal, bool courtJump, ) = _getCourtAndDisputeKitJumps(
+        (uint96 newCourtID, , uint256 nbVotesAfterAppeal) = _getCompatibleNextRoundSettings(
             dispute,
             round,
             court,
             _disputeID
         );
 
-        if (courtJump) {
+        if (newCourtID != dispute.courtID) {
             // Jump to parent court.
             if (dispute.courtID == GENERAL_COURT) {
                 // TODO: Handle the forking when appealed in General court.
@@ -1204,12 +1204,14 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
 
-        (newCourtID, newDisputeKitID, newRoundNbVotes, courtJump, disputeKitJump) = _getCourtAndDisputeKitJumps(
+        (newCourtID, newDisputeKitID, newRoundNbVotes) = _getCompatibleNextRoundSettings(
             dispute,
             round,
             court,
             _disputeID
         );
+        courtJump = (newCourtID != dispute.courtID);
+        disputeKitJump = (newDisputeKitID != round.disputeKitID);
     }
 
     /// @notice Returns the length of disputeKits array.
@@ -1230,7 +1232,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     // *            Internal               * //
     // ************************************* //
 
-    /// @notice Checks whether a dispute will jump to new court/DK and enforces a compatibility check.
+    /// @notice Get the next round settings for a given dispute
+    /// @dev Enforces a compatibility check between the next round's court and dispute kit.
     /// @param _dispute Dispute data.
     /// @param _round Round ID.
     /// @param _court Current court ID.
@@ -1238,40 +1241,26 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @return newCourtID Court ID after jump.
     /// @return newDisputeKitID Dispute kit ID after jump.
     /// @return newRoundNbVotes The number of votes in the new round.
-    /// @return courtJump Whether the dispute jumps to a new court or not.
-    /// @return disputeKitJump Whether the dispute jumps to a new dispute kit or not.
-    function _getCourtAndDisputeKitJumps(
+    function _getCompatibleNextRoundSettings(
         Dispute storage _dispute,
         Round storage _round,
         Court storage _court,
         uint256 _disputeID
-    )
-        internal
-        view
-        returns (
-            uint96 newCourtID,
-            uint256 newDisputeKitID,
-            uint256 newRoundNbVotes,
-            bool courtJump,
-            bool disputeKitJump
-        )
-    {
+    ) internal view returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes) {
         uint256 disputeKitID = _round.disputeKitID;
-        (newCourtID, newDisputeKitID, newRoundNbVotes, courtJump, disputeKitJump) = disputeKits[disputeKitID]
-            .getCourtAndDisputeKitJumps(
-                _disputeID,
-                _dispute.courtID,
-                _court.parent,
-                _court.jurorsForCourtJump,
-                disputeKitID,
-                _round.nbVotes
-            );
+        (newCourtID, newDisputeKitID, newRoundNbVotes) = disputeKits[disputeKitID].getNextRoundSettings(
+            _disputeID,
+            _dispute.courtID,
+            _court.parent,
+            _court.jurorsForCourtJump,
+            disputeKitID,
+            _round.nbVotes
+        );
 
         // Ensure compatibility between the next round's court and dispute kit.
         if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID] || newDisputeKitID == NULL_DISPUTE_KIT) {
             // Fall back to `DisputeKitClassic` which is always supported.
             newDisputeKitID = DISPUTE_KIT_CLASSIC;
-            disputeKitJump = (newDisputeKitID != disputeKitID);
             newRoundNbVotes = (newRoundNbVotes * 2) + 1; // Reset nbVotes to the default logic.
         }
     }

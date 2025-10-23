@@ -628,27 +628,17 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     }
 
     /// @inheritdoc IDisputeKit
-    function getCourtAndDisputeKitJumps(
+    function getNextRoundSettings(
         uint256 /* _coreDisputeID */,
         uint96 _currentCourtID,
         uint96 _parentCourtID,
         uint256 _currentCourtJurorsForJump,
         uint256 _currentDisputeKitID,
         uint256 _currentRoundNbVotes
-    )
-        public
-        view
-        virtual
-        override
-        returns (
-            uint96 newCourtID,
-            uint256 newDisputeKitID,
-            uint256 newRoundNbVotes,
-            bool courtJump,
-            bool disputeKitJump
-        )
-    {
+    ) public view virtual override returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes) {
         NextRoundSettings storage nextRoundSettings = courtIDToNextRoundSettings[_currentCourtID];
+        bool courtJump;
+        bool disputeKitJump;
         if (nextRoundSettings.enabled) {
             newRoundNbVotes = nextRoundSettings.nbVotes;
             newCourtID = nextRoundSettings.jumpCourtID;
@@ -667,9 +657,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         }
         if (newDisputeKitID == 0) {
             newDisputeKitID = _currentDisputeKitID;
-        }
-        if (!disputeKitJump) {
-            disputeKitJump = (newDisputeKitID != _currentDisputeKitID);
         }
     }
 
