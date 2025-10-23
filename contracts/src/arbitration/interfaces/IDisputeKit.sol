@@ -130,6 +130,7 @@ interface IDisputeKit {
     /// @param _currentCourtID The ID of the current court.
     /// @param _parentCourtID The ID of the parent court.
     /// @param _currentCourtJurorsForJump The court jump threshold defined by the current court.
+    /// @param _currentDisputeKitID The ID of the current dispute kit.
     /// @param _currentRoundNbVotes The number of votes in the current round.
     /// @return newCourtID Court ID after jump.
     /// @return newDisputeKitID Dispute kit ID after jump.
@@ -141,6 +142,7 @@ interface IDisputeKit {
         uint96 _currentCourtID,
         uint96 _parentCourtID,
         uint256 _currentCourtJurorsForJump,
+        uint256 _currentDisputeKitID,
         uint256 _currentRoundNbVotes
     )
         external

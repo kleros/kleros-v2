@@ -1263,6 +1263,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
                 _dispute.courtID,
                 _court.parent,
                 _court.jurorsForCourtJump,
+                disputeKitID,
                 _round.nbVotes
             );
 
@@ -1271,6 +1272,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             // Fall back to `DisputeKitClassic` which is always supported.
             newDisputeKitID = DISPUTE_KIT_CLASSIC;
             disputeKitJump = (newDisputeKitID != disputeKitID);
+            newRoundNbVotes = (newRoundNbVotes * 2) + 1; // Reset nbVotes to the default logic.
         }
     }
 

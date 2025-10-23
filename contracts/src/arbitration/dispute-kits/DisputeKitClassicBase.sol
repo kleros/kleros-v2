@@ -633,6 +633,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint96 _currentCourtID,
         uint96 _parentCourtID,
         uint256 _currentCourtJurorsForJump,
+        uint256 _currentDisputeKitID,
         uint256 _currentRoundNbVotes
     )
         public
@@ -665,7 +666,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             newCourtID = courtJump ? _parentCourtID : _currentCourtID;
         }
         if (newDisputeKitID == 0) {
-            newDisputeKitID = DISPUTE_KIT_CLASSIC;
+            newDisputeKitID = _currentDisputeKitID;
+        }
+        if (!disputeKitJump) {
+            disputeKitJump = (newDisputeKitID != _currentDisputeKitID);
         }
     }
 
