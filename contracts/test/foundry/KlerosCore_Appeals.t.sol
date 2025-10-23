@@ -215,11 +215,10 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK and court to check the jump
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address,uint256)",
+            "initialize(address,address,address)",
             owner,
             address(core),
-            address(wNative),
-            DISPUTE_KIT_CLASSIC
+            address(wNative)
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
@@ -254,6 +253,19 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         core.enableDisputeKits(newCourtID, supportedDK, true);
         assertEq(core.isSupported(newCourtID, newDkID), true, "New DK should be supported by new court");
 
+        // NextRoundSettings override - Note that the test should pass even without this override.
+        vm.prank(owner);
+        newDisputeKit.changeNextRoundSettings(
+            newCourtID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: GENERAL_COURT,
+                jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
+                jumpDisputeKitIDIncompatibilityFallback: 0,
+                nbVotes: 0
+            })
+        );
+
         vm.prank(staker1);
         core.setStake(newCourtID, 20000);
         vm.prank(disputer);
@@ -283,7 +295,8 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(crowdfunder1);
         newDisputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1);
 
-        assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
+        (, , , , bool isDisputeKitJumping) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(isDisputeKitJumping, true, "Should be jumping");
 
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.CourtJump(disputeID, 1, newCourtID, GENERAL_COURT);
@@ -332,7 +345,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
     function test_appeal_fullFundingCourtJumpAndDKJumpToNonClassic() public {
         // Setup:
         // dk2 supported by GENERAL_COURT, which is a non-DISPUTE_KIT_CLASSIC
-        // dk3 supported by court2, with dk3._jumpDisputeKitID == dk2
+        // dk3 supported by court2, with dk3.nextRoundSettings[court2].jumpDisputeKitIDIncompatibilityFallback == dk2
         // Ensure that court2 jumps to GENERAL_COURT and dk3 jumps to dk2
         uint256 disputeID = 0;
         uint96 newCourtID = 2;
@@ -342,21 +355,19 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
 
         bytes memory initDataDk2 = abi.encodeWithSignature(
-            "initialize(address,address,address,uint256)",
+            "initialize(address,address,address)",
             owner,
             address(core),
-            address(wNative),
-            DISPUTE_KIT_CLASSIC
+            address(wNative)
         );
         UUPSProxy proxyDk2 = new UUPSProxy(address(dkLogic), initDataDk2);
         DisputeKitClassic disputeKit2 = DisputeKitClassic(address(proxyDk2));
 
         bytes memory initDataDk3 = abi.encodeWithSignature(
-            "initialize(address,address,address,uint256)",
+            "initialize(address,address,address)",
             owner,
             address(core),
-            address(wNative),
-            dkID2
+            address(wNative)
         );
         UUPSProxy proxyDk3 = new UUPSProxy(address(dkLogic), initDataDk3);
         DisputeKitClassic disputeKit3 = DisputeKitClassic(address(proxyDk3));
@@ -388,6 +399,19 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         supportedDK[1] = dkID2;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
         assertEq(core.isSupported(GENERAL_COURT, dkID2), true, "dkID2 should be supported by GENERAL_COURT");
+
+        // NextRoundSettings override
+        vm.prank(owner);
+        disputeKit3.changeNextRoundSettings(
+            newCourtID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: 0,
+                jumpDisputeKitID: 0,
+                jumpDisputeKitIDIncompatibilityFallback: dkID2,
+                nbVotes: 0
+            })
+        );
 
         bytes memory newExtraData = abi.encodePacked(uint256(newCourtID), DEFAULT_NB_OF_JURORS, dkID3);
         arbitrable.changeArbitratorExtraData(newExtraData);
@@ -421,7 +445,8 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(crowdfunder1);
         disputeKit3.fundAppeal{value: 0.63 ether}(disputeID, 1);
 
-        assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
+        (, , , , bool isDisputeKitJumping) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(isDisputeKitJumping, true, "Should be jumping");
 
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.CourtJump(disputeID, 1, newCourtID, GENERAL_COURT);
@@ -488,31 +513,56 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         DisputeKitClassic dkLogic = new DisputeKitClassic();
 
+        // DK2 creation
         bytes memory initDataDk2 = abi.encodeWithSignature(
-            "initialize(address,address,address,uint256)",
+            "initialize(address,address,address)",
             owner,
             address(core),
-            address(wNative),
-            dkID3
+            address(wNative)
         );
         UUPSProxy proxyDk2 = new UUPSProxy(address(dkLogic), initDataDk2);
         DisputeKitClassic disputeKit2 = DisputeKitClassic(address(proxyDk2));
 
+        vm.prank(owner);
+        disputeKit2.changeNextRoundSettings(
+            courtID2,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: 0,
+                jumpDisputeKitID: 0,
+                jumpDisputeKitIDIncompatibilityFallback: dkID3,
+                nbVotes: 0
+            })
+        );
+
+        // DK3 creation
         bytes memory initDataDk3 = abi.encodeWithSignature(
-            "initialize(address,address,address,uint256)",
+            "initialize(address,address,address)",
             owner,
             address(core),
-            address(wNative),
-            dkID2
+            address(wNative)
         );
         UUPSProxy proxyDk3 = new UUPSProxy(address(dkLogic), initDataDk3);
         DisputeKitClassic disputeKit3 = DisputeKitClassic(address(proxyDk3));
+
+        vm.prank(owner);
+        disputeKit3.changeNextRoundSettings(
+            courtID3,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: 0,
+                jumpDisputeKitID: 0,
+                jumpDisputeKitIDIncompatibilityFallback: dkID2,
+                nbVotes: 0
+            })
+        );
 
         vm.prank(owner);
         core.addNewDisputeKit(disputeKit2);
         vm.prank(owner);
         core.addNewDisputeKit(disputeKit3);
 
+        // Court2 creation
         uint256[] memory supportedDK = new uint256[](2);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         supportedDK[1] = dkID2;
@@ -534,6 +584,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(courtParent, GENERAL_COURT, "Wrong court parent for court2");
         assertEq(courtJurorsForCourtJump, 7, "Wrong jurors for jump value for court2");
 
+        // Court3 creation
         supportedDK = new uint256[](2);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         supportedDK[1] = dkID3;
@@ -555,6 +606,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(courtParent, courtID2, "Wrong court parent for court3");
         assertEq(courtJurorsForCourtJump, 3, "Wrong jurors for jump value for court3");
 
+        // Enable DK3 on the General Court
         vm.prank(owner);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         supportedDK[1] = dkID3;
@@ -604,7 +656,8 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(crowdfunder1);
         disputeKit3.fundAppeal{value: 0.63 ether}(disputeID, 1);
 
-        assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
+        (, , , , bool isDisputeKitJumping) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(isDisputeKitJumping, true, "Should be jumping");
 
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.CourtJump(disputeID, 1, courtID3, courtID2);
@@ -674,7 +727,8 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
         disputeKit3.fundAppeal{value: 1.35 ether}(disputeID, 1);
 
-        assertEq(core.isDisputeKitJumping(disputeID), true, "Should be jumping");
+        (, , , , isDisputeKitJumping) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(isDisputeKitJumping, true, "Should be jumping");
 
         vm.prank(crowdfunder1);
         // appealCost is 0.45. (0.03 * 15)
