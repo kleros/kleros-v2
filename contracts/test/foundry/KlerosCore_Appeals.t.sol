@@ -261,7 +261,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
                 enabled: true,
                 jumpCourtID: GENERAL_COURT,
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
-                jumpDisputeKitIDIncompatibilityFallback: 0,
+                jumpDisputeKitIDOnCourtJump: 0,
                 nbVotes: 0
             })
         );
@@ -408,7 +408,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
                 enabled: true,
                 jumpCourtID: 0,
                 jumpDisputeKitID: 0,
-                jumpDisputeKitIDIncompatibilityFallback: dkID2,
+                jumpDisputeKitIDOnCourtJump: dkID2,
                 nbVotes: 0
             })
         );
@@ -530,7 +530,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
                 enabled: true,
                 jumpCourtID: 0,
                 jumpDisputeKitID: 0,
-                jumpDisputeKitIDIncompatibilityFallback: dkID3,
+                jumpDisputeKitIDOnCourtJump: dkID3,
                 nbVotes: 0
             })
         );
@@ -552,7 +552,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
                 enabled: true,
                 jumpCourtID: 0,
                 jumpDisputeKitID: 0,
-                jumpDisputeKitIDIncompatibilityFallback: dkID2,
+                jumpDisputeKitIDOnCourtJump: dkID2,
                 nbVotes: 0
             })
         );

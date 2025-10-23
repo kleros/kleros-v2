@@ -60,10 +60,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
     struct NextRoundSettings {
         bool enabled; // True if the settings are enabled, false otherwise.
-        uint96 jumpCourtID; // The ID of the court for the next round. Zero is considered as unset.
-        uint256 jumpDisputeKitID; // The ID of the dispute kit for the next round. Zero is considered as unset.
-        uint256 jumpDisputeKitIDIncompatibilityFallback; // The ID of the dispute kit to fallback to in case of incompatibility with the next round's court. Zero is considered as unset.
-        uint256 nbVotes; // The number of votes for the next round. Zero is considered as unset.
+        uint96 jumpCourtID; // The ID of the court for the next round. Zero is considered as undefined.
+        uint256 jumpDisputeKitID; // The ID of the dispute kit for the next round. Zero is considered as undefined.
+        uint256 jumpDisputeKitIDOnCourtJump; // The ID of the dispute kit if the court jumps and `jumpDisputeKitID` is undefined. Zero is considered as undefined.
+        uint256 nbVotes; // The number of votes for the next round. Zero is considered as undefined.
     }
 
     // ************************************* //
@@ -642,31 +642,30 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _currentRoundNbVotes
     ) public view virtual override returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes) {
         NextRoundSettings storage nextRoundSettings = courtIDToNextRoundSettings[_currentCourtID];
-        uint256 defaultNextRoundNbVotes = (_currentRoundNbVotes * 2) + 1;
-        uint256 disputeKitIDIncompatibilityFallback;
+        uint256 jumpDisputeKitIDOnCourtJump;
         if (nextRoundSettings.enabled) {
             newRoundNbVotes = nextRoundSettings.nbVotes;
             newCourtID = nextRoundSettings.jumpCourtID;
-            newDisputeKitID = nextRoundSettings.jumpDisputeKitID;
-            disputeKitIDIncompatibilityFallback = nextRoundSettings.jumpDisputeKitIDIncompatibilityFallback;
+            newDisputeKitID = nextRoundSettings.jumpDisputeKitID; // Takes precedence over jumpDisputeKitIDOnCourtJump
+            jumpDisputeKitIDOnCourtJump = nextRoundSettings.jumpDisputeKitIDOnCourtJump;
         }
         if (newCourtID == 0) {
             // Default court jump logic, unaffected by the newRoundNbVotes override
-            newCourtID = defaultNextRoundNbVotes >= _currentCourtJurorsForJump ? _parentCourtID : _currentCourtID;
+            newCourtID = _currentRoundNbVotes >= _currentCourtJurorsForJump ? _parentCourtID : _currentCourtID;
         }
         if (newDisputeKitID == 0) {
-            // Default dispute kit jump logic
-            newDisputeKitID = _currentDisputeKitID;
-        }
-        if (disputeKitIDIncompatibilityFallback != 0) {
-            // Use the fallback dispute kit in case of incompatibility.
-            if (!core.isSupported(newCourtID, newDisputeKitID)) {
-                newDisputeKitID = disputeKitIDIncompatibilityFallback;
+            // jumpDisputeKitID is undefined for next round
+            if (newCourtID != _currentCourtID && jumpDisputeKitIDOnCourtJump != 0) {
+                // Override on court jump
+                newDisputeKitID = jumpDisputeKitIDOnCourtJump;
+            } else {
+                // Default dispute kit jump logic
+                newDisputeKitID = _currentDisputeKitID;
             }
         }
         if (newRoundNbVotes == 0) {
             // Default nbVotes logic
-            newRoundNbVotes = defaultNextRoundNbVotes;
+            newRoundNbVotes = (_currentRoundNbVotes * 2) + 1;
         }
     }
 
