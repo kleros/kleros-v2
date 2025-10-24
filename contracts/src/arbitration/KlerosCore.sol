@@ -1255,7 +1255,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             newCourtID == FORKING_COURT ||
             newCourtID >= courts.length ||
             newDisputeKitID == NULL_DISPUTE_KIT ||
-            newDisputeKitID >= disputeKits.length
+            newDisputeKitID >= disputeKits.length ||
+            newRoundNbVotes == 0
         ) {
             // Falling back to the current court and dispute kit with default nbVotes.
             newCourtID = _dispute.courtID;
