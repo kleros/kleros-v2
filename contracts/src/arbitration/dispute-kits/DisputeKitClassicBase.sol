@@ -77,11 +77,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     address public owner; // The owner of the contract.
     KlerosCore public core; // The Kleros Core arbitrator
     Dispute[] public disputes; // Array of the locally created disputes.
-    mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
-    bool public singleDrawPerJuror; // Whether each juror can only draw once per dispute, false by default.
+    mapping(uint256 coreDisputeID => uint256 localDisputeID) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
     mapping(uint256 coreDisputeID => Active) public coreDisputeIDToActive; // Active status of the dispute and the current round.
-    address public wNative; // The wrapped native token for safeSend().
     mapping(uint96 currentCourtID => NextRoundSettings) public courtIDToNextRoundSettings; // The settings for the next round.
+    bool public singleDrawPerJuror; // Whether each juror can only draw once per round, false by default.
+    address public wNative; // The wrapped native token for safeSend().
 
     uint256[50] private __gap; // Reserved slots for future upgrades.
 
