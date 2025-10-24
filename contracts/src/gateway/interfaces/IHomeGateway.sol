@@ -2,9 +2,10 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
-import "../../arbitration/interfaces/IArbitrableV2.sol";
+import {ISenderGateway} from "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IArbitrableV2} from "../../arbitration/interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "../../arbitration/interfaces/IArbitratorV2.sol";
 
 /// @title Home Gateway Interface
 interface IHomeGateway is IArbitrableV2, ISenderGateway {

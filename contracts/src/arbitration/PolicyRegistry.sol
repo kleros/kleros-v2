@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
 
 /// @title PolicyRegistry
 /// @notice A contract to maintain a policy for each court.

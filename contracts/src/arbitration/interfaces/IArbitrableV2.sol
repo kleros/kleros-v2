@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-import "./IArbitratorV2.sol";
+import {IArbitratorV2} from "./IArbitratorV2.sol";
 
 /// @title IArbitrableV2
 /// @notice Arbitrable interface.

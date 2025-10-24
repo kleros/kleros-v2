@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import "./UUPSProxy.sol";
+import {UUPSProxy} from "./UUPSProxy.sol";
 
 /// Workaround to get meaningful names for the proxy contracts
 /// Otherwise all the contracts are called `UUPSProxy` on the chain explorers

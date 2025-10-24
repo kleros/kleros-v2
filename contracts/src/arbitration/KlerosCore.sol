@@ -2,13 +2,15 @@
 
 pragma solidity ^0.8.24;
 
-import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
+import {IArbitrableV2} from "./interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
+import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {SafeSend} from "../libraries/SafeSend.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "../libraries/Constants.sol";
 

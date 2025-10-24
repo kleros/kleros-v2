@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.24;
-import "./IRNG.sol";
+
+import {IRNG} from "./IRNG.sol";
 
 /// @title Incremental Number Generator
 /// @dev A Random Number Generator which returns a number incremented by 1 each time.

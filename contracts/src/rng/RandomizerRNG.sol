@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.24;
 
-import "./IRNG.sol";
-import "./IRandomizer.sol";
+import {IRNG} from "./IRNG.sol";
+import {IRandomizer} from "./IRandomizer.sol";
 
 /// @title Random Number Generator that uses Randomizer.ai
 /// https://randomizer.ai/

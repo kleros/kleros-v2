@@ -2,7 +2,8 @@
 
 pragma solidity ^0.8.28;
 
-import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
+import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
+import {KlerosCore} from "../KlerosCore.sol";
 
 /// @title DisputeKitShutter
 /// @notice Added functionality: shielded voting.

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import "../arbitration/dispute-kits/DisputeKitGatedShutter.sol";
+import {DisputeKitGatedShutter} from "../arbitration/dispute-kits/DisputeKitGatedShutter.sol";
 
 /// @title DisputeKitGatedShutterMock
 /// DisputeKitGatedShutter with view functions to use in the tests.

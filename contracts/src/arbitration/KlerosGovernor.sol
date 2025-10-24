@@ -2,9 +2,10 @@
 
 pragma solidity ^0.8.24;
 
-import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
+import {IArbitrableV2} from "./interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 import {SafeSend} from "../libraries/SafeSend.sol";
-import "./interfaces/IDisputeTemplateRegistry.sol";
+import {IDisputeTemplateRegistry} from "./interfaces/IDisputeTemplateRegistry.sol";
 
 /// @title KlerosGovernor for V2.
 /// @dev Appeal and evidence submission is handled by the court.

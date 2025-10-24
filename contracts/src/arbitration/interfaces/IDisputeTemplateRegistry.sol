@@ -2,8 +2,8 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-/// @title IDisputeTemplate
-/// @notice Dispute Template interface.
+/// @title IDisputeTemplateRegistry
+/// @notice Dispute Template Registry interface.
 interface IDisputeTemplateRegistry {
     // ************************************* //
     // *              Events               * //

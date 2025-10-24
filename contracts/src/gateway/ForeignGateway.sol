@@ -2,9 +2,13 @@
 
 pragma solidity ^0.8.24;
 
-import "./interfaces/IForeignGateway.sol";
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
+import {IForeignGateway} from "./interfaces/IForeignGateway.sol";
+import {IArbitrableV2} from "../arbitration/interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "../arbitration/interfaces/IArbitratorV2.sol";
+import {IReceiverGateway} from "@kleros/vea-contracts/src/interfaces/gateways/IReceiverGateway.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/Constants.sol";
 
 /// @title Foreign Gateway

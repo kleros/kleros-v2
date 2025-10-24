@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
-import "./interfaces/IDisputeTemplateRegistry.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {IDisputeTemplateRegistry} from "./interfaces/IDisputeTemplateRegistry.sol";
 
 /// @title Dispute Template Registry
 /// @notice A contract to maintain a registry of dispute templates.

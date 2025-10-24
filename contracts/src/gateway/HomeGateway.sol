@@ -2,12 +2,17 @@
 
 pragma solidity ^0.8.24;
 
-import "./interfaces/IForeignGateway.sol";
-import "./interfaces/IHomeGateway.sol";
-import "../libraries/SafeERC20.sol";
+import {IVeaInbox} from "@kleros/vea-contracts/src/interfaces/inboxes/IVeaInbox.sol";
+import {ISenderGateway} from "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
+import {IForeignGateway} from "./interfaces/IForeignGateway.sol";
+import {IHomeGateway} from "./interfaces/IHomeGateway.sol";
+import {IArbitratorV2} from "../arbitration/interfaces/IArbitratorV2.sol";
+import {IArbitrableV2} from "../arbitration/interfaces/IArbitrableV2.sol";
+import {SafeERC20} from "../libraries/SafeERC20.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/Constants.sol";
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
 
 /// @title Home Gateway
 /// @notice Counterpart of `ForeignGateway`

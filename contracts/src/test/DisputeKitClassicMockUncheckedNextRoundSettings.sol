@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import "../arbitration/dispute-kits/DisputeKitClassic.sol";
+import {DisputeKitClassic} from "../arbitration/dispute-kits/DisputeKitClassic.sol";
 
 /// @title DisputeKitClassicMockUncheckedNextRoundSettings
 /// DisputeKitClassic with unchecked next round settings to test `KlerosCore._getCompatibleNextRoundSettings()` fallback logic.

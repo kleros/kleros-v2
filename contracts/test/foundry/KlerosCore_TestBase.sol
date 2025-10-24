@@ -3,8 +3,9 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol"; // Import the console for logging
-import {KlerosCoreMock, KlerosCore, IERC721} from "../../src/test/KlerosCoreMock.sol";
-import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
+import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
+import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
+import {IArbitratorV2} from "../../src/arbitration/interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
@@ -18,8 +19,8 @@ import {PNK} from "../../src/token/PNK.sol";
 import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
-import "../../src/libraries/Constants.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
+import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_TestBase
 /// @dev Abstract base contract for KlerosCore tests containing shared setup and utilities

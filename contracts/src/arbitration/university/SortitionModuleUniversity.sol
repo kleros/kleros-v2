@@ -2,11 +2,13 @@
 
 pragma solidity ^0.8.24;
 
-import "./KlerosCoreUniversity.sol";
-import "./ISortitionModuleUniversity.sol";
-import "../interfaces/IDisputeKit.sol";
-import "../../proxy/UUPSProxiable.sol";
-import "../../proxy/Initializable.sol";
+import {KlerosCoreUniversity} from "./KlerosCoreUniversity.sol";
+import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
+import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
+import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
+import {Initializable} from "../../proxy/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../libraries/Constants.sol";
 
 /// @title SortitionModuleUniversity

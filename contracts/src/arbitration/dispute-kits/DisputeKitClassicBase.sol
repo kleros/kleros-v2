@@ -2,7 +2,9 @@
 
 pragma solidity ^0.8.24;
 
-import {KlerosCore, IDisputeKit, ISortitionModule} from "../KlerosCore.sol";
+import {KlerosCore} from "../KlerosCore.sol";
+import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
+import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";

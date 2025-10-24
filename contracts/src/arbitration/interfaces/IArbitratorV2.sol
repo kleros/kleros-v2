@@ -2,8 +2,8 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./IArbitrableV2.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IArbitrableV2} from "./IArbitrableV2.sol";
 
 /// @title Arbitrator
 /// @notice Arbitrator interface for the Kleros V2 protocol.

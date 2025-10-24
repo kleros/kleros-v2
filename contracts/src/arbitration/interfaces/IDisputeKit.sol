@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-import "./IArbitratorV2.sol";
+import {IArbitratorV2} from "./IArbitratorV2.sol";
 
 /// @title IDisputeKit
 /// @notice An abstraction of the Dispute Kits intended for interfacing with KlerosCore.

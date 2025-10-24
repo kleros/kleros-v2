@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.24;
 
-import "../interfaces/IArbitratorV2.sol";
-import "../interfaces/IEvidence.sol";
-import "../../proxy/UUPSProxiable.sol";
-import "../../proxy/Initializable.sol";
+import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
+import {IEvidence} from "../interfaces/IEvidence.sol";
+import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
+import {Initializable} from "../../proxy/Initializable.sol";
 
 /// @title Evidence Module
 contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {

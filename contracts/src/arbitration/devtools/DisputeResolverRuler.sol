@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-import {DisputeResolver, IArbitratorV2, IDisputeTemplateRegistry} from "../arbitrables/DisputeResolver.sol";
+import {DisputeResolver} from "../arbitrables/DisputeResolver.sol";
+import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
+import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
 
 pragma solidity ^0.8.24;
 

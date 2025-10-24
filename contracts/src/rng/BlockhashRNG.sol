@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import "./IRNG.sol";
+import {IRNG} from "./IRNG.sol";
 
 /// @title Random Number Generator using blockhash with fallback.
 /// @notice Random Number Generator returning the blockhash with a fallback behaviour.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./IRNG.sol";
+import {IRNG} from "./IRNG.sol";
 
 /// @title RNG with fallback mechanism
 /// @notice Uses a primary RNG implementation with automatic fallback to a Blockhash RNG if the primary RNG does not respond passed a timeout.

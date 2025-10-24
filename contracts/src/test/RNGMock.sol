@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "../rng/IRNG.sol";
+import {IRNG} from "../rng/IRNG.sol";
 
 /// @title Simple mock rng to check fallback
 contract RNGMock is IRNG {

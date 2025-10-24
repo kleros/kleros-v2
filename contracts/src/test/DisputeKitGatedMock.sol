@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import "../arbitration/dispute-kits/DisputeKitGated.sol";
+import {DisputeKitGated} from "../arbitration/dispute-kits/DisputeKitGated.sol";
 
 /// @title DisputeKitGatedMock
 /// DisputeKitGated with view functions to use in the tests.

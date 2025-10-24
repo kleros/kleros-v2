@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.24;
 
-// TODO: standard interfaces should be placed in a separated repo (?)
-import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
-import "../interfaces/IDisputeTemplateRegistry.sol";
+import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
+import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
 
 /// @title Implementation of the Evidence Standard with Moderated Submissions
 contract ModeratedEvidenceModule is IArbitrableV2 {

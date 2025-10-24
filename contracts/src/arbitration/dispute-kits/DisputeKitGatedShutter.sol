@@ -2,7 +2,8 @@
 
 pragma solidity ^0.8.24;
 
-import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
+import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
+import {KlerosCore} from "../KlerosCore.sol";
 
 interface IBalanceHolder {
     /// @notice Returns the number of tokens in `owner` account.
