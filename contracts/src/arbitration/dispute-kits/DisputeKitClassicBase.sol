@@ -60,10 +60,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
     struct NextRoundSettings {
         bool enabled; // True if the settings are enabled, false otherwise.
-        uint96 jumpCourtID; // The ID of the court for the next round. Zero is considered as undefined.
-        uint256 jumpDisputeKitID; // The ID of the dispute kit for the next round. Zero is considered as undefined.
-        uint256 jumpDisputeKitIDOnCourtJump; // The ID of the dispute kit if the court jumps and `jumpDisputeKitID` is undefined. Zero is considered as undefined.
-        uint256 nbVotes; // The number of votes for the next round. Zero is considered as undefined.
+        uint96 jumpCourtID; // A non-zero value makes the next round use this court ID. Zero is considered as undefined.
+        uint256 jumpDisputeKitID; // A non-zero value makes the next round use this dispute kit ID. Zero is considered as undefined.
+        uint256 jumpDisputeKitIDOnCourtJump; // A non-zero value makes the next round use this dispute kit ID ONLY IF the court jumps and `jumpDisputeKitID` is undefined. Zero is considered as undefined.
+        uint256 nbVotes; // A non-zero value makes the next round use this number of votes. Zero is considered as undefined.
     }
 
     // ************************************* //
@@ -130,9 +130,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     event ChoiceFunded(uint256 indexed _coreDisputeID, uint256 indexed _coreRoundID, uint256 indexed _choice);
 
     /// @notice To be emitted when the next round settings are changed.
-    /// @param _currentCourtID The ID of the current court.
+    /// @param _courtID The ID of the court that the settings are changed for.
     /// @param _nextRoundSettings The settings for the next round.
-    event NextRoundSettingsChanged(uint96 indexed _currentCourtID, NextRoundSettings _nextRoundSettings);
+    event NextRoundSettingsChanged(uint96 indexed _courtID, NextRoundSettings _nextRoundSettings);
 
     // ************************************* //
     // *              Modifiers            * //
@@ -198,14 +198,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     }
 
     /// @notice Changes the settings for the next round.
-    /// @param _currentCourtID The ID of the current court.
+    /// @param _courtID The ID of the court that the settings are changed for.
     /// @param _nextRoundSettings The settings for the next round.
     function changeNextRoundSettings(
-        uint96 _currentCourtID,
+        uint96 _courtID,
         NextRoundSettings memory _nextRoundSettings
     ) external onlyByOwner {
-        courtIDToNextRoundSettings[_currentCourtID] = _nextRoundSettings;
-        emit NextRoundSettingsChanged(_currentCourtID, _nextRoundSettings);
+        courtIDToNextRoundSettings[_courtID] = _nextRoundSettings;
+        emit NextRoundSettingsChanged(_courtID, _nextRoundSettings);
     }
 
     // ************************************* //

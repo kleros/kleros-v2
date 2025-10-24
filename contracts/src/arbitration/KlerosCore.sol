@@ -1080,31 +1080,26 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
     /// @notice Gets the cost of appealing a specified dispute.
     /// @param _disputeID The ID of the dispute.
-    /// @return cost The appeal cost.
-    function appealCost(uint256 _disputeID) public view returns (uint256 cost) {
+    /// @return The appeal cost.
+    function appealCost(uint256 _disputeID) public view returns (uint256) {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
-
         (uint96 newCourtID, , uint256 nbVotesAfterAppeal) = _getCompatibleNextRoundSettings(
             dispute,
             round,
             court,
             _disputeID
         );
-
-        if (newCourtID != dispute.courtID) {
-            // Jump to parent court.
-            if (dispute.courtID == GENERAL_COURT) {
-                // TODO: Handle the forking when appealed in General court.
-                cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent court.
-            } else {
-                cost = courts[court.parent].feeForJuror * nbVotesAfterAppeal;
-            }
-        } else {
-            // Stay in current court.
-            cost = court.feeForJuror * nbVotesAfterAppeal;
+        if (newCourtID == dispute.courtID) {
+            // No court jump
+            return court.feeForJuror * nbVotesAfterAppeal;
         }
+        if (dispute.courtID != GENERAL_COURT && newCourtID != FORKING_COURT) {
+            // Court jump but not to the Forking court
+            return courts[newCourtID].feeForJuror * nbVotesAfterAppeal;
+        }
+        return NON_PAYABLE_AMOUNT; // Jumping to the Forking Court is not supported yet.
     }
 
     /// @notice Gets the start and the end of a specified dispute's current appeal period.
@@ -1256,12 +1251,22 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             disputeKitID,
             _round.nbVotes
         );
-
+        if (
+            newCourtID == FORKING_COURT ||
+            newCourtID >= courts.length ||
+            newDisputeKitID == NULL_DISPUTE_KIT ||
+            newDisputeKitID >= disputeKits.length
+        ) {
+            // Falling back to the current court and dispute kit with default nbVotes.
+            newCourtID = _dispute.courtID;
+            newDisputeKitID = disputeKitID;
+            newRoundNbVotes = (_round.nbVotes * 2) + 1;
+        }
         // Ensure compatibility between the next round's court and dispute kit.
-        if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID] || newDisputeKitID == NULL_DISPUTE_KIT) {
-            // Fall back to `DisputeKitClassic` which is always supported.
+        if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
+            // Falling back to `DisputeKitClassic` which is always supported and with default nbVotes.
             newDisputeKitID = DISPUTE_KIT_CLASSIC;
-            newRoundNbVotes = (_round.nbVotes * 2) + 1; // Reset nbVotes to the default logic.
+            newRoundNbVotes = (_round.nbVotes * 2) + 1;
         }
     }
 
