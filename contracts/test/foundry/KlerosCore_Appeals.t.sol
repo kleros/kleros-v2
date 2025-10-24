@@ -11,6 +11,9 @@ import "../../src/libraries/Constants.sol";
 /// @title KlerosCore_AppealsTest
 /// @dev Tests for KlerosCore appeal system, funding, and court/DK jumping
 contract KlerosCore_AppealsTest is KlerosCore_TestBase {
+    /// @dev Test funding appeal for only one side without completing the appeal.
+    /// Verifies appeal period calculation, funding mechanics (partial and full), overpayment reimbursement,
+    /// and error conditions (cannot appeal before appeal period, insufficient fees, only DK can call appeal).
     function test_appeal_fundOneSide() public {
         uint256 disputeID = 0;
         vm.deal(address(disputeKit), 1 ether);
@@ -103,6 +106,9 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal(disputeID, 1);
     }
 
+    /// @dev Test appeal period timing constraints for losing vs winning sides.
+    /// Verifies losers can only fund appeals in the first half of the appeal period,
+    /// while winners can fund anytime until the end of the period.
     function test_appeal_timeoutCheck() public {
         uint256 disputeID = 0;
 
@@ -147,6 +153,9 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 2);
     }
 
+    /// @dev Test complete appeal funding without court or dispute kit jumping.
+    /// Verifies that when both sides fully fund an appeal, a new round is created in the same court
+    /// with increased juror count (nbVotes * 2 + 1), and the dispute period transitions to evidence.
     function test_appeal_fullFundingNoJump() public {
         uint256 disputeID = 0;
 
@@ -209,9 +218,10 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
     }
 
+    /// @dev Test simultaneous court jump and dispute kit jump to DISPUTE_KIT_CLASSIC.
+    /// Setup: Dispute starts in Court2 with DK2, where DK2._jumpDisputeKitID == DISPUTE_KIT_CLASSIC.
+    /// Verifies dispute jumps from Court2→GENERAL_COURT and DK2→DISPUTE_KIT_CLASSIC on appeal.
     function test_appeal_fullFundingCourtJumpAndDKJumpToClassic() public {
-        // Setup: dk2 supported by court2 with dk2._jumpDisputeKitID == DISPUTE_KIT_CLASSIC
-        // Ensure that court2 jumps to GENERAL_COURT and dk2 jumps to DISPUTE_KIT_CLASSIC
         uint256 disputeID = 0;
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK and court to check the jump
@@ -343,11 +353,10 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(account, staker1, "Wrong drawn account in the classic DK");
     }
 
+    /// @dev Test court jump and dispute kit jump to a non-classic dispute kit.
+    /// Setup: DK2 supported by GENERAL_COURT, DK3 supported by Court2, with DK3.jumpDisputeKitIDOnCourtJump == DK2.
+    /// Verifies dispute jumps from Court2→GENERAL_COURT and DK3→DK2 using jumpDisputeKitIDOnCourtJump setting.
     function test_appeal_fullFundingCourtJumpAndDKJumpToNonClassic() public {
-        // Setup:
-        // dk2 supported by GENERAL_COURT, which is a non-DISPUTE_KIT_CLASSIC
-        // dk3 supported by court2, with dk3.nextRoundSettings[court2].jumpDisputeKitIDIncompatibilityFallback == dk2
-        // Ensure that court2 jumps to GENERAL_COURT and dk3 jumps to dk2
         uint256 disputeID = 0;
         uint96 newCourtID = 2;
         uint256 dkID2 = 2;
@@ -493,9 +502,11 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(account, staker1, "Wrong drawn account in the classic DK");
     }
 
+    /// @dev Test dispute jumping between the same dispute kits multiple times across different rounds.
+    /// Setup: Court hierarchy GENERAL_COURT→Court2→Court3. DK2 supported by Court2, DK3 supported by Court3.
+    /// Verifies correct behavior when dispute oscillates: Court3/DK3 → Court2/DK2 → GENERAL_COURT/DK3,
+    /// including local dispute ID tracking and round state management across multiple DK switches.
     function test_appeal_recurringDK() public {
-        // Test the behaviour when dispute jumps from DK3 to DK2 and then back to DK3 again.
-
         // Setup: create 2 more courts to facilitate appeal jump. Create 2 more DK.
         // Set General Court as parent to court2, and court2 as parent to court3. dk2 as jump DK for dk3, and dk3 as jump DK for dk2.
         // Ensure DK2 is supported by Court2 and DK3 is supported by court3.
@@ -829,6 +840,9 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2); // wrong DK, no reward
     }
 
+    /// @dev Test early termination of appeal period when no appeal is funded.
+    /// Verifies that the appeal period can be passed before timeout expires when waiting halfway
+    /// through the period with no appeal funded, allowing quick transition to execution.
     function test_appeal_quickPassPeriod() public {
         uint256 disputeID = 0;
 
@@ -863,6 +877,9 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
     }
 
+    /// @dev Fuzz test for appeal funding with random ruling options and juror vote distributions.
+    /// Tests appeal mechanics with varying number of ruling options and different vote choices,
+    /// ensuring appeal funding works correctly regardless of the choice configuration.
     function testFuzz_appeal(uint256 numberOfOptions, uint256 choice1, uint256 choice2, uint256 choice3) public {
         uint256 disputeID = 0;
 
@@ -928,6 +945,9 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq((disputeKit.getFundedChoices(disputeID)).length, 0, "No funded choices in a fresh round");
     }
 
+    /// @dev Fuzz test for appeal funding with random msg.value amounts.
+    /// Verifies overpayment is correctly reimbursed, partial funding is tracked, and the dispute kit
+    /// never holds more than the required appeal amount regardless of how much is sent.
     function testFuzz_fundAppeal_msgValue(uint256 appealValue) public {
         uint256 disputeID = 0;
 
