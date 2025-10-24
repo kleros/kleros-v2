@@ -987,4 +987,684 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             assertEq(address(disputeKit).balance, appealValue, "Wrong balance of the DK");
         }
     }
+
+    /// @dev Test that a dispute can jump to a non-parent court using NextRoundSettings.jumpCourtID
+    /// and that appealCost() correctly uses the target court's feeForJuror
+    function test_appeal_jumpToNonParentCourtWithCostValidation() public {
+        uint256 disputeID = 0;
+        uint96 court2ID = 2;
+        uint96 court3ID = 3;
+
+        // Create Court2 (child of GENERAL_COURT) with feeForJuror = 0.05 ether
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.05 ether, // feeForJuror for Court2
+            3, // jurorsForCourtJump - low to ensure jump
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Create Court3 (also child of GENERAL_COURT, making it a sibling of Court2) with feeForJuror = 0.07 ether
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent - same as Court2, so they're siblings
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.07 ether, // feeForJuror for Court3 - DIFFERENT from Court2
+            5,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Configure Court2's NextRoundSettings to jump to Court3 (a sibling, not parent)
+        vm.prank(owner);
+        disputeKit.changeNextRoundSettings(
+            court2ID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: court3ID, // Jump to sibling Court3, NOT parent GENERAL_COURT
+                jumpDisputeKitID: DISPUTE_KIT_CLASSIC, // Stay with same DK
+                jumpDisputeKitIDOnCourtJump: 0, // Not used since jumpDisputeKitID is set
+                nbVotes: 0 // Use default formula: currentVotes * 2 + 1
+            })
+        );
+
+        // Setup: Stake in Court2 and Court3
+        vm.prank(staker1);
+        core.setStake(court2ID, 20000);
+        vm.prank(staker1);
+        core.setStake(court3ID, 20000);
+
+        // Create dispute in Court2
+        bytes memory court2ExtraData = abi.encodePacked(uint256(court2ID), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
+        arbitrable.changeArbitratorExtraData(court2ExtraData);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: 0.05 ether * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS); // Draw 3 jurors
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        // Vote
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal period
+
+        // CRITICAL TEST: Verify appealCost() uses Court3's feeForJuror (0.07 ether), not Court2's (0.05 ether)
+        // Expected jurors after appeal: 3 * 2 + 1 = 7
+        // Expected cost: 0.07 ether * 7 = 0.49 ether
+        uint256 expectedCost = 0.07 ether * 7;
+        assertEq(core.appealCost(disputeID), expectedCost, "appealCost should use Court3's feeForJuror");
+
+        // Verify that using Court2's cost would NOT be enough
+        uint256 court2Cost = 0.05 ether * 7; // 0.35 ether
+        assertTrue(court2Cost < expectedCost, "Court2's cost should be less than Court3's cost");
+
+        // Verify getCourtAndDisputeKitJumps predicts the jump correctly
+        (uint96 nextCourtID, uint256 nextDisputeKitID, , bool isCourtJumping, bool isDisputeKitJumping) = core
+            .getCourtAndDisputeKitJumps(disputeID);
+        assertEq(nextCourtID, court3ID, "Should predict jump to Court3");
+        assertEq(nextDisputeKitID, DISPUTE_KIT_CLASSIC, "Should stay with DISPUTE_KIT_CLASSIC");
+        assertEq(isCourtJumping, true, "Should be court jumping");
+        assertEq(isDisputeKitJumping, false, "Should NOT be DK jumping");
+
+        // Fund appeal with correct amount
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 1.47 ether}(disputeID, 1); // 0.49 + (0.49 * 20000/10000)
+
+        // Verify CourtJump event (NOT to parent GENERAL_COURT, but to sibling Court3)
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtJump(disputeID, 1, court2ID, court3ID);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
+        vm.prank(crowdfunder2);
+        disputeKit.fundAppeal{value: 0.98 ether}(disputeID, 2); // 0.49 + (0.49 * 10000/10000)
+
+        // Verify dispute is now in Court3
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, court3ID, "Dispute should now be in Court3");
+
+        // Verify new round has correct number of jurors
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.nbVotes, 7, "New round should have 7 jurors (3 * 2 + 1)");
+        assertEq(round.disputeKitID, DISPUTE_KIT_CLASSIC, "DK should still be DISPUTE_KIT_CLASSIC");
+
+        // Verify we can draw jurors in the new court
+        core.draw(disputeID, 7);
+        round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.drawnJurors.length, 7, "Should have drawn 7 jurors in Court3");
+    }
+
+    /// @dev Test that a dispute can jump multiple levels up the court hierarchy (grandparent)
+    function test_appeal_jumpToGrandparentCourtMultiLevel() public {
+        uint256 disputeID = 0;
+        uint96 court2ID = 2;
+        uint96 court3ID = 3;
+        uint96 court4ID = 4;
+
+        // Create Court2 (child of GENERAL_COURT)
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.04 ether,
+            5,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Create Court3 (child of Court2)
+        vm.prank(owner);
+        core.createCourt(
+            court2ID, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.05 ether,
+            5,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Create Court4 (child of Court3) - so hierarchy is: GENERAL_COURT -> Court2 -> Court3 -> Court4
+        vm.prank(owner);
+        core.createCourt(
+            court3ID, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.06 ether,
+            3, // Low threshold to ensure jump
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Configure Court4 to jump directly to GENERAL_COURT (skipping Court3 and Court2)
+        vm.prank(owner);
+        disputeKit.changeNextRoundSettings(
+            court4ID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: GENERAL_COURT, // Jump to grandparent, skipping Court3 and Court2
+                jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
+                jumpDisputeKitIDOnCourtJump: 0,
+                nbVotes: 0
+            })
+        );
+
+        // Stake in Court4 and GENERAL_COURT
+        vm.prank(staker1);
+        core.setStake(court4ID, 20000);
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+
+        // Create dispute in Court4
+        bytes memory court4ExtraData = abi.encodePacked(uint256(court4ID), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
+        arbitrable.changeArbitratorExtraData(court4ExtraData);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: 0.06 ether * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        // Verify appealCost uses GENERAL_COURT's feeForJuror (0.03 ether from base setup)
+        uint256 expectedCost = feeForJuror * 7; // 0.03 * 7 = 0.21 ether
+        assertEq(core.appealCost(disputeID), expectedCost, "appealCost should use GENERAL_COURT's feeForJuror");
+
+        // Verify jump prediction
+        (uint96 nextCourtID, , , bool isCourtJumping, ) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(nextCourtID, GENERAL_COURT, "Should predict jump to GENERAL_COURT");
+        assertEq(isCourtJumping, true, "Should be court jumping");
+
+        // Fund and execute appeal
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1);
+
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtJump(disputeID, 1, court4ID, GENERAL_COURT);
+        vm.prank(crowdfunder2);
+        disputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
+
+        // Verify dispute jumped directly to GENERAL_COURT (not to Court3 or Court2)
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, GENERAL_COURT, "Dispute should have jumped directly to GENERAL_COURT");
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.nbVotes, 7, "New round should have 7 jurors");
+    }
+
+    /// @dev Test that when NextRoundSettings.enabled = false, default parent court jump logic is used
+    function test_appeal_disabledNextRoundSettingsFallbackToParent() public {
+        uint256 disputeID = 0;
+        uint96 court2ID = 2;
+        uint96 court3ID = 3;
+
+        // Create Court2 (child of GENERAL_COURT)
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.05 ether,
+            3,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Create Court3 (sibling of Court2)
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT,
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.07 ether,
+            5,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Configure Court2's NextRoundSettings with enabled = FALSE
+        // This should cause the settings to be ignored and default parent jump logic to apply
+        vm.prank(owner);
+        disputeKit.changeNextRoundSettings(
+            court2ID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: false, // DISABLED - settings should be ignored
+                jumpCourtID: court3ID, // This should be IGNORED
+                jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
+                jumpDisputeKitIDOnCourtJump: 0,
+                nbVotes: 9 // This should also be IGNORED
+            })
+        );
+
+        // Stake in courts
+        vm.prank(staker1);
+        core.setStake(court2ID, 20000);
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+
+        // Create dispute in Court2
+        bytes memory court2ExtraData = abi.encodePacked(uint256(court2ID), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
+        arbitrable.changeArbitratorExtraData(court2ExtraData);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: 0.05 ether * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        // Verify jump prediction shows parent court (GENERAL_COURT), NOT Court3
+        (uint96 nextCourtID, , uint256 nextNbVotes, bool isCourtJumping, ) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(nextCourtID, GENERAL_COURT, "Should jump to parent GENERAL_COURT, not Court3");
+        assertEq(isCourtJumping, true, "Should be court jumping");
+        assertEq(nextNbVotes, 7, "Should use default formula (3*2+1=7), not custom nbVotes (9)");
+
+        // Verify appealCost uses GENERAL_COURT's feeForJuror (0.03), not Court3's (0.07)
+        uint256 expectedCost = feeForJuror * 7; // 0.03 * 7 = 0.21 ether
+        assertEq(core.appealCost(disputeID), expectedCost, "appealCost should use parent court's fee");
+
+        // Fund and execute appeal
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1);
+
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtJump(disputeID, 1, court2ID, GENERAL_COURT); // Jump to GENERAL_COURT, not Court3
+        vm.prank(crowdfunder2);
+        disputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
+
+        // Verify dispute jumped to GENERAL_COURT (parent), not Court3
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, GENERAL_COURT, "Dispute should be in GENERAL_COURT (parent), not Court3");
+
+        // Verify nbVotes used default formula, not custom value
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.nbVotes, 7, "Should use default nbVotes (7), not custom (9)");
+    }
+
+    /// @dev Test that when jumpCourtID is invalid, the system falls back to staying in current court
+    function test_appeal_invalidJumpCourtIDFallback() public {
+        uint256 disputeID = 0;
+        uint96 court2ID = 2;
+        uint96 invalidCourtID = 999; // Non-existent court
+
+        // Create Court2 (child of GENERAL_COURT)
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.05 ether,
+            3,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Configure Court2's NextRoundSettings with invalid jumpCourtID
+        vm.prank(owner);
+        disputeKit.changeNextRoundSettings(
+            court2ID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: invalidCourtID, // Invalid court ID - should cause fallback
+                jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
+                jumpDisputeKitIDOnCourtJump: 0,
+                nbVotes: 0
+            })
+        );
+
+        // Stake in Court2
+        vm.prank(staker1);
+        core.setStake(court2ID, 20000);
+
+        // Create dispute in Court2
+        bytes memory court2ExtraData = abi.encodePacked(uint256(court2ID), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
+        arbitrable.changeArbitratorExtraData(court2ExtraData);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: 0.05 ether * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        // Verify jump prediction shows current court (fallback because invalid jumpCourtID)
+        (uint96 nextCourtID, , , bool isCourtJumping, ) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(nextCourtID, court2ID, "Should fallback to current court when jumpCourtID is invalid");
+        assertEq(isCourtJumping, false, "Should NOT be court jumping");
+
+        // Verify appealCost uses Court2's feeForJuror since staying in Court2
+        uint256 expectedCost = 0.05 ether * 7; // 0.35 ether
+        assertEq(core.appealCost(disputeID), expectedCost, "appealCost should use current court's fee");
+
+        // Fund and execute appeal
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 1.05 ether}(disputeID, 1); // 0.35 + (0.35 * 20000/10000)
+
+        // No CourtJump event should be emitted since staying in same court
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
+        vm.prank(crowdfunder2);
+        disputeKit.fundAppeal{value: 0.7 ether}(disputeID, 2); // 0.35 + (0.35 * 10000/10000)
+
+        // Verify dispute stayed in Court2
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, court2ID, "Dispute should still be in Court2");
+
+        // Verify new round has correct number of jurors
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.nbVotes, 7, "New round should have 7 jurors (3 * 2 + 1)");
+    }
+
+    /// @dev Test that custom nbVotes in NextRoundSettings is respected and appealCost() calculates correctly
+    function test_appeal_jumpCourtWithCustomNbVotes() public {
+        uint256 disputeID = 0;
+        uint96 court2ID = 2;
+        uint96 court3ID = 3;
+        uint256 customNbVotes = 11; // Custom vote count (not the default 3*2+1=7)
+
+        // Create Court2 (child of GENERAL_COURT)
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.05 ether,
+            3,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Create Court3 (sibling of Court2)
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT,
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.08 ether, // Different feeForJuror for Court3
+            5,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Configure Court2 to jump to Court3 with custom nbVotes
+        vm.prank(owner);
+        disputeKit.changeNextRoundSettings(
+            court2ID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: court3ID,
+                jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
+                jumpDisputeKitIDOnCourtJump: 0,
+                nbVotes: customNbVotes // Custom vote count
+            })
+        );
+
+        // Stake in courts
+        vm.prank(staker1);
+        core.setStake(court2ID, 20000);
+        vm.prank(staker1);
+        core.setStake(court3ID, 20000);
+
+        // Create dispute in Court2
+        bytes memory court2ExtraData = abi.encodePacked(uint256(court2ID), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
+        arbitrable.changeArbitratorExtraData(court2ExtraData);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: 0.05 ether * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        // CRITICAL: Verify appealCost uses Court3's feeForJuror AND custom nbVotes
+        // Expected: 0.08 ether * 11 = 0.88 ether
+        uint256 expectedCost = 0.08 ether * customNbVotes;
+        assertEq(core.appealCost(disputeID), expectedCost, "appealCost should use Court3's fee with custom nbVotes");
+
+        // Verify it's NOT using the default formula (which would be 7 votes)
+        uint256 defaultFormulaVotes = 3 * 2 + 1; // 7
+        uint256 defaultCost = 0.08 ether * defaultFormulaVotes; // 0.56 ether
+        assertTrue(expectedCost != defaultCost, "Custom cost should differ from default formula cost");
+
+        // Verify jump prediction
+        (uint96 nextCourtID, , uint256 nextNbVotes, bool isCourtJumping, ) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(nextCourtID, court3ID, "Should jump to Court3");
+        assertEq(nextNbVotes, customNbVotes, "Should use custom nbVotes");
+        assertEq(isCourtJumping, true, "Should be court jumping");
+
+        // Fund and execute appeal with custom vote count cost
+        vm.prank(crowdfunder1);
+        // Total: 0.88 + (0.88 * 20000/10000) = 0.88 + 1.76 = 2.64 ether
+        disputeKit.fundAppeal{value: 2.64 ether}(disputeID, 1);
+
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtJump(disputeID, 1, court2ID, court3ID);
+        vm.prank(crowdfunder2);
+        // Total: 0.88 + (0.88 * 10000/10000) = 0.88 + 0.88 = 1.76 ether
+        disputeKit.fundAppeal{value: 1.76 ether}(disputeID, 2);
+
+        // Verify dispute jumped to Court3
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, court3ID, "Dispute should be in Court3");
+
+        // CRITICAL: Verify new round has custom nbVotes, NOT default (7)
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.nbVotes, customNbVotes, "New round should have custom nbVotes (11)");
+        assertEq(round.disputeKitID, DISPUTE_KIT_CLASSIC, "DK should still be DISPUTE_KIT_CLASSIC");
+
+        // Verify we can draw the custom number of jurors
+        core.draw(disputeID, customNbVotes);
+        round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.drawnJurors.length, customNbVotes, "Should have drawn custom number of jurors");
+    }
+
+    /// @dev Test that custom nbVotes in NextRoundSettings does NOT trigger a court jump
+    /// Only the current round's actual drawn jurors should determine court jump, not custom nbVotes
+    function test_appeal_customNbVotesDoesNotTriggerCourtJump() public {
+        uint256 disputeID = 0;
+        uint96 court2ID = 2;
+        uint256 customNbVotes = 9; // Custom vote count that exceeds jurorsForCourtJump
+
+        // Create Court2 with HIGH jurorsForCourtJump threshold
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.06 ether,
+            7, // HIGH jurorsForCourtJump threshold
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Configure NextRoundSettings with custom nbVotes > jurorsForCourtJump
+        // But NO explicit jumpCourtID (let default logic decide)
+        vm.prank(owner);
+        disputeKit.changeNextRoundSettings(
+            court2ID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: 0, // UNDEFINED - use default jump logic
+                jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
+                jumpDisputeKitIDOnCourtJump: 0,
+                nbVotes: customNbVotes // 9 votes, which is > 7 threshold
+            })
+        );
+
+        // Stake in courts
+        vm.prank(staker1);
+        core.setStake(court2ID, 20000);
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+
+        // Create dispute in Court2 with only 3 jurors (well below threshold of 7)
+        bytes memory court2ExtraData = abi.encodePacked(uint256(court2ID), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
+        arbitrable.changeArbitratorExtraData(court2ExtraData);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: 0.06 ether * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS); // Draw 3 jurors
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        // CRITICAL TEST: Verify NO court jump occurs
+        // Current round has 3 jurors (< 7 threshold) -> should NOT jump
+        // Custom nbVotes = 9 (> 7 threshold) -> should NOT affect jump decision
+        (uint96 nextCourtID, , uint256 nextNbVotes, bool isCourtJumping, ) = core.getCourtAndDisputeKitJumps(disputeID);
+        assertEq(nextCourtID, court2ID, "Should stay in Court2 (no jump)");
+        assertEq(isCourtJumping, false, "Should NOT be court jumping despite custom nbVotes > threshold");
+        assertEq(nextNbVotes, customNbVotes, "Should use custom nbVotes for next round");
+
+        // Verify appealCost uses Court2's feeForJuror with custom nbVotes
+        // Expected: 0.06 ether * 9 = 0.54 ether
+        uint256 expectedCost = 0.06 ether * customNbVotes;
+        assertEq(core.appealCost(disputeID), expectedCost, "appealCost should use Court2's fee with custom nbVotes");
+
+        // Fund and execute appeal
+        vm.prank(crowdfunder1);
+        // Total: 0.54 + (0.54 * 20000/10000) = 0.54 + 1.08 = 1.62 ether
+        disputeKit.fundAppeal{value: 1.62 ether}(disputeID, 1);
+
+        // NO CourtJump event should be emitted (staying in same court)
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
+        vm.prank(crowdfunder2);
+        // Total: 0.54 + (0.54 * 10000/10000) = 0.54 + 0.54 = 1.08 ether
+        disputeKit.fundAppeal{value: 1.08 ether}(disputeID, 2);
+
+        // Verify dispute stayed in Court2
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, court2ID, "Dispute should still be in Court2 (no jump occurred)");
+
+        // CRITICAL: Verify new round has custom nbVotes (9), not default (3*2+1=7)
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.nbVotes, customNbVotes, "New round should have custom nbVotes (9)");
+        assertEq(round.disputeKitID, DISPUTE_KIT_CLASSIC, "DK should still be DISPUTE_KIT_CLASSIC");
+
+        // Verify we can draw the custom number of jurors in the same court
+        core.draw(disputeID, customNbVotes);
+        round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.drawnJurors.length, customNbVotes, "Should have drawn 9 jurors in Court2");
+    }
 }
