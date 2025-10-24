@@ -785,13 +785,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Round storage extraRound = dispute.rounds.push();
         uint256 extraRoundID = dispute.rounds.length - 1;
 
-        (uint96 newCourtID, uint256 newDisputeKitID, bool courtJump, ) = _getCourtAndDisputeKitJumps(
+        (uint96 newCourtID, uint256 newDisputeKitID, ) = _getCompatibleNextRoundSettings(
             dispute,
             round,
             courts[dispute.courtID],
             _disputeID
         );
-        if (courtJump) {
+        if (newCourtID != dispute.courtID) {
             emit CourtJump(_disputeID, extraRoundID, dispute.courtID, newCourtID);
         }
 
@@ -1080,31 +1080,26 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
     /// @notice Gets the cost of appealing a specified dispute.
     /// @param _disputeID The ID of the dispute.
-    /// @return cost The appeal cost.
-    function appealCost(uint256 _disputeID) public view returns (uint256 cost) {
+    /// @return The appeal cost.
+    function appealCost(uint256 _disputeID) public view returns (uint256) {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
-
-        (, uint256 newDisputeKitID, bool courtJump, ) = _getCourtAndDisputeKitJumps(dispute, round, court, _disputeID);
-
-        uint256 nbVotesAfterAppeal = disputeKits[newDisputeKitID].getNbVotesAfterAppeal(
-            disputeKits[round.disputeKitID],
-            round.nbVotes
+        (uint96 newCourtID, , uint256 nbVotesAfterAppeal) = _getCompatibleNextRoundSettings(
+            dispute,
+            round,
+            court,
+            _disputeID
         );
-
-        if (courtJump) {
-            // Jump to parent court.
-            if (dispute.courtID == GENERAL_COURT) {
-                // TODO: Handle the forking when appealed in General court.
-                cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent court.
-            } else {
-                cost = courts[court.parent].feeForJuror * nbVotesAfterAppeal;
-            }
-        } else {
-            // Stay in current court.
-            cost = court.feeForJuror * nbVotesAfterAppeal;
+        if (newCourtID == dispute.courtID) {
+            // No court jump
+            return court.feeForJuror * nbVotesAfterAppeal;
         }
+        if (dispute.courtID != GENERAL_COURT && newCourtID != FORKING_COURT) {
+            // Court jump but not to the Forking court
+            return courts[newCourtID].feeForJuror * nbVotesAfterAppeal;
+        }
+        return NON_PAYABLE_AMOUNT; // Jumping to the Forking Court is not supported yet.
     }
 
     /// @notice Gets the start and the end of a specified dispute's current appeal period.
@@ -1180,20 +1175,38 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         return dispute.rounds[dispute.rounds.length - 1].nbVotes;
     }
 
-    /// @notice Returns true if the dispute kit will be switched to a parent DK.
-    /// @param _disputeID The ID of the dispute.
-    /// @return Whether DK will be switched or not.
-    function isDisputeKitJumping(uint256 _disputeID) external view returns (bool) {
+    /// @notice Checks whether a dispute will jump to new court/DK and enforces a compatibility check.
+    /// @param _disputeID Dispute ID.
+    /// @return newCourtID Court ID after jump.
+    /// @return newDisputeKitID Dispute kit ID after jump.
+    /// @return newRoundNbVotes The number of votes in the new round.
+    /// @return courtJump Whether the dispute jumps to a new court or not.
+    /// @return disputeKitJump Whether the dispute jumps to a new dispute kit or not.
+    function getCourtAndDisputeKitJumps(
+        uint256 _disputeID
+    )
+        external
+        view
+        returns (
+            uint96 newCourtID,
+            uint256 newDisputeKitID,
+            uint256 newRoundNbVotes,
+            bool courtJump,
+            bool disputeKitJump
+        )
+    {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
 
-        if (!_isCourtJumping(round, court, _disputeID)) {
-            return false;
-        }
-
-        // Jump if the parent court doesn't support the current DK.
-        return !courts[court.parent].supportedDisputeKits[round.disputeKitID];
+        (newCourtID, newDisputeKitID, newRoundNbVotes) = _getCompatibleNextRoundSettings(
+            dispute,
+            round,
+            court,
+            _disputeID
+        );
+        courtJump = (newCourtID != dispute.courtID);
+        disputeKitJump = (newDisputeKitID != round.disputeKitID);
     }
 
     /// @notice Returns the length of disputeKits array.
@@ -1214,51 +1227,47 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     // *            Internal               * //
     // ************************************* //
 
-    /// @notice Returns true if the round is jumping to a parent court.
-    /// @param _round The round to check.
-    /// @param _court The court to check.
-    /// @return Whether the round is jumping to a parent court or not.
-    function _isCourtJumping(
-        Round storage _round,
-        Court storage _court,
-        uint256 _disputeID
-    ) internal view returns (bool) {
-        return
-            disputeKits[_round.disputeKitID].earlyCourtJump(_disputeID) || _round.nbVotes >= _court.jurorsForCourtJump;
-    }
-
-    /// @notice Checks whether a dispute will jump to new court/DK, and returns new court and DK.
+    /// @notice Get the next round settings for a given dispute
+    /// @dev Enforces a compatibility check between the next round's court and dispute kit.
     /// @param _dispute Dispute data.
     /// @param _round Round ID.
     /// @param _court Current court ID.
     /// @param _disputeID Dispute ID.
     /// @return newCourtID Court ID after jump.
     /// @return newDisputeKitID Dispute kit ID after jump.
-    /// @return courtJump Whether the dispute jumps to a new court or not.
-    /// @return disputeKitJump Whether the dispute jumps to a new dispute kit or not.
-    function _getCourtAndDisputeKitJumps(
+    /// @return newRoundNbVotes The number of votes in the new round.
+    function _getCompatibleNextRoundSettings(
         Dispute storage _dispute,
         Round storage _round,
         Court storage _court,
         uint256 _disputeID
-    ) internal view returns (uint96 newCourtID, uint256 newDisputeKitID, bool courtJump, bool disputeKitJump) {
-        newCourtID = _dispute.courtID;
-        newDisputeKitID = _round.disputeKitID;
-
-        if (!_isCourtJumping(_round, _court, _disputeID)) return (newCourtID, newDisputeKitID, false, false);
-
-        // Jump to parent court.
-        newCourtID = courts[newCourtID].parent;
-        courtJump = true;
-
+    ) internal view returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes) {
+        uint256 disputeKitID = _round.disputeKitID;
+        (newCourtID, newDisputeKitID, newRoundNbVotes) = disputeKits[disputeKitID].getNextRoundSettings(
+            _disputeID,
+            _dispute.courtID,
+            _court.parent,
+            _court.jurorsForCourtJump,
+            disputeKitID,
+            _round.nbVotes
+        );
+        if (
+            newCourtID == FORKING_COURT ||
+            newCourtID >= courts.length ||
+            newDisputeKitID == NULL_DISPUTE_KIT ||
+            newDisputeKitID >= disputeKits.length ||
+            newRoundNbVotes == 0
+        ) {
+            // Falling back to the current court and dispute kit with default nbVotes.
+            newCourtID = _dispute.courtID;
+            newDisputeKitID = disputeKitID;
+            newRoundNbVotes = (_round.nbVotes * 2) + 1;
+        }
+        // Ensure compatibility between the next round's court and dispute kit.
         if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
-            // The current Dispute Kit is not compatible with the new court, jump to another Dispute Kit.
-            newDisputeKitID = disputeKits[_round.disputeKitID].getJumpDisputeKitID();
-            if (newDisputeKitID == NULL_DISPUTE_KIT || !courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
-                // The new Dispute Kit is not defined or still not compatible, fall back to `DisputeKitClassic` which is always supported.
-                newDisputeKitID = DISPUTE_KIT_CLASSIC;
-            }
-            disputeKitJump = true;
+            // Falling back to `DisputeKitClassic` which is always supported and with default nbVotes.
+            newDisputeKitID = DISPUTE_KIT_CLASSIC;
+            newRoundNbVotes = (_round.nbVotes * 2) + 1;
         }
     }
 

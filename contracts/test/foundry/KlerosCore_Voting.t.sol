@@ -399,11 +399,10 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK to check castVote.
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address,uint256)",
+            "initialize(address,address,address)",
             owner,
             address(core),
-            address(wNative),
-            DISPUTE_KIT_CLASSIC
+            address(wNative)
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
