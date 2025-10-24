@@ -1667,4 +1667,173 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 1);
         assertEq(round.drawnJurors.length, customNbVotes, "Should have drawn 9 jurors in Court2");
     }
+
+    /// @dev Test that jumpDisputeKitID takes precedence over jumpDisputeKitIDOnCourtJump when both are set
+    function test_appeal_jumpDisputeKitIDTakesPrecedenceOverOnCourtJump() public {
+        uint256 disputeID = 0;
+        uint96 court2ID = 2;
+        uint96 court3ID = 3;
+        uint256 dkID2 = 2;
+        uint256 dkID3 = 3;
+
+        // Create DisputeKit2 and DisputeKit3
+        DisputeKitClassic dkLogic = new DisputeKitClassic();
+
+        bytes memory initDataDk2 = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            owner,
+            address(core),
+            address(wNative)
+        );
+        UUPSProxy proxyDk2 = new UUPSProxy(address(dkLogic), initDataDk2);
+        DisputeKitClassic disputeKit2 = DisputeKitClassic(address(proxyDk2));
+
+        bytes memory initDataDk3 = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            owner,
+            address(core),
+            address(wNative)
+        );
+        UUPSProxy proxyDk3 = new UUPSProxy(address(dkLogic), initDataDk3);
+        DisputeKitClassic disputeKit3 = DisputeKitClassic(address(proxyDk3));
+
+        vm.prank(owner);
+        core.addNewDisputeKit(disputeKit2);
+        vm.prank(owner);
+        core.addNewDisputeKit(disputeKit3);
+
+        // Create Court2 supporting all 3 DKs
+        uint256[] memory supportedDK = new uint256[](3);
+        supportedDK[0] = DISPUTE_KIT_CLASSIC;
+        supportedDK[1] = dkID2;
+        supportedDK[2] = dkID3;
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // parent
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.05 ether,
+            3, // Low jurorsForCourtJump to ensure jump
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // Create Court3 (sibling of Court2) also supporting all 3 DKs
+        vm.prank(owner);
+        core.createCourt(
+            GENERAL_COURT, // Same parent as Court2 (siblings)
+            hiddenVotes,
+            minStake,
+            alpha,
+            0.07 ether,
+            5,
+            [uint256(60), uint256(120), uint256(180), uint256(240)],
+            sortitionExtraData,
+            supportedDK
+        );
+
+        // CRITICAL: Configure NextRoundSettings with BOTH jumpDisputeKitID and jumpDisputeKitIDOnCourtJump set
+        // jumpDisputeKitID should take precedence
+        vm.prank(owner);
+        disputeKit3.changeNextRoundSettings(
+            court2ID,
+            DisputeKitClassicBase.NextRoundSettings({
+                enabled: true,
+                jumpCourtID: court3ID, // Force court jump to Court3
+                jumpDisputeKitID: dkID2, // Should be used (takes precedence)
+                jumpDisputeKitIDOnCourtJump: dkID3, // Should be IGNORED despite being set
+                nbVotes: 0
+            })
+        );
+
+        // Stake in courts
+        vm.prank(staker1);
+        core.setStake(court2ID, 20000);
+        vm.prank(staker1);
+        core.setStake(court3ID, 20000);
+
+        // Create dispute in Court2 with DisputeKit3
+        bytes memory extraData = abi.encodePacked(uint256(court2ID), DEFAULT_NB_OF_JURORS, dkID3);
+        arbitrable.changeArbitratorExtraData(extraData);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: 0.05 ether * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        // Verify initial round uses DisputeKit3
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.disputeKitID, dkID3, "Initial round should use DisputeKit3");
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit3.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        // CRITICAL TEST: Verify jump prediction shows DK2, NOT DK3
+        (uint96 nextCourtID, uint256 nextDisputeKitID, , bool isCourtJumping, bool isDisputeKitJumping) = core
+            .getCourtAndDisputeKitJumps(disputeID);
+        assertEq(nextCourtID, court3ID, "Should jump to Court3");
+        assertEq(nextDisputeKitID, dkID2, "Should jump to DisputeKit2 (jumpDisputeKitID), NOT DisputeKit3");
+        assertEq(isCourtJumping, true, "Should be court jumping");
+        assertEq(isDisputeKitJumping, true, "Should be DK jumping");
+
+        // Verify appealCost uses Court3's feeForJuror
+        uint256 expectedCost = 0.07 ether * 7; // 0.49 ether
+        assertEq(core.appealCost(disputeID), expectedCost, "appealCost should use Court3's fee");
+
+        // Fund and execute appeal
+        vm.prank(crowdfunder1);
+        disputeKit3.fundAppeal{value: 1.47 ether}(disputeID, 1);
+
+        // Verify events show jump to Court3 and DisputeKit2 (NOT DisputeKit3)
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtJump(disputeID, 1, court2ID, court3ID);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.DisputeKitJump(disputeID, 1, dkID3, dkID2); // DK3 -> DK2 (NOT DK3)
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, extraData);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.AppealDecision(disputeID, arbitrable);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.evidence);
+        vm.prank(crowdfunder2);
+        disputeKit3.fundAppeal{value: 0.98 ether}(disputeID, 2);
+
+        // Verify dispute is now in Court3 with DisputeKit2
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, court3ID, "Dispute should be in Court3");
+
+        round = core.getRoundInfo(disputeID, 1);
+        assertEq(round.disputeKitID, dkID2, "New round should use DisputeKit2 (NOT DisputeKit3)");
+        assertEq(round.nbVotes, 7, "New round should have 7 jurors");
+
+        // Verify DisputeKit3 is no longer active for this dispute
+        (, bool currentRound) = disputeKit3.coreDisputeIDToActive(disputeID);
+        assertEq(currentRound, false, "DisputeKit3 should no longer be active");
+
+        // Verify DisputeKit2 is now active
+        (, currentRound) = disputeKit2.coreDisputeIDToActive(disputeID);
+        assertEq(currentRound, true, "DisputeKit2 should be active");
+
+        // Verify we can draw jurors in the new DK
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.Draw(staker1, disputeID, 1, 0);
+        core.draw(disputeID, 1);
+
+        (address account, , , ) = disputeKit2.getVoteInfo(disputeID, 1, 0);
+        assertEq(account, staker1, "Should have drawn juror in DisputeKit2");
+    }
 }
