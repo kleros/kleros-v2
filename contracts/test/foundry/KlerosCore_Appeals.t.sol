@@ -342,7 +342,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         // Check jump modifier
         vm.prank(address(core));
         vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
-        newDisputeKit.draw(disputeID, 1);
+        newDisputeKit.draw(disputeID, 1, round.nbVotes);
 
         // And check that draw in the new round works
         vm.expectEmit(true, true, true, true);
@@ -491,7 +491,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         // Check jump modifier
         vm.prank(address(core));
         vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
-        disputeKit3.draw(disputeID, 1);
+        disputeKit3.draw(disputeID, 1, round.nbVotes);
 
         // And check that draw in the new round works
         vm.expectEmit(true, true, true, true);
@@ -715,7 +715,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(address(core));
         vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
-        disputeKit3.draw(disputeID, 1);
+        disputeKit3.draw(disputeID, 1, round.nbVotes);
 
         core.draw(disputeID, 7); // New round requires 7 jurors
         vm.warp(block.timestamp + timesPerPeriod[0]);
@@ -794,7 +794,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(address(core));
         vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
-        disputeKit2.draw(disputeID, 1);
+        disputeKit2.draw(disputeID, 1, round.nbVotes);
 
         core.draw(disputeID, 15); // New round requires 15 jurors
         vm.warp(block.timestamp + timesPerPeriod[0]);
