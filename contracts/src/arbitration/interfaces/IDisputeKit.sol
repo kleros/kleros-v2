@@ -50,11 +50,13 @@ interface IDisputeKit {
     /// @dev Access restricted to Kleros Core only.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _nonce Nonce.
+    /// @param _roundNbVotes The number of votes in the round, including already drawn and yet to be drawn.
     /// @return drawnAddress The drawn address.
     /// @return fromSubcourtID The subcourt ID from which the juror was drawn.
     function draw(
         uint256 _coreDisputeID,
-        uint256 _nonce
+        uint256 _nonce,
+        uint256 _roundNbVotes
     ) external returns (address drawnAddress, uint96 fromSubcourtID);
 
     // ************************************* //

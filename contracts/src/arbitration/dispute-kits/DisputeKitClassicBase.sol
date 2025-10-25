@@ -251,8 +251,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @inheritdoc IDisputeKit
     function draw(
         uint256 _coreDisputeID,
-        uint256 _nonce
-    ) external override onlyByCore isActive(_coreDisputeID) returns (address drawnAddress, uint96 fromSubcourtID) {
+        uint256 _nonce,
+        uint256 /*_roundNbVotes*/
+    )
+        public
+        virtual
+        override
+        onlyByCore
+        isActive(_coreDisputeID)
+        returns (address drawnAddress, uint96 fromSubcourtID)
+    {
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
         uint256 localRoundID = dispute.rounds.length - 1;

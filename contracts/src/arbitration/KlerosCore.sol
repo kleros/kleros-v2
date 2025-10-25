@@ -753,7 +753,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 startIndex = round.drawIterations; // for gas: less storage reads
         uint256 i;
         while (i < _iterations && round.drawnJurors.length < round.nbVotes) {
-            (address drawnAddress, uint96 fromSubcourtID) = disputeKit.draw(_disputeID, startIndex + i++);
+            (address drawnAddress, uint96 fromSubcourtID) = disputeKit.draw(
+                _disputeID,
+                startIndex + i++,
+                round.nbVotes
+            );
             if (drawnAddress == address(0)) {
                 continue;
             }

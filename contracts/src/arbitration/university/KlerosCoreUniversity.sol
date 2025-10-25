@@ -602,7 +602,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         {
             IDisputeKit disputeKit = disputeKits[round.disputeKitID];
             uint256 iteration = round.drawIterations + 1;
-            (address drawnAddress, uint96 fromSubcourtID) = disputeKit.draw(_disputeID, iteration);
+            (address drawnAddress, uint96 fromSubcourtID) = disputeKit.draw(_disputeID, iteration, round.nbVotes);
             if (drawnAddress == address(0)) {
                 revert NoJurorDrawn();
             }
