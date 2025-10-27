@@ -94,6 +94,10 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         voteIDs[0] = 1;
         voteIDs[1] = 2;
 
+        // Shouldn't allow to switch period yet.
+        vm.expectRevert(KlerosCore.CommitPeriodNotPassed.selector);
+        core.passPeriod(disputeID);
+
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
         emit DisputeKitClassicBase.CommitCast(disputeID, staker1, voteIDs, commit);
@@ -109,7 +113,8 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         }
 
         // Check reveal in the next period
-        vm.warp(block.timestamp + timesPerPeriod[1]);
+        // Should allow to switch period since all commits are cast.
+        //vm.warp(block.timestamp + timesPerPeriod[1]);
         core.passPeriod(disputeID);
 
         // Check the require with the wrong choice and then with the wrong salt
