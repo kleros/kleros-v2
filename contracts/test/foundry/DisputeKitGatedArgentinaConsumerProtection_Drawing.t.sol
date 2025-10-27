@@ -14,7 +14,7 @@ import "../../src/libraries/Constants.sol";
 /// @title DisputeKitGatedArgentinaConsumerProtection_DrawingTest
 /// @dev Tests for DisputeKitGatedArgentinaConsumerProtection drawing logic
 /// This dispute kit requires:
-/// - Jurors must own either accreditedLawyerToken OR accreditedConsumerProtectionLawyerToken
+/// - Jurors must own either accreditedProfessionalToken OR accreditedConsumerProtectionLawyerToken
 /// - Each round must have at least one juror with accreditedConsumerProtectionLawyerToken
 contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_TestBase {
     // ************************************* //
@@ -22,15 +22,15 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
     // ************************************* //
 
     DisputeKitGatedArgentinaConsumerProtection argentinaDK;
-    TestERC721 accreditedLawyerToken;
+    TestERC721 accreditedProfessionalToken;
     TestERC721 accreditedConsumerProtectionLawyerToken;
 
     // ************************************* //
     // *            Test Accounts          * //
     // ************************************* //
 
-    address lawyer1; // Has only accredited lawyer token
-    address lawyer2; // Has only accredited lawyer token
+    address lawyer1; // Has only accredited professional token
+    address lawyer2; // Has only accredited professional token
     address consumerLawyer1; // Has only consumer protection lawyer token
     address consumerLawyer2; // Has only consumer protection lawyer token
     address bothLawyer; // Has both tokens
@@ -56,7 +56,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         noTokenJuror = vm.addr(15);
 
         // Deploy token contracts
-        accreditedLawyerToken = new TestERC721("Accredited Lawyer", "AL");
+        accreditedProfessionalToken = new TestERC721("Accredited Lawyer", "AL");
         accreditedConsumerProtectionLawyerToken = new TestERC721("Consumer Protection Lawyer", "CPL");
 
         // Deploy and initialize the Argentina dispute kit
@@ -66,7 +66,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
             owner,
             address(core),
             address(wNative),
-            address(accreditedLawyerToken),
+            address(accreditedProfessionalToken),
             address(accreditedConsumerProtectionLawyerToken)
         );
         UUPSProxy proxyDK = new UUPSProxy(address(dkLogic), initData);
@@ -173,8 +173,8 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
     /// Expected: Drawing never completes all required jurors due to last-iteration rejection logic
     function test_drawFailsWithOnlyAccreditedLawyers() public {
         // Mint accredited lawyer tokens (but NOT consumer protection tokens)
-        accreditedLawyerToken.safeMint(lawyer1);
-        accreditedLawyerToken.safeMint(lawyer2);
+        accreditedProfessionalToken.safeMint(lawyer1);
+        accreditedProfessionalToken.safeMint(lawyer2);
 
         // Stake in the Argentina court
         vm.prank(lawyer1);
@@ -246,8 +246,8 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
     /// @notice Test that drawing succeeds with a mix of both lawyer types
     function test_drawSucceedsWithMixedLawyers() public {
         // Mint tokens to different jurors
-        accreditedLawyerToken.safeMint(lawyer1);
-        accreditedLawyerToken.safeMint(lawyer2);
+        accreditedProfessionalToken.safeMint(lawyer1);
+        accreditedProfessionalToken.safeMint(lawyer2);
         accreditedConsumerProtectionLawyerToken.safeMint(consumerLawyer1);
 
         // Stake in the Argentina court
@@ -287,7 +287,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
     /// @notice Test drawing when a juror holds both token types
     function test_drawWithJurorHoldingBothTokens() public {
         // Mint both tokens to the same juror
-        accreditedLawyerToken.safeMint(bothLawyer);
+        accreditedProfessionalToken.safeMint(bothLawyer);
         accreditedConsumerProtectionLawyerToken.safeMint(bothLawyer);
 
         // Stake in the Argentina court
@@ -365,7 +365,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
     /// @notice Test that each round independently satisfies the consumer protection lawyer requirement
     function test_multipleRoundsRequirement() public {
         // Mint tokens
-        accreditedLawyerToken.safeMint(lawyer1);
+        accreditedProfessionalToken.safeMint(lawyer1);
         accreditedConsumerProtectionLawyerToken.safeMint(consumerLawyer1);
 
         // Stake in the Argentina court

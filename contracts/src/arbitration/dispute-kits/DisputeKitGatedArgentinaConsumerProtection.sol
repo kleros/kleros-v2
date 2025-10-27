@@ -15,7 +15,7 @@ interface IBalanceHolder {
 
 /// @title DisputeKitGatedArgentinaConsumerProtection
 /// @notice Dispute kit implementation adapted from DisputeKitClassic
-/// - a drawing system: proportional to staked PNK among the jurors holding a `accreditedLawyerToken` or a `accreditedConsumerProtectionLawyerToken`
+/// - a drawing system: proportional to staked PNK among the jurors holding a `accreditedProfessionalToken` or a `accreditedConsumerProtectionLawyerToken`
 ///   and at least one of the drawn jurors is holding a `accreditedConsumerProtectionLawyerToken`,
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
@@ -27,7 +27,7 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
     // *             Storage               * //
     // ************************************* //
 
-    address public accreditedLawyerToken; // The address of the accredited lawyer token.
+    address public accreditedProfessionalToken; // The address of the accredited professional token.
     address public accreditedConsumerProtectionLawyerToken; // The address of the accredited consumer protection lawyer token.
     mapping(uint256 localDisputeID => mapping(uint256 localRoundID => bool)) public drawnConsumerProtectionLawyer; // Maps the local dispute and round ID to the boolean indicating if the consumer protection lawyer was drawn.
 
@@ -44,17 +44,17 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
-    /// @param _accreditedLawyerToken The address of the accredited lawyer token.
+    /// @param _accreditedProfessionalToken The address of the accredited professional token.
     /// @param _accreditedConsumerProtectionLawyerToken The address of the accredited consumer protection lawyer token.
     function initialize(
         address _owner,
         KlerosCore _core,
         address _wNative,
-        address _accreditedLawyerToken,
+        address _accreditedProfessionalToken,
         address _accreditedConsumerProtectionLawyerToken
     ) external initializer {
         __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
-        accreditedLawyerToken = _accreditedLawyerToken;
+        accreditedProfessionalToken = _accreditedProfessionalToken;
         accreditedConsumerProtectionLawyerToken = _accreditedConsumerProtectionLawyerToken;
     }
 
@@ -68,10 +68,10 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
         // NOP
     }
 
-    /// @notice Changes the accredited lawyer token.
-    /// @param _accreditedLawyerToken The address of the accredited lawyer token.
-    function changeAccreditedLawyerToken(address _accreditedLawyerToken) external onlyByOwner {
-        accreditedLawyerToken = _accreditedLawyerToken;
+    /// @notice Changes the accredited professional token.
+    /// @param _accreditedProfessionalToken The address of the accredited lawyer token.
+    function changeAccreditedProfessionalToken(address _accreditedProfessionalToken) external onlyByOwner {
+        accreditedProfessionalToken = _accreditedProfessionalToken;
     }
 
     /// @notice Changes the accredited consumer protection lawyer token.
@@ -129,7 +129,7 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
                 // Reject this draw so that another iteration can try again later.
                 return false;
             }
-            if (IBalanceHolder(accreditedLawyerToken).balanceOf(_juror) == 0) {
+            if (IBalanceHolder(accreditedProfessionalToken).balanceOf(_juror) == 0) {
                 // The juror does not hold either of the tokens.
                 return false;
             }
