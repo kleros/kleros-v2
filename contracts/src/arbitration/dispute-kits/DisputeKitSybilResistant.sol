@@ -70,8 +70,9 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,
-        address _juror
+        address _juror,
+        uint256 _roundNbVotes
     ) internal view override returns (bool) {
-        return super._postDrawCheck(_round, _coreDisputeID, _juror) && poh.isRegistered(_juror);
+        return super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes) && poh.isRegistered(_juror);
     }
 }

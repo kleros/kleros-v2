@@ -252,7 +252,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     function draw(
         uint256 _coreDisputeID,
         uint256 _nonce,
-        uint256 /*_roundNbVotes*/
+        uint256 _roundNbVotes
     )
         public
         virtual
@@ -274,7 +274,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             return (drawnAddress, fromSubcourtID);
         }
 
-        if (_postDrawCheck(round, _coreDisputeID, drawnAddress)) {
+        if (_postDrawCheck(round, _coreDisputeID, drawnAddress, _roundNbVotes)) {
             Vote storage vote = round.votes.push();
             vote.account = drawnAddress;
             round.alreadyDrawn[drawnAddress] = true;
@@ -786,19 +786,20 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ///
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
-    /// @return result Whether the address passes the check or not.
+    /// @return Whether the address passes the check or not.
     function _postDrawCheck(
         Round storage /*_round*/,
         uint256 _coreDisputeID,
-        address _juror
-    ) internal view virtual returns (bool result) {
+        address _juror,
+        uint256 /*_roundNbVotes*/
+    ) internal view virtual returns (bool) {
         if (singleDrawPerJuror) {
             uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
             Dispute storage dispute = disputes[localDisputeID];
             Round storage round = dispute.rounds[dispute.rounds.length - 1];
-            result = !round.alreadyDrawn[_juror];
+            return !round.alreadyDrawn[_juror];
         } else {
-            result = true;
+            return true;
         }
     }
 

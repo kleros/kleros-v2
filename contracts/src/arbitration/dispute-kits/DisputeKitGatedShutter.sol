@@ -256,9 +256,10 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,
-        address _juror
+        address _juror,
+        uint256 _roundNbVotes
     ) internal view override returns (bool) {
-        if (!super._postDrawCheck(_round, _coreDisputeID, _juror)) return false;
+        if (!super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes)) return false;
 
         // Get the local dispute and extract token info from extraData
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];

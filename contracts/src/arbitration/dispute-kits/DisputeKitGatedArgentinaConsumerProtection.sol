@@ -96,25 +96,11 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
 
         if (drawnAddress == address(0)) return (drawnAddress, fromSubcourtID);
 
-        uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
-        Dispute storage dispute = disputes[localDisputeID];
-        uint256 localRoundID = dispute.rounds.length - 1;
         if (IBalanceHolder(accreditedConsumerProtectionLawyerToken).balanceOf(drawnAddress) > 0) {
             // The drawnAddress is a consumer protection lawyer.
+            uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+            uint256 localRoundID = disputes[localDisputeID].rounds.length - 1;
             drawnConsumerProtectionLawyer[localDisputeID][localRoundID] = true;
-        } else {
-            // The drawnAddress is not a consumer protection lawyer.
-            if (
-                dispute.rounds[localRoundID].votes.length == _roundNbVotes &&
-                !drawnConsumerProtectionLawyer[localDisputeID][localRoundID]
-            ) {
-                // This is the last draw iteration and we still have not drawn a consumer protection lawyer.
-                // Drop the last round.votes pushed by super.draw(), so that another iteration can try again.
-                drawnAddress = address(0);
-                dispute.rounds[localRoundID].votes.pop();
-                // Note that round.alreadyDrawn[drawnAddress] is not cleared because we don't know if it has been drawn more than once.
-                // It's fine because this DisputeKit does not enable singleDrawPerJuror.
-            }
         }
         return (drawnAddress, fromSubcourtID);
     }
@@ -127,12 +113,28 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,
-        address _juror
+        address _juror,
+        uint256 _roundNbVotes
     ) internal view override returns (bool) {
-        if (!super._postDrawCheck(_round, _coreDisputeID, _juror)) return false;
-        return
-            (IBalanceHolder(accreditedLawyerToken).balanceOf(_juror) > 0) ||
-            (IBalanceHolder(accreditedConsumerProtectionLawyerToken).balanceOf(_juror) > 0);
+        if (IBalanceHolder(accreditedConsumerProtectionLawyerToken).balanceOf(_juror) == 0) {
+            // The juror is not a consumer protection lawyer.
+            uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+            Dispute storage dispute = disputes[localDisputeID];
+            uint256 localRoundID = dispute.rounds.length - 1;
+            if (
+                dispute.rounds[localRoundID].votes.length == _roundNbVotes - 1 &&
+                !drawnConsumerProtectionLawyer[localDisputeID][localRoundID]
+            ) {
+                // This is the last draw iteration and we still have not drawn a consumer protection lawyer.
+                // Reject this draw so that another iteration can try again later.
+                return false;
+            }
+            if (IBalanceHolder(accreditedLawyerToken).balanceOf(_juror) == 0) {
+                // The juror does not hold either of the tokens.
+                return false;
+            }
+        }
+        return super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes);
     }
 
     // ************************************* //
