@@ -7,6 +7,7 @@ import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
+import { Answer } from "@kleros/kleros-sdk";
 import { Button } from "@kleros/ui-components-library";
 
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
@@ -17,11 +18,10 @@ import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
+import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
 
 import JustificationArea from "./JustificationArea";
-import { Answer } from "@kleros/kleros-sdk";
-import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   width: 100%;
@@ -145,7 +145,13 @@ const getSaltAndChoice = async (
   if (isUndefined(rawSalt)) return;
   const salt = keccak256(rawSalt);
 
-  const { choice } = answers.reduce<{ found: boolean; choice: bigint }>(
+  // when dispute is invalid, just add RFA to the answers array
+  const candidates =
+    answers?.length > 0
+      ? answers
+      : [{ id: "0x0", title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" } as Answer];
+
+  const { choice } = candidates.reduce<{ found: boolean; choice: bigint }>(
     (acc, answer) => {
       if (acc.found) return acc;
       const innerCommit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(answer.id), BigInt(salt)]));
