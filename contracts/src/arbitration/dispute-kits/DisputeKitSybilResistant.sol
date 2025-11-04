@@ -6,10 +6,11 @@ import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
 import {KlerosCore} from "../KlerosCore.sol";
 
 interface IProofOfHumanity {
-    /// @notice Return true if the submission is registered and not expired.
-    /// @param _submissionID The address of the submission.
-    /// @return Whether the submission is registered or not.
-    function isRegistered(address _submissionID) external view returns (bool);
+    /// @notice Check whether the account corresponds to a claimed humanity.
+    /// @dev From https://github.com/Proof-Of-Humanity/proof-of-humanity-v2-contracts/blob/a331e7b6bb0f7a7ad9a905d41032cecc52bf06a6/contracts/ProofOfHumanity.sol#L1495-L1502
+    /// @param _account The account address.
+    /// @return Whether the account has a valid humanity.
+    function isHuman(address _account) external view returns (bool);
 }
 
 /// @title DisputeKitSybilResistant
@@ -73,6 +74,6 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
         address _juror,
         uint256 _roundNbVotes
     ) internal view override returns (bool) {
-        return super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes) && poh.isRegistered(_juror);
+        return super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes) && poh.isHuman(_juror);
     }
 }
