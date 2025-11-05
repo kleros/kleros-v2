@@ -35,10 +35,14 @@ task("change-owner", "Changes the owner for all the contracts")
     const {
       core,
       disputeKitClassic,
+      disputeKitShutter,
+      disputeKitGated,
+      disputeKitGatedShutter,
       disputeResolver,
       disputeTemplateRegistry,
       policyRegistry,
       chainlinkRng,
+      rngWithFallback,
       randomizerRng,
       snapshotProxy,
       sortition,
@@ -70,7 +74,11 @@ task("change-owner", "Changes the owner for all the contracts")
     await updateOwner("KlerosCoreSnapshotProxy", snapshotProxy);
     await updateOwner("SortitionModule", sortition);
     await updateOwner("EvidenceModule", evidence);
+    if (disputeKitShutter) await updateOwner("DisputeKitShutter", disputeKitShutter);
+    if (disputeKitGated) await updateOwner("DisputeKitGated", disputeKitGated);
+    if (disputeKitGatedShutter) await updateOwner("DisputeKitGatedShutter", disputeKitGatedShutter);
     if (chainlinkRng) await updateOwner("ChainlinkRNG", chainlinkRng);
+    if (rngWithFallback) await updateOwner("RNGWithFallback", rngWithFallback);
     if (randomizerRng) await updateOwner("RandomizerRNG", randomizerRng);
 
     print.success("Owner changed successfully");
