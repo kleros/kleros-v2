@@ -47,7 +47,7 @@
     "node": ">=16.0.0"
   },
   "volta": {
-    "node": "20.18.3"
+    "node": "20.19.5"
   },
   "publishConfig": {
     "access": "public",
@@ -117,7 +117,7 @@
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.3.20",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^20.17.6",
+    "@types/node": "^20.19.24",
     "@types/sinon": "^17.0.4",
     "@wagmi/cli": "^2.3.2",
     "abitype": "^0.10.3",
