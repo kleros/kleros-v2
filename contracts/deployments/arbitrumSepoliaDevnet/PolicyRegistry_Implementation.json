@@ -1,0 +1,441 @@
+{
+  "address": "0x4e3146Af220595Ed3c30E5485673eE27927Ad8F4",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "AlreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FailedDelegateCall",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "implementation",
+          "type": "address"
+        }
+      ],
+      "name": "InvalidImplementation",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OwnerOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UUPSUnauthorizedCallContext",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "slot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "UUPSUnsupportedProxiableUUID",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "version",
+          "type": "uint64"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_courtID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_courtName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_policy",
+          "type": "string"
+        }
+      ],
+      "name": "PolicyUpdate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "Upgraded",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "policies",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proxiableUUID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_courtID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_courtName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_policy",
+          "type": "string"
+        }
+      ],
+      "name": "setPolicy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "upgradeToAndCall",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "version",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x1cfe037f65626d7c32af8e9ae1aaf18d290bb71dd108db08090d69112abe5923",
+  "receipt": {
+    "to": null,
+    "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "contractAddress": "0x4e3146Af220595Ed3c30E5485673eE27927Ad8F4",
+    "transactionIndex": 5,
+    "gasUsed": "687260",
+    "logsBloom": "0x00000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000080000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000001000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xd5ff954fa769246b83f043efd6d1b05916a0e56f380c97372c07b66473940f68",
+    "transactionHash": "0x1cfe037f65626d7c32af8e9ae1aaf18d290bb71dd108db08090d69112abe5923",
+    "logs": [
+      {
+        "transactionIndex": 5,
+        "blockNumber": 212135247,
+        "transactionHash": "0x1cfe037f65626d7c32af8e9ae1aaf18d290bb71dd108db08090d69112abe5923",
+        "address": "0x4e3146Af220595Ed3c30E5485673eE27927Ad8F4",
+        "topics": [
+          "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+        "logIndex": 11,
+        "blockHash": "0xd5ff954fa769246b83f043efd6d1b05916a0e56f380c97372c07b66473940f68"
+      }
+    ],
+    "blockNumber": 212135247,
+    "cumulativeGasUsed": "1053932",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "7120e939c323b678aae40a88db815cc2",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AlreadyInitialized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FailedDelegateCall\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"InvalidImplementation\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotInitializing\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OwnerOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"UUPSUnauthorizedCallContext\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"slot\",\"type\":\"bytes32\"}],\"name\":\"UUPSUnsupportedProxiableUUID\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"version\",\"type\":\"uint64\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_courtID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_courtName\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_policy\",\"type\":\"string\"}],\"name\":\"PolicyUpdate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"changeOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"policies\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxiableUUID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_courtID\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"_courtName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_policy\",\"type\":\"string\"}],\"name\":\"setPolicy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"upgradeToAndCall\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"AlreadyInitialized()\":[{\"details\":\"The contract is already initialized.\"}],\"NotInitializing()\":[{\"details\":\"The contract is not initializing.\"}]},\"events\":{\"Initialized(uint64)\":{\"details\":\"Triggered when the contract has been initialized or reinitialized.\"},\"PolicyUpdate(uint256,string,string)\":{\"params\":{\"_courtID\":\"The ID of the policy's court.\",\"_courtName\":\"The name of the policy's court.\",\"_policy\":\"The URI of the policy JSON.\"}},\"Upgraded(address)\":{\"params\":{\"newImplementation\":\"Address of the new implementation the proxy is now forwarding calls to.\"}}},\"kind\":\"dev\",\"methods\":{\"changeOwner(address)\":{\"params\":{\"_owner\":\"The new value for the `owner` storage variable.\"}},\"constructor\":{\"custom:oz-upgrades-unsafe-allow\":\"constructor\"},\"initialize(address)\":{\"params\":{\"_owner\":\"The owner's address.\"}},\"proxiableUUID()\":{\"details\":\"IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this function revert if invoked through a proxy. This is guaranteed by the if statement.\"},\"setPolicy(uint256,string,string)\":{\"params\":{\"_courtID\":\"The ID of the specified court.\",\"_courtName\":\"The name of the specified court.\",\"_policy\":\"The URI of the policy JSON.\"}},\"upgradeToAndCall(address,bytes)\":{\"details\":\"Reverts if the execution is not performed via delegatecall or the execution context is not of a proxy with an ERC1967-compliant implementation pointing to self.\",\"params\":{\"data\":\"Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.\",\"newImplementation\":\"Address of the new implementation contract.\"}}},\"stateVariables\":{\"version\":{\"return\":\"Version string.\",\"returns\":{\"_0\":\"Version string.\"}}},\"title\":\"PolicyRegistry\",\"version\":1},\"userdoc\":{\"errors\":{\"FailedDelegateCall()\":[{\"notice\":\"Failed Delegated call\"}],\"InvalidImplementation(address)\":[{\"notice\":\"The `implementation` is not UUPS-compliant\"}],\"UUPSUnauthorizedCallContext()\":[{\"notice\":\"The call is from an unauthorized context.\"}],\"UUPSUnsupportedProxiableUUID(bytes32)\":[{\"notice\":\"The storage `slot` is unsupported as a UUID.\"}]},\"events\":{\"PolicyUpdate(uint256,string,string)\":{\"notice\":\"Emitted when a policy is updated.\"},\"Upgraded(address)\":{\"notice\":\"Emitted when the `implementation` has been successfully upgraded.\"}},\"kind\":\"user\",\"methods\":{\"changeOwner(address)\":{\"notice\":\"Changes the `owner` storage variable.\"},\"initialize(address)\":{\"notice\":\"Constructs the `PolicyRegistry` contract.\"},\"proxiableUUID()\":{\"notice\":\"Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the implementation. It is used to validate the implementation's compatibility when performing an upgrade.\"},\"setPolicy(uint256,string,string)\":{\"notice\":\"Sets the policy for the specified court.\"},\"upgradeToAndCall(address,bytes)\":{\"notice\":\"Upgrade mechanism including access control and UUPS-compliance.\"},\"version()\":{\"notice\":\"Returns the version of the implementation.\"}},\"notice\":\"A contract to maintain a policy for each court.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/arbitration/PolicyRegistry.sol\":\"PolicyRegistry\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":850},\"remappings\":[],\"viaIR\":true},\"sources\":{\"src/arbitration/PolicyRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.24;\\n\\nimport {UUPSProxiable} from \\\"../proxy/UUPSProxiable.sol\\\";\\nimport {Initializable} from \\\"../proxy/Initializable.sol\\\";\\n\\n/// @title PolicyRegistry\\n/// @notice A contract to maintain a policy for each court.\\ncontract PolicyRegistry is UUPSProxiable, Initializable {\\n    string public constant override version = \\\"2.0.0\\\";\\n\\n    // ************************************* //\\n    // *              Events               * //\\n    // ************************************* //\\n\\n    /// @notice Emitted when a policy is updated.\\n    /// @param _courtID The ID of the policy's court.\\n    /// @param _courtName The name of the policy's court.\\n    /// @param _policy The URI of the policy JSON.\\n    event PolicyUpdate(uint256 indexed _courtID, string _courtName, string _policy);\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    address public owner;\\n    mapping(uint256 => string) public policies;\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    /// @notice Requires that the sender is the owner.\\n    modifier onlyByOwner() {\\n        if (owner != msg.sender) revert OwnerOnly();\\n        _;\\n    }\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @custom:oz-upgrades-unsafe-allow constructor\\n    constructor() {\\n        _disableInitializers();\\n    }\\n\\n    /// @notice Constructs the `PolicyRegistry` contract.\\n    /// @param _owner The owner's address.\\n    function initialize(address _owner) external initializer {\\n        owner = _owner;\\n    }\\n\\n    // ************************************* //\\n    // *            Governance             * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)\\n     * @dev Only the owner can perform upgrades (`onlyByOwner`)\\n     */\\n    function _authorizeUpgrade(address) internal view override onlyByOwner {\\n        // NOP\\n    }\\n\\n    /// @notice Changes the `owner` storage variable.\\n    /// @param _owner The new value for the `owner` storage variable.\\n    function changeOwner(address _owner) external onlyByOwner {\\n        owner = _owner;\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @notice Sets the policy for the specified court.\\n    /// @param _courtID The ID of the specified court.\\n    /// @param _courtName The name of the specified court.\\n    /// @param _policy The URI of the policy JSON.\\n    function setPolicy(uint256 _courtID, string calldata _courtName, string calldata _policy) external onlyByOwner {\\n        policies[_courtID] = _policy;\\n        emit PolicyUpdate(_courtID, _courtName, policies[_courtID]);\\n    }\\n\\n    // ************************************* //\\n    // *              Errors               * //\\n    // ************************************* //\\n\\n    error OwnerOnly();\\n}\\n\",\"keccak256\":\"0xf0e12e89f6c0cc2326cf95f6a006ee5805b1ed3b63e140d8cc200278f8e4ba1e\",\"license\":\"MIT\"},\"src/proxy/Initializable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol) <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/Initializable.sol>\\n\\npragma solidity ^0.8.24;\\n\\n/**\\n * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed\\n * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an\\n * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer\\n * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.\\n *\\n * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be\\n * reused. This mechanism prevents re-execution of each \\\"step\\\" but allows the creation of new initialization steps in\\n * case an upgrade adds a module that needs to be initialized.\\n *\\n * For example:\\n *\\n * ```solidity\\n * contract MyToken is ERC20Upgradeable {\\n *     function initialize() initializer public {\\n *         __ERC20_init(\\\"MyToken\\\", \\\"MTK\\\");\\n *     }\\n * }\\n *\\n * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {\\n *     function initializeV2() reinitializer(2) public {\\n *         __ERC20Permit_init(\\\"MyToken\\\");\\n *     }\\n * }\\n * ```\\n *\\n * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as\\n * possible by providing the encoded function call as the `_data` argument to the proxy constructor\\n *\\n * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure\\n * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.\\n *\\n * [CAUTION]\\n * ====\\n * Avoid leaving a contract uninitialized.\\n *\\n * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation\\n * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke\\n * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:\\n *\\n * ```\\n * /// @custom:oz-upgrades-unsafe-allow constructor\\n * constructor() {\\n *     _disableInitializers();\\n * }\\n * ```\\n */\\nabstract contract Initializable {\\n    /**\\n     * @dev Storage of the initializable contract.\\n     *\\n     * It's implemented on a custom ERC-7201 namespace to reduce the risk of storage collisions\\n     * when using with upgradeable contracts.\\n     *\\n     * @custom:storage-location erc7201:openzeppelin.storage.Initializable\\n     */\\n    struct InitializableStorage {\\n        /**\\n         * @dev Indicates that the contract has been initialized.\\n         */\\n        uint64 _initialized;\\n        /**\\n         * @dev Indicates that the contract is in the process of being initialized.\\n         */\\n        bool _initializing;\\n    }\\n\\n    // keccak256(abi.encode(uint256(keccak256(\\\"openzeppelin.storage.Initializable\\\")) - 1))\\n    bytes32 private constant _INITIALIZABLE_STORAGE =\\n        0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e;\\n\\n    /**\\n     * @dev The contract is already initialized.\\n     */\\n    error AlreadyInitialized();\\n\\n    /**\\n     * @dev The contract is not initializing.\\n     */\\n    error NotInitializing();\\n\\n    /**\\n     * @dev Triggered when the contract has been initialized or reinitialized.\\n     */\\n    event Initialized(uint64 version);\\n\\n    /**\\n     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,\\n     * `onlyInitializing` functions can be used to initialize parent contracts.\\n     *\\n     * Similar to `initializer()`, except that functions marked with `initializer` can be nested in the context of a\\n     * constructor.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier initializer() {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        bool isTopLevelCall = !$._initializing;\\n        uint64 initialized = $._initialized;\\n        if (!(isTopLevelCall && initialized < 1) && !(address(this).code.length == 0 && initialized == 1)) {\\n            revert AlreadyInitialized();\\n        }\\n        $._initialized = 1;\\n        if (isTopLevelCall) {\\n            $._initializing = true;\\n        }\\n        _;\\n        if (isTopLevelCall) {\\n            $._initializing = false;\\n            emit Initialized(1);\\n        }\\n    }\\n\\n    /**\\n     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the\\n     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be\\n     * used to initialize parent contracts.\\n     *\\n     * A reinitializer may be used after the original initialization step. This is essential to configure modules that\\n     * are added through upgrades and that require initialization.\\n     *\\n     * When `version` is 1, this modifier is similar to `initializer`, except that functions marked with `reinitializer`\\n     * cannot be nested. If one is invoked in the context of another, execution will revert.\\n     *\\n     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in\\n     * a contract, executing them in the right order is up to the developer or operator.\\n     *\\n     * WARNING: setting the version to 255 will prevent any future reinitialization.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier reinitializer(uint64 version) {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing || $._initialized >= version) {\\n            revert AlreadyInitialized();\\n        }\\n        $._initialized = version;\\n        $._initializing = true;\\n        _;\\n        $._initializing = false;\\n        emit Initialized(version);\\n    }\\n\\n    /**\\n     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the\\n     * {initializer} and {reinitializer} modifiers, directly or indirectly.\\n     */\\n    modifier onlyInitializing() {\\n        _checkInitializing();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.\\n     */\\n    function _checkInitializing() internal view virtual {\\n        if (!_isInitializing()) {\\n            revert NotInitializing();\\n        }\\n    }\\n\\n    /**\\n     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.\\n     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized\\n     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called\\n     * through proxies.\\n     *\\n     * Emits an {Initialized} event the first time it is successfully executed.\\n     */\\n    function _disableInitializers() internal virtual {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing) {\\n            revert AlreadyInitialized();\\n        }\\n        if ($._initialized != type(uint64).max) {\\n            $._initialized = type(uint64).max;\\n            emit Initialized(type(uint64).max);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the highest version that has been initialized. See {reinitializer}.\\n     */\\n    function _getInitializedVersion() internal view returns (uint64) {\\n        return _getInitializableStorage()._initialized;\\n    }\\n\\n    /**\\n     * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.\\n     */\\n    function _isInitializing() internal view returns (bool) {\\n        return _getInitializableStorage()._initializing;\\n    }\\n\\n    /**\\n     * @dev Returns a pointer to the storage namespace.\\n     */\\n    // solhint-disable-next-line var-name-mixedcase\\n    function _getInitializableStorage() private pure returns (InitializableStorage storage $) {\\n        assembly {\\n            $.slot := _INITIALIZABLE_STORAGE\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xdad09e5f773fa6940dbd8c28480f602a7eaa3c70d3da9d06df140187cbf5dad4\",\"license\":\"MIT\"},\"src/proxy/UUPSProxiable.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.24;\\n\\n/// @title UUPS Proxiable\\n/// @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n/// @notice This contract implements an upgradeability mechanism designed for UUPS proxies.\\n///\\n/// @dev Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/UUPSUpgradeable.sol>\\n/// The functions included here can perform an upgrade of an UUPS Proxy, when this contract is set as the implementation behind such a proxy.\\n///\\n/// IMPORTANT: A UUPS proxy requires its upgradeability functions to be in the implementation as opposed to the transparent proxy.\\n/// This means that if the proxy is upgraded to an implementation that does not support this interface, it will no longer be upgradeable.\\n///\\n/// A security mechanism ensures that an upgrade does not turn off upgradeability accidentally, although this risk is\\n/// reinstated if the upgrade retains upgradeability but removes the security mechanism, e.g. by replacing\\n/// `UUPSProxiable` with a custom implementation of upgrades.\\n///\\n/// The `_authorizeUpgrade` function must be overridden to include access restriction to the upgrade mechanism.\\nabstract contract UUPSProxiable {\\n    // ************************************* //\\n    // *             Event                 * //\\n    // ************************************* //\\n\\n    /// @notice Emitted when the `implementation` has been successfully upgraded.\\n    /// @param newImplementation Address of the new implementation the proxy is now forwarding calls to.\\n    event Upgraded(address indexed newImplementation);\\n\\n    // ************************************* //\\n    // *             Error                 * //\\n    // ************************************* //\\n\\n    /// @notice The call is from an unauthorized context.\\n    error UUPSUnauthorizedCallContext();\\n\\n    /// @notice The storage `slot` is unsupported as a UUID.\\n    error UUPSUnsupportedProxiableUUID(bytes32 slot);\\n\\n    /// @notice The `implementation` is not UUPS-compliant\\n    error InvalidImplementation(address implementation);\\n\\n    /// Failed Delegated call\\n    error FailedDelegateCall();\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    /// @dev Storage slot with the address of the current implementation.\\n    /// @dev This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n    /// @dev validated in the constructor.\\n    /// @dev NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    /// @dev Storage variable of the proxiable contract address.\\n    /// @dev It is used to check whether or not the current call is from the proxy.\\n    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable\\n    address private immutable __self = address(this);\\n\\n    // ************************************* //\\n    // *             Governance            * //\\n    // ************************************* //\\n\\n    /// @dev Function that should revert when `msg.sender` is not authorized to upgrade the contract.\\n    /// @dev Called by {upgradeToAndCall}.\\n    function _authorizeUpgrade(address newImplementation) internal virtual;\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @notice Upgrade mechanism including access control and UUPS-compliance.\\n    /// @param newImplementation Address of the new implementation contract.\\n    /// @param data Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded\\n    /// function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n    /// @dev Reverts if the execution is not performed via delegatecall or the execution\\n    /// context is not of a proxy with an ERC1967-compliant implementation pointing to self.\\n    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual {\\n        _authorizeUpgrade(newImplementation);\\n\\n        // Check that the execution is being performed through a delegatecall call and that the execution context is\\n        // a proxy contract with an implementation (as defined in ERC1967) pointing to self.\\n        if (address(this) == __self || _getImplementation() != __self) {\\n            revert UUPSUnauthorizedCallContext();\\n        }\\n\\n        try UUPSProxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {\\n            if (slot != IMPLEMENTATION_SLOT) {\\n                revert UUPSUnsupportedProxiableUUID(slot);\\n            }\\n            // Store the new implementation address to the implementation storage slot.\\n            assembly {\\n                sstore(IMPLEMENTATION_SLOT, newImplementation)\\n            }\\n            emit Upgraded(newImplementation);\\n\\n            if (data.length != 0) {\\n                // The return data is not checked (checking, in case of success, that the newImplementation code is non-empty if the return data is empty) because the authorized callee is trusted.\\n                /// @custom:oz-upgrades-unsafe-allow delegatecall\\n                (bool success, ) = newImplementation.delegatecall(data);\\n                if (!success) {\\n                    revert FailedDelegateCall();\\n                }\\n            }\\n        } catch {\\n            revert InvalidImplementation(newImplementation);\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /// @notice Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the\\n    /// implementation. It is used to validate the implementation's compatibility when performing an upgrade.\\n    ///\\n    /// @dev IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks\\n    /// bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this\\n    /// function revert if invoked through a proxy. This is guaranteed by the if statement.\\n    function proxiableUUID() external view virtual returns (bytes32) {\\n        if (address(this) != __self) {\\n            // Must not be called through delegatecall\\n            revert UUPSUnauthorizedCallContext();\\n        }\\n        return IMPLEMENTATION_SLOT;\\n    }\\n\\n    /// @notice Returns the version of the implementation.\\n    /// @return Version string.\\n    function version() external view virtual returns (string memory);\\n\\n    // ************************************* //\\n    // *           Internal Views          * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xa369061748e8a7b02873d597d4c78a2a09328111f04a97428b1c209e82cf5414\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a080604052346100c157306080525f516020610bce5f395f51905f525460ff8160401c166100b3576002600160401b03196001600160401b03821601610060575b604051610b0890816100c682396080518181816106d801526107dc0152f35b6001600160401b0319166001600160401b039081175f516020610bce5f395f51905f525581527fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d290602090a15f80610041565b62dc149f60e41b5f5260045ffd5b5f80fdfe60806040526004361015610011575f80fd5b5f3560e01c80634f1ef2861461075057806352d1902d146106be57806354fd4d50146106675780638da5cb5b14610642578063a6f9dae1146105ed578063bdf73780146102fe578063c4d66de8146101455763d3e8948314610071575f80fd5b34610141576020366003190112610141576004355f52600160205260405f20604051905f908054906100a282610a9a565b808552916001811690811561011a57506001146100da575b6100d6846100ca81860382610a04565b60405191829182610a42565b0390f35b5f90815260208120939250905b808210610100575090915081016020016100ca826100ba565b9192600181602092548385880101520191019092916100e7565b60ff191660208087019190915292151560051b850190920192506100ca91508390506100ba565b5f80fd5b346101415760203660031901126101415761015e6109ee565b7ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e5460ff8160401c16159167ffffffffffffffff821683806102f4575b1590816102d6575b506102c85767ffffffffffffffff1982166001177ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e556001600160a01b039183610289575b501673ffffffffffffffffffffffffffffffffffffffff195f5416175f5561020c57005b68ff0000000000000000197ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e54167ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e557fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2602060405160018152a1005b68ffffffffffffffffff191668010000000000000001177ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e55836101e8565b62dc149f60e41b5f5260045ffd5b303b159150816102e9575b5015846101a3565b6001915014846102e1565b506001811061019b565b346101415760603660031901126101415760043560243567ffffffffffffffff811161014157610332903690600401610a6c565b60443567ffffffffffffffff811161014157610352903690600401610a6c565b6001600160a01b035f541633036105c557845f52600160205260405f209167ffffffffffffffff82116105b157819061038b8454610a9a565b601f8111610561575b505f90601f83116001146104fa575f926104ef575b50508160011b915f199060031b1c19161790555b825f52600160205260405f209080604051936040855281604086015260608501375f60608285010152601f801991011682019060608383030160208401525f9181549161040983610a9a565b928360608401526001811690815f146104a8575060011461044e575b857f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a486860387a2005b909192505f5260205f20915f925b81841061049157505001608001817f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a485610425565b80548484016080015260209093019260010161045c565b60ff191660808085019190915293151560051b90920190920192508391507f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a4905085610425565b0135905086806103a9565b909150601f19831691845f5260205f20925f5b8181106105495750908460019594939210610530575b505050811b0190556103bd565b01355f19600384901b60f8161c19169055868080610523565b9193602060018192878701358155019501920161050d565b909150835f5260205f20601f840160051c810191602085106105a7575b90601f859493920160051c01905b8181106105995750610394565b5f815584935060010161058c565b909150819061057e565b634e487b7160e01b5f52604160045260245ffd5b7f596dcdb8000000000000000000000000000000000000000000000000000000005f5260045ffd5b34610141576020366003190112610141576106066109ee565b5f5490336001600160a01b038316036105c5576001600160a01b0373ffffffffffffffffffffffffffffffffffffffff1991169116175f555f80f35b34610141575f3660031901126101415760206001600160a01b035f5416604051908152f35b34610141575f366003190112610141576100d6604051610688604082610a04565b600581527f322e302e30000000000000000000000000000000000000000000000000000000602082015260405191829182610a42565b34610141575f366003190112610141576001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001630036107285760206040517f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc8152f35b7fe07c8dba000000000000000000000000000000000000000000000000000000005f5260045ffd5b6040366003190112610141576107646109ee565b60243567ffffffffffffffff811161014157366023820112156101415780600401359161079083610a26565b9261079e6040519485610a04565b8084526020840192366024838301011161014157815f926024602093018637850101526001600160a01b035f541633036105c5576001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000168030149081156109b9575b50610728576001600160a01b038116926040517f52d1902d000000000000000000000000000000000000000000000000000000008152602081600481885afa5f9181610985575b5061087f57847f0c760937000000000000000000000000000000000000000000000000000000005f5260045260245ffd5b807f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc86920361095a5750827f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc557fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b5f80a251806108f857005b5f9283925af43d15610955573d61090e81610a26565b9061091c6040519283610a04565b81525f60203d92013e5b1561092d57005b7f736436ba000000000000000000000000000000000000000000000000000000005f5260045ffd5b610926565b7faa1d49a4000000000000000000000000000000000000000000000000000000005f5260045260245ffd5b9091506020813d6020116109b1575b816109a160209383610a04565b810103126101415751908661084e565b3d9150610994565b90506001600160a01b037f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5416141584610807565b600435906001600160a01b038216820361014157565b90601f8019910116810190811067ffffffffffffffff8211176105b157604052565b67ffffffffffffffff81116105b157601f01601f191660200190565b602060409281835280519182918282860152018484015e5f828201840152601f01601f1916010190565b9181601f840112156101415782359167ffffffffffffffff8311610141576020838186019501011161014157565b90600182811c92168015610ac8575b6020831014610ab457565b634e487b7160e01b5f52602260045260245ffd5b91607f1691610aa956fea264697066735822122080398cb30213dd43fa3d82633a796e686ef7cc4c08d27571fb261d0bb945a48e64736f6c634300081e0033f0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e",
+  "deployedBytecode": "0x60806040526004361015610011575f80fd5b5f3560e01c80634f1ef2861461075057806352d1902d146106be57806354fd4d50146106675780638da5cb5b14610642578063a6f9dae1146105ed578063bdf73780146102fe578063c4d66de8146101455763d3e8948314610071575f80fd5b34610141576020366003190112610141576004355f52600160205260405f20604051905f908054906100a282610a9a565b808552916001811690811561011a57506001146100da575b6100d6846100ca81860382610a04565b60405191829182610a42565b0390f35b5f90815260208120939250905b808210610100575090915081016020016100ca826100ba565b9192600181602092548385880101520191019092916100e7565b60ff191660208087019190915292151560051b850190920192506100ca91508390506100ba565b5f80fd5b346101415760203660031901126101415761015e6109ee565b7ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e5460ff8160401c16159167ffffffffffffffff821683806102f4575b1590816102d6575b506102c85767ffffffffffffffff1982166001177ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e556001600160a01b039183610289575b501673ffffffffffffffffffffffffffffffffffffffff195f5416175f5561020c57005b68ff0000000000000000197ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e54167ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e557fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2602060405160018152a1005b68ffffffffffffffffff191668010000000000000001177ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e55836101e8565b62dc149f60e41b5f5260045ffd5b303b159150816102e9575b5015846101a3565b6001915014846102e1565b506001811061019b565b346101415760603660031901126101415760043560243567ffffffffffffffff811161014157610332903690600401610a6c565b60443567ffffffffffffffff811161014157610352903690600401610a6c565b6001600160a01b035f541633036105c557845f52600160205260405f209167ffffffffffffffff82116105b157819061038b8454610a9a565b601f8111610561575b505f90601f83116001146104fa575f926104ef575b50508160011b915f199060031b1c19161790555b825f52600160205260405f209080604051936040855281604086015260608501375f60608285010152601f801991011682019060608383030160208401525f9181549161040983610a9a565b928360608401526001811690815f146104a8575060011461044e575b857f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a486860387a2005b909192505f5260205f20915f925b81841061049157505001608001817f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a485610425565b80548484016080015260209093019260010161045c565b60ff191660808085019190915293151560051b90920190920192508391507f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a4905085610425565b0135905086806103a9565b909150601f19831691845f5260205f20925f5b8181106105495750908460019594939210610530575b505050811b0190556103bd565b01355f19600384901b60f8161c19169055868080610523565b9193602060018192878701358155019501920161050d565b909150835f5260205f20601f840160051c810191602085106105a7575b90601f859493920160051c01905b8181106105995750610394565b5f815584935060010161058c565b909150819061057e565b634e487b7160e01b5f52604160045260245ffd5b7f596dcdb8000000000000000000000000000000000000000000000000000000005f5260045ffd5b34610141576020366003190112610141576106066109ee565b5f5490336001600160a01b038316036105c5576001600160a01b0373ffffffffffffffffffffffffffffffffffffffff1991169116175f555f80f35b34610141575f3660031901126101415760206001600160a01b035f5416604051908152f35b34610141575f366003190112610141576100d6604051610688604082610a04565b600581527f322e302e30000000000000000000000000000000000000000000000000000000602082015260405191829182610a42565b34610141575f366003190112610141576001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001630036107285760206040517f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc8152f35b7fe07c8dba000000000000000000000000000000000000000000000000000000005f5260045ffd5b6040366003190112610141576107646109ee565b60243567ffffffffffffffff811161014157366023820112156101415780600401359161079083610a26565b9261079e6040519485610a04565b8084526020840192366024838301011161014157815f926024602093018637850101526001600160a01b035f541633036105c5576001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000168030149081156109b9575b50610728576001600160a01b038116926040517f52d1902d000000000000000000000000000000000000000000000000000000008152602081600481885afa5f9181610985575b5061087f57847f0c760937000000000000000000000000000000000000000000000000000000005f5260045260245ffd5b807f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc86920361095a5750827f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc557fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b5f80a251806108f857005b5f9283925af43d15610955573d61090e81610a26565b9061091c6040519283610a04565b81525f60203d92013e5b1561092d57005b7f736436ba000000000000000000000000000000000000000000000000000000005f5260045ffd5b610926565b7faa1d49a4000000000000000000000000000000000000000000000000000000005f5260045260245ffd5b9091506020813d6020116109b1575b816109a160209383610a04565b810103126101415751908661084e565b3d9150610994565b90506001600160a01b037f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5416141584610807565b600435906001600160a01b038216820361014157565b90601f8019910116810190811067ffffffffffffffff8211176105b157604052565b67ffffffffffffffff81116105b157601f01601f191660200190565b602060409281835280519182918282860152018484015e5f828201840152601f01601f1916010190565b9181601f840112156101415782359167ffffffffffffffff8311610141576020838186019501011161014157565b90600182811c92168015610ac8575b6020831014610ab457565b634e487b7160e01b5f52602260045260245ffd5b91607f1691610aa956fea264697066735822122080398cb30213dd43fa3d82633a796e686ef7cc4c08d27571fb261d0bb945a48e64736f6c634300081e0033",
+  "devdoc": {
+    "errors": {
+      "AlreadyInitialized()": [
+        {
+          "details": "The contract is already initialized."
+        }
+      ],
+      "NotInitializing()": [
+        {
+          "details": "The contract is not initializing."
+        }
+      ]
+    },
+    "events": {
+      "Initialized(uint64)": {
+        "details": "Triggered when the contract has been initialized or reinitialized."
+      },
+      "PolicyUpdate(uint256,string,string)": {
+        "params": {
+          "_courtID": "The ID of the policy's court.",
+          "_courtName": "The name of the policy's court.",
+          "_policy": "The URI of the policy JSON."
+        }
+      },
+      "Upgraded(address)": {
+        "params": {
+          "newImplementation": "Address of the new implementation the proxy is now forwarding calls to."
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "changeOwner(address)": {
+        "params": {
+          "_owner": "The new value for the `owner` storage variable."
+        }
+      },
+      "constructor": {
+        "custom:oz-upgrades-unsafe-allow": "constructor"
+      },
+      "initialize(address)": {
+        "params": {
+          "_owner": "The owner's address."
+        }
+      },
+      "proxiableUUID()": {
+        "details": "IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this function revert if invoked through a proxy. This is guaranteed by the if statement."
+      },
+      "setPolicy(uint256,string,string)": {
+        "params": {
+          "_courtID": "The ID of the specified court.",
+          "_courtName": "The name of the specified court.",
+          "_policy": "The URI of the policy JSON."
+        }
+      },
+      "upgradeToAndCall(address,bytes)": {
+        "details": "Reverts if the execution is not performed via delegatecall or the execution context is not of a proxy with an ERC1967-compliant implementation pointing to self.",
+        "params": {
+          "data": "Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.",
+          "newImplementation": "Address of the new implementation contract."
+        }
+      }
+    },
+    "stateVariables": {
+      "version": {
+        "return": "Version string.",
+        "returns": {
+          "_0": "Version string."
+        }
+      }
+    },
+    "title": "PolicyRegistry",
+    "version": 1
+  },
+  "userdoc": {
+    "errors": {
+      "FailedDelegateCall()": [
+        {
+          "notice": "Failed Delegated call"
+        }
+      ],
+      "InvalidImplementation(address)": [
+        {
+          "notice": "The `implementation` is not UUPS-compliant"
+        }
+      ],
+      "UUPSUnauthorizedCallContext()": [
+        {
+          "notice": "The call is from an unauthorized context."
+        }
+      ],
+      "UUPSUnsupportedProxiableUUID(bytes32)": [
+        {
+          "notice": "The storage `slot` is unsupported as a UUID."
+        }
+      ]
+    },
+    "events": {
+      "PolicyUpdate(uint256,string,string)": {
+        "notice": "Emitted when a policy is updated."
+      },
+      "Upgraded(address)": {
+        "notice": "Emitted when the `implementation` has been successfully upgraded."
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "changeOwner(address)": {
+        "notice": "Changes the `owner` storage variable."
+      },
+      "initialize(address)": {
+        "notice": "Constructs the `PolicyRegistry` contract."
+      },
+      "proxiableUUID()": {
+        "notice": "Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the implementation. It is used to validate the implementation's compatibility when performing an upgrade."
+      },
+      "setPolicy(uint256,string,string)": {
+        "notice": "Sets the policy for the specified court."
+      },
+      "upgradeToAndCall(address,bytes)": {
+        "notice": "Upgrade mechanism including access control and UUPS-compliance."
+      },
+      "version()": {
+        "notice": "Returns the version of the implementation."
+      }
+    },
+    "notice": "A contract to maintain a policy for each court.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 16421,
+        "contract": "src/arbitration/PolicyRegistry.sol:PolicyRegistry",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 16425,
+        "contract": "src/arbitration/PolicyRegistry.sol:PolicyRegistry",
+        "label": "policies",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_uint256,t_string_storage)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_uint256,t_string_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => string)",
+        "numberOfBytes": "32",
+        "value": "t_string_storage"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
