@@ -43,8 +43,7 @@ library SortitionTrees {
 
     /// @notice Draw an ID from a tree using a number.
     ///
-    /// @dev This function reverts if the sum of all values in the tree is 0.
-    /// `O(k * log_k(n))` where
+    /// @dev `O(k * log_k(n))` where
     /// `k` is the maximum number of children per node in the tree,
     ///  and `n` is the maximum number of nodes ever appended.
     ///

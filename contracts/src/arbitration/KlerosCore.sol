@@ -1266,14 +1266,14 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             newDisputeKitID >= disputeKits.length ||
             newRoundNbVotes == 0
         ) {
-            // Falling back to the current court and dispute kit with default nbVotes.
+            // Falling back to the current court and dispute kit with default nbVotes increase.
             newCourtID = _dispute.courtID;
             newDisputeKitID = disputeKitID;
             newRoundNbVotes = (_round.nbVotes * 2) + 1;
         }
         // Ensure compatibility between the next round's court and dispute kit.
         if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
-            // Falling back to `DisputeKitClassic` which is always supported and with default nbVotes.
+            // Falling back to `DisputeKitClassic` which is always supported and with default nbVotes increase.
             newDisputeKitID = DISPUTE_KIT_CLASSIC;
             newRoundNbVotes = (_round.nbVotes * 2) + 1;
         }

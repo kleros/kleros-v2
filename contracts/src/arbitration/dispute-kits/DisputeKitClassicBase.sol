@@ -302,6 +302,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ) internal isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.commit) revert NotCommitPeriod();
+        if (_voteIDs.length == 0) revert EmptyVoteIDs();
         if (_commit == bytes32(0)) revert EmptyCommit();
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
