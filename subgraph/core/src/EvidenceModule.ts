@@ -7,7 +7,10 @@ import { ONE } from "./utils";
 import { JSONValueToMaybeString } from "../../utils";
 
 export function handleEvidenceEvent(event: EvidenceEvent): void {
-  const evidenceGroupID = event.params._externalDisputeID.toString();
+  // TODO: handle the replacement of _externalDisputeID with _arbitratorDisputeID
+  // TODO: no more evidenceGroupID
+  const evidenceGroupID = event.params._arbitratorDisputeID.toString();
+
   const evidenceGroup = ensureClassicEvidenceGroup(evidenceGroupID);
   const evidenceIndex = evidenceGroup.nextEvidenceIndex;
   evidenceGroup.nextEvidenceIndex = evidenceGroup.nextEvidenceIndex.plus(ONE);

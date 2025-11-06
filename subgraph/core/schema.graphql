@@ -74,7 +74,7 @@ type User @entity {
   tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
   totalStake: BigInt!
   totalDelayed: BigInt!
-  shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
+  shifts: [JurorRewardPenalty!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
   activeDisputes: BigInt!
   rounds: [Round!]!
@@ -99,7 +99,8 @@ type Penalty @entity {
   juror: User!
   amount: BigInt!
   numberDraws: BigInt!
-  degreeOfCoherency: BigInt!
+  degreeOfCoherencyPnk: BigInt!
+  degreeOfCoherencyFee: BigInt!
 }
 
 type Arbitrable @entity {
@@ -108,7 +109,7 @@ type Arbitrable @entity {
   totalDisputes: BigInt!
 }
 
-type TokenAndETHShift @entity {
+type JurorRewardPenalty @entity {
   id: ID! # user.id-dispute.id
   juror: User!
   dispute: Dispute!
@@ -178,7 +179,7 @@ type Dispute @entity {
   currentRound: Round!
   currentRoundIndex: BigInt!
   jurors: [User!]! @derivedFrom(field: "disputes")
-  shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
+  shifts: [JurorRewardPenalty!]! @derivedFrom(field: "dispute")
   disputeKitDispute: [DisputeKitDispute!]! @derivedFrom(field: "coreDispute")
   isCrossChain: Boolean
   arbitrableChainId:BigInt
@@ -260,7 +261,7 @@ type FeeToken @entity {
   totalPaid: BigInt!
   totalPaidInETH: BigInt!
   rounds: [Round!] @derivedFrom(field: "feeToken")
-  tokenAndETHShift: [TokenAndETHShift!] @derivedFrom(field: "feeToken")
+  jurorRewardPenalty: [JurorRewardPenalty!] @derivedFrom(field: "feeToken")
 }
 
 #####################

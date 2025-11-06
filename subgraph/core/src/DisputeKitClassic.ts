@@ -181,7 +181,9 @@ export function handleWithdrawal(event: Withdrawal): void {
 
   // check if all appeal fees have been withdrawn
   const coreDisputeID = event.params._coreDisputeID.toString();
-  const coreRoundIndex = event.params._coreRoundID.toString();
+
+  // TODO: handle the removal of _coreRoundID from the event
+  const coreRoundIndex = 0; // event.params._coreRoundID.toString();
 
   const coreDispute = Dispute.load(coreDisputeID);
   if (!coreDispute) return;
