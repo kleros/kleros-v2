@@ -1,6 +1,6 @@
 import hre from "hardhat";
 import { getBytes } from "ethers";
-import { DisputeKitGatedShutter, DisputeKitShutter, SortitionModule, SortitionModuleNeo } from "../typechain-types";
+import { DisputeKitGatedShutter, DisputeKitShutter } from "../typechain-types";
 import { decrypt } from "./shutter";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
@@ -312,8 +312,7 @@ const getContracts = async () => {
   if (coreType === Cores.UNIVERSITY) {
     throw new Error("University is not supported yet");
   }
-  const contracts = await getContractsForCoreType(hre, coreType);
-  return { ...contracts, sortition: contracts.sortition as SortitionModule | SortitionModuleNeo };
+  return await getContractsForCoreType(hre, coreType);
 };
 
 async function main() {

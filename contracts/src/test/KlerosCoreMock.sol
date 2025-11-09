@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import "../arbitration/KlerosCore.sol";
+import {KlerosCore} from "../arbitration/KlerosCore.sol";
 
 /// @title KlerosCoreMock
 /// KlerosCore with view functions to use in Foundry tests.

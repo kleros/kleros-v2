@@ -19,6 +19,7 @@ import {
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
+  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
@@ -39,13 +40,13 @@ import {
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
 } from "./testnet.viem";
 import {
-  klerosCoreNeoConfig as mainnetCoreConfig,
-  sortitionModuleNeoConfig as mainnetSortitionConfig,
-  disputeKitClassicNeoConfig as mainnetDkClassicConfig,
-  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
-  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
-  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
-  disputeResolverNeoConfig as mainnetDrConfig,
+  klerosCoreConfig as mainnetCoreConfig,
+  sortitionModuleConfig as mainnetSortitionConfig,
+  disputeKitClassicConfig as mainnetDkClassicConfig,
+  disputeKitShutterConfig as mainnetDkShutterConfig,
+  disputeKitGatedConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterConfig as mainnetDkGatedShutterConfig,
+  disputeResolverConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
   policyRegistryConfig as mainnetPolicyRegistryConfig,
@@ -172,7 +173,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         sortition: getContractConfig({ config: devnetSortitionUniversityConfig, chainId }),
         disputeKitClassic: getContractConfig({ config: devnetDkClassicUniversityConfig, chainId }),
         disputeResolver: getContractConfig({ config: devnetDrUniversityConfig, chainId }),
-        disputeTemplateRegistry: getContractConfig({ config: devnetDtrConfig, chainId }), // FIXME: should not be shared with devnet
+        disputeTemplateRegistry: getContractConfig({ config: devnetDtrUniversityConfig, chainId }),
         evidence: getContractConfig({ config: devnetEvidenceConfig, chainId }), // Not arbitrator specific
         policyRegistry: getContractConfig({ config: devnetPolicyRegistryConfig, chainId }), // Not arbitrator specific
         transactionBatcher: getContractConfig({ config: devnetBatcherConfig, chainId }), // Not arbitrator specific
@@ -203,7 +204,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         },
       });
 
-    case "mainnetNeo":
+    case "mainnet":
       return getCommonConfigs({
         chainId,
         configs: {

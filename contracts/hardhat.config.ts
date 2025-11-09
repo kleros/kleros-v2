@@ -15,7 +15,7 @@ import "hardhat-contract-sizer";
 import "hardhat-tracer";
 require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
-require("./scripts/changeGovernor");
+require("./scripts/changeOwner");
 require("./scripts/getDisputeTemplate");
 require("./scripts/compareStorageLayout");
 require("./scripts/storage-layout");
@@ -28,10 +28,11 @@ const config: HardhatUserConfig = {
       {
         version: "0.8.30",
         settings: {
+          evmVersion: "cancun",
           viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 10000,
+            runs: 1000, // Constrained by the size of the KlerosCore contract
           },
           outputSelection: {
             "*": {

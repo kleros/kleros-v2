@@ -24,6 +24,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
+  const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistryUniversity", {
+    from: deployer,
+    contract: "DisputeTemplateRegistry",
+    args: [deployer],
+    log: true,
+  });
+
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
     contract: "DisputeKitClassic",
@@ -50,7 +57,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const klerosCore = await deployUpgradable(deployments, "KlerosCoreUniversity", {
     from: deployer,
     args: [
-      deployer, // governor
+      deployer, // owner
       deployer, // instructor
       pnk.target,
       ZeroAddress, // KlerosCore is configured later
@@ -80,16 +87,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.error("Failed to change currency rates for token, with error:", e);
   }
 
-  const disputeTemplateRegistry = await getContractOrDeployUpgradable(hre, "DisputeTemplateRegistry", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-
   await deploy("DisputeResolverUniversity", {
     from: deployer,
     contract: "DisputeResolver",
-    args: [core.target, disputeTemplateRegistry.target],
+    args: [core.target, disputeTemplateRegistry.address],
     log: true,
   });
 };

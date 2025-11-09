@@ -2,23 +2,25 @@
 
 pragma solidity ^0.8.24;
 
-import {DisputeKitClassicBase, KlerosCore} from "./DisputeKitClassicBase.sol";
+import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
+import {KlerosCore} from "../KlerosCore.sol";
 
 interface IProofOfHumanity {
-    /// @dev Return true if the submission is registered and not expired.
-    /// @param _submissionID The address of the submission.
-    /// @return Whether the submission is registered or not.
-    function isRegistered(address _submissionID) external view returns (bool);
+    /// @notice Check whether the account corresponds to a claimed humanity.
+    /// @dev From https://github.com/Proof-Of-Humanity/proof-of-humanity-v2-contracts/blob/a331e7b6bb0f7a7ad9a905d41032cecc52bf06a6/contracts/ProofOfHumanity.sol#L1495-L1502
+    /// @param _account The account address.
+    /// @return Whether the account has a valid humanity.
+    function isHuman(address _account) external view returns (bool);
 }
 
 /// @title DisputeKitSybilResistant
-/// Dispute kit implementation adapted from DisputeKitClassic
+/// @notice Dispute kit implementation adapted from DisputeKitClassic
 /// - a drawing system: at most 1 vote per juror registered on Proof of Humanity,
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitSybilResistant is DisputeKitClassicBase {
-    string public constant override version = "0.12.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
@@ -35,18 +37,18 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
         _disableInitializers();
     }
 
-    /// @dev Initializer.
-    /// @param _governor The governor's address.
+    /// @notice Initializer.
+    /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _poh The Proof of Humanity registry.
     /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(
-        address _governor,
+        address _owner,
         KlerosCore _core,
         IProofOfHumanity _poh,
         address _wNative
-    ) external reinitializer(1) {
-        __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
+    ) external initializer {
+        __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
         poh = _poh;
         singleDrawPerJuror = true;
     }
@@ -56,8 +58,8 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     // ************************ //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
@@ -69,8 +71,9 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,
-        address _juror
+        address _juror,
+        uint256 _roundNbVotes
     ) internal view override returns (bool) {
-        return super._postDrawCheck(_round, _coreDisputeID, _juror) && poh.isRegistered(_juror);
+        return super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes) && poh.isHuman(_juror);
     }
 }

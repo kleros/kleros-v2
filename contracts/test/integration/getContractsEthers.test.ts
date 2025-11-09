@@ -4,10 +4,8 @@ import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { getContracts } from "../../deployments/contractsEthers";
 import {
   KlerosCore__factory,
-  KlerosCoreNeo__factory,
   KlerosCoreUniversity__factory,
   SortitionModule__factory,
-  SortitionModuleNeo__factory,
   SortitionModuleUniversity__factory,
   DisputeKitClassic__factory,
   DisputeResolver__factory,
@@ -88,7 +86,7 @@ const universityContractMapping: ContractMapping = {
   disputeKitGated: { name: "DisputeKitGatedUniversity", optional: true },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutterUniversity", optional: true },
   disputeResolver: { name: "DisputeResolverUniversity" },
-  disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
+  disputeTemplateRegistry: { name: "DisputeTemplateRegistryUniversity" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
@@ -99,14 +97,14 @@ const universityContractMapping: ContractMapping = {
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
 
-const neoContractMapping: ContractMapping = {
-  klerosCore: { name: "KlerosCoreNeo" },
-  sortition: { name: "SortitionModuleNeo" },
-  disputeKitClassic: { name: "DisputeKitClassicNeo" },
-  disputeKitShutter: { name: "DisputeKitShutterNeo" },
-  disputeKitGated: { name: "DisputeKitGatedNeo" },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo" },
-  disputeResolver: { name: "DisputeResolverNeo" },
+const mainnetContractMapping: ContractMapping = {
+  klerosCore: { name: "KlerosCore" },
+  sortition: { name: "SortitionModule" },
+  disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
@@ -291,16 +289,16 @@ describe("getContractsEthers", async () => {
     await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
-  it("should return correct contract instances for mainnetNeo", async () => {
-    const contracts = await getContracts(arbitrumProvider, "mainnetNeo");
+  it("should return correct contract instances for mainnet", async () => {
+    const contracts = await getContracts(arbitrumProvider, "mainnet");
 
     // Verify chain ID
     const network = await arbitrumProvider.getNetwork();
     expect(network.chainId).to.equal(arbitrum.id);
 
     // Verify contract instances
-    expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCoreNeo__factory, arbitrumProvider));
-    expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModuleNeo__factory, arbitrumProvider));
+    expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumProvider));
+    expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumProvider));
     verifyCommonContractInstances(contracts, arbitrumProvider);
     expect(contracts.disputeKitShutter).to.not.be.null;
     expect(contracts.disputeKitGated).to.not.be.null;
@@ -310,7 +308,7 @@ describe("getContractsEthers", async () => {
 
     // Verify all contract addresses
     await verifyAllContractAddresses(contracts);
-    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, neoContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, mainnetContractMapping);
   });
 
   it("should throw error for unsupported deployment", async () => {

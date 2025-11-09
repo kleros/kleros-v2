@@ -46,7 +46,7 @@ describe("Upgradability", async () => {
     });
 
     describe("Initialization", async () => {
-      it("Governor cannot re-initialize the proxy", async () => {
+      it("Owner cannot re-initialize the proxy", async () => {
         await expect(proxy.connect(deployer).initialize(deployer.address)).to.be.revertedWith(
           "Contract instance has already been initialized"
         );
@@ -79,7 +79,7 @@ describe("Upgradability", async () => {
             .withArgs(nonUpgradeableMock.target);
         });
         it("Should revert if upgrade is performed directly through the implementation", async () => {
-          // In the implementation, the `governor` storage slot is not initialized so `governor === address(0)`, which fails _authorizeUpgrade()
+          // In the implementation, the `owner` storage slot is not initialized so `owner === address(0)`, which fails _authorizeUpgrade()
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
           const newImplementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
           await expect(
@@ -89,7 +89,7 @@ describe("Upgradability", async () => {
       });
 
       describe("Authentication", async () => {
-        it("Only the governor (deployer here) can perform upgrades", async () => {
+        it("Only the owner (deployer here) can perform upgrades", async () => {
           // Unauthorized user try to upgrade the implementation
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
           let upgradable = await UUPSUpgradeableMockV2Factory.connect(user1).deploy();
@@ -97,7 +97,7 @@ describe("Upgradability", async () => {
             "No privilege to upgrade"
           );
 
-          // Governor updates the implementation
+          // Owner updates the implementation
           upgradable = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
           await expect(proxy.connect(deployer).upgradeToAndCall(upgradable.target, "0x"))
             .to.emit(proxy, "Upgraded")
@@ -134,7 +134,7 @@ describe("Upgradability", async () => {
 
       implementation = await ethers.getContract<UpgradedByRewriteV1>("UpgradedByRewrite_Implementation");
 
-      expect(await proxy.governor()).to.equal(deployer.address);
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(1);
       await proxy.increment();
@@ -157,7 +157,7 @@ describe("Upgradability", async () => {
         throw new Error("No implementation address");
       }
       proxy = await ethers.getContract<UpgradedByRewriteV2>("UpgradedByRewrite");
-      expect(await proxy.governor()).to.equal(deployer.address);
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(3);
       await proxy.increment();
@@ -188,7 +188,7 @@ describe("Upgradability", async () => {
 
       implementation = await ethers.getContract<UpgradedByInheritanceV1>("UpgradedByInheritanceV1_Implementation");
 
-      expect(await proxy.governor()).to.equal(deployer.address);
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(1);
       await proxy.increment();
@@ -211,7 +211,7 @@ describe("Upgradability", async () => {
 
       proxy = await ethers.getContract<UpgradedByInheritanceV2>("UpgradedByInheritanceV1");
 
-      expect(await proxy.governor()).to.equal(deployer.address);
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(3);
       await proxy.increment();

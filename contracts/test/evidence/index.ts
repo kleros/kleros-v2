@@ -67,7 +67,7 @@ describe("Home Evidence contract", async () => {
     const EvidenceModule = await ethers.getContractFactory("ModeratedEvidenceModule");
     evidenceModule = await EvidenceModule.deploy(
       arbitrator.target,
-      deployer.address, // governor
+      deployer.address, // owner
       disputeTemplateRegistry.target,
       totalCostMultiplier,
       initialDepositMultiplier,
@@ -80,10 +80,10 @@ describe("Home Evidence contract", async () => {
 
   describe("Governance", async () => {
     it("Should change parameters correctly", async () => {
-      const newGovernor = await user2.getAddress();
-      await evidenceModule.changeGovernor(newGovernor);
-      expect(await evidenceModule.governor()).to.equal(newGovernor);
-      await evidenceModule.connect(user2).changeGovernor(await deployer.getAddress());
+      const newOwner = await user2.getAddress();
+      await evidenceModule.changeOwner(newOwner);
+      expect(await evidenceModule.owner()).to.equal(newOwner);
+      await evidenceModule.connect(user2).changeOwner(await deployer.getAddress());
 
       await evidenceModule.changeInitialDepositMultiplier(1);
       expect(await evidenceModule.initialDepositMultiplier()).to.equal(1);
@@ -117,29 +117,29 @@ describe("Home Evidence contract", async () => {
       expect(newArbitratorData.arbitratorExtraData).to.equal(newArbitratorExtraData, "Wrong extraData");
     });
 
-    it("Should revert if the caller is not the governor", async () => {
-      await expect(evidenceModule.connect(user2).changeGovernor(await user2.getAddress())).to.be.revertedWith(
-        "The caller must be the governor"
+    it("Should revert if the caller is not the owner", async () => {
+      await expect(evidenceModule.connect(user2).changeOwner(await user2.getAddress())).to.be.revertedWith(
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeInitialDepositMultiplier(0)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeTotalCostMultiplier(0)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeBondTimeout(0)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeDisputeTemplate(disputeTemplate, "")).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
 
       await expect(evidenceModule.connect(user2).changeArbitratorExtraData(arbitratorExtraData)).to.be.revertedWith(
-        "The caller must be the governor"
+        "The caller must be the owner"
       );
     });
   });
@@ -154,9 +154,9 @@ describe("Home Evidence contract", async () => {
       if (receipt === null) throw new Error("Receipt is null");
       const evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
 
-      const [_arbitrator, _externalDisputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
+      const [_arbitrator, _disputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
       expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
-      expect(_externalDisputeID).to.equal(1234, "Wrong external dispute ID.");
+      expect(_disputeID).to.equal(0, "Wrong dispute ID.");
       expect(_party).to.equal(user1.address, "Wrong submitter.");
       expect(_evidence).to.equal(newEvidence, "Wrong evidence message.");
 
@@ -261,14 +261,10 @@ describe("Home Evidence contract", async () => {
       });
       let receipt = await tx.wait();
       if (receipt === null) throw new Error("Receipt is null");
-      let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
-        "DisputeRequest",
-        receipt
-      ).args;
+      let [_arbitrator, _disputeID, _templateId, _templateUri] = getEmittedEvent("DisputeRequest", receipt).args;
       expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
-      expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
+      expect(_disputeID).to.equal(0, "Wrong dispute ID.");
       expect(_templateId).to.equal(1, "Wrong template ID.");
-      expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
 
       await expect(
         evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {

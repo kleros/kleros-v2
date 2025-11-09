@@ -2,10 +2,12 @@
 
 pragma solidity ^0.8.24;
 
-import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
-import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
+import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import "../../libraries/Constants.sol";
 
 /// @title KlerosCoreRuler
@@ -13,7 +15,7 @@ import "../../libraries/Constants.sol";
 contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -85,7 +87,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     IERC20 public pinakion; // The Pinakion token contract.
     Court[] public courts; // The courts.
     Dispute[] public disputes; // The disputes.
@@ -126,20 +128,21 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint96 indexed _fromCourtID,
         uint96 _toCourtID
     );
-    event TokenAndETHShift(
+    event JurorRewardPenalty(
         address indexed _account,
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _degreeOfCoherency,
-        int256 _pnkAmount,
-        int256 _feeAmount,
+        uint256 _degreeOfCoherencyPnk,
+        uint256 _degreeOfCoherencyFee,
+        int256 _amountPnk,
+        int256 _amountFee,
         IERC20 _feeToken
     );
     event LeftoverRewardSent(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _pnkAmount,
-        uint256 _feeAmount,
+        uint256 _amountPnk,
+        uint256 _amountFee,
         IERC20 _feeToken
     );
     event AutoRuled(
@@ -157,8 +160,8 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -172,15 +175,11 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     }
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
-    /// @param _governor The governor's address.
+    /// @param _owner The owner's address.
     /// @param _pinakion The address of the token contract.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
-    function initialize(
-        address _governor,
-        IERC20 _pinakion,
-        uint256[4] memory _courtParameters
-    ) external reinitializer(1) {
-        governor = _governor;
+    function initialize(address _owner, IERC20 _pinakion, uint256[4] memory _courtParameters) external initializer {
+        owner = _owner;
         pinakion = _pinakion;
 
         // FORKING_COURT
@@ -210,43 +209,35 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         );
     }
 
-    function initialize2() external reinitializer(2) {
-        // NOP
-    }
-
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
 
     /* @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     * @dev Only the owner can perform upgrades (`onlyByOwner`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
-    /// @dev Allows the governor to call anything on behalf of the contract.
+    /// @dev Allows the owner to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes memory _data
-    ) external onlyByGovernor {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
         if (!success) revert UnsuccessfulCall();
     }
 
-    /// @dev Changes the `governor` storage variable.
-    /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address payable _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @dev Changes the `owner` storage variable.
+    /// @param _owner The new value for the `owner` storage variable.
+    function changeOwner(address payable _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     /// @dev Changes the `pinakion` storage variable.
     /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(IERC20 _pinakion) external onlyByGovernor {
+    function changePinakion(IERC20 _pinakion) external onlyByOwner {
         pinakion = _pinakion;
     }
 
@@ -266,7 +257,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
 
         uint256 courtID = courts.length;
@@ -303,7 +294,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
-    ) external onlyByGovernor {
+    ) external onlyByOwner {
         Court storage court = courts[_courtID];
         court.minStake = _minStake;
         court.hiddenVotes = _hiddenVotes;
@@ -325,7 +316,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @dev Changes the supported fee tokens.
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
-    function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByGovernor {
+    function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByOwner {
         currencyRates[_feeToken].feePaymentAccepted = _accepted;
         emit AcceptedFeeToken(_feeToken, _accepted);
     }
@@ -334,7 +325,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _feeToken The fee token.
     /// @param _rateInEth The new rate of the fee token in ETH.
     /// @param _rateDecimals The new decimals of the fee token rate.
-    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByGovernor {
+    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByOwner {
         currencyRates[_feeToken].rateInEth = _rateInEth;
         currencyRates[_feeToken].rateDecimals = _rateDecimals;
         emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
@@ -530,7 +521,16 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);
         }
-        emit TokenAndETHShift(account, _disputeID, _round, 1, int256(0), int256(feeReward), round.feeToken);
+        emit JurorRewardPenalty(
+            account,
+            _disputeID,
+            _round,
+            ONE_BASIS_POINT,
+            ONE_BASIS_POINT,
+            int256(0),
+            int256(feeReward),
+            round.feeToken
+        );
     }
 
     /// @dev Executes a specified dispute's ruling.
@@ -675,8 +675,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
-    error GovernorOrInstructorOnly();
+    error OwnerOnly();
     error RulerOnly();
     error NoRulerSet();
     error RulingModeNotSet();

@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // Courts
 uint96 constant FORKING_COURT = 0; // Index of the forking court.
 uint96 constant GENERAL_COURT = 1; // Index of the default (general) court.
 
 // Dispute Kits
-uint256 constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent. DEPRECATED, as its main purpose was to accommodate forest structure which is not used now.
+uint256 constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent.
 uint256 constant DISPUTE_KIT_CLASSIC = 1; // Index of the default DK. 0 index is skipped.
 
 // Sortition Module

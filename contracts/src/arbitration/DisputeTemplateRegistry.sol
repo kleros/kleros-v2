@@ -1,31 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
-import "./interfaces/IDisputeTemplateRegistry.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {IDisputeTemplateRegistry} from "./interfaces/IDisputeTemplateRegistry.sol";
 
 /// @title Dispute Template Registry
-/// @dev A contract to maintain a registry of dispute templates.
+/// @notice A contract to maintain a registry of dispute templates.
 contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Initializable {
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    /// @dev The governor of the contract.
-    address public governor;
+    /// @notice The owner of the contract.
+    address public owner;
 
-    /// @dev The number of templates.
+    /// @notice The number of templates.
     uint256 public templates;
 
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -38,14 +38,10 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
         _disableInitializers();
     }
 
-    /// @dev Initializer
-    /// @param _governor Governor of the contract.
-    function initialize(address _governor) external reinitializer(1) {
-        governor = _governor;
-    }
-
-    function initialize2() external reinitializer(2) {
-        // NOP
+    /// @notice Initializer
+    /// @param _owner Owner of the contract.
+    function initialize(address _owner) external initializer {
+        owner = _owner;
     }
 
     // ************************ //
@@ -53,25 +49,22 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // ************************ //
 
     /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the governor can perform upgrades (`onlyByGovernor`)
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    ///      Only the owner can perform upgrades (`onlyByOwner`)
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
-    /// @dev Changes the governor of the contract.
-    /// @param _governor The new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @notice Changes the owner of the contract.
+    /// @param _owner The new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Registers a new dispute template.
-    /// @param _templateTag The tag of the template (optional).
-    /// @param _templateData The data of the template.
-    /// @param _templateDataMappings The data mappings of the template.
+    /// @inheritdoc IDisputeTemplateRegistry
     function setDisputeTemplate(
         string memory _templateTag,
         string memory _templateData,
@@ -85,5 +78,5 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
 }

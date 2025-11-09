@@ -2,17 +2,19 @@
 
 pragma solidity ^0.8.24;
 
-import "./KlerosCoreUniversity.sol";
-import "./ISortitionModuleUniversity.sol";
-import "../interfaces/IDisputeKit.sol";
-import "../../proxy/UUPSProxiable.sol";
-import "../../proxy/Initializable.sol";
+import {KlerosCoreUniversity} from "./KlerosCoreUniversity.sol";
+import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
+import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
+import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
+import {Initializable} from "../../proxy/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../libraries/Constants.sol";
 
 /// @title SortitionModuleUniversity
-/// @dev An adapted version of the SortitionModule contract for educational purposes.
+/// @notice An adapted version of the SortitionModule contract for educational purposes.
 contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable, Initializable {
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -29,7 +31,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The governor of the contract.
+    address public owner; // The owner of the contract.
     KlerosCoreUniversity public core; // The core arbitrator contract.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     mapping(address account => Juror) public jurors; // The jurors.
@@ -52,12 +54,12 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// @param _unlock Whether the stake is locked or unlocked.
     event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unlock);
 
-    /// @dev Emitted when leftover PNK is available.
+    /// @notice Emitted when leftover PNK is available.
     /// @param _account The account of the juror.
     /// @param _amount The amount of PNK available.
     event LeftoverPNK(address indexed _account, uint256 _amount);
 
-    /// @dev Emitted when leftover PNK is withdrawn.
+    /// @notice Emitted when leftover PNK is withdrawn.
     /// @param _account The account of the juror withdrawing PNK.
     /// @param _amount The amount of PNK withdrawn.
     event LeftoverPNKWithdrawn(address indexed _account, uint256 _amount);
@@ -66,8 +68,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        if (governor != msg.sender) revert GovernorOnly();
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -85,10 +87,10 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         _disableInitializers();
     }
 
-    /// @dev Initializer (constructor equivalent for upgradable contracts).
+    /// @notice Initializer (constructor equivalent for upgradable contracts).
     /// @param _core The KlerosCore.
-    function initialize(address _governor, KlerosCoreUniversity _core) external reinitializer(1) {
-        governor = _governor;
+    function initialize(address _owner, KlerosCoreUniversity _core) external initializer {
+        owner = _owner;
         core = _core;
     }
 
@@ -98,9 +100,9 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
 
     /**
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     * @dev Only the owner can perform upgrades (`onlyByOwner`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
@@ -108,38 +110,42 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *         State Modifiers           * //
     // ************************************* //
 
+    /// @inheritdoc ISortitionModule
+    function passPhase() external override onlyByCore {
+        // NOP
+    }
+
+    /// @inheritdoc ISortitionModule
+    function executeDelayedStakes(uint256 _iterations) external override onlyByCore {
+        // NOP
+    }
+
+    /// @inheritdoc ISortitionModuleUniversity
     function setTransientJuror(address _juror) external override onlyByCore {
         transientJuror = _juror;
     }
 
-    function createTree(bytes32 _key, bytes memory _extraData) external {
+    /// @inheritdoc ISortitionModule
+    function createTree(uint96 _courtID, bytes memory _extraData) external {
         // NOP
     }
 
+    /// @inheritdoc ISortitionModule
     function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors++;
     }
 
+    /// @inheritdoc ISortitionModule
     function postDrawHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors--;
     }
 
-    /// @dev Saves the random number to use it in sortition. Not used by this contract because the storing of the number is inlined in passPhase().
-    /// @param _randomNumber Random number returned by RNG contract.
-    function notifyRandomNumber(uint256 _randomNumber) public override {}
-
-    /// @dev Validate the specified juror's new stake for a court.
-    /// Note: no state changes should be made when returning stakingResult != Successful, otherwise delayed stakes might break invariants.
-    /// @param _account The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @param _newStake The new stake.
-    /// @return pnkDeposit The amount of PNK to be deposited.
-    /// @return pnkWithdrawal The amount of PNK to be withdrawn.
-    /// @return stakingResult The result of the staking operation.
+    /// @inheritdoc ISortitionModule
     function validateStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake
+        uint256 _newStake,
+        bool /*_noDelay*/
     )
         external
         view
@@ -172,17 +178,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
 
-    /// @dev Update the state of the stakes, called by KC at the end of setStake flow.
-    /// `O(n + p * log_k(j))` where
-    /// `n` is the number of courts the juror has staked in,
-    /// `p` is the depth of the court tree,
-    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
-    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
-    /// @param _account The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @param _pnkDeposit The amount of PNK to be deposited.
-    /// @param _pnkWithdrawal The amount of PNK to be withdrawn.
-    /// @param _newStake The new stake.
+    /// @inheritdoc ISortitionModule
     function setStake(
         address _account,
         uint96 _courtID,
@@ -190,6 +186,56 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         uint256 _pnkWithdrawal,
         uint256 _newStake
     ) external override onlyByCore {
+        _setStake(_account, _courtID, _pnkDeposit, _pnkWithdrawal, _newStake);
+    }
+
+    function setStakePenalty(
+        address _account,
+        uint96 _courtID,
+        uint256 _penalty
+    ) external override onlyByCore returns (uint256 pnkBalance, uint256 newCourtStake, uint256 availablePenalty) {
+        Juror storage juror = jurors[_account];
+        availablePenalty = _penalty;
+        newCourtStake = _stakeOf(_account, _courtID);
+        if (juror.stakedPnk < _penalty) {
+            availablePenalty = juror.stakedPnk;
+        }
+
+        if (availablePenalty == 0) return (juror.stakedPnk, newCourtStake, 0); // No penalty to apply.
+
+        uint256 currentStake = _stakeOf(_account, _courtID);
+        uint256 newStake = 0;
+        if (currentStake >= availablePenalty) {
+            newStake = currentStake - availablePenalty;
+        }
+        _setStake(_account, _courtID, 0, availablePenalty, newStake);
+        pnkBalance = juror.stakedPnk; // updated by _setStake()
+        newCourtStake = _stakeOf(_account, _courtID); // updated by _setStake()
+    }
+
+    /// @inheritdoc ISortitionModule
+    function setStakeReward(
+        address _account,
+        uint96 _courtID,
+        uint256 _reward
+    ) external override onlyByCore returns (bool success) {
+        if (_reward == 0) return true; // No reward to add.
+
+        uint256 currentStake = _stakeOf(_account, _courtID);
+        if (currentStake == 0) return false; // Juror has been unstaked, don't increase their stake.
+
+        uint256 newStake = currentStake + _reward;
+        _setStake(_account, _courtID, _reward, 0, newStake);
+        return true;
+    }
+
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _pnkDeposit,
+        uint256 _pnkWithdrawal,
+        uint256 _newStake
+    ) internal {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
         if (_pnkDeposit > 0) {
@@ -221,7 +267,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currentCourtID, , , , , , ) = core.courts(currentCourtID);
+                (currentCourtID, , , , , ) = core.courts(currentCourtID);
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);
@@ -237,45 +283,20 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         emit StakeLocked(_account, _relativeAmount, true);
     }
 
-    function penalizeStake(
-        address _account,
-        uint256 _relativeAmount
-    ) external override onlyByCore returns (uint256 pnkBalance, uint256 availablePenalty) {
-        Juror storage juror = jurors[_account];
-        uint256 stakedPnk = juror.stakedPnk;
-
-        if (stakedPnk >= _relativeAmount) {
-            availablePenalty = _relativeAmount;
-            juror.stakedPnk -= _relativeAmount;
-        } else {
-            availablePenalty = stakedPnk;
-            juror.stakedPnk = 0;
-        }
-
-        pnkBalance = juror.stakedPnk;
-        return (pnkBalance, availablePenalty);
-    }
-
-    /// @dev Unstakes the inactive juror from all courts.
-    /// `O(n * (p * log_k(j)) )` where
-    /// `n` is the number of courts the juror has staked in,
-    /// `p` is the depth of the court tree,
-    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
-    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
-    /// @param _account The juror to unstake.
-    function setJurorInactive(address _account) external override onlyByCore {
+    /// @inheritdoc ISortitionModule
+    function forcedUnstakeAllCourts(address _account) external override onlyByCore {
         uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
             core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
         }
     }
 
-    /// @dev Gives back the locked PNKs in case the juror fully unstaked earlier.
-    /// Note that since locked and staked PNK are async it is possible for the juror to have positive staked PNK balance
-    /// while having 0 stake in courts and 0 locked tokens (eg. when the juror fully unstaked during dispute and later got his tokens unlocked).
-    /// In this case the juror can use this function to withdraw the leftover tokens.
-    /// Also note that if the juror has some leftover PNK while not fully unstaked he'll have to manually unstake from all courts to trigger this function.
-    /// @param _account The juror whose PNK to withdraw.
+    /// @inheritdoc ISortitionModule
+    function forcedUnstake(address _account, uint96 _courtID) external override onlyByCore {
+        core.setStakeBySortitionModule(_account, _courtID, 0);
+    }
+
+    /// @inheritdoc ISortitionModule
     function withdrawLeftoverPNK(address _account) external override {
         // Can withdraw the leftover PNK if fully unstaked, has no tokens locked and has positive balance.
         // This withdrawal can't be triggered by calling setStake() in KlerosCore because current stake is technically 0, thus it is done via separate function.
@@ -290,22 +311,12 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Draw an ID from a tree using a number.
-    /// Note that this function reverts if the sum of all values in the tree is 0.
-    /// @return drawnAddress The drawn address.
-    function draw(bytes32, uint256, uint256) public view override returns (address drawnAddress) {
+    /// @inheritdoc ISortitionModule
+    function draw(uint96, uint256, uint256) public view override returns (address drawnAddress, uint96 fromSubcourtID) {
         drawnAddress = transientJuror;
     }
 
-    /// @dev Gets the stake of a juror in a court.
-    /// Warning: `O(n)` complexity where `n` is the number of courts the juror has staked in
-    /// but acceptable for this educational implementation.
-    /// @param _juror The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @return totalStaked The total amount of tokens staked by the juror in the court.
-    /// @return totalLocked The total amount of tokens locked by the juror in the court.
-    /// @return stakedInCourt The amount of tokens staked by the juror in the court.
-    /// @return nbCourts The number of courts the juror has staked in.
+    /// @inheritdoc ISortitionModule
     function getJurorBalance(
         address _juror,
         uint96 _courtID
@@ -327,16 +338,17 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         }
     }
 
-    /// @dev Gets the court identifiers where a specific `_juror` has staked.
-    /// @param _juror The address of the juror.
+    /// @inheritdoc ISortitionModule
     function getJurorCourtIDs(address _juror) public view override returns (uint96[] memory) {
         return jurors[_juror].courtIDs;
     }
 
+    /// @inheritdoc ISortitionModule
     function isJurorStaked(address _juror) external view override returns (bool) {
         return jurors[_juror].stakedPnk > 0;
     }
 
+    /// @inheritdoc ISortitionModule
     function getJurorLeftoverPNK(address _juror) public view override returns (uint256) {
         Juror storage juror = jurors[_juror];
         if (juror.courtIDs.length == 0 && juror.lockedPnk == 0) {
@@ -349,9 +361,11 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Gets the stake of a juror in a court.
-    /// Warning: `O(n)` complexity where `n` is the number of courts the juror has staked in
+    /// @notice Gets the stake of a juror in a court.
+    ///
+    /// @dev Warning: `O(n)` complexity where `n` is the number of courts the juror has staked in
     /// but acceptable for this educational implementation.
+    ///
     /// @param _juror The address of the juror.
     /// @param _courtID The ID of the court.
     /// @return stakedInCourt The amount of tokens staked by the juror in the court.
@@ -369,7 +383,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // *              Errors               * //
     // ************************************* //
 
-    error GovernorOnly();
+    error OwnerOnly();
     error KlerosCoreOnly();
     error NotEligibleForWithdrawal();
 }
