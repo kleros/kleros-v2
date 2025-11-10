@@ -17,14 +17,14 @@ const Title = styled.h1`
   font-size: ${responsiveSize(20, 24)};
 `;
 
-const LatestStakesByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
+const StakingHistoryByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
   return (
     <Container>
-      <Title>Latest Stakes in {getDescriptiveCourtName(courtName)}</Title>
+      <Title>Staking History in {getDescriptiveCourtName(courtName)}</Title>
       <Search />
       <DisplayStakes />
     </Container>
   );
 };
 
-export default LatestStakesByCourt;
+export default StakingHistoryByCourt;

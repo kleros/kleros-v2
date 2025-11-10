@@ -24,8 +24,8 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 import Description from "./Description";
 import JurorsStakedByCourt from "./JurorsStakedByCourt";
-import LatestStakesByCourt from "./LatestStakesByCourt";
 import StakePanel from "./StakePanel";
+import StakingHistoryByCourt from "./StakingHistoryByCourt";
 import Stats from "./Stats";
 import TopSearch from "./TopSearch";
 
@@ -169,7 +169,7 @@ const CourtDetails: React.FC = () => {
       <LatestCases title={`Latest Cases in ${getDescriptiveCourtName(courtName)}`} filters={{ court: id }} />
       <StakingSections>
         <JurorsStakedByCourt {...{ courtName }} />
-        <LatestStakesByCourt {...{ courtName }} />
+        <StakingHistoryByCourt {...{ courtName }} />
       </StakingSections>
       <ScrollTop />
     </Container>

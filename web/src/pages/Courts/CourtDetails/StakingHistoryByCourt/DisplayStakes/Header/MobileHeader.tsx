@@ -29,7 +29,7 @@ const StyledLabel = styled.label`
 export const MobileHeader: React.FC = () => {
   return (
     <Container>
-      <StyledLabel>Latest Stakes</StyledLabel>
+      <StyledLabel>Staking History</StyledLabel>
     </Container>
   );
 };

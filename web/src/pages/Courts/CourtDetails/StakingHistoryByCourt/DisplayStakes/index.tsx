@@ -93,7 +93,15 @@ const DisplayStakes: React.FC = () => {
   const { data, isFetching } = useStakingEventsByCourt(courtIds, skip, PER_PAGE, searchValue || undefined);
 
   const [acc, setAcc] = useState<
-    Array<{ id: string; address: string; stake: string; timestamp: string; courtId: number; courtName: string }>
+    Array<{
+      id: string;
+      address: string;
+      stake: string;
+      timestamp: string;
+      transactionHash: string;
+      courtId: number;
+      courtName: string;
+    }>
   >([]);
 
   useEffect(() => {
