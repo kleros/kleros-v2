@@ -4,7 +4,6 @@ import styled, { css } from "styled-components";
 import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
-import { useStakingHistory } from "queries/useStakingHistory";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -42,15 +41,13 @@ const Stakes: React.FC<IStakes> = ({ searchParamAddress }) => {
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     args: [searchParamAddress, BigInt(1)],
   });
-  const { data: stakingHistoryData } = useStakingHistory(1, 0);
   const totalAvailableStake = jurorBalance?.[0];
   const lockedStake = jurorBalance?.[1];
-  const totalNumberStakingEvents = stakingHistoryData?.data?.userStakingEvents?.count ?? 0;
 
   return (
     <Container>
       <CurrentStakes {...{ totalAvailableStake, lockedStake, currentStakeData, isCurrentStakeLoading }} />
-      <StakingHistory {...{ searchParamAddress, totalNumberStakingEvents }} />
+      <StakingHistory {...{ searchParamAddress }} />
     </Container>
   );
 };

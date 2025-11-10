@@ -16,7 +16,7 @@ const Container = styled.div`
   border: 1px solid ${({ theme }) => theme.stroke};
   border-top: none;
   align-items: center;
-  padding: 18px 24px;
+  padding: 16px 20px;
 
   :hover {
     background-color: ${({ theme }) => theme.lightGrey}BB;

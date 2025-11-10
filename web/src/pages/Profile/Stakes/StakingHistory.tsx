@@ -1,17 +1,20 @@
 import React, { useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
 
 import Skeleton from "react-loading-skeleton";
+import { useParams, useNavigate } from "react-router-dom";
 
-import { useStakingHistory } from "queries/useStakingHistory";
-import { useCourtTree } from "queries/useCourtTree";
-
-import { findCourtNameById } from "utils/findCourtNameById";
 import { StandardPagination } from "@kleros/ui-components-library";
 
+import { useStakingEventsByCourt } from "hooks/useStakingEventsByCourt";
+import { findCourtNameById } from "utils/findCourtNameById";
+
+import { useCourtTree } from "queries/useCourtTree";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import CourtCard from "./CourtCard";
+
 import { CourtCardsContainer } from "./index";
 
 const Container = styled.div``;
@@ -33,19 +36,31 @@ const NoHistoryLabel = styled.label`
 
 interface IStakingHistory {
   searchParamAddress: `0x${string}`;
-  totalNumberStakingEvents: number;
 }
 
-const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress, totalNumberStakingEvents }) => {
+const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
   const { page } = useParams();
   const navigate = useNavigate();
   const eventsPerPage = 10;
   const currentPage = parseInt(page ?? "1");
   const skip = (currentPage - 1) * eventsPerPage;
-  const { data: stakingHistoryData, isLoading: isLoadingStakingHistory } = useStakingHistory(eventsPerPage, skip);
+
+  const { data: stakingHistoryData, isFetching: isLoadingStakingHistory } = useStakingEventsByCourt(
+    [],
+    skip,
+    eventsPerPage,
+    searchParamAddress
+  );
+
   const { data: courtTreeData, isLoading: isLoadingCourtTree } = useCourtTree();
-  const stakingEvents = stakingHistoryData?.data?.userStakingEvents?.edges ?? [];
+  const totalNumberStakingEvents = stakingHistoryData?.userStakingEvents?.count ?? 0;
   const totalPages = useMemo(() => Math.ceil(totalNumberStakingEvents / eventsPerPage), [totalNumberStakingEvents]);
+
+  // Sort by timestamp descending (latest first) - API doesn't support orderBy parameter
+  const sortedStakingEvents = useMemo(() => {
+    const events = stakingHistoryData?.userStakingEvents?.items ?? [];
+    return [...events].sort((a, b) => parseInt(b.item.blockTimestamp) - parseInt(a.item.blockTimestamp));
+  }, [stakingHistoryData?.userStakingEvents?.items]);
 
   const handlePageChange = (newPage: number) => {
     navigate(`/profile/stakes/${newPage}?address=${searchParamAddress}`);
@@ -61,21 +76,23 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress, totalNu
           Array.from({ length: 10 }).map((_, index) => <Skeleton height={64} key={index} />)
         ) : (
           <>
-            {stakingEvents.map(({ node, cursor }) => {
-              const courtName = findCourtNameById(courtTreeData, node.args._courtID);
+            {sortedStakingEvents.map(({ item }) => {
+              const courtName = findCourtNameById(courtTreeData, item.args._courtID);
               return (
                 <CourtCard
-                  key={cursor}
-                  name={courtName}
-                  stake={node.args._amount}
-                  id={node.args._courtID}
+                  key={item.id}
+                  name={courtName ?? `Court #${item.args._courtID}`}
+                  stake={item.args._amount}
+                  id={item.args._courtID}
                   isCurrentStakeCard={false}
-                  timestamp={node.blockTimestamp}
-                  transactionHash={node.transactionHash}
+                  timestamp={parseInt(item.blockTimestamp)}
+                  transactionHash={item.transactionHash}
                 />
               );
             })}
-            <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+            {totalPages > 1 && (
+              <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+            )}
           </>
         )}
       </CourtCardsContainer>

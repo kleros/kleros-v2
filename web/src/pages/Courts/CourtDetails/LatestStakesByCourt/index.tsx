@@ -5,7 +5,7 @@ import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import DisplayJurors from "./DisplayJurors";
+import DisplayStakes from "./DisplayStakes";
 import Search from "./Search";
 
 const Container = styled.div`
@@ -17,14 +17,14 @@ const Title = styled.h1`
   font-size: ${responsiveSize(20, 24)};
 `;
 
-const JurorsStakedByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
+const LatestStakesByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
   return (
     <Container>
-      <Title>Jurors Staked in {getDescriptiveCourtName(courtName)}</Title>
+      <Title>Latest Stakes in {getDescriptiveCourtName(courtName)}</Title>
       <Search />
-      <DisplayJurors />
+      <DisplayStakes />
     </Container>
   );
 };
 
-export default JurorsStakedByCourt;
+export default LatestStakesByCourt;

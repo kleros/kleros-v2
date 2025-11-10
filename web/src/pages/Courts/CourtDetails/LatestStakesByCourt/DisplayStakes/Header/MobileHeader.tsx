@@ -1,6 +1,7 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
@@ -10,9 +11,14 @@ const Container = styled.div`
   border: 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
-  padding: 16px 20px;
-  justify-content: space-between;
+  padding: 16px;
   margin-top: ${responsiveSize(12, 16)};
+
+  ${landscapeStyle(
+    () => css`
+      display: none;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`
@@ -20,13 +26,10 @@ const StyledLabel = styled.label`
   color: ${({ theme }) => theme.secondaryText};
 `;
 
-const Header: React.FC = () => {
+export const MobileHeader: React.FC = () => {
   return (
     <Container>
-      <StyledLabel>Juror</StyledLabel>
-      <StyledLabel>PNK Staked</StyledLabel>
+      <StyledLabel>Latest Stakes</StyledLabel>
     </Container>
   );
 };
-
-export default Header;
