@@ -113,7 +113,7 @@ export function handleVoteCast(event: VoteCast): void {
 }
 
 export function handleContributionEvent(event: ContributionEvent): void {
-  ensureClassicContributionFromEvent(event);
+  ensureClassicContributionFromEvent(event, event.params._coreRoundID);
   updateChoiceFundingFromContributionEvent(event);
 }
 
@@ -174,36 +174,37 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
 }
 
 export function handleWithdrawal(event: Withdrawal): void {
-  const contribution = ensureClassicContributionFromEvent(event);
-  if (!contribution) return;
-  contribution.rewardWithdrawn = true;
-  contribution.rewardAmount = event.params._amount;
-
   // check if all appeal fees have been withdrawn
   const coreDisputeID = event.params._coreDisputeID.toString();
-
-  // TODO: handle the removal of _coreRoundID from the event
-  const coreRoundIndex = 0; // event.params._coreRoundID.toString();
-
   const coreDispute = Dispute.load(coreDisputeID);
   if (!coreDispute) return;
 
-  const roundId = `${coreDisputeID}-${coreRoundIndex}`;
-  const coreRound = Round.load(roundId);
-  if (!coreRound) return;
-  const disputeKitID = coreRound.disputeKit;
+  const numberOfRounds = coreDispute.currentRoundIndex.toI32();
+  for (let i = 0; i < numberOfRounds; i++) {
+    const coreRoundIndex = i;
 
-  const roundID = `${disputeKitID}-${coreDisputeID}-${coreRoundIndex}`;
+    const contribution = ensureClassicContributionFromEvent(event, new BigInt(coreRoundIndex));
+    if (!contribution) return;
+    contribution.rewardWithdrawn = true;
+    contribution.rewardAmount = event.params._amount;
 
-  const localRound = ClassicRound.load(roundID);
-  if (!localRound) return;
+    const roundId = `${coreDisputeID}-${coreRoundIndex}`;
+    const coreRound = Round.load(roundId);
+    if (!coreRound) return;
+    const disputeKitID = coreRound.disputeKit;
 
-  localRound.totalFeeDispersed = localRound.totalFeeDispersed.plus(event.params._amount);
+    const roundID = `${disputeKitID}-${coreDisputeID}-${coreRoundIndex}`;
 
-  if (localRound.totalFeeDispersed.equals(localRound.feeRewards)) {
-    localRound.appealFeesDispersed = true;
+    const localRound = ClassicRound.load(roundID);
+    if (!localRound) return;
+
+    localRound.totalFeeDispersed = localRound.totalFeeDispersed.plus(event.params._amount);
+
+    if (localRound.totalFeeDispersed.equals(localRound.feeRewards)) {
+      localRound.appealFeesDispersed = true;
+    }
+
+    contribution.save();
+    localRound.save();
   }
-
-  contribution.save();
-  localRound.save();
 }

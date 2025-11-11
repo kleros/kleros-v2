@@ -85,9 +85,9 @@ const Evidence: React.FC = () => {
   const [search, setSearch] = useState<string>();
   const [debouncedSearch, setDebouncedSearch] = useState<string>();
   const [showSpam, setShowSpam] = useState(false);
-  const { data: spamEvidences } = useSpamEvidence(disputeData?.dispute?.externalDisputeId?.toString());
+  const { data: spamEvidences } = useSpamEvidence(id!);
 
-  const { data } = useEvidences(disputeData?.dispute?.externalDisputeId?.toString(), debouncedSearch);
+  const { data } = useEvidences(id!, debouncedSearch);
 
   useDebounce(() => setDebouncedSearch(search), 500, [search]);
 

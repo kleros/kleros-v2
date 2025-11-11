@@ -22,6 +22,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.lastPeriodChangeBlockNumber = event.block.number;
   dispute.periodNotificationIndex = getAndIncrementPeriodCounter(dispute.period);
   dispute.transactionHash = event.transaction.hash.toHexString();
+  dispute.evidenceCount = ZERO;
   const court = Court.load(courtID);
   if (!court) return;
   dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[0]);
