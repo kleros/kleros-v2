@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
@@ -23,6 +22,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { Divider } from "../Divider";
 import { StyledArrowLink } from "../StyledArrowLink";
 
+import { useWallet } from "context/walletProviders";
 import AnswerDisplay from "./Answer";
 
 const Container = styled.div`
@@ -84,7 +84,7 @@ interface IFinalDecision {
 
 const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) => {
   const { id } = useParams();
-  const { isDisconnected } = useAccount();
+  const { isConnected } = useWallet();
   const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
@@ -100,12 +100,12 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
 
   const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling));
   const buttonText = useMemo(() => {
-    if (!wasDrawn || isDisconnected) return "Check votes";
+    if (!wasDrawn || !isConnected) return "Check votes";
     if (isCommitPeriod && !commited) return "Commit your vote";
     if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return "Reveal your vote";
     if (isVotingPeriod && !isHiddenVotes && !hasVoted) return "Cast your vote";
     return "Check votes";
-  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes, isDisconnected]);
+  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes, isConnected]);
 
   return (
     <Container>
@@ -130,7 +130,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
             )}
           </JuryContainer>
         )}
-        {isLoading && !isDisconnected ? (
+        {isLoading && isConnected ? (
           <Skeleton width={250} height={20} />
         ) : (
           <ReStyledArrowLink to={`/cases/${id?.toString()}/voting`}>

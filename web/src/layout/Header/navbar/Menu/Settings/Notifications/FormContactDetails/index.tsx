@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import { useAccount } from "wagmi";
-
 import { Button } from "@kleros/ui-components-library";
 
-import { EMAIL_REGEX } from "consts/index";
 import { useAtlasProvider } from "@kleros/kleros-app";
+import { EMAIL_REGEX } from "consts/index";
 
 import { responsiveSize } from "styles/responsiveSize";
 
 import { ISettings } from "../../../../index";
 
-import EmailVerificationInfo from "./EmailVerificationInfo";
-import FormContact from "./FormContact";
-import { isUndefined } from "src/utils";
 import InfoCard from "components/InfoCard";
+import { useWallet } from "context/walletProviders";
+import { isUndefined } from "src/utils";
 import { timeLeftUntil } from "utils/date";
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
+import EmailVerificationInfo from "./EmailVerificationInfo";
+import FormContact from "./FormContact";
 
 const FormContainer = styled.form`
   width: 100%;
@@ -49,7 +48,7 @@ const StyledInfoCard = styled(InfoCard)`
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
-  const { address } = useAccount();
+  const { account } = useWallet();
   const { user, isAddingUser, isFetchingUser, addUser, updateEmail, isUpdatingUser, userExists } = useAtlasProvider();
 
   const isEditingEmail = user?.email !== emailInput;
@@ -66,7 +65,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!address) {
+    if (!account) {
       return;
     }
 

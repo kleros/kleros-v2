@@ -69,7 +69,7 @@ const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) =>
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
       <StyledCard hover>
-        <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
+        <PeriodBanner id={parseInt(props?.disputeID!)} period={props?.period!} />
         <CardContainer>
           {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
           <DisputeInfo {...props} />

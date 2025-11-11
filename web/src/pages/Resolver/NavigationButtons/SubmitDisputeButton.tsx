@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Log, decodeEventLog, parseAbi } from "viem";
-import { useAccount, useBalance, usePublicClient } from "wagmi";
+import { useBalance, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -10,8 +10,8 @@ import DisputeIcon from "svgs/icons/dispute.svg";
 
 import { IDisputeTemplate, useNewDisputeContext } from "context/NewDisputeContext";
 import {
-  useWriteDisputeResolverCreateDisputeForTemplate,
   useSimulateDisputeResolverCreateDisputeForTemplate,
+  useWriteDisputeResolverCreateDisputeForTemplate,
 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
@@ -22,6 +22,7 @@ import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import Popup, { PopupType } from "components/Popup";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
+import { useWallet } from "context/walletProviders";
 
 const StyledButton = styled(Button)``;
 
@@ -34,7 +35,7 @@ const SubmitDisputeButton: React.FC = () => {
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase } =
     useNewDisputeContext();
 
-  const { address } = useAccount();
+  const { account: address } = useWallet();
   const { data: userBalance, isLoading: isBalanceLoading } = useBalance({ address });
 
   const insufficientBalance = useMemo(() => {

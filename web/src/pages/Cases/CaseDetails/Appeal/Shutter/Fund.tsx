@@ -3,9 +3,9 @@ import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
-import { useAccount, useBalance, usePublicClient } from "wagmi";
+import { useBalance, usePublicClient } from "wagmi";
 
-import { Field, Button } from "@kleros/ui-components-library";
+import { Button, Field } from "@kleros/ui-components-library";
 
 import { REFETCH_INTERVAL } from "consts/index";
 import {
@@ -14,7 +14,7 @@ import {
   useWriteDisputeKitGatedShutterFundAppeal,
   useWriteDisputeKitShutterFundAppeal,
 } from "hooks/contracts/generated";
-import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
+import { useCountdownContext, useFundingContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -22,6 +22,7 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
+import { useWallet } from "context/walletProviders";
 
 const Container = styled.div`
   display: flex;
@@ -110,10 +111,10 @@ interface IFund {
 
 const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
   const needFund = useNeedFund();
-  const { address, isDisconnected } = useAccount();
+  const { account, isConnected } = useWallet();
   const { data: balance } = useBalance({
     query: { refetchInterval: REFETCH_INTERVAL },
-    address,
+    account,
   });
   const publicClient = usePublicClient();
   const [isSending, setIsSending] = useState(false);
@@ -128,14 +129,8 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
   );
   const isFundDisabled = useMemo(
     () =>
-      isDisconnected ||
-      isSending ||
-      !balance ||
-      insufficientBalance ||
-      Number(parsedAmount) <= 0 ||
-      isError ||
-      isLoading,
-    [isDisconnected, isSending, balance, insufficientBalance, parsedAmount, isError, isLoading]
+      !isConnected || isSending || !balance || insufficientBalance || Number(parsedAmount) <= 0 || isError || isLoading,
+    [isConnected, isSending, balance, insufficientBalance, parsedAmount, isError, isLoading]
   );
 
   return needFund ? (
@@ -152,7 +147,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
           <StyledButton
             disabled={isFundDisabled}
             isLoading={(isSending || isLoading) && !insufficientBalance}
-            text={isDisconnected ? "Connect to Fund" : "Fund"}
+            text={!isConnected ? "Connect to Fund" : "Fund"}
             onClick={() => {
               if (fundAppeal && fundAppealConfig && publicClient) {
                 setIsSending(true);

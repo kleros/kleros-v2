@@ -1,9 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
@@ -40,7 +40,7 @@ const Container = styled.div<{ renderRank?: boolean }>`
 
 interface IDesktopCard {
   rank?: number;
-  address: string;
+  address: `0x${string}`;
   coherenceScore: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;

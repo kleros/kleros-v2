@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import { Link } from "react-router-dom";
-import { useAccount } from "wagmi";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -11,6 +10,7 @@ import { Periods } from "consts/periods";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
+import { useWallet } from "context/walletProviders";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 
@@ -59,13 +59,13 @@ interface IDisputeListView {
   showLabels?: boolean;
 }
 const DisputeListView: React.FC<IDisputeListView> = (props) => {
-  const { isDisconnected } = useAccount();
+  const { isConnected } = useWallet();
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
       <StyledListItem hover>
         <PeriodBanner isCard={false} id={parseInt(props?.disputeID ?? "0")} period={props.period} />
         <ListContainer>
-          <TitleContainer isLabel={!isDisconnected}>
+          <TitleContainer isLabel={isConnected}>
             <TruncatedTitle text={props?.title} maxLength={50} />
           </TitleContainer>
           <DisputeInfo {...props} />

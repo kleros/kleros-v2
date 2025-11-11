@@ -4,17 +4,16 @@ import styled, { css } from "styled-components";
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import { useAccount } from "wagmi";
-
 import { useTotalLeaderboardJurors } from "queries/useTotalLeaderboardJurors";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
-import { StyledArrowLink } from "components/StyledArrowLink";
 import ScrollTop from "components/ScrollTop";
+import { StyledArrowLink } from "components/StyledArrowLink";
+import { useWallet } from "context/walletProviders";
+import DisplayJurors from "./DisplayJurors";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
-import DisplayJurors from "./DisplayJurors";
 
 const Container = styled.div`
   width: 100%;
@@ -47,7 +46,7 @@ const StyledTitle = styled.h1`
 const Jurors: React.FC = () => {
   const { data: queryTotalLeaderBoardJurors } = useTotalLeaderboardJurors();
   const totalLeaderboardJurors = queryTotalLeaderBoardJurors?.counter?.totalLeaderboardJurors;
-  const { isConnected } = useAccount();
+  const { isConnected } = useWallet();
 
   return (
     <>

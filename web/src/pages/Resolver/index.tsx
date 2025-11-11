@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
-import { useAccount } from "wagmi";
 
 import { useAtlasProvider } from "@kleros/kleros-app";
 
@@ -17,6 +16,7 @@ import HowItWorks from "components/HowItWorks";
 import Resolver from "components/Popup/MiniGuides/DisputeResolver";
 import ScrollTop from "components/ScrollTop";
 
+import { useWallet } from "context/walletProviders";
 import Description from "./Briefing/Description";
 import Title from "./Briefing/Title";
 import Landing from "./Landing";
@@ -98,7 +98,7 @@ const DisputeResolver: React.FC = () => {
   const location = useLocation();
   const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);
   const { isVerified } = useAtlasProvider();
-  const { isConnected } = useAccount();
+  const { isConnected } = useWallet();
   const isPreviewPage = location.pathname.includes("/preview");
 
   return (

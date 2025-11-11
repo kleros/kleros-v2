@@ -48,7 +48,7 @@ const DisputeInfoList: React.FC<IDisputeInfoList> = ({ fieldItems, showLabels, d
     () =>
       fieldItems.map((item) =>
         item.display ? (
-          <StyledField key={item.name} {...(item as IField)} value={truncateText(item.value, 20)} displayAsList />
+          <StyledField key={item.name} {...(item as IField)} value={truncateText(item.value!, 20)} displayAsList />
         ) : null
       ),
     [fieldItems]
@@ -57,7 +57,7 @@ const DisputeInfoList: React.FC<IDisputeInfoList> = ({ fieldItems, showLabels, d
   return (
     <Container isLabel={showLabels}>
       <RestOfFieldsContainer>{FieldItems}</RestOfFieldsContainer>
-      {showLabels ? <CardLabel disputeId={disputeID} round={round - 1} isList /> : null}
+      {showLabels ? <CardLabel disputeId={disputeID!} round={round! - 1} isList /> : null}
     </Container>
   );
 };

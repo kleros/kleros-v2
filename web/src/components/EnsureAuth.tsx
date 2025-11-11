@@ -1,11 +1,10 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import { useAccount } from "wagmi";
-
 import { useAtlasProvider } from "@kleros/kleros-app";
 import { Button } from "@kleros/ui-components-library";
 
+import { useWallet } from "context/walletProviders";
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 const Container = styled.div`
@@ -29,7 +28,7 @@ interface IEnsureAuth {
 }
 
 const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, className }) => {
-  const { address } = useAccount();
+  const { address } = useWallet();
   const { isVerified, isSigningIn, authoriseUser } = useAtlasProvider();
 
   const handleClick = useCallback(() => {

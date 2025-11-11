@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { useAccount } from "wagmi";
-
 import { Button, Searchbar } from "@kleros/ui-components-library";
 
 import { isUndefined } from "src/utils";
@@ -11,6 +9,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { EnsureChain } from "components/EnsureChain";
 
+import { useWallet } from "context/walletProviders";
 import SubmitEvidenceModal from "./SubmitEvidenceModal";
 
 const SearchContainer = styled.div`
@@ -38,7 +37,7 @@ interface IEvidenceSearch {
 
 const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch, evidenceGroup }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { address } = useAccount();
+  const { account: address } = useWallet();
 
   return (
     <>

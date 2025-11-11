@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 
 import VoteIcon from "svgs/icons/voted.svg";
 
@@ -26,6 +25,7 @@ import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
 import Popup, { PopupType } from "components/Popup";
 
+import { useWallet } from "context/walletProviders";
 import Classic from "./Classic";
 import Shutter from "./Shutter";
 import VotingHistory from "./VotingHistory";
@@ -60,7 +60,7 @@ interface IVoting {
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) => {
   const { id } = useParams();
-  const { isDisconnected } = useAccount();
+  const { isConnected } = useWallet();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: appealCost } = useAppealCost(id);
   const { wasDrawn: userWasDrawn, hasVoted: voted, isLoading: isDrawDataLoading } = useVotingContext();
@@ -70,6 +70,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
 
+  console.log("User was drawn?", userWasDrawn, "isConnected?", isConnected);
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
   const isClassicDisputeKit = disputeKitName === DisputeKits.Classic || disputeKitName === DisputeKits.Gated;
@@ -90,7 +91,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
         </>
       )}
 
-      {userWasDrawn || isDisconnected ? null : (
+      {userWasDrawn || !isConnected ? null : (
         <InfoCardContainer>
           {isDrawDataLoading ? (
             <Skeleton width={300} height={20} />

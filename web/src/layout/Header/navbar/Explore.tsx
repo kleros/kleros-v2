@@ -3,8 +3,8 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 
+import { useWallet } from "context/walletProviders";
 import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
@@ -59,7 +59,7 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toggleIsOpen } = useOpenContext();
-  const { isConnected } = useAccount();
+  const { isConnected } = useWallet();
 
   const navLinks = useMemo(() => {
     const base = [

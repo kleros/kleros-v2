@@ -5,18 +5,18 @@ import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 
-import { isUndefined } from "utils/index";
-import { decodeURIFilter, useRootPath } from "utils/uri";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
 import { Dispute_Filter, OrderDirection, UserDetailsFragment } from "src/graphql/graphql";
+import { isUndefined } from "utils/index";
+import { decodeURIFilter, useRootPath } from "utils/uri";
 
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
 import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
+import { useWallet } from "context/walletProviders";
 import Courts from "./Courts";
 import JurorInfo from "./JurorInfo";
 
@@ -78,13 +78,13 @@ const calculateStats = (user: UserDetailsFragment, filter: Dispute_Filter) => {
 };
 
 const Profile: React.FC = () => {
-  const { isConnected, address: connectedAddress } = useAccount();
+  const { isConnected, account: connectedAddress } = useWallet();
   const { page, order, filter } = useParams();
   const [searchParams] = useSearchParams();
   const location = useRootPath();
   const navigate = useNavigate();
   const searchParamAddress = searchParams.get("address")?.toLowerCase();
-  const addressToQuery = searchParamAddress || connectedAddress?.toLowerCase();
+  const addressToQuery = (searchParamAddress as `0x${string}`) || (connectedAddress?.toLowerCase() as `0x${string}`);
   const casesPerPage = 3;
   const pageNumber = parseInt(page ?? "1");
   const disputeSkip = casesPerPage * (pageNumber - 1);

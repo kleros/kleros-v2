@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useNavigate } from "react-router-dom";
-import { useAccount, useBalance, usePublicClient } from "wagmi";
+import { useBalance, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -19,6 +19,7 @@ import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 
+import { useWallet } from "context/walletProviders";
 import { isTemplateValid } from "./SubmitDisputeButton";
 
 const StyledButton = styled(Button)``;
@@ -29,8 +30,8 @@ const SubmitBatchDisputesButton: React.FC = () => {
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase, batchSize } =
     useNewDisputeContext();
 
-  const { address, chainId } = useAccount();
-  const { data: userBalance, isLoading: isBalanceLoading } = useBalance({ address });
+  const { account, chainId } = useWallet();
+  const { data: userBalance, isLoading: isBalanceLoading } = useBalance({ address: account });
 
   const insufficientBalance = useMemo(() => {
     const arbitrationCost = disputeData.arbitrationCost ? BigInt(disputeData.arbitrationCost) : BigInt(0);

@@ -60,7 +60,7 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({ isOverview, showLabels, f
           item.display ? <StyledField key={item.name} {...(item as IField)} {...{ isOverview }} /> : null
         )}
       </RestOfFieldsContainer>
-      {showLabels ? <CardLabel disputeId={disputeID} round={round - 1} isList={false} /> : null}
+      {showLabels ? <CardLabel disputeId={disputeID!} round={round! - 1} isList={false} /> : null}
     </Container>
   );
 };

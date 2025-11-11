@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 import { formatEther, formatUnits } from "viem";
-import { useAccount } from "wagmi";
 
 import AppealIcon from "svgs/label-icons/appeal.svg";
 import EvidenceIcon from "svgs/label-icons/evidence.svg";
@@ -19,6 +18,7 @@ import { isUndefined } from "utils/index";
 
 import { ClassicContribution } from "src/graphql/graphql";
 
+import { useWallet } from "context/walletProviders";
 import Label, { IColors } from "./Label";
 import RewardsAndFundLabel from "./RewardsAndFundLabel";
 
@@ -85,8 +85,8 @@ const getFundingRewards = (contributions: ClassicContribution[], closed: boolean
 };
 
 const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview = false }) => {
-  const { address } = useAccount();
-  const { data: labelInfo, isLoading } = useLabelInfoQuery(address?.toLowerCase(), disputeId);
+  const { account } = useWallet();
+  const { data: labelInfo, isLoading } = useLabelInfoQuery(account?.toLowerCase(), disputeId);
   const localRounds = getLocalRounds(labelInfo?.dispute?.disputeKitDispute);
   const rounds = labelInfo?.dispute?.rounds;
   const currentRound = rounds?.[round];

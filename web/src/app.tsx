@@ -12,6 +12,7 @@ import IsListProvider from "context/IsListProvider";
 import { NewDisputeProvider } from "context/NewDisputeContext";
 import QueryClientProvider from "context/QueryClientProvider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
+import { WalletProvider } from "context/walletProviders";
 const Home = lazy(() => import("./pages/Home"));
 const Cases = lazy(() => import("./pages/Cases"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -20,7 +21,6 @@ const Jurors = lazy(() => import("./pages/Jurors"));
 const DisputeResolver = lazy(() => import("./pages/Resolver"));
 const GetPnk = lazy(() => import("./pages/GetPnk"));
 const Settings = lazy(() => import("./pages/Settings"));
-import Web3Provider from "context/Web3Provider";
 
 import Loader from "components/Loader";
 import Layout from "layout/index";
@@ -33,8 +33,8 @@ const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Web3Provider>
-          <QueryClientProvider>
+        <QueryClientProvider>
+          <WalletProvider type="lemon">
             <GraphqlBatcherProvider>
               <AtlasProvider>
                 <IsListProvider>
@@ -120,8 +120,8 @@ const App: React.FC = () => {
                 </IsListProvider>
               </AtlasProvider>
             </GraphqlBatcherProvider>
-          </QueryClientProvider>
-        </Web3Provider>
+          </WalletProvider>
+        </QueryClientProvider>
       </ErrorBoundary>
     </StyledComponentsProvider>
   );

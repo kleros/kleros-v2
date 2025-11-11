@@ -1,7 +1,5 @@
 import React, { useMemo } from "react";
 
-import { useAccount } from "wagmi";
-
 import BookmarkIcon from "svgs/icons/bookmark.svg";
 import CalendarIcon from "svgs/icons/calendar.svg";
 import LawBalanceIcon from "svgs/icons/law-balance.svg";
@@ -13,6 +11,7 @@ import { useIsList } from "context/IsListProvider";
 import { formatDate } from "utils/date";
 import { isUndefined } from "utils/index";
 
+import { useWallet } from "context/walletProviders";
 import DisputeInfoCard from "./DisputeInfoCard";
 import DisputeInfoList from "./DisputeInfoList";
 
@@ -66,7 +65,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   showLabels = false,
 }) => {
   const { isList } = useIsList();
-  const { isDisconnected } = useAccount();
+  const { isConnected } = useWallet();
   const displayAsList = isList && !overrideIsList;
 
   const fieldItems: FieldItem[] = useMemo(
@@ -95,7 +94,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
       {
         icon: CalendarIcon,
         name: getPeriodPhrase(period ?? 0),
-        value: !displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date),
+        value: !displayAsList ? new Date(date! * 1000).toLocaleString() : formatDate(date!),
         display: !isUndefined(period) && !isUndefined(date),
         style: "grid-column: 2 / 4;",
       },
@@ -103,10 +102,10 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
     [category, court, courtId, date, displayAsList, isOverview, period, rewards, round]
   );
   return displayAsList ? (
-    <DisputeInfoList showLabels={showLabels && !isDisconnected} {...{ disputeID, round, fieldItems }} />
+    <DisputeInfoList showLabels={showLabels && isConnected} {...{ disputeID, round, fieldItems }} />
   ) : (
     <DisputeInfoCard
-      showLabels={showLabels && !isDisconnected}
+      showLabels={showLabels && isConnected}
       {...{ disputeID, round, fieldItems, court, courtId, isOverview }}
     />
   );

@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import { formatUnits } from "viem";
-import { useAccount } from "wagmi";
 
 import KlerosLogo from "svgs/icons/kleros.svg";
 
@@ -75,7 +74,7 @@ const AmountStakedOrWithdrawn: React.FC<IAmountStakedOrWithdrawn> = ({ pnkStaked
 };
 
 const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake, courtId }) => {
-  const { address } = useAccount();
+  const { account: address } = useWallet();
 
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     query: {

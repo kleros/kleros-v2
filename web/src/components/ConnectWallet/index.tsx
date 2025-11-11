@@ -1,33 +1,30 @@
 import React, { useCallback } from "react";
 
-import { useAppKit, useAppKitState } from "@reown/appkit/react";
-import { useAccount, useSwitchChain } from "wagmi";
-
 import { Button } from "@kleros/ui-components-library";
 
-import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/chains";
 
+import { useWallet, useWalletContext } from "context/walletProviders";
 import AccountDisplay from "./AccountDisplay";
 
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
-  // TODO isLoading is not documented, but exists in the type, might have changed to isPending
-  const { switchChain, isLoading } = useSwitchChain();
+  const { switchNetwork } = useWallet();
   const handleSwitch = useCallback(() => {
-    if (!switchChain) {
+    if (!switchNetwork) {
       console.error("Cannot switch network. Please do it manually.");
       return;
     }
     try {
-      switchChain({ chainId: DEFAULT_CHAIN });
+      switchNetwork(DEFAULT_CHAIN);
     } catch (err) {
       console.error(err);
     }
-  }, [switchChain]);
+  }, [switchNetwork]);
   return (
     <Button
       {...{ className }}
-      isLoading={isLoading}
-      disabled={isLoading}
+      // isLoading={isLoading}
+      // disabled={isLoading}
       text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].name}`}
       onClick={handleSwitch}
     />
@@ -35,21 +32,18 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
 };
 
 const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { open } = useAppKit();
-  const { open: isOpen } = useAppKitState();
+  const { isConnected, connect, account } = useWallet();
+  const { setWallet } = useWalletContext();
+
+  console.log("ConnectButton render", { isConnected, account });
   return (
-    <Button
-      {...{ className }}
-      disabled={isOpen}
-      small
-      text={"Connect"}
-      onClick={async () => open({ view: "Connect" })}
-    />
+    <Button {...{ className }} disabled={isConnected} small text={"Connect"} onClick={async () => connect(setWallet)} />
   );
 };
 
 const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
-  const { isConnected, chainId } = useAccount();
+  const { isConnected, chainId } = useWallet();
+  console.log("ConnectWallet render", { isConnected, chainId });
 
   if (isConnected) {
     if (chainId !== DEFAULT_CHAIN) {

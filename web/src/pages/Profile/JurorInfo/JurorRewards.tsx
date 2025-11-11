@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useAccount } from "wagmi";
-
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
 import { getFormattedRewards } from "utils/jurorRewardConfig";

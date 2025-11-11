@@ -1,14 +1,14 @@
-import React, { useContext, createContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 
-import { REFETCH_INTERVAL, DisputeKits } from "consts/index";
+import { DisputeKits, REFETCH_INTERVAL } from "consts/index";
+import { useWallet } from "context/walletProviders";
 import {
   useReadDisputeKitClassicIsVoteActive,
-  useReadDisputeKitShutterIsVoteActive,
   useReadDisputeKitGatedIsVoteActive,
   useReadDisputeKitGatedShutterIsVoteActive,
+  useReadDisputeKitShutterIsVoteActive,
 } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
@@ -36,11 +36,13 @@ const VotingContext = createContext<IVotingContext>({
 });
 export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { id } = useParams();
-  const { address } = useAccount();
+  const { account } = useWallet();
   const { data: disputeData } = useDisputeDetailsQuery(id);
-  const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
+  console.log("VotingContext: Account", account);
+  const { data: drawData, isLoading } = useDrawQuery(account?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
+  console.log("VotingContext: DrawData", drawData);
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });

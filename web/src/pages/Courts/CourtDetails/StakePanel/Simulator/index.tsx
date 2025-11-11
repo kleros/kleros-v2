@@ -3,31 +3,31 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import { useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
-import { useAccount } from "wagmi";
+import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 
 import { CoinIds } from "consts/coingecko";
 
+import { beautifyStatNumber } from "utils/beautifyStatNumber";
 import { formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
-import { beautifyStatNumber } from "utils/beautifyStatNumber";
 
 import { useCoinPrice } from "hooks/useCoinPrice";
 import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
-import GavelIcon from "svgs/icons/gavel.svg";
+import ArrowRightIcon from "svgs/icons/arrow-right.svg";
 import DiceIcon from "svgs/icons/dice.svg";
 import DollarIcon from "svgs/icons/dollar.svg";
-import ArrowRightIcon from "svgs/icons/arrow-right.svg";
+import GavelIcon from "svgs/icons/gavel.svg";
 
+import { Divider } from "components/Divider";
+import WithHelpTooltip from "components/WithHelpTooltip";
+import { useWallet } from "context/walletProviders";
+import Info from "../../Info";
 import Header from "./Header";
 import QuantityToSimulate from "./QuantityToSimulate";
-import Info from "../../Info";
-import WithHelpTooltip from "components/WithHelpTooltip";
-import { Divider } from "components/Divider";
 
 const Container = styled.div`
   display: flex;
@@ -127,11 +127,11 @@ interface ISimulator {
 
 const Simulator: React.FC<ISimulator> = ({ amountToStake, isStaking }) => {
   const { id } = useParams();
-  const { address } = useAccount();
-  const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
+  const { account } = useWallet();
+  const { data: stakeData } = useJurorStakeDetailsQuery(account?.toLowerCase() as `0x${string}`);
   const jurorStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
-  const jurorCurrentEffectiveStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
-  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
+  const jurorCurrentEffectiveStake = account && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
+  const jurorCurrentSpecificStake = account && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
 
   const timeframedCourtData = useHomePageExtraStats(30);
   const { prices: pricesData } = useCoinPrice([CoinIds.ETH]);

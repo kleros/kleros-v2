@@ -4,11 +4,12 @@ import styled, { css } from "styled-components";
 import Identicon from "react-identicons";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
-import { useAccount, useChainId, useEnsAvatar, useEnsName } from "wagmi";
+import { useEnsAvatar, useEnsName } from "wagmi";
 
 import { getChain } from "consts/chains";
 import { shortenAddress } from "utils/shortenAddress";
 
+import { useWallet } from "context/walletProviders";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
@@ -122,7 +123,7 @@ interface IIdenticonOrAvatar {
 }
 
 export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "20", address: propAddress }) => {
-  const { address: defaultAddress } = useAccount();
+  const { account: defaultAddress } = useWallet();
   const address = propAddress || defaultAddress;
 
   const { data: name } = useEnsName({
@@ -147,7 +148,7 @@ interface IAddressOrName {
 }
 
 export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress, smallDisplay }) => {
-  const { address: defaultAddress } = useAccount();
+  const { account: defaultAddress } = useWallet();
   const address = propAddress || defaultAddress;
 
   const { data } = useEnsName({
@@ -161,8 +162,8 @@ export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress, 
 };
 
 export const ChainDisplay: React.FC = () => {
-  const chainId = useChainId();
-  const chain = getChain(chainId);
+  const { chainId } = useWallet();
+  const chain = getChain(chainId!);
   return <label>{chain?.name}</label>;
 };
 

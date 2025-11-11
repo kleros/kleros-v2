@@ -3,9 +3,9 @@ import styled from "styled-components";
 
 import ArrowSvg from "svgs/icons/arrow.svg";
 
-import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
+import { AddressOrName, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
-import { useAccount } from "wagmi";
+import { useWallet } from "context/walletProviders";
 
 const Container = styled.div`
   display: flex;
@@ -46,12 +46,12 @@ export const ReStyledArrowLink = styled(StyledArrowLink)<{ smallDisplay?: boolea
 `;
 
 interface IJurorTitle {
-  address: string;
+  address: `0x${string}`;
   smallDisplay?: boolean;
 }
 
 const JurorTitle: React.FC<IJurorTitle> = ({ address, smallDisplay }) => {
-  const { isConnected, address: connectedAddress } = useAccount();
+  const { isConnected, account: connectedAddress } = useWallet();
   const profileLink =
     isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
       ? "/profile/1/desc/all"

@@ -4,7 +4,6 @@ import styled from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
-import { useAccount } from "wagmi";
 
 import Check from "svgs/icons/check-circle-outline.svg";
 
@@ -17,6 +16,7 @@ import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
+import { useWallet } from "context/walletProviders";
 import QuantityToSimulate, { Quantity, TextWithTooltipContainer } from "../Simulator/QuantityToSimulate";
 import { ActionType } from "../StakeWithdrawButton";
 
@@ -68,11 +68,11 @@ interface IHeader {
 const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   const { id } = useParams();
   const { data: courtDetails } = useCourtDetails(id);
-  const { address } = useAccount();
-  const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
+  const { account } = useWallet();
+  const { data: stakeData } = useJurorStakeDetailsQuery(account?.toLowerCase() as `0x${string}`);
   const jurorStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
-  const jurorCurrentEffectiveStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
-  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
+  const jurorCurrentEffectiveStake = account && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
+  const jurorCurrentSpecificStake = account && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
 
   const effectiveStakeDisplay = !isUndefined(jurorCurrentEffectiveStake) ? (
     `${commify(jurorCurrentEffectiveStake)} PNK`

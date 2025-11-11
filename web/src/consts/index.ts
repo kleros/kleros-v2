@@ -1,12 +1,12 @@
 import { ArbitratorTypes, getArbitratorType as _getArbitratorType } from "consts/arbitratorTypes";
 
-import { version, gitCommitHash, gitCommitShortHash, gitBranch, gitTags, clean } from "../generatedGitInfo.json";
+import { clean, gitBranch, gitCommitHash, gitCommitShortHash, gitTags, version } from "../generatedGitInfo.json";
 
 export { ArbitratorTypes };
 
 export const ONE_BASIS_POINT = 10000n;
 
-export const REFETCH_INTERVAL = 5000;
+export const REFETCH_INTERVAL = 50000;
 export const STALE_TIME = 1000;
 
 export const IPFS_GATEWAY = import.meta.env.REACT_APP_IPFS_GATEWAY || "https://cdn.kleros.link";

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { useAccount, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -17,6 +17,7 @@ import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
+import { useWallet } from "context/walletProviders";
 import { IBaseMaintenanceButton } from ".";
 
 const StyledButton = styled(Button)`
@@ -33,7 +34,7 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
   const [isSending, setIsSending] = useState(false);
   const [contractConfigs, setContractConfigs] = useState<TransactionBatcherConfig>();
   const publicClient = usePublicClient();
-  const { chainId } = useAccount();
+  const { chainId } = useWallet();
 
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
   const { data: appealData } = useClassicAppealQuery(id);

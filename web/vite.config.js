@@ -1,10 +1,11 @@
-import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
-import svgr from "vite-plugin-svgr";
-import tsconfigPaths from "vite-tsconfig-paths";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+import { defineConfig } from "vite";
+import eruda from "vite-plugin-eruda";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+import svgr from "vite-plugin-svgr";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -44,5 +45,6 @@ export default defineConfig({
     nodePolyfills({
       include: ["fs", "stream"],
     }),
+    eruda(),
   ],
 });

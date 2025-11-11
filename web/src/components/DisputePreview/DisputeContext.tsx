@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
-import { useAccount } from "wagmi";
 
 import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Answer as IAnswer } from "context/NewDisputeContext";
@@ -18,9 +17,10 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 import { Divider } from "../Divider";
 import { ExternalLink } from "../ExternalLink";
 
-import AliasDisplay from "./Alias";
-import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
+import { useWallet } from "context/walletProviders";
 import CardLabel from "../DisputeView/CardLabels";
+import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
+import AliasDisplay from "./Alias";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -100,7 +100,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   disputeId,
   votingHistory,
 }) => {
-  const { isDisconnected } = useAccount();
+  const { isConnected } = useWallet();
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
@@ -123,8 +123,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
                 jurorRewardsDispersed={jurorRewardsDispersed}
               />
             ) : null}
-            {!isDisconnected ? (
-              <CardLabel {...{ disputeId }} round={rounds?.length - 1} isList={false} isOverview={true} />
+            {isConnected ? (
+              <CardLabel {...{ disputeId }} round={rounds?.length! - 1} isList={false} isOverview={true} />
             ) : null}
           </RulingAndRewardsAndLabels>
         ) : null}
@@ -168,7 +168,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
           <Divider />
           <AliasesContainer>
             {Object.keys(disputeDetails.aliases).map((key) => (
-              <AliasDisplay name={key} key={key} address={disputeDetails.aliases[key]} />
+              <AliasDisplay name={key} key={key} address={disputeDetails.aliases![key] as `0x${string}`} />
             ))}
           </AliasesContainer>
         </>

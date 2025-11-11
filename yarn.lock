@@ -6125,6 +6125,7 @@ __metadata:
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
     "@kleros/ui-components-library": "npm:^2.20.0"
+    "@lemoncash/mini-app-sdk": "npm:^0.1.5"
     "@lifi/wallet-management": "npm:^3.7.1"
     "@lifi/widget": "npm:^3.18.1"
     "@reown/appkit": "npm:^1.7.1"
@@ -6151,6 +6152,7 @@ __metadata:
     chartjs-adapter-moment: "npm:^1.0.1"
     chartjs-plugin-datalabels: "npm:^2.2.0"
     core-js: "npm:^3.39.0"
+    eruda: "npm:^3.4.3"
     eslint: "npm:^9.15.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-import-resolver-typescript: "npm:^3.6.3"
@@ -6185,6 +6187,7 @@ __metadata:
     typescript: "npm:^5.6.3"
     viem: "npm:^2.24.1"
     vite: "npm:^5.4.11"
+    vite-plugin-eruda: "npm:^1.0.1"
     vite-plugin-node-polyfills: "npm:^0.23.0"
     vite-plugin-static-copy: "npm:^3.0.0"
     vite-plugin-svgr: "npm:^4.3.0"
@@ -6227,6 +6230,13 @@ __metadata:
   version: 2.0.4
   resolution: "@leichtgewicht/ip-codec@npm:2.0.4"
   checksum: 10/3c7ffb0afb86c731a02813aa4370da27eac037abf8a15fce211226c11b644610382c8eca7efadace9471ee1959afe72fc1d43a62227d974b9fca8eae8b8d2124
+  languageName: node
+  linkType: hard
+
+"@lemoncash/mini-app-sdk@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@lemoncash/mini-app-sdk@npm:0.1.5"
+  checksum: 10/b930409330d875741587e5f6e1690465bd98248b02066dc957289ca07417302858f8673aeb91231c9f5faafcfbb8ca0e42ee4f70902d7a6cf8de5ea1216841dc
   languageName: node
   linkType: hard
 
@@ -16812,6 +16822,13 @@ __metadata:
   dependencies:
     stackframe: "npm:^1.3.4"
   checksum: 10/23db33135bfc6ba701e5eee45e1bb9bd2fe33c5d4f9927440d9a499c7ac538f91f455fcd878611361269893c56734419252c40d8105eb3b023cf8b0fc2ebb64e
+  languageName: node
+  linkType: hard
+
+"eruda@npm:^3.4.3":
+  version: 3.4.3
+  resolution: "eruda@npm:3.4.3"
+  checksum: 10/3c10ddb78587d1d2123826a8208dab9ec3e7cbcf719f7421e0d54ce016b5e8b47c877067304c1a76d48392b80757c8bc8cfee2b25d103270074b0a0432bbbb7d
   languageName: node
   linkType: hard
 
@@ -33970,6 +33987,13 @@ __metadata:
     vite:
       optional: true
   checksum: 10/bbf59fb9d4ab9420f3fd2be2090439a072c4a57194cf6ee987ae990d1d95e2d9b16fae1a7c26578705d6a396a81eb6346ec522216e1f7cfc4f4d891fc29bd839
+  languageName: node
+  linkType: hard
+
+"vite-plugin-eruda@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "vite-plugin-eruda@npm:1.0.1"
+  checksum: 10/d448a554477f09e5feeae356ae3242e509f07d9fbc092d9169192780624a0e848a342785d2d93da385b5199e5ac0ef1cd179f534fcdde5448c6d33a915ac6f5e
   languageName: node
   linkType: hard
 

@@ -1,10 +1,9 @@
-import { useAccount } from "wagmi";
-
 import { DEFAULT_CHAIN } from "consts/chains";
 
 import { REFETCH_INTERVAL } from "src/consts";
 import { isUndefined } from "src/utils";
 
+import { useWallet } from "context/walletProviders";
 import {
   klerosCoreAddress,
   useReadPnkAllowance,
@@ -21,7 +20,7 @@ interface UsePnkDataParams {
  * @param param0 optional court Id to fetch juror balance for. Defaults to 0
  */
 export const usePnkData = ({ courtId = "0" }: UsePnkDataParams) => {
-  const { address } = useAccount();
+  const { account: address } = useWallet();
   const queryConfig = {
     enabled: !isUndefined(address),
     refetchInterval: REFETCH_INTERVAL,

@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import { useToggle } from "react-use";
-import { useAccount } from "wagmi";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
@@ -10,9 +9,10 @@ import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
-import OverlayPortal from "components/OverlayPortal";
 import { Overlay } from "components/Overlay";
+import OverlayPortal from "components/OverlayPortal";
 
+import { useWallet } from "context/walletProviders";
 import { useOpenContext } from "../MobileHeader";
 import DappList from "./DappList";
 import Explore from "./Explore";
@@ -84,7 +84,7 @@ export interface IDappList {
 }
 
 const NavBar: React.FC = () => {
-  const { isConnected } = useAccount();
+  const { isConnected } = useWallet();
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);

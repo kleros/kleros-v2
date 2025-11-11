@@ -2,16 +2,16 @@ import React from "react";
 import styled from "styled-components";
 
 import { useLocation } from "react-router-dom";
-import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { useWallet } from "context/walletProviders";
+import { StyledArrowLink } from "../StyledArrowLink";
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
-import { StyledArrowLink } from "../StyledArrowLink";
 
 const TitleContainer = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   totalPages,
 }) => {
   const location = useLocation();
-  const { isConnected } = useAccount();
+  const { isConnected } = useWallet();
   const profileLink = isConnected ? `/profile/1/desc/all` : null;
 
   return (
