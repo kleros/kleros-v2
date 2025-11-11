@@ -176,7 +176,6 @@ type Dispute @entity {
   disputeKitDispute: [DisputeKitDispute!]! @derivedFrom(field: "coreDispute")
   isCrossChain: Boolean
   arbitrableChainId: BigInt
-  externalDisputeId: BigInt
   templateId: BigInt
   rulingTimestamp: BigInt
   rulingTransactionHash: String

@@ -10,7 +10,6 @@ import DownArrow from "svgs/icons/arrow-down.svg";
 
 import { useSpamEvidence } from "hooks/useSpamEvidence";
 
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useEvidences } from "queries/useEvidences";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -80,7 +79,6 @@ const SpamLabel = styled.label`
 
 const Evidence: React.FC = () => {
   const { id } = useParams();
-  const { data: disputeData } = useDisputeDetailsQuery(id);
   const ref = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string>();
   const [debouncedSearch, setDebouncedSearch] = useState<string>();
@@ -116,7 +114,7 @@ const Evidence: React.FC = () => {
 
   return (
     <Container ref={ref}>
-      <EvidenceSearch {...{ search, setSearch, evidenceGroup: disputeData?.dispute?.externalDisputeId }} />
+      <EvidenceSearch {...{ search, setSearch }} />
       <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
       {evidences?.realEvidences ? (
         <>

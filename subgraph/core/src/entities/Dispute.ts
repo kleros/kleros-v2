@@ -35,20 +35,19 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
 }
 
 // source: contracts/src/arbitration/interfaces/IArbitrableV2.sol
-const DisputeRequest = "DisputeRequest(address,uint256,uint256,uint256,string)";
+const DisputeRequest = "DisputeRequest(address,uint256,uint256)";
 const DisputeRequestSignature = crypto.keccak256(ByteArray.fromUTF8(DisputeRequest));
 
 // note : we are using bytes32 in place of string as strings cannot be decoded and it breaks the function.
 // It is okay for us, as we are only interested in the uint256 in frontend.
-const DisputeRequestTypestring = "(uint256,uint256,bytes32)"; // _externalDisputeId,_templateId,_templateUri
+const DisputeRequestTypestring = "(uint256)"; // _templateId
 
 // source: contracts/src/gateway/interfaces/IHomeGateway.sol
-const CrossChainDisputeIncoming =
-  "CrossChainDisputeIncoming(address,uint256,address,uint256,uint256,uint256,uint256,string)";
+const CrossChainDisputeIncoming = "CrossChainDisputeIncoming(address,uint256,address,uint256,uint256,uint256)";
 const CrossChainDisputeIncomingSignature = crypto.keccak256(ByteArray.fromUTF8(CrossChainDisputeIncoming));
 
 // note : arbitrable is an indexed arg, so it will topic[1]
-const CrossChainDisputeIncomingTypestring = "(address,uint256,uint256,uint256,string)"; // arbitrator, _arbitrableChainId, _externalDisputeId, _templateId, _templateUri
+const CrossChainDisputeIncomingTypestring = "(address,uint256,uint256)"; // arbitrator, _arbitrableChainId, _templateId
 
 export const updateDisputeRequestData = (event: DisputeCreation): void => {
   const dispute = Dispute.load(event.params._disputeID.toString());
@@ -96,8 +95,7 @@ export const updateDisputeRequestData = (event: DisputeCreation): void => {
     if (!decoded) return;
     dispute.isCrossChain = true;
     dispute.arbitrableChainId = decoded.toTuple()[1].toBigInt();
-    dispute.externalDisputeId = decoded.toTuple()[2].toBigInt();
-    dispute.templateId = decoded.toTuple()[3].toBigInt();
+    dispute.templateId = decoded.toTuple()[2].toBigInt();
     dispute.save();
     return;
   } else if (disputeRequestEventIndex !== -1) {
@@ -107,8 +105,7 @@ export const updateDisputeRequestData = (event: DisputeCreation): void => {
     if (!decoded) return;
     dispute.isCrossChain = false;
     dispute.arbitrableChainId = getHomeChainId(dataSource.network());
-    dispute.externalDisputeId = decoded.toTuple()[0].toBigInt();
-    dispute.templateId = decoded.toTuple()[1].toBigInt();
+    dispute.templateId = decoded.toTuple()[0].toBigInt();
     dispute.save();
     return;
   }
