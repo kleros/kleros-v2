@@ -45,7 +45,7 @@ interface Contribution {
 interface Evidence {
   id: ID!
   evidence: String!
-  evidenceIndex: BigInt!
+  evidenceIndex: String!
   dispute: Dispute!
   sender: User!
   senderAddress: String!
@@ -330,7 +330,8 @@ type ClassicJustification @entity {
 type ClassicEvidence implements Evidence @entity(immutable: true) {
   id: ID! # classicEvidenceGroup.id-nextEvidenceIndex
   evidence: String!
-  evidenceIndex: BigInt!
+  # keeping as string to be fulltext searchable
+  evidenceIndex: String!
   dispute: Dispute!
   sender: User!
   senderAddress: String!

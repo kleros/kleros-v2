@@ -28,7 +28,7 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   evidence.evidence = event.params._evidence;
   evidence.sender = userId;
   evidence.senderAddress = userId;
-  evidence.evidenceIndex = numberOfEvidences;
+  evidence.evidenceIndex = numberOfEvidences.toString();
   ensureUser(userId);
 
   let jsonObjValueAndSuccess = json.try_fromString(event.params._evidence);
