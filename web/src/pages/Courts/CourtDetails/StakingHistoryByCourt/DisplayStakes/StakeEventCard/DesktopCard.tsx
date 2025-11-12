@@ -46,16 +46,13 @@ const StyledLabel = styled.label`
 `;
 
 const StakeLabel = styled(StyledLabel)`
-  width: 90px;
+  width: 80px;
   text-align: right;
 `;
 
 const CourtLabelContainer = styled.div`
-  width: 110px;
+  width: 120px;
   text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   flex-shrink: 0;
 `;
 
@@ -67,6 +64,10 @@ const CourtLink = styled(InternalLink)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  :hover {
+    color: ${({ theme }) => theme.primaryBlue};
+  }
 `;
 
 const CourtText = styled.span`
@@ -115,6 +116,11 @@ const formatDate = (timestamp: string): string => {
   });
 };
 
+const truncateCourtName = (name: string, maxLength: number = 15): string => {
+  if (name.length <= maxLength) return name;
+  return name.slice(0, maxLength - 3) + "...";
+};
+
 const DesktopCard: React.FC<IDesktopCard> = ({
   address,
   stake,
@@ -134,10 +140,10 @@ const DesktopCard: React.FC<IDesktopCard> = ({
       <StakeLabel>{formatPNK(BigInt(stake))}</StakeLabel>
       <CourtLabelContainer>
         {isCurrentCourt ? (
-          <CourtText title={courtName}>{courtName}</CourtText>
+          <CourtText title={courtName}>{truncateCourtName(courtName)}</CourtText>
         ) : (
           <CourtLink to={`/courts/${courtId}`} title={courtName}>
-            {courtName}
+            {truncateCourtName(courtName)}
           </CourtLink>
         )}
       </CourtLabelContainer>
