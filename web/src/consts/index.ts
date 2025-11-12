@@ -32,7 +32,6 @@ export const isProductionDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT
 export const isTestnetDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "testnet";
 
 export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
-export const isKlerosNeo = () => getArbitratorType() === ArbitratorTypes.neo;
 export const getArbitratorType = (): ArbitratorTypes =>
   _getArbitratorType(import.meta.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase());
 
