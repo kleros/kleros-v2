@@ -1,6 +1,5 @@
+import { SignTypedDataParameters } from "@wagmi/core";
 import type { Chain } from "viem";
-import { Config } from "wagmi";
-import { SwitchChainMutate } from "wagmi/query";
 import type { WalletProviderType, WriteContractParametersWithPermits } from "../types";
 
 /**
@@ -19,6 +18,7 @@ export interface IWalletProvider {
   logout(setWallet?: (wallet: string | undefined) => void, setConnected?: (connected: boolean) => void): Promise<void>;
 
   switchNetwork(chainId: number, setChainId?: (chainId: Chain | undefined) => void): Promise<Chain>;
+  signTypedData(params: SignTypedDataParameters): Promise<`0x${string}`>;
 }
 
 /**
@@ -36,12 +36,7 @@ export interface WalletProviderHook {
   chainId: number | undefined;
   providerType: WalletProviderType;
   // todo: fix types
-  signTypedData: (params: {
-    domain: unknown;
-    types: unknown;
-    primaryType: string;
-    message: unknown;
-  }) => Promise<{ signature: `0x${string}` }>;
+  signTypedData: (params: SignTypedDataParameters) => Promise<`0x${string}`>;
   setWallet?: (wallet: string | undefined) => void;
   setConnected?: (connected: boolean) => void;
   switchNetwork: (chainId: number) => Promise<Chain>;

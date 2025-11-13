@@ -23,6 +23,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
 
+import { useWallet } from "~src/context/walletProviders";
 import JustificationArea from "../JustificationArea";
 
 const Container = styled.div`
@@ -62,6 +63,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
+  const { providerType } = useWallet();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
   const { callVote } = useDisputeKit(disputeData?.dispute?.currentRound.disputeKit.address);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
@@ -78,10 +80,12 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
       : JSON.parse(storedSaltAndChoice);
     if (isUndefined(choice)) return;
 
-    const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
     const args = [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification];
-    const { request } = await catchShortMessage(simulate(wagmiConfig, { args: args as any }));
-    if (request && publicClient) {
+    if (providerType !== "lemon") {
+      const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
+      await catchShortMessage(simulate(wagmiConfig, { args: args as any }));
+    }
+    if (publicClient) {
       await wrapWithToast(async () => await callVote(args), publicClient).then(({ status }) => {
         setIsOpen(status);
       });

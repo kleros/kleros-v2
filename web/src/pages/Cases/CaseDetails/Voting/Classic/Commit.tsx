@@ -49,24 +49,18 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, is
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
-      console.log("handling commit");
       const message = { message: saltKey };
-      console.log("signingAccount", signingAccount);
       const rawSalt = !isUndefined(signingAccount)
         ? await signingAccount.signMessage(message)
         : await (async () => {
             const account = await generateSigningAccount();
-            console.log("handleCommit, account signing", account);
             return await account?.signMessage(message);
           })();
-      console.log(rawSalt);
       if (isUndefined(rawSalt)) return;
 
       const salt = keccak256(rawSalt);
       setSalt(JSON.stringify({ salt, choice: choice.toString() }));
       const commit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(choice), BigInt(salt)]));
-      console.log("commit", commit);
-
       if (providerType !== "lemon") {
         console.log("simulating cast commit");
         const simulate = isGated ? simulateDisputeKitGatedCastCommit : simulateDisputeKitClassicCastCommit;

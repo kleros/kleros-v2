@@ -25,7 +25,7 @@ const generateSigningAccount = async (
 ) => {
   console.log("generateSigningAccount", { account });
   if (isUndefined(account)) return;
-  const { signature } = await signTypedData(messages.signingAccount(account));
+  const signature = await signTypedData(messages.signingAccount(account));
   const signingKey = keccak256(signature);
   setSigningKey(signingKey);
   return privateKeyToAccount(signingKey);

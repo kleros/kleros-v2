@@ -1,4 +1,5 @@
 import { useAppKit } from "@reown/appkit/react";
+import { signTypedData, SignTypedDataParameters, switchChain } from "@wagmi/core";
 import { getChain } from "src/consts/chains";
 import { Chain } from "viem/chains";
 import { useAccount } from "wagmi";
@@ -51,6 +52,11 @@ export class ReownWalletProvider implements IWalletProvider {
 
     return switchChain(wagmiAdapter.wagmiConfig, { chainId });
   }
+
+  async signTypedData(params: SignTypedDataParameters): Promise<`0x${string}`> {
+    const signature = await signTypedData(wagmiAdapter.wagmiConfig, params);
+    return signature;
+  }
 }
 
 export function useReownWalletProvider(): WalletProviderHook {
@@ -67,14 +73,12 @@ export function useReownWalletProvider(): WalletProviderHook {
     connect: provider.connect.bind(provider),
     logout: provider.logout.bind(provider),
     switchNetwork: provider.switchNetwork.bind(provider),
+    signTypedData: provider.signTypedData.bind(provider),
     chainId,
     ready: true,
     isAuthenticated: false,
     isConnected: account !== undefined,
     account,
     providerType: "reown",
-    signTypedData: () => {
-      throw new Error("signTypedData not available");
-    },
   };
 }
