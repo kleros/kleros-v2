@@ -29,12 +29,13 @@ import ErrorFallback from "./components/ErrorFallback";
 import AttachmentDisplay from "./pages/AttachmentDisplay";
 import { SentryRoutes } from "./utils/sentry";
 
+const walletProviderType = import.meta.env.REACT_APP_WALLET_PROVIDER ?? "reown";
 const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <QueryClientProvider>
-          <WalletProvider type="lemon">
+          <WalletProvider type={walletProviderType}>
             <GraphqlBatcherProvider>
               <AtlasProvider>
                 <IsListProvider>

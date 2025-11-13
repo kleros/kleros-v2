@@ -1,16 +1,30 @@
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { createAppKit, useAppKit } from "@reown/appkit/react";
+import { AppKitNetwork } from "@reown/appkit/networks";
+import { createAppKit, useAppKit, useAppKitNetwork } from "@reown/appkit/react";
 import { lightTheme } from "src/styles/themes";
-import { arbitrum, arbitrumSepolia } from "viem/chains";
-import { useAccount } from "wagmi";
+import { arbitrum, arbitrumSepolia, Chain } from "viem/chains";
+import { useAccount, useSwitchChain } from "wagmi";
+import { createWriteContract } from "wagmi/codegen";
+import { DEFAULT_CHAIN, getChain } from "~src/consts/chains";
 import { IWalletProvider, WalletProviderHook } from "../../interfaces";
-import { SendTransactionParams } from "../../types";
+import { WriteContractParametersWithPermits } from "../../types";
 import { chains, isProduction, projectId, transports } from "../wagmi";
 import { reownAuthenticate } from "./ReownAuthenticate";
 
 export class ReownWalletProvider implements IWalletProvider {
-  async sendTransaction({ to, functionName, functionParams, value }: SendTransactionParams): Promise<`0x${string}`> {
-    throw new Error("Not Implemented");
+  async writeContract({
+    address,
+    functionName,
+    args,
+    value,
+    abi,
+  }: WriteContractParametersWithPermits): Promise<`0x${string}`> {
+    const writeContract = createWriteContract({
+      abi,
+      address,
+      functionName,
+    });
+    return writeContract(wagmiAdapter.wagmiConfig, { args, value });
   }
 
   async sendCalls(): Promise<`0x${string}`> {
@@ -19,16 +33,21 @@ export class ReownWalletProvider implements IWalletProvider {
 
   async authenticate(): Promise<void> {
     await reownAuthenticate();
+    return;
   }
 
   async connect(): Promise<void> {
     const { open } = useAppKit();
-    open({ view: "Connect" });
+    return open({ view: "Connect" });
   }
 
   async logout(): Promise<void> {
     const { close } = useAppKit();
-    close();
+    return close();
+  }
+
+  async switchNetwork(chainId: number, setChainId?: (chainId: Chain | undefined) => void): Promise<void> {
+    throw new Error("switchNetwork not implemented");
   }
 }
 
@@ -62,17 +81,18 @@ createAppKit({
 export function useReownWalletProvider(): WalletProviderHook {
   const provider = new ReownWalletProvider();
 
-  const { address } = useAccount();
+  const { address, chainId } = useAccount();
   console.log("useReownWalletProvider render", { address });
 
   const account = address as `0x${string}` | undefined;
 
   return {
-    sendTransaction: provider.sendTransaction.bind(provider),
-    sendCalls: provider.sendCalls.bind(provider),
+    writeContract: provider.writeContract.bind(provider),
     authenticate: provider.authenticate.bind(provider),
     connect: provider.connect.bind(provider),
     logout: provider.logout.bind(provider),
+    switchNetwork: provider.switchNetwork.bind(provider),
+    chainId,
     ready: true,
     isAuthenticated: false,
     isConnected: account !== undefined,

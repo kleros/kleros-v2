@@ -3,16 +3,21 @@ import { useState } from "react";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { useWalletContext } from "../../context";
 import type { IWalletProvider, WalletProviderHook } from "../../interfaces";
-import type { SendTransactionParams } from "../../types";
+import { WriteContractParametersWithPermits } from "../../types";
 import { isProduction } from "../wagmi";
 import { lemonAuthenticate } from "./LemonAuthenticate";
 
 export class LemonWalletProvider implements IWalletProvider {
-  async sendTransaction({ to, functionName, functionParams, value }: SendTransactionParams): Promise<`0x${string}`> {
+  async writeContract({
+    address,
+    functionName,
+    args,
+    value,
+  }: WriteContractParametersWithPermits): Promise<`0x${string}`> {
     const result = await callSmartContract({
-      contractAddress: to,
+      contractAddress: address,
       functionName: functionName!,
-      functionParams: functionParams!,
+      functionParams: args as unknown[],
       value: value?.toString(),
     });
 
@@ -95,7 +100,7 @@ export function createLemonWalletProvider(
 
   console.log("createLemonWalletProvider", { isAuthenticated, isConnected, account });
   return {
-    sendTransaction: provider.sendTransaction.bind(provider),
+    writeContract: provider.writeContract.bind(provider),
     sendCalls: provider.sendCalls.bind(provider),
     authenticate: provider.authenticate.bind(provider),
     connect: provider.connect.bind(provider),

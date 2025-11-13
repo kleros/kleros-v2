@@ -5,16 +5,18 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+import { useConfig, usePublicClient } from "wagmi";
 
 import { Answer } from "@kleros/kleros-sdk";
 import { Button } from "@kleros/ui-components-library";
 
 import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import { useDisputeKit } from "hooks/useContractDisputeKits";
 import useSigningAccount from "hooks/useSigningAccount";
+import { DisputeKits } from "src/consts";
 import { isUndefined } from "utils/index";
-import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
+import { catchShortMessage, wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -58,10 +60,10 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
-  const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
+  const { callVote } = useDisputeKit(disputeData?.dispute?.currentRound.disputeKit.address);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
   const saltKey = useMemo(
     () => `dispute-${id}-round-${currentRoundIndex}-voteids-${voteIDs}`,
@@ -77,13 +79,10 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     if (isUndefined(choice)) return;
 
     const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
-    const { request } = await catchShortMessage(
-      simulate(wagmiConfig, {
-        args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
-      })
-    );
-    if (request && walletClient && publicClient) {
-      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+    const args = [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification];
+    const { request } = await catchShortMessage(simulate(wagmiConfig, { args: args as any }));
+    if (request && publicClient) {
+      await wrapWithToast(async () => await callVote(args), publicClient).then(({ status }) => {
         setIsOpen(status);
       });
     }
@@ -101,7 +100,6 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     parsedDisputeID,
     publicClient,
     setIsOpen,
-    walletClient,
     isGated,
   ]);
 

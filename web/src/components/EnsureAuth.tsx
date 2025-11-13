@@ -28,7 +28,7 @@ interface IEnsureAuth {
 }
 
 const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, className }) => {
-  const { address } = useWallet();
+  const { account, isAuthenticated } = useWallet();
   const { isVerified, isSigningIn, authoriseUser } = useAtlasProvider();
 
   const handleClick = useCallback(() => {
@@ -41,7 +41,8 @@ const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, clas
         errorToast(`Sign-In failed: ${err?.message}`);
       });
   }, [authoriseUser]);
-  return isVerified ? (
+  // isAuthenticated used by LemonProvider, isVerified by Reown
+  return isVerified || isAuthenticated ? (
     children
   ) : (
     <Container>
@@ -49,8 +50,8 @@ const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, clas
       <Button
         text={buttonText ?? "Sign In"}
         onClick={handleClick}
-        disabled={isSigningIn || !address}
-        isLoading={isSigningIn}
+        disabled={isSigningIn || !account}
+        isLoading={isSigningIn || !account}
         {...{ className }}
       />
     </Container>

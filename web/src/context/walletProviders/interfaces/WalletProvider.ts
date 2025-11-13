@@ -1,13 +1,11 @@
 import type { Chain } from "viem";
-import type { Call, SendTransactionParams, WalletProviderType } from "../types";
+import type { WalletProviderType, WriteContractParametersWithPermits } from "../types";
 
 /**
  * Core interface that all wallet providers must implement
  */
 export interface IWalletProvider {
-  sendTransaction(params: SendTransactionParams): Promise<`0x${string}`>;
-
-  sendCalls(params: { chain: Chain; calls: Call[] }): Promise<`0x${string}`>;
+  writeContract(params: WriteContractParametersWithPermits): Promise<`0x${string}`>;
 
   authenticate(
     setWallet?: (wallet: string | undefined) => void,
@@ -25,8 +23,7 @@ export interface IWalletProvider {
  * Hook interface for React components
  */
 export interface WalletProviderHook {
-  sendTransaction: IWalletProvider["sendTransaction"];
-  sendCalls: IWalletProvider["sendCalls"];
+  writeContract: IWalletProvider["writeContract"];
   authenticate: IWalletProvider["authenticate"];
   connect: IWalletProvider["connect"];
   logout: IWalletProvider["logout"];

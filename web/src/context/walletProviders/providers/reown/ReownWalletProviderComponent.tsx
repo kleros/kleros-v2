@@ -1,6 +1,7 @@
 import { arbitrum, arbitrumSepolia } from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
-import * as React from "react";
+import React, { type ReactNode } from "react";
+
 import { WagmiProvider } from "wagmi";
 
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
@@ -10,10 +11,10 @@ import { chains, isProduction, projectId, transports } from "../wagmi";
 import { useReownWalletProvider } from "./ReownWalletProvider";
 
 interface WalletProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const ReownWalletProviderComponent: React.FC<WalletProviderProps> = ({ children }) => {
+export function ReownWalletProviderComponent({ children }: WalletProviderProps) {
   const wagmiAdapter = new WagmiAdapter({
     networks: chains,
     projectId,
@@ -46,7 +47,7 @@ const ReownWalletProviderComponent: React.FC<WalletProviderProps> = ({ children 
       <ReownInitializer>{children}</ReownInitializer>
     </WagmiProvider>
   );
-};
+}
 
 function ReownInitializer({ children }: { children: React.ReactNode }) {
   const walletProvider = useReownWalletProvider();
