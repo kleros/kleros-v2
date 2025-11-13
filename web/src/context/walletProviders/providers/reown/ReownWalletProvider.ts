@@ -1,11 +1,12 @@
 import { useAppKit } from "@reown/appkit/react";
-import { switchChain } from "@wagmi/core";
+import { getChain } from "src/consts/chains";
 import { Chain } from "viem/chains";
-import { useAccount, useConfig } from "wagmi";
+import { useAccount } from "wagmi";
 import { createWriteContract } from "wagmi/codegen";
 import { IWalletProvider, WalletProviderHook } from "../../interfaces";
 import { WriteContractParametersWithPermits } from "../../types";
 import { reownAuthenticate } from "./ReownAuthenticate";
+import { wagmiAdapter } from "./ReownWalletProviderComponent";
 
 export class ReownWalletProvider implements IWalletProvider {
   async writeContract({
@@ -20,8 +21,7 @@ export class ReownWalletProvider implements IWalletProvider {
       address,
       functionName,
     });
-    const wagmiConfig = useConfig();
-    return writeContract(wagmiConfig, { args, value });
+    return writeContract(wagmiAdapter.wagmiConfig, { args, value });
   }
 
   async sendCalls(): Promise<`0x${string}`> {
@@ -45,6 +45,10 @@ export class ReownWalletProvider implements IWalletProvider {
 
   async switchNetwork(chainId: number, setChainId?: (chainId: Chain | undefined) => void): Promise<Chain> {
     console.log("switchNetwork in provider", { chainId });
+    if (setChainId) {
+      setChainId(getChain(chainId)!);
+    }
+
     return switchChain(wagmiAdapter.wagmiConfig, { chainId });
   }
 }
