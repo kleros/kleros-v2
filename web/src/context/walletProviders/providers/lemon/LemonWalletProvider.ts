@@ -1,6 +1,7 @@
 import { callSmartContract, isWebView, TransactionResult } from "@lemoncash/mini-app-sdk";
 import { useState } from "react";
-import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { DEFAULT_CHAIN, getChain } from "src/consts/chains";
+import { arbitrum, arbitrumSepolia, Chain } from "viem/chains";
 import { useWalletContext } from "../../context";
 import type { IWalletProvider, WalletProviderHook } from "../../interfaces";
 import { WriteContractParametersWithPermits } from "../../types";
@@ -72,9 +73,9 @@ export class LemonWalletProvider implements IWalletProvider {
     setConnected(false);
   }
 
-  async switchNetwork(): Promise<void> {
+  async switchNetwork(): Promise<Chain> {
     // No need to switch networks, Lemon only works on predefined network (arbitrum / arbitrum sepolia)
-    return;
+    return getChain(DEFAULT_CHAIN)!;
   }
 
   async signTypedData(): Promise<{ signature: `0x${string}` }> {
@@ -101,7 +102,6 @@ export function createLemonWalletProvider(
   console.log("createLemonWalletProvider", { isAuthenticated, isConnected, account });
   return {
     writeContract: provider.writeContract.bind(provider),
-    sendCalls: provider.sendCalls.bind(provider),
     authenticate: provider.authenticate.bind(provider),
     connect: provider.connect.bind(provider),
     logout: provider.logout.bind(provider),

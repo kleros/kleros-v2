@@ -1,4 +1,6 @@
 import type { Chain } from "viem";
+import { Config } from "wagmi";
+import { SwitchChainMutate } from "wagmi/query";
 import type { WalletProviderType, WriteContractParametersWithPermits } from "../types";
 
 /**
@@ -16,7 +18,7 @@ export interface IWalletProvider {
 
   logout(setWallet?: (wallet: string | undefined) => void, setConnected?: (connected: boolean) => void): Promise<void>;
 
-  switchNetwork(chainId: number, setChainId?: (chainId: Chain | undefined) => void): Promise<void>;
+  switchNetwork(chainId: number, setChainId?: (chainId: Chain | undefined) => void): Promise<Chain>;
 }
 
 /**
@@ -42,5 +44,5 @@ export interface WalletProviderHook {
   }) => Promise<{ signature: `0x${string}` }>;
   setWallet?: (wallet: string | undefined) => void;
   setConnected?: (connected: boolean) => void;
-  switchNetwork: (chainId: number) => Promise<void>;
+  switchNetwork: (chainId: number) => Promise<Chain>;
 }

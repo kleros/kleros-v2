@@ -9,24 +9,24 @@ import AccountDisplay from "./AccountDisplay";
 
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
   const { switchNetwork } = useWallet();
-  const handleSwitch = useCallback(() => {
-    if (!switchNetwork) {
-      console.error("Cannot switch network. Please do it manually.");
-      return;
-    }
-    try {
-      switchNetwork(DEFAULT_CHAIN);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [switchNetwork]);
+  // const handleSwitch = useCallback(() => {
+  //   if (!switchNetwork) {
+  //     console.error("Cannot switch network. Please do it manually.");
+  //     return;
+  //   }
+  //   try {
+  //     console.log("Switching network");
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }, [switchNetwork]);
   return (
     <Button
       {...{ className }}
       // isLoading={isLoading}
       // disabled={isLoading}
       text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].name}`}
-      onClick={handleSwitch}
+      onClick={() => switchNetwork(DEFAULT_CHAIN)}
     />
   );
 };

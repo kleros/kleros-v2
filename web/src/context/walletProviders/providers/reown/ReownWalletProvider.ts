@@ -1,14 +1,10 @@
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { AppKitNetwork } from "@reown/appkit/networks";
-import { createAppKit, useAppKit, useAppKitNetwork } from "@reown/appkit/react";
-import { lightTheme } from "src/styles/themes";
-import { arbitrum, arbitrumSepolia, Chain } from "viem/chains";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
+import { switchChain } from "@wagmi/core";
+import { Chain } from "viem/chains";
+import { useAccount, useConfig } from "wagmi";
 import { createWriteContract } from "wagmi/codegen";
-import { DEFAULT_CHAIN, getChain } from "~src/consts/chains";
 import { IWalletProvider, WalletProviderHook } from "../../interfaces";
 import { WriteContractParametersWithPermits } from "../../types";
-import { chains, isProduction, projectId, transports } from "../wagmi";
 import { reownAuthenticate } from "./ReownAuthenticate";
 
 export class ReownWalletProvider implements IWalletProvider {
@@ -24,7 +20,8 @@ export class ReownWalletProvider implements IWalletProvider {
       address,
       functionName,
     });
-    return writeContract(wagmiAdapter.wagmiConfig, { args, value });
+    const wagmiConfig = useConfig();
+    return writeContract(wagmiConfig, { args, value });
   }
 
   async sendCalls(): Promise<`0x${string}`> {
@@ -46,37 +43,11 @@ export class ReownWalletProvider implements IWalletProvider {
     return close();
   }
 
-  async switchNetwork(chainId: number, setChainId?: (chainId: Chain | undefined) => void): Promise<void> {
-    throw new Error("switchNetwork not implemented");
+  async switchNetwork(chainId: number, setChainId?: (chainId: Chain | undefined) => void): Promise<Chain> {
+    console.log("switchNetwork in provider", { chainId });
+    return switchChain(wagmiAdapter.wagmiConfig, { chainId });
   }
 }
-
-const wagmiAdapter = new WagmiAdapter({
-  networks: chains,
-  projectId,
-  transports,
-});
-
-createAppKit({
-  adapters: [wagmiAdapter],
-  networks: chains,
-  defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
-  projectId,
-  allowUnsupportedChain: true,
-  themeVariables: {
-    "--w3m-color-mix": lightTheme.primaryPurple,
-    "--w3m-color-mix-strength": 20,
-    // overlay portal is at 9999
-    "--w3m-z-index": 10000,
-  },
-  features: {
-    // adding these here to toggle in futute if needed
-    // email: false,
-    // socials: false,
-    // onramp:false,
-    // swap: false
-  },
-});
 
 export function useReownWalletProvider(): WalletProviderHook {
   const provider = new ReownWalletProvider();

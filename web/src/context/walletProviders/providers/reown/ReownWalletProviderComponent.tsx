@@ -41,7 +41,6 @@ export function ReownWalletProviderComponent({ children }: WalletProviderProps) 
       // swap: false
     },
   });
-
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <ReownInitializer>{children}</ReownInitializer>

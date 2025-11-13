@@ -81,48 +81,33 @@ const writeContractDisputeKits = ({
   chain: Chain;
 }): Promise<`0x${string}`> => {
   console.log("Write contract disputeKit", disputeKit, "functionName", functionName, "functionParams", functionParams);
+  let contractConfig: {
+    address: Record<number, `0x${string}`>;
+    abi: readonly any[];
+  };
   switch (disputeKit) {
     case DisputeKits.Classic:
-      return writeContract({
-        account,
-        address: disputeKitClassicConfig.address[chain.id],
-        functionName,
-        args: functionParams as unknown[],
-        value: BigInt(0),
-        abi: disputeKitClassicConfig.abi,
-        chain,
-      });
+      contractConfig = disputeKitClassicConfig;
+      break;
     case DisputeKits.Gated:
-      return writeContract({
-        account: account!,
-        address: disputeKitGatedConfig.address[chain.id],
-        functionName,
-        args: functionParams as unknown[],
-        value: BigInt(0),
-        abi: disputeKitGatedConfig.abi,
-        chain,
-      });
+      contractConfig = disputeKitGatedConfig;
+      break;
     case DisputeKits.Shutter:
-      return writeContract({
-        account: account!,
-        address: disputeKitShutterConfig.address[chain.id],
-        functionName,
-        args: functionParams as unknown[],
-        value: BigInt(0),
-        abi: disputeKitShutterConfig.abi,
-        chain,
-      });
+      contractConfig = disputeKitShutterConfig;
+      break;
     case DisputeKits.GatedShutter:
-      return writeContract({
-        account: account!,
-        address: disputeKitGatedShutterConfig.address[chain.id],
-        functionName,
-        args: functionParams as unknown[],
-        value: BigInt(0),
-        abi: disputeKitGatedShutterConfig.abi,
-        chain,
-      });
+      contractConfig = disputeKitGatedShutterConfig;
+      break;
     default:
       throw new Error(`Invalid dispute kit: ${disputeKit}`);
   }
+  return writeContract({
+    account: account!,
+    address: contractConfig.address[chain.id],
+    functionName,
+    args: functionParams as unknown[],
+    value: BigInt(0),
+    abi: contractConfig.abi,
+    chain,
+  });
 };
