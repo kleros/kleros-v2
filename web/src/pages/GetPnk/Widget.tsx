@@ -5,7 +5,7 @@ import { LiFiWidget, WidgetConfig } from "@lifi/widget";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import { WalletProvider } from "./WalletProvider";
+// import { WalletProvider } from "./WalletProvider";
 
 const WidgetContainer = styled.div`
   width: 100%;
@@ -85,10 +85,10 @@ export const Widget = () => {
   const widgetConfig = useMemo(() => getWidgetConfig(theme), [theme]);
 
   return (
-    <WalletProvider>
-      <WidgetContainer>
-        <LiFiWidget config={widgetConfig} integrator="Kleros" />
-      </WidgetContainer>
-    </WalletProvider>
+    // <WalletProvider>
+    <WidgetContainer>
+      <LiFiWidget config={widgetConfig} integrator="Kleros" />
+    </WidgetContainer>
+    // </WalletProvider>
   );
 };
