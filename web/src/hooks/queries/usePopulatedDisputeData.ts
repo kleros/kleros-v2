@@ -12,6 +12,8 @@ import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
 
+import { klerosCoreAddress } from "../contracts/generated";
+
 import { useDisputeDetailsQuery } from "./useDisputeDetailsQuery";
 
 const disputeTemplateQuery = graphql(`
@@ -54,7 +56,10 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const dataMappings = disputeTemplate?.templateDataMappings;
 
           const initialContext = {
-            disputeID: disputeID,
+            // Matching the variable name to DisputeRequest
+            // https://github.com/kleros/kleros-v2/blob/592243f52d57e1540206c06afdbdac0d77311106/contracts/src/arbitration/interfaces/IArbitrableV2.sol#L21
+            arbitrator: klerosCoreAddress[DEFAULT_CHAIN],
+            arbitratorDisputeID: disputeID,
             arbitrableAddress: arbitrableAddress,
             arbitrableChainID: disputeData.dispute?.arbitrableChainId,
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
