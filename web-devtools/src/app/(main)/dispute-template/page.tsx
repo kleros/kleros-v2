@@ -16,18 +16,18 @@ import PolicyIcon from "svgs/icons/policy.svg";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 import { klerosCoreConfig } from "hooks/contracts/generated";
+import { debounceErrorToast } from "utils/debounceErrorToast";
 import { getIpfsUrl } from "utils/getIpfsUrl";
+import { isEmpty } from "utils/isEmpty";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import JSONEditor from "components/JSONEditor";
 import ReactMarkdown from "components/ReactMarkdown";
 
+import CustomContextInputs from "./CustomContextInputs";
 import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestInput";
 import FetchFromIDInput from "./FetchFromIdInput";
-import CustomContextInputs from "./CustomContextInputs";
-import { debounceErrorToast } from "utils/debounceErrorToast";
-import { isEmpty } from "utils/isEmpty";
 
 const Container = styled.div`
   height: auto;
@@ -187,9 +187,7 @@ const DisputeTemplateView = () => {
             arbitrator: debouncedParams._arbitrator,
             arbitrable: debouncedParams._arbitrable,
             arbitratorDisputeID: debouncedParams._arbitratorDisputeID,
-            externalDisputeID: debouncedParams._externalDisputeID,
             templateID: debouncedParams._templateId,
-            templateUri: debouncedParams._templateUri,
           };
 
           if (customContext) initialContext = { ...initialContext, ...customContext };
@@ -198,6 +196,7 @@ const DisputeTemplateView = () => {
             if (isEmpty(disputeTemplateInput)) return;
             try {
               const data = dataMappingsInput ? await executeActions(JSON.parse(dataMappingsInput), initialContext) : {};
+
               const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
               setDisputeDetails(finalDisputeDetails);
             } catch (e: any) {
@@ -260,16 +259,6 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"externalDisputeID :"}</StyledP>
-            <Field
-              type="text"
-              name="_externalDisputeID"
-              value={params._externalDisputeID?.toString()}
-              onChange={handleFormUpdate}
-              placeholder="0"
-            />
-          </StyledRow>
-          <StyledRow>
             <StyledP>{"templateID :"}</StyledP>
             <Field
               type="text"
@@ -277,16 +266,6 @@ const DisputeTemplateView = () => {
               value={params._templateId?.toString()}
               onChange={handleFormUpdate}
               placeholder="0"
-            />
-          </StyledRow>
-          <StyledRow>
-            <StyledP>{"templateUri :"}</StyledP>
-            <Field
-              type="text"
-              name="_templateUri"
-              value={params._templateUri}
-              onChange={handleFormUpdate}
-              placeholder="/ipfs/... (optional)"
             />
           </StyledRow>
           <StyledRow>
