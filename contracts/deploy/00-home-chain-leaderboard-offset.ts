@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { HomeChains, isSkipped } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 
-const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployLeaderboardOffset: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { getNamedAccounts, getChainId } = hre;
 
   // fallback to hardhat node signers on local network
@@ -18,9 +18,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 };
 
-deployArbitration.tags = ["LeaderboardOffset"];
-deployArbitration.skip = async ({ network }) => {
+deployLeaderboardOffset.tags = ["LeaderboardOffset"];
+deployLeaderboardOffset.skip = async ({ network }) => {
   return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
-export default deployArbitration;
+export default deployLeaderboardOffset;
