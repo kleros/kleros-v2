@@ -2,6 +2,7 @@
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-chai-matchers";
+import "@nomicfoundation/hardhat-verify";
 import "@nomiclabs/hardhat-solhint";
 import "@typechain/hardhat";
 import "hardhat-deploy-tenderly";
@@ -13,6 +14,7 @@ import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
+import "./tasks/verify-all";
 require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
 require("./scripts/changeOwner");
@@ -297,6 +299,9 @@ const config: HardhatUserConfig = {
     etherscan: {
       apiKey: process.env.ETHERSCAN_API_KEY_FIX,
     },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY_FIX,
   },
   watcher: {
     compilation: {
