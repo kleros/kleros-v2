@@ -311,7 +311,6 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         // Current phase is Staking: set stakes.
         if (stakeIncrease) {
             pnkDeposit = stakeChange;
-            totalStaked += stakeChange;
         } else {
             pnkWithdrawal = stakeChange;
             uint256 possibleWithdrawal = juror.stakedPnk > juror.lockedPnk ? juror.stakedPnk - juror.lockedPnk : 0;
@@ -319,9 +318,18 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
                 // Ensure locked tokens remain in the contract. They can only be released during Execution.
                 pnkWithdrawal = possibleWithdrawal;
             }
-            totalStaked -= pnkWithdrawal;
         }
         return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
+    }
+
+    /// @inheritdoc ISortitionModule
+    function updateTotalStake(uint256 _pnkDeposit, uint256 _pnkWithdrawal) external override onlyByCore {
+        // Note that we don't update totalStake in setStake() function because it doesn't always change total (e.g. during rewards/penalties).
+        if (_pnkDeposit > 0) {
+            totalStaked += _pnkDeposit;
+        } else {
+            totalStaked -= _pnkWithdrawal;
+        }
     }
 
     /// @inheritdoc ISortitionModule

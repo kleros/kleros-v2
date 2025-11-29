@@ -1363,6 +1363,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             }
         }
         sortitionModule.setStake(_account, _courtID, pnkDeposit, pnkWithdrawal, _newStake);
+        sortitionModule.updateTotalStake(pnkDeposit, pnkWithdrawal);
 
         return true;
     }

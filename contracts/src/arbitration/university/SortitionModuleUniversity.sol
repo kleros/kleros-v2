@@ -131,6 +131,11 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     }
 
     /// @inheritdoc ISortitionModule
+    function updateTotalStake(uint256 _pnkDeposit, uint256 _pnkWithdrawal) external override onlyByCore {
+        // NOP
+    }
+
+    /// @inheritdoc ISortitionModule
     function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors++;
     }
