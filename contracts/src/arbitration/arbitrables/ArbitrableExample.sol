@@ -149,7 +149,7 @@ contract ArbitrableExample is IArbitrableV2 {
     }
 
     /// @inheritdoc IArbitrableV2
-    function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
+    function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external virtual override {
         uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
         if (msg.sender != address(arbitrator)) revert ArbitratorOnly();

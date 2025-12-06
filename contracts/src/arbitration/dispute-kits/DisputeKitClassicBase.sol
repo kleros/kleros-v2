@@ -476,8 +476,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         address payable _beneficiary,
         uint256 _choice
     ) external returns (uint256 amount) {
-        (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
-        if (!isRuled) revert DisputeNotResolved();
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        if (period != KlerosCore.Period.execution) revert DisputeNotResolved();
         if (core.paused()) revert CoreIsPaused();
         if (!coreDisputeIDToActive[_coreDisputeID].dispute) revert DisputeUnknownInThisDisputeKit();
 
