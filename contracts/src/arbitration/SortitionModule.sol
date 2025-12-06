@@ -323,16 +323,6 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     }
 
     /// @inheritdoc ISortitionModule
-    function updateTotalStake(uint256 _pnkDeposit, uint256 _pnkWithdrawal) external override onlyByCore {
-        // Note that we don't update totalStake in setStake() function because it doesn't always change total (e.g. during rewards/penalties).
-        if (_pnkDeposit > 0) {
-            totalStaked += _pnkDeposit;
-        } else {
-            totalStaked -= _pnkWithdrawal;
-        }
-    }
-
-    /// @inheritdoc ISortitionModule
     function setStake(
         address _account,
         uint96 _courtID,
@@ -399,8 +389,10 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
             }
             // Increase juror's balance by deposited amount.
             juror.stakedPnk += _pnkDeposit;
+            totalStaked += _pnkDeposit;
         } else {
             juror.stakedPnk -= _pnkWithdrawal;
+            totalStaked -= _pnkWithdrawal;
             if (_newStake == 0) {
                 // Cleanup
                 for (uint256 i = juror.courtIDs.length; i > 0; i--) {
@@ -468,6 +460,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         uint256 amount = getJurorLeftoverPNK(_account);
         if (amount == 0) revert NotEligibleForWithdrawal();
         jurors[_account].stakedPnk = 0;
+        totalStaked -= amount;
         core.transferBySortitionModule(_account, amount);
         emit LeftoverPNKWithdrawn(_account, amount);
     }

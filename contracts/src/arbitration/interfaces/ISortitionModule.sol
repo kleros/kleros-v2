@@ -57,11 +57,6 @@ interface ISortitionModule {
         bool _noDelay
     ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
 
-    /// @notice Updates the total amount staked in all courts.
-    /// @param _pnkDeposit The amount of PNK that increases total stake.
-    /// @param _pnkWithdrawal The amount of PNK that decreases total stake.
-    function updateTotalStake(uint256 _pnkDeposit, uint256 _pnkWithdrawal) external;
-
     /// @notice Update the state of the stakes, called by KC at the end of setStake flow.
     ///
     /// @dev `O(n + p * log_k(j))` where

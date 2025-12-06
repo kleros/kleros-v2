@@ -98,6 +98,9 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
             "Wrong penalty coherence 2 vote ID"
         );
 
+        assertEq(pinakion.balanceOf(address(core)), 22000, "Wrong token balance of the core");
+        assertEq(sortitionModule.totalStaked(), 22000, "Total staked should be equal to the balance in this test");
+
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.StakeLocked(staker1, 1000, true);
         vm.expectEmit(true, true, true, true);
@@ -143,9 +146,11 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(staker1.balance, 0, "Wrong balance of the staker1");
         assertEq(staker2.balance, 0.09 ether, "Wrong balance of the staker2");
 
-        assertEq(pinakion.balanceOf(address(core)), 22000, "Wrong token balance of the core"); // Was 21500. 1000 was transferred to staker2
+        assertEq(pinakion.balanceOf(address(core)), 22000, "Token balance of the core shouldn't change after rewards");
+        assertEq(sortitionModule.totalStaked(), 22000, "Total staked shouldn't change after rewards");
+
         assertEq(pinakion.balanceOf(staker1), 999999999999998000, "Wrong token balance of staker1");
-        assertEq(pinakion.balanceOf(staker2), 999999999999980000, "Wrong token balance of staker2"); // 20k stake and 1k added as a reward, thus -19k from the default
+        assertEq(pinakion.balanceOf(staker2), 999999999999980000, "Wrong token balance of staker2");
     }
 
     function test_execute_NoCoherence() public {
@@ -479,12 +484,18 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.transferBySortitionModule(staker1, 1000);
 
+        assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
+        assertEq(sortitionModule.totalStaked(), 1000, "Wrong totalStaked before withdrawal");
+
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.LeftoverPNKWithdrawn(staker1, 1000);
         sortitionModule.withdrawLeftoverPNK(staker1);
 
         (totalStaked, , , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
         assertEq(totalStaked, 0, "Should be unstaked fully");
+
+        assertEq(pinakion.balanceOf(address(core)), 0, "Wrong token balance of the core");
+        assertEq(sortitionModule.totalStaked(), 0, "Wrong totalStaked after withdrawal");
 
         // Check that everything is withdrawn now
         assertEq(pinakion.balanceOf(address(core)), 0, "Core balance should be empty");
