@@ -487,6 +487,15 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(pinakion.balanceOf(address(core)), 1000, "Wrong token balance of the core");
         assertEq(sortitionModule.totalStaked(), 1000, "Wrong totalStaked before withdrawal");
 
+        vm.prank(address(core));
+        pinakion.transfer(staker2, 1000); // Manually send the balance to trigger the revert
+
+        vm.expectRevert(KlerosCore.TransferFailed.selector);
+        sortitionModule.withdrawLeftoverPNK(staker1);
+
+        vm.prank(staker2);
+        pinakion.transfer(address(core), 1000); // Transfer the tokens back to execute withdrawal
+
         vm.expectEmit(true, true, true, true);
         emit SortitionModule.LeftoverPNKWithdrawn(staker1, 1000);
         sortitionModule.withdrawLeftoverPNK(staker1);

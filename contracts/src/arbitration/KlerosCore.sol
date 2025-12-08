@@ -632,7 +632,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     function transferBySortitionModule(address _account, uint256 _amount) external {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
         // Note eligibility is checked in SortitionModule.
-        pinakion.safeTransfer(_account, _amount);
+        if (!pinakion.safeTransfer(_account, _amount)) revert TransferFailed();
     }
 
     /// @inheritdoc IArbitratorV2
