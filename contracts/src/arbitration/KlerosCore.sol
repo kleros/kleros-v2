@@ -139,11 +139,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _voteID ID of the vote given to the drawn juror.
     event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID);
 
-    /// @notice Emitted when the dispute is successfully appealed.
-    /// @param _disputeID ID of the related dispute.
-    /// @param _arbitrable The arbitrable contract.
-    event ArbitrableReverted(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
-
     /// @notice Emitted when a new court is created.
     /// @param _courtID ID of the new court.
     /// @param _parent ID of the parent court.
@@ -1073,9 +1068,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         (uint256 winningChoice, , ) = currentRuling(_disputeID);
         dispute.ruled = true;
         emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
-        try dispute.arbitrated.rule(_disputeID, winningChoice) {} catch {
-            emit ArbitrableReverted(_disputeID, dispute.arbitrated);
-        }
+        dispute.arbitrated.rule(_disputeID, winningChoice);
     }
 
     // ************************************* //

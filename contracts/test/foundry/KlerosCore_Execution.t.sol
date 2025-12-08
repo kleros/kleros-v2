@@ -665,60 +665,6 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(ruled, true, "Should be ruled");
     }
 
-    function test_executeRuling_arbitrableRevert() public {
-        MaliciousArbitrableMock maliciousArbitrable = new MaliciousArbitrableMock(
-            core,
-            templateData,
-            templateDataMappings,
-            arbitratorExtraData,
-            registry,
-            feeToken
-        );
-        uint256 disputeID = 0;
-
-        vm.prank(staker1);
-        core.setStake(GENERAL_COURT, 20000);
-        vm.prank(disputer);
-        maliciousArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
-        vm.warp(block.timestamp + minStakingTime);
-        sortitionModule.passPhase(); // Generating
-        vm.warp(block.timestamp + rngLookahead);
-        sortitionModule.passPhase(); // Drawing phase
-
-        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
-        vm.warp(block.timestamp + timesPerPeriod[0]);
-        core.passPeriod(disputeID); // Vote
-
-        uint256[] memory voteIDs = new uint256[](3);
-        voteIDs[0] = 0;
-        voteIDs[1] = 1;
-        voteIDs[2] = 2;
-
-        vm.prank(staker1);
-        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
-        core.passPeriod(disputeID); // Appeal
-
-        vm.warp(block.timestamp + timesPerPeriod[3]);
-        core.passPeriod(disputeID); // Execution
-
-        core.executeRuling(disputeID);
-
-        (, , , bool ruled, ) = core.disputes(disputeID);
-        assertEq(ruled, true, "Should be ruled");
-
-        (bool isRuled, , ) = maliciousArbitrable.disputes(disputeID);
-        assertEq(isRuled, false, "Should be false");
-
-        vm.expectRevert(KlerosCore.RulingAlreadyExecuted.selector);
-        core.executeRuling(disputeID);
-
-        maliciousArbitrable.changeBehaviour(false);
-
-        // If the first revert was accidental arbitrable will be locked out.
-        vm.expectRevert(KlerosCore.RulingAlreadyExecuted.selector);
-        core.executeRuling(disputeID);
-    }
-
     function test_executeRuling_appealSwitch() public {
         // Check that the ruling switches if only one side was funded
         uint256 disputeID = 0;
