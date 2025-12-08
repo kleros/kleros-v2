@@ -43,7 +43,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
     (location.pathname.includes("/resolver/court") &&
       (!disputeData.courtId || !isGatedTokenValid || !disputeData.disputeKitId)) ||
-    (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
+    (location.pathname.includes("/resolver/jurors") && (!disputeData.arbitrationCost || !disputeData.numberOfJurors)) ||
     (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/notable-persons") && !areAliasesValidOrEmpty) ||
     (location.pathname.includes("/resolver/policy") && (isPolicyUploading || !disputeData.policyURI));
