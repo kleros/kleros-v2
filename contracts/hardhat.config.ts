@@ -298,9 +298,6 @@ const config: HardhatUserConfig = {
       apiKey: process.env.ETHERSCAN_API_KEY_FIX,
     },
   },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY_FIX,
-  },
   watcher: {
     compilation: {
       tasks: ["compile"],
