@@ -665,6 +665,48 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(ruled, true, "Should be ruled");
     }
 
+    function test_executeRuling_arbitrableRevert() public {
+        MaliciousArbitrableMock maliciousArbitrable = new MaliciousArbitrableMock(
+            core,
+            templateData,
+            templateDataMappings,
+            arbitratorExtraData,
+            registry,
+            feeToken
+        );
+        uint256 disputeID = 0;
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.prank(disputer);
+        maliciousArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        vm.expectRevert(MaliciousArbitrableMock.RuleReverted.selector);
+        core.executeRuling(disputeID); // Reverts
+
+        disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 2); // Should not revert even if executeRuling() reverted
+    }
+
     function test_executeRuling_appealSwitch() public {
         // Check that the ruling switches if only one side was funded
         uint256 disputeID = 0;
@@ -780,7 +822,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         // 4. move sortition to staking phase
         uint256 disputeID = 0;
         uint256 amountToStake = 20000;
-        _stakePnk_createDispute_moveToDrawingPhase(disputeID, staker1, amountToStake);
+        _stakePnk_createDispute_moveToDrawingPhase(staker1, amountToStake);
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
         uint256 pnkAtStakePerJuror = round.pnkAtStakePerJuror;
@@ -788,14 +830,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         _drawJurors_advancePeriodToVoting(disputeID);
         _vote_execute(disputeID, staker1);
         sortitionModule.passPhase(); // set it to staking phase
-        _assertJurorBalance(
-            disputeID,
-            staker1,
-            amountToStake,
-            pnkAtStakePerJuror * DEFAULT_NB_OF_JURORS,
-            amountToStake,
-            1
-        );
+        _assertJurorBalance(staker1, amountToStake, pnkAtStakePerJuror * DEFAULT_NB_OF_JURORS, amountToStake, 1);
 
         console.log("totalStaked before: %e", sortitionModule.totalStaked());
 
@@ -804,14 +839,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         // post condition: inflated totalStaked
         console.log("totalStaked after: %e", sortitionModule.totalStaked());
-        _assertJurorBalance(
-            disputeID,
-            staker1,
-            amountToStake,
-            pnkAtStakePerJuror * DEFAULT_NB_OF_JURORS,
-            amountToStake,
-            1
-        );
+        _assertJurorBalance(staker1, amountToStake, pnkAtStakePerJuror * DEFAULT_NB_OF_JURORS, amountToStake, 1);
 
         // new juror tries to stake but totalStaked already reached type(uint256).max
         // it reverts with "arithmetic underflow or overflow (0x11)"
@@ -920,19 +948,18 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
     ///////// Internal //////////
 
     function _assertJurorBalance(
-        uint256 disputeID,
-        address juror,
-        uint256 totalStakedPnk,
-        uint256 totalLocked,
-        uint256 stakedInCourt,
-        uint256 nbCourts
-    ) internal {
+        address _juror,
+        uint256 _totalStakedPnk,
+        uint256 _totalLocked,
+        uint256 _stakedInCourt,
+        uint256 _nbCourts
+    ) internal view {
         (uint256 totalStakedPnk, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) = sortitionModule
-            .getJurorBalance(juror, GENERAL_COURT);
-        assertEq(totalStakedPnk, totalStakedPnk, "Wrong totalStakedPnk"); // jurors total staked a.k.a juror.stakedPnk
-        assertEq(totalLocked, totalLocked, "Wrong totalLocked");
-        assertEq(stakedInCourt, stakedInCourt, "Wrong stakedInCourt"); // juror staked in court a.k.a _stakeOf
-        assertEq(nbCourts, nbCourts, "Wrong nbCourts");
+            .getJurorBalance(_juror, GENERAL_COURT);
+        assertEq(_totalStakedPnk, totalStakedPnk, "Wrong totalStakedPnk"); // jurors total staked a.k.a juror.stakedPnk
+        assertEq(_totalLocked, totalLocked, "Wrong totalLocked");
+        assertEq(_stakedInCourt, stakedInCourt, "Wrong stakedInCourt"); // juror staked in court a.k.a _stakeOf
+        assertEq(_nbCourts, nbCourts, "Wrong nbCourts");
     }
 
     function _stakeBalanceForJuror(address juror, uint256 amount) internal {
@@ -941,7 +968,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.setStake(GENERAL_COURT, amount);
     }
 
-    function _stakePnk_createDispute_moveToDrawingPhase(uint256 disputeID, address juror, uint256 amount) internal {
+    function _stakePnk_createDispute_moveToDrawingPhase(address juror, uint256 amount) internal {
         vm.prank(juror);
         core.setStake(GENERAL_COURT, amount);
         vm.prank(disputer);
