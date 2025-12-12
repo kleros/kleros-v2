@@ -1,12 +1,12 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { TokenAndETHShift as TokenAndETHShiftEvent } from "../../generated/KlerosCore/KlerosCore";
-import { Court, Dispute, TokenAndETHShift } from "../../generated/schema";
+import { JurorRewardPenalty as JurorRewardPenaltyEvent } from "../../generated/KlerosCore/KlerosCore";
+import { Court, Dispute, JurorRewardPenalty } from "../../generated/schema";
 import { updatePaidETH, updateRedistributedPNK } from "../datapoint";
 import { ZERO } from "../utils";
 import { convertTokenAmountToEth, updateFeeTokenPaid } from "./FeeToken";
 import { resolveUserDispute } from "./User";
 
-export function updateTokenAndEthShiftFromEvent(event: TokenAndETHShiftEvent): void {
+export function updateJurorRewardPenaltyEvent(event: JurorRewardPenaltyEvent): void {
   const jurorAddress = event.params._account;
   const disputeID = event.params._disputeID;
   const dispute = Dispute.load(disputeID.toString());
@@ -16,8 +16,8 @@ export function updateTokenAndEthShiftFromEvent(event: TokenAndETHShiftEvent): v
   const roundIndex = event.params._roundID;
   const feeTokenAddress = event.params._feeToken;
   let shift = ensureTokenAndEthShift(jurorAddress, disputeID, roundIndex, feeTokenAddress);
-  const feeAmount = event.params._feeAmount;
-  const pnkAmount = event.params._pnkAmount;
+  const feeAmount = event.params._amountFee;
+  const pnkAmount = event.params._amountPnk;
   let ethAmount: BigInt;
   if (feeTokenAddress.toHexString() === "0x0000000000000000000000000000000000000000") {
     updateFeeTokenPaid(feeTokenAddress, event.address, feeAmount);
@@ -46,11 +46,11 @@ export function ensureTokenAndEthShift(
   disputeID: BigInt,
   roundIndex: BigInt,
   feeTokenAddress: Address
-): TokenAndETHShift {
+): JurorRewardPenalty {
   const shiftID = `${jurorAddress.toHexString()}-${disputeID.toString()}-${roundIndex.toString()}`;
-  let shift = TokenAndETHShift.load(shiftID);
+  let shift = JurorRewardPenalty.load(shiftID);
   if (!shift) {
-    shift = new TokenAndETHShift(shiftID);
+    shift = new JurorRewardPenalty(shiftID);
     if (feeTokenAddress !== Address.fromI32(0)) {
       shift.isNativeCurrency = false;
       shift.feeToken = feeTokenAddress.toHexString();

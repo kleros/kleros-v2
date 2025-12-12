@@ -3,11 +3,11 @@
 pragma solidity ^0.8.24;
 
 /**
- * @authors: [@ferittuncer, @hbarcelos]
- * @reviewers: []
- * @auditors: []
- * @bounties: []
- * @deployments: []
+ * @custom:authors: [@ferittuncer, @hbarcelos]
+ * @custom:reviewers: []
+ * @custom:auditors: []
+ * @custom:bounties: []
+ * @custom:deployments: []
  */
 import "./IArbitratorV1.sol";
 

@@ -36,7 +36,6 @@ const disputeDetailsQuery = graphql(`
       currentRoundIndex
       isCrossChain
       arbitrableChainId
-      externalDisputeId
       templateId
       rulingTimestamp
       rulingTransactionHash

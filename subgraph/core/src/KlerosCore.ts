@@ -8,7 +8,7 @@ import {
   CourtModified,
   Draw as DrawEvent,
   NewPeriod,
-  TokenAndETHShift as TokenAndETHShiftEvent,
+  JurorRewardPenalty as JurorRewardPenaltyEvent,
   CourtJump,
   Ruling,
   AcceptedFeeToken,
@@ -29,7 +29,7 @@ import {
 import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
 import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
-import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
+import { updateJurorRewardPenaltyEvent } from "./entities/JurorRewardPenalty";
 import { updateArbitrableCases } from "./entities/Arbitrable";
 import { ClassicVote, Court, Dispute, Draw, Round, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -277,9 +277,9 @@ export function handleDraw(event: DrawEvent): void {
   }
 }
 
-export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
+export function handleJurorRewardPenalty(event: JurorRewardPenaltyEvent): void {
   updatePenalty(event);
-  updateTokenAndEthShiftFromEvent(event);
+  updateJurorRewardPenaltyEvent(event);
   const jurorAddress = event.params._account.toHexString();
   const disputeID = event.params._disputeID.toString();
   const dispute = Dispute.load(disputeID);
