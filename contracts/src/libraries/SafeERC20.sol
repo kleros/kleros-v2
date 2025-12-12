@@ -15,6 +15,12 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,
 /// which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
 library SafeERC20 {
+    /// @notice Emits when safeTransfer fails.
+    /// @param _token Token to transfer.
+    /// @param _to Recipient address.
+    /// @param _value Amount transferred.
+    event SafeTransferFailed(IERC20 _token, address _to, uint256 _value);
+
     /// @notice Increases the allowance granted to `spender` by the caller.
     /// @param _token Token to transfer.
     /// @param _spender The address which will spend the funds.
@@ -31,7 +37,9 @@ library SafeERC20 {
     /// @return Whether transfer succeeded or not.
     function safeTransfer(IERC20 _token, address _to, uint256 _value) internal returns (bool) {
         (bool success, bytes memory data) = address(_token).call(abi.encodeCall(IERC20.transfer, (_to, _value)));
-        return (success && (data.length == 0 || abi.decode(data, (bool))));
+        bool ok = success && (data.length == 0 || abi.decode(data, (bool)));
+        if (!ok) emit SafeTransferFailed(_token, _to, _value);
+        return ok;
     }
 
     /// @notice Calls transferFrom() without reverting.

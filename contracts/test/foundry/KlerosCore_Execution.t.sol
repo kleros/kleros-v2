@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
+import {KlerosCore, SafeERC20} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
 import {IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
@@ -543,7 +543,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         voteIDs[1] = 1;
         voteIDs[2] = 2;
         vm.prank(staker1);
-        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ"); // Staker1 only got 1 vote because of low stake
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
 
         core.passPeriod(disputeID); // Appeal
 
@@ -561,6 +561,59 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(feeToken.balanceOf(address(core)), 0, "Wrong fee token balance of the core");
         assertEq(feeToken.balanceOf(staker1), 0.18 ether, "Wrong fee token balance of staker1");
         assertEq(feeToken.balanceOf(disputer), 0.82 ether, "Wrong fee token balance of disputer");
+    }
+
+    function test_execute_feeToken_failedTransfer() public {
+        uint256 disputeID = 0;
+
+        feeToken.transfer(disputer, 1 ether);
+        vm.prank(disputer);
+        feeToken.approve(address(arbitrable), 1 ether);
+
+        vm.prank(owner);
+        core.changeAcceptedFeeTokens(feeToken, true);
+        vm.prank(owner);
+        core.changeCurrencyRates(feeToken, 500, 3);
+
+        vm.prank(disputer);
+        arbitrable.createDispute("Action", 0.18 ether);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](3);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        voteIDs[2] = 2;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
+
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        vm.prank(address(core));
+        feeToken.transfer(disputer, 0.18 ether); // Manually send all balance to make rewards fail
+        assertEq(feeToken.balanceOf(staker1), 0, "Wrong fee token balance of staker1");
+        assertEq(feeToken.balanceOf(disputer), 1 ether, "Wrong fee token balance of disputer");
+
+        vm.expectEmit(true, true, true, true);
+        emit SafeERC20.SafeTransferFailed(feeToken, staker1, 0.06 ether); // One failed iteration has 0.06 eth
+        core.execute(disputeID, 0, 6);
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.repartitions, 6, "Wrong repartitions");
+        assertEq(feeToken.balanceOf(staker1), 0, "Staker1 still has no balance");
     }
 
     function test_execute_NoCoherence_feeToken() public {
