@@ -1,9 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
-  BlockHashRNG,
   ChainlinkRNG,
   DisputeKitClassic,
   DisputeKitShutter,
+  DisputeKitGated,
+  DisputeKitGatedShutter,
   DisputeResolver,
   DisputeTemplateRegistry,
   KlerosCore,
@@ -11,13 +12,12 @@ import {
   PNK,
   PolicyRegistry,
   RandomizerRNG,
+  RNGWithFallback,
   SortitionModule,
   SortitionModuleUniversity,
   TransactionBatcher,
   KlerosCoreSnapshotProxy,
   EvidenceModule,
-  DisputeKitGated,
-  DisputeKitGatedShutter,
 } from "../../typechain-types";
 
 export const Cores = {
@@ -64,8 +64,8 @@ export const getContractNames = (coreType: Core) => {
     policyRegistry: "PolicyRegistry",
     batcher: "TransactionBatcher",
     chainlinkRng: "ChainlinkRNG",
+    rngWithFallback: "RNGWithFallback",
     randomizerRng: "RandomizerRNG",
-    blockHashRNG: "BlockHashRNG",
     pnk: "PNK",
     snapshotProxy: "KlerosCoreSnapshotProxy",
   };
@@ -109,8 +109,8 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
   const policyRegistry = await ethers.getContract<PolicyRegistry>(getContractNames(coreType).policyRegistry);
   const batcher = await ethers.getContract<TransactionBatcher>(getContractNames(coreType).batcher);
   const chainlinkRng = await ethers.getContractOrNull<ChainlinkRNG>(getContractNames(coreType).chainlinkRng);
+  const rngWithFallback = await ethers.getContractOrNull<RNGWithFallback>(getContractNames(coreType).rngWithFallback);
   const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>(getContractNames(coreType).randomizerRng);
-  const blockHashRNG = await ethers.getContractOrNull<BlockHashRNG>(getContractNames(coreType).blockHashRNG);
   const pnk = await ethers.getContract<PNK>(getContractNames(coreType).pnk);
   const snapshotProxy = await ethers.getContractOrNull<KlerosCoreSnapshotProxy>(
     getContractNames(coreType).snapshotProxy
@@ -127,8 +127,8 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     evidence,
     policyRegistry,
     chainlinkRng,
+    rngWithFallback,
     randomizerRng,
-    blockHashRNG,
     pnk,
     batcher,
     snapshotProxy,

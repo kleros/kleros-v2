@@ -42,17 +42,11 @@ interface Contribution {
   contributor: User!
 }
 
-interface EvidenceGroup {
-  id: ID!
-  evidences: [Evidence!]! @derivedFrom(field: "evidenceGroup")
-  nextEvidenceIndex: BigInt!
-}
-
 interface Evidence {
   id: ID!
   evidence: String!
-  evidenceGroup: EvidenceGroup!
   evidenceIndex: String!
+  dispute: Dispute!
   sender: User!
   senderAddress: String!
   timestamp: BigInt!
@@ -62,7 +56,6 @@ interface Evidence {
   fileURI: String
   fileTypeExtension: String
 }
-
 
 ############
 # Entities #
@@ -74,7 +67,7 @@ type User @entity {
   tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
   totalStake: BigInt!
   totalDelayed: BigInt!
-  shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
+  shifts: [JurorRewardPenalty!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
   activeDisputes: BigInt!
   rounds: [Round!]!
@@ -88,7 +81,7 @@ type User @entity {
   coherenceScore: BigInt!
   votes: [Vote!]! @derivedFrom(field: "juror")
   contributions: [Contribution!]! @derivedFrom(field: "contributor")
-  evidences: [Evidence!]! @derivedFrom(field: "sender")
+  evidences: [ClassicEvidence!]! @derivedFrom(field: "sender")
   penalties: [Penalty!]! @derivedFrom(field: "juror")
 }
 
@@ -99,7 +92,8 @@ type Penalty @entity {
   juror: User!
   amount: BigInt!
   numberDraws: BigInt!
-  degreeOfCoherency: BigInt!
+  degreeOfCoherencyPnk: BigInt!
+  degreeOfCoherencyFee: BigInt!
 }
 
 type Arbitrable @entity {
@@ -108,7 +102,7 @@ type Arbitrable @entity {
   totalDisputes: BigInt!
 }
 
-type TokenAndETHShift @entity {
+type JurorRewardPenalty @entity {
   id: ID! # user.id-dispute.id
   juror: User!
   dispute: Dispute!
@@ -178,14 +172,16 @@ type Dispute @entity {
   currentRound: Round!
   currentRoundIndex: BigInt!
   jurors: [User!]! @derivedFrom(field: "disputes")
-  shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
+  shifts: [JurorRewardPenalty!]! @derivedFrom(field: "dispute")
   disputeKitDispute: [DisputeKitDispute!]! @derivedFrom(field: "coreDispute")
   isCrossChain: Boolean
-  arbitrableChainId:BigInt
-  externalDisputeId:BigInt
-  templateId:BigInt
-  rulingTimestamp:BigInt
-  rulingTransactionHash:String
+  arbitrableChainId: BigInt
+  templateId: BigInt
+  rulingTimestamp: BigInt
+  rulingTransactionHash: String
+  # required to keep evidence unique
+  evidenceCount: BigInt!
+  evidences: [ClassicEvidence!]! @derivedFrom(field: "dispute")
 }
 
 type PeriodIndexCounter @entity {
@@ -260,7 +256,7 @@ type FeeToken @entity {
   totalPaid: BigInt!
   totalPaidInETH: BigInt!
   rounds: [Round!] @derivedFrom(field: "feeToken")
-  tokenAndETHShift: [TokenAndETHShift!] @derivedFrom(field: "feeToken")
+  jurorRewardPenalty: [JurorRewardPenalty!] @derivedFrom(field: "feeToken")
 }
 
 #####################
@@ -284,7 +280,7 @@ type Answer @entity {
   count: BigInt!
   paidFee: BigInt!
   funded: Boolean!
-  localRound: ClassicRound! 
+  localRound: ClassicRound!
 }
 
 type ClassicRound implements DisputeKitRound @entity {
@@ -331,17 +327,12 @@ type ClassicJustification @entity {
   timestamp: BigInt!
 }
 
-type ClassicEvidenceGroup implements EvidenceGroup @entity {
-  id: ID!
-  evidences: [Evidence!]! @derivedFrom(field: "evidenceGroup")
-  nextEvidenceIndex: BigInt!
-}
-
 type ClassicEvidence implements Evidence @entity(immutable: true) {
   id: ID! # classicEvidenceGroup.id-nextEvidenceIndex
   evidence: String!
-  evidenceGroup: EvidenceGroup!
+  # keeping as string to be fulltext searchable
   evidenceIndex: String!
+  dispute: Dispute!
   sender: User!
   senderAddress: String!
   timestamp: BigInt!
@@ -369,5 +360,10 @@ type _Schema_
     name: "evidenceSearch"
     language: en
     algorithm: rank
-    include: [{ entity: "ClassicEvidence", fields: [{ name: "name" }, { name: "description" },{ name: "senderAddress"},{ name: "evidenceIndex"}] }]
+    include: [
+      {
+        entity: "ClassicEvidence"
+        fields: [{ name: "name" }, { name: "description" }, { name: "senderAddress" }, { name: "evidenceIndex" }]
+      }
+    ]
   )

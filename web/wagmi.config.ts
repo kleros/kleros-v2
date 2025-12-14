@@ -18,7 +18,7 @@ dotenv.config();
 
 const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardhatChainName?: string) => {
   const artifactSuffix =
-    type === ArbitratorTypes.vanilla || type === ArbitratorTypes.neo
+    type === ArbitratorTypes.vanilla
       ? ""
       : ArbitratorTypes[type].toString().charAt(0).toUpperCase() + ArbitratorTypes[type].toString().slice(1);
   const vanillaArtifacts = [

@@ -58,9 +58,9 @@ const ButtonArea = styled.div`
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
-  evidenceGroup: bigint;
+  disputeId: string;
   close: () => void;
-}> = ({ isOpen, evidenceGroup, close }) => {
+}> = ({ isOpen, disputeId, close }) => {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
@@ -77,7 +77,7 @@ const SubmitEvidenceModal: React.FC<{
       const evidenceJSON = await constructEvidence(uploadFile, message, file);
 
       const { request } = await simulateEvidenceModuleSubmitEvidence(wagmiConfig, {
-        args: [BigInt(evidenceGroup), JSON.stringify(evidenceJSON)],
+        args: [BigInt(disputeId), JSON.stringify(evidenceJSON)],
       });
 
       if (!walletClient || !publicClient) return;
@@ -92,7 +92,7 @@ const SubmitEvidenceModal: React.FC<{
       errorToast("Failed to submit evidence.");
       console.error("Error in submitEvidence:", error);
     }
-  }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending, uploadFile]);
+  }, [publicClient, wagmiConfig, walletClient, close, disputeId, file, message, setIsSending, uploadFile]);
 
   return (
     <StyledModal {...{ isOpen }} shouldCloseOnEsc shouldCloseOnOverlayClick onRequestClose={close}>
