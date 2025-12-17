@@ -8,7 +8,6 @@ type DisputeDetailsQueryResponse = {
       id: string;
     };
     arbitrableChainId: number;
-    externalDisputeId: number;
     templateId: number;
   };
 };
@@ -20,7 +19,6 @@ const query = gql`
         id
       }
       arbitrableChainId
-      externalDisputeId
       templateId
     }
   }

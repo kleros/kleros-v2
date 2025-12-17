@@ -12,7 +12,7 @@ import {
   policyRegistryConfig as devnetPolicyRegistryConfig,
   transactionBatcherConfig as devnetBatcherConfig,
   chainlinkRngConfig as devnetChainlinkRngConfig,
-  blockHashRngConfig as devnetBlockHashRngConfig,
+  rngWithFallbackConfig as devnetRngWithFallbackConfig,
   pnkConfig as devnetPnkConfig,
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
@@ -34,7 +34,6 @@ import {
   policyRegistryConfig as testnetPolicyRegistryConfig,
   transactionBatcherConfig as testnetBatcherConfig,
   chainlinkRngConfig as testnetChainlinkRngConfig,
-  blockHashRngConfig as testnetBlockHashRngConfig,
   pnkConfig as testnetPnkConfig,
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
 } from "./testnet.viem";
@@ -52,7 +51,6 @@ import {
   transactionBatcherConfig as mainnetBatcherConfig,
   chainlinkRngConfig as mainnetChainlinkRngConfig,
   randomizerRngConfig as mainnetRandomizerRngConfig,
-  blockHashRngConfig as mainnetBlockHashRngConfig,
   pnkConfig as mainnetPnkConfig,
   klerosCoreSnapshotProxyConfig as mainnetSnapshotProxyConfig,
 } from "./mainnet.viem";
@@ -83,8 +81,8 @@ import {
   ChainlinkRNG__factory,
   RandomizerRNG,
   RandomizerRNG__factory,
-  BlockHashRNG,
-  BlockHashRNG__factory,
+  RNGWithFallback,
+  RNGWithFallback__factory,
   PNK,
   PNK__factory,
   KlerosCoreSnapshotProxy,
@@ -108,7 +106,7 @@ type CommonFactoriesConfigs = {
   batcherConfig: ContractConfig;
   chainlinkRngConfig?: ContractConfig;
   randomizerRngConfig?: ContractConfig;
-  blockHashRngConfig: ContractConfig;
+  rngWithFallbackConfig?: ContractConfig;
   pnkConfig: ContractConfig;
   snapshotProxyConfig: ContractConfig;
 };
@@ -125,7 +123,7 @@ type CommonFactories = {
   transactionBatcher: TransactionBatcher;
   chainlinkRng: ChainlinkRNG | null;
   randomizerRng: RandomizerRNG | null;
-  blockHashRng: BlockHashRNG;
+  rngWithFallback: RNGWithFallback | null;
   pnk: PNK;
   klerosCoreSnapshotProxy: KlerosCoreSnapshotProxy;
 };
@@ -157,7 +155,9 @@ function getCommonFactories(
     randomizerRng: configs.randomizerRngConfig
       ? RandomizerRNG__factory.connect(getAddress(configs.randomizerRngConfig, chainId), provider)
       : null,
-    blockHashRng: BlockHashRNG__factory.connect(getAddress(configs.blockHashRngConfig, chainId), provider),
+    rngWithFallback: configs.rngWithFallbackConfig
+      ? RNGWithFallback__factory.connect(getAddress(configs.rngWithFallbackConfig, chainId), provider)
+      : null,
     pnk: PNK__factory.connect(getAddress(configs.pnkConfig, chainId), provider),
     klerosCoreSnapshotProxy: KlerosCoreSnapshotProxy__factory.connect(
       getAddress(configs.snapshotProxyConfig, chainId),
@@ -188,7 +188,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           policyRegistryConfig: devnetPolicyRegistryConfig,
           batcherConfig: devnetBatcherConfig,
           chainlinkRngConfig: devnetChainlinkRngConfig,
-          blockHashRngConfig: devnetBlockHashRngConfig,
+          rngWithFallbackConfig: devnetRngWithFallbackConfig,
           pnkConfig: devnetPnkConfig,
           snapshotProxyConfig: devnetSnapshotProxyConfig,
         },
@@ -212,7 +212,6 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           policyRegistryConfig: devnetPolicyRegistryConfig,
           batcherConfig: devnetBatcherConfig,
           chainlinkRngConfig: devnetChainlinkRngConfig,
-          blockHashRngConfig: devnetBlockHashRngConfig,
           pnkConfig: devnetPnkConfig,
           snapshotProxyConfig: devnetSnapshotProxyConfig,
         },
@@ -236,7 +235,6 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           policyRegistryConfig: testnetPolicyRegistryConfig,
           batcherConfig: testnetBatcherConfig,
           chainlinkRngConfig: testnetChainlinkRngConfig,
-          blockHashRngConfig: testnetBlockHashRngConfig,
           pnkConfig: testnetPnkConfig,
           snapshotProxyConfig: testnetSnapshotProxyConfig,
         },
@@ -260,7 +258,6 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           batcherConfig: mainnetBatcherConfig,
           chainlinkRngConfig: mainnetChainlinkRngConfig,
           randomizerRngConfig: mainnetRandomizerRngConfig,
-          blockHashRngConfig: mainnetBlockHashRngConfig,
           pnkConfig: mainnetPnkConfig,
           snapshotProxyConfig: mainnetSnapshotProxyConfig,
         },

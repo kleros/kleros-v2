@@ -1,0 +1,8 @@
+releases:
+  "@kleros/kleros-v2-contracts": 2.0.0
+
+undecided:
+  - kleros-v2
+  - "@kleros/kleros-sdk"
+  - "@kleros/kleros-v2-subgraph"
+  - "@kleros/kleros-v2-web"

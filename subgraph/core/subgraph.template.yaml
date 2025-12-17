@@ -34,8 +34,7 @@ dataSources:
         - name: DisputeKitClassic
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to the abi with event addition.
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -48,17 +47,14 @@ dataSources:
           handler: handleNewPeriod
         - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
           handler: handleCourtCreated
-          # FIX: This is support for old signature
-        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
-          handler: handleCourtCreated
         - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
           handler: handleCourtModified
         - event: DisputeKitCreated(indexed uint256,indexed address)
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
           handler: handleDisputeKitEnabled
-        - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
-          handler: handleTokenAndETHShift
+        - event: JurorRewardPenalty(indexed address,indexed uint256,indexed uint256,uint256,uint256,int256,int256,address)
+          handler: handleJurorRewardPenalty
         - event: Ruling(indexed address,indexed uint256,uint256)
           handler: handleRuling
         - event: AcceptedFeeToken(indexed address,indexed bool)
@@ -106,14 +102,13 @@ dataSources:
         - name: DisputeKitClassic
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -144,14 +139,13 @@ dataSources:
         - name: DisputeKitClassic # Required on Alchemy
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -182,14 +176,13 @@ dataSources:
         - name: DisputeKitClassic # Required on Alchemy
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -220,14 +213,13 @@ dataSources:
         - name: DisputeKitClassic # Required on Alchemy
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -272,16 +264,12 @@ dataSources:
         - JurorTokensPerCourt
       abis:
         - name: SortitionModule
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/SortitionModule.json
+          file: ../../contracts/deployments/_PLACEHOLDER_/SortitionModule.json
       eventHandlers:
         - event: StakeDelayed(indexed address,indexed uint96,uint256)
           handler: handleStakeDelayed
         - event: StakeLocked(indexed address,uint256,bool)
           handler: handleStakeLocked
         - event: StakeSet(indexed address,uint256,uint256,uint256)
-          handler: handleStakeSet
-          # FIX: old stake set signature
-        - event: StakeSet(indexed address,uint256,uint256)
           handler: handleStakeSet
       file: ./src/SortitionModule.ts

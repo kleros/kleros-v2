@@ -1,7 +1,7 @@
 {
   "name": "@kleros/kleros-v2-subgraph",
-  "version": "0.17.2",
-  "drtVersion": "0.13.0",
+  "version": "0.18.1",
+  "drtVersion": "0.14.0",
   "license": "MIT",
   "scripts": {
     "update:core:arbitrum-sepolia-devnet": "./scripts/update.sh arbitrumSepoliaDevnet arbitrum-sepolia core/subgraph.yaml",
@@ -17,18 +17,6 @@
     "deploy:core:arbitrum": "graph deploy kleros-v2-core-mainnet -l v$npm_package_version core/subgraph.yaml",
     "deploy:core:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kleros/kleros-v2-core-local --version-label v$(date +%s) core/subgraph.yaml",
     "rebuild-deploy:core:local": "yarn update:core:local && yarn codegen:core && yarn build:core && yarn create:local kleros/kleros-v2-core-local && yarn deploy:core:local",
-    "": "------------------------------------------------------------------------------------------",
-    "update:core-neo:arbitrum-sepolia-devnet": "./scripts/update.sh arbitrumSepoliaDevnet arbitrum-sepolia core-neo/subgraph.yaml",
-    "update:core-neo:arbitrum": "./scripts/update.sh arbitrum arbitrum-one core-neo/subgraph.yaml",
-    "update:core-neo:local": "./scripts/update.sh localhost mainnet core-neo/subgraph.yaml",
-    "codegen:core-neo": "yarn codegen:core && graph codegen --output-dir core-neo/generated/ core-neo/subgraph.yaml",
-    "build:core-neo": "graph build --output-dir core-neo/build/ core-neo/subgraph.yaml",
-    "test:core-neo": "cd core-neo && graph test",
-    "clean:core-neo": "graph clean --codegen-dir core-neo/generated/ --build-dir core-neo/build/ ; rm core-neo/subgraph.yaml.bak.*",
-    "deploy:core-neo:arbitrum-sepolia-devnet": "graph deploy kleros-v2-coreneo-devnet -l v$npm_package_version core-neo/subgraph.yaml",
-    "deploy:core-neo:arbitrum": "graph deploy kleros-v2-coreneo -l v$npm_package_version core-neo/subgraph.yaml",
-    "deploy:core-neo:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kleros/kleros-v2-coreneo-local --version-label v$(date +%s) core-neo/subgraph.yaml",
-    "rebuild-deploy:core-neo:local": "yarn update:core-neo:local && yarn codegen:core-neo && yarn build:core-neo && yarn create:local kleros/kleros-v2-coreneo-local && yarn deploy:core-neo:local",
     "-": "------------------------------------------------------------------------------------------",
     "update:core-university:arbitrum-sepolia-devnet": "./scripts/update.sh arbitrumSepoliaDevnet arbitrum-sepolia core-university/subgraph.yaml",
     "update:core-university:local": "./scripts/update.sh localhost mainnet core-university/subgraph.yaml",
@@ -69,7 +57,7 @@
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
   "volta": {
-    "node": "20.18.3"
+    "node": "20.19.5"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.38.0"

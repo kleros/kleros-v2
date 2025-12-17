@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import { Button, Searchbar } from "@kleros/ui-components-library";
@@ -33,17 +34,17 @@ const StyledButton = styled(Button)`
 interface IEvidenceSearch {
   search?: string;
   setSearch: (search: string) => void;
-  evidenceGroup?: bigint;
 }
 
-const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch, evidenceGroup }) => {
+const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch }) => {
+  const { id: disputeId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { address } = useAccount();
 
   return (
     <>
-      {!isUndefined(evidenceGroup) && (
-        <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
+      {!isUndefined(disputeId) && (
+        <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ disputeId }} />
       )}
 
       <SearchContainer>
