@@ -23,4 +23,16 @@ describe("Handle leaderboard offset", () => {
     handleLeaderboardOffset(event);
     assert.fieldEquals("User", user.id, "leaderboardOffset", "-100");
   });
+
+  test("Should recompute coherence score properly", () => {
+    const user = createUser(address);
+    user.totalCoherentVotes = BigInt.fromI32(50);
+    user.totalResolvedVotes = BigInt.fromI32(80);
+    user.save();
+    const event = createOffsetEvent(address, BigInt.fromI32(20));
+    handleLeaderboardOffset(event);
+    assert.fieldEquals("User", user.id, "leaderboardOffset", "20");
+    assert.fieldEquals("User", user.id, "totalCoherentVotes", "70");
+    assert.fieldEquals("User", user.id, "coherenceScore", "78");
+  });
 });
