@@ -43,36 +43,27 @@ const getAllChildCourtIds = (court: CourtTreeQuery["court"], courtId: string): n
 
   const ids: number[] = [];
 
-  const traverse = (node: CourtTreeQuery["court"]) => {
-    if (!node) return;
-    if (node.id === courtId) {
-      ids.push(parseInt(node.id));
-      if (node.children) {
-        node.children.forEach((child) => {
-          ids.push(parseInt(child.id));
-          if (child.children) {
-            child.children.forEach((gc) => {
-              ids.push(parseInt(gc.id));
-              if (gc.children) {
-                gc.children.forEach((ggc) => {
-                  ids.push(parseInt(ggc.id));
-                  if (ggc.children) {
-                    ggc.children.forEach((gggc) => ids.push(parseInt(gggc.id)));
-                  }
-                });
-              }
-            });
-          }
-        });
-      }
-      return;
-    }
+  const collectAllDescendants = (node: CourtTreeQuery["court"]) => {
+    ids.push(parseInt(node.id));
     if (node.children) {
-      node.children.forEach((child) => traverse(child));
+      node.children.forEach((child) => collectAllDescendants(child));
     }
   };
 
-  traverse(court);
+  const findAndCollect = (node: CourtTreeQuery["court"]): boolean => {
+    if (node.id === courtId) {
+      collectAllDescendants(node);
+      return true;
+    }
+    if (node.children) {
+      for (const child of node.children) {
+        if (findAndCollect(child)) return true;
+      }
+    }
+    return false;
+  };
+
+  findAndCollect(court);
   return ids;
 };
 
@@ -134,7 +125,13 @@ const DisplayStakes: React.FC = () => {
 
     const sortedChunk = chunk.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
 
-    if (sortedChunk.length) setAcc((prev) => [...prev, ...sortedChunk]);
+    if (sortedChunk.length) {
+      setAcc((prev) => {
+        const seen = new Set(prev.map((item) => item.id));
+        const next = sortedChunk.filter((item) => !seen.has(item.id));
+        return next.length ? [...prev, ...next] : prev;
+      });
+    }
   }, [data, courtIds, courtTree]);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
