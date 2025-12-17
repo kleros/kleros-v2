@@ -1,12 +1,19 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
+import { StandardPagination } from "@kleros/ui-components-library";
+
+import { useUserDraws, useUserDrawsCount } from "hooks/queries/useUserDraws";
+import { isUndefined } from "utils/index";
+import { useRootPath, decodeURIFilter } from "utils/uri";
+
+import { OrderDirection } from "src/graphql/graphql";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import { StandardPagination } from "@kleros/ui-components-library";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-
-import { useRootPath } from "utils/uri";
+import { SkeletonVoteCard } from "components/StyledSkeleton";
 
 import StatsAndFilters from "./StatsAndFilters";
 import VoteCard from "./VoteCard";
@@ -43,10 +50,82 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
   const { page, order, filter } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const votesPerPage = 5;
+  const votesPerPage = 10;
   const location = useRootPath();
-  const totalPages = 20; //TODO, HARDCODED FOR NOW
   const currentPage = parseInt(page ?? "1");
+  const votesSkip = votesPerPage * (currentPage - 1);
+  const decodedFilter = decodeURIFilter(filter ?? "all");
+
+  // Build the filter for draws based on ruled status
+  const drawFilter = useMemo(() => {
+    const baseFilter: any = {};
+    if (decodedFilter?.ruled !== undefined) {
+      baseFilter.dispute_ = { ruled: decodedFilter.ruled };
+    }
+    return Object.keys(baseFilter).length > 0 ? baseFilter : undefined;
+  }, [decodedFilter]);
+
+  // Fetch ALL draws for grouping and pagination (using a large limit)
+  const { data: allDrawsData } = useUserDraws(
+    searchParamAddress,
+    0,
+    1000, // Fetch up to 1000 draws
+    drawFilter,
+    order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
+  );
+
+  // Fetch count data for statistics
+  const { data: drawsCountData } = useUserDrawsCount(searchParamAddress, drawFilter);
+
+  const isLoadingVotes = isUndefined(allDrawsData);
+
+  // Group draws by dispute and round, then paginate
+  const { votes, totalGroupedVotes } = useMemo(() => {
+    const rawDraws = allDrawsData?.user?.draws ?? [];
+    const groupedDrawsMap = new Map<string, { draws: any[]; mainDraw: any }>();
+
+    rawDraws.forEach((draw: any) => {
+      const disputeId = draw.dispute?.id;
+      const roundId = draw.round?.id;
+      const key = `${disputeId}-${roundId}`;
+
+      if (!groupedDrawsMap.has(key)) {
+        groupedDrawsMap.set(key, { draws: [], mainDraw: draw });
+      }
+      groupedDrawsMap.get(key)!.draws.push(draw);
+    });
+
+    const allGroupedDraws = Array.from(groupedDrawsMap.values()).map((group) => ({
+      ...group.mainDraw,
+      voteCount: group.draws.length,
+    }));
+
+    // Paginate the grouped draws
+    const startIndex = votesSkip;
+    const endIndex = startIndex + votesPerPage;
+    const paginatedDraws = allGroupedDraws.slice(startIndex, endIndex);
+
+    return {
+      votes: paginatedDraws,
+      totalGroupedVotes: allGroupedDraws.length,
+    };
+  }, [allDrawsData, votesSkip, votesPerPage]);
+
+  // Get totalVotes from the totalResolvedVotes field
+  const totalVotes = drawsCountData?.user?.draws?.length ?? 0;
+
+  const resolvedVotes = drawsCountData?.user?.totalResolvedVotes
+    ? parseInt(drawsCountData.user.totalResolvedVotes.toString())
+    : 0;
+
+  // Calculate votes pending from count data
+  const allDraws = drawsCountData?.user?.draws ?? [];
+  const votesPending = allDraws.filter((draw: any) => !draw.vote?.voted).length;
+
+  const totalPages = useMemo(
+    () => (!isUndefined(totalGroupedVotes) && totalGroupedVotes > 0 ? Math.ceil(totalGroupedVotes / votesPerPage) : 1),
+    [totalGroupedVotes, votesPerPage]
+  );
 
   const handlePageChange = (newPage: number) => {
     navigate(`${location}/${newPage}/${order}/${filter}?${searchParams.toString()}`);
@@ -55,11 +134,13 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
   return (
     <Container>
       <StyledTitle>Votes</StyledTitle>
-      <StatsAndFilters totalVotes={10} votesPending={1} resolvedVotes={5} />
+      <StatsAndFilters totalVotes={totalVotes} votesPending={votesPending} resolvedVotes={resolvedVotes} />
       <VotesCardContainer>
-        {Array.from({ length: 5 }).map((_, index) => (
-          <VoteCard />
-        ))}
+        {isLoadingVotes
+          ? [...Array(votesPerPage)].map((_, i) => <SkeletonVoteCard key={i} />)
+          : votes.length > 0
+            ? votes.map((vote: any) => <VoteCard key={vote.id} vote={vote} />)
+            : null}
       </VotesCardContainer>
       <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
     </Container>

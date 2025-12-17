@@ -5,7 +5,10 @@ import { Periods } from "consts/periods";
 
 import { getPeriodColors } from "components/DisputeView/PeriodBanner";
 
-interface ICaseStatus {}
+interface ICaseStatus {
+  period?: string;
+  ruled?: boolean;
+}
 
 const StyledLabel = styled.label<{ frontColor: string; withDot?: boolean }>`
   display: flex;
@@ -46,16 +49,17 @@ const getPeriodLabel = (period: Periods): string => {
   }
 };
 
-const CaseStatus: React.FC<ICaseStatus> = ({}) => {
+const CaseStatus: React.FC<ICaseStatus> = ({ period, ruled }) => {
   const theme = useTheme();
-  const [frontColor, backgroundColor] = useMemo(
-    () => getPeriodColors(Periods.evidence, theme),
-    [theme, Periods.evidence]
-  );
+
+  // Determine the period or use execution if ruled
+  const currentPeriod = ruled ? Periods.execution : (period as Periods) || Periods.evidence;
+
+  const [frontColor] = useMemo(() => getPeriodColors(currentPeriod, theme), [theme, currentPeriod]);
 
   return (
     <StyledLabel frontColor={frontColor} withDot>
-      {getPeriodLabel(Periods.evidence)}
+      {getPeriodLabel(currentPeriod)}
     </StyledLabel>
   );
 };
