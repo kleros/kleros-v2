@@ -58,7 +58,7 @@ const Jurors: React.FC = () => {
       enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
       refetchInterval: REFETCH_INTERVAL,
     },
-    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData.numberOfJurors ?? "0")],
+    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData?.numberOfJurors ?? 0)],
     chainId: DEFAULT_CHAIN,
   });
 
@@ -67,7 +67,12 @@ const Jurors: React.FC = () => {
   useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
   const handleJurorsWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDisputeData({ ...disputeData, numberOfJurors: parseInt(event.target.value.replace(/\D/g, ""), 10) });
+    const value = parseInt(event.target.value.replace(/\D/g, ""), 10);
+    if (isUndefined(value) || isNaN(value)) {
+      setDisputeData({ ...disputeData, numberOfJurors: 0 });
+    } else {
+      setDisputeData({ ...disputeData, numberOfJurors: value });
+    }
   };
 
   const noOfVotes = Number.isNaN(disputeData.numberOfJurors) ? "" : disputeData.numberOfJurors;
