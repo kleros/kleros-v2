@@ -66,12 +66,10 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
     const argsArr: TransactionBatcherConfig = [];
 
     for (const contribution of filteredContributions) {
-      for (let round = roundIndex; round >= 0; round--) {
-        argsArr.push({
-          ...baseArgs,
-          args: [BigInt(id), contribution.contributor.id, BigInt(round), contribution.choice],
-        });
-      }
+      argsArr.push({
+        ...baseArgs,
+        args: [BigInt(id), contribution.contributor.id, contribution.choice],
+      });
     }
 
     setContractConfigs(argsArr);
