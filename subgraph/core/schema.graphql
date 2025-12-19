@@ -79,6 +79,7 @@ type User @entity {
   totalCoherentVotes: BigInt!
   totalResolvedVotes: BigInt!
   coherenceScore: BigInt!
+  leaderboardOffset: BigInt!
   votes: [Vote!]! @derivedFrom(field: "juror")
   contributions: [Contribution!]! @derivedFrom(field: "contributor")
   evidences: [ClassicEvidence!]! @derivedFrom(field: "sender")

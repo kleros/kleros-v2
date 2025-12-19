@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-subgraph",
-  "version": "0.18.1",
+  "version": "0.19.1",
   "drtVersion": "0.14.0",
   "license": "MIT",
   "scripts": {
@@ -10,7 +10,7 @@
     "update:core:local": "./scripts/update.sh localhost mainnet core/subgraph.yaml",
     "codegen:core": "graph codegen --output-dir core/generated/ core/subgraph.yaml",
     "build:core": "graph build --output-dir core/build/ core/subgraph.yaml",
-    "test:core": "cd core && graph test",
+    "test:core": "graph test",
     "clean:core": "graph clean --codegen-dir core/generated/ --build-dir core/build/ ; rm core/subgraph.yaml.bak.*",
     "deploy:core:arbitrum-sepolia-devnet": "graph deploy kleros-v2-core-devnet -l v$npm_package_version core/subgraph.yaml",
     "deploy:core:arbitrum-sepolia": "graph deploy kleros-v2-core-testnet -l v$npm_package_version core/subgraph.yaml",
