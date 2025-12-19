@@ -24,7 +24,6 @@ describe("getDispute", () => {
       templateId: 1,
       arbitrated: { id: "0x1234" },
       arbitrableChainId: 1,
-      externalDisputeId: 123,
     },
   };
 

@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.12.0",
+  "version": "2.0.0-rc.1",
   "description": "Smart contracts for Kleros version 2",
   "main": "./cjs/deployments/index.js",
   "module": "./esm/deployments/index.js",
@@ -47,7 +47,7 @@
     "node": ">=16.0.0"
   },
   "volta": {
-    "node": "20.18.3"
+    "node": "20.19.5"
   },
   "publishConfig": {
     "access": "public",
@@ -109,15 +109,15 @@
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
     "@logtail/pino": "^0.5.0",
-    "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
-    "@nomicfoundation/hardhat-ethers": "^3.1.0",
-    "@nomiclabs/hardhat-solhint": "^4.1.0",
-    "@openzeppelin/upgrades-core": "^1.44.1",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
+    "@nomicfoundation/hardhat-ethers": "^3.1.2",
+    "@nomiclabs/hardhat-solhint": "^4.1.2",
+    "@openzeppelin/upgrades-core": "^1.44.2",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.3.20",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^20.17.6",
+    "@types/node": "^20.19.24",
     "@types/sinon": "^17.0.4",
     "@wagmi/cli": "^2.3.2",
     "abitype": "^0.10.3",
@@ -129,7 +129,7 @@
     "gluegun": "^5.2.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
-    "hardhat": "2.26.3",
+    "hardhat": "2.26.5",
     "hardhat-contract-sizer": "^2.10.1",
     "hardhat-deploy": "^1.0.4",
     "hardhat-deploy-ethers": "^0.4.2",
@@ -153,7 +153,7 @@
   "dependencies": {
     "@chainlink/contracts": "^1.4.0",
     "@kleros/vea-contracts": "^0.7.0",
-    "@openzeppelin/contracts": "^5.4.0",
+    "@openzeppelin/contracts": "^5.5.0",
     "@shutter-network/shutter-sdk": "0.0.2",
     "isomorphic-fetch": "^3.0.0"
   },
@@ -164,5 +164,6 @@
     "viem": {
       "optional": false
     }
-  }
+  },
+  "stableVersion": "0.12.0"
 }

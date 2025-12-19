@@ -1,0 +1,194 @@
+{
+  "address": "0x811eC94d73445Df262D3Bf43571B85caD122bBD7",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "governor_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidGovernor",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotGovernor",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldGovernor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newGovernor",
+          "type": "address"
+        }
+      ],
+      "name": "GovernorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "offset",
+          "type": "int256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "arbitrator",
+          "type": "address"
+        }
+      ],
+      "name": "Offset",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "governor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "juror",
+          "type": "address"
+        },
+        {
+          "internalType": "int256",
+          "name": "offset",
+          "type": "int256"
+        },
+        {
+          "internalType": "address",
+          "name": "arbitrator",
+          "type": "address"
+        }
+      ],
+      "name": "setOffset",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newGovernor",
+          "type": "address"
+        }
+      ],
+      "name": "updateGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xbb59c3799cd0cdb002ab5d50a73ce4df0f7a31a6da376d35d651695c4c035553",
+  "receipt": {
+    "to": null,
+    "from": "0x88AB19C0c7b57EeBa545acbD4368748194cd796B",
+    "contractAddress": "0x811eC94d73445Df262D3Bf43571B85caD122bBD7",
+    "transactionIndex": 4,
+    "gasUsed": "188293",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x1eda1fac08593a4d20c0da0b64d5c6608e59100b9e7f928142175bf7ab2b1807",
+    "transactionHash": "0xbb59c3799cd0cdb002ab5d50a73ce4df0f7a31a6da376d35d651695c4c035553",
+    "logs": [],
+    "blockNumber": 217101551,
+    "cumulativeGasUsed": "583258",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x88AB19C0c7b57EeBa545acbD4368748194cd796B"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "5b02862a3326bb805f178280f9f88e2d",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"governor_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"InvalidGovernor\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotGovernor\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldGovernor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newGovernor\",\"type\":\"address\"}],\"name\":\"GovernorUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"offset\",\"type\":\"int256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"arbitrator\",\"type\":\"address\"}],\"name\":\"Offset\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"juror\",\"type\":\"address\"},{\"internalType\":\"int256\",\"name\":\"offset\",\"type\":\"int256\"},{\"internalType\":\"address\",\"name\":\"arbitrator\",\"type\":\"address\"}],\"name\":\"setOffset\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newGovernor\",\"type\":\"address\"}],\"name\":\"updateGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"setOffset(address,int256,address)\":{\"params\":{\"arbitrator\":\"The arbitrator address.\",\"juror\":\"The address of the affected juror.\",\"offset\":\"The signed integer offset (+ or -).\"}},\"updateGovernor(address)\":{\"params\":{\"newGovernor\":\"The new governor address.\"}}},\"title\":\"LeaderboardOffset\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"setOffset(address,int256,address)\":{\"notice\":\"Emits an offset event for a given juror.\"},\"updateGovernor(address)\":{\"notice\":\"Updates the governor address.\"}},\"notice\":\"Emits event to offset juror score for coherency\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/governance/LeaderboardOffset.sol\":\"LeaderboardOffset\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":850},\"remappings\":[],\"viaIR\":true},\"sources\":{\"src/governance/LeaderboardOffset.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.28;\\n\\n/**\\n * @title LeaderboardOffset\\n * @notice Emits event to offset juror score for coherency\\n */\\ncontract LeaderboardOffset {\\n    // ************************************* //\\n    // *              Events               * //\\n    // ************************************* //\\n    event Offset(address indexed user, int256 offset, address indexed arbitrator);\\n\\n    event GovernorUpdated(address indexed oldGovernor, address indexed newGovernor);\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    address public governor;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n    constructor(address governor_) {\\n        if (governor_ == address(0)) revert InvalidGovernor();\\n        governor = governor_;\\n    }\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n    modifier onlyGovernor() {\\n        if (msg.sender != governor) revert NotGovernor();\\n        _;\\n    }\\n\\n    // ************************************* //\\n    // *             Governance            * //\\n    // ************************************* //\\n\\n    /**\\n     * @notice Emits an offset event for a given juror.\\n     * @param juror The address of the affected juror.\\n     * @param offset The signed integer offset (+ or -).\\n     * @param arbitrator The arbitrator address.\\n     */\\n    function setOffset(address juror, int256 offset, address arbitrator) external onlyGovernor {\\n        emit Offset(juror, offset, arbitrator);\\n    }\\n\\n    /**\\n     * @notice Updates the governor address.\\n     * @param newGovernor The new governor address.\\n     */\\n    function updateGovernor(address newGovernor) external onlyGovernor {\\n        if (newGovernor == address(0)) revert InvalidGovernor();\\n\\n        emit GovernorUpdated(governor, newGovernor);\\n        governor = newGovernor;\\n    }\\n\\n    // ************************************* //\\n    // *              Errors               * //\\n    // ************************************* //\\n    error NotGovernor();\\n    error InvalidGovernor();\\n}\\n\",\"keccak256\":\"0x902182a029a64bf2fa34d2ec8a8ed887e951b25325c9e43afdf5eba08dca5521\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608034608357601f61029e38819003918201601f19168301916001600160401b03831184841017608757808492602094604052833981010312608357516001600160a01b0381169081900360835780156074575f80546001600160a01b031916919091179055604051610202908161009c8239f35b636630f75560e11b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe6080806040526004361015610012575f80fd5b5f3560e01c9081630c340a24146101945750806362f384ad146100e15763d5c002611461003d575f80fd5b346100dd5760603660031901126100dd576100566101b6565b604435906001600160a01b0382168092036100dd576001600160a01b035f541633036100b5577ffa924885f0d4e35a861265635470acad0f0bd25cabcc09fcde0c0f07aaa0d3e260206001600160a01b036040519360243585521692a3005b7fee3675d4000000000000000000000000000000000000000000000000000000005f5260045ffd5b5f80fd5b346100dd5760203660031901126100dd576100fa6101b6565b5f54906001600160a01b038216908133036100b5576001600160a01b031691821561016c57827fffffffffffffffffffffffff0000000000000000000000000000000000000000927f5af6a85e864342d4f108c43dd574d98480c91f1de0ac2a9f66d826dee49bd9bb5f80a316175f55005b7fcc61eeaa000000000000000000000000000000000000000000000000000000005f5260045ffd5b346100dd575f3660031901126100dd576020906001600160a01b035f54168152f35b600435906001600160a01b03821682036100dd5756fea2646970667358221220c134b6c3d9ae5644bb802d1fd43d4318cdef95997eaa60d5389c777c3918dcba64736f6c634300081e0033",
+  "deployedBytecode": "0x6080806040526004361015610012575f80fd5b5f3560e01c9081630c340a24146101945750806362f384ad146100e15763d5c002611461003d575f80fd5b346100dd5760603660031901126100dd576100566101b6565b604435906001600160a01b0382168092036100dd576001600160a01b035f541633036100b5577ffa924885f0d4e35a861265635470acad0f0bd25cabcc09fcde0c0f07aaa0d3e260206001600160a01b036040519360243585521692a3005b7fee3675d4000000000000000000000000000000000000000000000000000000005f5260045ffd5b5f80fd5b346100dd5760203660031901126100dd576100fa6101b6565b5f54906001600160a01b038216908133036100b5576001600160a01b031691821561016c57827fffffffffffffffffffffffff0000000000000000000000000000000000000000927f5af6a85e864342d4f108c43dd574d98480c91f1de0ac2a9f66d826dee49bd9bb5f80a316175f55005b7fcc61eeaa000000000000000000000000000000000000000000000000000000005f5260045ffd5b346100dd575f3660031901126100dd576020906001600160a01b035f54168152f35b600435906001600160a01b03821682036100dd5756fea2646970667358221220c134b6c3d9ae5644bb802d1fd43d4318cdef95997eaa60d5389c777c3918dcba64736f6c634300081e0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "setOffset(address,int256,address)": {
+        "params": {
+          "arbitrator": "The arbitrator address.",
+          "juror": "The address of the affected juror.",
+          "offset": "The signed integer offset (+ or -)."
+        }
+      },
+      "updateGovernor(address)": {
+        "params": {
+          "newGovernor": "The new governor address."
+        }
+      }
+    },
+    "title": "LeaderboardOffset",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "setOffset(address,int256,address)": {
+        "notice": "Emits an offset event for a given juror."
+      },
+      "updateGovernor(address)": {
+        "notice": "Updates the governor address."
+      }
+    },
+    "notice": "Emits event to offset juror score for coherency",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 18,
+        "contract": "src/governance/LeaderboardOffset.sol:LeaderboardOffset",
+        "label": "governor",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      }
+    }
+  }
+}

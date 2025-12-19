@@ -312,8 +312,13 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     // ************************************* //
 
     /// @inheritdoc ISortitionModule
-    function draw(uint96, uint256, uint256) public view override returns (address drawnAddress, uint96 fromSubcourtID) {
+    function draw(
+        uint96 _courtID,
+        uint256,
+        uint256
+    ) public view override returns (address drawnAddress, uint96 fromSubcourtID) {
         drawnAddress = transientJuror;
+        fromSubcourtID = _courtID;
     }
 
     /// @inheritdoc ISortitionModule
@@ -324,10 +329,10 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         external
         view
         override
-        returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts)
+        returns (uint256 totalStakedPnk, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts)
     {
         Juror storage juror = jurors[_juror];
-        totalStaked = juror.stakedPnk;
+        totalStakedPnk = juror.stakedPnk;
         totalLocked = juror.lockedPnk;
         nbCourts = juror.courtIDs.length;
         for (uint256 i = 0; i < nbCourts; i++) {
@@ -353,8 +358,9 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         Juror storage juror = jurors[_juror];
         if (juror.courtIDs.length == 0 && juror.lockedPnk == 0) {
             return juror.stakedPnk;
+        } else {
+            return 0;
         }
-        return 0;
     }
 
     // ************************************* //
