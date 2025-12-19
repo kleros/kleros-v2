@@ -624,7 +624,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @notice Transfers PNK to the juror by SortitionModule.
     /// @param _account The account of the juror whose PNK to transfer.
     /// @param _amount The amount to transfer.
-    function transferBySortitionModule(address _account, uint256 _amount) external {
+    function transferBySortitionModule(address _account, uint256 _amount) external whenNotPaused {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
         // Note eligibility is checked in SortitionModule.
         if (!pinakion.safeTransfer(_account, _amount)) revert TransferFailed();
