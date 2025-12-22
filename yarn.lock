@@ -5086,6 +5086,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@goldskycom/cli@npm:^13.1.1":
+  version: 13.1.1
+  resolution: "@goldskycom/cli@npm:13.1.1"
+  dependencies:
+    cuid: "npm:^2.1.8"
+    parse-duration: "npm:^1.0.3"
+    readline-sync: "npm:^1.4.10"
+    timeago.js: "npm:^4.0.2"
+  bin:
+    goldsky: bin/goldsky
+  checksum: 10/e12c4f63d0da32bb4b04910b28eb2912a17187cf71341ae6fc7d0419c471eb27f00c3d8454205db1e6a40c8d0ed8d3be63e1ccc01e769496b8cdf7888b0a2f6e
+  languageName: node
+  linkType: hard
+
 "@graphprotocol/graph-cli@npm:^0.96.0":
   version: 0.96.0
   resolution: "@graphprotocol/graph-cli@npm:0.96.0"
@@ -6693,6 +6707,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
+    "@goldskycom/cli": "npm:^13.1.1"
     "@graphprotocol/graph-cli": "npm:^0.96.0"
     "@graphprotocol/graph-ts": "npm:^0.38.0"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
@@ -17604,6 +17619,13 @@ __metadata:
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 10/f593cce41ff5ade23f44e77521e3a1bcc2c64107041e1bf6c3c32adc5187d0d60983292fda326154d20b01079e24931aa5b08e4467cc488b60bb1e7f6d478ade
+  languageName: node
+  linkType: hard
+
+"cuid@npm:^2.1.8":
+  version: 2.1.8
+  resolution: "cuid@npm:2.1.8"
+  checksum: 10/df122ce5ff83c6b1cd01bb9922eef8421314678bee1d2192cd167a5b94791886b52976e716b56672d356085ccd4eb08e2b66e63da53d8b3903e7273887a4231f
   languageName: node
   linkType: hard
 
@@ -29418,6 +29440,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"parse-duration@npm:^1.0.3":
+  version: 1.1.2
+  resolution: "parse-duration@npm:1.1.2"
+  checksum: 10/c31ebdee783935afe250fd79cdfab9d14e196ee2a810e6a7abbdef6d945a1b88797972437c9e5ed10e8e1cb5cd68b7cc13e9ac9721839f0cb1c2f5fe837d99d9
+  languageName: node
+  linkType: hard
+
 "parse-entities@npm:^4.0.0":
   version: 4.0.1
   resolution: "parse-entities@npm:4.0.1"
@@ -32181,6 +32210,13 @@ __metadata:
   dependencies:
     picomatch: "npm:^2.2.1"
   checksum: 10/196b30ef6ccf9b6e18c4e1724b7334f72a093d011a99f3b5920470f0b3406a51770867b3e1ae9711f227ef7a7065982f6ee2ce316746b2cb42c88efe44297fe7
+  languageName: node
+  linkType: hard
+
+"readline-sync@npm:^1.4.10":
+  version: 1.4.10
+  resolution: "readline-sync@npm:1.4.10"
+  checksum: 10/5eb6465f5c5391e32cb525022a307a910a565828cd53da87ac05fca291607df54099dd65bc9c7a513ac53a5eb4e11454d48f0dcf4ad54126d36dec5fcec4a8f0
   languageName: node
   linkType: hard
 
@@ -35341,6 +35377,13 @@ __metadata:
   version: 1.1.0
   resolution: "thunky@npm:1.1.0"
   checksum: 10/825e3bd07ab3c9fd6f753c457a60957c628cacba5dd0656fd93b037c445e2828b43cf0805a9f2b16b0c5f5a10fd561206271acddb568df4f867f0aea0eb2772f
+  languageName: node
+  linkType: hard
+
+"timeago.js@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "timeago.js@npm:4.0.2"
+  checksum: 10/30e38e8a82f885d95162e66bf7d9673a14c5fe7aff3f5b3e3d74fe5c431046da23194f1d4ab6bbd259b8d3504b47a0478429c147dee496036701f8b89e5951f3
   languageName: node
   linkType: hard
 
