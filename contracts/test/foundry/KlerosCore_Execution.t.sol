@@ -152,6 +152,72 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(pinakion.balanceOf(staker2), 999999999999980000, "Wrong token balance of staker2");
     }
 
+    function test_execute_maxStakeCheck() public {
+        uint256 disputeID = 0;
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        // Split the stakers' votes. The first staker will get VoteID 0 and the second will take the rest.
+        core.draw(disputeID, 1);
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking phase to stake the 2nd voter
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 20000);
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 2); // Assign leftover votes to staker2
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ"); // Staker1 only got 1 vote because of low stake
+
+        voteIDs = new uint256[](2);
+        voteIDs[0] = 1;
+        voteIDs[1] = 2;
+        vm.prank(staker2);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        (uint256 totalStaked, , uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
+        assertEq(totalStaked, 20000, "Wrong totalStaked for staker2");
+        assertEq(stakedInCourt, 20000, "Wrong stakedInCourt for staker2");
+        assertEq(pinakion.balanceOf(address(core)), 22000, "Wrong token balance of the core");
+
+        vm.prank(owner);
+        sortitionModule.changeMaxStakePerJuror(20000); // Decrease max total stake to check that it's not exceeded after rewards
+
+        core.execute(disputeID, 0, 6);
+
+        (totalStaked, , stakedInCourt, ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
+        assertEq(totalStaked, 20000, "totalStaked should not change");
+        assertEq(stakedInCourt, 20000, "Wrong stakedInCourt for staker2");
+
+        assertEq(
+            pinakion.balanceOf(address(core)),
+            21000,
+            "Token balance of the core should decreased by token reward value"
+        );
+        assertEq(pinakion.balanceOf(staker2), 999999999999981000, "Wrong token balance of staker2"); // Balance should increased by reward's value (1000)
+    }
+
     function test_execute_NoCoherence() public {
         uint256 disputeID = 0;
 
