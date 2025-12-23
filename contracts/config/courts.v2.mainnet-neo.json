@@ -494,5 +494,21 @@
       291600,
       194400
     ]
+  },
+  {
+    "name": "Corte de Defensores del Cliente",
+    "id": 32,
+    "parent": 29,
+    "hiddenVotes": false,
+    "minStake": "8400000000000000000000",
+    "feeForJuror": "5400000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "15",
+    "timesPerPeriod": [
+      21600,
+      216000,
+      216000,
+      216000
+    ]
   }
 ]
