@@ -6,7 +6,12 @@ import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { simulateDisputeKitClassicCastCommit, simulateDisputeKitGatedCastCommit } from "hooks/contracts/generated";
+import { DisputeKits } from "consts/index";
+import {
+  simulateDisputeKitClassicCastCommit,
+  simulateDisputeKitGatedCastCommit,
+  simulateDisputeKitGatedArgentinaConsumerProtectionCastCommit,
+} from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -26,9 +31,10 @@ interface ICommit {
   setIsOpen: (val: boolean) => void;
   refetch: () => void;
   isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, isGated }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, isGated, disputeKitName }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -60,7 +66,12 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, is
       setSalt(JSON.stringify({ salt, choice: choice.toString() }));
       const commit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(choice), BigInt(salt)]));
 
-      const simulate = isGated ? simulateDisputeKitGatedCastCommit : simulateDisputeKitClassicCastCommit;
+      const simulate =
+        disputeKitName === DisputeKits.ArgentinaConsumerProtection
+          ? simulateDisputeKitGatedArgentinaConsumerProtectionCastCommit
+          : isGated
+            ? simulateDisputeKitGatedCastCommit
+            : simulateDisputeKitClassicCastCommit;
 
       const { request } = await simulate(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, commit],
@@ -85,6 +96,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, is
       signingAccount,
       refetch,
       isGated,
+      disputeKitName,
     ]
   );
 

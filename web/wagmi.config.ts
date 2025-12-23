@@ -27,6 +27,7 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
     "DisputeKitShutter",
     "DisputeKitGated",
     "DisputeKitGatedShutter",
+    "DisputeKitGatedArgentinaConsumerProtection",
     "SortitionModule",
     "DisputeResolver",
   ];

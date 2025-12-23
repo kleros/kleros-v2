@@ -7,6 +7,7 @@ import { Features } from "consts/disputeFeature";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
+import ArgentinaConsumerProtection from "./ArgentinaConsumerProtection";
 import ClassicVote from "./ClassicVote";
 import GatedErc1155 from "./GatedErc1155";
 import GatedErc20 from "./GatedErc20";
@@ -30,8 +31,8 @@ export const StyledRadio = styled(Radio)`
 export const FeatureUIs: Record<Features, FeatureUI> = {
   [Features.ShieldedVote]: (props: RadioInput) => (
     <WithHelpTooltip
-      tooltipMsg={`The jurors votes are hidden. 
-        Nobody can see them before the voting period completes. 
+      tooltipMsg={`The jurors votes are hidden.
+        Nobody can see them before the voting period completes.
         It takes place in a single step via Shutter Network`}
       key={Features.ShieldedVote}
     >
@@ -48,4 +49,6 @@ export const FeatureUIs: Record<Features, FeatureUI> = {
   [Features.GatedErc20]: (props: RadioInput) => <GatedErc20 {...props} />,
 
   [Features.GatedErc1155]: (props: RadioInput) => <GatedErc1155 {...props} />,
+
+  [Features.ArgentinaConsumerProtection]: (props: RadioInput) => <ArgentinaConsumerProtection {...props} />,
 };

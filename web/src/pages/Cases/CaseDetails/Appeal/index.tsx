@@ -53,7 +53,10 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit = disputeKitName === DisputeKits.Classic || disputeKitName === DisputeKits.Gated;
+  const isClassicDisputeKit =
+    disputeKitName === DisputeKits.Classic ||
+    disputeKitName === DisputeKits.Gated ||
+    disputeKitName === DisputeKits.ArgentinaConsumerProtection;
   const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
   const isGated = Boolean(disputeKitName?.includes("Gated"));
   return (
@@ -64,7 +67,7 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
             <Classic
               isAppealMiniGuideOpen={isAppealMiniGuideOpen}
               toggleAppealMiniGuide={toggleAppealMiniGuide}
-              {...{ isGated }}
+              {...{ isGated, disputeKitName }}
             />
           )}
           {isShutterDisputeKit && (
