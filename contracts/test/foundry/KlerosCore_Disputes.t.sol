@@ -21,6 +21,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         bytes memory newExtraData = abi.encodePacked(uint256(newCourtID), newNbJurors, newDkID);
+        uint256[4] memory newTimesPerPeriod = [uint256(10), uint256(20), uint256(30), uint256(40)];
 
         vm.prank(owner);
         core.addNewDisputeKit(disputeKit); // Just add the same dk to avoid dealing with initialization
@@ -32,7 +33,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
             20000, // alpha
             newFee, // fee for juror
             50, // jurors for jump
-            [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
+            newTimesPerPeriod,
             abi.encode(uint256(4)), // Sortition extra data
             supportedDK
         );
@@ -87,6 +88,9 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(round.sumPnkRewardPaid, 0, "sumPnkRewardPaid should be 0");
         assertEq(address(round.feeToken), address(0), "feeToken should be 0");
         assertEq(round.drawIterations, 0, "drawIterations should be 0");
+        for (uint256 i = 0; i < 4; i++) {
+            assertEq(round.timesPerPeriod[i], newTimesPerPeriod[i], "Wrong times per period");
+        }
 
         (uint256 numberOfChoices, bytes memory extraData) = disputeKit.disputes(disputeID);
         assertEq(numberOfChoices, 2, "Wrong numberOfChoices");
