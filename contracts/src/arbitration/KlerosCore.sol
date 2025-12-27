@@ -71,7 +71,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
         uint256 drawIterations; // The number of iterations passed drawing the jurors for this round.
-        uint256[10] __gap; // Reserved slots for future upgrades.
+        uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
+        uint256[6] __gap; // Reserved slots for future upgrades.
     }
 
     // Workaround "stack too deep" errors
@@ -683,6 +684,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         round.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
+        round.timesPerPeriod = court.timesPerPeriod;
 
         sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
 
@@ -701,7 +703,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         if (dispute.period == Period.evidence) {
             if (
                 currentRound == 0 &&
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)]
             ) {
                 revert EvidenceNotPassedAndNotAppeal();
             }
@@ -709,7 +711,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             dispute.period = court.hiddenVotes ? Period.commit : Period.vote;
         } else if (dispute.period == Period.commit) {
             if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)] &&
                 !disputeKits[round.disputeKitID].areCommitsAllCast(_disputeID)
             ) {
                 revert CommitPeriodNotPassed();
@@ -717,7 +719,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             dispute.period = Period.vote;
         } else if (dispute.period == Period.vote) {
             if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)] &&
                 !disputeKits[round.disputeKitID].areVotesAllCast(_disputeID)
             ) {
                 revert VotePeriodNotPassed();
@@ -726,7 +728,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             emit AppealPossible(_disputeID, dispute.arbitrated);
         } else if (dispute.period == Period.appeal) {
             if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)] &&
                 !disputeKits[round.disputeKitID].isAppealFunded(_disputeID)
             ) {
                 revert AppealPeriodNotPassed();
@@ -812,6 +814,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         extraRound.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
+        extraRound.timesPerPeriod = court.timesPerPeriod;
 
         sortitionModule.createDisputeHook(_disputeID, extraRoundID);
 
@@ -1116,9 +1119,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @return end The end of the appeal period.
     function appealPeriod(uint256 _disputeID) external view returns (uint256 start, uint256 end) {
         Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
         if (dispute.period == Period.appeal) {
             start = dispute.lastPeriodChange;
-            end = dispute.lastPeriodChange + courts[dispute.courtID].timesPerPeriod[uint256(Period.appeal)];
+            end = dispute.lastPeriodChange + round.timesPerPeriod[uint256(Period.appeal)];
         } else {
             start = 0;
             end = 0;
