@@ -152,6 +152,73 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(pinakion.balanceOf(staker2), 999999999999980000, "Wrong token balance of staker2");
     }
 
+    function test_execute_multipleWinners() public {
+        uint256 disputeID = 0;
+        uint256 numberOfOptions = 5; // 5 choices, 2 will be winners, the rest - losers
+
+        arbitrable.changeNumberOfRulingOptions(numberOfOptions);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * 5}("Action"); // 5 jurors, with future votes distribution 2-2-1-0-0
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 5);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](2);
+        voteIDs[0] = 0;
+        voteIDs[1] = 1;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ"); // Cast first 2 votes for 1st choice
+
+        voteIDs = new uint256[](2);
+        voteIDs[0] = 2;
+        voteIDs[1] = 3;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ"); // Cast next 2 votes for 2nd choice
+
+        voteIDs = new uint256[](1);
+        voteIDs[0] = 4;
+        vm.prank(staker1);
+        disputeKit.castVote(disputeID, voteIDs, 3, 0, "XYZ"); // Cast the last vote for 3rd choice.
+        core.passPeriod(disputeID); // Appeal
+
+        vm.warp(block.timestamp + timesPerPeriod[3]);
+        core.passPeriod(disputeID); // Execution
+
+        assertEq(disputeKit.getCoherentCount(disputeID, 0), 4, "Wrong coherent count"); // Votes casted for first 2 choices are coherent
+
+        uint256 pnkCoherence;
+        uint256 feeCoherence;
+        // dispute, round, voteID, feeForJuror (not used in classic DK), pnkPerJuror (not used in classic DK)
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 0, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 0 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 0 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 1, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 1 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 1 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 2, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 2 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 2 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 3, 0, 0);
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 3 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 3 vote ID");
+
+        (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 4, 0, 0);
+        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 4 vote ID");
+        assertEq(feeCoherence, 0, "Wrong reward fee coherence 4 vote ID");
+    }
+
     function test_execute_maxStakeCheck() public {
         uint256 disputeID = 0;
 
