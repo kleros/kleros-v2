@@ -70,6 +70,11 @@ interface IDisputeKit {
     /// @return overridden Whether the ruling was overridden by appeal funding or not.
     function currentRuling(uint256 _coreDisputeID) external view returns (uint256 ruling, bool tied, bool overridden);
 
+    /// @notice Gets the array of winning choices.
+    /// @param _coreDisputeID The ID of the dispute.
+    /// @return winningChoices The array of winning choices.
+    function getWinningChoices(uint256 _coreDisputeID) external view returns (uint256[] memory winningChoices);
+
     /// @notice Gets the degree of coherence of a particular voter.
     /// @dev This function is called by Kleros Core in order to determine the amount of the reward.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.

@@ -1143,6 +1143,16 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         (ruling, tied, overridden) = disputeKit.currentRuling(_disputeID);
     }
 
+    /// @notice Gets the array of winning choices from the current dispute kit.
+    /// @param _disputeID The ID of the dispute.
+    /// @return winningChoices The array of winning choices.
+    function getWinningChoices(uint256 _disputeID) public view returns (uint256[] memory winningChoices) {
+        Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        IDisputeKit disputeKit = disputeKits[round.disputeKitID];
+        winningChoices = disputeKit.getWinningChoices(_disputeID);
+    }
+
     /// @notice Gets the round info for a specified dispute and round.
     /// @dev This function must not be called from a non-view function because it returns a dynamic array which might be very large, theoretically exceeding the block gas limit.
     /// @param _disputeID The ID of the dispute.
