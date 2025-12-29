@@ -25,12 +25,12 @@ interface IVoteCount {
 }
 
 const VoteCount: React.FC<IVoteCount> = ({ count }) => {
-  if (count <= 1) return null;
-
   return (
     <Container>
       <VotesIcon />
-      <small>{count} votes</small>
+      <small>
+        {count} {count === 1 ? "vote" : "votes"}
+      </small>
     </Container>
   );
 };
