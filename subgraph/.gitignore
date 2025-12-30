@@ -1,0 +1,3 @@
+.bin
+*.wasm
+.latest.json

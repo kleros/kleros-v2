@@ -78,5 +78,21 @@
       43200,
       43200
     ]
+  },
+  {
+    "name": "Corte de Defensores del Cliente",
+    "id": 6,
+    "parent": 4,
+    "hiddenVotes": false,
+    "minStake": "200000000000000000000",
+    "alpha": "5000",
+    "feeForJuror": "10000000000000",
+    "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      43200,
+      43200,
+      43200,
+      43200
+    ]
   }
 ]
