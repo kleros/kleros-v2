@@ -56,11 +56,7 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
   const totalNumberStakingEvents = stakingHistoryData?.userStakingEvents?.count ?? 0;
   const totalPages = useMemo(() => Math.ceil(totalNumberStakingEvents / eventsPerPage), [totalNumberStakingEvents]);
 
-  // Sort by timestamp descending (latest first) - API doesn't support orderBy parameter
-  const sortedStakingEvents = useMemo(() => {
-    const events = stakingHistoryData?.userStakingEvents?.items ?? [];
-    return [...events].sort((a, b) => parseInt(b.item.blockTimestamp) - parseInt(a.item.blockTimestamp));
-  }, [stakingHistoryData?.userStakingEvents?.items]);
+  const stakingEvents = stakingHistoryData?.userStakingEvents?.items ?? [];
 
   const handlePageChange = (newPage: number) => {
     navigate(`/profile/stakes/${newPage}?address=${searchParamAddress}`);
@@ -76,7 +72,7 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
           Array.from({ length: 10 }).map((_, index) => <Skeleton height={64} key={index} />)
         ) : (
           <>
-            {sortedStakingEvents.map(({ item }) => {
+            {stakingEvents.map(({ item }) => {
               const courtName = findCourtNameById(courtTreeData, item.args._courtID);
               return (
                 <CourtCard

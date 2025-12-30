@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { request } from "graphql-request";
-import { useChainId } from "wagmi";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { sortitionModuleAddress } from "hooks/contracts/generated";
 
 import { isUndefined } from "src/utils";
@@ -31,9 +31,8 @@ type StakingEventsResponse = {
 const atlasUri = import.meta.env.REACT_APP_ATLAS_URI;
 
 export const useStakingEventsByCourt = (courtIds: number[], skip: number, take: number, partialAddress?: string) => {
-  const chainId = useChainId();
   const addressParam = partialAddress ?? "";
-  const contractAddress = sortitionModuleAddress[chainId as keyof typeof sortitionModuleAddress];
+  const contractAddress = sortitionModuleAddress[DEFAULT_CHAIN];
 
   // Allow empty courtIds array for "all courts" query
   const isEnabled = !isUndefined(atlasUri) && !isUndefined(contractAddress);
@@ -77,14 +76,14 @@ export const useStakingEventsByCourt = (courtIds: number[], skip: number, take: 
     // If courtIds is empty, pass null to query all courts
     courtIDs: courtIds.length > 0 ? courtIds : null,
     contract: {
-      chainId: chainId,
+      chainId: DEFAULT_CHAIN,
       address: contractAddress,
     },
-    pagination: { skip, take },
+    pagination: { skip, take, sortByTimeStamp: "DESC" },
   };
 
   return useQuery<StakingEventsResponse>({
-    queryKey: ["stakingEventsByCourt", courtIds, skip, take, partialAddress, chainId],
+    queryKey: ["stakingEventsByCourt", courtIds, skip, take, partialAddress, DEFAULT_CHAIN],
     enabled: isEnabled,
     staleTime: 60000,
     queryFn: async () => {

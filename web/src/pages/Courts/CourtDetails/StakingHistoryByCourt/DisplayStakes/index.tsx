@@ -123,12 +123,10 @@ const DisplayStakes: React.FC = () => {
       };
     });
 
-    const sortedChunk = chunk.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
-
-    if (sortedChunk.length) {
+    if (chunk.length) {
       setAcc((prev) => {
         const seen = new Set(prev.map((item) => item.id));
-        const next = sortedChunk.filter((item) => !seen.has(item.id));
+        const next = chunk.filter((item) => !seen.has(item.id));
         return next.length ? [...prev, ...next] : prev;
       });
     }

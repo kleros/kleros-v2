@@ -3,6 +3,8 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
+import { InternalLink } from "components/InternalLink";
+
 const Container = styled.div`
   display: flex;
   width: 100%;
@@ -12,17 +14,33 @@ const Container = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
 
-  small {
-    height: 100%;
-    font-weight: 600;
-  }
+  ${landscapeStyle(
+    () => css`
+      width: 100%;
+      overflow: hidden;
+    `
+  )}
+`;
+
+const CourtLink = styled(InternalLink)`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.primaryBlue};
+  text-decoration: none;
+  cursor: pointer;
 
   ${landscapeStyle(
     () => css`
-      justify-content: flex-start;
-      width: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
     `
   )}
+
+  :hover {
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
 interface ICourtName {
@@ -33,7 +51,7 @@ interface ICourtName {
 const CourtName: React.FC<ICourtName> = ({ name, id }) => {
   return (
     <Container>
-      <small>{name}</small>
+      <CourtLink to={`/courts/${id}`}>{name}</CourtLink>
     </Container>
   );
 };

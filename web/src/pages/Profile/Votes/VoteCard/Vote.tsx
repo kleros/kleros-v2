@@ -10,10 +10,8 @@ const Container = styled.div`
   flex-direction: row;
   gap: 8px;
   align-items: center;
-
-  small {
-    font-weight: 400;
-  }
+  overflow: hidden;
+  min-width: 0;
 `;
 
 const StyledVotedIcon = styled(VotedIcon)`
@@ -25,6 +23,16 @@ const StyledVotedIcon = styled(VotedIcon)`
 const BlueSmall = styled.small`
   color: ${({ theme }) => theme.primaryBlue};
   margin-left: -2px;
+  flex-shrink: 0;
+  font-weight: 400;
+`;
+
+const VoteValue = styled.small`
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 `;
 
 interface IVote {
@@ -36,7 +44,7 @@ const Vote: React.FC<IVote> = ({ choice }) => {
     <Container>
       <StyledVotedIcon />
       <BlueSmall>Vote: </BlueSmall>
-      {choice === null ? <Skeleton width={80} height={14} /> : <small>{choice}</small>}
+      {choice === null ? <Skeleton width={80} height={14} /> : <VoteValue>{choice}</VoteValue>}
     </Container>
   );
 };

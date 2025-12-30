@@ -17,7 +17,8 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       justify-content: flex-start;
-      width: auto;
+      width: 100%;
+      overflow: hidden;
     `
   )}
 `;
@@ -29,6 +30,15 @@ const CourtLink = styled(InternalLink)`
   text-decoration: none;
   cursor: pointer;
   height: 100%;
+
+  ${landscapeStyle(
+    () => css`
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    `
+  )}
 
   :hover {
     color: ${({ theme }) => theme.secondaryBlue};

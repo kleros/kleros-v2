@@ -8,6 +8,7 @@ import ArrowIcon from "svgs/icons/arrow.svg";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledArrowLink } from "components/StyledArrowLink";
 
@@ -20,14 +21,11 @@ import VoteCount from "./VoteCount";
 
 const Container = styled(_Card)`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   height: auto;
   width: 100%;
   padding: 20px 16px 24px;
   border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
-  flex-wrap: wrap;
   gap: 16px;
 
   :hover {
@@ -38,16 +36,46 @@ const Container = styled(_Card)`
 
   ${landscapeStyle(
     () => css`
+      display: grid;
+      grid-template-columns:
+        minmax(70px, 0.3fr)
+        minmax(140px, 1.2fr)
+        minmax(140px, 1.3fr)
+        minmax(70px, 0.6fr)
+        minmax(70px, 0.5fr)
+        minmax(70px, 0.5fr)
+        auto;
+      align-items: center;
       padding: 21.5px 28px;
+      gap: ${responsiveSize(12, 16, 900)};
     `
   )}
 `;
 
 const LeftContent = styled.div`
   display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      display: contents;
+    `
+  )}
+`;
+
+const BottomRow = styled.div`
+  display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  gap: 16px 24px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      display: contents;
+    `
+  )}
 `;
 
 const ReStyledArrowLink = styled(StyledArrowLink)`
@@ -57,6 +85,12 @@ const ReStyledArrowLink = styled(StyledArrowLink)`
     height: 15px;
     width: 15px;
   }
+
+  ${landscapeStyle(
+    () => css`
+      justify-self: end;
+    `
+  )}
 `;
 
 const VoteCard: React.FC = ({ vote: draw }) => {
@@ -95,8 +129,8 @@ const VoteCard: React.FC = ({ vote: draw }) => {
     // Choice 0 is always "Refuse to Arbitrate"
     if (choiceNum === 0) return "Refuse to Arbitrate";
 
-    // If still loading dispute data, return null to show skeleton
-    if (isLoadingDisputeData) {
+    // If still loading dispute data or no data yet, return null to show skeleton
+    if (isLoadingDisputeData || !populatedDisputeData) {
       return null;
     }
 
@@ -109,7 +143,7 @@ const VoteCard: React.FC = ({ vote: draw }) => {
 
     // Fallback to Answer 0xN format if no answer found
     return `Answer 0x${choiceNum}`;
-  }, [voteData, populatedDisputeData?.answers, isLoadingDisputeData]);
+  }, [voteData, populatedDisputeData, isLoadingDisputeData]);
 
   return (
     <Container hover>
@@ -119,11 +153,13 @@ const VoteCard: React.FC = ({ vote: draw }) => {
         <Vote choice={voteChoice} />
         <Round number={roundNumber} />
         <CaseStatus period={draw.dispute?.period} ruled={draw.dispute?.ruled} />
-        <VoteCount count={voteCount} />
+        <BottomRow>
+          <VoteCount count={voteCount} />
+          <ReStyledArrowLink to={`/cases/${caseId?.toString()}/voting`}>
+            View vote <ArrowIcon />
+          </ReStyledArrowLink>
+        </BottomRow>
       </LeftContent>
-      <ReStyledArrowLink to={`/cases/${caseId?.toString()}/voting`}>
-        View vote <ArrowIcon />
-      </ReStyledArrowLink>
     </Container>
   );
 };
