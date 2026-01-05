@@ -134,18 +134,78 @@ const DisplayStakes: React.FC = () => {
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting && !isFetching && acc.length % PER_PAGE === 0) setPage((p) => p + 1);
-      },
-      { threshold: 0.1 }
-    );
-    obs.observe(sentinel);
-    return () => obs.disconnect();
-  }, [isFetching, acc.length]);
+const [acc, setAcc] = useState<
+  Array<{
+    id: string;
+    address: string;
+    stake: string;
+    timestamp: string;
+    transactionHash: string;
+    courtId: number;
+    courtName: string;
+  }>
+>([]);
+const [hasMore, setHasMore] = useState(true);
+
+useEffect(() => {
+  setPage(0);
+  setAcc([]);
+  setHasMore(true);
+}, [searchValue, courtId]);
+
+useEffect(() => {
+  const allItems = data?.userStakingEvents?.items ?? [];
+
+  const filteredItems = allItems.filter((item) => {
+    const itemCourtId = item.item.args._courtID;
+    return courtIds.includes(parseInt(itemCourtId));
+  });
+
+  const chunk = filteredItems.map((item) => {
+    const itemCourtId = item.item.args._courtID;
+    const courtName = findCourtNameById(courtTree, itemCourtId);
+
+    return {
+      id: item.item.id,
+      address: item.item.args._address,
+      stake: item.item.args._amount,
+      timestamp: item.item.blockTimestamp,
+      transactionHash: item.item.transactionHash,
+      courtId: parseInt(itemCourtId),
+      courtName: courtName ?? `Court #${itemCourtId}`,
+    };
+  });
+
+  const sortedChunk = chunk.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
+  
+  // Stop fetching if we received fewer items than requested
+  if (sortedChunk.length < PER_PAGE) {
+    setHasMore(false);
+  }
+
+  if (sortedChunk.length) {
+    setAcc((prev) => {
+      const seen = new Set(prev.map((item) => item.id));
+      const next = sortedChunk.filter((item) => !seen.has(item.id));
+      return next.length ? [...prev, ...next] : prev;
+    });
+  }
+}, [data, courtIds, courtTree]);
+
+const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  const sentinel = sentinelRef.current;
+  if (!sentinel) return;
+  const obs = new IntersectionObserver(
+    ([e]) => {
+      if (e.isIntersecting && !isFetching && hasMore) setPage((p) => p + 1);
+    },
+    { threshold: 0.1 }
+  );
+  obs.observe(sentinel);
+  return () => obs.disconnect();
+}, [isFetching, hasMore]);
 
   const stakes = useMemo(() => acc, [acc]);
 
