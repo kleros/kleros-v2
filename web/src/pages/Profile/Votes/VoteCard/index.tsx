@@ -108,6 +108,11 @@ const VoteCard: React.FC = ({ vote: draw }) => {
 
   // Extract vote data (may be null if juror didn't vote)
   const voteData = draw.vote;
+  const period = draw.dispute?.period || "";
+  const hiddenVotes = draw.dispute?.court?.hiddenVotes || false;
+  const currentRoundIndex = draw.dispute?.currentRoundIndex || 0;
+  const roundIndexNum = parseInt(roundIndex);
+  const isActiveRound = currentRoundIndex === roundIndexNum;
 
   // Fetch dispute details to get the answer labels
   const { data: populatedDisputeData, isLoading: isLoadingDisputeData } = usePopulatedDisputeData(
@@ -116,11 +121,32 @@ const VoteCard: React.FC = ({ vote: draw }) => {
   );
 
   // Determine the vote choice text based on the dispute template
+  // Using same logic as in Cases/CaseDetails/Voting/VotesDetails/AccordionTitle.tsx
   const voteChoice = useMemo(() => {
-    if (!voteData || !voteData.voted) {
+    const choice = voteData?.choice;
+    const commited = Boolean(voteData?.commited);
+
+    // For hidden votes courts
+    if (hiddenVotes) {
+      if (!commited && (isActiveRound ? ["vote", "appeal", "execution"].includes(period) : true)) {
+        return "Did not commit vote";
+      }
+
+      if (["evidence", "commit"].includes(period)) {
+        return commited ? "Vote committed" : "Pending vote commitment";
+      }
+    }
+
+    // For all courts - check if they voted
+    if (
+      (choice === null || choice === undefined) &&
+      (isActiveRound ? ["appeal", "execution"].includes(period) : true)
+    ) {
       return "Did not vote";
     }
-    if (voteData.choice === null || voteData.choice === undefined) {
+
+    // If choice is still undefined, show pending
+    if (choice === null || choice === undefined) {
       return "Pending";
     }
 
@@ -143,7 +169,7 @@ const VoteCard: React.FC = ({ vote: draw }) => {
 
     // Fallback to Answer 0xN format if no answer found
     return `Answer 0x${choiceNum}`;
-  }, [voteData, populatedDisputeData, isLoadingDisputeData]);
+  }, [voteData, populatedDisputeData, isLoadingDisputeData, hiddenVotes, isActiveRound, period]);
 
   return (
     <Container hover>

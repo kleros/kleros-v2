@@ -29,6 +29,7 @@ const userDrawsQuery = graphql(`
           court {
             id
             name
+            hiddenVotes
           }
         }
         round {

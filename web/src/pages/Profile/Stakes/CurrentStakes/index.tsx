@@ -48,11 +48,9 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
       ) : null}
       {isStaked && !isCurrentStakeLoading ? (
         <CourtCardsContainer>
-          {currentStakeData?.jurorTokensPerCourts
-            ?.filter(({ staked }) => staked > 0)
-            .map(({ court: { id, name }, staked }) => (
-              <CourtCard key={id} name={name ?? ""} stake={staked} {...{ id }} />
-            ))}
+          {stakedCourts?.map(({ court: { id, name }, staked }) => (
+            <CourtCard key={id} name={name ?? ""} stake={staked} {...{ id }} />
+          ))}
         </CourtCardsContainer>
       ) : null}
     </Container>

@@ -32,10 +32,10 @@ interface IJurorCard {
 
 const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
   const { data } = useUserQuery(searchParamAddress);
-  const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
-  const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
-  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
-  const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
+  const totalCoherentVotes = data?.user ? parseInt(data.user.totalCoherentVotes) : 0;
+  const totalResolvedVotes = data?.user ? parseInt(data.user.totalResolvedVotes) : 0;
+  const totalResolvedDisputes = data?.user ? parseInt(data.user.totalResolvedDisputes) : 0;
+  const coherenceScore = data?.user ? parseInt(data.user.coherenceScore) : 0;
   const userLevelData = getUserLevelData(coherenceScore);
 
   return (

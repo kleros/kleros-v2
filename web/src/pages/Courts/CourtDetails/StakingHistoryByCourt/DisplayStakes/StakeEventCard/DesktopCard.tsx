@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { formatDateWithTime } from "utils/date";
 import { formatPNK } from "utils/format";
 import { getTxnExplorerLink } from "utils/index";
 
@@ -105,17 +106,6 @@ interface IDesktopCard {
   currentCourtId?: number;
 }
 
-const formatDate = (timestamp: string): string => {
-  const date = new Date(parseInt(timestamp) * 1000);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 const truncateCourtName = (name: string, maxLength: number = 15): string => {
   if (name.length <= maxLength) return name;
   return name.slice(0, maxLength - 3) + "...";
@@ -149,7 +139,7 @@ const DesktopCard: React.FC<IDesktopCard> = ({
       </CourtLabelContainer>
       <DateLabelContainer>
         <DateLink href={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
-          {formatDate(timestamp)}
+          {formatDateWithTime(timestamp)}
         </DateLink>
       </DateLabelContainer>
     </Container>

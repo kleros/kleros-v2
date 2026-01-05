@@ -40,8 +40,7 @@ const Filters: React.FC = () => {
         simpleButton
         items={[
           { value: JSON.stringify({}), text: "All Votes", dot: theme.primaryText },
-          { value: JSON.stringify({ ruled: false }), text: "Vote Pending", dot: theme.primaryBlue },
-          { value: JSON.stringify({ ruled: false }), text: "Case In Progress", dot: theme.tint },
+          { value: JSON.stringify({ ruled: false }), text: "Case In Progress", dot: theme.primaryBlue },
           { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
         ]}
         defaultValue={JSON.stringify({ ruled, period })}

@@ -5,7 +5,8 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { StandardPagination } from "@kleros/ui-components-library";
 
-import { useUserDraws, useUserDrawsCount } from "hooks/queries/useUserDraws";
+import { useAllUserDraws } from "hooks/queries/useAllUserDraws";
+import { useUserDrawsCount } from "hooks/queries/useUserDraws";
 import { isUndefined } from "utils/index";
 import { useRootPath, decodeURIFilter } from "utils/uri";
 
@@ -65,11 +66,9 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
     return Object.keys(baseFilter).length > 0 ? baseFilter : undefined;
   }, [decodedFilter]);
 
-  // Fetch ALL draws for grouping and pagination (using a large limit)
-  const { data: allDrawsData } = useUserDraws(
+  // Fetch ALL draws for grouping and pagination (fetches in batches to overcome 1000 limit)
+  const { data: allDraws, isLoading: isLoadingDraws } = useAllUserDraws(
     searchParamAddress,
-    0,
-    1000, // Fetch up to 1000 draws
     drawFilter,
     order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
   );
@@ -77,22 +76,20 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
   // Fetch count data for statistics
   const { data: drawsCountData } = useUserDrawsCount(searchParamAddress, drawFilter);
 
-  const isLoadingVotes = isUndefined(allDrawsData);
+  const isLoadingVotes = isLoadingDraws;
 
   // Group draws by dispute and round, then paginate
   const { votes, totalGroupedVotes } = useMemo(() => {
-    const rawDraws = allDrawsData?.user?.draws ?? [];
+    const rawDraws = allDraws ?? [];
     const groupedDrawsMap = new Map<string, { draws: any[]; mainDraw: any }>();
 
     rawDraws.forEach((draw: any) => {
-      const disputeId = draw.dispute?.id;
       const roundId = draw.round?.id;
-      const key = `${disputeId}-${roundId}`;
 
-      if (!groupedDrawsMap.has(key)) {
-        groupedDrawsMap.set(key, { draws: [], mainDraw: draw });
+      if (!groupedDrawsMap.has(roundId)) {
+        groupedDrawsMap.set(roundId, { draws: [], mainDraw: draw });
       }
-      groupedDrawsMap.get(key)!.draws.push(draw);
+      groupedDrawsMap.get(roundId)!.draws.push(draw);
     });
 
     const allGroupedDraws = Array.from(groupedDrawsMap.values()).map((group) => ({
@@ -109,7 +106,7 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
       votes: paginatedDraws,
       totalGroupedVotes: allGroupedDraws.length,
     };
-  }, [allDrawsData, votesSkip, votesPerPage]);
+  }, [allDraws, votesSkip, votesPerPage]);
 
   // Get totalVotes from the totalResolvedVotes field
   const totalVotes = drawsCountData?.user?.draws?.length ?? 0;
@@ -119,8 +116,10 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
     : 0;
 
   // Calculate votes pending from count data
-  const allDraws = drawsCountData?.user?.draws ?? [];
-  const votesPending = allDraws.filter((draw: any) => !draw.vote?.voted).length;
+  const drawsForCount = drawsCountData?.user?.draws ?? [];
+  // A vote is pending if there's no vote object or if they haven't voted yet
+  // Note: voted is the final action (reveal in commit-reveal courts, or direct vote in non-commit courts)
+  const votesPending = drawsForCount.filter((draw: any) => !draw.vote || !draw.vote.voted).length;
 
   const totalPages = useMemo(
     () => (!isUndefined(totalGroupedVotes) && totalGroupedVotes > 0 ? Math.ceil(totalGroupedVotes / votesPerPage) : 1),
