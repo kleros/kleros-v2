@@ -23,6 +23,7 @@ services:
       #ethereum: "arbitrum-goerli:https://goerli-rollup.arbitrum.io/rpc"
       #ethereum: "arbitrum-goerli:https://goerli-rollup.arbitrum.io/rpc goerli:https://rpc.ankr.com/eth_goerli chiado:https://rpc.chiadochain.net gnosischain:https://rpc.ankr.com/gnosis mainnet:https://rpc.ankr.com/eth"
       GRAPH_LOG: info
+      GRAPH_ALLOW_NON_DETERMINISTIC_FULLTEXT_SEARCH: "true"
     stop_grace_period: 5s
   ipfs:
     image: ipfs/go-ipfs:v0.33.2
@@ -34,11 +35,7 @@ services:
     image: postgres
     ports:
       - "5432:5432"
-    command:
-      [
-        "postgres",
-        "-cshared_preload_libraries=pg_stat_statements"
-      ]
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
     environment:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in

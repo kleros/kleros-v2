@@ -103,12 +103,28 @@ $ yarn local-stack
 $ yarn workspace @kleros/kleros-v2-contracts start-local
 ...
 Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
-
 ```
 
 ⏳ Wait until deployment is complete.
 
+##### In a new terminal run:
+
+```bash
+$ yarn workspace @kleros/kleros-v2-contracts populate:local
+```
+
+This will populate the courts local by pulling devnet courts.
+
+> Note: Whenever contracts are redeployed or their ABIs change, you must regenerate
+> the typed wagmi/viem contract bindings used by the frontend.
+>
+> ```bash
+> yarn workspace @kleros/kleros-v2-contracts viem:generate-hardhat
+> ```
+
 #### Shell 2 - Local Graph Node
+
+> Requires Docker desktop to be installed and running
 
 ```bash
 $ yarn workspace @kleros/kleros-v2-subgraph start-local-indexer
@@ -140,16 +156,20 @@ Queries (HTTP):     http://localhost:8000/subgraphs/name/kleros/kleros-v2-core-l
 
 #### Shell 4 - Frontend Pointing to the Local Subgraph
 
+> Note: If not already built, or on any change, build `kleros-app` first.
+>
+> ```bash
+> yarn workspace @kleros/kleros-app build
+> ```
+
 ```bash
-yarn workspace @kleros/kleros-v2-web generate
+$ yarn workspace @kleros/kleros-v2-web start-local
 ✔ Parse Configuration
 ✔ Generate outputs
 ✔ Validating plugins
 ✔ Resolving contracts
 ✔ Running plugins
 ✔ Writing to src/hooks/contracts/generated.ts
-
-$ yarn workspace @kleros/kleros-v2-web start-local
 Server running at http://localhost:1234
 ✨ Built in 2.35s
 ```
@@ -160,8 +180,14 @@ Server running at http://localhost:1234
 # Contracts
 $ yarn workspace @kleros/kleros-v2-contracts deploy-local
 
+# If contracts were updated
+$ yarn workspace @kleros/kleros-v2-contracts viem:generate-hardhat
+
 # Subgraph
 $ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
+
+# If contracts were updated, restart web server to regenerate the wagmi hooks
+$ yarn workspace @kleros/kleros-v2-web start-local
 
 ```
 
@@ -186,10 +212,28 @@ Just press `Ctrl + c` in each terminal.
 
 Every versions were saved as `subgraph.yaml.bak.<timestamp>`.
 
-##### Based on the ArbitrumGoerli deployment artifacts
+##### Based on the ArbitrumSepolia deployment artifacts
 
 `yarn workspace @kleros/kleros-v2-subgraph update`
 
 ##### Based on the last commit
 
 `git restore subgraph.yaml`
+
+## Run a local Blockscout explorer to inspect transactions on hardhat (Optional)
+
+Make sure [hardhat node](#####shell-1---local-rpc-with-contracts-deployed) is running.
+
+#### Step 1 - Clone [blockscout](https://github.com/blockscout/blockscout/blob/master/docker-compose/README.md) repo
+
+```bash
+git clone https://github.com/blockscout/blockscout.git
+```
+
+#### Step 2: Start the Docker compose stack
+
+```bash
+docker-compose -f hardhat-network.yml up -d
+```
+
+This should run a Blockscout locally at http://localhost.

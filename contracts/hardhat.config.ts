@@ -57,6 +57,10 @@ const config: HardhatUserConfig = {
         home: "hardhat",
         foreign: "hardhat",
       },
+      mining: {
+        auto: true,
+        interval: 5_000, // mine a block every 5 seconds
+      },
     },
     localhost: {
       url: `http://127.0.0.1:8545`,

@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { HomeChains, isSkipped } from "./utils";
+import { HomeChains, isLocalhost, isSkipped } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 import { RNGWithFallback } from "../typechain-types";
 
@@ -76,7 +76,7 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  const fallbackTimeoutSeconds = 30 * 60; // 30 minutes
+  const fallbackTimeoutSeconds = isLocalhost(hre.network) ? 10 : 30 * 60; // 30 minutes
   await getContractOrDeploy(hre, "RNGWithFallback", {
     from: deployer,
     args: [

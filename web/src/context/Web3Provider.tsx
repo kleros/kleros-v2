@@ -8,6 +8,7 @@ import {
   sepolia,
   gnosis,
   type AppKitNetwork,
+  hardhat,
 } from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
@@ -16,7 +17,7 @@ import { fallback, http, WagmiProvider, webSocket } from "wagmi";
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 
 import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
-import { isProductionDeployment } from "consts/index";
+import { HARDHAT_NODE_RPC, isLocalDeployment, isProductionDeployment } from "consts/index";
 
 import { lightTheme } from "styles/themes";
 
@@ -26,6 +27,7 @@ if (!alchemyApiKey) {
 }
 
 const isProduction = isProductionDeployment();
+const isLocalhost = isLocalDeployment();
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/types/types.ts#L98-L153
 const alchemyToViemChain: Record<number, string> = {
@@ -48,6 +50,11 @@ function alchemyURL(protocol: AlchemyProtocol, chainId: number | string): string
   return `${protocol}://${network}.g.alchemy.com/v2/${alchemyApiKey}`;
 }
 
+const alchemyTransport = (chain: AppKitNetwork) =>
+  fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
+const defaultTransport = (chain: AppKitNetwork) =>
+  fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
+
 export const getChainRpcUrl = (protocol: AlchemyProtocol, chainId: number | string) => {
   return alchemyURL(protocol, chainId);
 };
@@ -57,10 +64,11 @@ export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
 };
 
 export const getTransports = () => {
-  const alchemyTransport = (chain: AppKitNetwork) =>
-    fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
-  const defaultTransport = (chain: AppKitNetwork) =>
-    fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
+  if (isLocalhost)
+    return {
+      [hardhat.id]: http(HARDHAT_NODE_RPC),
+      [mainnet.id]: alchemyTransport(mainnet),
+    };
 
   return {
     [isProduction ? arbitrum.id : arbitrumSepolia.id]: isProduction
@@ -89,15 +97,15 @@ const wagmiAdapter = new WagmiAdapter({
 
 configureSDK({
   client: {
-    chain: isProduction ? arbitrum : arbitrumSepolia,
-    transport: transports[isProduction ? arbitrum.id : arbitrumSepolia.id],
+    chain: isLocalhost ? hardhat : isProduction ? arbitrum : arbitrumSepolia,
+    transport: transports[isLocalhost ? hardhat.id : isProduction ? arbitrum.id : arbitrumSepolia.id],
   },
 });
 
 createAppKit({
   adapters: [wagmiAdapter],
   networks: chains,
-  defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
+  defaultNetwork: isLocalhost ? hardhat : isProduction ? arbitrum : arbitrumSepolia,
   projectId,
   allowUnsupportedChain: true,
   themeVariables: {
