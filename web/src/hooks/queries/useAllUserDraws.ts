@@ -1,79 +1,110 @@
-import { useEffect, useState, useRef } from "react";
-
+import { useQuery } from "@tanstack/react-query";
 import { Address } from "viem";
 
-import { Draw_Filter, OrderDirection } from "src/graphql/graphql";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { isUndefined } from "utils/index";
+import { sanitizeFilter } from "utils/sanitizeFilter";
 
-import { useUserDraws } from "./useUserDraws";
+import { graphql } from "src/graphql";
+import { UserDrawsQuery, Draw_Filter, OrderDirection } from "src/graphql/graphql";
 
 const BATCH_SIZE = 1000;
+
+const allUserDrawsQuery = graphql(`
+  query AllUserDraws($jurorId: ID!, $skip: Int, $first: Int, $orderDirection: OrderDirection, $where: Draw_filter) {
+    user(id: $jurorId) {
+      id
+      totalResolvedVotes
+      draws(first: $first, skip: $skip, orderBy: blockNumber, orderDirection: $orderDirection, where: $where) {
+        id
+        voteIDNum
+        dispute {
+          id
+          disputeID
+          period
+          ruled
+          currentRoundIndex
+          arbitrated {
+            id
+          }
+          court {
+            id
+            name
+            hiddenVotes
+          }
+        }
+        round {
+          id
+        }
+        vote {
+          ... on ClassicVote {
+            id
+            choice
+            commit
+            commited
+            voted
+            localRound {
+              ... on ClassicRound {
+                id
+                winningChoice
+              }
+            }
+            justification {
+              id
+              choice
+              reference
+            }
+          }
+        }
+      }
+    }
+  }
+`);
+
+type Draw = NonNullable<UserDrawsQuery["user"]>["draws"][number];
 
 /**
  * Hook to fetch ALL user draws by fetching in batches of 1000 until complete.
  * This overcomes the GraphQL 1000 entity limit by making multiple requests.
  */
 export const useAllUserDraws = (jurorAddress?: Address, where?: Draw_Filter, sortOrder?: OrderDirection) => {
-  const [allDraws, setAllDraws] = useState<any[]>([]);
-  const [currentSkip, setCurrentSkip] = useState(0);
-  const [isFetching, setIsFetching] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+  const { graphqlBatcher } = useGraphqlBatcher();
+  const sanitizedWhere = sanitizeFilter(where);
+  const isEnabled = !isUndefined(jurorAddress);
 
-  // Track the current query params to detect changes
-  const queryKey = `${jurorAddress}-${JSON.stringify(where)}-${sortOrder}`;
-  const lastQueryRef = useRef(queryKey);
+  return useQuery<Draw[]>({
+    queryKey: ["useAllUserDraws", jurorAddress?.toLowerCase(), sanitizedWhere, sortOrder],
+    enabled: isEnabled,
+    queryFn: async () => {
+      const allDraws: Draw[] = [];
+      let skip = 0;
+      let hasMore = true;
 
-  // Reset when query parameters change
-  if (lastQueryRef.current !== queryKey) {
-    lastQueryRef.current = queryKey;
-    setAllDraws([]);
-    setCurrentSkip(0);
-    setIsFetching(true);
-    setHasMore(true);
-  }
+      while (hasMore) {
+        const result: UserDrawsQuery = await graphqlBatcher.fetch({
+          id: crypto.randomUUID(),
+          document: allUserDrawsQuery,
+          variables: {
+            jurorId: jurorAddress?.toLowerCase(),
+            skip,
+            first: BATCH_SIZE,
+            where: sanitizedWhere,
+            orderDirection: sortOrder ?? "desc",
+          },
+        });
 
-  // Fetch current batch
-  const { data, isLoading, isError } = useUserDraws(jurorAddress, currentSkip, BATCH_SIZE, where, sortOrder);
+        const draws = result.user?.draws ?? [];
+        allDraws.push(...draws);
 
-  // Handle batch data
-  useEffect(() => {
-    if (!data?.user?.draws || isLoading) return;
-
-    const draws = data.user.draws;
-
-    if (draws.length === 0 && currentSkip === 0) {
-      // No draws at all
-      setAllDraws([]);
-      setIsFetching(false);
-      setHasMore(false);
-      return;
-    }
-
-    // Add new draws to accumulated list
-    setAllDraws((prev) => {
-      if (currentSkip === 0) {
-        // First batch
-        return [...draws];
+        // Check if we need more batches
+        if (draws.length < BATCH_SIZE) {
+          hasMore = false;
+        } else {
+          skip += BATCH_SIZE;
+        }
       }
-      // Subsequent batches - avoid duplicates
-      const existingIds = new Set(prev.map((d) => d.id));
-      const newDraws = draws.filter((d) => !existingIds.has(d.id));
-      return [...prev, ...newDraws];
-    });
 
-    // Check if we need more batches
-    if (draws.length < BATCH_SIZE) {
-      // Got fewer than requested, we're done
-      setIsFetching(false);
-      setHasMore(false);
-    } else {
-      // Need to fetch more
-      setCurrentSkip((prev) => prev + BATCH_SIZE);
-    }
-  }, [data, isLoading, currentSkip]);
-
-  return {
-    data: allDraws,
-    isLoading: isFetching || (isLoading && hasMore),
-    isError,
-  };
+      return allDraws;
+    },
+  });
 };

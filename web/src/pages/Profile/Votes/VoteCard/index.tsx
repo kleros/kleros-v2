@@ -6,6 +6,7 @@ import { Card as _Card } from "@kleros/ui-components-library";
 import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import { isUndefined } from "utils/index";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -138,15 +139,12 @@ const VoteCard: React.FC = ({ vote: draw }) => {
     }
 
     // For all courts - check if they voted
-    if (
-      (choice === null || choice === undefined) &&
-      (isActiveRound ? ["appeal", "execution"].includes(period) : true)
-    ) {
+    if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true)) {
       return "Did not vote";
     }
 
     // If choice is still undefined, show pending
-    if (choice === null || choice === undefined) {
+    if (isUndefined(choice)) {
       return "Pending";
     }
 

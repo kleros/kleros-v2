@@ -103,12 +103,7 @@ const DisplayStakes: React.FC = () => {
   useEffect(() => {
     const allItems = data?.userStakingEvents?.items ?? [];
 
-    const filteredItems = allItems.filter((item) => {
-      const itemCourtId = item.item.args._courtID;
-      return courtIds.includes(parseInt(itemCourtId));
-    });
-
-    const chunk = filteredItems.map((item) => {
+    const chunk = allItems.map((item) => {
       const itemCourtId = item.item.args._courtID;
       const courtName = findCourtNameById(courtTree, itemCourtId);
 
