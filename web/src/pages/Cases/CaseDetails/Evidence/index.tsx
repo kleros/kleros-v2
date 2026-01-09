@@ -45,10 +45,6 @@ const StyledLabel = styled.label`
   font-size: 16px;
 `;
 
-const ArbitrableEvidenceHeading = styled.h2`
-  font-weight: 600;
-  font-size: 24px;
-`;
 const ScrollButton = styled(Button)`
   align-self: flex-end;
   background-color: transparent;
@@ -130,7 +126,6 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
       <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
       {!isUndefined(arbitrableEvidences) && arbitrableEvidences.length > 0 ? (
         <>
-          <ArbitrableEvidenceHeading>Evidence provided by arbitrable</ArbitrableEvidenceHeading>
           {arbitrableEvidences.map(({ name, description, fileURI, sender, timestamp, transactionHash }, index) => (
             <EvidenceCard
               key={index}
@@ -138,7 +133,6 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
               {...{ sender, timestamp, transactionHash, name, description, fileURI }}
             />
           ))}
-          <Divider />
         </>
       ) : null}
       {evidences?.realEvidences ? (
