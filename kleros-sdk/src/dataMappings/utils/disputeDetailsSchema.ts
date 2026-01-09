@@ -57,7 +57,7 @@ export const AttachmentSchema = z.object({
 
 export const AliasSchema = z.record(ethAddressOrEnsNameSchema);
 
-// https://docs.kleros.io/developer/arbitration-development/erc-1497-evidence-standard#evidence
+// https://github.com/kleros/kleros-v2/blob/dev/contracts/specifications/evidence-format.md
 export const EvidenceSchema = z.object({
   name: z.string(),
   description: z.string(),
