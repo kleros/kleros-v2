@@ -21,7 +21,6 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { Divider } from "components/Divider";
 import EvidenceCard from "components/EvidenceCard";
 import { SkeletonEvidenceCard } from "components/StyledSkeleton";
-import WithHelpTooltip from "components/WithHelpTooltip";
 
 import EvidenceSearch from "./EvidenceSearch";
 
@@ -29,6 +28,7 @@ const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 16px;
   align-items: center;
   padding: 20px 16px 16px;
 
@@ -38,52 +38,23 @@ const Container = styled.div`
     `
   )}
 `;
-const EvidenceContainer = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 24px;
-  margin-top: 32px;
-`;
-
-const JustificationContainer = styled(EvidenceContainer)`
-  margin-top: 0px;
-  margin-bottom: 32px;
-`;
-
-const EvidenceHeading = styled.h2`
-  font-size: 24px;
-  color: ${({ theme }) => theme.primaryText};
-  font-weight: 600;
-  margin-bottom: 0;
-`;
-
-const EvidenceCardContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
 
 const StyledLabel = styled.label`
   display: flex;
+  margin-top: 16px;
   font-size: 16px;
 `;
 
-const ArbitrableEvidenceHeading = styled.label`
-  font-size: 16px;
-  color: ${({ theme }) => theme.primaryText};
+const ArbitrableEvidenceHeading = styled.h2`
+  font-weight: 600;
+  font-size: 24px;
 `;
-
 const ScrollButton = styled(Button)`
   align-self: flex-end;
   background-color: transparent;
   padding: 0;
   flex-direction: row-reverse;
   gap: 8px;
-  margin-top: 18px;
-  margin-bottom: 24px;
   .button-text {
     color: ${({ theme }) => theme.primaryBlue};
     font-weight: 400;
@@ -159,78 +130,57 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
       <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
       {!isUndefined(arbitrableEvidences) && arbitrableEvidences.length > 0 ? (
         <>
-          <JustificationContainer>
-            <WithHelpTooltip tooltipMsg="Justifications are submitted by one party before the case is created and explain their initial position or reasons for initiating the dispute.">
-              <ArbitrableEvidenceHeading>Justifications</ArbitrableEvidenceHeading>
-            </WithHelpTooltip>
-            <EvidenceCardContainer>
-              {arbitrableEvidences.map(({ name, description, fileURI, sender, timestamp, transactionHash }, index) => (
-                <EvidenceCard
-                  key={index}
-                  evidence=""
-                  {...{ sender, timestamp, transactionHash, name, description, fileURI }}
-                />
-              ))}
-            </EvidenceCardContainer>
-          </JustificationContainer>
+          <ArbitrableEvidenceHeading>Evidence provided by arbitrable</ArbitrableEvidenceHeading>
+          {arbitrableEvidences.map(({ name, description, fileURI, sender, timestamp, transactionHash }, index) => (
+            <EvidenceCard
+              key={index}
+              evidence=""
+              {...{ sender, timestamp, transactionHash, name, description, fileURI }}
+            />
+          ))}
+          <Divider />
         </>
       ) : null}
-      <Divider />
-
       {evidences?.realEvidences ? (
-        <EvidenceContainer>
-          <EvidenceHeading>Evidence</EvidenceHeading>
-          {data?.evidences.length !== 0 ? (
-            <EvidenceCardContainer>
-              {evidences?.realEvidences.map(
-                ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
-                  <EvidenceCard
-                    key={timestamp}
-                    index={parseInt(evidenceIndex)}
-                    sender={sender?.id}
-                    {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
-                  />
-                )
-              )}
-              {spamEvidences && evidences?.spamEvidences.length !== 0 ? (
+        <>
+          {evidences?.realEvidences.map(
+            ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
+              <EvidenceCard
+                key={timestamp}
+                index={parseInt(evidenceIndex)}
+                sender={sender?.id}
+                {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
+              />
+            )
+          )}
+          {spamEvidences && evidences?.spamEvidences.length !== 0 ? (
+            <>
+              <Divider />
+              {showSpam ? (
                 <>
-                  <Divider />
-                  {showSpam ? (
-                    <>
-                      <SpamLabel onClick={() => setShowSpam(false)}>Hide spam</SpamLabel>
-                      {evidences?.spamEvidences.map(
-                        ({
-                          evidence,
-                          sender,
-                          timestamp,
-                          transactionHash,
-                          name,
-                          description,
-                          fileURI,
-                          evidenceIndex,
-                        }) => (
-                          <EvidenceCard
-                            key={timestamp}
-                            index={parseInt(evidenceIndex)}
-                            sender={sender?.id}
-                            {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
-                          />
-                        )
-                      )}
-                    </>
-                  ) : (
-                    <SpamLabel onClick={() => setShowSpam(true)}>Show likely spam</SpamLabel>
+                  <SpamLabel onClick={() => setShowSpam(false)}>Hide spam</SpamLabel>
+                  {evidences?.spamEvidences.map(
+                    ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
+                      <EvidenceCard
+                        key={timestamp}
+                        index={parseInt(evidenceIndex)}
+                        sender={sender?.id}
+                        {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
+                      />
+                    )
                   )}
                 </>
-              ) : null}
-            </EvidenceCardContainer>
-          ) : (
-            <StyledLabel>There is no evidence submitted yet</StyledLabel>
-          )}
-        </EvidenceContainer>
+              ) : (
+                <SpamLabel onClick={() => setShowSpam(true)}>Show likely spam</SpamLabel>
+              )}
+            </>
+          ) : null}
+        </>
       ) : (
         <SkeletonEvidenceCard />
       )}
+
+      {data && data.evidences.length === 0 ? <StyledLabel>There is no evidence submitted yet</StyledLabel> : null}
     </Container>
   );
 };
