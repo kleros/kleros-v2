@@ -4,6 +4,7 @@ import { initReactI18next } from "react-i18next";
 
 import enTranslation from "./locales/en/translation.json";
 import esTranslation from "./locales/es/translation.json";
+import frTranslation from "./locales/fr/translation.json";
 
 const resources = {
   en: {
@@ -11,6 +12,9 @@ const resources = {
   },
   es: {
     translation: esTranslation,
+  },
+  fr: {
+    translation: frTranslation,
   },
 };
 
@@ -20,7 +24,7 @@ i18n
   .init({
     resources,
     fallbackLng: "en", // Fallback language if detection fails
-    supportedLngs: ["en", "es"], // Supported languages
+    supportedLngs: ["en", "es", "fr"], // Supported languages
     debug: false, // Set to true for debugging
     interpolation: {
       escapeValue: false, // React already escapes values

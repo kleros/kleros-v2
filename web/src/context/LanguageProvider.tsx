@@ -2,7 +2,7 @@ import React, { createContext, useContext, useCallback, useEffect, useState } fr
 
 import { useTranslation } from "react-i18next";
 
-type Language = "en" | "es";
+type Language = "en" | "es" | "fr";
 
 interface LanguageContextValue {
   language: Language;

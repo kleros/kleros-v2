@@ -56,6 +56,10 @@ const UserContainer = styled.div`
   gap: 16px;
 `;
 
+const LanguageSelectorContainer = styled.div`
+  padding: 24px 32px 0;
+`;
+
 export const DisconnectWalletButton: React.FC = () => {
   const { t } = useTranslation();
   const { disconnect } = useDisconnect();
@@ -66,24 +70,28 @@ const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { address } = useAccount();
 
   return (
-    <EnsureChainContainer>
-      <EnsureChain>
-        <Container>
-          <LanguageSelector />
-          {address && (
-            <UserContainer>
-              <StyledChainContainer>
-                <ChainDisplay />
-              </StyledChainContainer>
-              <WalletAndProfile {...{ toggleIsSettingsOpen }} />
-              <StyledButton>
-                <DisconnectWalletButton />
-              </StyledButton>
-            </UserContainer>
-          )}
-        </Container>
-      </EnsureChain>
-    </EnsureChainContainer>
+    <>
+      <LanguageSelectorContainer>
+        <LanguageSelector />
+      </LanguageSelectorContainer>
+      <EnsureChainContainer>
+        <EnsureChain>
+          <Container>
+            {address && (
+              <UserContainer>
+                <StyledChainContainer>
+                  <ChainDisplay />
+                </StyledChainContainer>
+                <WalletAndProfile {...{ toggleIsSettingsOpen }} />
+                <StyledButton>
+                  <DisconnectWalletButton />
+                </StyledButton>
+              </UserContainer>
+            )}
+          </Container>
+        </EnsureChain>
+      </EnsureChainContainer>
+    </>
   );
 };
 

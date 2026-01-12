@@ -54,6 +54,7 @@ const Flag = styled.span`
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "es", name: "Español", flag: "🇦🇷" },
+  { code: "fr", name: "Français", flag: "🇫🇷" },
 ] as const;
 
 export const LanguageSelector: React.FC = () => {
@@ -68,7 +69,7 @@ export const LanguageSelector: React.FC = () => {
           <LanguageButton
             key={lang.code}
             $isActive={language === lang.code}
-            onClick={() => changeLanguage(lang.code as "en" | "es")}
+            onClick={() => changeLanguage(lang.code as "en" | "es" | "fr")}
           >
             <Flag>{lang.flag}</Flag>
             {lang.name}
