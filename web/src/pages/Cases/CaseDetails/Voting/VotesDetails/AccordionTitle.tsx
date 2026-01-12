@@ -10,7 +10,7 @@ import { isUndefined } from "utils/index";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { InternalLink } from "components/InternalLink";
-import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
+import JurorLink from "components/JurorLink";
 
 const TitleContainer = styled.div`
   display: flex;
@@ -90,14 +90,13 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
-  const { t } = useTranslation();
-  const profileLink = `/profile/1/desc/all?address=${juror}`;
+  const profileLink = `/profile/stakes/1?address=${juror}`;
 
   return (
     <TitleContainer>
       <AddressContainer>
         <StyledInternalLink to={profileLink}>
-          <JurorTitle address={juror} />
+          <JurorLink address={juror} />
         </StyledInternalLink>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />

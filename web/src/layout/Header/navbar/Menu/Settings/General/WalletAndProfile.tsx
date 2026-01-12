@@ -56,8 +56,8 @@ const WalletAndProfile: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         <IdenticonOrAvatar />
         <AddressOrName />
       </AvatarAndAddressContainer>
-      <ReStyledArrowLink to={"/profile/1/desc/all"} onClick={toggleIsSettingsOpen}>
-        {t("navigation.my_profile")} <ArrowIcon />
+      <ReStyledArrowLink to={"/profile/stakes/1"} onClick={toggleIsSettingsOpen}>
+        My Profile <ArrowIcon />
       </ReStyledArrowLink>
     </Container>
   );

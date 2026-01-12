@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useTranslation } from "react-i18next";
-
 import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -11,7 +9,6 @@ import DisplayJurors from "./DisplayJurors";
 import Search from "./Search";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(28, 48)};
   max-width: 578px;
 `;
 

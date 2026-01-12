@@ -26,6 +26,7 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 import Description from "./Description";
 import JurorsStakedByCourt from "./JurorsStakedByCourt";
 import StakePanel from "./StakePanel";
+import StakingHistoryByCourt from "./StakingHistoryByCourt";
 import Stats from "./Stats";
 import TopSearch from "./TopSearch";
 
@@ -99,6 +100,23 @@ const StakePanelAndStats = styled.div`
   )}
 `;
 
+const StakingSections = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: ${responsiveSize(28, 48)};
+
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      gap: 48px;
+      & > * {
+        flex: 1 1 calc(50% - 24px);
+      }
+    `
+  )}
+`;
+
 const CourtDetails: React.FC = () => {
   const { t } = useTranslation();
   const { id } = useParams();
@@ -150,11 +168,11 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <Description />
       </StyledCard>
-      <LatestCases
-        title={`${t("misc.latest_cases_in")} ${getDescriptiveCourtName(courtName)}`}
-        filters={{ court: id }}
-      />
-      <JurorsStakedByCourt {...{ courtName }} />
+      <LatestCases title={`Latest Cases in ${getDescriptiveCourtName(courtName)}`} filters={{ court: id }} />
+      <StakingSections>
+        <JurorsStakedByCourt {...{ courtName }} />
+        <StakingHistoryByCourt {...{ courtName }} />
+      </StakingSections>
       <ScrollTop />
     </Container>
   );

@@ -10,6 +10,11 @@ import platoImage from "assets/pngs/dashboard/plato.png";
 import pythagorasImage from "assets/pngs/dashboard/pythagoras.png";
 import socratesImage from "assets/pngs/dashboard/socrates.png";
 
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 interface IStyledImage {
   show: boolean;
   width: number | string;
@@ -44,7 +49,7 @@ const PixelArt: React.FC<IPixelArt> = ({ level, width, height }) => {
   const { t } = useTranslation();
   const [imageLoaded, setImageLoaded] = useState(false);
   return (
-    <div>
+    <Container>
       {!imageLoaded && <StyledSkeleton width={width} height={height} />}
       <StyledImage
         src={images[level]}
@@ -54,7 +59,7 @@ const PixelArt: React.FC<IPixelArt> = ({ level, width, height }) => {
         width={width}
         height={height}
       />
-    </div>
+    </Container>
   );
 };
 

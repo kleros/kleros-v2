@@ -58,8 +58,8 @@ const Jurors: React.FC = () => {
         <Header>
           <StyledTitle>{t("misc.jurors_leaderboard")}</StyledTitle>
           {isConnected ? (
-            <StyledArrowLink to="/profile/1/desc/all">
-              {t("navigation.my_profile")} <ArrowIcon />
+            <StyledArrowLink to="/profile/stakes/1">
+              My Profile <ArrowIcon />
             </StyledArrowLink>
           ) : null}
         </Header>
