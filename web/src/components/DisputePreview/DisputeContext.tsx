@@ -6,7 +6,6 @@ import { useAccount } from "wagmi";
 
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
-import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
 
@@ -104,7 +103,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
 }) => {
   const { isDisconnected } = useAccount();
   const { t } = useTranslation();
-  const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
+  const errMsg = isRpcError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
   console.log({ jurorRewardsDispersed }, disputeDetails);

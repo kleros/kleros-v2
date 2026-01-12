@@ -560,7 +560,9 @@
   },
   "errors": {
     "something_went_wrong": "Oups, Quelque chose s'est mal passé à Athènes !",
-    "reload_or_contact": "Veuillez recharger la page ou nous contacter si le problème n'est pas résolu."
+    "reload_or_contact": "Veuillez recharger la page ou nous contacter si le problème n'est pas résolu.",
+    "invalid_dispute_data": "Les données du litige ne sont pas valides, veuillez voter \"Refuser d'arbitrer\"",
+    "rpc_error": "Erreur RPC : Impossible de récupérer les données du litige. Veuillez éviter de voter."
   },
   "community": {
     "kleros_forum": "Forum Kleros",

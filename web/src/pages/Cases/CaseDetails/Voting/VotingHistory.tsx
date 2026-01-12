@@ -8,7 +8,6 @@ import { useToggle } from "react-use";
 
 import { Tabs } from "@kleros/ui-components-library";
 
-import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
 import { getLocalRounds } from "utils/getLocalRounds";
 
@@ -101,7 +100,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
                   <StyledMarkdownRenderer content={disputeDetails.question} />
                 </MarkdownWrapper>
               ) : (
-                <StyledMarkdownRenderer content={isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR} />
+                <StyledMarkdownRenderer content={isError ? t("errors.rpc_error") : t("errors.invalid_dispute_data")} />
               )}
             </>
           )}

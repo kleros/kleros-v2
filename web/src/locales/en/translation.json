@@ -560,7 +560,9 @@
   },
   "errors": {
     "something_went_wrong": "Ooops, Something went wrong in Athens!",
-    "reload_or_contact": "Please reload the page or contact us if the issue is not resolved."
+    "reload_or_contact": "Please reload the page or contact us if the issue is not resolved.",
+    "invalid_dispute_data": "The dispute data is not valid, please vote \"Refuse to arbitrate\"",
+    "rpc_error": "RPC Error: Unable to fetch dispute data. Please avoid voting."
   },
   "community": {
     "kleros_forum": "Kleros Forum",
