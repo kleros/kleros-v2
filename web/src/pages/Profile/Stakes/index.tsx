@@ -1,9 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import Skeleton from "react-loading-skeleton";
-import { useSearchParams } from "react-router-dom";
-
 import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
@@ -11,65 +8,46 @@ import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import CourtCard from "./CourtCard";
-import Header from "./Header";
+import CurrentStakes from "./CurrentStakes";
+import StakingHistory from "./StakingHistory";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(24, 48)};
+  display: flex;
+  flex-direction: column;
+  margin-top: ${responsiveSize(24, 32)};
+  gap: 32px;
 `;
 
-const CourtCardsContainer = styled.div`
+export const CourtCardsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
   z-index: 0;
+  width: 100%;
 
   ${landscapeStyle(
     () => css`
-      gap: 16px;
+      gap: 8px;
     `
   )}
 `;
 
-const StyledLabel = styled.label`
-  font-size: ${responsiveSize(14, 16)};
-`;
-
 interface IStakes {
-  addressToQuery: `0x${string}`;
+  searchParamAddress: `0x${string}`;
 }
 
-const Stakes: React.FC<IStakes> = ({ addressToQuery }) => {
-  const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(addressToQuery);
+const Stakes: React.FC<IStakes> = ({ searchParamAddress }) => {
+  const { data: currentStakeData, isLoading: isCurrentStakeLoading } = useJurorStakeDetailsQuery(searchParamAddress);
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
-    args: [addressToQuery, BigInt(1)],
+    args: [searchParamAddress, BigInt(1)],
   });
-  const [searchParams] = useSearchParams();
-  const searchParamAddress = searchParams.get("address")?.toLowerCase();
-  const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
-  const isStaked = stakedCourts && stakedCourts.length > 0;
-  const availableStake = jurorBalance?.[0];
+  const totalAvailableStake = jurorBalance?.[0];
   const lockedStake = jurorBalance?.[1];
-  const effectiveStake = stakeData?.jurorTokensPerCourts?.[0]?.effectiveStake
-    ? BigInt(stakeData.jurorTokensPerCourts[0].effectiveStake)
-    : undefined;
 
   return (
     <Container>
-      <Header {...{ lockedStake, availableStake, effectiveStake }} />
-      {isLoading ? <Skeleton /> : null}
-      {!isStaked && !isLoading ? (
-        <StyledLabel>{searchParamAddress ? "They" : "You"} are not staked in any court</StyledLabel>
-      ) : null}
-      {isStaked && !isLoading ? (
-        <CourtCardsContainer>
-          {stakeData?.jurorTokensPerCourts
-            ?.filter(({ staked }) => staked > 0)
-            .map(({ court: { id, name }, staked }) => (
-              <CourtCard key={id} name={name ?? ""} stake={staked} {...{ id }} />
-            ))}
-        </CourtCardsContainer>
-      ) : null}
+      <CurrentStakes {...{ totalAvailableStake, lockedStake, currentStakeData, isCurrentStakeLoading }} />
+      <StakingHistory {...{ searchParamAddress }} />
     </Container>
   );
 };

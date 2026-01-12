@@ -119,7 +119,6 @@ Total: 15
 </ul>
 </div>
 
-
 #### <span id=t-out-of-scope>Out of Scope</span>
 
 ##### <span id=t-out-of-scope-excluded-source-units>Excluded Source Units</span>
@@ -287,7 +286,6 @@ This section lists functions that are explicitly declared public or payable. Ple
 <a onclick="toggleVisibility('surya-mdreport', this)">[➕]</a>
 
 <div id="surya-mdreport" style="display:none">
-
 
 Files Description Table
 

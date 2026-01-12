@@ -10,7 +10,7 @@ const Container = styled.div`
   border: 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
-  padding: 18px 24px;
+  padding: 16px 20px;
   justify-content: space-between;
   margin-top: ${responsiveSize(12, 16)};
 `;

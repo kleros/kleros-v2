@@ -74,7 +74,7 @@ const App: React.FC = () => {
                           }
                         />
                         <Route
-                          path="profile/:page/:order/:filter"
+                          path="profile/*"
                           element={
                             <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
                               <Profile />
