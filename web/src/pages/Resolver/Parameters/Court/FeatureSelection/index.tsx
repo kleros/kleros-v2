@@ -25,8 +25,6 @@ import { isUndefined } from "src/utils";
 import { FeatureUIs } from "components/DisputeFeatures/Features";
 import { GroupsUI } from "components/DisputeFeatures/GroupsUI";
 
-import FeatureSkeleton from "./FeatureSkeleton";
-
 const Container = styled(Card)`
   width: 100%;
   height: auto;
@@ -147,35 +145,39 @@ const FeatureSelection: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchingKits]);
 
+  if (!supportedDisputeKits || Object.entries(courtGroups).length === 0) {
+    return null;
+  }
+
   return (
     <Container>
       <SubTitle>{t("resolver.features_in_this_court")}</SubTitle>
 
-      {Object.entries(courtGroups).length > 0 ? (
-        Object.entries(courtGroups).map(([groupName, features], index) => (
+      {Object.entries(courtGroups).map(([groupName, features], index) => {
+        const GroupComponent = GroupsUI[groupName];
+        return (
           <Fragment key={groupName}>
-            {GroupsUI[groupName]({
-              clearAll: () => handleGroupDisable(groupName as Group),
-              children: (
-                <Fragment>
-                  {features.map((feature) =>
-                    FeatureUIs[feature]({
-                      name: groupName,
-                      checked: selected.includes(feature),
-                      disabled: disabled.has(feature),
-                      onClick: () => handleToggle(feature),
-                      value: feature,
-                    })
-                  )}
-                </Fragment>
-              ),
-            })}
+            <GroupComponent clearAll={() => handleGroupDisable(groupName as Group)}>
+              <Fragment>
+                {features.map((feature) => {
+                  const FeatureComponent = FeatureUIs[feature];
+                  return (
+                    <FeatureComponent
+                      key={feature}
+                      name={groupName}
+                      checked={selected.includes(feature)}
+                      disabled={disabled.has(feature)}
+                      onClick={() => handleToggle(feature)}
+                      value={feature}
+                    />
+                  );
+                })}
+              </Fragment>
+            </GroupComponent>
             {index !== Object.entries(courtGroups).length - 1 ? <Separator /> : null}
           </Fragment>
-        ))
-      ) : (
-        <FeatureSkeleton />
-      )}
+        );
+      })}
     </Container>
   );
 };
