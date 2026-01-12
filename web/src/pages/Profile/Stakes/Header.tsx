@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { formatUnits } from "viem";
 
@@ -94,6 +95,7 @@ interface IHeader {
 }
 
 const Header: React.FC<IHeader> = ({ availableStake, lockedStake, effectiveStake }) => {
+  const { t } = useTranslation();
   const formattedAvailableStake = !isUndefined(availableStake) && formatUnits(availableStake, 18);
   const formattedLockedStake = !isUndefined(lockedStake) && formatUnits(lockedStake, 18);
   const formattedEffectiveStake = !isUndefined(effectiveStake) && formatUnits(effectiveStake, 18);
@@ -102,12 +104,12 @@ const Header: React.FC<IHeader> = ({ availableStake, lockedStake, effectiveStake
 
   return (
     <Container>
-      <StyledTitle>{searchParamAddress ? "Their" : "My"} Stakes</StyledTitle>
+      <StyledTitle>{searchParamAddress ? t("profile.their_stakes") : t("profile.my_stakes")}</StyledTitle>
       <StakesGroup>
         {!isUndefined(availableStake) ? (
           <AvailablePnk>
             <StyledPnkIcon />
-            <label> Available: </label>
+            <label> {t("profile.available")} </label>
             <small>
               <NumberDisplay value={formattedAvailableStake.toString()} unit="PNK" />
             </small>
@@ -116,7 +118,7 @@ const Header: React.FC<IHeader> = ({ availableStake, lockedStake, effectiveStake
         {!isUndefined(effectiveStake) ? (
           <EffectivePnk>
             <StyledEffectivePnkIcon />
-            <label> Staked: </label>
+            <label> {t("profile.staked")} </label>
             <small>
               <NumberDisplay value={formattedEffectiveStake.toString()} unit="PNK" />
             </small>
@@ -125,7 +127,7 @@ const Header: React.FC<IHeader> = ({ availableStake, lockedStake, effectiveStake
         {!isUndefined(lockedStake) ? (
           <LockedPnk>
             <StyledLockerIcon />
-            <label> Locked: </label>
+            <label> {t("profile.locked")} </label>
             <small>
               <NumberDisplay value={formattedLockedStake.toString()} unit="PNK" />
             </small>

@@ -1,11 +1,23 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { CircularProgress } from "@kleros/ui-components-library";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
+
+interface ICoherence {
+  userLevelData: {
+    level: number;
+    title: string;
+  };
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
+  isMiniGuide: boolean;
+}
 
 const Container = styled.div`
   display: flex;
@@ -20,25 +32,11 @@ const Container = styled.div`
   )}
 `;
 
-const tooltipMsg =
-  "A Coherent Vote is a vote coherent with the final jury decision" +
-  " (after all the appeal instances). If the juror vote is the same as " +
-  " the majority of jurors it's considered a Coherent Vote.";
-
-interface ICoherence {
-  userLevelData: {
-    level: number;
-    title: string;
-  };
-  totalCoherentVotes: number;
-  totalResolvedVotes: number;
-  isMiniGuide: boolean;
-}
-
 const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, totalResolvedVotes, isMiniGuide }) => {
+  const { t } = useTranslation();
   const votesContent = (
     <label>
-      Coherent Votes:
+      {t("profile.coherent_votes_label")}
       <small>
         {" "}
         {totalCoherentVotes}/{totalResolvedVotes}{" "}
@@ -49,12 +47,14 @@ const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, to
   return (
     <Container>
       <small>{userLevelData.title}</small>
-      <label>Level {userLevelData.level}</label>
+      <label>
+        {t("juror_levels.level")} {userLevelData.level}
+      </label>
       <CircularProgress
         progress={parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2))}
       />
       {!isMiniGuide ? (
-        <WithHelpTooltip place="left" {...{ tooltipMsg }}>
+        <WithHelpTooltip place="left" tooltipMsg={t("juror_levels.coherent_votes_tooltip")}>
           {votesContent}
         </WithHelpTooltip>
       ) : (

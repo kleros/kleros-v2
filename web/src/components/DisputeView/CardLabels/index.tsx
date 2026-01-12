@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { formatEther, formatUnits } from "viem";
 import { useAccount } from "wagmi";
@@ -60,15 +61,17 @@ interface ICardLabels {
   isOverview?: boolean;
 }
 
-const LabelArgs: Record<string, { text: string; icon: React.FC<React.SVGAttributes<SVGElement>>; color: IColors }> = {
-  EvidenceTime: { text: "Evidence time", icon: EvidenceIcon, color: "blue" },
-  NotDrawn: { text: "You were not drawn", icon: NotDrawnIcon, color: "grey" },
-  CanVote: { text: "You can vote now", icon: CanVoteIcon, color: "blue" },
-  Voted: { text: "You voted", icon: VotedIcon, color: "purple" },
-  DidNotVote: { text: "You did not vote", icon: ForgotToVoteIcon, color: "purple" },
-  CanFund: { text: "Appeal possible", icon: AppealIcon, color: "lightPurple" },
-  Funded: { text: "You funded an appeal", icon: FundedIcon, color: "lightPurple" },
-};
+const getLabelArgs = (
+  t: any
+): Record<string, { text: string; icon: React.FC<React.SVGAttributes<SVGElement>>; color: IColors }> => ({
+  EvidenceTime: { text: t("card_labels.evidence_time"), icon: EvidenceIcon, color: "blue" },
+  NotDrawn: { text: t("card_labels.you_were_not_drawn"), icon: NotDrawnIcon, color: "grey" },
+  CanVote: { text: t("card_labels.you_can_vote_now"), icon: CanVoteIcon, color: "blue" },
+  Voted: { text: t("card_labels.you_voted"), icon: VotedIcon, color: "purple" },
+  DidNotVote: { text: t("card_labels.you_did_not_vote"), icon: ForgotToVoteIcon, color: "purple" },
+  CanFund: { text: t("card_labels.appeal_possible"), icon: AppealIcon, color: "lightPurple" },
+  Funded: { text: t("card_labels.you_funded_appeal"), icon: FundedIcon, color: "lightPurple" },
+});
 
 const getFundingRewards = (contributions: ClassicContribution[], closed: boolean) => {
   if (isUndefined(contributions) || contributions.length === 0) return 0;
@@ -85,6 +88,7 @@ const getFundingRewards = (contributions: ClassicContribution[], closed: boolean
 };
 
 const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview = false }) => {
+  const { t } = useTranslation();
   const { address } = useAccount();
   const { data: labelInfo, isLoading } = useLabelInfoQuery(address?.toLowerCase(), disputeId);
   const localRounds = getLocalRounds(labelInfo?.dispute?.disputeKitDispute);
@@ -112,6 +116,8 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview
   const contributionRewards = useMemo(() => getFundingRewards(contributions, true), [contributions]);
   const hasFundedDispute = contributions?.length !== 0; // if ever funded the dispute in any round
 
+  const LabelArgs = getLabelArgs(t);
+
   const labelData = useMemo(() => {
     if (period === "evidence") return LabelArgs.EvidenceTime;
     if (!isDrawnCurrentRound && period === "appeal")
@@ -133,6 +139,7 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview
     isDrawnCurrentRound,
     isDrawnInDispute,
     period,
+    LabelArgs,
   ]);
 
   const rewardsData = useMemo(() => {

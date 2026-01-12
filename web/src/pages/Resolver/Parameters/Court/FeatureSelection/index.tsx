@@ -1,6 +1,8 @@
 import React, { Fragment, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card } from "@kleros/ui-components-library";
 
 import {
@@ -45,6 +47,7 @@ const Separator = styled.hr`
   width: 100%;
 `;
 const FeatureSelection: React.FC = () => {
+  const { t } = useTranslation();
   const {
     disputeData,
     setDisputeData,
@@ -146,15 +149,15 @@ const FeatureSelection: React.FC = () => {
 
   return (
     <Container>
-      <SubTitle>Features in this Court</SubTitle>
+      <SubTitle>{t("resolver.features_in_this_court")}</SubTitle>
 
       {Object.entries(courtGroups).length > 0 ? (
         Object.entries(courtGroups).map(([groupName, features], index) => (
-          <>
+          <Fragment key={groupName}>
             {GroupsUI[groupName]({
               clearAll: () => handleGroupDisable(groupName as Group),
               children: (
-                <Fragment key={groupName}>
+                <Fragment>
                   {features.map((feature) =>
                     FeatureUIs[feature]({
                       name: groupName,
@@ -168,7 +171,7 @@ const FeatureSelection: React.FC = () => {
               ),
             })}
             {index !== Object.entries(courtGroups).length - 1 ? <Separator /> : null}
-          </>
+          </Fragment>
         ))
       ) : (
         <FeatureSkeleton />

@@ -1,12 +1,14 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
+import { useAtlasProvider } from "@kleros/kleros-app";
 import { Button } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
-import { useAtlasProvider } from "@kleros/kleros-app";
 
 const InfoContainer = styled.div`
   display: flex;
@@ -63,35 +65,37 @@ interface IEmailInfo {
 
 const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) => {
   const { userExists, user, updateEmail } = useAtlasProvider();
+  const { t } = useTranslation();
 
   const resendVerificationEmail = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (!user) return;
-      infoToast(`Sending verfication email ...`);
+      infoToast(t("email_verification.sending_verification_email"));
       updateEmail({ newEmail: user.email })
         .then(async (res) => {
           if (res) {
-            successToast("Verification email sent successfully!");
+            successToast(t("notifications.verification_email_sent"));
             toggleIsSettingsOpen();
           }
         })
         .catch((err) => {
           console.log(err);
-          errorToast(`Failed to send verification email: ${err?.message}`);
+          errorToast(`${t("email_verification.failed_to_send_verification")} ${err?.message}`);
         });
     },
-    [user, updateEmail, toggleIsSettingsOpen]
+    [user, updateEmail, toggleIsSettingsOpen, t]
   );
 
   return userExists && !user?.isEmailVerified ? (
     <InfoContainer>
       <StyledHourglassIcon />
       <InfoInnerContainer>
-        <InfoTitle>Email Verification Pending</InfoTitle>
+        <InfoTitle>{t("email_verification.email_verification_pending")}</InfoTitle>
         <InfoSubtitle>
-          We sent you a verification email. Please, verify it.
-          <br /> Didn’t receive the email? <StyledButton text="Resend it" onClick={resendVerificationEmail} />
+          {t("email_verification.verification_email_sent_text")}
+          <br /> {t("email_verification.didnt_receive_email")}{" "}
+          <StyledButton text={t("buttons.resend_it")} onClick={resendVerificationEmail} />
         </InfoSubtitle>
       </InfoInnerContainer>
     </InfoContainer>

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 
 import { Steps } from "@kleros/ui-components-library";
@@ -9,15 +10,25 @@ const StyledSteps = styled(Steps)`
   height: 360px;
 `;
 
-const items = [
-  { title: "Briefing", subitems: ["Title", "Description"] },
-  { title: "Parameters", subitems: ["Court", "Category", "Jurors", "Voting Options", "Notable Persons"] },
-  { title: "Policy" },
-  { title: "Preview" },
-];
-
 const Timeline: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const items = [
+    { title: t("timeline.briefing"), subitems: [t("timeline.title"), t("timeline.description")] },
+    {
+      title: t("timeline.parameters"),
+      subitems: [
+        t("timeline.court"),
+        t("timeline.category"),
+        t("timeline.jurors"),
+        t("timeline.voting_options"),
+        t("timeline.notable_persons"),
+      ],
+    },
+    { title: t("timeline.policy") },
+    { title: t("timeline.preview") },
+  ];
 
   const routeToIndexMap = {
     "/resolver/title": 0,

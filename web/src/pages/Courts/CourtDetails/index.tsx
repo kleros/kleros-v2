@@ -1,13 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
 import { isProductionDeployment } from "consts/index";
-
 import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
 
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
@@ -24,10 +24,10 @@ import ScrollTop from "components/ScrollTop";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import Description from "./Description";
+import JurorsStakedByCourt from "./JurorsStakedByCourt";
 import StakePanel from "./StakePanel";
 import Stats from "./Stats";
 import TopSearch from "./TopSearch";
-import JurorsStakedByCourt from "./JurorsStakedByCourt";
 
 const Container = styled.div``;
 
@@ -100,6 +100,7 @@ const StakePanelAndStats = styled.div`
 `;
 
 const CourtDetails: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data } = useCourtTree();
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
@@ -149,7 +150,10 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <Description />
       </StyledCard>
-      <LatestCases title={`Latest Cases in ${getDescriptiveCourtName(courtName)}`} filters={{ court: id }} />
+      <LatestCases
+        title={`${t("misc.latest_cases_in")} ${getDescriptiveCourtName(courtName)}`}
+        filters={{ court: id }}
+      />
       <JurorsStakedByCourt {...{ courtName }} />
       <ScrollTop />
     </Container>

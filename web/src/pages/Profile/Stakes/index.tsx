@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useSearchParams } from "react-router-dom";
 
@@ -40,6 +41,7 @@ interface IStakes {
 }
 
 const Stakes: React.FC<IStakes> = ({ addressToQuery }) => {
+  const { t } = useTranslation();
   const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(addressToQuery);
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     args: [addressToQuery, BigInt(1)],
@@ -59,7 +61,9 @@ const Stakes: React.FC<IStakes> = ({ addressToQuery }) => {
       <Header {...{ lockedStake, availableStake, effectiveStake }} />
       {isLoading ? <Skeleton /> : null}
       {!isStaked && !isLoading ? (
-        <StyledLabel>{searchParamAddress ? "They" : "You"} are not staked in any court</StyledLabel>
+        <StyledLabel>
+          {searchParamAddress ? t("profile.they_are_not_staked") : t("profile.you_are_not_staked")}
+        </StyledLabel>
       ) : null}
       {isStaked && !isLoading ? (
         <CourtCardsContainer>

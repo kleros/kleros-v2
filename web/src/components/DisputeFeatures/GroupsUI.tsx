@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Group } from "consts/disputeFeature";
 
 import LightButton from "../LightButton";
@@ -50,27 +52,38 @@ const StyledLightButton = styled(LightButton)`
 `;
 
 export type GroupUI = (props: { children: JSX.Element; clearAll: () => void }) => JSX.Element;
-export const GroupsUI: Record<Group, GroupUI> = {
-  [Group.Voting]: ({ children, clearAll }) => (
+
+const VotingGroup: React.FC<{ children: JSX.Element; clearAll: () => void }> = ({ children, clearAll }) => {
+  const { t } = useTranslation();
+  return (
     <Container key={Group.Voting}>
       <HeaderContainer>
         <Header>
-          Shielded Voting <StyledLightButton text="Clear" onClick={clearAll} />
+          {t("misc.shielded_voting")} <StyledLightButton text={t("buttons.clear")} onClick={clearAll} />
         </Header>
         <SubTitle>This feature hides the jurors votes until the end of the voting period.</SubTitle>
       </HeaderContainer>
       {children}
     </Container>
-  ),
-  [Group.Eligibility]: ({ children, clearAll }) => (
+  );
+};
+
+const EligibilityGroup: React.FC<{ children: JSX.Element; clearAll: () => void }> = ({ children, clearAll }) => {
+  const { t } = useTranslation();
+  return (
     <Container key={Group.Eligibility}>
       <HeaderContainer>
         <Header>
-          Jurors Eligibility <StyledLightButton text="Clear" onClick={clearAll} />
+          {t("misc.jurors_eligibility")} <StyledLightButton text={t("buttons.clear")} onClick={clearAll} />
         </Header>
         <SubTitle>This feature determines who can be selected as a juror.</SubTitle>
       </HeaderContainer>
       {children}
     </Container>
-  ),
+  );
+};
+
+export const GroupsUI: Record<Group, GroupUI> = {
+  [Group.Voting]: VotingGroup,
+  [Group.Eligibility]: EligibilityGroup,
 };

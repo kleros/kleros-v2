@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useAccount } from "wagmi";
+import { useTranslation } from "react-i18next";
 
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -20,17 +20,12 @@ const Container = styled.div`
   width: auto;
 `;
 
-const tooltipMsg =
-  "Users have an economic interest in serving as jurors in Kleros: " +
-  "collecting the Juror Rewards in exchange for their work. Each juror who " +
-  "is coherent with the final ruling receive the Juror Rewards composed of " +
-  "arbitration fees (ETH) + PNK redistribution between jurors.";
-
 interface IJurorRewards {
   addressToQuery: `0x${string}`;
 }
 
 const JurorRewards: React.FC<IJurorRewards> = ({ addressToQuery }) => {
+  const { t } = useTranslation();
   const { data } = useUserQuery(addressToQuery);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
@@ -39,8 +34,8 @@ const JurorRewards: React.FC<IJurorRewards> = ({ addressToQuery }) => {
 
   return (
     <Container>
-      <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
-        <label> Juror Rewards </label>
+      <WithHelpTooltip place="bottom" tooltipMsg={t("tooltips.juror_rewards_explanation")}>
+        <label>{t("profile.juror_rewards")}</label>
       </WithHelpTooltip>
       {formattedRewards.map(({ token, amount, value }) => (
         <TokenRewards key={token} {...{ token }} amount={amount} value={value} />

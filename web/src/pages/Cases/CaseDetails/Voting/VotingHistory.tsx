@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
@@ -62,6 +63,7 @@ const TabsContainer = styled.div`
 `;
 
 const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -83,7 +85,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   return (
     <Container>
       <Header>
-        <StyledTitle>Voting History</StyledTitle>
+        <StyledTitle>{t("voting.voting_history")}</StyledTitle>
         <HowItWorks
           isMiniGuideOpen={isBinaryVotingMiniGuideOpen}
           toggleMiniGuide={toggleBinaryVotingMiniGuide}
@@ -107,7 +109,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             <StyledTabs
               currentValue={currentTab}
               items={rounds.map((_, i) => ({
-                text: `Round ${i + 1}`,
+                text: `${t("voting.round")} ${i + 1}`,
                 value: i,
               }))}
               callback={(i: number) => setCurrentTab(i)}

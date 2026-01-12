@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
@@ -65,6 +66,7 @@ const StyledButton = styled(Button)`
 `;
 
 const Header: React.FC<{ title: string }> = ({ title }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const disputeId = searchParams.get("disputeId");
@@ -88,7 +90,7 @@ const Header: React.FC<{ title: string }> = ({ title }) => {
         <StyledPaperClip />
         <Title>{title}</Title>
       </TitleContainer>
-      <StyledButton text="Return" Icon={Arrow} onClick={handleReturn} />
+      <StyledButton text={t("buttons.return")} Icon={Arrow} onClick={handleReturn} />
     </Container>
   );
 };

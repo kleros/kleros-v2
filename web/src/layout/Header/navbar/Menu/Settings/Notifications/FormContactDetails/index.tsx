@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
+import { useAtlasProvider } from "@kleros/kleros-app";
 import { Button } from "@kleros/ui-components-library";
 
 import { EMAIL_REGEX } from "consts/index";
-import { useAtlasProvider } from "@kleros/kleros-app";
+import { timeLeftUntil } from "utils/date";
+import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
+
+import { isUndefined } from "src/utils";
 
 import { responsiveSize } from "styles/responsiveSize";
+
+import InfoCard from "components/InfoCard";
 
 import { ISettings } from "../../../../index";
 
 import EmailVerificationInfo from "./EmailVerificationInfo";
 import FormContact from "./FormContact";
-import { isUndefined } from "src/utils";
-import InfoCard from "components/InfoCard";
-import { timeLeftUntil } from "utils/date";
-import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 const FormContainer = styled.form`
   width: 100%;
@@ -47,6 +50,7 @@ const StyledInfoCard = styled(InfoCard)`
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
+  const { t } = useTranslation();
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
   const { address } = useAccount();
@@ -138,7 +142,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       ) : null}
       <ButtonContainer>
         <Button
-          text="Save"
+          text={t("buttons.save")}
           disabled={
             !isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser || !isEmailUpdateable
           }

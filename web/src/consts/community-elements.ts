@@ -1,5 +1,7 @@
 import styled, { css } from "styled-components";
 
+import i18n from "i18next";
+
 import FrenchFlagIcon from "svgs/icons/french-flag.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import SnapshotIcon from "svgs/icons/snapshot-color.svg";
@@ -26,24 +28,33 @@ const StyledTelegramIcon = styled(TelegramIcon)`
 export const section: IElement[] = [
   {
     Icon: StyledPNKIcon,
-    title: "Kleros Forum",
+    get title() {
+      return i18n.t("community.kleros_forum");
+    },
     link: "https://forum.kleros.io/",
   },
-
   {
     Icon: SnapshotIcon,
-    title: "Vote on proposals",
+    get title() {
+      return i18n.t("community.vote_on_proposals");
+    },
     link: "https://snapshot.org/#/kleros.eth/",
   },
   {
     Icon: StyledTelegramIcon,
-    title: "Community Calls",
+    get title() {
+      return i18n.t("community.community_calls");
+    },
     link: "https://t.me/kleros",
-    primaryText: "Wednesday, 18h UTC",
+    get primaryText() {
+      return i18n.t("community.wednesday_18h_utc");
+    },
   },
   {
     Icon: FrenchFlagIcon,
-    title: "Join the Coopérative",
+    get title() {
+      return i18n.t("community.join_cooperative");
+    },
     link: "https://kleros.io/coop/",
   },
 ];

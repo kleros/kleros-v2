@@ -1,14 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount, useDisconnect } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
 import { ChainDisplay } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
-import WalletAndProfile from "./WalletAndProfile";
+import { LanguageSelector } from "components/LanguageSelector";
+
 import { ISettings } from "../../../index";
+
+import WalletAndProfile from "./WalletAndProfile";
 
 const Container = styled.div`
   display: flex;
@@ -53,8 +57,9 @@ const UserContainer = styled.div`
 `;
 
 export const DisconnectWalletButton: React.FC = () => {
+  const { t } = useTranslation();
   const { disconnect } = useDisconnect();
-  return <Button text={`Disconnect`} onClick={() => disconnect()} />;
+  return <Button text={t("buttons.disconnect")} onClick={() => disconnect()} />;
 };
 
 const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
@@ -64,6 +69,7 @@ const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
     <EnsureChainContainer>
       <EnsureChain>
         <Container>
+          <LanguageSelector />
           {address && (
             <UserContainer>
               <StyledChainContainer>

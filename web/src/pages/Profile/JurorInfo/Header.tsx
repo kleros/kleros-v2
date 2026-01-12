@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
-import { useToggle } from "react-use";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { useToggle } from "react-use";
+
 import { Copiable } from "@kleros/ui-components-library";
 
 import XIcon from "svgs/socialmedia/x.svg";
@@ -12,10 +12,12 @@ import XIcon from "svgs/socialmedia/x.svg";
 import { DEFAULT_CHAIN, getChain } from "consts/chains";
 import { shortenAddress } from "utils/shortenAddress";
 
-import HowItWorks from "components/HowItWorks";
-import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { ExternalLink } from "components/ExternalLink";
+import HowItWorks from "components/HowItWorks";
 import JurorsLeaderboardButton from "components/JurorsLeaderboardButton";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 
 const Container = styled.div`
   display: flex;
@@ -78,12 +80,20 @@ const Header: React.FC<IHeader> = ({
   totalResolvedVotes,
   addressToQuery,
 }) => {
+  const { t } = useTranslation();
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
   const [searchParams] = useSearchParams();
 
   const coherencePercentage = parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
-  const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherentVotes}/${totalResolvedVotes}\n\nBe a juror with me! ➡️ ${courtUrl}`;
+  const xPostText = t("profile.x_post_template", {
+    level: levelNumber,
+    title: levelTitle,
+    percentage: coherencePercentage,
+    coherent: totalCoherentVotes,
+    total: totalResolvedVotes,
+    url: courtUrl,
+  });
   const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xPostText)}`;
   const searchParamAddress = searchParams.get("address")?.toLowerCase();
 
@@ -94,7 +104,7 @@ const Header: React.FC<IHeader> = ({
   return (
     <Container>
       <StyledTitle>
-        Juror Profile -
+        {t("profile.juror_profile")} -
         <Copiable copiableContent={addressToQuery} info="Copy Address">
           <StyledJurorExternalLink to={addressExplorerLink} target="_blank" rel="noopener noreferrer">
             {shortenAddress(addressToQuery)}
@@ -111,7 +121,7 @@ const Header: React.FC<IHeader> = ({
         {totalResolvedVotes > 0 && !searchParamAddress ? (
           <StyledShareExternalLink to={xShareUrl} target="_blank" rel="noreferrer">
             <StyledXIcon />
-            <StyledShareLabel>Share your juror score</StyledShareLabel>
+            <StyledShareLabel>{t("profile.share_juror_score")}</StyledShareLabel>
           </StyledShareExternalLink>
         ) : null}
       </LinksContainer>

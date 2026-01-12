@@ -1,9 +1,11 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
 
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useOpenContext } from "../MobileHeader";
 
@@ -56,6 +58,7 @@ interface IExplore {
 }
 
 const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toggleIsOpen } = useOpenContext();
@@ -63,17 +66,17 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
 
   const navLinks = useMemo(() => {
     const base = [
-      { to: "/", text: "Home" },
-      { to: "/cases/display/1/desc/all", text: "Cases" },
-      { to: "/courts", text: "Courts" },
-      { to: "/jurors/1/desc/all", text: "Jurors" },
-      { to: "/get-pnk", text: "Get PNK" },
+      { to: "/", text: t("navigation.home") },
+      { to: "/cases/display/1/desc/all", text: t("navigation.cases") },
+      { to: "/courts", text: t("navigation.courts") },
+      { to: "/jurors/1/desc/all", text: t("navigation.jurors") },
+      { to: "/get-pnk", text: t("navigation.get_pnk") },
     ];
     if (isConnected) {
-      base.push({ to: "/profile/1/desc/all", text: "My Profile" });
+      base.push({ to: "/profile/1/desc/all", text: t("navigation.my_profile") });
     }
     return base;
-  }, [isConnected]);
+  }, [isConnected, t]);
 
   const currentSeg = useMemo(() => location.pathname.split("/")[1] || "", [location.pathname]);
   const ownsProfile = !searchParams.get("address");
@@ -88,7 +91,7 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
 
   return (
     <Container>
-      <Title>Explore</Title>
+      <Title>{t("navigation.overview")}</Title>
       {navLinks.map(({ to, text }) => (
         <StyledLink key={text} onClick={toggleIsOpen} isActive={getIsActive(to)} {...{ to, isMobileNavbar }}>
           {text}

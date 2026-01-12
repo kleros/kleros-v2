@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Radio } from "@kleros/ui-components-library";
 
 import { Features } from "consts/disputeFeature";
@@ -28,22 +30,26 @@ export const StyledRadio = styled(Radio)`
 `;
 
 export const FeatureUIs: Record<Features, FeatureUI> = {
-  [Features.ShieldedVote]: (props: RadioInput) => (
-    <WithHelpTooltip
-      tooltipMsg={`The jurors votes are hidden. 
-        Nobody can see them before the voting period completes. 
-        It takes place in a single step via Shutter Network`}
-      key={Features.ShieldedVote}
-    >
-      <StyledRadio label="Single-step via Shutter Network" small {...props} />
-    </WithHelpTooltip>
-  ),
+  [Features.ShieldedVote]: (props: RadioInput) => {
+    const { t } = useTranslation();
+    return (
+      <WithHelpTooltip
+        tooltipMsg={`The jurors votes are hidden.
+          Nobody can see them before the voting period completes.
+          It takes place in a single step via Shutter Network`}
+        key={Features.ShieldedVote}
+      >
+        <StyledRadio label={t("features.single_step_shutter")} small {...props} />
+      </WithHelpTooltip>
+    );
+  },
 
   [Features.ClassicVote]: (props: RadioInput) => <ClassicVote {...props} />,
 
-  [Features.ClassicEligibility]: (props: RadioInput) => (
-    <StyledRadio key={Features.ClassicEligibility} label="All the jurors in this court" small {...props} />
-  ),
+  [Features.ClassicEligibility]: (props: RadioInput) => {
+    const { t } = useTranslation();
+    return <StyledRadio key={Features.ClassicEligibility} label={t("features.all_jurors_in_court")} small {...props} />;
+  },
 
   [Features.GatedErc20]: (props: RadioInput) => <GatedErc20 {...props} />,
 

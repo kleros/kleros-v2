@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { useAccount } from "wagmi";
 
@@ -8,10 +9,11 @@ import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { StyledArrowLink } from "../StyledArrowLink";
+
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
-import { StyledArrowLink } from "../StyledArrowLink";
 
 const TitleContainer = styled.div`
   display: flex;
@@ -50,27 +52,28 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   numberDisputes,
   numberClosedDisputes,
   casesPerPage,
-  title = "Cases",
+  title,
   className,
   totalPages,
 }) => {
   const location = useLocation();
   const { isConnected } = useAccount();
   const profileLink = isConnected ? `/profile/1/desc/all` : null;
+  const { t } = useTranslation();
 
   return (
     <div {...{ className }}>
       <TitleContainer className="title">
-        <StyledTitle>{title}</StyledTitle>
+        <StyledTitle>{title ?? t("navigation.cases")}</StyledTitle>
         <LinksContainer>
           {location.pathname.startsWith("/cases/display") && profileLink ? (
             <StyledArrowLink to={profileLink}>
-              My Cases <ArrowIcon />
+              {t("headers.my_cases")} <ArrowIcon />
             </StyledArrowLink>
           ) : null}
           {location.pathname.startsWith("/cases/display") ? (
             <StyledArrowLink to={"/resolver"}>
-              Create a case <ArrowIcon />
+              {t("buttons.create_a_case")} <ArrowIcon />
             </StyledArrowLink>
           ) : null}
         </LinksContainer>
@@ -79,7 +82,7 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
       <StatsAndFilters totalDisputes={numberDisputes || 0} closedDisputes={numberClosedDisputes || 0} />
 
       {disputes?.length === 0 ? (
-        <StyledLabel>No cases found</StyledLabel>
+        <StyledLabel>{t("misc.no_cases_found")}</StyledLabel>
       ) : (
         <CasesGrid
           disputes={disputes}

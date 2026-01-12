@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled, { DefaultTheme, useTheme } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { type TransactionReceipt } from "viem";
 import { usePublicClient } from "wagmi";
@@ -60,6 +61,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isPopupOpen,
   setIsPopupOpen,
 }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const theme = useTheme();
   const [isSuccess, setIsSuccess] = useState(false);
@@ -305,7 +307,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     <EnsureChain>
       <Container>
         <Button
-          text={isStaking ? "Stake" : "Withdraw"}
+          text={isStaking ? t("buttons.stake") : t("buttons.withdraw")}
           isLoading={isPopupOpen || isSimulatingAllowance || isSimulatingSetStake}
           disabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
           onClick={handleClick}

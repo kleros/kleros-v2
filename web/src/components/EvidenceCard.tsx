@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
@@ -178,12 +179,16 @@ const StyledJurorInternalLink = styled(InternalLink)`
   }
 `;
 
-const AttachedFileText: React.FC = () => (
-  <>
-    <DesktopText>View attached file</DesktopText>
-    <MobileText>File</MobileText>
-  </>
-);
+const AttachedFileText: React.FC = () => {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <DesktopText>{t("misc.view_attached_file")}</DesktopText>
+      <MobileText>{t("misc.file")}</MobileText>
+    </>
+  );
+};
 
 interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
   sender: string;
@@ -201,6 +206,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
+  const { t } = useTranslation();
   const profileLink = `/profile/1/desc/all?address=${sender}`;
   const { id } = useParams();
 
@@ -236,7 +242,9 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>
-            <StyledInternalLink to={`/attachment/?disputeId=${id}&title=${"Evidence File"}&url=${getIpfsUrl(fileURI)}`}>
+            <StyledInternalLink
+              to={`/attachment/?disputeId=${id}&title=${t("misc.evidence_file")}&url=${getIpfsUrl(fileURI)}`}
+            >
               <AttachmentIcon />
               <AttachedFileText />
             </StyledInternalLink>

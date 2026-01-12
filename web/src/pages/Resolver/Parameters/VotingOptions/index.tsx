@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { AlertMessage } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
@@ -40,6 +42,7 @@ const AlertMessageContainer = styled.div`
 const VotingOptions: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   const handleQuestionWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDisputeData({ ...disputeData, question: event.target.value });
@@ -56,11 +59,11 @@ const VotingOptions: React.FC = () => {
 
   return (
     <Container ref={containerRef}>
-      <Header text="Voting options" />
+      <Header text={t("headers.voting_options")} />
       <QuestionField
-        label="Question"
-        placeholder="eg. How much should Alice receive?"
-        message="Type the question jurors will see when voting."
+        label={t("forms.labels.question")}
+        placeholder={t("forms.placeholders.how_much_alice_receive")}
+        message={t("forms.messages.type_question_jurors_see")}
         variant="info"
         value={disputeData.question}
         onChange={handleQuestionWrite}
@@ -68,8 +71,8 @@ const VotingOptions: React.FC = () => {
       <OptionsFields />
       <AlertMessageContainer>
         <AlertMessage
-          title="Add the question and options jurors will see when voting"
-          msg="Make it clear and objective."
+          title={t("alerts.add_question_and_options")}
+          msg={t("alerts.make_it_clear_objective")}
           variant="info"
         />
       </AlertMessageContainer>

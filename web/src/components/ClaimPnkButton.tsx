@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+import { useTranslation } from "react-i18next";
 import { formatEther } from "viem";
 import { useAccount, useChainId, usePublicClient, useWalletClient, useConfig } from "wagmi";
 
@@ -23,6 +24,7 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import Popup, { PopupType } from "./Popup";
 
 const ClaimPnkButton: React.FC = () => {
+  const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [hash, setHash] = useState<`0x${string}` | undefined>();
@@ -68,7 +70,7 @@ const ClaimPnkButton: React.FC = () => {
       {chainId === DEFAULT_CHAIN && !claimed ? (
         <Button
           variant="primary"
-          text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
+          text={faucetCheck ? t("buttons.claim_pnk") : t("buttons.empty_faucet")}
           onClick={handleRequest}
           isLoading={isSending}
           disabled={isSending || claimed || !faucetCheck || isUndefined(address)}
@@ -77,7 +79,7 @@ const ClaimPnkButton: React.FC = () => {
       ) : null}
       {isPopupOpen && (
         <Popup
-          title="Success!"
+          title={t("popups.success")}
           popupType={PopupType.SWAP_SUCCESS}
           hash={hash}
           amount={formatPNK(dripAmount ?? BigInt(0))}

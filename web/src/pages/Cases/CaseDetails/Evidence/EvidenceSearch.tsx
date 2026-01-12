@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
@@ -37,6 +38,7 @@ interface IEvidenceSearch {
 }
 
 const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch }) => {
+  const { t } = useTranslation();
   const { id: disputeId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { address } = useAccount();
@@ -50,14 +52,14 @@ const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch }) => {
       <SearchContainer>
         <StyledSearchBar
           dir="auto"
-          placeholder="Search evidence by number, word, or submitter"
+          placeholder={t("forms.placeholders.search_evidence")}
           onChange={(e) => setSearch(e.target.value)}
           value={search}
         />
 
         <EnsureChain>
           <StyledButton
-            text="Submit Evidence"
+            text={t("buttons.submit_evidence")}
             disabled={typeof address === "undefined" || isModalOpen}
             isLoading={isModalOpen}
             onClick={() => setIsModalOpen(true)}

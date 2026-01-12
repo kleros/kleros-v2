@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
@@ -81,6 +82,7 @@ const calculateStats = (user: UserDetailsFragment, filter: Dispute_Filter) => {
 };
 
 const Profile: React.FC = () => {
+  const { t } = useTranslation();
   const { isConnected, address: connectedAddress } = useAccount();
   const { page, order, filter } = useParams();
   const [searchParams] = useSearchParams();
@@ -115,7 +117,7 @@ const Profile: React.FC = () => {
           <JurorInfo {...{ addressToQuery }} />
           <Stakes {...{ addressToQuery }} />
           <StyledCasesDisplay
-            title={`${searchParamAddress ? "Their" : "My"} Cases`}
+            title={searchParamAddress ? t("headers.their_cases") : t("headers.my_cases")}
             disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
             numberDisputes={totalCases}
             numberClosedDisputes={totalResolvedCases}

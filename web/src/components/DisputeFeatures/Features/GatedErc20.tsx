@@ -1,6 +1,8 @@
 import React, { Fragment, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Field } from "@kleros/ui-components-library";
 
 import { Features } from "consts/disputeFeature";
@@ -28,6 +30,7 @@ const StyledField = styled(Field)`
 `;
 
 const GatedErc20: React.FC<RadioInput> = (props) => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
 
   const tokenGateAddress = (disputeData.disputeKitData as IGatedDisputeData)?.tokenGate ?? "";
@@ -82,10 +85,10 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.GatedErc20}>
       <WithHelpTooltip
-        tooltipMsg="Only the jurors who possess the specified token or NFT 
+        tooltipMsg="Only the jurors who possess the specified token or NFT
         can be selected as jurors for this case. Please input the token details below."
       >
-        <StyledRadio label="Jurors owning at least 1 token ERC-20 or ERC-721" small {...props} />
+        <StyledRadio label={t("features.jurors_owning_erc20")} small {...props} />
       </WithHelpTooltip>
       {props.checked ? (
         <FieldContainer>
@@ -93,7 +96,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
             dir="auto"
             onChange={handleTokenAddressChange}
             value={tokenGateAddress}
-            placeholder="Eg. 0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
+            placeholder={t("forms.placeholders.token_address_example")}
             variant={variant}
             message={validationMessage}
           />

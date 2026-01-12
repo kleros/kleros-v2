@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -30,41 +32,26 @@ const Card = styled(_Card)`
   )}
 `;
 
-const leftPageContents = [
+const getLeftPageContents = (t: any) => [
   {
-    title: "Juror Level 0: Diogenes",
-    paragraphs: [
-      "Coherence Score below 25.",
-      "This level is for new jurors or those frequently voting incoherently. A few coherent votes can help climb out of this level quickly.",
-    ],
+    title: t("juror_levels.level_0_diogenes"),
+    paragraphs: [t("juror_levels.coherence_score_below_25"), t("juror_levels.level_0_description")],
   },
   {
-    title: "Juror Level 1: Pythagoras",
-    paragraphs: [
-      "Coherence Score between 25 and 49.",
-      "Jurors here are gaining experience and starting to build voting reliability.",
-    ],
+    title: t("juror_levels.level_1_pythagoras"),
+    paragraphs: [t("juror_levels.coherence_score_25_49"), t("juror_levels.level_1_description")],
   },
   {
-    title: "Juror Level 2: Socrates",
-    paragraphs: [
-      "Coherence Score between 50 and 69.",
-      "Mid-tier performance. Jurors at this level have demonstrated reasonable consistency in coherent voting.",
-    ],
+    title: t("juror_levels.level_2_socrates"),
+    paragraphs: [t("juror_levels.coherence_score_50_69"), t("juror_levels.level_2_description")],
   },
   {
-    title: "Juror Level 3: Plato",
-    paragraphs: [
-      "Coherence Score between 70 and 89.",
-      "Reliable jurors with a consistent track record of coherent votes. Just a few more coherent votes away from reaching the top.",
-    ],
+    title: t("juror_levels.level_3_plato"),
+    paragraphs: [t("juror_levels.coherence_score_70_89"), t("juror_levels.level_3_description")],
   },
   {
-    title: "Juror Level 4: Aristotle",
-    paragraphs: [
-      "Coherence Score between 90 and 100.",
-      "Top-tier jurors with excellent coherence. Trusted members of the platform.",
-    ],
+    title: t("juror_levels.level_4_aristotle"),
+    paragraphs: [t("juror_levels.coherence_score_90_100"), t("juror_levels.level_4_description")],
   },
 ];
 
@@ -102,6 +89,8 @@ const userLevelData = [
 ];
 
 const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
+  const { t } = useTranslation();
+  const leftPageContents = getLeftPageContents(t);
   const { title, paragraphs } = leftPageContents[currentPage - 1];
 
   return (
@@ -136,7 +125,9 @@ interface IJurorLevels {
 }
 
 const JurorLevels: React.FC<IJurorLevels> = ({ toggleMiniGuide }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
+  const leftPageContents = getLeftPageContents(t);
 
   return (
     <Template
