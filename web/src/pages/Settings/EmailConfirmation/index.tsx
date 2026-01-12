@@ -96,41 +96,6 @@ const EmailConfirmation: React.FC = () => {
   const { confirmEmail } = useAtlasProvider();
   const { t } = useTranslation();
 
-  const messageConfigs = {
-    invalid: {
-      headerMsg: t("email_verification.invalid_link"),
-      subtitleMsg: t("email_verification.invalid_link_subtitle"),
-      buttonMsg: t("email_verification.contact_support"),
-      buttonTo: "https://t.me/kleros",
-      Icon: InvalidIcon,
-      color: "primaryText",
-    },
-    error: {
-      headerMsg: t("email_verification.something_went_wrong"),
-      subtitleMsg: t("email_verification.something_went_wrong_subtitle"),
-      buttonMsg: t("email_verification.contact_support"),
-      buttonTo: "https://t.me/kleros",
-      Icon: WarningIcon,
-      color: "error",
-    },
-    confirmed: {
-      headerMsg: t("email_verification.congratulations_verified"),
-      subtitleMsg: t("email_verification.verification_success_subtitle"),
-      buttonMsg: t("email_verification.lets_start"),
-      buttonTo: "/",
-      Icon: CheckIcon,
-      color: "success",
-    },
-    expired: {
-      headerMsg: t("email_verification.verification_link_expired"),
-      subtitleMsg: t("email_verification.verification_expired_subtitle"),
-      buttonMsg: t("email_verification.open_settings"),
-      buttonTo: "/#notifications",
-      Icon: WarningIcon,
-      color: "warning",
-    },
-  };
-
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isTokenInvalid, setIsTokenInvalid] = useState(false);
@@ -154,11 +119,46 @@ const EmailConfirmation: React.FC = () => {
   }, [address, token, confirmEmail]);
 
   const { headerMsg, subtitleMsg, buttonMsg, buttonTo, Icon, color } = useMemo(() => {
+    const messageConfigs = {
+      invalid: {
+        headerMsg: t("email_verification.invalid_link"),
+        subtitleMsg: t("email_verification.invalid_link_subtitle"),
+        buttonMsg: t("email_verification.contact_support"),
+        buttonTo: "https://t.me/kleros",
+        Icon: InvalidIcon,
+        color: "primaryText",
+      },
+      error: {
+        headerMsg: t("email_verification.something_went_wrong"),
+        subtitleMsg: t("email_verification.something_went_wrong_subtitle"),
+        buttonMsg: t("email_verification.contact_support"),
+        buttonTo: "https://t.me/kleros",
+        Icon: WarningIcon,
+        color: "error",
+      },
+      confirmed: {
+        headerMsg: t("email_verification.congratulations_verified"),
+        subtitleMsg: t("email_verification.verification_success_subtitle"),
+        buttonMsg: t("email_verification.lets_start"),
+        buttonTo: "/",
+        Icon: CheckIcon,
+        color: "success",
+      },
+      expired: {
+        headerMsg: t("email_verification.verification_link_expired"),
+        subtitleMsg: t("email_verification.verification_expired_subtitle"),
+        buttonMsg: t("email_verification.open_settings"),
+        buttonTo: "/#notifications",
+        Icon: WarningIcon,
+        color: "warning",
+      },
+    };
+
     if (!address || !isAddress(address) || !token || isTokenInvalid) return messageConfigs.invalid;
     if (isError) return messageConfigs.error;
     if (isConfirmed) return messageConfigs.confirmed;
     return messageConfigs.expired;
-  }, [address, token, isError, isConfirmed, isTokenInvalid]);
+  }, [address, token, isError, isConfirmed, isTokenInvalid, t]);
 
   return (
     <Container>

@@ -11,14 +11,33 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
+const SUPPORTED_LANGUAGES: Language[] = ["en", "es", "fr"];
+
+// Normalize and validate language code
+const normalizeLanguage = (lng: string): Language => {
+  // Direct match
+  if (SUPPORTED_LANGUAGES.includes(lng as Language)) {
+    return lng as Language;
+  }
+
+  // Try base language (e.g., "en-US" -> "en")
+  const baseLang = lng.split("-")[0];
+  if (SUPPORTED_LANGUAGES.includes(baseLang as Language)) {
+    return baseLang as Language;
+  }
+
+  // Default to English
+  return "en";
+};
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { i18n } = useTranslation();
-  const [language, setLanguage] = useState<Language>((i18n.language as Language) || "en");
+  const [language, setLanguage] = useState<Language>(normalizeLanguage(i18n.language));
 
   useEffect(() => {
     // Sync state with i18n language changes
     const handleLanguageChange = (lng: string) => {
-      setLanguage(lng as Language);
+      setLanguage(normalizeLanguage(lng));
     };
 
     i18n.on("languageChanged", handleLanguageChange);

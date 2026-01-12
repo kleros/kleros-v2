@@ -94,10 +94,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
 
   return (
     <Fragment key={Features.GatedErc1155}>
-      <WithHelpTooltip
-        tooltipMsg="Only the jurors who possess the specified token or NFT
-        can be selected as jurors for this case. Please input the token details below."
-      >
+      <WithHelpTooltip tooltipMsg={t("tooltips.token_gating_tooltip")}>
         <StyledRadio label={t("features.jurors_owning_erc1155")} small {...props} />
       </WithHelpTooltip>
       {props.checked ? (

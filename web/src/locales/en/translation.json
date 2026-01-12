@@ -87,7 +87,7 @@
       "option_description": "Option Description",
       "voting_option": "Voting Option",
       "person": "Person",
-      "person_address": "Person Address",
+      "person_address": "Person {{index}} Address",
       "arbitration_cost": "Arbitration Cost",
       "erc1155_token": "ERC-1155 token",
       "enter_cases_id": "Enter the cases's ID",
@@ -187,7 +187,7 @@
     "loser": "Loser",
     "voting_is_ongoing": "Voting is ongoing",
     "failed_to_commit": "Failed to commit on time.",
-    "vote_successfully_committed": "Your vote was successfully commited, please wait until reveal period to reveal it.",
+    "vote_successfully_committed": "Your vote was successfully committed, please wait until reveal period to reveal it.",
     "times_up": "Time's up!",
     "jury_decided_in_favor": "The jury decided in favor of:",
     "this_option_winning": "This option is winning:",
@@ -552,7 +552,11 @@
     "estimated_rewards_explanation": "Estimated rewards in USD, assuming 100% coherent voting. If other jurors vote incoherently, additional rewards in the form of PNK tokens may be earned beyond this estimate.",
     "current_stake_sum": "Current Stake (Sum of): Amount of PNK staked in this court ({{amountInCourt}}); Amount of PNK staked on its sub-courts ({{amountInSubCourts}})",
     "stake_confirmed_tooltip": "The stake is confirmed! It is standard procedure to delay the execution of a change in stakes if the phase of the arbitrator is not currently Staking. It'll be updated shortly.",
-    "avoid_missing_case_tooltip": "In order not to miss when you're drawn for cases, make sure to subscribe to notifications: Settings > Notifications"
+    "avoid_missing_case_tooltip": "In order not to miss when you're drawn for cases, make sure to subscribe to notifications: Settings > Notifications",
+    "shielded_voting_tooltip": "The jurors votes are hidden. Nobody can see them before the voting period completes. It takes place in a single step via Shutter Network",
+    "shielded_voting_description": "This feature hides the jurors votes until the end of the voting period.",
+    "jurors_eligibility_description": "This feature determines who can be selected as a juror.",
+    "token_gating_tooltip": "Only the jurors who possess the specified token or NFT can be selected as jurors for this case. Please input the token details below."
   },
   "errors": {
     "something_went_wrong": "Ooops, Something went wrong in Athens!",

@@ -33,12 +33,7 @@ export const FeatureUIs: Record<Features, FeatureUI> = {
   [Features.ShieldedVote]: (props: RadioInput) => {
     const { t } = useTranslation();
     return (
-      <WithHelpTooltip
-        tooltipMsg={`The jurors votes are hidden.
-          Nobody can see them before the voting period completes.
-          It takes place in a single step via Shutter Network`}
-        key={Features.ShieldedVote}
-      >
+      <WithHelpTooltip tooltipMsg={t("tooltips.shielded_voting_tooltip")} key={Features.ShieldedVote}>
         <StyledRadio label={t("features.single_step_shutter")} small {...props} />
       </WithHelpTooltip>
     );

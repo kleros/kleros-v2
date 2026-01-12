@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { Box } from "@kleros/ui-components-library";
 
@@ -61,11 +61,13 @@ const StageTwoExplanation: React.FC = () => {
     <div>
       <p dangerouslySetInnerHTML={{ __html: t("appeal.stage_two_explanation_1") }} />
       <p dangerouslySetInnerHTML={{ __html: t("appeal.stage_two_explanation_2") }} />
-      <p
-        dangerouslySetInnerHTML={{
-          __html: t("appeal.stage_two_explanation_3", { choices: fundedOptions?.join(", ") || "" }),
-        }}
-      />
+      <p>
+        <Trans
+          i18nKey="appeal.stage_two_explanation_3"
+          values={{ choices: fundedOptions?.join(", ") || "" }}
+          components={{ small: <small /> }}
+        />
+      </p>
     </div>
   );
 };

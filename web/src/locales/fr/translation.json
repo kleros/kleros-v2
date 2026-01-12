@@ -87,7 +87,7 @@
       "option_description": "Description de l'Option",
       "voting_option": "Option de Vote",
       "person": "Personne",
-      "person_address": "Adresse de la Personne",
+      "person_address": "Adresse de la Personne {{index}}",
       "arbitration_cost": "Coût d'Arbitrage",
       "erc1155_token": "Token ERC-1155",
       "enter_cases_id": "Entrez l'ID du cas",
@@ -552,7 +552,11 @@
     "estimated_rewards_explanation": "Récompenses estimées en USD, en supposant un vote cohérent à 100%. Si d'autres jurés votent de manière incohérente, des récompenses supplémentaires sous forme de tokens PNK peuvent être gagnées au-delà de cette estimation.",
     "current_stake_sum": "Dépôt Actuel (Somme de) : Montant de PNK déposé dans ce tribunal ({{amountInCourt}}) ; Montant de PNK déposé dans ses sous-tribunaux ({{amountInSubCourts}})",
     "stake_confirmed_tooltip": "Le dépôt est confirmé ! C'est une procédure standard de retarder l'exécution d'un changement de dépôts si la phase de l'arbitre n'est pas actuellement Dépôt. Il sera mis à jour sous peu.",
-    "avoid_missing_case_tooltip": "Pour ne pas manquer quand vous êtes tiré au sort pour des cas, assurez-vous de vous abonner aux notifications : Paramètres > Notifications"
+    "avoid_missing_case_tooltip": "Pour ne pas manquer quand vous êtes tiré au sort pour des cas, assurez-vous de vous abonner aux notifications : Paramètres > Notifications",
+    "shielded_voting_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en une seule étape via Shutter Network",
+    "shielded_voting_description": "Cette fonctionnalité cache les votes des jurés jusqu'à la fin de la période de vote.",
+    "jurors_eligibility_description": "Cette fonctionnalité détermine qui peut être sélectionné comme juré.",
+    "token_gating_tooltip": "Seuls les jurés qui possèdent le token ou NFT spécifié peuvent être sélectionnés comme jurés pour ce cas. Veuillez saisir les détails du token ci-dessous."
   },
   "errors": {
     "something_went_wrong": "Oups, Quelque chose s'est mal passé à Athènes !",

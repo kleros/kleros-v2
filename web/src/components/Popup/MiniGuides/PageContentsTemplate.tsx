@@ -83,7 +83,7 @@ const LeftContent: React.FC<{
         <LinksContainer>
           {links.map((link, index) => {
             const isObject = typeof link === "object";
-            const linkId = isObject ? link.id : link.split(". ")[1];
+            const linkId = isObject ? link.id : link.split(". ")[1] || link;
             const linkText = isObject ? link.text : link;
             return (
               <StyledLabel key={index} onClick={() => toggleSubMiniGuide(linkId)}>

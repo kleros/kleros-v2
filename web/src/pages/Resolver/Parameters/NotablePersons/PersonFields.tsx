@@ -107,7 +107,7 @@ const PersonFields: React.FC = () => {
           />
           <LabeledInput
             name="address"
-            label={`${t("forms.labels.person")} ${index + 1} ${t("forms.labels.person_address").split(" ")[1]}`}
+            label={t("forms.labels.person_address", { index: index + 1 })}
             variant={showError(alias) ? "error" : ""}
             message={showError(alias) ? t("forms.messages.invalid_address_or_ens") : ""}
             placeholder={t("forms.placeholders.alice_eth_example")}

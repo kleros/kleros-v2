@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
+import { useTranslation } from "react-i18next";
 import { Route } from "react-router-dom";
 
 import "react-loading-skeleton/dist/skeleton.css";
@@ -30,6 +31,11 @@ import Layout from "layout/index";
 import ErrorFallback from "./components/ErrorFallback";
 import AttachmentDisplay from "./pages/AttachmentDisplay";
 import { SentryRoutes } from "./utils/sentry";
+
+const PageNotFound: React.FC = () => {
+  const { t } = useTranslation();
+  return <h1>{t("misc.page_not_found")}</h1>;
+};
 
 const App: React.FC = () => {
   return (
@@ -116,7 +122,7 @@ const App: React.FC = () => {
                               </Suspense>
                             }
                           />
-                          <Route path="*" element={<h1>Page not found</h1>} />
+                          <Route path="*" element={<PageNotFound />} />
                         </Route>
                       </SentryRoutes>
                     </NewDisputeProvider>
