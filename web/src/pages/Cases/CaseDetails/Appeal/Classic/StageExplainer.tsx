@@ -47,8 +47,12 @@ const StageOneExplanation: React.FC = () => {
   const { t } = useTranslation();
   return (
     <div>
-      <p dangerouslySetInnerHTML={{ __html: t("appeal.stage_one_explanation_1") }} />
-      <p dangerouslySetInnerHTML={{ __html: t("appeal.stage_one_explanation_2") }} />
+      <p>
+        <Trans i18nKey="appeal.stage_one_explanation_1" components={{ small: <small /> }} />
+      </p>
+      <p>
+        <Trans i18nKey="appeal.stage_one_explanation_2" components={{ small: <small /> }} />
+      </p>
     </div>
   );
 };
@@ -59,8 +63,12 @@ const StageTwoExplanation: React.FC = () => {
   const fundedOptions = options?.filter((option) => option?.funded).map((option) => option.title);
   return (
     <div>
-      <p dangerouslySetInnerHTML={{ __html: t("appeal.stage_two_explanation_1") }} />
-      <p dangerouslySetInnerHTML={{ __html: t("appeal.stage_two_explanation_2") }} />
+      <p>
+        <Trans i18nKey="appeal.stage_two_explanation_1" components={{ small: <small /> }} />
+      </p>
+      <p>
+        <Trans i18nKey="appeal.stage_two_explanation_2" components={{ small: <small /> }} />
+      </p>
       <p>
         <Trans
           i18nKey="appeal.stage_two_explanation_3"

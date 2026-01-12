@@ -90,7 +90,7 @@
       "person_address": "Person {{index}} Address",
       "arbitration_cost": "Arbitration Cost",
       "erc1155_token": "ERC-1155 token",
-      "enter_cases_id": "Enter the cases's ID",
+      "enter_cases_id": "Enter the case's ID",
       "telegram": "Telegram",
       "email": "Email",
       "total": "Total",

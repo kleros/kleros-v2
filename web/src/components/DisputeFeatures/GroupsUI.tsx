@@ -51,7 +51,7 @@ const StyledLightButton = styled(LightButton)`
   }
 `;
 
-export type GroupUI = (props: { children: JSX.Element; clearAll: () => void }) => JSX.Element;
+export type GroupUI = React.FC<{ children: JSX.Element; clearAll: () => void }>;
 
 const VotingGroup: React.FC<{ children: JSX.Element; clearAll: () => void }> = ({ children, clearAll }) => {
   const { t } = useTranslation();
