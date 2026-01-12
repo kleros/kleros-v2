@@ -20,6 +20,7 @@ const Label = styled.label`
 
 const LanguageOptions = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 `;
 
