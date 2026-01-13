@@ -36,6 +36,17 @@ export function formatDate(unixTimestamp: number, withTime = false): string {
   return date.toLocaleDateString("en-US", options);
 }
 
+export function formatDateWithTime(timestamp: string): string {
+  const date = new Date(parseInt(timestamp) * 1000);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 /**
  * Calculates the time left until a specified date and formats it.
  *

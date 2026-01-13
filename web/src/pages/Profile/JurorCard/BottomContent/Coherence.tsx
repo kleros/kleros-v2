@@ -1,9 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import { CircularProgress } from "@kleros/ui-components-library";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { ILevelCriteria } from "utils/userLevelCalculation";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
@@ -26,10 +28,7 @@ const tooltipMsg =
   " the majority of jurors it's considered a Coherent Vote.";
 
 interface ICoherence {
-  userLevelData: {
-    level: number;
-    title: string;
-  };
+  userLevelData: ILevelCriteria;
   totalCoherentVotes: number;
   totalResolvedVotes: number;
   isMiniGuide: boolean;

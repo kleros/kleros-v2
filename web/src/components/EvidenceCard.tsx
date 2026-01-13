@@ -17,10 +17,9 @@ import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
-
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
+import JurorLink from "components/JurorLink";
 import MarkdownRenderer from "./MarkdownRenderer";
 
 const StyledCard = styled(Card)`
@@ -201,8 +200,8 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
-  const profileLink = `/profile/1/desc/all?address=${sender}`;
   const { id } = useParams();
+  const profileLink = `/profile/stakes/1?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
     return getTxnExplorerLink(transactionHash ?? "");
@@ -229,7 +228,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         <BottomLeftContent>
           {isUndefined(sender) ? null : (
             <StyledJurorInternalLink to={profileLink}>
-              <JurorTitle address={sender} />
+              <JurorLink address={sender} />
             </StyledJurorInternalLink>
           )}
           {isUndefined(timestamp) || isUndefined(transactionExplorerLink) ? null : (

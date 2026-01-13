@@ -1,27 +1,26 @@
-import React, { useMemo } from "react";
+import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 
-import { isUndefined } from "utils/index";
-import { decodeURIFilter, useRootPath } from "utils/uri";
+import { Tabs as TabsComponent } from "@kleros/ui-components-library";
 
-import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
-import { useUserQuery } from "queries/useUser";
-
-import { Dispute_Filter, OrderDirection, UserDetailsFragment } from "src/graphql/graphql";
+import DocIcon from "svgs/icons/doc.svg";
+import PnkIcon from "svgs/icons/pnk.svg";
+import VotedIcon from "svgs/icons/voted-ballot.svg";
 
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
 import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
 
-import JurorInfo from "./JurorInfo";
+import Cases from "./Cases";
+import JurorCard from "./JurorCard";
 import Stakes from "./Stakes";
+import Votes from "./Votes";
 
 const Container = styled.div`
   width: 100%;
@@ -37,11 +36,16 @@ const Container = styled.div`
   )}
 `;
 
-const StyledCasesDisplay = styled(CasesDisplay)`
-  margin-top: ${responsiveSize(24, 48)};
-
-  .title {
-    margin-bottom: ${responsiveSize(12, 24)};
+const StyledTabs = styled(TabsComponent)`
+  width: 100%;
+  margin-top: ${responsiveSize(16, 32)};
+  > * {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: ${responsiveSize(14, 16)};
+    > svg {
+      margin-right: 8px !important;
+    }
   }
 `;
 
@@ -53,87 +57,68 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const calculateStats = (user: UserDetailsFragment, filter: Dispute_Filter) => {
-  const toInt = (v) => Number(v) || 0;
-  let totalCases, ruledCases;
+const TABS = [
+  { text: "Stakes", value: 0, Icon: PnkIcon, path: "stakes/1" },
+  { text: "Cases", value: 1, Icon: DocIcon, path: "cases/1/desc/all" },
+  { text: "Votes", value: 2, Icon: VotedIcon, path: "votes/1/desc/all" },
+];
 
-  if (!user) {
-    totalCases = 0;
-    ruledCases = 0;
-  } else if (filter?.period === "appeal") {
-    totalCases = toInt(user.totalAppealingDisputes);
-    ruledCases = 0;
-  } else if (filter?.ruled === true) {
-    totalCases = toInt(user.totalResolvedDisputes);
-    ruledCases = totalCases;
-  } else if (filter?.ruled === false) {
-    totalCases = toInt(user.disputes?.length);
-    ruledCases = 0;
-  } else {
-    totalCases = toInt(user.disputes?.length);
-    ruledCases = toInt(user.totalResolvedDisputes);
-  }
-
-  return {
-    totalCases,
-    ruledCases,
-  };
+const getTabIndex = (currentPath: string) => {
+  return TABS.findIndex((tab) => currentPath.includes(tab.path.split("/")[0]));
 };
 
 const Profile: React.FC = () => {
   const { isConnected, address: connectedAddress } = useAccount();
-  const { page, order, filter } = useParams();
   const [searchParams] = useSearchParams();
-  const location = useRootPath();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const searchParamAddress = searchParams.get("address")?.toLowerCase();
-  const addressToQuery = searchParamAddress || connectedAddress?.toLowerCase();
-  const casesPerPage = 3;
-  const pageNumber = parseInt(page ?? "1");
-  const disputeSkip = casesPerPage * (pageNumber - 1);
-  const decodedFilter = decodeURIFilter(filter ?? "all");
-  const { data: disputesData } = useMyCasesQuery(
-    addressToQuery,
-    disputeSkip,
-    decodedFilter,
-    order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
-  );
-  const { data: userData } = useUserQuery(addressToQuery, decodedFilter);
-  const { totalCases, ruledCases: totalResolvedCases } = useMemo(
-    () => calculateStats(userData?.user, decodedFilter),
-    [userData?.user, decodedFilter]
-  );
-  const totalPages = useMemo(
-    () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
-    [totalCases, casesPerPage]
-  );
+
+  useEffect(() => {
+    if (isConnected && !searchParamAddress && connectedAddress) {
+      navigate(`${pathname}?address=${connectedAddress.toLowerCase()}`, { replace: true });
+    }
+  }, [isConnected, searchParamAddress, connectedAddress, pathname, navigate]);
+
+  const handleTabChange = (tabIndex: number) => {
+    const selectedTab = TABS[tabIndex];
+    const basePath = `/profile/${selectedTab.path}`;
+    const queryParam = searchParamAddress ? `?address=${searchParamAddress}` : "";
+    navigate(`${basePath}${queryParam}`);
+  };
 
   return (
     <Container>
-      {isConnected || searchParamAddress ? (
+      {searchParamAddress ? (
         <>
-          <JurorInfo {...{ addressToQuery }} />
-          <Stakes {...{ addressToQuery }} />
-          <StyledCasesDisplay
-            title={`${searchParamAddress ? "Their" : "My"} Cases`}
-            disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
-            numberDisputes={totalCases}
-            numberClosedDisputes={totalResolvedCases}
-            totalPages={totalPages}
-            currentPage={pageNumber}
-            setCurrentPage={(newPage: number) =>
-              navigate(`${location}/${newPage}/${order}/${filter}?${searchParams.toString()}`)
-            }
-            {...{ casesPerPage }}
+          <JurorCard {...{ searchParamAddress }} />
+          <StyledTabs
+            currentValue={getTabIndex(pathname)}
+            items={TABS}
+            callback={(tabIndex: number) => handleTabChange(tabIndex)}
           />
+          <Routes>
+            <Route path="stakes/:page" element={<Stakes {...{ searchParamAddress }} />} />
+            <Route path="cases/:page/:order/:filter" element={<Cases {...{ searchParamAddress }} />} />
+            <Route path="votes/:page/:order/:filter" element={<Votes {...{ searchParamAddress }} />} />
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to={`${searchParamAddress ? `stakes/1?address=${searchParamAddress}` : "stakes/1"}`}
+                  replace
+                />
+              }
+            />
+          </Routes>
         </>
-      ) : (
+      ) : !isConnected ? (
         <ConnectWalletContainer>
           To see your profile, connect first
           <hr />
           <ConnectWallet />
         </ConnectWalletContainer>
-      )}
+      ) : null}
       <FavoriteCases />
       <ScrollTop />
     </Container>
