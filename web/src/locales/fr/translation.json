@@ -10,7 +10,8 @@
     "evidence": "Preuves",
     "voting": "Vote",
     "appeal": "Appel",
-    "kleros_solutions": "Solutions Kleros"
+    "kleros_solutions": "Solutions Kleros",
+    "stakes": "Dépôts"
   },
   "buttons": {
     "next": "Suivant",
@@ -534,8 +535,6 @@
   },
   "profile": {
     "juror_profile": "Profil du Juré",
-    "my_stakes": "Mes Dépôts",
-    "their_stakes": "Leurs Dépôts",
     "available": "Disponible :",
     "locked": "Verrouillé :",
     "staked": "Déposé :",

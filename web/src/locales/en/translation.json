@@ -10,7 +10,8 @@
     "evidence": "Evidence",
     "voting": "Voting",
     "appeal": "Appeal",
-    "kleros_solutions": "Kleros Solutions"
+    "kleros_solutions": "Kleros Solutions",
+    "stakes": "Stakes"
   },
   "buttons": {
     "next": "Next",
@@ -534,8 +535,6 @@
   },
   "profile": {
     "juror_profile": "Juror Profile",
-    "my_stakes": "My Stakes",
-    "their_stakes": "Their Stakes",
     "available": "Available:",
     "locked": "Locked:",
     "staked": "Staked:",

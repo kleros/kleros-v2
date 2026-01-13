@@ -66,20 +66,20 @@ const getTabIndex = (currentPath: string) => {
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
-
-  const TABS = useMemo(
-    () => [
-      { text: t("profile.my_stakes"), value: 0, Icon: PnkIcon, path: TAB_PATHS[0] },
-      { text: t("navigation.cases"), value: 1, Icon: DocIcon, path: TAB_PATHS[1] },
-      { text: t("stats.votes"), value: 2, Icon: VotedIcon, path: TAB_PATHS[2] },
-    ],
-    [t]
-  );
   const { isConnected, address: connectedAddress } = useAccount();
   const [searchParams] = useSearchParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const searchParamAddress = searchParams.get("address")?.toLowerCase();
+
+  const TABS = useMemo(
+    () => [
+      { text: t("navigation.stakes"), value: 0, Icon: PnkIcon, path: TAB_PATHS[0] },
+      { text: t("navigation.cases"), value: 1, Icon: DocIcon, path: TAB_PATHS[1] },
+      { text: t("stats.votes"), value: 2, Icon: VotedIcon, path: TAB_PATHS[2] },
+    ],
+    [t]
+  );
 
   useEffect(() => {
     if (isConnected && !searchParamAddress && connectedAddress) {
