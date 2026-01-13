@@ -52,6 +52,7 @@
   },
   "forms": {
     "placeholders": {
+      "email_example": "your.email@email.com",
       "search_by_address": "Search by address",
       "search": "Search",
       "select_court": "Select Court",
@@ -76,6 +77,7 @@
       "bob_hired_alice": "eg. Bob hired Alice to develop a website for him, but Bob failed to deliver..."
     },
     "labels": {
+      "email": "Email",
       "question": "Question",
       "option_description": "Option Description",
       "voting_option": "Voting Option",
@@ -101,6 +103,7 @@
     }
   },
   "headers": {
+    "contact_details": "Contact Details",
     "choose_a_title": "Choose a title",
     "describe_the_case": "Describe the case",
     "choose_a_category": "Choose a category",
@@ -294,7 +297,14 @@
     "verification_email_sent": "Verification email sent successfully!",
     "failed_to_submit_evidence": "Failed to submit evidence.",
     "uploading_to_ipfs": "Uploading to IPFS",
-    "error_uploading_evidence": "Error uploading evidence file"
+    "error_uploading_evidence": "Error uploading evidence file",
+    "updating_email": "Updating Email...",
+    "email_updated_successfully": "Email updated successfully!",
+    "updating_email_failed": "Updating Email failed:",
+    "adding_user": "Adding User...",
+    "user_added_successfully": "User added successfully!",
+    "adding_user_failed": "Adding User failed:",
+    "update_email_again": "You can update email again {{time}}"
   },
   "alerts": {
     "check_courts_beforehand": "Check the courts available beforehand",

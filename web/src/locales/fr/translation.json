@@ -52,6 +52,7 @@
   },
   "forms": {
     "placeholders": {
+      "email_example": "votre.email@email.com",
       "search_by_address": "Rechercher par adresse",
       "search": "Rechercher",
       "select_court": "Sélectionner un Tribunal",
@@ -76,6 +77,7 @@
       "bob_hired_alice": "ex. Bob a embauché Alice pour développer un site web pour lui, mais Bob n'a pas livré..."
     },
     "labels": {
+      "email": "E-mail",
       "question": "Question",
       "option_description": "Description de l'Option",
       "voting_option": "Option de Vote",
@@ -101,6 +103,7 @@
     }
   },
   "headers": {
+    "contact_details": "Coordonnées",
     "choose_a_title": "Choisir un titre",
     "describe_the_case": "Décrire le procès",
     "choose_a_category": "Choisir une catégorie",
@@ -294,7 +297,14 @@
     "verification_email_sent": "Email de vérification envoyé avec succès !",
     "failed_to_submit_evidence": "Échec de la soumission des preuves.",
     "uploading_to_ipfs": "Téléchargement vers IPFS",
-    "error_uploading_evidence": "Erreur lors du téléchargement du fichier de preuve"
+    "error_uploading_evidence": "Erreur lors du téléchargement du fichier de preuve",
+    "updating_email": "Mise à jour de l'e-mail...",
+    "email_updated_successfully": "E-mail mis à jour avec succès !",
+    "updating_email_failed": "Échec de la mise à jour de l'e-mail :",
+    "adding_user": "Ajout de l'utilisateur...",
+    "user_added_successfully": "Utilisateur ajouté avec succès !",
+    "adding_user_failed": "Échec de l'ajout de l'utilisateur :",
+    "update_email_again": "Vous pouvez mettre à jour l'e-mail à nouveau {{time}}"
   },
   "alerts": {
     "check_courts_beforehand": "Vérifiez les tribunaux disponibles au préalable",
