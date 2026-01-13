@@ -294,21 +294,6 @@
     "coherent_votes_ratio_tooltip": "This is the ratio of coherent votes made by a juror: the number in the left is the number of times where the juror voted coherently and the number in the right is the total number of times the juror voted. Hover to see the percentage of coherent votes.",
     "total_rewards_tooltip": "Users have an economic interest in serving as jurors in Kleros: collecting the Juror Rewards in exchange for their work. Each juror who is coherent with the final ruling receive the Juror Rewards composed of arbitration fees (ETH) + PNK redistribution between jurors."
   },
-  "dapps": {
-    "court_v2": "Court V2",
-    "curate_v2": "Curate V2",
-    "resolver_v2": "Resolver V2",
-    "escrow_v2": "Escrow V2",
-    "court_v1": "Court V1",
-    "curate_v1": "Curate V1",
-    "resolver_v1": "Resolver V1",
-    "escrow_v1": "Escrow V1",
-    "vea": "Vea",
-    "kleros_scout": "Kleros Scout",
-    "poh_v2": "POH V2",
-    "governor": "Governor",
-    "kleros_solutions": "Kleros Solutions"
-  },
   "menu": {
     "settings": "Settings",
     "help": "Help",

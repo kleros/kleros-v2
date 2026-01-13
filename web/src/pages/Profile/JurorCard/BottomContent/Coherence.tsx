@@ -47,7 +47,7 @@ const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, to
 
   return (
     <Container>
-      <small>{userLevelData.title}</small>
+      <small>{t(userLevelData.titleKey)}</small>
       <label>
         {t("juror_levels.level")} {userLevelData.level}
       </label>

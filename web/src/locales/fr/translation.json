@@ -294,21 +294,6 @@
     "coherent_votes_ratio_tooltip": "C'est le ratio de votes cohérents effectués par un juré : le nombre à gauche est le nombre de fois où le juré a voté de manière cohérente et le nombre à droite est le nombre total de fois où le juré a voté. Survolez pour voir le pourcentage de votes cohérents.",
     "total_rewards_tooltip": "Les utilisateurs ont un intérêt économique à servir en tant que jurés dans Kleros : collecter les Récompenses des Jurés en échange de leur travail. Chaque juré cohérent avec la décision finale reçoit les Récompenses des Jurés composées de frais d'arbitrage (ETH) + redistribution de PNK entre jurés."
   },
-  "dapps": {
-    "court_v2": "Court V2",
-    "curate_v2": "Curate V2",
-    "resolver_v2": "Resolver V2",
-    "escrow_v2": "Escrow V2",
-    "court_v1": "Court V1",
-    "curate_v1": "Curate V1",
-    "resolver_v1": "Resolver V1",
-    "escrow_v1": "Escrow V1",
-    "vea": "Vea",
-    "kleros_scout": "Kleros Scout",
-    "poh_v2": "POH V2",
-    "governor": "Governor",
-    "kleros_solutions": "Solutions Kleros"
-  },
   "menu": {
     "settings": "Paramètres",
     "help": "Aide",

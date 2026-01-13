@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import { getUserLevelData } from "utils/userLevelCalculation";
@@ -31,6 +33,7 @@ interface IJurorCard {
 }
 
 const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
+  const { t } = useTranslation();
   const { data } = useUserQuery(searchParamAddress);
   const totalCoherentVotes = data?.user ? parseInt(data.user.totalCoherentVotes) : 0;
   const totalResolvedVotes = data?.user ? parseInt(data.user.totalResolvedVotes) : 0;
@@ -41,7 +44,7 @@ const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
   return (
     <Container>
       <Header
-        levelTitle={userLevelData.title}
+        levelTitle={t(userLevelData.titleKey)}
         levelNumber={userLevelData.level}
         {...{ totalCoherentVotes, totalResolvedVotes, searchParamAddress }}
       />
