@@ -142,7 +142,7 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
       <StatsAndFilters totalVotes={totalVotes} votesPending={votesPending} resolvedVotes={resolvedVotes} />
       {isLoadingVotes ? (
         <VotesCardContainer>
-          {[...Array(votesPerPage)].map((_, i) => (
+          {[...Array(5)].map((_, i) => (
             <SkeletonVoteCard key={i} />
           ))}
         </VotesCardContainer>

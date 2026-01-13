@@ -62,7 +62,7 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toggleIsOpen } = useOpenContext();
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
 
   const navLinks = useMemo(() => {
     const base = [
@@ -73,13 +73,14 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
       { to: "/get-pnk", text: t("navigation.get_pnk") },
     ];
     if (isConnected) {
-      base.push({ to: "/profile/1/desc/all", text: t("navigation.my_profile") });
+      base.push({ to: "/profile/stakes/1", text: t("navigation.my_profile") });
     }
     return base;
   }, [isConnected, t]);
 
   const currentSeg = useMemo(() => location.pathname.split("/")[1] || "", [location.pathname]);
-  const ownsProfile = !searchParams.get("address");
+  const addressParam = searchParams.get("address")?.toLowerCase();
+  const ownsProfile = addressParam === address?.toLowerCase();
 
   const getIsActive = (to: string) => {
     const path = to.split("?")[0];

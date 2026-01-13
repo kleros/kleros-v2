@@ -71,7 +71,7 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
         {!isLoadingStakingHistory && totalNumberStakingEvents === 0 ? (
           <NoHistoryLabel>{t("profile.no_history_found")}</NoHistoryLabel>
         ) : isLoadingStakingHistory || isLoadingCourtTree ? (
-          Array.from({ length: 10 }).map((_, index) => <Skeleton height={64} key={index} />)
+          Array.from({ length: 5 }).map((_, index) => <Skeleton height={64} key={index} />)
         ) : (
           <>
             {stakingEvents.map(({ item }) => {
