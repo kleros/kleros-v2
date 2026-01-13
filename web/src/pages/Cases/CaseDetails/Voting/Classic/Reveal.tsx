@@ -66,10 +66,10 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     () => `dispute-${id}-round-${currentRoundIndex}-voteids-${voteIDs}`,
     [id, currentRoundIndex, voteIDs]
   );
-  const [storedSaltAndChoice, _] = useLocalStorage<string>(saltKey);
 
   const handleReveal = useCallback(async () => {
     setIsSending(true);
+    const storedSaltAndChoice = localStorage.getItem(saltKey);
     const { salt, choice } = isUndefined(storedSaltAndChoice)
       ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers ?? [], commit)
       : JSON.parse(storedSaltAndChoice);
@@ -91,7 +91,6 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     wagmiConfig,
     commit,
     disputeDetails?.answers,
-    storedSaltAndChoice,
     generateSigningAccount,
     signingAccount,
     saltKey,

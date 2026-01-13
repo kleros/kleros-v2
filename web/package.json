@@ -10,6 +10,7 @@
   "alias": {
     "src": "./src",
     "utils": "./src/utils",
+    "actions": "./src/actions",
     "assets": "./src/assets",
     "components": "./src/components",
     "connectors": "./src/connectors",
