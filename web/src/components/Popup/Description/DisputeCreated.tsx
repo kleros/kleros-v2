@@ -56,7 +56,7 @@ const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
         ) : (
           <StyledDateContainer>{formatDate(date)}</StyledDateContainer>
         )}
-        {t("popups.dispute_created_full_message_part2")}
+        .
       </StyledTitle>
       <StyledSubtitle>{t("popups.submit_evidence_now")}</StyledSubtitle>
     </Container>
