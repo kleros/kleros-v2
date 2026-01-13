@@ -74,7 +74,7 @@
       "description_for_option": "Description for Option",
       "describe_evidence": "Describe your evidence in detail...",
       "search_by_id": "Search By ID",
-      "bob_hired_alice": "eg. Bob hired Alice to develop a website for him, but Bob failed to deliver..."
+      "bob_hired_alice": "eg. Bob hired Alice to develop a website for him, but Alice failed to deliver..."
     },
     "labels": {
       "email": "Email",

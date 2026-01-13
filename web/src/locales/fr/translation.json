@@ -74,7 +74,7 @@
       "description_for_option": "Description de l'Option",
       "describe_evidence": "Décrivez vos preuves en détail...",
       "search_by_id": "Rechercher par ID",
-      "bob_hired_alice": "ex. Bob a embauché Alice pour développer un site web pour lui, mais Bob n'a pas livré..."
+      "bob_hired_alice": "ex. Bob a embauché Alice pour développer un site web pour lui, mais Alice n'a pas livré..."
     },
     "labels": {
       "email": "E-mail",

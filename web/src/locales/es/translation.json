@@ -74,7 +74,7 @@
       "description_for_option": "Descripción para la Opción",
       "describe_evidence": "Describe tu evidencia en detalle...",
       "search_by_id": "Buscar por ID",
-      "bob_hired_alice": "ej. Bob contrató a Alice para desarrollar un sitio web, pero Bob no logró entregar..."
+      "bob_hired_alice": "ej. Bob contrató a Alice para desarrollar un sitio web, pero Alice no logró entregar..."
     },
     "labels": {
       "email": "Correo electrónico",
