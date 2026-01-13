@@ -102,7 +102,7 @@ const AccordionTitle: React.FC<{
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
       <StyledLabel variant="secondaryPurple">
-        {voteCount} {voteCount > 1 ? t("voting.votes") : t("voting.vote")}
+        {voteCount} {voteCount !== 1 ? t("voting.votes") : t("voting.vote")}
       </StyledLabel>
     </TitleContainer>
   );

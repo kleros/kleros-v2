@@ -38,7 +38,7 @@ const Stats: React.FC<IStats> = ({ totalVotes, votesPending, resolvedVotes }) =>
 
   const fields = [
     { label: t("profile.total"), value: totalVotes.toString() },
-    { label: t("profile.vote_pending"), value: votesPending },
+    { label: t("profile.vote_pending"), value: votesPending.toString() },
     { label: t("profile.case_in_progress"), value: casesInProgress },
     { label: t("profile.resolved"), value: resolvedVotes.toString() },
   ];
