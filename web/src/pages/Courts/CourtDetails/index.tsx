@@ -168,7 +168,10 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <Description />
       </StyledCard>
-      <LatestCases title={`Latest Cases in ${getDescriptiveCourtName(courtName)}`} filters={{ court: id }} />
+      <LatestCases
+        title={`${t("misc.latest_cases_in")} ${getDescriptiveCourtName(courtName)}`}
+        filters={{ court: id }}
+      />
       <StakingSections>
         <JurorsStakedByCourt {...{ courtName }} />
         <StakingHistoryByCourt {...{ courtName }} />

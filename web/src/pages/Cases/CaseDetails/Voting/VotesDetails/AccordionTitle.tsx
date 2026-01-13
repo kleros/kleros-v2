@@ -90,6 +90,7 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
+  const { t } = useTranslation();
   const profileLink = `/profile/stakes/1?address=${juror}`;
 
   return (

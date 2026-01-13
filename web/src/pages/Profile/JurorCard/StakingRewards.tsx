@@ -49,28 +49,16 @@ const ClaimPNK: React.FC = () => {
   );
 };
 
-const tooltipMsg =
-  "Staking Rewards are the rewards won by staking your PNK on a court during " +
-  "the Kleros' Jurors incentive program. This will start as soon as the " +
-  "corresponding KIP (Kleros Improvement Proposal) goes into effect.";
-
 const StakingRewards: React.FC = () => {
+  const { t } = useTranslation();
+  const tooltipMsg = t("tooltips.staking_rewards_explanation");
+
   return (
-    // <Container>
-    //   <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
-    //     <label>
-    //       Staking Rewards: <small>APY 6%</small>
-    //     </label>
-    //     Coming soon
-    //   </WithHelpTooltip>
-    //   <TokenRewards token="PNK" amount="10,000" value="8,783" />
-    //   <ClaimPNK />
-    // </Container>
     <Container>
       <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
-        <label>Staking Rewards</label>
+        <label>{t("profile.staking_rewards")}</label>
       </WithHelpTooltip>
-      <label>Coming soon</label>
+      <label>{t("misc.coming_soon")}</label>
     </Container>
   );
 };

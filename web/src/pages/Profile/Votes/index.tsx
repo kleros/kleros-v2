@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { StandardPagination } from "@kleros/ui-components-library";
@@ -43,11 +44,16 @@ const VotesCardContainer = styled.div`
   gap: 8px;
 `;
 
+const NoVotesLabel = styled.label`
+  font-size: ${responsiveSize(14, 16)};
+`;
+
 interface IVotes {
   searchParamAddress: `0x${string}`;
 }
 
 const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
+  const { t } = useTranslation();
   const { page, order, filter } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -132,16 +138,26 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
 
   return (
     <Container>
-      <StyledTitle>Votes</StyledTitle>
+      <StyledTitle>{t("profile.votes")}</StyledTitle>
       <StatsAndFilters totalVotes={totalVotes} votesPending={votesPending} resolvedVotes={resolvedVotes} />
-      <VotesCardContainer>
-        {isLoadingVotes
-          ? [...Array(votesPerPage)].map((_, i) => <SkeletonVoteCard key={i} />)
-          : votes.length > 0
-            ? votes.map((vote: any) => <VoteCard key={vote.id} vote={vote} />)
-            : null}
-      </VotesCardContainer>
-      <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+      {isLoadingVotes ? (
+        <VotesCardContainer>
+          {[...Array(votesPerPage)].map((_, i) => (
+            <SkeletonVoteCard key={i} />
+          ))}
+        </VotesCardContainer>
+      ) : votes.length > 0 ? (
+        <>
+          <VotesCardContainer>
+            {votes.map((vote: any) => (
+              <VoteCard key={vote.id} vote={vote} />
+            ))}
+          </VotesCardContainer>
+          <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+        </>
+      ) : (
+        <NoVotesLabel>{t("profile.no_votes_found")}</NoVotesLabel>
+      )}
     </Container>
   );
 };

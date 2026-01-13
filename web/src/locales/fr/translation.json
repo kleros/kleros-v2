@@ -473,7 +473,8 @@
     "page_not_found": "Page non trouvée",
     "inspect_uploaded_policy": "Inspecter le règlement téléchargé",
     "fundamental_to_any_case": "Fondamental pour tout procès, le Règlement fournit aux jurés un cadre pour voter équitablement. Il peut être un ensemble de critères, un contrat énonçant les droits et devoirs des parties, ou tout ensemble de règles prédéfinies pertinentes pour la prise de décision des jurés.",
-    "you_can_attach_additional": "Vous pouvez joindre des informations supplémentaires ici. Important : la description ci-dessus doit référencer les parties pertinentes du contenu du fichier."
+    "you_can_attach_additional": "Vous pouvez joindre des informations supplémentaires ici. Important : la description ci-dessus doit référencer les parties pertinentes du contenu du fichier.",
+    "coming_soon": "Bientôt disponible"
   },
   "sorting": {
     "first_to_last": "1er au dernier",
@@ -624,7 +625,28 @@
     "pixel_art_alt": "Pixel Art par Niveau",
     "unclaimed": "Non Réclamé :",
     "you_are_not_staked": "Vous n'êtes pas déposé dans un tribunal",
-    "they_are_not_staked": "Ils ne sont pas déposés dans un tribunal"
+    "they_are_not_staked": "Ils ne sont pas déposés dans un tribunal",
+    "to_see_profile_connect": "Pour voir votre profil, connectez-vous d'abord",
+    "current_stakes": "Dépôts Actuels",
+    "total_available_stake": "Dépôt Total Disponible :",
+    "locked_stake": "Dépôt Verrouillé :",
+    "no_stakes_found": "Aucun dépôt trouvé",
+    "staking_history": "Historique des Dépôts",
+    "no_history_found": "Aucun historique trouvé",
+    "votes": "Votes",
+    "total": "Total",
+    "vote_pending": "Vote en Attente",
+    "case_in_progress": "Procès en Cours",
+    "resolved": "Résolu",
+    "all_votes": "Tous les Votes",
+    "cases_drawn": "Procès Tirés",
+    "no_votes_found": "Aucun vote trouvé",
+    "staking_history_in": "Historique des Dépôts dans",
+    "juror": "Juré",
+    "pnk_staked": "PNK Déposé",
+    "court": "Tribunal",
+    "date": "Date",
+    "court_staking_tooltip": "Lorsque vous êtes déposé dans un sous-tribunal, vous êtes aussi déposé dans ses tribunaux parents. ex. Déposer dans le tribunal Non Technique vous dépose automatiquement dans ses parents : Blockchain et Tribunal Général."
   },
   "card_labels": {
     "evidence_time": "Période de preuves",

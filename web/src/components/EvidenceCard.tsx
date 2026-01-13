@@ -18,9 +18,10 @@ import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import JurorLink from "components/JurorLink";
+
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
-import JurorLink from "components/JurorLink";
 import MarkdownRenderer from "./MarkdownRenderer";
 
 const StyledCard = styled(Card)`
@@ -205,6 +206,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const profileLink = `/profile/stakes/1?address=${sender}`;
 

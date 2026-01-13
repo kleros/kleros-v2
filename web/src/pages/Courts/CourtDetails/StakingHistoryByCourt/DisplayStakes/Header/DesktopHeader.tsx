@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -59,20 +61,19 @@ const DateLabel = styled(StyledLabel)`
   flex-shrink: 0;
 `;
 
-const courtTooltipMsg =
-  "When you are staked in a subcourt you are staked in its parent courts too. eg. Staking in the Non Technical court automatically stake in its parents: Blockchain, and General Court.";
-
 export const DesktopHeader: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Container>
-      <JurorLabel>Juror</JurorLabel>
-      <StakeLabel>PNK Staked</StakeLabel>
+      <JurorLabel>{t("profile.juror")}</JurorLabel>
+      <StakeLabel>{t("profile.pnk_staked")}</StakeLabel>
       <CourtLabelContainer>
-        <WithHelpTooltip place="top" tooltipMsg={courtTooltipMsg}>
-          <CourtLabel>Court</CourtLabel>
+        <WithHelpTooltip place="top" tooltipMsg={t("profile.court_staking_tooltip")}>
+          <CourtLabel>{t("profile.court")}</CourtLabel>
         </WithHelpTooltip>
       </CourtLabelContainer>
-      <DateLabel>Date</DateLabel>
+      <DateLabel>{t("profile.date")}</DateLabel>
     </Container>
   );
 };

@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
 
 import { responsiveSize } from "styles/responsiveSize";

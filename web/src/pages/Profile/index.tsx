@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 
@@ -57,18 +58,23 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const TABS = [
-  { text: "Stakes", value: 0, Icon: PnkIcon, path: "stakes/1" },
-  { text: "Cases", value: 1, Icon: DocIcon, path: "cases/1/desc/all" },
-  { text: "Votes", value: 2, Icon: VotedIcon, path: "votes/1/desc/all" },
-];
+const TAB_PATHS = ["stakes/1", "cases/1/desc/all", "votes/1/desc/all"];
 
 const getTabIndex = (currentPath: string) => {
-  return TABS.findIndex((tab) => currentPath.includes(tab.path.split("/")[0]));
+  return TAB_PATHS.findIndex((path) => currentPath.includes(path.split("/")[0]));
 };
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
+
+  const TABS = useMemo(
+    () => [
+      { text: t("profile.my_stakes"), value: 0, Icon: PnkIcon, path: TAB_PATHS[0] },
+      { text: t("navigation.cases"), value: 1, Icon: DocIcon, path: TAB_PATHS[1] },
+      { text: t("stats.votes"), value: 2, Icon: VotedIcon, path: TAB_PATHS[2] },
+    ],
+    [t]
+  );
   const { isConnected, address: connectedAddress } = useAccount();
   const [searchParams] = useSearchParams();
   const { pathname } = useLocation();
@@ -115,7 +121,7 @@ const Profile: React.FC = () => {
         </>
       ) : !isConnected ? (
         <ConnectWalletContainer>
-          To see your profile, connect first
+          {t("profile.to_see_profile_connect")}
           <hr />
           <ConnectWallet />
         </ConnectWalletContainer>

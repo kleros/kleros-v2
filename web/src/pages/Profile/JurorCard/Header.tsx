@@ -1,14 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
+import { useTranslation } from "react-i18next";
 import { useToggle } from "react-use";
 
 import XIcon from "svgs/socialmedia/x.svg";
 
-import HowItWorks from "components/HowItWorks";
-import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { ExternalLink } from "components/ExternalLink";
 import HowItWorks from "components/HowItWorks";
 import JurorsLeaderboardButton from "components/JurorsLeaderboardButton";
@@ -79,7 +78,7 @@ const Header: React.FC<IHeader> = ({
 
   return (
     <Container>
-      <StyledTitle>Juror Profile</StyledTitle>
+      <StyledTitle>{t("profile.juror_profile")}</StyledTitle>
       <LinksContainer>
         <JurorsLeaderboardButton />
         <HowItWorks
@@ -89,7 +88,7 @@ const Header: React.FC<IHeader> = ({
         />
         {totalResolvedVotes > 0 && !searchParamAddress ? (
           <StyledLink to={xShareUrl} target="_blank" rel="noreferrer">
-            <StyledXIcon /> <span>Share your juror score</span>
+            <StyledXIcon /> <span>{t("profile.share_juror_score")}</span>
           </StyledLink>
         ) : null}
       </LinksContainer>

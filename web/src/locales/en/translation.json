@@ -473,7 +473,8 @@
     "page_not_found": "Page not found",
     "inspect_uploaded_policy": "Inspect the uploaded policy",
     "fundamental_to_any_case": "Fundamental to any case, the Policy provides jurors with a framework to vote fairly. It can be a set of criteria, a contract stating the rights and duties of the parties, or any set of pre-defined rules that are relevant to jurors' decision-making.",
-    "you_can_attach_additional": "You can attach additional information here. Important: the above description must reference the relevant parts of the file content."
+    "you_can_attach_additional": "You can attach additional information here. Important: the above description must reference the relevant parts of the file content.",
+    "coming_soon": "Coming soon"
   },
   "sorting": {
     "first_to_last": "1st to last",
@@ -624,7 +625,28 @@
     "pixel_art_alt": "Pixel Art per Level",
     "unclaimed": "Unclaimed:",
     "you_are_not_staked": "You are not staked in any court",
-    "they_are_not_staked": "They are not staked in any court"
+    "they_are_not_staked": "They are not staked in any court",
+    "to_see_profile_connect": "To see your profile, connect first",
+    "current_stakes": "Current Stakes",
+    "total_available_stake": "Total Available Stake:",
+    "locked_stake": "Locked Stake:",
+    "no_stakes_found": "No stakes found",
+    "staking_history": "Staking History",
+    "no_history_found": "No history found",
+    "votes": "Votes",
+    "total": "Total",
+    "vote_pending": "Vote Pending",
+    "case_in_progress": "Case In Progress",
+    "resolved": "Resolved",
+    "all_votes": "All Votes",
+    "cases_drawn": "Cases Drawn",
+    "no_votes_found": "No votes found",
+    "staking_history_in": "Staking History in",
+    "juror": "Juror",
+    "pnk_staked": "PNK Staked",
+    "court": "Court",
+    "date": "Date",
+    "court_staking_tooltip": "When you are staked in a subcourt you are staked in its parent courts too. eg. Staking in the Non Technical court automatically stake in its parents: Blockchain, and General Court."
   },
   "card_labels": {
     "evidence_time": "Evidence time",

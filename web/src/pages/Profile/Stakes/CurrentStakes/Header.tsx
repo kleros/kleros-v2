@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 
 import LockerIcon from "svgs/icons/locker.svg";
@@ -69,6 +70,7 @@ interface IHeader {
 }
 
 const Header: React.FC<IHeader> = ({ totalAvailableStake, lockedStake }) => {
+  const { t } = useTranslation();
   const formattedTotalAvailableStake = !isUndefined(totalAvailableStake)
     ? formatUnits(BigInt(totalAvailableStake), 18)
     : "0";
@@ -76,12 +78,12 @@ const Header: React.FC<IHeader> = ({ totalAvailableStake, lockedStake }) => {
 
   return (
     <Container>
-      <StyledTitle>Current Stakes</StyledTitle>
+      <StyledTitle>{t("profile.current_stakes")}</StyledTitle>
       <TotalStakeAndLockedPnk>
         {!isUndefined(totalAvailableStake) ? (
           <StakedPnk>
             <StyledPnkIcon />
-            <label> Total Available Stake: </label>
+            <label> {t("profile.total_available_stake")} </label>
             <small>
               <NumberDisplay value={formattedTotalAvailableStake} unit="PNK" />
             </small>
@@ -90,7 +92,7 @@ const Header: React.FC<IHeader> = ({ totalAvailableStake, lockedStake }) => {
         {!isUndefined(lockedStake) ? (
           <LockedPnk>
             <StyledLockerIcon />
-            <label> Locked Stake: </label>
+            <label> {t("profile.locked_stake")} </label>
             <small>
               <NumberDisplay value={formattedLockedStake} unit="PNK" />
             </small>

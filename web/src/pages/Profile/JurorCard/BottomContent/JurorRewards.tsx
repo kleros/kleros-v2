@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useTranslation } from "react-i18next";
 
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -9,7 +9,10 @@ import { getFormattedRewards } from "utils/jurorRewardConfig";
 
 import { useUserQuery } from "queries/useUser";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
+
 import TokenRewards from "../TokenRewards";
 
 const Container = styled.div`
@@ -34,17 +37,12 @@ const TokenRewardsContainer = styled.div`
   gap: 16px;
 `;
 
-const tooltipMsg =
-  "Users have an economic interest in serving as jurors in Kleros: " +
-  "collecting the Juror Rewards in exchange for their work. Each juror who " +
-  "is coherent with the final ruling receive the Juror Rewards composed of " +
-  "arbitration fees (ETH) + PNK redistribution between jurors.";
-
 interface IJurorRewards {
   searchParamAddress: `0x${string}`;
 }
 
 const JurorRewards: React.FC<IJurorRewards> = ({ searchParamAddress }) => {
+  const { t } = useTranslation();
   const { data } = useUserQuery(searchParamAddress);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);

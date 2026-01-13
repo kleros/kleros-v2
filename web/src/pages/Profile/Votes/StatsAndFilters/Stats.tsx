@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 const FieldWrapper = styled.div`
   display: inline-flex;
   gap: 8px;
@@ -31,13 +33,14 @@ export interface IStats {
 }
 
 const Stats: React.FC<IStats> = ({ totalVotes, votesPending, resolvedVotes }) => {
+  const { t } = useTranslation();
   const casesInProgress = (totalVotes - resolvedVotes).toString();
 
   const fields = [
-    { label: "Total", value: totalVotes.toString() },
-    { label: "Vote Pending", value: votesPending },
-    { label: "Case In Progress", value: casesInProgress },
-    { label: "Resolved", value: resolvedVotes.toString() },
+    { label: t("profile.total"), value: totalVotes.toString() },
+    { label: t("profile.vote_pending"), value: votesPending },
+    { label: t("profile.case_in_progress"), value: casesInProgress },
+    { label: t("profile.resolved"), value: resolvedVotes.toString() },
   ];
 
   return (
