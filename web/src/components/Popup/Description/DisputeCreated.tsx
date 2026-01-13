@@ -36,7 +36,7 @@ interface IDisputeCreated {
 }
 
 const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: courtDetails } = useCourtDetails(courtId);
 
   const date = useMemo(
@@ -54,7 +54,7 @@ const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
         {isUndefined(date) ? (
           <Skeleton width={60} height={20} />
         ) : (
-          <StyledDateContainer>{formatDate(date)}</StyledDateContainer>
+          <StyledDateContainer>{formatDate(date, false, i18n.language)}</StyledDateContainer>
         )}
         .
       </StyledTitle>

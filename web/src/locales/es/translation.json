@@ -93,7 +93,7 @@
       "type_category_tag": "Escribe la etiqueta de categoría que mejor represente el caso. ej. General, Curación, Freelancing, Listado, Seguros, Traducción, Oráculo, Identidad, E-Commerce, etc.",
       "insufficient_balance": "Saldo insuficiente",
       "insufficient_balance_to_stake": "Saldo insuficiente para depositar esta cantidad",
-      "insufficient_staked_amount": "Cantidad apostada insuficiente para retirar esta cantidad",
+      "insufficient_staked_amount": "Cantidad depositada insuficiente para retirar esta cantidad",
       "you_need_non_zero_pnk": "Necesitas un saldo de PNK mayor a cero para depositar",
       "min_stake_in_court": "El depósito mínimo en la corte es: {{amount}} PNK",
       "invalid_dispute": "Disputa inválida",
