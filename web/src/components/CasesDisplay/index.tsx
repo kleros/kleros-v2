@@ -58,7 +58,7 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
 }) => {
   const location = useLocation();
   const { isConnected } = useAccount();
-  const profileLink = isConnected ? `/profile/1/desc/all` : null;
+  const profileLink = isConnected ? `/profile/cases/1/desc/all` : null;
   const { t } = useTranslation();
 
   return (
