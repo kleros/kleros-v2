@@ -80,7 +80,7 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
 
   const currentSeg = useMemo(() => location.pathname.split("/")[1] || "", [location.pathname]);
   const addressParam = searchParams.get("address")?.toLowerCase();
-  const ownsProfile = addressParam === address?.toLowerCase();
+  const ownsProfile = !addressParam || addressParam === address?.toLowerCase();
 
   const getIsActive = (to: string) => {
     const path = to.split("?")[0];

@@ -96,7 +96,7 @@
       "type_category_tag": "Escribe la etiqueta de categoría que mejor represente el caso. ej. General, Curación, Freelancing, Listado, Seguros, Traducción, Oráculo, Identidad, E-Commerce, etc.",
       "insufficient_balance": "Saldo insuficiente",
       "insufficient_balance_to_stake": "Saldo insuficiente para depositar esta cantidad",
-      "insufficient_staked_amount": "Cantidad depositada insuficiente para retirar esta cantidad",
+      "insufficient_staked_amount": "Cantidad a retirar superior a la depositada",
       "you_need_non_zero_pnk": "Necesitas un saldo de PNK mayor a cero para depositar",
       "min_stake_in_court": "El depósito mínimo en la corte es: {{amount}} PNK",
       "invalid_dispute": "Disputa inválida",
@@ -112,7 +112,7 @@
     "select_number_of_jurors": "Selecciona el número de jurados",
     "voting_options": "Opciones de votación",
     "notable_persons": "Personas Notables",
-    "submit_policy_file": "Enviar el Archivo de Reglamento",
+    "submit_policy_file": "Enviar el Reglamento",
     "create_a_case": "Crear un caso",
     "statistics": "Estadísticas",
     "my_cases": "Mis Casos"
@@ -261,7 +261,7 @@
     "level_2_description": "Rendimiento de nivel medio. Los jurados en este nivel han demostrado una consistencia razonable en la votación coherente.",
     "level_3_description": "Jurados confiables con un historial consistente de votos coherentes. A solo unos pocos votos coherentes más de alcanzar la cima.",
     "level_4_description": "Jurados de primer nivel con excelente coherencia. Miembros confiables de la plataforma.",
-    "coherent_votes_tooltip": "Un Voto Coherente es un voto coherente con la decisión final del jurado (después de todas las instancias de apelación). Si el voto del jurado es igual al de la mayoría de los jurados, se considera un Voto Coherente.",
+    "coherent_votes_tooltip": "Un Voto Coherente es aquel coincidente con la decisión final del jurado (después de todas las instancias de apelación).",
     "score_tooltip": "Una puntuación de 0 a 100 que refleja la votación coherente, suavizada para evitar que los jurados con pocos votos se clasifiquen demasiado alto.",
     "coherent_votes_ratio_tooltip": "Esta es la proporción de votos coherentes realizados por un jurado: el número a la izquierda es el número de veces que el jurado votó coherentemente y el número a la derecha es el número total de veces que el jurado votó. Pasa el cursor para ver el porcentaje de votos coherentes.",
     "total_rewards_tooltip": "Los usuarios tienen un interés económico en servir como jurados en Kleros: cobrar las Recompensas de Jurado a cambio de su trabajo. Cada jurado coherente con la decisión final recibe las Recompensas de Jurado compuestas por tarifas de arbitraje (ETH) + redistribución de PNK entre jurados."
