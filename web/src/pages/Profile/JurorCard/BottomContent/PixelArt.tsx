@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import aristotelesImage from "assets/pngs/dashboard/aristoteles.png";
@@ -45,13 +46,14 @@ interface IPixelArt {
 }
 
 const PixelArt: React.FC<IPixelArt> = ({ level, width, height }) => {
+  const { t } = useTranslation();
   const [imageLoaded, setImageLoaded] = useState(false);
   return (
     <Container>
       {!imageLoaded && <StyledSkeleton width={width} height={height} />}
       <StyledImage
         src={images[level]}
-        alt="Pixel Art per Level"
+        alt={t("profile.pixel_art_alt")}
         onLoad={() => setImageLoaded(true)}
         show={imageLoaded}
         width={width}

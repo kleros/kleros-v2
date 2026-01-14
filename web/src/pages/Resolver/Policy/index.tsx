@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { FileUploader } from "@kleros/ui-components-library";
 
@@ -79,6 +81,7 @@ const StyledInternalLink = styled(InternalLink)`
 `;
 
 const Policy: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData, setIsPolicyUploading } = useNewDisputeContext();
   const { uploadFile, roleRestrictions } = useAtlasProvider();
   const isDesktop = useIsDesktop();
@@ -101,22 +104,18 @@ const Policy: React.FC = () => {
 
   return (
     <Container>
-      <Header text="Submit the Policy File" />
-      <StyledLabel>
-        Fundamental to any case, the Policy provides jurors with a framework to vote fairly. It can be a set of
-        criteria, a contract stating the rights and duties of the parties, or any set of pre-defined rules that are
-        relevant to jurors' decision-making.
-      </StyledLabel>
+      <Header text={t("headers.submit_policy_file")} />
+      <StyledLabel>{t("misc.fundamental_to_any_case")}</StyledLabel>
 
       <StyledFileUploader
         callback={handleFileUpload}
         variant={isDesktop ? "info" : undefined}
-        msg={`You can attach additional information here. Important: the above description must reference the relevant parts of the file content.\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
+        msg={`${t("misc.you_can_attach_additional")}\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
       />
       {!isUndefined(disputeData.policyURI) ? (
-        <StyledInternalLink to={`/attachment/?title=${"Policy File"}&url=${getIpfsUrl(disputeData.policyURI)}`}>
+        <StyledInternalLink to={`/attachment/?title=${t("misc.policy_file")}&url=${getIpfsUrl(disputeData.policyURI)}`}>
           <StyledPolicyIcon />
-          Inspect the uploaded policy
+          {t("misc.inspect_uploaded_policy")}
         </StyledInternalLink>
       ) : null}
       <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />

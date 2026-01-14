@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
@@ -34,6 +35,7 @@ interface IDrawButton extends IBaseMaintenanceButton {
 const isUniversity = isKlerosUniversity();
 
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period }) => {
+  const { t } = useTranslation();
   const publicClient = usePublicClient();
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
   const { data: phase } = useSortitionModulePhase();
@@ -108,9 +110,13 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
         </StyledLabel>
       ) : null}
       {isUniversity && canDraw ? (
-        <Field placeholder="Juror Address" onChange={(e) => setDrawJuror(e.target.value)} value={drawJuror} />
+        <Field
+          placeholder={t("forms.placeholders.juror_address")}
+          onChange={(e) => setDrawJuror(e.target.value)}
+          value={drawJuror}
+        />
       ) : null}
-      <StyledButton text="Draw" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
+      <StyledButton text={t("buttons.draw")} small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
     </>
   );
 };

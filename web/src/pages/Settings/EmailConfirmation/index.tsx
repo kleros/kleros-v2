@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { isAddress } from "viem";
 
+import { useAtlasProvider } from "@kleros/kleros-app";
 import { Button } from "@kleros/ui-components-library";
 
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
 import WarningIcon from "svgs/icons/warning-outline.svg";
 import InvalidIcon from "svgs/label-icons/minus-circle.svg";
-
-import { useAtlasProvider } from "@kleros/kleros-app";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -92,45 +92,9 @@ const IconContainer = styled.div`
   }
 `;
 
-const messageConfigs = {
-  invalid: {
-    headerMsg: "Invalid Link!",
-    subtitleMsg: "Oops, seems like you followed an invalid link.",
-    buttonMsg: "Contact Support",
-    buttonTo: "https://t.me/kleros",
-    Icon: InvalidIcon,
-    color: "primaryText",
-  },
-  error: {
-    headerMsg: "Something went wrong",
-    subtitleMsg: "Oops, seems like something went wrong in our systems",
-    buttonMsg: "Contact Support",
-    buttonTo: "https://t.me/kleros",
-    Icon: WarningIcon,
-    color: "error",
-  },
-  confirmed: {
-    headerMsg: "Congratulations! \nYour email has been verified!",
-    subtitleMsg:
-      "We'll remind you when your actions are required on Court, and send you notifications on key moments to help you achieve the best of Kleros.",
-    buttonMsg: "Let's start!",
-    buttonTo: "/",
-    Icon: CheckIcon,
-    color: "success",
-  },
-  expired: {
-    headerMsg: "Verification link expired...",
-    subtitleMsg:
-      "Oops, the email verification link has expired. No worries! Go to settings and click on Resend it to receive another verification email.",
-    buttonMsg: "Open Settings",
-    buttonTo: "/#notifications",
-    Icon: WarningIcon,
-    color: "warning",
-  },
-};
-
 const EmailConfirmation: React.FC = () => {
   const { confirmEmail } = useAtlasProvider();
+  const { t } = useTranslation();
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -155,11 +119,46 @@ const EmailConfirmation: React.FC = () => {
   }, [address, token, confirmEmail]);
 
   const { headerMsg, subtitleMsg, buttonMsg, buttonTo, Icon, color } = useMemo(() => {
+    const messageConfigs = {
+      invalid: {
+        headerMsg: t("email_verification.invalid_link"),
+        subtitleMsg: t("email_verification.invalid_link_subtitle"),
+        buttonMsg: t("email_verification.contact_support"),
+        buttonTo: "https://t.me/kleros",
+        Icon: InvalidIcon,
+        color: "primaryText",
+      },
+      error: {
+        headerMsg: t("email_verification.something_went_wrong"),
+        subtitleMsg: t("email_verification.something_went_wrong_subtitle"),
+        buttonMsg: t("email_verification.contact_support"),
+        buttonTo: "https://t.me/kleros",
+        Icon: WarningIcon,
+        color: "error",
+      },
+      confirmed: {
+        headerMsg: t("email_verification.congratulations_verified"),
+        subtitleMsg: t("email_verification.verification_success_subtitle"),
+        buttonMsg: t("email_verification.lets_start"),
+        buttonTo: "/",
+        Icon: CheckIcon,
+        color: "success",
+      },
+      expired: {
+        headerMsg: t("email_verification.verification_link_expired"),
+        subtitleMsg: t("email_verification.verification_expired_subtitle"),
+        buttonMsg: t("email_verification.open_settings"),
+        buttonTo: "/#notifications",
+        Icon: WarningIcon,
+        color: "warning",
+      },
+    };
+
     if (!address || !isAddress(address) || !token || isTokenInvalid) return messageConfigs.invalid;
     if (isError) return messageConfigs.error;
     if (isConfirmed) return messageConfigs.confirmed;
     return messageConfigs.expired;
-  }, [address, token, isError, isConfirmed, isTokenInvalid]);
+  }, [address, token, isError, isConfirmed, isTokenInvalid, t]);
 
   return (
     <Container>

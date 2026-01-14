@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 
 import { Button } from "@kleros/ui-components-library";
@@ -126,6 +127,7 @@ interface IExternalLinkWarning {
 }
 
 const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({ isOpen, url, onConfirm, onCancel }) => {
+  const { t } = useTranslation();
   return (
     <StyledModal
       isOpen={isOpen}
@@ -138,30 +140,28 @@ const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({ isOpen, url, onCo
     >
       <Header>
         <StyledWarningIcon />
-        <Title id="external-link-title">External Link Warning</Title>
+        <Title id="external-link-title">{t("popups.external_link_warning")}</Title>
       </Header>
 
-      <Message id="external-link-description">
-        You are about to navigate to an external website. Please verify the URL before proceeding to ensure it&apos;s
-        safe and legitimate.
-      </Message>
+      <Message id="external-link-description">{t("popups.external_link_message")}</Message>
 
       <UrlContainer>
         <Url>{url}</Url>
       </UrlContainer>
 
       <Message>
-        <strong>Safety Tips:</strong>
+        <strong>{t("popups.safety_tips")}</strong>
         <br />
-        • Verify the domain name is correct
+        {t("popups.verify_domain")}
         <br />
-        • Check for suspicious characters or typos
-        <br />• Only proceed if you trust this destination
+        {t("popups.check_suspicious")}
+        <br />
+        {t("popups.trust_destination")}
       </Message>
 
       <ButtonContainer>
-        <CancelButton text="Cancel" onClick={onCancel} />
-        <ConfirmButton text="Continue to External Site" onClick={onConfirm} />
+        <CancelButton text={t("buttons.cancel")} onClick={onCancel} />
+        <ConfirmButton text={t("buttons.continue_to_external_site")} onClick={onConfirm} />
       </ButtonContainer>
     </StyledModal>
   );

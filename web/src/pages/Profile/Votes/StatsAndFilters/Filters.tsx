@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
@@ -15,6 +16,7 @@ const Container = styled.div`
 `;
 
 const Filters: React.FC = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { order, filter } = useParams();
   const { ruled, period, ...filterObject } = decodeURIFilter(filter ?? "all");
@@ -39,9 +41,9 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: JSON.stringify({}), text: "All Votes", dot: theme.primaryText },
-          { value: JSON.stringify({ ruled: false }), text: "Case In Progress", dot: theme.primaryBlue },
-          { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
+          { value: JSON.stringify({}), text: t("profile.all_votes"), dot: theme.primaryText },
+          { value: JSON.stringify({ ruled: false }), text: t("profile.case_in_progress"), dot: theme.primaryBlue },
+          { value: JSON.stringify({ ruled: true }), text: t("filters.closed"), dot: theme.primaryPurple },
         ]}
         defaultValue={JSON.stringify({ ruled, period })}
         callback={handleStatusChange}
@@ -50,8 +52,8 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: "desc", text: "Newest" },
-          { value: "asc", text: "Oldest" },
+          { value: "desc", text: t("filters.newest") },
+          { value: "asc", text: t("filters.oldest") },
         ]}
         defaultValue={order}
         callback={handleOrderChange}

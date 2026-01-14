@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
@@ -83,6 +84,7 @@ interface IFinalDecision {
 }
 
 const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
@@ -100,19 +102,19 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
 
   const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling));
   const buttonText = useMemo(() => {
-    if (!wasDrawn || isDisconnected) return "Check votes";
-    if (isCommitPeriod && !commited) return "Commit your vote";
-    if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return "Reveal your vote";
-    if (isVotingPeriod && !isHiddenVotes && !hasVoted) return "Cast your vote";
-    return "Check votes";
-  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes, isDisconnected]);
+    if (!wasDrawn || isDisconnected) return t("voting.check_votes");
+    if (isCommitPeriod && !commited) return t("voting.commit_your_vote");
+    if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return t("voting.reveal_your_vote");
+    if (isVotingPeriod && !isHiddenVotes && !hasVoted) return t("voting.cast_your_vote");
+    return t("voting.check_votes");
+  }, [t, wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes, isDisconnected]);
 
   return (
     <Container>
       <VerdictContainer>
         {ruled && (
           <JuryContainer>
-            <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
+            <JuryDecisionTag>{t("voting.jury_decided_in_favor")}</JuryDecisionTag>
             {isLoadingCurrentRuling ? (
               <Skeleton height={14} width={60} />
             ) : (
@@ -122,7 +124,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
         )}
         {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
           <JuryContainer>
-            <JuryDecisionTag>This option is winning:</JuryDecisionTag>
+            <JuryDecisionTag>{t("voting.this_option_winning")}</JuryDecisionTag>
             {isLoadingCurrentRuling ? (
               <Skeleton height={14} width={60} />
             ) : (

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
+
 import BookOpenIcon from "svgs/icons/book-open.svg";
 
 import { BlueIconTextButtonContainer } from "./BlueIconTextButtonContainer";
@@ -11,11 +13,12 @@ interface IHowItWorks {
 }
 
 const HowItWorks: React.FC<IHowItWorks> = ({ isMiniGuideOpen, toggleMiniGuide, MiniGuideComponent }) => {
+  const { t } = useTranslation();
   return (
     <>
       <BlueIconTextButtonContainer onClick={toggleMiniGuide}>
         <BookOpenIcon />
-        <label>How it works</label>
+        <label>{t("misc.how_it_works")}</label>
       </BlueIconTextButtonContainer>
       {isMiniGuideOpen && <MiniGuideComponent toggleMiniGuide={toggleMiniGuide} />}
     </>

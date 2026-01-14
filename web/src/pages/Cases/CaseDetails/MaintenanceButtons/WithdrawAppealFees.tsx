@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -30,6 +31,7 @@ interface IWithdrawAppealFees extends IBaseMaintenanceButton {
 }
 
 const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, setIsOpen, period, ruled }) => {
+  const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const [contractConfigs, setContractConfigs] = useState<TransactionBatcherConfig>();
   const publicClient = usePublicClient();
@@ -99,7 +101,15 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
       setIsOpen(false);
     });
   };
-  return <StyledButton text="Appeal Rewards" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
+  return (
+    <StyledButton
+      text={t("buttons.appeal_rewards")}
+      small
+      isLoading={isLoading}
+      disabled={isDisabled}
+      onClick={handleClick}
+    />
+  );
 };
 
 export default WithdrawAppealFees;

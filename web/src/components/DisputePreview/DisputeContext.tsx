@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
-import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
 
@@ -102,7 +102,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   votingHistory,
 }) => {
   const { isDisconnected } = useAccount();
-  const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
+  const { t } = useTranslation();
+  const errMsg = isRpcError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
   console.log({ jurorRewardsDispersed }, disputeDetails);
@@ -148,11 +149,11 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
 
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
         <ExternalLink to={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
-          Go to arbitrable
+          {t("misc.go_to_arbitrable")}
         </ExternalLink>
       )}
       <VotingOptions>
-        {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
+        {isUndefined(disputeDetails) ? null : <AnswersHeader>{t("headers.voting_options")}</AnswersHeader>}
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
             <AnswerTitleAndDescription dir="auto" key={answer.title}>

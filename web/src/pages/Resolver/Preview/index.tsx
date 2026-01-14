@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
@@ -66,13 +68,14 @@ const Overlay = styled.div`
 `;
 
 const Preview: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, disputeTemplate } = useNewDisputeContext();
   const { data: courtPolicy } = useCourtPolicy(disputeData.courtId);
   const courtName = courtPolicy?.name;
 
   return (
     <Container>
-      <Header>Preview</Header>
+      <Header>{t("timeline.preview")}</Header>
       <StyledCard>
         <Overlay />
         <PreviewContainer>

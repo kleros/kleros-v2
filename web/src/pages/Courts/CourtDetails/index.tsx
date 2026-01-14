@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
@@ -117,6 +118,7 @@ const StakingSections = styled.div`
 `;
 
 const CourtDetails: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data } = useCourtTree();
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
@@ -166,7 +168,10 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <Description />
       </StyledCard>
-      <LatestCases title={`Latest Cases in ${getDescriptiveCourtName(courtName)}`} filters={{ court: id }} />
+      <LatestCases
+        title={`${t("misc.latest_cases_in")} ${getDescriptiveCourtName(courtName)}`}
+        filters={{ court: id }}
+      />
       <StakingSections>
         <JurorsStakedByCourt {...{ courtName }} />
         <StakingHistoryByCourt {...{ courtName }} />

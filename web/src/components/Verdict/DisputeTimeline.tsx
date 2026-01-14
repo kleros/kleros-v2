@@ -1,13 +1,14 @@
 import React, { useMemo } from "react";
 import styled, { useTheme } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
 import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
-import NewTabIcon from "svgs/icons/new-tab.svg";
 import GavelExecutedIcon from "svgs/icons/gavel-executed.svg";
+import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -57,6 +58,7 @@ const formatDate = (date: string) => {
 type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 
 const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string}`) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = usePopulatedDisputeData(id, arbitrable);
@@ -79,7 +81,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
     const base: TimelineItems = [
       {
-        title: "Dispute created",
+        title: t("dispute_info.dispute_created"),
         party: (
           <ExternalLink to={txnDisputeCreatedLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />
@@ -98,8 +100,8 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       const answers = disputeData?.answers;
 
       acc.push({
-        title: `Jury Decision - Round ${index + 1}`,
-        party: isOngoing ? "Voting is ongoing" : getVoteChoice(winningChoice, answers),
+        title: `${t("dispute_info.jury_decision")} - ${t("dispute_info.round")} ${index + 1}`,
+        party: isOngoing ? t("voting.voting_is_ongoing") : getVoteChoice(winningChoice, answers),
         subtitle: isOngoing ? "" : `${formatDate(roundTimeline?.[Periods.vote])} / ${rounds?.[index]?.court.name}`,
         rightSided: true,
         variant: theme.secondaryPurple,
@@ -108,7 +110,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
       if (index < localRounds.length - 1) {
         acc.push({
-          title: "Appealed",
+          title: t("dispute_info.appealed"),
           party: "",
           subtitle: formatDate(roundTimeline?.[Periods.appeal]),
           rightSided: true,
@@ -116,7 +118,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
         });
       } else if (rulingOverride && dispute.currentRuling !== winningChoice) {
         acc.push({
-          title: "Won by Appeal",
+          title: t("dispute_info.won_by_appeal"),
           party: getVoteChoice(dispute.currentRuling, answers),
           subtitle: formatDate(roundTimeline?.[Periods.appeal]),
           rightSided: true,
@@ -129,7 +131,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
     if (dispute.ruled) {
       items.push({
-        title: "Enforcement",
+        title: t("dispute_info.enforcement"),
         party: (
           <ExternalLink to={txnEnforcementLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />

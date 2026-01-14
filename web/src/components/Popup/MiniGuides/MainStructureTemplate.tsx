@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useCallback, useRef } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useClickAway } from "react-use";
 
@@ -156,6 +157,7 @@ const Template: React.FC<ITemplate> = ({
   canClose,
   isVisible,
 }) => {
+  const { t } = useTranslation();
   const containerRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -183,7 +185,7 @@ const Template: React.FC<ITemplate> = ({
           <LeftContainerHeader>
             <HowItWorks>
               <BookOpenIcon />
-              <label>{isOnboarding ? "Onboarding" : "How it works"}</label>
+              <label>{isOnboarding ? t("mini_guides.onboarding") : t("mini_guides.how_it_works")}</label>
             </HowItWorks>
             <MobileCompactPagination
               currentPage={currentPage}

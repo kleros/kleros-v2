@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -24,6 +25,7 @@ interface IPassPeriodButton extends IBaseMaintenanceButton {
 }
 
 const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }) => {
+  const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
@@ -67,7 +69,15 @@ const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }
       setIsOpen(false);
     });
   };
-  return <StyledButton text="Pass Period" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
+  return (
+    <StyledButton
+      text={t("buttons.pass_period")}
+      small
+      isLoading={isLoading}
+      disabled={isDisabled}
+      onClick={handleClick}
+    />
+  );
 };
 
 export default PassPeriodButton;

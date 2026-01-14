@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card } from "@kleros/ui-components-library";
 
 import { section } from "consts/community-elements";
@@ -54,18 +56,22 @@ const ThreeElementContainer = styled.div`
   )}
 `;
 
-const Community = () => (
-  <Container>
-    <h1>Community</h1>
-    <StyledCard>
-      <ThreeElementContainer>
-        {section.slice(0, 3).map((element) => (
-          <Element key={element.title} {...element} />
-        ))}
-      </ThreeElementContainer>
-      <Element {...section[3]} />
-    </StyledCard>
-  </Container>
-);
+const Community = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Container>
+      <h1>{t("misc.community")}</h1>
+      <StyledCard>
+        <ThreeElementContainer>
+          {section.slice(0, 3).map((element) => (
+            <Element key={element.title} {...element} />
+          ))}
+        </ThreeElementContainer>
+        <Element {...section[3]} />
+      </StyledCard>
+    </Container>
+  );
+};
 
 export default Community;

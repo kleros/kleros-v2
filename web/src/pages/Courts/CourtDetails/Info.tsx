@@ -1,5 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+
+import { useTranslation } from "react-i18next";
+
 import InfoCircle from "svgs/icons/info-circle.svg";
 
 const Container = styled.div`
@@ -20,10 +23,11 @@ const StyledInfoCircle = styled(InfoCircle)`
 `;
 
 const Info: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <Container>
       <StyledInfoCircle />
-      <StyledSpan>Note that past performance is not a guarantee of future results.</StyledSpan>
+      <StyledSpan>{t("misc.past_performance_disclaimer")}</StyledSpan>
     </Container>
   );
 };

@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import PaperclipIcon from "svgs/icons/paperclip.svg";
@@ -70,30 +71,31 @@ interface IPolicies {
 
 export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attachment }) => {
   const { id } = useParams();
+  const { t } = useTranslation();
 
   return (
     <Container>
-      <StyledP>Policy documents:</StyledP>
+      <StyledP>{t("misc.policy_documents")}</StyledP>
       {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
         <StyledInternalLink
-          to={`/attachment/?disputeId=${id}&title=${"Case Policy"}&url=${getIpfsUrl(attachment.uri)}`}
+          to={`/attachment/?disputeId=${id}&title=${t("misc.case_policy")}&url=${getIpfsUrl(attachment.uri)}`}
         >
           <StyledPaperclipIcon />
-          {attachment.label ?? "Attachment"}
+          {attachment.label ?? t("misc.attachment")}
         </StyledInternalLink>
       ) : null}
       {isUndefined(disputePolicyURI) ? null : (
         <StyledInternalLink
-          to={`/attachment/?disputeId=${id}&title=${"Dispute Policy"}&url=${getIpfsUrl(disputePolicyURI)}`}
+          to={`/attachment/?disputeId=${id}&title=${t("misc.dispute_policy")}&url=${getIpfsUrl(disputePolicyURI)}`}
         >
           <StyledPolicyIcon />
-          Dispute Policy
+          {t("misc.dispute_policy")}
         </StyledInternalLink>
       )}
       {isUndefined(courtId) ? null : (
         <StyledInternalLink to={`/courts/${courtId}/policy?section=description`}>
           <StyledPolicyIcon />
-          Court Policy
+          {t("misc.court_policy")}
         </StyledInternalLink>
       )}
     </Container>

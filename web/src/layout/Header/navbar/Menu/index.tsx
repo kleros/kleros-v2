@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
 import LightModeIcon from "svgs/menu-icons/light-mode.svg";
@@ -53,25 +55,26 @@ interface IMenu {
 }
 
 const Menu: React.FC<ISettings & IHelp & IMenu> = ({ toggleIsHelpOpen, toggleIsSettingsOpen, isMobileNavbar }) => {
+  const { t } = useTranslation();
   const [theme, toggleTheme] = useToggleTheme();
   const isLightTheme = theme === "light";
 
   const buttons = [
     // { text: "Notifications", Icon: NotificationsIcon },
     {
-      text: "Settings",
+      text: t("menu.settings"),
       Icon: SettingsIcon,
       onClick: () => toggleIsSettingsOpen(),
     },
     {
-      text: "Help",
+      text: t("menu.help"),
       Icon: HelpIcon,
       onClick: () => {
         toggleIsHelpOpen();
       },
     },
     {
-      text: `${isLightTheme ? "Dark" : "Light"} Mode`,
+      text: isLightTheme ? t("menu.dark_mode") : t("menu.light_mode"),
       Icon: isLightTheme ? DarkModeIcon : LightModeIcon,
       onClick: () => toggleTheme(),
     },

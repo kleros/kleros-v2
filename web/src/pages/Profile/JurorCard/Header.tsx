@@ -1,16 +1,17 @@
 import React from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
+import { useTranslation } from "react-i18next";
 import { useToggle } from "react-use";
 
 import XIcon from "svgs/socialmedia/x.svg";
 
-import HowItWorks from "components/HowItWorks";
-import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { ExternalLink } from "components/ExternalLink";
+import HowItWorks from "components/HowItWorks";
 import JurorsLeaderboardButton from "components/JurorsLeaderboardButton";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 
 const Container = styled.div`
   display: flex;
@@ -61,15 +62,23 @@ const Header: React.FC<IHeader> = ({
   totalResolvedVotes,
   searchParamAddress,
 }) => {
+  const { t } = useTranslation();
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
   const coherencePercentage = parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
-  const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherentVotes}/${totalResolvedVotes}\n\nBe a juror with me! ➡️ ${courtUrl}`;
+  const xPostText = t("profile.x_post_template", {
+    level: levelNumber,
+    title: levelTitle,
+    percentage: coherencePercentage,
+    coherent: totalCoherentVotes,
+    total: totalResolvedVotes,
+    url: courtUrl,
+  });
   const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xPostText)}`;
 
   return (
     <Container>
-      <StyledTitle>Juror Profile</StyledTitle>
+      <StyledTitle>{t("profile.juror_profile")}</StyledTitle>
       <LinksContainer>
         <JurorsLeaderboardButton />
         <HowItWorks
@@ -79,7 +88,7 @@ const Header: React.FC<IHeader> = ({
         />
         {totalResolvedVotes > 0 && !searchParamAddress ? (
           <StyledLink to={xShareUrl} target="_blank" rel="noreferrer">
-            <StyledXIcon /> <span>Share your juror score</span>
+            <StyledXIcon /> <span>{t("profile.share_juror_score")}</span>
           </StyledLink>
         ) : null}
       </LinksContainer>

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
 
 import { useStakingEventsByCourt } from "hooks/useStakingEventsByCourt";
@@ -68,6 +69,7 @@ const getAllChildCourtIds = (court: CourtTreeQuery["court"], courtId: string): n
 };
 
 const DisplayStakes: React.FC = () => {
+  const { t } = useTranslation();
   const { id: courtId } = useParams();
   const [searchParams] = useSearchParams();
   const searchValue = searchParams.get("stakeSearch") ?? "";
@@ -147,7 +149,7 @@ const DisplayStakes: React.FC = () => {
   return (
     <>
       {!isUndefined(stakes) && stakes.length === 0 && !isFetching ? (
-        <StyledLabel>No stakes found</StyledLabel>
+        <StyledLabel>{t("profile.no_stakes_found")}</StyledLabel>
       ) : (
         <ListContainer>
           <Header />

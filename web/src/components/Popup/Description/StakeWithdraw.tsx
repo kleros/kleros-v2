@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 
@@ -75,6 +76,7 @@ const AmountStakedOrWithdrawn: React.FC<IAmountStakedOrWithdrawn> = ({ pnkStaked
 };
 
 const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake, courtId }) => {
+  const { t } = useTranslation();
   const { address } = useAccount();
 
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
@@ -87,15 +89,13 @@ const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake
 
   return (
     <Container>
-      <StyledTitle>
-        🎉 Your {isStake ? "stake" : "unstake"} in the {courtName} court was successful! 🎉
-      </StyledTitle>
+      <StyledTitle>{t(isStake ? "popups.stake_success" : "popups.unstake_success", { courtName })}</StyledTitle>
       <AmountStakedOrWithdrawnContainer>
         <AmountStakedOrWithdrawn pnkStaked={pnkStaked} isStake={isStake} />
       </AmountStakedOrWithdrawnContainer>
 
       <TotalStakeContainer>
-        <StyledKlerosLogo /> <MyStakeContainer>My Stake:</MyStakeContainer>{" "}
+        <StyledKlerosLogo /> <MyStakeContainer>{t("forms.labels.my_stake")}:</MyStakeContainer>{" "}
         <AmountContainer>{`${formatUnits(jurorBalance?.[2] ?? BigInt(0), 18)} PNK`} </AmountContainer>
       </TotalStakeContainer>
     </Container>

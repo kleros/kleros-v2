@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useDebounce } from "react-use";
 
 import { Card, Switch } from "@kleros/ui-components-library";
@@ -123,6 +124,7 @@ const Info = styled.div`
 `;
 
 const BatchCreationCard: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, isBatchCreation, setIsBatchCreation, batchSize, setBatchSize } = useNewDisputeContext();
   const [localBatchSize, setLocalBatchSize] = useState(batchSize);
   useDebounce(() => setBatchSize(localBatchSize), 500, [localBatchSize]);
@@ -135,8 +137,8 @@ const BatchCreationCard: React.FC = () => {
     <Container>
       <TopContent>
         <Switch checked={isBatchCreation} onChange={() => setIsBatchCreation(!isBatchCreation)} />
-        <WithHelpTooltip tooltipMsg="Batch Cases: You can create multiple copies of the case. ">
-          <StyledP>Create multiple cases at once</StyledP>
+        <WithHelpTooltip tooltipMsg={t("case_creation.batch_cases_tooltip")}>
+          <StyledP>{t("case_creation.create_multiple_cases")}</StyledP>
         </WithHelpTooltip>
       </TopContent>
       {isBatchCreation ? (
@@ -150,19 +152,19 @@ const BatchCreationCard: React.FC = () => {
                 currentValue={localBatchSize}
                 updateValue={(val) => setLocalBatchSize(val)}
               />
-              <Label>(Number of cases to be created)</Label>
+              <Label>({t("case_creation.number_of_cases_to_be_created")})</Label>
             </NumberDisplayContainer>
             <InfosContainer>
               <Info>
-                <Label>Jurors per case:</Label>
+                <Label>{t("case_creation.jurors_per_case")}</Label>
                 <Value>{disputeData.numberOfJurors}</Value>
               </Info>
               <Info>
-                <Label>Total:</Label>
+                <Label>{t("case_creation.total")}</Label>
                 <Value>{disputeData.numberOfJurors * localBatchSize}</Value>
               </Info>
               <Info>
-                <Label>Total cost:</Label>
+                <Label>{t("case_creation.total_cost")}</Label>
                 <Value>{formatETH(BigInt(disputeData.arbitrationCost ?? 0) * BigInt(localBatchSize))} ETH </Value>
                 {!isUndefined(coinPrice) ? (
                   <Label>
