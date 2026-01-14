@@ -113,7 +113,7 @@ const Policy: React.FC = () => {
         msg={`${t("misc.you_can_attach_additional")}\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
       />
       {!isUndefined(disputeData.policyURI) ? (
-        <StyledInternalLink to={`/attachment/?title=${t("misc.policy_file")}&url=${getIpfsUrl(disputeData.policyURI)}`}>
+        <StyledInternalLink to={`/attachment/?title=misc.policy_file&url=${getIpfsUrl(disputeData.policyURI)}`}>
           <StyledPolicyIcon />
           {t("misc.inspect_uploaded_policy")}
         </StyledInternalLink>

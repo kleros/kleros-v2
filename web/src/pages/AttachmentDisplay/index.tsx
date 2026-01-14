@@ -56,7 +56,8 @@ const AttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const url = searchParams.get("url");
-  const title = searchParams.get("title") ?? t("misc.attachment");
+  const titleKey = searchParams.get("title");
+  const title = titleKey ? t(titleKey) : t("misc.attachment");
   return (
     <Container>
       <AttachmentContainer>

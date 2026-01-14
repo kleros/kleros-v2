@@ -78,7 +78,7 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
       <StyledP>{t("misc.policy_documents")}</StyledP>
       {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
         <StyledInternalLink
-          to={`/attachment/?disputeId=${id}&title=${t("misc.case_policy")}&url=${getIpfsUrl(attachment.uri)}`}
+          to={`/attachment/?disputeId=${id}&title=misc.case_policy&url=${getIpfsUrl(attachment.uri)}`}
         >
           <StyledPaperclipIcon />
           {attachment.label ?? t("misc.attachment")}
@@ -86,7 +86,7 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
       ) : null}
       {isUndefined(disputePolicyURI) ? null : (
         <StyledInternalLink
-          to={`/attachment/?disputeId=${id}&title=${t("misc.dispute_policy")}&url=${getIpfsUrl(disputePolicyURI)}`}
+          to={`/attachment/?disputeId=${id}&title=misc.dispute_policy&url=${getIpfsUrl(disputePolicyURI)}`}
         >
           <StyledPolicyIcon />
           {t("misc.dispute_policy")}
