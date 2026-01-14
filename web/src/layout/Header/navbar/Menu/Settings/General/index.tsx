@@ -67,7 +67,7 @@ const LanguageSelectorContainer = styled.div`
   align-self: center;
   ${landscapeStyle(
     () => css`
-      width: ${responsiveSize(300, 424, 300)};
+      width: ${responsiveSize(300, 460, 300)};
     `
   )}
 `;
