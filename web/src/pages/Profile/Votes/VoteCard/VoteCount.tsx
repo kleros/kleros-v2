@@ -32,9 +32,7 @@ const VoteCount: React.FC<IVoteCount> = ({ count }) => {
   return (
     <Container>
       <VotesIcon />
-      <small>
-        {count} {count === 1 ? t("voting.vote") : t("voting.votes")}
-      </small>
+      <small>{t("voting.vote", { count })}</small>
     </Container>
   );
 };
