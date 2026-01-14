@@ -435,11 +435,8 @@
     "unknown_court": "Corte Desconocida"
   },
   "maintenance": {
-    "jurors_drawn_in_phase": "Los jurados pueden ser sorteados en la fase de",
-    "drawing": "sorteo",
-    "phase": "",
-    "pass_phase": "Pasar fase",
-    "here": "aquí"
+    "jurors_drawn_in_drawing_phase": "Los jurados pueden ser sorteados en la fase de sorteo.",
+    "pass_phase_here": "Pasar fase <link>aquí</link>."
   },
   "sorting": {
     "first_to_last": "1º al último",
