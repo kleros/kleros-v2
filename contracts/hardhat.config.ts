@@ -15,7 +15,7 @@ import "hardhat-contract-sizer";
 import "hardhat-tracer";
 require("./scripts/populatePolicyRegistry");
 require("./scripts/populateCourts");
-require("./scripts/changeGovernor");
+require("./scripts/changeOwner");
 require("./scripts/getDisputeTemplate");
 require("./scripts/compareStorageLayout");
 require("./scripts/storage-layout");
@@ -26,28 +26,13 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.28",
+        version: "0.8.30",
         settings: {
-          // viaIR: true,
+          evmVersion: "cancun",
+          viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 100,
-          },
-          outputSelection: {
-            "*": {
-              "*": ["storageLayout"],
-            },
-          },
-        },
-      },
-      {
-        // For Vea
-        version: "0.8.24",
-        settings: {
-          // viaIR: true,
-          optimizer: {
-            enabled: true,
-            runs: 100,
+            runs: 850, // Constrained by the size of the KlerosCore contract
           },
           outputSelection: {
             "*": {

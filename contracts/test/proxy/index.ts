@@ -4,7 +4,7 @@ import { DeployResult } from "hardhat-deploy/types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployUpgradable } from "../../deploy/utils/deployUpgradable";
 import { UpgradedByInheritanceV1, UpgradedByInheritanceV2 } from "../../typechain-types";
-import { UpgradedByRewrite as UpgradedByRewriteV1 } from "../../typechain-types/src/proxy/mock/by-rewrite";
+import { UpgradedByRewrite as UpgradedByRewriteV1 } from "../../typechain-types/src/proxy/mock/by-rewrite/UpgradedByRewrite.sol";
 import { UpgradedByRewrite as UpgradedByRewriteV2 } from "../../typechain-types/src/proxy/mock/by-rewrite/UpgradedByRewriteV2.sol";
 
 let deployer: HardhatEthersSigner;
@@ -46,7 +46,7 @@ describe("Upgradability", async () => {
     });
 
     describe("Initialization", async () => {
-      it("Governor cannot re-initialize the proxy", async () => {
+      it("Owner cannot re-initialize the proxy", async () => {
         await expect(proxy.connect(deployer).initialize(deployer.address)).to.be.revertedWith(
           "Contract instance has already been initialized"
         );
@@ -79,7 +79,7 @@ describe("Upgradability", async () => {
             .withArgs(nonUpgradeableMock.target);
         });
         it("Should revert if upgrade is performed directly through the implementation", async () => {
-          // In the implementation, the `governor` storage slot is not initialized so `governor === address(0)`, which fails _authorizeUpgrade()
+          // In the implementation, the `owner` storage slot is not initialized so `owner === address(0)`, which fails _authorizeUpgrade()
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
           const newImplementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
           await expect(
@@ -89,7 +89,7 @@ describe("Upgradability", async () => {
       });
 
       describe("Authentication", async () => {
-        it("Only the governor (deployer here) can perform upgrades", async () => {
+        it("Only the owner (deployer here) can perform upgrades", async () => {
           // Unauthorized user try to upgrade the implementation
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
           let upgradable = await UUPSUpgradeableMockV2Factory.connect(user1).deploy();
@@ -97,7 +97,7 @@ describe("Upgradability", async () => {
             "No privilege to upgrade"
           );
 
-          // Governor updates the implementation
+          // Owner updates the implementation
           upgradable = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
           await expect(proxy.connect(deployer).upgradeToAndCall(upgradable.target, "0x"))
             .to.emit(proxy, "Upgraded")
@@ -130,11 +130,11 @@ describe("Upgradability", async () => {
     });
 
     it("Initializes v1", async () => {
-      proxy = (await ethers.getContract("UpgradedByRewrite")) as UpgradedByRewriteV1;
+      proxy = await ethers.getContract<UpgradedByRewriteV1>("UpgradedByRewrite");
 
-      implementation = (await ethers.getContract("UpgradedByRewrite_Implementation")) as UpgradedByRewriteV1;
+      implementation = await ethers.getContract<UpgradedByRewriteV1>("UpgradedByRewrite_Implementation");
 
-      expect(await proxy.governor()).to.equal(deployer.address);
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(1);
       await proxy.increment();
@@ -156,8 +156,8 @@ describe("Upgradability", async () => {
       if (!proxyDeployment.implementation) {
         throw new Error("No implementation address");
       }
-      proxy = (await ethers.getContract("UpgradedByRewrite")) as UpgradedByRewriteV2;
-      expect(await proxy.governor()).to.equal(deployer.address);
+      proxy = await ethers.getContract<UpgradedByRewriteV2>("UpgradedByRewrite");
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(3);
       await proxy.increment();
@@ -184,11 +184,11 @@ describe("Upgradability", async () => {
     });
 
     it("Initializes v1", async () => {
-      proxy = (await ethers.getContract("UpgradedByInheritanceV1")) as UpgradedByInheritanceV1;
+      proxy = await ethers.getContract<UpgradedByInheritanceV1>("UpgradedByInheritanceV1");
 
-      implementation = (await ethers.getContract("UpgradedByInheritanceV1_Implementation")) as UpgradedByInheritanceV1;
+      implementation = await ethers.getContract<UpgradedByInheritanceV1>("UpgradedByInheritanceV1_Implementation");
 
-      expect(await proxy.governor()).to.equal(deployer.address);
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(1);
       await proxy.increment();
@@ -209,9 +209,9 @@ describe("Upgradability", async () => {
         log: true,
       });
 
-      proxy = (await ethers.getContract("UpgradedByInheritanceV1")) as UpgradedByInheritanceV2;
+      proxy = await ethers.getContract<UpgradedByInheritanceV2>("UpgradedByInheritanceV1");
 
-      expect(await proxy.governor()).to.equal(deployer.address);
+      expect(await proxy.owner()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(3);
       await proxy.increment();

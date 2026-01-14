@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
 import { useAtlasProvider } from "@kleros/kleros-app";
@@ -31,24 +32,25 @@ interface IEnsureAuth {
 const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, className }) => {
   const { address } = useAccount();
   const { isVerified, isSigningIn, authoriseUser } = useAtlasProvider();
+  const { t } = useTranslation();
 
   const handleClick = useCallback(() => {
-    infoToast(`Signing in User...`);
+    infoToast(t("wallet.signing_in_user"));
 
     authoriseUser()
-      .then(() => successToast("Signed In successfully!"))
+      .then(() => successToast(t("wallet.signed_in_successfully")))
       .catch((err) => {
         console.log(err);
-        errorToast(`Sign-In failed: ${err?.message}`);
+        errorToast(`${t("wallet.sign_in_failed")} ${err?.message}`);
       });
-  }, [authoriseUser]);
+  }, [authoriseUser, t]);
   return isVerified ? (
     children
   ) : (
     <Container>
       {message ? <StyledInfo>{message}</StyledInfo> : null}
       <Button
-        text={buttonText ?? "Sign In"}
+        text={buttonText ?? t("wallet.sign_in")}
         onClick={handleClick}
         disabled={isSigningIn || !address}
         isLoading={isSigningIn}

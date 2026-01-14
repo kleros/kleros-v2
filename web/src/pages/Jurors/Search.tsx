@@ -1,8 +1,10 @@
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useDebounce } from "react-use";
+
 import { Searchbar } from "@kleros/ui-components-library";
 
 import { isEmpty } from "utils/index";
@@ -20,6 +22,7 @@ const StyledSearchbar = styled(Searchbar)`
 `;
 
 const Search: React.FC = () => {
+  const { t } = useTranslation();
   const { order, filter } = useParams();
   const location = useRootPath();
   const decodedFilter = decodeURIFilter(filter ?? "all");
@@ -48,7 +51,7 @@ const Search: React.FC = () => {
     <StyledSearchbar
       dir="auto"
       type="text"
-      placeholder="Search by address"
+      placeholder={t("forms.placeholders.search_by_address")}
       value={search}
       onChange={(e) => setSearch(e.target.value)}
     />

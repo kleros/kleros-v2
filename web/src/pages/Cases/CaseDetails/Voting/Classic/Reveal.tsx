@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
@@ -20,8 +20,8 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
-
-import JustificationArea from "../JustificationArea";
+import MarkdownEditor from "components/MarkdownEditor";
+import MarkdownRenderer from "components/MarkdownRenderer";
 
 const Container = styled.div`
   width: 100%;
@@ -40,7 +40,7 @@ const StyledEnsureChain = styled(EnsureChain)`
   margin: 8px auto;
 `;
 
-const ReactMarkdownWrapper = styled.div``;
+const MarkdownWrapper = styled.div``;
 interface IReveal {
   arbitrable?: `0x${string}`;
   voteIDs: string[];
@@ -51,6 +51,7 @@ interface IReveal {
 }
 
 const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, isGated }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [isSending, setIsSending] = useState(false);
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
@@ -108,17 +109,17 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   return (
     <Container>
       {isUndefined(commit) ? (
-        <StyledInfoCard msg="Failed to commit on time." />
+        <StyledInfoCard msg={t("voting.failed_to_commit")} />
       ) : isRevealPeriod ? (
         <>
-          <ReactMarkdownWrapper dir="auto">
-            <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
-          </ReactMarkdownWrapper>
-          <JustificationArea {...{ justification, setJustification }} />
+          <MarkdownWrapper dir="auto">
+            <MarkdownRenderer content={disputeDetails?.question ?? ""} />
+          </MarkdownWrapper>
+          <MarkdownEditor value={justification} onChange={setJustification} />
           <StyledEnsureChain>
             <StyledButton
               variant="secondary"
-              text="Justify & Reveal"
+              text={t("buttons.justify_and_reveal")}
               disabled={isSending || isUndefined(disputeDetails)}
               isLoading={isSending}
               onClick={handleReveal}
@@ -126,7 +127,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
           </StyledEnsureChain>
         </>
       ) : (
-        <StyledInfoCard msg="Your vote was successfully commited, please wait until reveal period to reveal it." />
+        <StyledInfoCard msg={t("voting.vote_successfully_committed")} />
       )}
     </Container>
   );

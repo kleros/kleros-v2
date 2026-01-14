@@ -1,10 +1,12 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { useNewDisputeContext } from "context/NewDisputeContext";
+import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
+
 import { isEmpty } from "src/utils";
 
 interface INextButton {
@@ -12,9 +14,21 @@ interface INextButton {
 }
 
 const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { disputeData, isPolicyUploading } = useNewDisputeContext();
   const location = useLocation();
+
+  // Check gated dispute kit validation status
+  const isGatedTokenValid = React.useMemo(() => {
+    if (!disputeData.disputeKitData || disputeData.disputeKitData.type !== "gated") return true;
+
+    const gatedData = disputeData.disputeKitData as IGatedDisputeData;
+    if (!gatedData?.tokenGate?.trim()) return false; // No token address provided, so invalid
+
+    // If token address is provided, it must be validated as valid ERC20
+    return gatedData.isTokenGateValid === true;
+  }, [disputeData.disputeKitData]);
 
   //checks if each answer is filled in
   const areVotingOptionsFilled =
@@ -29,13 +43,14 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
   const isButtonDisabled =
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
-    (location.pathname.includes("/resolver/court") && !disputeData.courtId) ||
-    (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
+    (location.pathname.includes("/resolver/court") &&
+      (!disputeData.courtId || !isGatedTokenValid || !disputeData.disputeKitId)) ||
+    (location.pathname.includes("/resolver/jurors") && (!disputeData.arbitrationCost || !disputeData.numberOfJurors)) ||
     (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/notable-persons") && !areAliasesValidOrEmpty) ||
     (location.pathname.includes("/resolver/policy") && (isPolicyUploading || !disputeData.policyURI));
 
-  return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text="Next" />;
+  return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text={t("buttons.next")} />;
 };
 
 export default NextButton;

@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Searchbar } from "@kleros/ui-components-library";
-import { useDebounce } from "react-use";
+
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useDebounce } from "react-use";
+
+import { Searchbar } from "@kleros/ui-components-library";
+
 import { isEmpty } from "utils/index";
 
 const Container = styled.div`
@@ -26,6 +30,7 @@ const StyledSearchbar = styled(Searchbar)`
 `;
 
 const Search: React.FC = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -49,7 +54,7 @@ const Search: React.FC = () => {
       <StyledSearchbar
         dir="auto"
         type="text"
-        placeholder="Search by address"
+        placeholder={t("forms.placeholders.search_by_address")}
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />

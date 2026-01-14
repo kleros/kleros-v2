@@ -29,13 +29,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deployUpgradable(deployments, "KlerosCoreRuler", {
     from: deployer,
     args: [
-      deployer, // governor
+      deployer, // owner
       pnk.target,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
     ],
     log: true,
   });
-  const core = (await hre.ethers.getContract("KlerosCoreRuler")) as KlerosCoreRuler;
+  const core = await hre.ethers.getContract<KlerosCoreRuler>("KlerosCoreRuler");
 
   try {
     await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);

@@ -2,10 +2,10 @@ import { type ContractTransaction } from "ethers";
 import fs from "fs";
 import { type BuilderTransaction, template, transaction, transactionBuilderUrl } from "./tx-builder";
 
-const governableAbi = [
+const ownableAbi = [
   {
     inputs: [],
-    name: "governor",
+    name: "owner",
     outputs: [
       {
         internalType: "address",
@@ -24,9 +24,9 @@ export const execute = async (tx: ContractTransaction) => {
   const hre = require("hardhat");
   const { ethers } = hre;
 
-  const contract = await ethers.getContractAt(governableAbi, tx.to);
-  const governor = await contract.governor();
-  const isContract = (await ethers.provider.getCode(governor)).length > 2;
+  const contract = await ethers.getContractAt(ownableAbi, tx.to);
+  const owner = await contract.owner();
+  const isContract = (await ethers.provider.getCode(owner)).length > 2;
   if (isContract) {
     // Don't execute, just log the tx. It must be submitted for execution separately.
     const { to, value, data } = tx;

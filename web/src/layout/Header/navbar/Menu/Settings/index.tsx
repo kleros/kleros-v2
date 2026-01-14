@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useClickAway } from "react-use";
 
@@ -60,18 +61,8 @@ const StyledTabs = styled(Tabs)`
   )}
 `;
 
-const TABS = [
-  {
-    text: "General",
-    value: 0,
-  },
-  {
-    text: "Notifications",
-    value: 1,
-  },
-];
-
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
+  const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
   const containerRef = useRef(null);
   const location = useLocation();
@@ -81,9 +72,20 @@ const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => 
     if (location.hash.includes("#notifications")) navigate("#", { replace: true });
   });
 
+  const TABS = [
+    {
+      text: t("menu.general"),
+      value: 0,
+    },
+    {
+      text: t("menu.notifications"),
+      value: 1,
+    },
+  ];
+
   return (
     <Container ref={containerRef}>
-      <StyledSettingsText>Settings</StyledSettingsText>
+      <StyledSettingsText>{t("menu.settings")}</StyledSettingsText>
       <StyledTabs
         currentValue={currentTab}
         items={TABS}

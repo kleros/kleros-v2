@@ -27,6 +27,8 @@ dist
 .env.test.local
 .env.production.local
 .env.devnet-university
+# public env files
+!.env.*.public
 
 # generated code
 src/hooks/contracts/generated.ts

@@ -1,14 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount, useDisconnect } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
 import { ChainDisplay } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
-import WalletAndProfile from "./WalletAndProfile";
+import { LanguageSelector } from "components/LanguageSelector";
+
 import { ISettings } from "../../../index";
+
+import WalletAndProfile from "./WalletAndProfile";
 
 const Container = styled.div`
   display: flex;
@@ -52,32 +56,42 @@ const UserContainer = styled.div`
   gap: 16px;
 `;
 
+const LanguageSelectorContainer = styled.div`
+  padding: 24px 32px 0;
+`;
+
 export const DisconnectWalletButton: React.FC = () => {
+  const { t } = useTranslation();
   const { disconnect } = useDisconnect();
-  return <Button text={`Disconnect`} onClick={() => disconnect()} />;
+  return <Button text={t("buttons.disconnect")} onClick={() => disconnect()} />;
 };
 
 const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { address } = useAccount();
 
   return (
-    <EnsureChainContainer>
-      <EnsureChain>
-        <Container>
-          {address && (
-            <UserContainer>
-              <StyledChainContainer>
-                <ChainDisplay />
-              </StyledChainContainer>
-              <WalletAndProfile {...{ toggleIsSettingsOpen }} />
-              <StyledButton>
-                <DisconnectWalletButton />
-              </StyledButton>
-            </UserContainer>
-          )}
-        </Container>
-      </EnsureChain>
-    </EnsureChainContainer>
+    <>
+      <LanguageSelectorContainer>
+        <LanguageSelector />
+      </LanguageSelectorContainer>
+      <EnsureChainContainer>
+        <EnsureChain>
+          <Container>
+            {address && (
+              <UserContainer>
+                <StyledChainContainer>
+                  <ChainDisplay />
+                </StyledChainContainer>
+                <WalletAndProfile {...{ toggleIsSettingsOpen }} />
+                <StyledButton>
+                  <DisconnectWalletButton />
+                </StyledButton>
+              </UserContainer>
+            )}
+          </Container>
+        </EnsureChain>
+      </EnsureChainContainer>
+    </>
   );
 };
 

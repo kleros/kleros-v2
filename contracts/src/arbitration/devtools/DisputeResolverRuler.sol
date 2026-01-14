@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-import {DisputeResolver, IArbitratorV2, IDisputeTemplateRegistry} from "../arbitrables/DisputeResolver.sol";
+import {DisputeResolver} from "../arbitrables/DisputeResolver.sol";
+import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
+import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
 
 pragma solidity ^0.8.24;
 
@@ -9,20 +11,20 @@ interface IKlerosCoreRulerFragment {
 }
 
 /// @title DisputeResolverRuler
-/// It extends DisputeResolver for testing purposes of the automatic ruling modes.
-/// The arbitrator disputeID must be known before dispute creation, otherwise the dispute cannot be retrieved during the immediate call to rule().
+/// @notice Extension of the DisputeResolver for development tooling and testing of the automatic ruling modes.
+/// @dev The arbitrator disputeID must be known before dispute creation, otherwise the dispute cannot be retrieved during the immediate call to rule().
 contract DisputeResolverRuler is DisputeResolver {
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @notice Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
     constructor(
         IArbitratorV2 _arbitrator,
         IDisputeTemplateRegistry _templateRegistry
     ) DisputeResolver(_arbitrator, _templateRegistry) {
-        governor = msg.sender;
+        owner = msg.sender;
     }
 
     // ************************************* //
@@ -33,10 +35,9 @@ contract DisputeResolverRuler is DisputeResolver {
         bytes calldata _arbitratorExtraData,
         string memory _disputeTemplate,
         string memory _disputeTemplateDataMappings,
-        string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
     ) internal override returns (uint256 arbitratorDisputeID) {
-        require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
+        if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
 
         uint256 localDisputeID = disputes.length;
         DisputeStruct storage dispute = disputes.push();
@@ -47,7 +48,7 @@ contract DisputeResolverRuler is DisputeResolver {
         arbitratorDisputeID = IKlerosCoreRulerFragment(address(arbitrator)).getNextDisputeID();
         arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, templateId);
 
         arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
     }

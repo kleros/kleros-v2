@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 
 import { useAppKit, useAppKitState } from "@reown/appkit/react";
+import { useTranslation } from "react-i18next";
 import { useAccount, useSwitchChain } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -35,6 +36,7 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
 };
 
 const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
+  const { t } = useTranslation();
   const { open } = useAppKit();
   const { open: isOpen } = useAppKitState();
   return (
@@ -42,7 +44,7 @@ const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
       {...{ className }}
       disabled={isOpen}
       small
-      text={"Connect"}
+      text={t("buttons.connect")}
       onClick={async () => open({ view: "Connect" })}
     />
   );

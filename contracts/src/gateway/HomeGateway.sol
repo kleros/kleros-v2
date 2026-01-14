@@ -2,15 +2,20 @@
 
 pragma solidity ^0.8.24;
 
-import "./interfaces/IForeignGateway.sol";
-import "./interfaces/IHomeGateway.sol";
-import "../libraries/SafeERC20.sol";
+import {IVeaInbox} from "@kleros/vea-contracts/src/interfaces/inboxes/IVeaInbox.sol";
+import {ISenderGateway} from "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
+import {IForeignGateway} from "./interfaces/IForeignGateway.sol";
+import {IHomeGateway} from "./interfaces/IHomeGateway.sol";
+import {IArbitratorV2} from "../arbitration/interfaces/IArbitratorV2.sol";
+import {IArbitrableV2} from "../arbitration/interfaces/IArbitrableV2.sol";
+import {SafeERC20} from "../libraries/SafeERC20.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/Constants.sol";
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
 
-/// Home Gateway
-/// Counterpart of `ForeignGateway`
+/// @title Home Gateway
+/// @notice Counterpart of `ForeignGateway`
 contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
@@ -29,7 +34,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor;
+    address public owner;
     IArbitratorV2 public arbitrator;
     IVeaInbox public veaInbox;
     uint256 public override foreignChainID;
@@ -43,9 +48,9 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    /// @dev Requires that the sender is the governor.
-    modifier onlyByGovernor() {
-        require(governor == msg.sender, "No allowed: governor only");
+    /// @notice Requires that the sender is the owner.
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
@@ -58,22 +63,22 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         _disableInitializers();
     }
 
-    /// @dev Constructs the `PolicyRegistry` contract.
-    /// @param _governor The governor's address.
+    /// @notice Constructs the `PolicyRegistry` contract.
+    /// @param _owner The owner's address.
     /// @param _arbitrator The address of the arbitrator.
     /// @param _veaInbox The address of the vea inbox.
     /// @param _foreignChainID The ID of the foreign chain.
     /// @param _foreignGateway The address of the foreign gateway.
     /// @param _feeToken The address of the fee token.
     function initialize(
-        address _governor,
+        address _owner,
         IArbitratorV2 _arbitrator,
         IVeaInbox _veaInbox,
         uint256 _foreignChainID,
         address _foreignGateway,
         IERC20 _feeToken
-    ) external reinitializer(1) {
-        governor = _governor;
+    ) external initializer {
+        owner = _owner;
         arbitrator = _arbitrator;
         veaInbox = _veaInbox;
         foreignChainID = _foreignChainID;
@@ -87,39 +92,39 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /**
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     * @dev Only the owner can perform upgrades (`onlyByOwner`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+    function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
     }
 
-    /// @dev Changes the governor.
-    /// @param _governor The address of the new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @notice Changes the owner.
+    /// @param _owner The address of the new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
-    /// @dev Changes the arbitrator.
+    /// @notice Changes the arbitrator.
     /// @param _arbitrator The address of the new arbitrator.
-    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByOwner {
         arbitrator = _arbitrator;
     }
 
-    /// @dev Changes the vea inbox, useful to increase the claim deposit.
+    /// @notice Changes the vea inbox, useful to increase the claim deposit.
     /// @param _veaInbox The address of the new vea inbox.
-    function changeVea(IVeaInbox _veaInbox) external onlyByGovernor {
+    function changeVea(IVeaInbox _veaInbox) external onlyByOwner {
         veaInbox = _veaInbox;
     }
 
-    /// @dev Changes the foreign gateway.
+    /// @notice Changes the foreign gateway.
     /// @param _foreignGateway The address of the new foreign gateway.
-    function changeForeignGateway(address _foreignGateway) external onlyByGovernor {
+    function changeForeignGateway(address _foreignGateway) external onlyByOwner {
         foreignGateway = _foreignGateway;
     }
 
-    /// @dev Changes the fee token.
+    /// @notice Changes the fee token.
     /// @param _feeToken The address of the new fee token.
-    function changeFeeToken(IERC20 _feeToken) external onlyByGovernor {
+    function changeFeeToken(IERC20 _feeToken) external onlyByOwner {
         feeToken = _feeToken;
     }
 
@@ -129,8 +134,8 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
-        require(feeToken == NATIVE_CURRENCY, "Fees paid in ERC20 only");
-        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
+        if (feeToken != NATIVE_CURRENCY) revert FeesPaidInNativeCurrencyOnly();
+        if (_params.foreignChainID != foreignChainID) revert ForeignChainIDNotSupported();
 
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -144,14 +149,14 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
-        require(relayedData.relayer == address(0), "Dispute already relayed");
+        if (relayedData.relayer != address(0)) revert DisputeAlreadyRelayed();
 
         uint256 disputeID = arbitrator.createDispute{value: msg.value}(_params.choices, _params.extraData);
         disputeIDtoHash[disputeID] = disputeHash;
         disputeHashtoID[disputeHash] = disputeID;
         relayedData.relayer = msg.sender;
 
-        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
+        emit DisputeRequest(arbitrator, disputeID, _params.templateId);
 
         emit CrossChainDisputeIncoming(
             arbitrator,
@@ -159,16 +164,14 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             _params.foreignArbitrable,
             _params.foreignDisputeID,
             disputeID,
-            _params.externalDisputeID,
-            _params.templateId,
-            _params.templateUri
+            _params.templateId
         );
     }
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external {
-        require(feeToken != NATIVE_CURRENCY, "Fees paid in native currency only");
-        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
+        if (feeToken == NATIVE_CURRENCY) revert FeesPaidInERC20Only();
+        if (_params.foreignChainID != foreignChainID) revert ForeignChainIDNotSupported();
 
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -182,10 +185,10 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
-        require(relayedData.relayer == address(0), "Dispute already relayed");
+        if (relayedData.relayer != address(0)) revert DisputeAlreadyRelayed();
 
-        require(feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), "Transfer failed");
-        require(feeToken.increaseAllowance(address(arbitrator), _feeAmount), "Allowance increase failed");
+        if (!feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
+        if (!feeToken.increaseAllowance(address(arbitrator), _feeAmount)) revert AllowanceIncreaseFailed();
 
         uint256 disputeID = arbitrator.createDispute(_params.choices, _params.extraData, feeToken, _feeAmount);
         disputeIDtoHash[disputeID] = disputeHash;
@@ -193,7 +196,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         relayedData.relayer = msg.sender;
 
         // Not strictly necessary for functionality, only to satisfy IArbitrableV2
-        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
+        emit DisputeRequest(arbitrator, disputeID, _params.templateId);
 
         emit CrossChainDisputeIncoming(
             arbitrator,
@@ -201,15 +204,13 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             _params.foreignArbitrable,
             _params.foreignDisputeID,
             disputeID,
-            _params.externalDisputeID,
-            _params.templateId,
-            _params.templateUri
+            _params.templateId
         );
     }
 
     /// @inheritdoc IArbitrableV2
     function rule(uint256 _disputeID, uint256 _ruling) external override {
-        require(msg.sender == address(arbitrator), "Only Arbitrator");
+        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
 
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
@@ -234,4 +235,17 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     function receiverGateway() external view override returns (address) {
         return foreignGateway;
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error OwnerOnly();
+    error ArbitratorOnly();
+    error FeesPaidInERC20Only();
+    error FeesPaidInNativeCurrencyOnly();
+    error ForeignChainIDNotSupported();
+    error DisputeAlreadyRelayed();
+    error TransferFailed();
+    error AllowanceIncreaseFailed();
 }

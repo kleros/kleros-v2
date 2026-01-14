@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { DisplaySmall, Field } from "@kleros/ui-components-library";
 
 import ETH from "svgs/icons/eth.svg";
@@ -52,13 +54,14 @@ const StyledDisplay = styled(DisplaySmall)`
 `;
 
 const Jurors: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const { data } = useReadKlerosCoreArbitrationCost({
     query: {
       enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
       refetchInterval: REFETCH_INTERVAL,
     },
-    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData.numberOfJurors ?? "0")],
+    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData?.numberOfJurors ?? 0)],
     chainId: DEFAULT_CHAIN,
   });
 
@@ -67,16 +70,25 @@ const Jurors: React.FC = () => {
   useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
   const handleJurorsWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDisputeData({ ...disputeData, numberOfJurors: parseInt(event.target.value.replace(/\D/g, ""), 10) });
+    const value = parseInt(event.target.value.replace(/\D/g, ""), 10);
+    if (isUndefined(value) || isNaN(value)) {
+      setDisputeData({ ...disputeData, numberOfJurors: 0 });
+    } else {
+      setDisputeData({ ...disputeData, numberOfJurors: value });
+    }
   };
 
   const noOfVotes = Number.isNaN(disputeData.numberOfJurors) ? "" : disputeData.numberOfJurors;
 
   return (
     <Container>
-      <Header text="Select the number of jurors" />
-      <StyledField placeholder="Select the number of jurors" value={noOfVotes} onChange={handleJurorsWrite} />
-      <StyledDisplay text={arbitrationFee} Icon={ETH} label="Arbitration Cost" />
+      <Header text={t("headers.select_number_of_jurors")} />
+      <StyledField
+        placeholder={t("forms.placeholders.select_the_number_of_jurors")}
+        value={noOfVotes}
+        onChange={handleJurorsWrite}
+      />
+      <StyledDisplay text={arbitrationFee} Icon={ETH} label={t("forms.labels.arbitration_cost")} />
       <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/voting-options" />
     </Container>
   );

@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
@@ -35,6 +36,7 @@ interface IDisputeCreated {
 }
 
 const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
+  const { t, i18n } = useTranslation();
   const { data: courtDetails } = useCourtDetails(courtId);
 
   const date = useMemo(
@@ -48,16 +50,15 @@ const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
   return (
     <Container>
       <StyledTitle>
-        🎉 Your case was successfully submitted to Kleros. A pool of jurors will be drawn to evaluate the case and vote
-        at most{" "}
+        {t("popups.dispute_created_full_message_part1")}{" "}
         {isUndefined(date) ? (
           <Skeleton width={60} height={20} />
         ) : (
-          <StyledDateContainer>{formatDate(date)}</StyledDateContainer>
+          <StyledDateContainer>{formatDate(date, false, i18n.language)}</StyledDateContainer>
         )}
-        . 🎉
+        .
       </StyledTitle>
-      <StyledSubtitle>Now, it’s time to submit evidence to support the case.</StyledSubtitle>
+      <StyledSubtitle>{t("popups.submit_evidence_now")}</StyledSubtitle>
     </Container>
   );
 };

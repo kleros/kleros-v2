@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -23,6 +24,7 @@ interface IExecuteRulingButton extends IBaseMaintenanceButton {
 }
 
 const ExecuteRulingButton: React.FC<IExecuteRulingButton> = ({ id, setIsOpen, period, ruled }) => {
+  const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
 
@@ -54,7 +56,9 @@ const ExecuteRulingButton: React.FC<IExecuteRulingButton> = ({ id, setIsOpen, pe
       setIsOpen(false);
     });
   };
-  return <StyledButton text="Rule" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
+  return (
+    <StyledButton text={t("buttons.rule")} small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
+  );
 };
 
 export default ExecuteRulingButton;

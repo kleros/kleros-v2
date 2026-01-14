@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -26,6 +27,7 @@ const StyledButton = styled(Button)`
 type IExecuteStakeDelayedButton = IBaseStakeMaintenanceButton;
 
 const ExecuteDelayedStakeButton: React.FC<IExecuteStakeDelayedButton> = ({ setIsOpen }) => {
+  const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
   const { data: phase } = useSortitionModulePhase();
@@ -71,7 +73,7 @@ const ExecuteDelayedStakeButton: React.FC<IExecuteStakeDelayedButton> = ({ setIs
   };
   return (
     <StyledButton
-      text="Execute Delayed Stakes"
+      text={t("buttons.execute_delayed_stakes")}
       small
       isLoading={isLoading}
       disabled={isDisabled}

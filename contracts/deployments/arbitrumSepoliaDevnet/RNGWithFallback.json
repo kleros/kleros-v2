@@ -1,0 +1,327 @@
+{
+  "address": "0xe2Bdd0d8A8585e889861A101d705511Ff752AD01",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_consumer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_fallbackTimeoutSeconds",
+          "type": "uint256"
+        },
+        {
+          "internalType": "contract IRNG",
+          "name": "_rng",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ConsumerOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidDefaultRNG",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OwnerOnly",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_newTimeout",
+          "type": "uint256"
+        }
+      ],
+      "name": "FallbackTimeoutChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "RNGFallback",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_consumer",
+          "type": "address"
+        }
+      ],
+      "name": "changeConsumer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_fallbackTimeoutSeconds",
+          "type": "uint256"
+        }
+      ],
+      "name": "changeFallbackTimeout",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "consumer",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "fallbackTimeoutSeconds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "receiveRandomness",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "randomNumber",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "requestRandomness",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "requestTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rng",
+      "outputs": [
+        {
+          "internalType": "contract IRNG",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x453284506a9910df6c3e8af2963bbd8087e28499561c2901624c40fe931c97a2",
+  "receipt": {
+    "to": null,
+    "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "contractAddress": "0xe2Bdd0d8A8585e889861A101d705511Ff752AD01",
+    "transactionIndex": 4,
+    "gasUsed": "399166",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x15566533049d074b06e8a1db1138d9f11199dfc5a24c8fd9861f33fe0d09f5a1",
+    "transactionHash": "0x453284506a9910df6c3e8af2963bbd8087e28499561c2901624c40fe931c97a2",
+    "logs": [],
+    "blockNumber": 212135235,
+    "cumulativeGasUsed": "880737",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    1800,
+    "0x20f27813CC24fD1Bad20CB9b8d261CE1eE2e125a"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "7120e939c323b678aae40a88db815cc2",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_consumer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_fallbackTimeoutSeconds\",\"type\":\"uint256\"},{\"internalType\":\"contract IRNG\",\"name\":\"_rng\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"ConsumerOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidDefaultRNG\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OwnerOnly\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_newTimeout\",\"type\":\"uint256\"}],\"name\":\"FallbackTimeoutChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"RNGFallback\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_consumer\",\"type\":\"address\"}],\"name\":\"changeConsumer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_fallbackTimeoutSeconds\",\"type\":\"uint256\"}],\"name\":\"changeFallbackTimeout\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"changeOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"consumer\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fallbackTimeoutSeconds\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"receiveRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"randomNumber\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"requestRandomness\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"requestTimestamp\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"rng\",\"outputs\":[{\"internalType\":\"contract IRNG\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"changeConsumer(address)\":{\"params\":{\"_consumer\":\"Address of the new consumer\"}},\"changeFallbackTimeout(uint256)\":{\"params\":{\"_fallbackTimeoutSeconds\":\"New timeout in seconds\"}},\"changeOwner(address)\":{\"params\":{\"_newOwner\":\"Address of the new owner\"}},\"constructor\":{\"params\":{\"_consumer\":\"Consumer address\",\"_fallbackTimeoutSeconds\":\"Time in seconds to wait before falling back to next RNG\",\"_owner\":\"Owner address\",\"_rng\":\"The RNG address (e.g. Chainlink)\"}},\"receiveRandomness()\":{\"returns\":{\"randomNumber\":\"Random number or 0 if not available\"}},\"requestRandomness()\":{\"details\":\"The consumer is trusted not to make concurrent requests.\"}},\"title\":\"RNG with fallback mechanism\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"changeConsumer(address)\":{\"notice\":\"Change the consumer\"},\"changeFallbackTimeout(uint256)\":{\"notice\":\"Change the fallback timeout\"},\"changeOwner(address)\":{\"notice\":\"Change the owner\"},\"constructor\":{\"notice\":\"Constructor\"},\"receiveRandomness()\":{\"notice\":\"Receive the random number from the primary RNG with fallback to the blockhash RNG if the primary RNG does not respond passed a timeout.\"},\"requestRandomness()\":{\"notice\":\"Request a random number from the primary RNG\"}},\"notice\":\"Uses a primary RNG implementation with automatic fallback to a Blockhash RNG if the primary RNG does not respond passed a timeout.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/RNGWithFallback.sol\":\"RNGWithFallback\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":850},\"remappings\":[],\"viaIR\":true},\"sources\":{\"src/rng/IRNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity >=0.8.0 <0.9.0;\\n\\n/// @title Random Number Generator interface\\ninterface IRNG {\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @notice Request a random number.\\n    function requestRandomness() external;\\n\\n    /// @notice Receive the random number.\\n    /// @return randomNumber Random number or 0 if not available\\n    function receiveRandomness() external returns (uint256 randomNumber);\\n\\n    // ************************************* //\\n    // *              Errors               * //\\n    // ************************************* //\\n\\n    error OwnerOnly();\\n    error ConsumerOnly();\\n}\\n\",\"keccak256\":\"0x92fdca3f55b0e0d013a13f94e3d8b94d7ee93d84aaad83eaeca49b08c7e37e9c\",\"license\":\"MIT\"},\"src/rng/RNGWithFallback.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.24;\\n\\nimport {IRNG} from \\\"./IRNG.sol\\\";\\n\\n/// @title RNG with fallback mechanism\\n/// @notice Uses a primary RNG implementation with automatic fallback to a Blockhash RNG if the primary RNG does not respond passed a timeout.\\ncontract RNGWithFallback is IRNG {\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    IRNG public immutable rng; // RNG address.\\n    address public owner; // Owner address\\n    address public consumer; // Consumer address\\n    uint256 public fallbackTimeoutSeconds; // Time in seconds to wait before falling back to next RNG\\n    uint256 public requestTimestamp; // Timestamp of the current request\\n\\n    // ************************************* //\\n    // *              Events               * //\\n    // ************************************* //\\n\\n    event RNGFallback();\\n    event FallbackTimeoutChanged(uint256 _newTimeout);\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @notice Constructor\\n    /// @param _owner Owner address\\n    /// @param _consumer Consumer address\\n    /// @param _fallbackTimeoutSeconds Time in seconds to wait before falling back to next RNG\\n    /// @param _rng The RNG address (e.g. Chainlink)\\n    constructor(address _owner, address _consumer, uint256 _fallbackTimeoutSeconds, IRNG _rng) {\\n        if (address(_rng) == address(0)) revert InvalidDefaultRNG();\\n\\n        owner = _owner;\\n        consumer = _consumer;\\n        fallbackTimeoutSeconds = _fallbackTimeoutSeconds;\\n        rng = _rng;\\n    }\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    modifier onlyByOwner() {\\n        if (owner != msg.sender) revert OwnerOnly();\\n        _;\\n    }\\n\\n    modifier onlyByConsumer() {\\n        if (consumer != msg.sender) revert ConsumerOnly();\\n        _;\\n    }\\n\\n    // ************************************* //\\n    // *         Governance Functions      * //\\n    // ************************************* //\\n\\n    /// @notice Change the owner\\n    /// @param _newOwner Address of the new owner\\n    function changeOwner(address _newOwner) external onlyByOwner {\\n        owner = _newOwner;\\n    }\\n\\n    /// @notice Change the consumer\\n    /// @param _consumer Address of the new consumer\\n    function changeConsumer(address _consumer) external onlyByOwner {\\n        consumer = _consumer;\\n    }\\n\\n    /// @notice Change the fallback timeout\\n    /// @param _fallbackTimeoutSeconds New timeout in seconds\\n    function changeFallbackTimeout(uint256 _fallbackTimeoutSeconds) external onlyByOwner {\\n        fallbackTimeoutSeconds = _fallbackTimeoutSeconds;\\n        emit FallbackTimeoutChanged(_fallbackTimeoutSeconds);\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers          * //\\n    // ************************************* //\\n\\n    /// @notice Request a random number from the primary RNG\\n    /// @dev The consumer is trusted not to make concurrent requests.\\n    function requestRandomness() external override onlyByConsumer {\\n        requestTimestamp = block.timestamp;\\n        rng.requestRandomness();\\n    }\\n\\n    /// @notice Receive the random number from the primary RNG with fallback to the blockhash RNG if the primary RNG does not respond passed a timeout.\\n    /// @return randomNumber Random number or 0 if not available\\n    function receiveRandomness() external override onlyByConsumer returns (uint256 randomNumber) {\\n        randomNumber = rng.receiveRandomness();\\n\\n        // If we didn't get a random number and the timeout is exceeded, try the fallback\\n        if (randomNumber == 0 && block.timestamp > requestTimestamp + fallbackTimeoutSeconds) {\\n            randomNumber = uint256(blockhash(block.number - 1));\\n            emit RNGFallback();\\n        }\\n        return randomNumber;\\n    }\\n\\n    // ************************************* //\\n    // *              Errors               * //\\n    // ************************************* //\\n\\n    error InvalidDefaultRNG();\\n}\\n\",\"keccak256\":\"0xdb52674e98c5ee3d5ea4229266d39470c8b679d897806721651dd0edd452ef18\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a0346100de57601f61060938819003918201601f19168301916001600160401b038311848410176100e2578084926080946040528339810103126100de57610047816100f6565b90610054602082016100f6565b6040820151606090920151926001600160a01b0384168085036100de57156100cf575f80546001600160a01b039283166001600160a01b031991821617909155600180549390921692169190911790556002556080526040516104fe908161010b823960805181818160bc015281816101a3015261031c0152f35b6325cd329760e21b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffd5b51906001600160a01b03821682036100de5756fe6080806040526004361015610012575f80fd5b5f905f3560e01c9081633e66a64714610478575080635ac21118146104225780638da5cb5b146103fd578063910f03a6146102c3578063a6f9dae11461026d578063b4fd729614610247578063d2d22b52146101c7578063d605787b14610184578063e2639a21146101675763f8413b071461008c575f80fd5b3461013b575f36600319011261013b576001600160a01b0360015416330361013f57426003556001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016803b1561013b575f80916004604051809481937ff8413b070000000000000000000000000000000000000000000000000000000083525af1801561013057610122575080f35b61012e91505f90610492565b005b6040513d5f823e3d90fd5b5f80fd5b7fb40e21ac000000000000000000000000000000000000000000000000000000005f5260045ffd5b3461013b575f36600319011261013b576020600254604051908152f35b3461013b575f36600319011261013b5760206040516001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000168152f35b3461013b57602036600319011261013b576004356001600160a01b03811680910361013b576001600160a01b035f5416330361021f5773ffffffffffffffffffffffffffffffffffffffff1960015416176001555f80f35b7f596dcdb8000000000000000000000000000000000000000000000000000000005f5260045ffd5b3461013b575f36600319011261013b5760206001600160a01b0360015416604051908152f35b3461013b57602036600319011261013b576004356001600160a01b03811680910361013b576001600160a01b035f5416330361021f5773ffffffffffffffffffffffffffffffffffffffff195f5416175f555f80f35b3461013b575f36600319011261013b576001600160a01b0360015416330361013f576040517f910f03a60000000000000000000000000000000000000000000000000000000081526020816004815f6001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000165af1908115610130575f916103cb575b508015806103b4575b610365575b602090604051908152f35b505f1943014381116103a057602090407f1f28558ae44e37ff8490816d0c958555203722310e34d702a6ac5fd657d75ab75f80a1905061035a565b634e487b7160e01b5f52601160045260245ffd5b5060035460025481018091116103a0574211610355565b90506020813d6020116103f5575b816103e660209383610492565b8101031261013b57518161034c565b3d91506103d9565b3461013b575f36600319011261013b5760206001600160a01b035f5416604051908152f35b3461013b57602036600319011261013b576004356001600160a01b035f5416330361021f576020817f0f6720ab8bc2f8481014a3324dbbb3383c3e7d682bbfc8135ca4059d3dca1d8e92600255604051908152a1005b3461013b575f36600319011261013b576020906003548152f35b90601f8019910116810190811067ffffffffffffffff8211176104b457604052565b634e487b7160e01b5f52604160045260245ffdfea26469706673582212203d7f0364e667c97458d282fb194dfd1ec4a1fedb2c7b23c65156050c0a769d5a64736f6c634300081e0033",
+  "deployedBytecode": "0x6080806040526004361015610012575f80fd5b5f905f3560e01c9081633e66a64714610478575080635ac21118146104225780638da5cb5b146103fd578063910f03a6146102c3578063a6f9dae11461026d578063b4fd729614610247578063d2d22b52146101c7578063d605787b14610184578063e2639a21146101675763f8413b071461008c575f80fd5b3461013b575f36600319011261013b576001600160a01b0360015416330361013f57426003556001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016803b1561013b575f80916004604051809481937ff8413b070000000000000000000000000000000000000000000000000000000083525af1801561013057610122575080f35b61012e91505f90610492565b005b6040513d5f823e3d90fd5b5f80fd5b7fb40e21ac000000000000000000000000000000000000000000000000000000005f5260045ffd5b3461013b575f36600319011261013b576020600254604051908152f35b3461013b575f36600319011261013b5760206040516001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000168152f35b3461013b57602036600319011261013b576004356001600160a01b03811680910361013b576001600160a01b035f5416330361021f5773ffffffffffffffffffffffffffffffffffffffff1960015416176001555f80f35b7f596dcdb8000000000000000000000000000000000000000000000000000000005f5260045ffd5b3461013b575f36600319011261013b5760206001600160a01b0360015416604051908152f35b3461013b57602036600319011261013b576004356001600160a01b03811680910361013b576001600160a01b035f5416330361021f5773ffffffffffffffffffffffffffffffffffffffff195f5416175f555f80f35b3461013b575f36600319011261013b576001600160a01b0360015416330361013f576040517f910f03a60000000000000000000000000000000000000000000000000000000081526020816004815f6001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000165af1908115610130575f916103cb575b508015806103b4575b610365575b602090604051908152f35b505f1943014381116103a057602090407f1f28558ae44e37ff8490816d0c958555203722310e34d702a6ac5fd657d75ab75f80a1905061035a565b634e487b7160e01b5f52601160045260245ffd5b5060035460025481018091116103a0574211610355565b90506020813d6020116103f5575b816103e660209383610492565b8101031261013b57518161034c565b3d91506103d9565b3461013b575f36600319011261013b5760206001600160a01b035f5416604051908152f35b3461013b57602036600319011261013b576004356001600160a01b035f5416330361021f576020817f0f6720ab8bc2f8481014a3324dbbb3383c3e7d682bbfc8135ca4059d3dca1d8e92600255604051908152a1005b3461013b575f36600319011261013b576020906003548152f35b90601f8019910116810190811067ffffffffffffffff8211176104b457604052565b634e487b7160e01b5f52604160045260245ffdfea26469706673582212203d7f0364e667c97458d282fb194dfd1ec4a1fedb2c7b23c65156050c0a769d5a64736f6c634300081e0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "changeConsumer(address)": {
+        "params": {
+          "_consumer": "Address of the new consumer"
+        }
+      },
+      "changeFallbackTimeout(uint256)": {
+        "params": {
+          "_fallbackTimeoutSeconds": "New timeout in seconds"
+        }
+      },
+      "changeOwner(address)": {
+        "params": {
+          "_newOwner": "Address of the new owner"
+        }
+      },
+      "constructor": {
+        "params": {
+          "_consumer": "Consumer address",
+          "_fallbackTimeoutSeconds": "Time in seconds to wait before falling back to next RNG",
+          "_owner": "Owner address",
+          "_rng": "The RNG address (e.g. Chainlink)"
+        }
+      },
+      "receiveRandomness()": {
+        "returns": {
+          "randomNumber": "Random number or 0 if not available"
+        }
+      },
+      "requestRandomness()": {
+        "details": "The consumer is trusted not to make concurrent requests."
+      }
+    },
+    "title": "RNG with fallback mechanism",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "changeConsumer(address)": {
+        "notice": "Change the consumer"
+      },
+      "changeFallbackTimeout(uint256)": {
+        "notice": "Change the fallback timeout"
+      },
+      "changeOwner(address)": {
+        "notice": "Change the owner"
+      },
+      "constructor": {
+        "notice": "Constructor"
+      },
+      "receiveRandomness()": {
+        "notice": "Receive the random number from the primary RNG with fallback to the blockhash RNG if the primary RNG does not respond passed a timeout."
+      },
+      "requestRandomness()": {
+        "notice": "Request a random number from the primary RNG"
+      }
+    },
+    "notice": "Uses a primary RNG implementation with automatic fallback to a Blockhash RNG if the primary RNG does not respond passed a timeout.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 40287,
+        "contract": "src/rng/RNGWithFallback.sol:RNGWithFallback",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 40289,
+        "contract": "src/rng/RNGWithFallback.sol:RNGWithFallback",
+        "label": "consumer",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 40291,
+        "contract": "src/rng/RNGWithFallback.sol:RNGWithFallback",
+        "label": "fallbackTimeoutSeconds",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 40293,
+        "contract": "src/rng/RNGWithFallback.sol:RNGWithFallback",
+        "label": "requestTimestamp",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

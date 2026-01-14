@@ -6,13 +6,12 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { ChainlinkRNG, DisputeKitClassic, KlerosCore } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy } = deployments;
   const { ZeroAddress } = hre.ethers;
-  const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -35,6 +34,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
+  const classicDisputeKitID = 1; // Classic DK
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
     args: [deployer, ZeroAddress, weth.target],
@@ -50,10 +50,18 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
-  const rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
+  const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.target, RNG_LOOKAHEAD],
+    args: [
+      deployer,
+      klerosCoreAddress,
+      minStakingTime,
+      maxFreezingTime,
+      rngWithFallback.target,
+      ethers.MaxUint256, // maxStakePerJuror
+      ethers.MaxUint256, // maxTotalStaked
+    ],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -75,26 +83,27 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
       weth.target,
+      ZeroAddress, // jurorNft
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // disputeKit.changeCore() only if necessary
-  const disputeKitContract = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  const disputeKitContract = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
     await disputeKitContract.changeCore(klerosCore.address);
   }
 
-  // rng.changeSortitionModule() only if necessary
-  const rngSortitionModule = await rng.sortitionModule();
-  if (rngSortitionModule !== sortitionModule.address) {
-    console.log(`rng.changeSortitionModule(${sortitionModule.address})`);
-    await rng.changeSortitionModule(sortitionModule.address);
+  // rngWithFallback.changeConsumer() only if necessary
+  const rngConsumer = await rngWithFallback.consumer();
+  if (rngConsumer !== sortitionModule.address) {
+    console.log(`rngWithFallback.changeConsumer(${sortitionModule.address})`);
+    await rngWithFallback.changeConsumer(sortitionModule.address);
   }
 
-  const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
+  const core = await hre.ethers.getContract<KlerosCore>("KlerosCore");
   try {
     await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);
     await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);
@@ -110,7 +119,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
-  await core.enableDisputeKits(Courts.GENERAL, [2], true); // enable disputeKitShutter on the General Court
+  const disputeKitShutterID = (await core.getDisputeKitsLength()) - 1n;
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitShutterID], true); // enable disputeKitShutter on the General Court
 
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
@@ -118,15 +128,17 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGated.address);
-  await core.enableDisputeKits(Courts.GENERAL, [3], true); // enable disputeKitGated on the General Court
+  const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true); // enable disputeKitGated on the General Court
 
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target], // TODO: jump to a Shutter DK instead of a Classic one?
     log: true,
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
-  await core.enableDisputeKits(Courts.GENERAL, [4], true); // enable disputeKitGatedShutter on the General Court
+  const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true); // enable disputeKitGatedShutter on the General Court
 
   // Snapshot proxy
   await deploy("KlerosCoreSnapshotProxy", {

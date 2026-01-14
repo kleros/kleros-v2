@@ -59,7 +59,7 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
           // console.debug(`Skipping ${name} for deployment type ${ArbitratorTypes[type]}`);
           continue;
         }
-        if (type !== ArbitratorTypes.vanilla) {
+        if (type === ArbitratorTypes.university) {
           nameWithoutSuffix = name.slice(0, -artifactSuffix.length);
           // console.debug(`Using ${nameWithoutSuffix} instead of ${name}`);
         }

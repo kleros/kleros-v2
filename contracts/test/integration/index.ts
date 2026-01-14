@@ -9,8 +9,6 @@ import {
   HomeGateway,
   VeaMock,
   DisputeKitClassic,
-  RandomizerRNG,
-  RandomizerMock,
   SortitionModule,
   ChainlinkRNG,
   ChainlinkVRFCoordinatorV2Mock,
@@ -58,16 +56,16 @@ describe("Integration tests", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
-    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
-    disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-    pnk = (await ethers.getContract("PNK")) as PNK;
-    core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    vea = (await ethers.getContract("VeaMock")) as VeaMock;
-    foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGateway;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
-    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+    rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
+    disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+    pnk = await ethers.getContract<PNK>("PNK");
+    core = await ethers.getContract<KlerosCore>("KlerosCore");
+    vea = await ethers.getContract<VeaMock>("VeaMock");
+    foreignGateway = await ethers.getContract<ForeignGateway>("ForeignGatewayOnEthereum");
+    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
+    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
   });
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
@@ -78,28 +76,28 @@ describe("Integration tests", async () => {
 
     await core.setStake(1, ONE_THOUSAND_PNK);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK);
+      expect(result.totalStakedPnk).to.equal(ONE_THOUSAND_PNK);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_HUNDRED_PNK * 5n);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK * 5n);
+      expect(result.totalStakedPnk).to.equal(ONE_HUNDRED_PNK * 5n);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, 0);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(0);
+      expect(result.totalStakedPnk).to.equal(0);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_THOUSAND_PNK * 4n);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK * 4n);
+      expect(result.totalStakedPnk).to.equal(ONE_THOUSAND_PNK * 4n);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
@@ -113,15 +111,7 @@ describe("Integration tests", async () => {
     await expect(tx)
       .to.emit(foreignGateway, "CrossChainDisputeOutgoing")
       .withArgs(anyValue, arbitrable.target, 1, 2, "0x00");
-    await expect(tx)
-      .to.emit(arbitrable, "DisputeRequest")
-      .withArgs(
-        foreignGateway.target,
-        1,
-        46619385602526556702049273755915206310773794210139929511467397410441395547901n,
-        0,
-        ""
-      );
+    await expect(tx).to.emit(arbitrable, "DisputeRequest").withArgs(foreignGateway.target, 1, 0);
     if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     if (lastBlock === null) throw new Error("lastBlock is null");
@@ -134,24 +124,20 @@ describe("Integration tests", async () => {
       throw new Error("Block hash is null - cannot calculate dispute hash");
     }
     // Relayer tx
-    const tx2 = await homeGateway
-      .connect(relayer)
-      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
+    await expect(
+      homeGateway.connect(relayer)["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"](
         {
           foreignBlockHash: ethers.toBeHex(lastBlock.hash),
           foreignChainID: 31337,
           foreignArbitrable: arbitrable.target,
           foreignDisputeID: disputeId,
-          externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
           templateId: 0,
-          templateUri: "",
           choices: 2,
           extraData: "0x00",
         },
         { value: arbitrationCost }
-      );
-    expect(tx2).to.emit(homeGateway, "DisputeRequest");
-    await tx2.wait();
+      )
+    ).to.emit(homeGateway, "DisputeRequest");
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
@@ -161,7 +147,6 @@ describe("Integration tests", async () => {
     console.log("KC phase: %d", await sortitionModule.phase());
 
     await sortitionModule.passPhase(); // Staking -> Generating
-    await mineBlocks(ethers.getNumber(await sortitionModule.rngLookahead())); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
     await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
@@ -191,12 +176,16 @@ describe("Integration tests", async () => {
 
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
-    expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
+    await expect(core.execute(0, 0, 1000))
+      .to.emit(core, "JurorRewardPenalty")
+      .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n, ethers.ZeroAddress);
 
-    const tx4 = await core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 });
+    await expect(core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }))
+      .to.emit(core, "Ruling")
+      .withArgs(homeGateway.target, 0, 0)
+      .and.to.emit(arbitrable, "Ruling")
+      .withArgs(foreignGateway.target, 1, 0); // The ForeignGateway starts counting disputeID from 1.
     console.log("Ruling executed on KlerosCore");
-    expect(tx4).to.emit(core, "Ruling").withArgs(homeGateway.target, 0, 0);
-    expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.target, 1, 0); // The ForeignGateway starts counting disputeID from 1.
   });
 
   const mineBlocks = async (n: number) => {
@@ -206,6 +195,10 @@ describe("Integration tests", async () => {
   };
 });
 
-const logJurorBalance = async (result) => {
-  console.log("staked=%s, locked=%s", ethers.formatUnits(result.totalStaked), ethers.formatUnits(result.totalLocked));
+const logJurorBalance = async (result: { totalStakedPnk: bigint; totalLocked: bigint }) => {
+  console.log(
+    "staked=%s, locked=%s",
+    ethers.formatUnits(result.totalStakedPnk),
+    ethers.formatUnits(result.totalLocked)
+  );
 };

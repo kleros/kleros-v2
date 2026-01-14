@@ -1,6 +1,6 @@
 import hre from "hardhat";
 import { getBytes } from "ethers";
-import { DisputeKitGatedShutter, DisputeKitShutter, SortitionModule, SortitionModuleNeo } from "../typechain-types";
+import { DisputeKitGatedShutter, DisputeKitShutter } from "../typechain-types";
 import { decrypt } from "./shutter";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
@@ -35,10 +35,12 @@ const logger = loggerFactory.createLogger(loggerOptions);
 const decode = (message: string) => {
   const SEPARATOR = "-";
   const parts = message.split(SEPARATOR);
-  if (parts.length !== 3) {
+  if (parts.length < 3) {
     throw Error(`Malformed decrypted message (${message})`);
   }
-  const [choice, salt, justification] = parts;
+  const [choice, salt, ...rest] = parts;
+  const justification = rest.join(SEPARATOR);
+  
   return {
     choice: BigInt(choice),
     salt,
@@ -312,8 +314,7 @@ const getContracts = async () => {
   if (coreType === Cores.UNIVERSITY) {
     throw new Error("University is not supported yet");
   }
-  const contracts = await getContractsForCoreType(hre, coreType);
-  return { ...contracts, sortition: contracts.sortition as SortitionModule | SortitionModuleNeo };
+  return await getContractsForCoreType(hre, coreType);
 };
 
 async function main() {

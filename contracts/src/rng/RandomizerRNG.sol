@@ -2,18 +2,18 @@
 
 pragma solidity ^0.8.24;
 
-import "./RNG.sol";
-import "./IRandomizer.sol";
+import {IRNG} from "./IRNG.sol";
+import {IRandomizer} from "./IRandomizer.sol";
 
 /// @title Random Number Generator that uses Randomizer.ai
 /// https://randomizer.ai/
-contract RandomizerRNG is RNG {
+contract RandomizerRNG is IRNG {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The address that can withdraw funds.
-    address public sortitionModule; // The address of the SortitionModule.
+    address public owner; // The address that can withdraw funds.
+    address public consumer; // The address that can request random numbers.
     IRandomizer public randomizer; // Randomizer address.
     uint256 public callbackGasLimit; // Gas limit for the Randomizer.ai callback.
     uint256 public lastRequestId; // The last request ID.
@@ -23,7 +23,7 @@ contract RandomizerRNG is RNG {
     // *              Events               * //
     // ************************************* //
 
-    /// @dev Emitted when a request is sent to the VRF Coordinator
+    /// @notice Emitted when a request is sent to the VRF Coordinator
     /// @param requestId The ID of the request
     event RequestSent(uint256 indexed requestId);
 
@@ -36,13 +36,13 @@ contract RandomizerRNG is RNG {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
-        require(governor == msg.sender, "Governor only");
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
         _;
     }
 
-    modifier onlyBySortitionModule() {
-        require(sortitionModule == msg.sender, "SortitionModule only");
+    modifier onlyByConsumer() {
+        if (consumer != msg.sender) revert ConsumerOnly();
         _;
     }
 
@@ -50,12 +50,13 @@ contract RandomizerRNG is RNG {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
-    /// @param _randomizer Randomizer contract.
-    /// @param _governor Governor of the contract.
-    constructor(address _governor, address _sortitionModule, IRandomizer _randomizer) {
-        governor = _governor;
-        sortitionModule = _sortitionModule;
+    /// @notice Constructor
+    /// @param _owner The Owner of the contract.
+    /// @param _consumer The address that can request random numbers.
+    /// @param _randomizer The Randomizer.ai oracle contract.
+    constructor(address _owner, address _consumer, IRandomizer _randomizer) {
+        owner = _owner;
+        consumer = _consumer;
         randomizer = _randomizer;
         callbackGasLimit = 50000;
     }
@@ -64,33 +65,33 @@ contract RandomizerRNG is RNG {
     // *      Governance      * //
     // ************************ //
 
-    /// @dev Changes the governor of the contract.
-    /// @param _governor The new governor.
-    function changeGovernor(address _governor) external onlyByGovernor {
-        governor = _governor;
+    /// @notice Changes the owner of the contract.
+    /// @param _owner The new owner.
+    function changeOwner(address _owner) external onlyByOwner {
+        owner = _owner;
     }
 
-    /// @dev Changes the sortition module of the contract.
-    /// @param _sortitionModule The new sortition module.
-    function changeSortitionModule(address _sortitionModule) external onlyByGovernor {
-        sortitionModule = _sortitionModule;
+    /// @notice Changes the consumer of the RNG.
+    /// @param _consumer The new consumer.
+    function changeConsumer(address _consumer) external onlyByOwner {
+        consumer = _consumer;
     }
 
-    /// @dev Change the Randomizer callback gas limit.
+    /// @notice Change the Randomizer callback gas limit.
     /// @param _callbackGasLimit the new limit.
-    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByGovernor {
+    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByOwner {
         callbackGasLimit = _callbackGasLimit;
     }
 
-    /// @dev Change the Randomizer address.
+    /// @notice Change the Randomizer address.
     /// @param _randomizer the new Randomizer address.
-    function setRandomizer(address _randomizer) external onlyByGovernor {
+    function setRandomizer(address _randomizer) external onlyByOwner {
         randomizer = IRandomizer(_randomizer);
     }
 
-    /// @dev Allows the governor to withdraw randomizer funds.
+    /// @notice Allows the owner to withdraw randomizer funds.
     /// @param _amount Amount to withdraw in wei.
-    function randomizerWithdraw(uint256 _amount) external onlyByGovernor {
+    function randomizerWithdraw(uint256 _amount) external onlyByOwner {
         randomizer.clientWithdrawTo(msg.sender, _amount);
     }
 
@@ -98,18 +99,19 @@ contract RandomizerRNG is RNG {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Request a random number. SortitionModule only.
-    function requestRandomness(uint256 /*_block*/) external override onlyBySortitionModule {
+    /// @notice Request a random number.
+    /// @dev Consumer only.
+    function requestRandomness() external override onlyByConsumer {
         uint256 requestId = randomizer.request(callbackGasLimit);
         lastRequestId = requestId;
         emit RequestSent(requestId);
     }
 
-    /// @dev Callback function called by the randomizer contract when the random value is generated.
+    /// @notice Callback function called by the randomizer contract when the random value is generated.
     /// @param _id The ID of the request.
     /// @param _value The random value answering the request.
     function randomizerCallback(uint256 _id, bytes32 _value) external {
-        require(msg.sender == address(randomizer), "Randomizer only");
+        if (msg.sender != address(randomizer)) revert RandomizerOnly();
         randomNumbers[_id] = uint256(_value);
         emit RequestFulfilled(_id, uint256(_value));
     }
@@ -118,9 +120,15 @@ contract RandomizerRNG is RNG {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Return the random number.
+    /// @notice Return the random number.
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
-    function receiveRandomness(uint256 /*_block*/) external view override returns (uint256 randomNumber) {
+    function receiveRandomness() external view override returns (uint256 randomNumber) {
         randomNumber = randomNumbers[lastRequestId];
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error RandomizerOnly();
 }

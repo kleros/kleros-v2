@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Box, Steps } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
@@ -68,7 +70,7 @@ const Timeline: React.FC<{
   currentPeriodIndex: number;
 }> = ({ currentPeriodIndex, dispute }) => {
   const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.court.hiddenVotes);
-  const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
+  const items = useTimeline(dispute, currentPeriodIndex);
 
   return (
     <TimeLineContainer>
@@ -82,13 +84,15 @@ const AppealBanner: React.FC = () => {
   const { loserSideCountdown, winnerSideCountdown } = useCountdownContext();
   const { fundedChoices } = useFundingContext();
 
+  const { t } = useTranslation();
   const text = useMemo(() => {
-    if (loserSideCountdown) return `${secondsToDayHourMinute(loserSideCountdown)} remaining to fund losing options`;
+    if (loserSideCountdown)
+      return `${secondsToDayHourMinute(loserSideCountdown)} ${t("appeal.remaining_to_fund_losing")}`;
     // only show if loosing option was funded and winner needs funding, else no action is needed from user
     if (winnerSideCountdown && !isUndefined(fundedChoices) && fundedChoices.length > 0)
-      return `${secondsToDayHourMinute(winnerSideCountdown)} remaining to fund winning option`;
+      return `${secondsToDayHourMinute(winnerSideCountdown)} ${t("appeal.remaining_to_fund_winning")}`;
     return;
-  }, [loserSideCountdown, winnerSideCountdown, fundedChoices]);
+  }, [loserSideCountdown, winnerSideCountdown, fundedChoices, t]);
 
   return text ? (
     <AppealBannerContainer>
@@ -103,30 +107,33 @@ const currentPeriodToCurrentItem = (currentPeriodIndex: number, hiddenVotes?: bo
   else return currentPeriodIndex - 1;
 };
 
-const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: number, currentPeriodIndex: number) => {
+const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex: number) => {
+  const { t } = useTranslation();
   const isDesktop = useIsDesktop();
-  const titles = useMemo(() => {
-    const titles = ["Evidence", "Voting", "Appeal", "Executed"];
-    if (dispute?.court.hiddenVotes) {
-      titles.splice(1, 0, "Commit");
-    }
-    return titles;
-  }, [dispute]);
+  const titles = [
+    t("timeline.evidence"),
+    t("timeline.commit"),
+    t("timeline.voting"),
+    t("timeline.appeal"),
+    t("timeline.executed"),
+  ];
+
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
     dispute?.court.timesPerPeriod
   );
+
   const countdown = useCountdown(deadlineCurrentPeriod);
   const getSubitems = (index: number): string[] | React.ReactNode[] => {
     if (typeof countdown !== "undefined" && dispute) {
       if (index === titles.length - 1) {
         return [];
-      } else if (index === currentItemIndex && countdown === 0) {
-        return ["Time's up!"];
-      } else if (index < currentItemIndex) {
+      } else if (index === currentPeriodIndex && countdown === 0) {
+        return [t("voting.times_up")];
+      } else if (index < currentPeriodIndex) {
         return [];
-      } else if (index === currentItemIndex) {
+      } else if (index === currentPeriodIndex) {
         return [secondsToDayHourMinute(countdown)];
       } else {
         return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
@@ -134,10 +141,16 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
     }
     return [<StyledSkeleton key={index} width={60} />];
   };
-  return titles.map((title, i) => ({
-    title: i + 1 < titles.length && isDesktop ? `${title} Period` : title,
-    subitems: getSubitems(i),
-  }));
+  return titles.flatMap((title, i) => {
+    // if not hidden votes, skip commit index
+    if (!dispute?.court.hiddenVotes && i === Periods.commit) return [];
+    return [
+      {
+        title: i + 1 < titles.length && isDesktop ? t("timeline.period_with_name", { name: title }) : title,
+        subitems: getSubitems(i),
+      },
+    ];
+  });
 };
 
 export const getDeadline = (

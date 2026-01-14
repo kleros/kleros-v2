@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
@@ -18,9 +18,11 @@ import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import JurorLink from "components/JurorLink";
+
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
-import JurorTitle from "pages/Home/TopJurors/JurorCard/JurorTitle";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -66,17 +68,6 @@ const Index = styled.p`
 `;
 
 const ReactMarkdownWrapper = styled.div``;
-const StyledReactMarkdown = styled(ReactMarkdown)`
-  a {
-    font-size: 16px;
-  }
-  code {
-    color: ${({ theme }) => theme.secondaryText};
-  }
-  p {
-    margin: 0;
-  }
-`;
 
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
@@ -188,12 +179,16 @@ const StyledJurorInternalLink = styled(InternalLink)`
   }
 `;
 
-const AttachedFileText: React.FC = () => (
-  <>
-    <DesktopText>View attached file</DesktopText>
-    <MobileText>File</MobileText>
-  </>
-);
+const AttachedFileText: React.FC = () => {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <DesktopText>{t("misc.view_attached_file")}</DesktopText>
+      <MobileText>{t("misc.file")}</MobileText>
+    </>
+  );
+};
 
 interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
   sender: string;
@@ -211,8 +206,9 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
-  const profileLink = `/profile/1/desc/all?address=${sender}`;
+  const { t } = useTranslation();
   const { id } = useParams();
+  const profileLink = `/profile/stakes/1?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
     return getTxnExplorerLink(transactionHash ?? "");
@@ -227,16 +223,18 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         </IndexAndName>
         {name && description ? (
           <ReactMarkdownWrapper dir="auto">
-            <StyledReactMarkdown>{description}</StyledReactMarkdown>
+            <MarkdownRenderer content={description} />
           </ReactMarkdownWrapper>
         ) : (
-          <p>{evidence}</p>
+          <ReactMarkdownWrapper dir="auto">
+            <MarkdownRenderer content={evidence} />
+          </ReactMarkdownWrapper>
         )}
       </TopContent>
       <BottomShade>
         <BottomLeftContent>
           <StyledJurorInternalLink to={profileLink}>
-            <JurorTitle address={sender} />
+            <JurorLink address={sender} />
           </StyledJurorInternalLink>
           <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
             <label>{formatDate(Number(timestamp), true)}</label>
@@ -244,7 +242,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>
-            <StyledInternalLink to={`/attachment/?disputeId=${id}&title=${"Evidence File"}&url=${getIpfsUrl(fileURI)}`}>
+            <StyledInternalLink to={`/attachment/?disputeId=${id}&title=misc.evidence_file&url=${getIpfsUrl(fileURI)}`}>
               <AttachmentIcon />
               <AttachedFileText />
             </StyledInternalLink>

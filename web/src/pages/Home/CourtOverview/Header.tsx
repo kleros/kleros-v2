@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Button } from "@kleros/ui-components-library";
 
 import Bookmark from "svgs/icons/bookmark.svg";
@@ -27,11 +29,13 @@ const StyledInternalLink = styled(InternalLink)`
 `;
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <StyledHeader>
-      <StyledH1>Court Overview</StyledH1>
+      <StyledH1>{t("misc.court_overview")}</StyledH1>
       <StyledInternalLink to={"/resolver"}>
-        <Button small Icon={Bookmark} text="Create a Case" />
+        <Button small Icon={Bookmark} text={t("buttons.create_a_case")} />
       </StyledInternalLink>
     </StyledHeader>
   );

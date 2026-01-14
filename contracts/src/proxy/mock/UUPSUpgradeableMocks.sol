@@ -20,7 +20,7 @@ contract NonUpgradeableMock {
 
 contract UUPSUpgradeableMock is UUPSProxiable, NonUpgradeableMock {
     bool public initialized;
-    address public governor;
+    address public owner;
 
     uint256[50] __gap;
 
@@ -28,14 +28,14 @@ contract UUPSUpgradeableMock is UUPSProxiable, NonUpgradeableMock {
         initialized = true;
     }
 
-    function initialize(address _governor) external {
+    function initialize(address _owner) external {
         require(!initialized, "Contract instance has already been initialized");
-        governor = _governor;
+        owner = _owner;
         initialized = true;
     }
 
     function _authorizeUpgrade(address) internal view override {
-        require(governor == msg.sender, "No privilege to upgrade");
+        require(owner == msg.sender, "No privilege to upgrade");
     }
 
     function version() external pure virtual override returns (string memory) {
