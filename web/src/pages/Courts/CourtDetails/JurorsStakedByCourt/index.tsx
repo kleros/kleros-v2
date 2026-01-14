@@ -23,9 +23,7 @@ const JurorsStakedByCourt: React.FC<{ courtName: string | undefined }> = ({ cour
   const { t } = useTranslation();
   return (
     <Container>
-      <Title>
-        {t("misc.jurors_staked_in")} {getDescriptiveCourtName(courtName)}
-      </Title>
+      <Title>{t("misc.jurors_staked_in_court", { court: getDescriptiveCourtName(courtName) })}</Title>
       <Search />
       <DisplayJurors />
     </Container>

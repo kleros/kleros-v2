@@ -169,7 +169,7 @@ const CourtDetails: React.FC = () => {
         <Description />
       </StyledCard>
       <LatestCases
-        title={`${t("misc.latest_cases_in")} ${getDescriptiveCourtName(courtName)}`}
+        title={t("misc.latest_cases_in_court", { court: getDescriptiveCourtName(courtName) })}
         filters={{ court: id }}
       />
       <StakingSections>

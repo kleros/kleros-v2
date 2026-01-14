@@ -98,7 +98,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       const answers = disputeData?.answers;
 
       acc.push({
-        title: `${t("dispute_info.jury_decision")} - ${t("dispute_info.round")} ${index + 1}`,
+        title: t("dispute_info.jury_decision_round", { round: index + 1 }),
         party: isOngoing ? t("voting.voting_is_ongoing") : getVoteChoice(winningChoice, answers),
         subtitle: isOngoing ? "" : `${formatDate(roundTimeline?.[Periods.vote])} / ${rounds?.[index]?.court.name}`,
         rightSided: true,

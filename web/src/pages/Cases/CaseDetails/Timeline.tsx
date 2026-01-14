@@ -87,10 +87,10 @@ const AppealBanner: React.FC = () => {
   const { t } = useTranslation();
   const text = useMemo(() => {
     if (loserSideCountdown)
-      return `${secondsToDayHourMinute(loserSideCountdown)} ${t("appeal.remaining_to_fund_losing")}`;
+      return t("appeal.time_remaining_to_fund_losing", { time: secondsToDayHourMinute(loserSideCountdown) });
     // only show if loosing option was funded and winner needs funding, else no action is needed from user
     if (winnerSideCountdown && !isUndefined(fundedChoices) && fundedChoices.length > 0)
-      return `${secondsToDayHourMinute(winnerSideCountdown)} ${t("appeal.remaining_to_fund_winning")}`;
+      return t("appeal.time_remaining_to_fund_winning", { time: secondsToDayHourMinute(winnerSideCountdown) });
     return;
   }, [loserSideCountdown, winnerSideCountdown, fundedChoices, t]);
 

@@ -73,7 +73,7 @@
       "token_address_example": "Eg. 0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
       "token_id_example": "Eg. 1",
       "case_id_example": "eg. 45",
-      "description_for_option": "Description for Option",
+      "description_for_option_number": "Description for Option {{number}}",
       "describe_evidence": "Describe your evidence in detail...",
       "search_by_id": "Search By ID",
       "bob_hired_alice": "eg. Bob hired Alice to develop a website for him, but Alice failed to deliver...",
@@ -83,8 +83,8 @@
       "email": "Email",
       "question": "Question",
       "option_description": "Option Description",
-      "voting_option": "Voting Option",
-      "person": "Person",
+      "voting_option_number": "Voting Option {{number}}",
+      "person_number": "Person {{number}}",
       "person_address": "Person {{index}} Address",
       "arbitration_cost": "Arbitration Cost",
       "enter_cases_id": "Enter the case's ID",
@@ -167,7 +167,7 @@
     "jury_decided_in_favor": "The jury decided in favor of:",
     "this_option_winning": "This option is winning:",
     "voting_history": "Voting History",
-    "round": "Round",
+    "round_number": "Round {{number}}",
     "did_not_commit_vote": "Did not commit vote",
     "vote_committed": "Vote committed",
     "pending_vote_commitment": "Pending vote commitment",
@@ -196,7 +196,8 @@
     "appealed": "Appealed",
     "won_by_appeal": "Won by Appeal",
     "enforcement": "Enforcement",
-    "jury_decision": "Jury Decision"
+    "jury_decision": "Jury Decision",
+    "jury_decision_round": "Jury Decision - Round {{round}}"
   },
   "stats": {
     "pnk_staked": "PNK Staked",
@@ -244,7 +245,7 @@
     "socrates": "Socrates",
     "plato": "Plato",
     "aristotle": "Aristotle",
-    "level": "Level",
+    "level_number": "Level {{level}}",
     "score": "Score",
     "coherent_votes": "Coherent Votes",
     "rewards": "Rewards",
@@ -296,21 +297,21 @@
     "sign_in": "Sign In",
     "signed_in_successfully": "Signed In successfully!",
     "signing_in_user": "Signing in User...",
-    "sign_in_failed": "Sign-In failed:"
+    "sign_in_failed_error": "Sign-In failed: {{error}}"
   },
   "notifications": {
     "uploaded_successfully": "Uploaded successfully!",
-    "upload_failed": "Upload failed:",
+    "upload_failed_error": "Upload failed: {{error}}",
     "verification_email_sent": "Verification email sent successfully!",
     "failed_to_submit_evidence": "Failed to submit evidence.",
     "uploading_to_ipfs": "Uploading to IPFS",
     "error_uploading_evidence": "Error uploading evidence file",
     "updating_email": "Updating Email...",
     "email_updated_successfully": "Email updated successfully!",
-    "updating_email_failed": "Updating Email failed:",
+    "updating_email_failed_error": "Updating Email failed: {{error}}",
     "adding_user": "Adding User...",
     "user_added_successfully": "User added successfully!",
-    "adding_user_failed": "Adding User failed:",
+    "adding_user_failed_error": "Adding User failed: {{error}}",
     "update_email_again": "You can update email again {{time}}"
   },
   "alerts": {
@@ -329,7 +330,7 @@
     "thanks_for_funding_appeal": "Thanks for Funding the Appeal",
     "success": "Success!",
     "check_the_case": "Check the case",
-    "dispute_created_full_message_part1": "The case will be resolved by approximately",
+    "dispute_created_full_message": "The case will be resolved by approximately <date></date>.",
     "external_link_warning": "External Link Warning",
     "external_link_message": "You are about to navigate to an external website. Please verify the URL before proceeding to ensure it's safe and legitimate.",
     "safety_tips": "Safety Tips:",
@@ -365,7 +366,7 @@
     "didnt_receive_email": "Didn't receive the email?",
     "email_verification_pending": "Email Verification Pending",
     "sending_verification_email": "Sending verification email...",
-    "failed_to_send_verification": "Failed to send verification email:"
+    "failed_to_send_verification_error": "Failed to send verification email: {{error}}"
   },
   "case_creation": {
     "create_from_scratch": "Create a case from scratch",
@@ -384,7 +385,13 @@
     "stake_all": "Stake all",
     "withdraw_all": "Withdraw all",
     "current_stake": "Current Stake",
-    "available": "Available"
+    "available_amount": "Available {{amount}} PNK",
+    "you_are_staking": "You are staking",
+    "you_are_withdrawing": "You are withdrawing",
+    "you_successfully_staked": "You successfully staked",
+    "you_successfully_withdrew": "You successfully withdrew",
+    "on_court": "on {{court}}",
+    "stake_confirmed_tooltip": "The stake is confirmed! It is standard procedure to delay the execution of a change in stakes if the phase of the arbitrator is not currently Staking. It'll be updated shortly."
   },
   "evidence": {
     "submit_new_evidence": "Submit New Evidence",
@@ -396,6 +403,7 @@
     "attachment": "Attachment",
     "open_in_new_tab": "Open in new tab",
     "case": "Case",
+    "case_number": "Case {{id}}",
     "policy_file": "Policy File",
     "evidence_file": "Evidence File",
     "case_policy": "Case Policy",
@@ -411,8 +419,8 @@
     "juror": "Juror",
     "pnk_staked": "PNK Staked",
     "latest_cases": "Latest Cases",
-    "latest_cases_in": "Latest Cases in",
-    "jurors_staked_in": "Jurors Staked in",
+    "latest_cases_in_court": "Latest Cases in {{court}}",
+    "jurors_staked_in_court": "Jurors Staked in {{court}}",
     "see_all": "See all",
     "voted": "Voted:",
     "justification": "Justification:",
@@ -437,6 +445,17 @@
   "maintenance": {
     "jurors_drawn_in_drawing_phase": "Jurors can be drawn in drawing phase.",
     "pass_phase_here": "Pass phase <link>here</link>."
+  },
+  "phase": {
+    "label": "Phase: {{phase}}",
+    "staking": "Staking",
+    "generating": "Generating",
+    "drawing": "Drawing"
+  },
+  "toasts": {
+    "uploading_to_ipfs": "Uploading to IPFS",
+    "uploaded_successfully": "Uploaded successfully!",
+    "upload_failed": "Upload failed: {{error}}"
   },
   "sorting": {
     "first_to_last": "1st to last",
@@ -528,8 +547,8 @@
     "appeal_stage_2": "Appeal: Stage 2",
     "crowdfunding_rewards": "Crowdfunding Rewards",
     "who_wins_rewards": "Who wins the rewards?",
-    "remaining_to_fund_losing": "remaining to fund losing options",
-    "remaining_to_fund_winning": "remaining to fund winning option",
+    "time_remaining_to_fund_losing": "{{time}} remaining to fund losing options",
+    "time_remaining_to_fund_winning": "{{time}} remaining to fund winning option",
     "appeal_paragraph_1": "If after the jury has reached a decision, a party is not satisfied (because she thinks the result was unfair), she can appeal and have the dispute ruled again.",
     "appeal_paragraph_2": "Every time the case is appealed a new round starts with all the voting options available for voting again. The results of the previous rounds are irrelevant in terms of what the final result will be.",
     "appeal_paragraph_3": "Each new appeal instance will have twice the previous number of jurors plus one.",
@@ -556,9 +575,6 @@
   },
   "profile": {
     "juror_profile": "Juror Profile",
-    "available": "Available:",
-    "locked": "Locked:",
-    "staked": "Staked:",
     "share_juror_score": "Share your juror score",
     "x_post_template": "Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: {{level}} ({{title}})\nCoherence Percentage: {{percentage}}%\nCoherent Votes: {{coherent}}/{{total}}\n\nBe a juror with me! ➡️ {{url}}",
     "coherent_votes_label": "Coherent Votes:",
@@ -581,7 +597,7 @@
     "all_votes": "All Votes",
     "cases_drawn": "Cases Drawn",
     "no_votes_found": "No votes found",
-    "staking_history_in": "Staking History in",
+    "staking_history_in_court": "Staking History in {{court}}",
     "juror": "Juror",
     "pnk_staked": "PNK Staked",
     "court": "Court",
@@ -618,7 +634,6 @@
   },
   "swap": {
     "claimed_testnet": "Claimed: {{amount}} PNK (Testnet)",
-    "bridge_from": "Bridge from",
-    "to": "to"
+    "bridge_from_to": "Bridge from {{from}} to {{to}}"
   }
 }

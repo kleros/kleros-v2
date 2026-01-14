@@ -1,10 +1,13 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useAccount, useDisconnect } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { ChainDisplay } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
@@ -58,6 +61,15 @@ const UserContainer = styled.div`
 
 const LanguageSelectorContainer = styled.div`
   padding: 24px 32px 0;
+  width: 86vw;
+  max-width: 660px;
+  box-sizing: border-box;
+  align-self: center;
+  ${landscapeStyle(
+    () => css`
+      width: ${responsiveSize(300, 424, 300)};
+    `
+  )}
 `;
 
 export const DisconnectWalletButton: React.FC = () => {

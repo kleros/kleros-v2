@@ -24,9 +24,7 @@ const Round: React.FC<IRound> = ({ number }) => {
   return (
     <Container>
       <RoundIcon />
-      <small>
-        {t("voting.round")} {number}
-      </small>
+      <small>{t("voting.round_number", { number })}</small>
     </Container>
   );
 };

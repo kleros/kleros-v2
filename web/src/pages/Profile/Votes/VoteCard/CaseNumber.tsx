@@ -42,9 +42,7 @@ const CaseNumber: React.FC<ICaseNumber> = ({ id }) => {
 
   return (
     <Container>
-      <StyledInternalLink to={`/cases/${id?.toString()}`}>
-        {t("misc.case")} {id}
-      </StyledInternalLink>
+      <StyledInternalLink to={`/cases/${id?.toString()}`}>{t("misc.case_number", { id })}</StyledInternalLink>
     </Container>
   );
 };

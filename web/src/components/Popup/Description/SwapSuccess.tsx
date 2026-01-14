@@ -79,9 +79,7 @@ const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }
       {isClaim ? (
         <Subtitle>{t("swap.claimed_testnet", { amount })}</Subtitle>
       ) : (
-        <Subtitle>
-          {t("swap.bridge_from")} &nbsp;<small>Ethereum</small>&nbsp; {t("swap.to")} &nbsp;<small>Arbitrum</small>
-        </Subtitle>
+        <Subtitle>{t("swap.bridge_from_to", { from: "Ethereum", to: "Arbitrum" })}</Subtitle>
       )}
       <StyledDivider />
       <StyledButton

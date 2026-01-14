@@ -73,7 +73,7 @@
       "token_address_example": "Ex. 0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
       "token_id_example": "Ex. 1",
       "case_id_example": "ex. 45",
-      "description_for_option": "Description de l'Option",
+      "description_for_option_number": "Description de l'Option {{number}}",
       "describe_evidence": "Décrivez vos preuves en détail...",
       "search_by_id": "Rechercher par ID",
       "bob_hired_alice": "ex. Bob a embauché Alice pour développer un site web pour lui, mais Alice n'a pas livré...",
@@ -83,8 +83,8 @@
       "email": "E-mail",
       "question": "Question",
       "option_description": "Description de l'Option",
-      "voting_option": "Option de Vote",
-      "person": "Personne",
+      "voting_option_number": "Option de Vote {{number}}",
+      "person_number": "Personne {{number}}",
       "person_address": "Adresse de la Personne {{index}}",
       "arbitration_cost": "Coût d'Arbitrage",
       "enter_cases_id": "Entrez l'ID du procès",
@@ -167,7 +167,7 @@
     "jury_decided_in_favor": "Le jury a décidé en faveur de :",
     "this_option_winning": "Cette option est gagnante :",
     "voting_history": "Historique des Votes",
-    "round": "Tour",
+    "round_number": "Tour {{number}}",
     "did_not_commit_vote": "N'a pas engagé de vote",
     "vote_committed": "Vote engagé",
     "pending_vote_commitment": "Engagement de vote en attente",
@@ -196,7 +196,8 @@
     "appealed": "Appelé",
     "won_by_appeal": "Gagné par Appel",
     "enforcement": "Exécution",
-    "jury_decision": "Décision du Jury"
+    "jury_decision": "Décision du Jury",
+    "jury_decision_round": "Décision du Jury - Tour {{round}}"
   },
   "stats": {
     "pnk_staked": "PNK Déposés",
@@ -244,7 +245,7 @@
     "socrates": "Socrate",
     "plato": "Platon",
     "aristotle": "Aristote",
-    "level": "Niveau",
+    "level_number": "Niveau {{level}}",
     "score": "Score",
     "coherent_votes": "Votes Cohérents",
     "rewards": "Récompenses",
@@ -296,21 +297,21 @@
     "sign_in": "Se Connecter",
     "signed_in_successfully": "Connecté avec succès !",
     "signing_in_user": "Connexion de l'Utilisateur...",
-    "sign_in_failed": "Échec de connexion :"
+    "sign_in_failed_error": "Échec de connexion : {{error}}"
   },
   "notifications": {
     "uploaded_successfully": "Téléchargé avec succès !",
-    "upload_failed": "Échec du téléchargement :",
+    "upload_failed_error": "Échec du téléchargement : {{error}}",
     "verification_email_sent": "Email de vérification envoyé avec succès !",
     "failed_to_submit_evidence": "Échec de la soumission des preuves.",
     "uploading_to_ipfs": "Téléchargement vers IPFS",
     "error_uploading_evidence": "Erreur lors du téléchargement du fichier de preuve",
     "updating_email": "Mise à jour de l'e-mail...",
     "email_updated_successfully": "E-mail mis à jour avec succès !",
-    "updating_email_failed": "Échec de la mise à jour de l'e-mail :",
+    "updating_email_failed_error": "Échec de la mise à jour de l'e-mail : {{error}}",
     "adding_user": "Ajout de l'utilisateur...",
     "user_added_successfully": "Utilisateur ajouté avec succès !",
-    "adding_user_failed": "Échec de l'ajout de l'utilisateur :",
+    "adding_user_failed_error": "Échec de l'ajout de l'utilisateur : {{error}}",
     "update_email_again": "Vous pouvez mettre à jour l'e-mail à nouveau {{time}}"
   },
   "alerts": {
@@ -329,7 +330,7 @@
     "thanks_for_funding_appeal": "Merci d'avoir Financé l'Appel",
     "success": "Succès !",
     "check_the_case": "Vérifier le procès",
-    "dispute_created_full_message_part1": "Le procès sera résolu aux alentours du",
+    "dispute_created_full_message": "Le procès sera résolu aux alentours du <date></date>.",
     "external_link_warning": "Avertissement de Lien Externe",
     "external_link_message": "Vous êtes sur le point de naviguer vers un site web externe. Veuillez vérifier l'URL avant de continuer pour vous assurer qu'elle est sûre et légitime.",
     "safety_tips": "Conseils de Sécurité :",
@@ -365,7 +366,7 @@
     "didnt_receive_email": "Vous n'avez pas reçu l'email ?",
     "email_verification_pending": "Vérification de l'Email en Attente",
     "sending_verification_email": "Envoi de l'email de vérification...",
-    "failed_to_send_verification": "Échec de l'envoi de l'email de vérification :"
+    "failed_to_send_verification_error": "Échec de l'envoi de l'email de vérification : {{error}}"
   },
   "case_creation": {
     "create_from_scratch": "Créer un procès de zéro",
@@ -384,7 +385,13 @@
     "stake_all": "Tout déposer",
     "withdraw_all": "Tout retirer",
     "current_stake": "Dépôt Actuel",
-    "available": "Disponible"
+    "available_amount": "Disponible {{amount}} PNK",
+    "you_are_staking": "Vous déposez",
+    "you_are_withdrawing": "Vous retirez",
+    "you_successfully_staked": "Vous avez déposé avec succès",
+    "you_successfully_withdrew": "Vous avez retiré avec succès",
+    "on_court": "sur {{court}}",
+    "stake_confirmed_tooltip": "Le dépôt est confirmé ! Il est de procédure standard de retarder l'exécution d'un changement de dépôts si la phase de l'arbitre n'est pas actuellement Dépôt. Il sera mis à jour sous peu."
   },
   "evidence": {
     "submit_new_evidence": "Soumettre de Nouvelles Preuves",
@@ -396,6 +403,7 @@
     "attachment": "Pièce Jointe",
     "open_in_new_tab": "Ouvrir dans un nouvel onglet",
     "case": "Procès",
+    "case_number": "Procès {{id}}",
     "policy_file": "Fichier de Règlement",
     "evidence_file": "Fichier de Preuve",
     "case_policy": "Règlement du Procès",
@@ -411,8 +419,8 @@
     "juror": "Juré",
     "pnk_staked": "PNK Déposés",
     "latest_cases": "Derniers Procès",
-    "latest_cases_in": "Derniers Procès dans",
-    "jurors_staked_in": "Jurés Déposés dans",
+    "latest_cases_in_court": "Derniers Procès dans {{court}}",
+    "jurors_staked_in_court": "Jurés Déposés dans {{court}}",
     "see_all": "Voir tout",
     "voted": "A voté :",
     "justification": "Justification :",
@@ -437,6 +445,17 @@
   "maintenance": {
     "jurors_drawn_in_drawing_phase": "Les jurés peuvent être tirés en phase de tirage.",
     "pass_phase_here": "Passer la phase <link>ici</link>."
+  },
+  "phase": {
+    "label": "Phase : {{phase}}",
+    "staking": "Dépôt",
+    "generating": "Génération",
+    "drawing": "Tirage"
+  },
+  "toasts": {
+    "uploading_to_ipfs": "Téléchargement vers IPFS",
+    "uploaded_successfully": "Téléchargé avec succès !",
+    "upload_failed": "Échec du téléchargement : {{error}}"
   },
   "sorting": {
     "first_to_last": "1er au dernier",
@@ -528,8 +547,8 @@
     "appeal_stage_2": "Appel : Étape 2",
     "crowdfunding_rewards": "Récompenses du Financement Participatif",
     "who_wins_rewards": "Qui gagne les récompenses ?",
-    "remaining_to_fund_losing": "restant pour financer les options perdantes",
-    "remaining_to_fund_winning": "restant pour financer l'option gagnante",
+    "time_remaining_to_fund_losing": "{{time}} restant pour financer les options perdantes",
+    "time_remaining_to_fund_winning": "{{time}} restant pour financer l'option gagnante",
     "appeal_paragraph_1": "Si après que le jury a pris une décision, une partie n'est pas satisfaite (parce qu'elle pense que le résultat était injuste), elle peut faire appel et faire juger à nouveau le litige.",
     "appeal_paragraph_2": "Chaque fois que le procès fait l'objet d'un appel, un nouveau tour commence avec toutes les options de vote à nouveau disponibles. Les résultats des tours précédents sont sans importance pour le résultat final.",
     "appeal_paragraph_3": "Chaque nouvelle instance d'appel aura le double du nombre précédent de jurés plus un.",
@@ -556,9 +575,6 @@
   },
   "profile": {
     "juror_profile": "Profil du Juré",
-    "available": "Disponible :",
-    "locked": "Verrouillé :",
-    "staked": "Déposé :",
     "share_juror_score": "Partagez votre score de juré",
     "x_post_template": "Hé, j'ai été occupé en tant que Juré sur le tribunal Kleros, découvrez mon score : \n\nNiveau : {{level}} ({{title}})\nPourcentage de Cohérence : {{percentage}}%\nVotes Cohérents : {{coherent}}/{{total}}\n\nDevenez juré avec moi ! ➡️ {{url}}",
     "coherent_votes_label": "Votes Cohérents :",
@@ -581,7 +597,7 @@
     "all_votes": "Tous les Votes",
     "cases_drawn": "Procès Tirés",
     "no_votes_found": "Aucun vote trouvé",
-    "staking_history_in": "Historique des Dépôts dans",
+    "staking_history_in_court": "Historique des Dépôts dans {{court}}",
     "juror": "Juré",
     "pnk_staked": "PNK Déposé",
     "court": "Tribunal",
@@ -618,7 +634,6 @@
   },
   "swap": {
     "claimed_testnet": "Réclamé : {{amount}} PNK (Testnet)",
-    "bridge_from": "Pont de",
-    "to": "à"
+    "bridge_from_to": "Pont de {{from}} à {{to}}"
   }
 }
