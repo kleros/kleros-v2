@@ -105,8 +105,8 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
     <>
       {needToPassPhase && !isUniversity ? (
         <StyledLabel>
-          Jurors can be drawn in <small>drawing</small> phase.
-          <br /> Pass phase <Link to="/courts/1/purpose/#maintenance">here</Link>.
+          {t("maintenance.jurors_drawn_in_phase")} <small>{t("maintenance.drawing")}</small> {t("maintenance.phase")}.
+          <br /> {t("maintenance.pass_phase")} <Link to="/courts/1/purpose/#maintenance">{t("maintenance.here")}</Link>.
         </StyledLabel>
       ) : null}
       {isUniversity && canDraw ? (

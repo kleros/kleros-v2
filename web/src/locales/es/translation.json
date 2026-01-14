@@ -49,7 +49,8 @@
     "continue_to_external_site": "Continuar al Sitio Externo",
     "claim_pnk": "Reclamar PNK",
     "empty_faucet": "Grifo Vacío",
-    "view_transaction_etherscan": "Ver transacción en Etherscan"
+    "view_transaction_etherscan": "Ver transacción en Etherscan",
+    "switch_to_chain": "Cambiar a {{chainName}}"
   },
   "forms": {
     "placeholders": {
@@ -75,7 +76,8 @@
       "description_for_option": "Descripción para la Opción",
       "describe_evidence": "Describe tu evidencia en detalle...",
       "search_by_id": "Buscar por ID",
-      "bob_hired_alice": "ej. Bob contrató a Alice para desarrollar un sitio web, pero Alice no logró entregar..."
+      "bob_hired_alice": "ej. Bob contrató a Alice para desarrollar un sitio web, pero Alice no logró entregar...",
+      "justify_your_vote": "Justifica tu voto..."
     },
     "labels": {
       "email": "Correo electrónico",
@@ -172,8 +174,13 @@
     "did_not_vote": "No votó",
     "pending_vote": "Voto Pendiente",
     "vote": "voto",
+    "vote_label": "Voto",
     "votes": "votos",
-    "no_justification_provided": "No se proporcionó justificación"
+    "no_justification_provided": "No se proporcionó justificación",
+    "refuse_to_arbitrate": "Rechazar Arbitrar",
+    "answer_0x": "Respuesta 0x{{ruling}}",
+    "view_vote": "Ver voto",
+    "justification_message": "Por favor proporciona una justificación completa de tu decisión. Las explicaciones de calidad son esenciales para las partes involucradas y pueden ser elegibles para compensación adicional de acuerdo con nuestra política de justificación."
   },
   "dispute_info": {
     "court": "Corte",
@@ -333,7 +340,14 @@
     "you_have_funded": "Has financiado:",
     "option_funded": "Opción financiada:",
     "stake_success": "¡Tu depósito en la corte {{courtName}} fue exitoso! 🎉",
-    "unstake_success": "¡Tu retiro de la corte {{courtName}} fue exitoso! 🎉"
+    "unstake_success": "¡Tu retiro de la corte {{courtName}} fue exitoso! 🎉",
+    "vote_confirmed_secret": "Tu voto está confirmado. Se mantiene en secreto hasta que todos los jurados hayan emitido sus votos.",
+    "justify_reveal_vote_on": "Necesitarás justificar y revelar tu voto el {{date}}",
+    "decision_date_with_appeals": "La fecha de decisión es <emphasized>{{date}}</emphasized> con posibilidad de apelaciones. Después de ese momento serás informado sobre la decisión del jurado.",
+    "subscribe_notifications_drawn": "Para no perderte cuando seas sorteado para casos, asegúrate de suscribirte a las notificaciones: Configuración > Notificaciones",
+    "subscribe_notifications_track": "Para seguir mejor el progreso del caso, te recomendamos suscribirte a las notificaciones: Configuración > Notificaciones",
+    "enable_notifications_progress": "Habilita las notificaciones para estar actualizado sobre el progreso del caso: Configuración > Notificaciones",
+    "enable_notifications_reveal": "Habilita las notificaciones para que te recuerden cuando llegue el momento de revelar: Configuración > Notificaciones"
   },
   "email_verification": {
     "invalid_link": "¡Enlace Inválido!",
@@ -406,6 +420,8 @@
     "language": "Idioma",
     "how_it_works": "Cómo funciona",
     "favorite_cases": "Casos Favoritos",
+    "add_to_favorites": "Agregar a favoritos",
+    "remove_from_favorites": "Quitar de favoritos",
     "community": "Comunidad",
     "view_attached_file": "Ver archivo adjunto",
     "file": "Archivo",
@@ -415,7 +431,15 @@
     "inspect_uploaded_policy": "Inspeccionar el reglamento cargado",
     "fundamental_to_any_case": "Fundamental para cualquier caso, el Reglamento proporciona a los jurados un marco para votar de manera justa. Puede ser un conjunto de criterios, un contrato que establezca los derechos y deberes de las partes, o cualquier conjunto de reglas predefinidas que sean relevantes para la toma de decisiones de los jurados.",
     "you_can_attach_additional": "Puedes adjuntar información adicional aquí. Importante: la descripción anterior debe hacer referencia a las partes relevantes del contenido del archivo.",
-    "coming_soon": "Próximamente"
+    "coming_soon": "Próximamente",
+    "unknown_court": "Corte Desconocida"
+  },
+  "maintenance": {
+    "jurors_drawn_in_phase": "Los jurados pueden ser sorteados en la fase de",
+    "drawing": "sorteo",
+    "phase": "",
+    "pass_phase": "Pasar fase",
+    "here": "aquí"
   },
   "sorting": {
     "first_to_last": "1º al último",
@@ -530,7 +554,8 @@
     "stage_one_explanation_2": "Si ninguna opción perdedora está <small>completamente financiada</small> a tiempo, se mantiene la decisión del jurado.",
     "stage_two_explanation_1": "La fecha límite para perdedores ha <small>finalizado</small>, solo puedes financiar al ganador actual.",
     "stage_two_explanation_2": "Si el ganador actual no está completamente financiado a tiempo, la opción financiada durante la etapa anterior será declarada como el ganador final.",
-    "stage_two_explanation_3": "Las siguientes opciones fueron financiadas en la etapa 1: <small>{{choices}}</small>"
+    "stage_two_explanation_3": "Las siguientes opciones fueron financiadas en la etapa 1: <small>{{choices}}</small>",
+    "how_much_eth_contribute": "¿Cuánto ETH quieres contribuir?"
   },
   "profile": {
     "juror_profile": "Perfil de Jurado",
@@ -564,7 +589,9 @@
     "pnk_staked": "PNK Depositado",
     "court": "Corte",
     "date": "Fecha",
-    "court_staking_tooltip": "Cuando estás depositado en una subcorte, también estás depositado en sus cortes padre. ej. Depositar en la corte No Técnica te deposita automáticamente en sus padres: Blockchain y Corte General."
+    "court_staking_tooltip": "Cuando estás depositado en una subcorte, también estás depositado en sus cortes padre. ej. Depositar en la corte No Técnica te deposita automáticamente en sus padres: Blockchain y Corte General.",
+    "juror_in_cases_one": "Jurado en {{count}} caso",
+    "juror_in_cases_other": "Jurado en {{count}} casos"
   },
   "card_labels": {
     "evidence_time": "Tiempo de evidencia",
@@ -591,5 +618,10 @@
     "disabled": "Deshabilitado",
     "hidden_votes_tooltip": "Los votos de los jurados están ocultos. Nadie puede verlos antes de que se complete el período de votación. Se lleva a cabo en un proceso de dos pasos: comprometer y revelar.",
     "non_hidden_votes_tooltip": "Los votos de los jurados no están ocultos. Todos pueden ver la justificación y la opción votada antes de que se complete el período de votación."
+  },
+  "swap": {
+    "claimed_testnet": "Reclamado: {{amount}} PNK (Testnet)",
+    "bridge_from": "Puente de",
+    "to": "a"
   }
 }

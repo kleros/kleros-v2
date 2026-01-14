@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -27,9 +29,11 @@ const StyledLabel = styled.label`
 `;
 
 export const MobileHeader: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Container>
-      <StyledLabel>Staking History</StyledLabel>
+      <StyledLabel>{t("profile.staking_history")}</StyledLabel>
     </Container>
   );
 };

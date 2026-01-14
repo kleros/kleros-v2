@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { InternalLink } from "components/InternalLink";
@@ -36,9 +38,13 @@ interface ICaseNumber {
 }
 
 const CaseNumber: React.FC<ICaseNumber> = ({ id }) => {
+  const { t } = useTranslation();
+
   return (
     <Container>
-      <StyledInternalLink to={`/cases/${id?.toString()}`}>Case {id}</StyledInternalLink>
+      <StyledInternalLink to={`/cases/${id?.toString()}`}>
+        {t("misc.case")} {id}
+      </StyledInternalLink>
     </Container>
   );
 };

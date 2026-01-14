@@ -49,7 +49,8 @@
     "continue_to_external_site": "Continue to External Site",
     "claim_pnk": "Claim PNK",
     "empty_faucet": "Empty Faucet",
-    "view_transaction_etherscan": "View transaction on Etherscan"
+    "view_transaction_etherscan": "View transaction on Etherscan",
+    "switch_to_chain": "Switch to {{chainName}}"
   },
   "forms": {
     "placeholders": {
@@ -75,7 +76,8 @@
       "description_for_option": "Description for Option",
       "describe_evidence": "Describe your evidence in detail...",
       "search_by_id": "Search By ID",
-      "bob_hired_alice": "eg. Bob hired Alice to develop a website for him, but Alice failed to deliver..."
+      "bob_hired_alice": "eg. Bob hired Alice to develop a website for him, but Alice failed to deliver...",
+      "justify_your_vote": "Justify your vote..."
     },
     "labels": {
       "email": "Email",
@@ -172,8 +174,13 @@
     "did_not_vote": "Did not vote",
     "pending_vote": "Pending Vote",
     "vote": "vote",
+    "vote_label": "Vote",
     "votes": "votes",
-    "no_justification_provided": "No justification provided"
+    "no_justification_provided": "No justification provided",
+    "refuse_to_arbitrate": "Refuse to Arbitrate",
+    "answer_0x": "Answer 0x{{ruling}}",
+    "view_vote": "View vote",
+    "justification_message": "Please provide a comprehensive justification for your decision. Quality explanations are essential for the parties involved and may be eligible for additional compensation in accordance with our justification policy."
   },
   "dispute_info": {
     "court": "Court",
@@ -333,7 +340,14 @@
     "you_have_funded": "You have funded:",
     "option_funded": "Option funded:",
     "stake_success": "🎉 Your stake in the {{courtName}} court was successful! 🎉",
-    "unstake_success": "🎉 Your unstake in the {{courtName}} court was successful! 🎉"
+    "unstake_success": "🎉 Your unstake in the {{courtName}} court was successful! 🎉",
+    "vote_confirmed_secret": "Your vote is confirmed. It's kept secret until all jurors have cast their votes.",
+    "justify_reveal_vote_on": "You'll need to justify and reveal your vote on {{date}}",
+    "decision_date_with_appeals": "The decision date is <emphasized>{{date}}</emphasized> with the possibility for appeals. After that time you will be informed about the jury decision.",
+    "subscribe_notifications_drawn": "In order not to miss when you're drawn for cases, make sure to subscribe to notifications: Settings > Notifications",
+    "subscribe_notifications_track": "In order to better track the case progress, we recommend you to subscribe to notifications: Settings > Notifications",
+    "enable_notifications_progress": "Enable notifications to be updated about the progress of the case: Settings > Notifications",
+    "enable_notifications_reveal": "Enable notifications to be reminded when the reveal time comes: Settings > Notifications"
   },
   "email_verification": {
     "invalid_link": "Invalid Link!",
@@ -406,6 +420,8 @@
     "language": "Language",
     "how_it_works": "How it works",
     "favorite_cases": "Favorite Cases",
+    "add_to_favorites": "Add to favorites",
+    "remove_from_favorites": "Remove from favorites",
     "community": "Community",
     "view_attached_file": "View attached file",
     "file": "File",
@@ -415,7 +431,15 @@
     "inspect_uploaded_policy": "Inspect the uploaded policy",
     "fundamental_to_any_case": "Fundamental to any case, the Policy provides jurors with a framework to vote fairly. It can be a set of criteria, a contract stating the rights and duties of the parties, or any set of pre-defined rules that are relevant to jurors' decision-making.",
     "you_can_attach_additional": "You can attach additional information here. Important: the above description must reference the relevant parts of the file content.",
-    "coming_soon": "Coming soon"
+    "coming_soon": "Coming soon",
+    "unknown_court": "Unknown Court"
+  },
+  "maintenance": {
+    "jurors_drawn_in_phase": "Jurors can be drawn in",
+    "drawing": "drawing",
+    "phase": "phase",
+    "pass_phase": "Pass phase",
+    "here": "here"
   },
   "sorting": {
     "first_to_last": "1st to last",
@@ -530,7 +554,8 @@
     "stage_one_explanation_2": "If no losing option is <small>fully funded</small> in time, the jury decision is maintained.",
     "stage_two_explanation_1": "Loser deadline has <small>finalized</small>, you can only fund the current winner.",
     "stage_two_explanation_2": "If the current winner is not fully funded in time, the option funded during the previous stage will be declared as the final winner.",
-    "stage_two_explanation_3": "Following choices were funded in the stage 1: <small>{{choices}}</small>"
+    "stage_two_explanation_3": "Following choices were funded in the stage 1: <small>{{choices}}</small>",
+    "how_much_eth_contribute": "How much ETH do you want to contribute?"
   },
   "profile": {
     "juror_profile": "Juror Profile",
@@ -564,7 +589,9 @@
     "pnk_staked": "PNK Staked",
     "court": "Court",
     "date": "Date",
-    "court_staking_tooltip": "When you are staked in a subcourt you are staked in its parent courts too. eg. Staking in the Non Technical court automatically stake in its parents: Blockchain, and General Court."
+    "court_staking_tooltip": "When you are staked in a subcourt you are staked in its parent courts too. eg. Staking in the Non Technical court automatically stake in its parents: Blockchain, and General Court.",
+    "juror_in_cases_one": "Juror in {{count}} case",
+    "juror_in_cases_other": "Juror in {{count}} cases"
   },
   "card_labels": {
     "evidence_time": "Evidence time",
@@ -591,5 +618,10 @@
     "disabled": "Disabled",
     "hidden_votes_tooltip": "The jurors votes are hidden. Nobody can see them before the voting period completes. It takes place in a two-step commit-reveal process.",
     "non_hidden_votes_tooltip": "The jurors votes are not hidden. Everybody can see the justification and voted choice before the voting period completes."
+  },
+  "swap": {
+    "claimed_testnet": "Claimed: {{amount}} PNK (Testnet)",
+    "bridge_from": "Bridge from",
+    "to": "to"
   }
 }

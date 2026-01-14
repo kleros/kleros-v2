@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import VotesIcon from "svgs/icons/voted-ballot.svg";
 
 const Container = styled.div`
@@ -25,11 +27,13 @@ interface IVoteCount {
 }
 
 const VoteCount: React.FC<IVoteCount> = ({ count }) => {
+  const { t } = useTranslation();
+
   return (
     <Container>
       <VotesIcon />
       <small>
-        {count} {count === 1 ? "vote" : "votes"}
+        {count} {count === 1 ? t("voting.vote") : t("voting.votes")}
       </small>
     </Container>
   );

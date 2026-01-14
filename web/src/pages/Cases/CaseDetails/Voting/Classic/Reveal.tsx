@@ -154,7 +154,7 @@ const getSaltAndChoice = async (
   const candidates =
     answers?.length > 0
       ? answers
-      : [{ id: "0x0", title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" } as Answer];
+      : [{ id: "0x0", title: "Refuse to Arbitrate", description: "Refuse to Arbitrate" } as Answer];
 
   const { choice } = candidates.reduce<{ found: boolean; choice: bigint }>(
     (acc, answer) => {

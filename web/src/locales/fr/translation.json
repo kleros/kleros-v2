@@ -49,7 +49,8 @@
     "continue_to_external_site": "Continuer vers le Site Externe",
     "claim_pnk": "Réclamer PNK",
     "empty_faucet": "Faucet Vide",
-    "view_transaction_etherscan": "Voir la transaction sur Etherscan"
+    "view_transaction_etherscan": "Voir la transaction sur Etherscan",
+    "switch_to_chain": "Passer à {{chainName}}"
   },
   "forms": {
     "placeholders": {
@@ -75,7 +76,8 @@
       "description_for_option": "Description de l'Option",
       "describe_evidence": "Décrivez vos preuves en détail...",
       "search_by_id": "Rechercher par ID",
-      "bob_hired_alice": "ex. Bob a embauché Alice pour développer un site web pour lui, mais Alice n'a pas livré..."
+      "bob_hired_alice": "ex. Bob a embauché Alice pour développer un site web pour lui, mais Alice n'a pas livré...",
+      "justify_your_vote": "Justifiez votre vote..."
     },
     "labels": {
       "email": "E-mail",
@@ -172,8 +174,13 @@
     "did_not_vote": "N'a pas voté",
     "pending_vote": "Vote en Attente",
     "vote": "vote",
+    "vote_label": "Vote",
     "votes": "votes",
-    "no_justification_provided": "Aucune justification fournie"
+    "no_justification_provided": "Aucune justification fournie",
+    "refuse_to_arbitrate": "Refuser d'Arbitrer",
+    "answer_0x": "Réponse 0x{{ruling}}",
+    "view_vote": "Voir le vote",
+    "justification_message": "Veuillez fournir une justification complète de votre décision. Les explications de qualité sont essentielles pour les parties impliquées et peuvent être éligibles à une compensation supplémentaire conformément à notre politique de justification."
   },
   "dispute_info": {
     "court": "Tribunal",
@@ -333,7 +340,14 @@
     "you_have_funded": "Vous avez financé :",
     "option_funded": "Option financée :",
     "stake_success": "🎉 Votre dépôt dans le tribunal {{courtName}} a réussi ! 🎉",
-    "unstake_success": "🎉 Votre retrait du tribunal {{courtName}} a réussi ! 🎉"
+    "unstake_success": "🎉 Votre retrait du tribunal {{courtName}} a réussi ! 🎉",
+    "vote_confirmed_secret": "Votre vote est confirmé. Il reste secret jusqu'à ce que tous les jurés aient voté.",
+    "justify_reveal_vote_on": "Vous devrez justifier et révéler votre vote le {{date}}",
+    "decision_date_with_appeals": "La date de décision est <emphasized>{{date}}</emphasized> avec possibilité d'appels. Après ce moment, vous serez informé de la décision du jury.",
+    "subscribe_notifications_drawn": "Pour ne pas manquer quand vous êtes tiré au sort pour des procès, assurez-vous de vous abonner aux notifications : Paramètres > Notifications",
+    "subscribe_notifications_track": "Pour mieux suivre la progression du procès, nous vous recommandons de vous abonner aux notifications : Paramètres > Notifications",
+    "enable_notifications_progress": "Activez les notifications pour être informé de la progression du procès : Paramètres > Notifications",
+    "enable_notifications_reveal": "Activez les notifications pour être rappelé quand le moment de révéler arrive : Paramètres > Notifications"
   },
   "email_verification": {
     "invalid_link": "Lien Invalide !",
@@ -406,6 +420,8 @@
     "language": "Langue",
     "how_it_works": "Comment ça marche",
     "favorite_cases": "Procès Favoris",
+    "add_to_favorites": "Ajouter aux favoris",
+    "remove_from_favorites": "Retirer des favoris",
     "community": "Communauté",
     "view_attached_file": "Voir le fichier joint",
     "file": "Fichier",
@@ -415,7 +431,15 @@
     "inspect_uploaded_policy": "Inspecter le règlement téléchargé",
     "fundamental_to_any_case": "Fondamental pour tout procès, le Règlement fournit aux jurés un cadre pour voter équitablement. Il peut être un ensemble de critères, un contrat énonçant les droits et devoirs des parties, ou tout ensemble de règles prédéfinies pertinentes pour la prise de décision des jurés.",
     "you_can_attach_additional": "Vous pouvez joindre des informations supplémentaires ici. Important : la description ci-dessus doit référencer les parties pertinentes du contenu du fichier.",
-    "coming_soon": "Bientôt disponible"
+    "coming_soon": "Bientôt disponible",
+    "unknown_court": "Tribunal Inconnu"
+  },
+  "maintenance": {
+    "jurors_drawn_in_phase": "Les jurés peuvent être tirés en phase de",
+    "drawing": "tirage",
+    "phase": "",
+    "pass_phase": "Passer la phase",
+    "here": "ici"
   },
   "sorting": {
     "first_to_last": "1er au dernier",
@@ -530,7 +554,8 @@
     "stage_one_explanation_2": "Si aucune option perdante n'est <small>entièrement financée</small> à temps, la décision du jury est maintenue.",
     "stage_two_explanation_1": "La date limite pour les perdants est <small>finalisée</small>, vous ne pouvez financer que le gagnant actuel.",
     "stage_two_explanation_2": "Si le gagnant actuel n'est pas entièrement financé à temps, l'option financée lors de l'étape précédente sera déclarée comme le gagnant final.",
-    "stage_two_explanation_3": "Les choix suivants ont été financés à l'étape 1 : <small>{{choices}}</small>"
+    "stage_two_explanation_3": "Les choix suivants ont été financés à l'étape 1 : <small>{{choices}}</small>",
+    "how_much_eth_contribute": "Combien d'ETH voulez-vous contribuer ?"
   },
   "profile": {
     "juror_profile": "Profil du Juré",
@@ -564,7 +589,9 @@
     "pnk_staked": "PNK Déposé",
     "court": "Tribunal",
     "date": "Date",
-    "court_staking_tooltip": "Lorsque vous êtes déposé dans un sous-tribunal, vous êtes aussi déposé dans ses tribunaux parents. ex. Déposer dans le tribunal Non Technique vous dépose automatiquement dans ses parents : Blockchain et Tribunal Général."
+    "court_staking_tooltip": "Lorsque vous êtes déposé dans un sous-tribunal, vous êtes aussi déposé dans ses tribunaux parents. ex. Déposer dans le tribunal Non Technique vous dépose automatiquement dans ses parents : Blockchain et Tribunal Général.",
+    "juror_in_cases_one": "Juré dans {{count}} procès",
+    "juror_in_cases_other": "Juré dans {{count}} procès"
   },
   "card_labels": {
     "evidence_time": "Période de preuves",
@@ -591,5 +618,10 @@
     "disabled": "Désactivé",
     "hidden_votes_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en un processus d'engagement-révélation en deux étapes.",
     "non_hidden_votes_tooltip": "Les votes des jurés ne sont pas cachés. Tout le monde peut voir la justification et le choix voté avant la fin de la période de vote."
+  },
+  "swap": {
+    "claimed_testnet": "Réclamé : {{amount}} PNK (Testnet)",
+    "bridge_from": "Pont de",
+    "to": "à"
   }
 }
