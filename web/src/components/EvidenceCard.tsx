@@ -242,9 +242,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>
-            <StyledInternalLink
-              to={`/attachment/?disputeId=${id}&title=${t("misc.evidence_file")}&url=${getIpfsUrl(fileURI)}`}
-            >
+            <StyledInternalLink to={`/attachment/?disputeId=${id}&title=misc.evidence_file&url=${getIpfsUrl(fileURI)}`}>
               <AttachmentIcon />
               <AttachedFileText />
             </StyledInternalLink>

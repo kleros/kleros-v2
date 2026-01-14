@@ -70,14 +70,14 @@ const Header: React.FC<{ title: string }> = ({ title }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const disputeId = searchParams.get("disputeId");
-  const attachmentTitle = searchParams.get("title");
+  const titleKey = searchParams.get("title");
 
   const handleReturn = () => {
-    if (attachmentTitle === "Evidence File") {
+    if (titleKey === "misc.evidence_file") {
       navigate(`/cases/${disputeId}/evidence`);
-    } else if (attachmentTitle === "Case Policy" || attachmentTitle === "Dispute Policy") {
+    } else if (titleKey === "misc.case_policy" || titleKey === "misc.dispute_policy") {
       navigate(`/cases/${disputeId}/overview`);
-    } else if (attachmentTitle === "Policy File") {
+    } else if (titleKey === "misc.policy_file") {
       navigate(`/resolver/policy`);
     } else {
       navigate("/");
