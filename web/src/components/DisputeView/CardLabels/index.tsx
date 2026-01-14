@@ -62,7 +62,7 @@ interface ICardLabels {
 }
 
 const getLabelArgs = (
-  t: any
+  t: (key: string) => string
 ): Record<string, { text: string; icon: React.FC<React.SVGAttributes<SVGElement>>; color: IColors }> => ({
   EvidenceTime: { text: t("card_labels.evidence_time"), icon: EvidenceIcon, color: "blue" },
   NotDrawn: { text: t("card_labels.you_were_not_drawn"), icon: NotDrawnIcon, color: "grey" },

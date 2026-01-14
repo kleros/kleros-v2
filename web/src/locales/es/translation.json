@@ -147,9 +147,8 @@
     "case_in_progress": "Caso en progreso",
     "juror_rewards_distributed": "Recompensas de jurado distribuidas",
     "all_jurors_voted": "Todos los jurados votaron",
-    "votes_cast": "voto",
-    "votes_cast_plural": "votos",
-    "cast_out_of": "emitidos de",
+    "votes_cast_status_one": "{{current}} voto emitido de {{total}} - {{court}}",
+    "votes_cast_status_other": "{{current}} votos emitidos de {{total}} - {{court}}",
     "in_progress_submitting_evidence": "En Progreso - Enviando Evidencia",
     "in_progress_committing_vote": "En Progreso - Comprometiendo Voto",
     "in_progress_voting": "En Progreso - Votando"
@@ -589,6 +588,8 @@
     "jurors_owning_erc20": "Jurados que posean al menos 1 token ERC-20 o ERC-721",
     "jurors_owning_erc1155": "Jurados que posean al menos 1 token ERC-1155",
     "two_step_commit": "Dos pasos: comprometer y revelar",
-    "disabled": "Deshabilitado"
+    "disabled": "Deshabilitado",
+    "hidden_votes_tooltip": "Los votos de los jurados están ocultos. Nadie puede verlos antes de que se complete el período de votación. Se lleva a cabo en un proceso de dos pasos: comprometer y revelar.",
+    "non_hidden_votes_tooltip": "Los votos de los jurados no están ocultos. Todos pueden ver la justificación y la opción votada antes de que se complete el período de votación."
   }
 }

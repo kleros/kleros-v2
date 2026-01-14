@@ -16,7 +16,7 @@ const Container = styled.div<{ shortLabel: string; longLabel: string }>`
 
   font-size: 12px !important;
   &::before {
-    content: ${({ shortLabel }) => `"${shortLabel}"`};
+    content: "${({ shortLabel }) => shortLabel}";
   }
 
   ${landscapeStyle(
@@ -24,7 +24,7 @@ const Container = styled.div<{ shortLabel: string; longLabel: string }>`
       font-size: 14px !important;
       justify-content: center;
       &::before {
-        content: ${({ longLabel }) => `"${longLabel}"`};
+        content: "${({ longLabel }) => longLabel}";
       }
     `
   )}

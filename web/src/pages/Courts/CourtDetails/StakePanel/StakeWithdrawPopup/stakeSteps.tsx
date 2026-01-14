@@ -40,7 +40,7 @@ const createApprovalSteps = (
   amount: string,
   hash: `0x${string}` | undefined,
   error: any,
-  t: any
+  t: (key: string) => string
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
   const party = () => {
     if (variant === "refused") return hash ? <TxnHash hash={hash} variant="error" /> : <></>;
@@ -82,7 +82,7 @@ const createStakeSteps = (
   stakeHash: `0x${string}` | undefined,
   error: any,
   isStake: boolean,
-  t: any
+  t: (key: string) => string
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
   const party = () => {
     if (["refused", "accepted"].includes(variant))

@@ -39,7 +39,7 @@ const PendingVotesBox: React.FC<{ current: number; total: number; court: string 
       <StyledP>
         {current === total
           ? t("case_status.all_jurors_voted")
-          : `${current} ${t(current === 1 ? "case_status.votes_cast" : "case_status.votes_cast_plural")} ${t("case_status.cast_out_of")} ${total} - ${court}`}
+          : t("case_status.votes_cast_status", { current, total, court, count: current })}
       </StyledP>
     </StyledBox>
   );

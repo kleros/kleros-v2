@@ -13,7 +13,7 @@ const Container = styled.div<{ content: string }>`
   display: flex;
   font-size: 12px !important;
   &::before {
-    content: ${({ content }) => `"${content}"`};
+    content: "${({ content }) => content}";
   }
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;

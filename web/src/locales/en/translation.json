@@ -147,9 +147,8 @@
     "case_in_progress": "Case in progress",
     "juror_rewards_distributed": "Juror rewards distributed",
     "all_jurors_voted": "All jurors voted",
-    "votes_cast": "vote",
-    "votes_cast_plural": "votes",
-    "cast_out_of": "cast out of",
+    "votes_cast_status_one": "{{current}} vote cast out of {{total}} - {{court}}",
+    "votes_cast_status_other": "{{current}} votes cast out of {{total}} - {{court}}",
     "in_progress_submitting_evidence": "In Progress - Submitting Evidence",
     "in_progress_committing_vote": "In Progress - Committing Vote",
     "in_progress_voting": "In Progress - Voting"
@@ -589,6 +588,8 @@
     "jurors_owning_erc20": "Jurors owning at least 1 token ERC-20 or ERC-721",
     "jurors_owning_erc1155": "Jurors owning at least 1 token ERC-1155",
     "two_step_commit": "Two-step commit-reveal",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "hidden_votes_tooltip": "The jurors votes are hidden. Nobody can see them before the voting period completes. It takes place in a two-step commit-reveal process.",
+    "non_hidden_votes_tooltip": "The jurors votes are not hidden. Everybody can see the justification and voted choice before the voting period completes."
   }
 }

@@ -147,9 +147,8 @@
     "case_in_progress": "Procès en cours",
     "juror_rewards_distributed": "Récompenses des jurés distribuées",
     "all_jurors_voted": "Tous les jurés ont voté",
-    "votes_cast": "vote",
-    "votes_cast_plural": "votes",
-    "cast_out_of": "exprimé sur",
+    "votes_cast_status_one": "{{current}} vote exprimé sur {{total}} - {{court}}",
+    "votes_cast_status_other": "{{current}} votes exprimés sur {{total}} - {{court}}",
     "in_progress_submitting_evidence": "En Cours - Soumission de Preuves",
     "in_progress_committing_vote": "En Cours - Engagement du Vote",
     "in_progress_voting": "En Cours - Vote"
@@ -589,6 +588,8 @@
     "jurors_owning_erc20": "Jurés possédant au moins 1 token ERC-20 ou ERC-721",
     "jurors_owning_erc1155": "Jurés possédant au moins 1 token ERC-1155",
     "two_step_commit": "Engagement-révélation en deux étapes",
-    "disabled": "Désactivé"
+    "disabled": "Désactivé",
+    "hidden_votes_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en un processus d'engagement-révélation en deux étapes.",
+    "non_hidden_votes_tooltip": "Les votes des jurés ne sont pas cachés. Tout le monde peut voir la justification et le choix voté avant la fin de la période de vote."
   }
 }
