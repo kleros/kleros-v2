@@ -41,7 +41,7 @@ const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, clas
       .then(() => successToast(t("wallet.signed_in_successfully")))
       .catch((err) => {
         console.log(err);
-        errorToast(`${t("wallet.sign_in_failed")} ${err?.message}`);
+        errorToast(t("wallet.sign_in_failed_error", { error: err?.message }));
       });
   }, [authoriseUser, t]);
   return isVerified ? (

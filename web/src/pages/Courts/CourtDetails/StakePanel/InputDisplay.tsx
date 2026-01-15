@@ -109,7 +109,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
   return (
     <>
       <LabelArea>
-        <label>{`${t("staking.available")} ${isStaking ? parsedBalance : parsedStake} PNK`}</label>
+        <label>{t("staking.available_amount", { amount: isStaking ? parsedBalance : parsedStake })}</label>
         <StyledLabel
           onClick={() => {
             const amount = isStaking ? parsedBalance : parsedStake;

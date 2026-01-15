@@ -108,7 +108,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             <StyledTabs
               currentValue={currentTab}
               items={rounds.map((_, i) => ({
-                text: `${t("voting.round")} ${i + 1}`,
+                text: t("voting.round_number", { number: i + 1 }),
                 value: i,
               }))}
               callback={(i: number) => setCurrentTab(i)}

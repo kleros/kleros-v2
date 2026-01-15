@@ -100,7 +100,7 @@ const PersonFields: React.FC = () => {
         <AliasContainer key={alias?.id}>
           <LabeledInput
             name="name"
-            label={`${t("forms.labels.person")} ${index + 1}`}
+            label={t("forms.labels.person_number", { number: index + 1 })}
             placeholder={t("forms.placeholders.alice_developer_example")}
             value={alias.name}
             onChange={handleAliasesWrite}

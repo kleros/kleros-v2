@@ -206,7 +206,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   description,
   fileURI,
 }) => {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
   const { id } = useParams();
   const profileLink = `/profile/stakes/1?address=${sender}`;
 
@@ -237,7 +237,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
             <JurorLink address={sender} />
           </StyledJurorInternalLink>
           <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-            <label>{formatDate(Number(timestamp), true)}</label>
+            <label>{formatDate(Number(timestamp), true, i18n.language)}</label>
           </StyledExternalLink>
         </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (

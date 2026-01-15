@@ -49,7 +49,8 @@
     "continue_to_external_site": "Continuar al Sitio Externo",
     "claim_pnk": "Reclamar PNK",
     "empty_faucet": "Grifo Vacío",
-    "view_transaction_etherscan": "Ver transacción en Etherscan"
+    "view_transaction_etherscan": "Ver transacción en Etherscan",
+    "switch_to_chain": "Cambiar a {{chainName}}"
   },
   "forms": {
     "placeholders": {
@@ -72,17 +73,18 @@
       "token_address_example": "Ej. 0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
       "token_id_example": "Ej. 1",
       "case_id_example": "ej. 45",
-      "description_for_option": "Descripción para la Opción",
+      "description_for_option_number": "Descripción para la Opción {{number}}",
       "describe_evidence": "Describe tu evidencia en detalle...",
       "search_by_id": "Buscar por ID",
-      "bob_hired_alice": "ej. Bob contrató a Alice para desarrollar un sitio web, pero Alice no logró entregar..."
+      "bob_hired_alice": "ej. Bob contrató a Alice para desarrollar un sitio web, pero Alice no logró entregar...",
+      "justify_your_vote": "Justifica tu voto..."
     },
     "labels": {
       "email": "Correo electrónico",
       "question": "Pregunta",
       "option_description": "Descripción de la Opción",
-      "voting_option": "Opción de Votación",
-      "person": "Persona",
+      "voting_option_number": "Opción de Votación {{number}}",
+      "person_number": "Persona {{number}}",
       "person_address": "Dirección de la Persona {{index}}",
       "arbitration_cost": "Costo de Arbitraje",
       "enter_cases_id": "Ingresa el ID del caso",
@@ -165,15 +167,20 @@
     "jury_decided_in_favor": "El jurado decidió a favor de:",
     "this_option_winning": "Esta opción está ganando:",
     "voting_history": "Historial de Votación",
-    "round": "Ronda",
+    "round_number": "Ronda {{number}}",
     "did_not_commit_vote": "No comprometió el voto",
     "vote_committed": "Voto comprometido",
     "pending_vote_commitment": "Compromiso de voto pendiente",
     "did_not_vote": "No votó",
     "pending_vote": "Voto Pendiente",
-    "vote": "voto",
-    "votes": "votos",
-    "no_justification_provided": "No se proporcionó justificación"
+    "vote_one": "{{count}} voto",
+    "vote_other": "{{count}} votos",
+    "vote_label": "Voto",
+    "no_justification_provided": "No se proporcionó justificación",
+    "refuse_to_arbitrate": "Rechazar Arbitrar",
+    "answer_0x": "Respuesta 0x{{ruling}}",
+    "view_vote": "Ver voto",
+    "justification_message": "Por favor proporciona una justificación completa de tu decisión. Las explicaciones de calidad son esenciales para las partes involucradas y pueden ser elegibles para compensación adicional de acuerdo con nuestra política de justificación."
   },
   "dispute_info": {
     "court": "Corte",
@@ -189,7 +196,8 @@
     "appealed": "Apelado",
     "won_by_appeal": "Ganado por Apelación",
     "enforcement": "Ejecución",
-    "jury_decision": "Decisión del Jurado"
+    "jury_decision": "Decisión del Jurado",
+    "jury_decision_round": "Decisión del Jurado - Ronda {{round}}"
   },
   "stats": {
     "pnk_staked": "PNK Depositado",
@@ -237,7 +245,7 @@
     "socrates": "Sócrates",
     "plato": "Platón",
     "aristotle": "Aristóteles",
-    "level": "Nivel",
+    "level_number": "Nivel {{level}}",
     "score": "Puntuación",
     "coherent_votes": "Votos Coherentes",
     "rewards": "Recompensas",
@@ -289,21 +297,21 @@
     "sign_in": "Iniciar Sesión",
     "signed_in_successfully": "¡Sesión iniciada exitosamente!",
     "signing_in_user": "Iniciando sesión del usuario...",
-    "sign_in_failed": "Falló el inicio de sesión:"
+    "sign_in_failed_error": "Falló el inicio de sesión: {{error}}"
   },
   "notifications": {
     "uploaded_successfully": "¡Subido exitosamente!",
-    "upload_failed": "Falló la subida:",
+    "upload_failed_error": "Falló la subida: {{error}}",
     "verification_email_sent": "¡Correo de verificación enviado exitosamente!",
     "failed_to_submit_evidence": "Falló al enviar evidencia.",
     "uploading_to_ipfs": "Subiendo a IPFS",
     "error_uploading_evidence": "Error al subir archivo de evidencia",
     "updating_email": "Actualizando correo electrónico...",
     "email_updated_successfully": "¡Correo electrónico actualizado exitosamente!",
-    "updating_email_failed": "Falló la actualización del correo electrónico:",
+    "updating_email_failed_error": "Falló la actualización del correo electrónico: {{error}}",
     "adding_user": "Agregando usuario...",
     "user_added_successfully": "¡Usuario agregado exitosamente!",
-    "adding_user_failed": "Falló al agregar usuario:",
+    "adding_user_failed_error": "Falló al agregar usuario: {{error}}",
     "update_email_again": "Puedes actualizar el correo electrónico nuevamente {{time}}"
   },
   "alerts": {
@@ -322,7 +330,7 @@
     "thanks_for_funding_appeal": "Gracias por Financiar la Apelación",
     "success": "¡Éxito!",
     "check_the_case": "Verificar el caso",
-    "dispute_created_full_message_part1": "El caso se resolverá aproximadamente el",
+    "dispute_created_full_message": "El caso se resolverá aproximadamente el <date></date>.",
     "external_link_warning": "Advertencia de Enlace Externo",
     "external_link_message": "Estás a punto de navegar a un sitio web externo. Por favor verifica la URL antes de continuar para asegurar que sea segura y legítima.",
     "safety_tips": "Consejos de Seguridad:",
@@ -333,7 +341,14 @@
     "you_have_funded": "Has financiado:",
     "option_funded": "Opción financiada:",
     "stake_success": "¡Tu depósito en la corte {{courtName}} fue exitoso! 🎉",
-    "unstake_success": "¡Tu retiro de la corte {{courtName}} fue exitoso! 🎉"
+    "unstake_success": "¡Tu retiro de la corte {{courtName}} fue exitoso! 🎉",
+    "vote_confirmed_secret": "Tu voto está confirmado. Se mantiene en secreto hasta que todos los jurados hayan emitido sus votos.",
+    "justify_reveal_vote_on": "Necesitarás justificar y revelar tu voto el {{date}}",
+    "decision_date_with_appeals": "La fecha de decisión es <emphasized>{{date}}</emphasized> con posibilidad de apelaciones. Después de ese momento serás informado sobre la decisión del jurado.",
+    "subscribe_notifications_drawn": "Para no perderte cuando seas sorteado para casos, asegúrate de suscribirte a las notificaciones: Configuración > Notificaciones",
+    "subscribe_notifications_track": "Para seguir mejor el progreso del caso, te recomendamos suscribirte a las notificaciones: Configuración > Notificaciones",
+    "enable_notifications_progress": "Habilita las notificaciones para estar actualizado sobre el progreso del caso: Configuración > Notificaciones",
+    "enable_notifications_reveal": "Habilita las notificaciones para que te recuerden cuando llegue el momento de revelar: Configuración > Notificaciones"
   },
   "email_verification": {
     "invalid_link": "¡Enlace Inválido!",
@@ -351,7 +366,7 @@
     "didnt_receive_email": "¿No recibiste el correo?",
     "email_verification_pending": "Verificación de Correo Electrónico Pendiente",
     "sending_verification_email": "Enviando correo de verificación...",
-    "failed_to_send_verification": "Falló al enviar correo de verificación:"
+    "failed_to_send_verification_error": "Falló al enviar correo de verificación: {{error}}"
   },
   "case_creation": {
     "create_from_scratch": "Crear un caso desde cero",
@@ -370,7 +385,13 @@
     "stake_all": "Depositar todo",
     "withdraw_all": "Retirar todo",
     "current_stake": "Depósito Actual",
-    "available": "Disponible"
+    "available_amount": "Disponible {{amount}} PNK",
+    "you_are_staking": "Estás depositando",
+    "you_are_withdrawing": "Estás retirando",
+    "you_successfully_staked": "Has depositado exitosamente",
+    "you_successfully_withdrew": "Has retirado exitosamente",
+    "on_court": "en {{court}}",
+    "stake_confirmed_tooltip": "¡El depósito está confirmado! Es un procedimiento estándar retrasar la ejecución de un cambio en los depósitos si la fase del árbitro no es actualmente Depósito. Se actualizará pronto."
   },
   "evidence": {
     "submit_new_evidence": "Enviar Nueva Evidencia",
@@ -382,6 +403,7 @@
     "attachment": "Adjunto",
     "open_in_new_tab": "Abrir en nueva pestaña",
     "case": "Caso",
+    "case_number": "Caso {{id}}",
     "policy_file": "Archivo de Reglamento",
     "evidence_file": "Archivo de Evidencia",
     "case_policy": "Reglamento del Caso",
@@ -397,8 +419,8 @@
     "juror": "Jurado",
     "pnk_staked": "PNK Depositado",
     "latest_cases": "Casos Más Recientes",
-    "latest_cases_in": "Casos Más Recientes en",
-    "jurors_staked_in": "Jurados con Depósitos en",
+    "latest_cases_in_court": "Casos Más Recientes en {{court}}",
+    "jurors_staked_in_court": "Jurados con Depósitos en {{court}}",
     "see_all": "Ver todo",
     "voted": "Votó:",
     "justification": "Justificación:",
@@ -406,6 +428,8 @@
     "language": "Idioma",
     "how_it_works": "Cómo funciona",
     "favorite_cases": "Casos Favoritos",
+    "add_to_favorites": "Agregar a favoritos",
+    "remove_from_favorites": "Quitar de favoritos",
     "community": "Comunidad",
     "view_attached_file": "Ver archivo adjunto",
     "file": "Archivo",
@@ -415,7 +439,23 @@
     "inspect_uploaded_policy": "Inspeccionar el reglamento cargado",
     "fundamental_to_any_case": "Fundamental para cualquier caso, el Reglamento proporciona a los jurados un marco para votar de manera justa. Puede ser un conjunto de criterios, un contrato que establezca los derechos y deberes de las partes, o cualquier conjunto de reglas predefinidas que sean relevantes para la toma de decisiones de los jurados.",
     "you_can_attach_additional": "Puedes adjuntar información adicional aquí. Importante: la descripción anterior debe hacer referencia a las partes relevantes del contenido del archivo.",
-    "coming_soon": "Próximamente"
+    "coming_soon": "Próximamente",
+    "unknown_court": "Corte Desconocida"
+  },
+  "maintenance": {
+    "jurors_drawn_in_drawing_phase": "Los jurados pueden ser sorteados en la fase de sorteo.",
+    "pass_phase_here": "Pasar fase <link>aquí</link>."
+  },
+  "phase": {
+    "label": "Fase: {{phase}}",
+    "staking": "Depósito",
+    "generating": "Generando",
+    "drawing": "Sorteo"
+  },
+  "toasts": {
+    "uploading_to_ipfs": "Subiendo a IPFS",
+    "uploaded_successfully": "¡Subido exitosamente!",
+    "upload_failed": "Subida fallida: {{error}}"
   },
   "sorting": {
     "first_to_last": "1º al último",
@@ -507,8 +547,8 @@
     "appeal_stage_2": "Apelación: Etapa 2",
     "crowdfunding_rewards": "Recompensas de Financiamiento Colectivo",
     "who_wins_rewards": "¿Quién gana las recompensas?",
-    "remaining_to_fund_losing": "restante para financiar opciones perdedoras",
-    "remaining_to_fund_winning": "restante para financiar opción ganadora",
+    "time_remaining_to_fund_losing": "{{time}} restante para financiar opciones perdedoras",
+    "time_remaining_to_fund_winning": "{{time}} restante para financiar opción ganadora",
     "appeal_paragraph_1": "Si después de que el jurado ha alcanzado una decisión, una parte no está satisfecha (porque piensa que el resultado fue injusto), puede apelar y hacer que la disputa sea resuelta nuevamente.",
     "appeal_paragraph_2": "Cada vez que se apela el caso, comienza una nueva ronda con todas las opciones de votación disponibles para votar nuevamente. Los resultados de las rondas anteriores son irrelevantes en términos de cuál será el resultado final.",
     "appeal_paragraph_3": "Cada nueva instancia de apelación tendrá el doble del número anterior de jurados más uno.",
@@ -530,13 +570,11 @@
     "stage_one_explanation_2": "Si ninguna opción perdedora está <small>completamente financiada</small> a tiempo, se mantiene la decisión del jurado.",
     "stage_two_explanation_1": "La fecha límite para perdedores ha <small>finalizado</small>, solo puedes financiar al ganador actual.",
     "stage_two_explanation_2": "Si el ganador actual no está completamente financiado a tiempo, la opción financiada durante la etapa anterior será declarada como el ganador final.",
-    "stage_two_explanation_3": "Las siguientes opciones fueron financiadas en la etapa 1: <small>{{choices}}</small>"
+    "stage_two_explanation_3": "Las siguientes opciones fueron financiadas en la etapa 1: <small>{{choices}}</small>",
+    "how_much_eth_contribute": "¿Cuánto ETH quieres contribuir?"
   },
   "profile": {
     "juror_profile": "Perfil de Jurado",
-    "available": "Disponible:",
-    "locked": "Bloqueado:",
-    "staked": "Depositado:",
     "share_juror_score": "Comparte tu puntuación de jurado",
     "x_post_template": "¡He estado ocupado como Jurado en la corte de Kleros, mira mi puntuación: \n\nNivel: {{level}} ({{title}})\nPorcentaje de Coherencia: {{percentage}}%\nVotos Coherentes: {{coherent}}/{{total}}\n\n¡Sé jurado conmigo! ➡️ {{url}}",
     "coherent_votes_label": "Votos Coherentes:",
@@ -559,12 +597,14 @@
     "all_votes": "Todos los Votos",
     "cases_drawn": "Casos Sorteados",
     "no_votes_found": "No se encontraron votos",
-    "staking_history_in": "Historial de Depósitos en",
+    "staking_history_in_court": "Historial de Depósitos en {{court}}",
     "juror": "Jurado",
     "pnk_staked": "PNK Depositado",
     "court": "Corte",
     "date": "Fecha",
-    "court_staking_tooltip": "Cuando estás depositado en una subcorte, también estás depositado en sus cortes padre. ej. Depositar en la corte No Técnica te deposita automáticamente en sus padres: Blockchain y Corte General."
+    "court_staking_tooltip": "Cuando estás depositado en una subcorte, también estás depositado en sus cortes padre. ej. Depositar en la corte No Técnica te deposita automáticamente en sus padres: Blockchain y Corte General.",
+    "juror_in_cases_one": "Jurado en {{count}} caso",
+    "juror_in_cases_other": "Jurado en {{count}} casos"
   },
   "card_labels": {
     "evidence_time": "Tiempo de evidencia",
@@ -591,5 +631,9 @@
     "disabled": "Deshabilitado",
     "hidden_votes_tooltip": "Los votos de los jurados están ocultos. Nadie puede verlos antes de que se complete el período de votación. Se lleva a cabo en un proceso de dos pasos: comprometer y revelar.",
     "non_hidden_votes_tooltip": "Los votos de los jurados no están ocultos. Todos pueden ver la justificación y la opción votada antes de que se complete el período de votación."
+  },
+  "swap": {
+    "claimed_testnet": "Reclamado: {{amount}} PNK (Testnet)",
+    "bridge_from_to": "Puente de {{from}} a {{to}}"
   }
 }

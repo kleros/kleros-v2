@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import VotedIcon from "svgs/icons/voted-ballot.svg";
@@ -40,10 +41,12 @@ interface IVote {
 }
 
 const Vote: React.FC<IVote> = ({ choice }) => {
+  const { t } = useTranslation();
+
   return (
     <Container>
       <StyledVotedIcon />
-      <BlueSmall>Vote: </BlueSmall>
+      <BlueSmall>{t("voting.vote_label")}: </BlueSmall>
       {choice === null ? <Skeleton width={80} height={14} /> : <VoteValue>{choice}</VoteValue>}
     </Container>
   );
