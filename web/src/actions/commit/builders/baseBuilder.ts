@@ -1,16 +1,8 @@
-import { Abi, type WriteContractParameters } from "viem";
+import { defineActionBuilder } from "actions/helpers/builder";
 
 import { CommitContext } from "../context";
 import { CommitParams } from "../params";
 
-/**
- * Canonical commit transaction type.
- */
-export type CommitTx<TAbi extends Abi> = WriteContractParameters<TAbi>;
+export const defineCommitBuilder = defineActionBuilder<CommitParams, CommitContext>();
 
-/**
- * Base builder interface
- */
-export interface CommitBuilder<TParams extends CommitParams, TAbi extends Abi> {
-  build(params: TParams, context: CommitContext): Promise<CommitTx<TAbi>>;
-}
+export type CommitBuilder = ReturnType<typeof defineCommitBuilder>;

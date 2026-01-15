@@ -8,10 +8,10 @@ import { encrypt } from "utils/crypto/shutter";
 import { encodeShutterMessage } from "../helpers";
 import { GatedShutterCommitParams } from "../params";
 
-import { CommitBuilder } from "./baseBuilder";
+import { defineCommitBuilder } from "./baseBuilder";
 
-export const gatedShutterCommitBuilder: CommitBuilder<GatedShutterCommitParams, typeof disputeKitGatedShutterAbi> = {
-  build: async (params, context) => {
+export const gatedShutterCommitBuilder = defineCommitBuilder({
+  build: async (params: GatedShutterCommitParams, context) => {
     if (!import.meta.env.REACT_APP_SHUTTER_API || import.meta.env.REACT_APP_SHUTTER_API.trim() === "") {
       console.error("REACT_APP_SHUTTER_API environment variable is not set or is empty");
       throw new Error("Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set");
@@ -31,9 +31,9 @@ export const gatedShutterCommitBuilder: CommitBuilder<GatedShutterCommitParams, 
       account,
       address: disputeKitGatedShutterAddress[chain.id],
       abi: disputeKitGatedShutterAbi,
-      functionName: "castCommit",
+      functionName: "castCommitShutter",
       args: [disputeId, voteIds, choiceCommit, justificationCommit, identity as Hex, encryptedCommitment],
       chain,
     };
   },
-};
+});

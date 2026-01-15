@@ -3,10 +3,10 @@ import { hashVote } from "utils/crypto/hashVote";
 
 import { ClassicCommitParams } from "../params";
 
-import { CommitBuilder } from "./baseBuilder";
+import { defineCommitBuilder } from "./baseBuilder";
 
-export const classicCommitBuilder: CommitBuilder<ClassicCommitParams, typeof disputeKitClassicAbi> = {
-  build: async (params, context) => {
+export const classicCommitBuilder = defineCommitBuilder({
+  build: async (params: ClassicCommitParams, context) => {
     const { disputeId, voteIds, choice, salt } = params;
     const { chain, account } = context;
 
@@ -20,4 +20,4 @@ export const classicCommitBuilder: CommitBuilder<ClassicCommitParams, typeof dis
       chain,
     };
   },
-};
+});

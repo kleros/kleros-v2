@@ -1,5 +1,3 @@
-import { Abi } from "viem";
-
 import { DisputeKits } from "src/consts";
 
 import { CommitContext } from "../context";
@@ -11,7 +9,7 @@ import { gatedCommitBuilder } from "./gated.builder";
 import { gatedShutterCommitBuilder } from "./gatedShutter.builder";
 import { shutterCommitBuilder } from "./shutter.builder";
 
-const builders: Record<CommitParams["type"], CommitBuilder<any, Abi>> = {
+const builders: Record<DisputeKits, CommitBuilder> = {
   [DisputeKits.Classic]: classicCommitBuilder,
   [DisputeKits.Shutter]: shutterCommitBuilder,
   [DisputeKits.Gated]: gatedCommitBuilder,
@@ -19,5 +17,5 @@ const builders: Record<CommitParams["type"], CommitBuilder<any, Abi>> = {
 };
 
 export const buildCommitTxn = (params: CommitParams, context: CommitContext) => {
-  return builders[params.type].build(params as never, context);
+  return builders[params.type].build(params, context);
 };

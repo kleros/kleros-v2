@@ -3,10 +3,10 @@ import { hashVote } from "utils/crypto/hashVote";
 
 import { GatedCommitParams } from "../params";
 
-import { CommitBuilder } from "./baseBuilder";
+import { defineCommitBuilder } from "./baseBuilder";
 
-export const gatedCommitBuilder: CommitBuilder<GatedCommitParams, typeof disputeKitGatedAbi> = {
-  build: async (params, context) => {
+export const gatedCommitBuilder = defineCommitBuilder({
+  build: async (params: GatedCommitParams, context) => {
     const { disputeId, voteIds, choice, salt } = params;
     const { chain, account } = context;
 
@@ -20,4 +20,4 @@ export const gatedCommitBuilder: CommitBuilder<GatedCommitParams, typeof dispute
       chain,
     };
   },
-};
+});
