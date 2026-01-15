@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWalletClient, usePublicClient, useAccount } from "wagmi";
+
 import { executeCommit } from "actions/commit/execute";
 import type {
   ClassicCommitParams,
@@ -7,9 +9,8 @@ import type {
   GatedShutterCommitParams,
   ShutterCommitParams,
 } from "actions/commit/params";
-import { useWalletClient, usePublicClient, useAccount } from "wagmi";
 
-import { generateSalt } from "utils/crypto/generateSalt";
+import { generateSalt, getSaltKey } from "utils/crypto/generateSalt";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
@@ -48,7 +49,7 @@ export function useCastCommit(onSuccess?: () => void) {
       if (!signingAccount) throw new Error("No signing account available");
 
       // generate salt
-      const saltKey = `dispute-${params.disputeId}-round-${params.roundIndex}-voteids-${params.voteIds}`;
+      const saltKey = getSaltKey(params.disputeId, params.roundIndex, params.voteIds);
 
       const message = saltKey;
       const salt = await generateSalt(signingAccount, message);
