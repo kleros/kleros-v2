@@ -30,7 +30,16 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated }) => {
     isCommitPeriod && !commited ? (
       <Commit {...{ arbitrable, setIsOpen, voteIDs, isGated }} />
     ) : (
-      <Reveal {...{ arbitrable, setIsOpen, voteIDs, commit, isRevealPeriod: !isCommitPeriod, isGated }} />
+      <Reveal
+        {...{
+          arbitrable,
+          setIsOpen,
+          voteIDs,
+          isRevealPeriod: !isCommitPeriod,
+          isGated,
+          commit: commit as `0x${string}`,
+        }}
+      />
     )
   ) : (
     <Vote {...{ arbitrable, setIsOpen, voteIDs }} />
