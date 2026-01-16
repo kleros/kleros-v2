@@ -44,7 +44,9 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
   );
   const countdownToVotingPeriod = useCountdown(deadlineCommitPeriod);
 
-  const { mutateAsync: castCommit } = useCastCommit();
+  const { mutateAsync: castCommit } = useCastCommit(() => {
+    setIsOpen(true);
+  });
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
@@ -52,7 +54,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
       to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
       const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
 
-      const res = await castCommit({
+      castCommit({
         type: isGated ? DisputeKits.GatedShutter : DisputeKits.Shutter,
         disputeId: parsedDisputeID,
         choice,
@@ -61,18 +63,8 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
         justification,
         decryptionDelay,
       });
-      setIsOpen(res.status);
     },
-    [
-      justification,
-      parsedVoteIDs,
-      parsedDisputeID,
-      setIsOpen,
-      countdownToVotingPeriod,
-      isGated,
-      castCommit,
-      currentRoundIndex,
-    ]
+    [justification, parsedVoteIDs, parsedDisputeID, countdownToVotingPeriod, isGated, castCommit, currentRoundIndex]
   );
 
   return id ? (

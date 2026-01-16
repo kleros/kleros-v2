@@ -2,26 +2,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletClient, usePublicClient, useAccount } from "wagmi";
 
 import { executeCommit } from "actions/commit/execute";
-import type {
-  ClassicCommitParams,
-  CommitParams,
-  GatedCommitParams,
-  GatedShutterCommitParams,
-  ShutterCommitParams,
-} from "actions/commit/params";
+import type { CommitParams } from "actions/commit/params";
+import { getVoteKey } from "actions/helpers/storage/key";
 
-import { generateSalt, getSaltKey } from "utils/crypto/generateSalt";
-import { wrapWithToast } from "utils/wrapWithToast";
+import { generateSalt } from "utils/crypto/generateSalt";
+import { PartialBy } from "utils/types";
+import { errorToast, wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
 import useSigningAccount from "./useSigningAccount";
 
-type CommitVoteParams =
-  | Omit<ClassicCommitParams, "salt">
-  | Omit<ShutterCommitParams, "salt">
-  | Omit<GatedCommitParams, "salt">
-  | Omit<GatedShutterCommitParams, "salt">;
+type CommitVoteParams = PartialBy<CommitParams, "salt">;
 
 export function useCastCommit(onSuccess?: () => void) {
   const queryClient = useQueryClient();
@@ -49,12 +41,10 @@ export function useCastCommit(onSuccess?: () => void) {
       if (!signingAccount) throw new Error("No signing account available");
 
       // generate salt
-      const saltKey = getSaltKey(params.disputeId, params.roundIndex, params.voteIds);
+      const saltKey = getVoteKey(params.disputeId, params.roundIndex, params.voteIds);
 
       const message = saltKey;
       const salt = await generateSalt(signingAccount, message);
-
-      localStorage.setItem(saltKey, JSON.stringify({ salt, choice: params.choice.toString() }));
 
       const executeParams: CommitParams = { ...params, salt: BigInt(salt) };
       const executeTxn = () => executeCommit(executeParams, { chain, account, walletClient });
@@ -63,12 +53,16 @@ export function useCastCommit(onSuccess?: () => void) {
 
       return result;
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
+      if (!res.status) return;
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: ["useDrawQuery"] });
     },
     onError: (err: unknown) => {
       console.error(err);
+      if (err instanceof Error) {
+        errorToast(err.message);
+      }
     },
   });
 }

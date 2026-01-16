@@ -30,20 +30,21 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, isGated }) 
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
 
-  const { mutateAsync: castCommit } = useCastCommit();
+  const { mutateAsync: castCommit } = useCastCommit(() => {
+    setIsOpen(true);
+  });
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
-      const res = await castCommit({
+      castCommit({
         type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
         disputeId: parsedDisputeID,
         choice,
         voteIds: parsedVoteIDs,
         roundIndex: currentRoundIndex,
       });
-      setIsOpen(res.status);
     },
-    [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, isGated, setIsOpen]
+    [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, isGated]
   );
 
   return id ? (

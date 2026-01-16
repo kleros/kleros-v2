@@ -1,5 +1,8 @@
 import { Hex } from "viem";
 
+import { storeCommitData } from "actions/helpers/storage";
+import { getVoteKey } from "actions/helpers/storage/key";
+
 import { disputeKitGatedShutterAbi, disputeKitGatedShutterAddress } from "hooks/contracts/generated";
 import { hashJustification } from "utils/crypto/hashJustification";
 import { hashVote } from "utils/crypto/hashVote";
@@ -17,8 +20,11 @@ export const gatedShutterCommitBuilder = defineCommitBuilder({
       throw new Error("Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set");
     }
 
-    const { disputeId, voteIds, choice, salt, decryptionDelay, justification } = params;
+    const { disputeId, voteIds, choice, salt, decryptionDelay, justification, roundIndex } = params;
     const { chain, account } = context;
+
+    const key = getVoteKey(disputeId, roundIndex, voteIds);
+    storeCommitData(key, { choice, salt, justification });
 
     const encodedMessage = encodeShutterMessage(choice, salt, justification);
 

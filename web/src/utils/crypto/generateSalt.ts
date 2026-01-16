@@ -1,9 +1,5 @@
 import { keccak256, Hex, Account } from "viem";
 
-export const getSaltKey = (disputeId: bigint, roundIndex: number, voteIds: bigint[]) => {
-  return `dispute-${disputeId}-round-${roundIndex}-voteids-${voteIds}`;
-};
-
 /**
  * Generates a deterministic salt by signing a message string and hashing the signature.
  *
