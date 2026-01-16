@@ -31,22 +31,21 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const courtUrl = "https://v2.kleros.builders/#/courts/29/purpose"; // TODO: get the correct courtID
+  // TODO: get the correct courtID
+  const courtUrl = "https://v2.kleros.builders/#/courts/29/purpose";
 
   const weth = await ethers.getContract<TestERC20>("WETH");
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
 
-  // const practitionerToken = await deploySBT(
-  //   hre,
-  //   deployer,
-  //   "Kleros-Certified Conflict Resolution Practitioner in Argentina",
-  //   "SBTACPExperience",
-  //   "Practicante de Resolución de Conflictos en Argentina, Certificado por Kleros",
-  //   "ipfs://QmdZYU6TWTxx22zLKRRfBJqNAWxC2XT6VXkTpHh71CnpZn",
-  //   courtUrl,
-  // );
-
-  // return;
+  const practitionerToken = await deploySBT(
+    hre,
+    deployer,
+    "Kleros-Certified Conflict Resolution Practitioner in Argentina",
+    "SBTACPExperience",
+    "Practicante de Resolución de Conflictos en Argentina, Certificado por Kleros",
+    "ipfs://QmdZYU6TWTxx22zLKRRfBJqNAWxC2XT6VXkTpHh71CnpZn",
+    courtUrl
+  );
 
   const lawyerToken = await deploySBT(
     hre,
