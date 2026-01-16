@@ -271,7 +271,7 @@
     "level_2_description": "Performance de niveau intermédiaire. Les jurés à ce niveau ont démontré une cohérence raisonnable dans le vote.",
     "level_3_description": "Jurés fiables avec un historique cohérent de votes. À quelques votes cohérents d'atteindre le sommet.",
     "level_4_description": "Jurés de haut niveau avec une excellente cohérence. Membres de confiance de la plateforme.",
-    "coherent_votes_tooltip": "Un vote cohérent est un vote cohérent avec la décision finale du jury (après toutes les instances d'appel). Si le vote du juré est le même que la majorité des jurés, il est considéré comme un vote cohérent.",
+    "coherent_votes_tooltip": "Un vote est cohérent s'il correspond à la décision majoritaire du tour final, après la conclusion de tous les appels.",
     "score_tooltip": "Un score de 0 à 100 reflétant le vote cohérent, lissé pour éviter que les jurés avec peu de votes ne soient classés trop haut.",
     "coherent_votes_ratio_tooltip": "C'est le ratio de votes cohérents effectués par un juré : le nombre à gauche est le nombre de fois où le juré a voté de manière cohérente et le nombre à droite est le nombre total de fois où le juré a voté. Survolez pour voir le pourcentage de votes cohérents.",
     "total_rewards_tooltip": "Les utilisateurs ont un intérêt économique à servir en tant que jurés dans Kleros : collecter les récompenses des jurés en échange de leur travail. Chaque juré cohérent avec la décision finale reçoit les récompenses des jurés composées de frais d'arbitrage (ETH) + redistribution de PNK entre jurés."

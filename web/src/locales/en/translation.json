@@ -271,7 +271,7 @@
     "level_2_description": "Mid-tier performance. Jurors at this level have demonstrated reasonable consistency in coherent voting.",
     "level_3_description": "Reliable jurors with a consistent track record of coherent votes. Just a few more coherent votes away from reaching the top.",
     "level_4_description": "Top-tier jurors with excellent coherence. Trusted members of the platform.",
-    "coherent_votes_tooltip": "A coherent vote is a vote coherent with the final jury decision (after all the appeal instances). If the juror vote is the same as the majority of jurors it's considered a coherent vote.",
+    "coherent_votes_tooltip": "A vote is coherent if it matches the majority decision of the final round, after all appeals have concluded.",
     "score_tooltip": "A score from 0 to 100 reflecting coherent voting, smoothed to prevent jurors with low vote counts from ranking too high.",
     "coherent_votes_ratio_tooltip": "This is the ratio of coherent votes made by a juror: the number in the left is the number of times where the juror voted coherently and the number in the right is the total number of times the juror voted. Hover to see the percentage of coherent votes.",
     "total_rewards_tooltip": "Users have an economic interest in serving as jurors in Kleros: collecting the Juror Rewards in exchange for their work. Each juror who is coherent with the final ruling receive the Juror Rewards composed of arbitration fees (ETH) + PNK redistribution between jurors."

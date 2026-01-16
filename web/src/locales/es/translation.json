@@ -271,7 +271,7 @@
     "level_2_description": "Rendimiento de nivel medio. Los jurados en este nivel han demostrado una consistencia razonable en la votación coherente.",
     "level_3_description": "Jurados confiables con un historial consistente de votos coherentes. A solo unos pocos votos coherentes más de alcanzar la cima.",
     "level_4_description": "Jurados de primer nivel con excelente coherencia. Miembros confiables de la plataforma.",
-    "coherent_votes_tooltip": "Un voto coherente es aquel coincidente con la decisión final del jurado (después de todas las instancias de apelación).",
+    "coherent_votes_tooltip": "Un voto es coherente si coincide con la decisión mayoritaria de la ronda final, después de que concluyan todas las apelaciones.",
     "score_tooltip": "Una puntuación de 0 a 100 que refleja la votación coherente, suavizada para evitar que los jurados con pocos votos se clasifiquen demasiado alto.",
     "coherent_votes_ratio_tooltip": "Esta es la proporción de votos coherentes realizados por un jurado: el número a la izquierda es el número de veces que el jurado votó coherentemente y el número a la derecha es el número total de veces que el jurado votó. Pasa el cursor para ver el porcentaje de votos coherentes.",
     "total_rewards_tooltip": "Los usuarios tienen un interés económico en servir como jurados en Kleros: cobrar las Recompensas de Jurado a cambio de su trabajo. Cada jurado coherente con la decisión final recibe las Recompensas de Jurado compuestas por tarifas de arbitraje (ETH) + redistribución de PNK entre jurados."
