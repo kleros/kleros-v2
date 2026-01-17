@@ -22,8 +22,8 @@ const Container = styled.div<{ isVisible: boolean }>`
   width: 86vw;
   flex-direction: column;
 
-  top: 45%;
-  left: 50%;
+  top: 45vh;
+  left: 50vw;
   transform: translate(-50%, -50%);
   max-height: 80vh;
   overflow-y: auto;
@@ -31,7 +31,8 @@ const Container = styled.div<{ isVisible: boolean }>`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      top: 50%;
+      top: 50vh;
+      left: 50vw;
       width: ${responsiveSize(700, 900)};
       flex-direction: row;
       height: 500px;
