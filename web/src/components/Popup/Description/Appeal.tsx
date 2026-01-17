@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
@@ -39,13 +41,15 @@ interface IAppeal {
 }
 
 const Appeal: React.FC<IAppeal> = ({ amount, option }) => {
+  const { t } = useTranslation();
+
   return (
     <Container>
       <StyledAmountFunded>
-        You have funded: &nbsp;<AmountContainer>{amount} ETH</AmountContainer>
+        {t("popups.you_have_funded")} &nbsp;<AmountContainer>{amount} ETH</AmountContainer>
       </StyledAmountFunded>
       <StyledOptionFunded>
-        Option funded: &nbsp;<OptionContainer>{option}</OptionContainer>
+        {t("popups.option_funded")} &nbsp;<OptionContainer>{option}</OptionContainer>
       </StyledOptionFunded>
     </Container>
   );

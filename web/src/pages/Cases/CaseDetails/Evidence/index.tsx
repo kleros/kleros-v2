@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 
@@ -78,6 +79,7 @@ const SpamLabel = styled.label`
 `;
 
 const Evidence: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const ref = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string>();
@@ -115,7 +117,7 @@ const Evidence: React.FC = () => {
   return (
     <Container ref={ref}>
       <EvidenceSearch {...{ search, setSearch }} />
-      <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
+      <ScrollButton small Icon={DownArrow} text={t("buttons.scroll_to_latest")} onClick={scrollToLatest} />
       {evidences?.realEvidences ? (
         <>
           {evidences?.realEvidences.map(
@@ -133,7 +135,7 @@ const Evidence: React.FC = () => {
               <Divider />
               {showSpam ? (
                 <>
-                  <SpamLabel onClick={() => setShowSpam(false)}>Hide spam</SpamLabel>
+                  <SpamLabel onClick={() => setShowSpam(false)}>{t("evidence.hide_spam")}</SpamLabel>
                   {evidences?.spamEvidences.map(
                     ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
                       <EvidenceCard
@@ -146,7 +148,7 @@ const Evidence: React.FC = () => {
                   )}
                 </>
               ) : (
-                <SpamLabel onClick={() => setShowSpam(true)}>Show likely spam</SpamLabel>
+                <SpamLabel onClick={() => setShowSpam(true)}>{t("evidence.show_likely_spam")}</SpamLabel>
               )}
             </>
           ) : null}
@@ -155,7 +157,7 @@ const Evidence: React.FC = () => {
         <SkeletonEvidenceCard />
       )}
 
-      {data && data.evidences.length === 0 ? <StyledLabel>There is no evidence submitted yet</StyledLabel> : null}
+      {data && data.evidences.length === 0 ? <StyledLabel>{t("evidence.no_evidence_yet")}</StyledLabel> : null}
     </Container>
   );
 };

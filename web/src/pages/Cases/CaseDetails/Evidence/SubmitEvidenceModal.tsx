@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
@@ -61,6 +62,7 @@ const SubmitEvidenceModal: React.FC<{
   disputeId: string;
   close: () => void;
 }> = ({ isOpen, disputeId, close }) => {
+  const { t } = useTranslation();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
@@ -74,7 +76,7 @@ const SubmitEvidenceModal: React.FC<{
   const submitEvidence = useCallback(async () => {
     try {
       setIsSending(true);
-      const evidenceJSON = await constructEvidence(uploadFile, message, file);
+      const evidenceJSON = await constructEvidence(uploadFile, message, file, t);
 
       const { request } = await simulateEvidenceModuleSubmitEvidence(wagmiConfig, {
         args: [BigInt(disputeId), JSON.stringify(evidenceJSON)],
@@ -89,32 +91,32 @@ const SubmitEvidenceModal: React.FC<{
         .finally(() => setIsSending(false));
     } catch (error) {
       setIsSending(false);
-      errorToast("Failed to submit evidence.");
+      errorToast(t("notifications.failed_to_submit_evidence"));
       console.error("Error in submitEvidence:", error);
     }
-  }, [publicClient, wagmiConfig, walletClient, close, disputeId, file, message, setIsSending, uploadFile]);
+  }, [publicClient, wagmiConfig, walletClient, close, disputeId, file, message, setIsSending, uploadFile, t]);
 
   return (
     <StyledModal {...{ isOpen }} shouldCloseOnEsc shouldCloseOnOverlayClick onRequestClose={close}>
-      <h1>Submit New Evidence</h1>
+      <h1>{t("evidence.submit_new_evidence")}</h1>
       <EditorContainer>
         <MarkdownEditor
           value={message}
           onChange={setMessage}
-          placeholder="Describe your evidence in detail..."
+          placeholder={t("forms.placeholders.describe_evidence")}
           showMessage={false}
         />
       </EditorContainer>
       <StyledFileUploader
         callback={(file: File) => setFile(file)}
-        msg={getFileUploaderMsg(Roles.Evidence, roleRestrictions)}
+        msg={getFileUploaderMsg(Roles.Evidence, roleRestrictions, t)}
         variant="info"
       />
       <ButtonArea>
-        <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
+        <Button variant="secondary" disabled={isSending} text={t("buttons.return")} onClick={close} />
         <EnsureChain>
           <EnsureAuth>
-            <Button text="Submit" isLoading={isSending} disabled={isDisabled} onClick={submitEvidence} />
+            <Button text={t("buttons.submit")} isLoading={isSending} disabled={isDisabled} onClick={submitEvidence} />
           </EnsureAuth>
         </EnsureChain>
       </ButtonArea>
@@ -125,19 +127,20 @@ const SubmitEvidenceModal: React.FC<{
 const constructEvidence = async (
   uploadFile: (file: File, role: Roles) => Promise<string | null>,
   msg: string,
-  file?: File
+  file: File | undefined,
+  t: (key: string) => string
 ) => {
   let fileURI: string | null = null;
   if (file) {
-    infoToast("Uploading to IPFS");
+    infoToast(t("notifications.uploading_to_ipfs"));
     fileURI = await uploadFile(file, Roles.Evidence).catch((err) => {
       // eslint-disable-next-line no-console
       console.log(err);
-      errorToast(`Upload failed: ${err?.message}`);
+      errorToast(t("notifications.upload_failed_error", { error: err?.message }));
       return null;
     });
-    if (!fileURI) throw new Error("Error uploading evidence file");
-    successToast("Uploaded successfully!");
+    if (!fileURI) throw new Error(t("notifications.error_uploading_evidence"));
+    successToast(t("notifications.uploaded_successfully"));
   }
   return { name: "Evidence", description: msg, fileURI };
 };

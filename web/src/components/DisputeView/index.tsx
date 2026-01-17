@@ -1,8 +1,8 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { formatEther } from "viem";
 
-import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Periods } from "consts/periods";
 import { useIsList } from "context/IsListProvider";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -36,6 +36,7 @@ const DisputeView: React.FC<IDisputeView> = ({
   court,
   overrideIsList,
 }) => {
+  const { t } = useTranslation();
   const { isList } = useIsList();
   const currentPeriodIndex = Periods[period];
   const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
@@ -48,7 +49,7 @@ const DisputeView: React.FC<IDisputeView> = ({
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = disputeDetails?.category;
-  const errMsg = isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
+  const errMsg = isError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
 
   return !isList || overrideIsList ? (
     <DisputeCardView

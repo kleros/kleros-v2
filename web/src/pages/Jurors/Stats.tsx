@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { isUndefined } from "utils/index";
@@ -34,8 +35,9 @@ export interface IStats {
 }
 
 const Stats: React.FC<IStats> = ({ totalJurors }) => {
+  const { t } = useTranslation();
   const value = !isUndefined(totalJurors) ? totalJurors : undefined;
-  return <Field label="Total" value={value} extraLabel="Jurors" />;
+  return <Field label={t("forms.labels.total")} value={value} extraLabel={t("forms.labels.jurors")} />;
 };
 
 export default Stats;

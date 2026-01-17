@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAccount, useBalance, usePublicClient } from "wagmi";
 
@@ -24,6 +25,7 @@ import { isTemplateValid } from "./SubmitDisputeButton";
 const StyledButton = styled(Button)``;
 
 const SubmitBatchDisputesButton: React.FC = () => {
+  const { t } = useTranslation();
   const publicClient = usePublicClient();
   const navigate = useNavigate();
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase, batchSize } =
@@ -78,18 +80,18 @@ const SubmitBatchDisputesButton: React.FC = () => {
   );
 
   const errorMsg = useMemo(() => {
-    if (insufficientBalance) return "Insufficient balance";
+    if (insufficientBalance) return t("forms.messages.insufficient_balance");
     else if (error) {
       return parseWagmiError(error);
     }
     return null;
-  }, [error, insufficientBalance]);
+  }, [error, insufficientBalance, t]);
 
   return (
     <EnsureChain>
       <div>
         <StyledButton
-          text="Create cases"
+          text={t("buttons.create_cases")}
           disabled={isButtonDisabled}
           isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
           onClick={() => {

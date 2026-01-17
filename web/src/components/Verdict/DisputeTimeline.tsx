@@ -1,13 +1,14 @@
 import React, { useMemo } from "react";
 import styled, { useTheme } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
 import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
-import NewTabIcon from "svgs/icons/new-tab.svg";
 import GavelExecutedIcon from "svgs/icons/gavel-executed.svg";
+import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -46,17 +47,10 @@ const StyledNewTabIcon = styled(NewTabIcon)`
   }
 `;
 
-const formatDate = (date: string) => {
-  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
-  const startingDate = new Date(parseInt(date) * 1000);
-
-  const formattedDate = startingDate.toLocaleDateString("en-US", options);
-  return formattedDate;
-};
-
 type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 
 const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string}`) => {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = usePopulatedDisputeData(id, arbitrable);
@@ -71,6 +65,12 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   }, [disputeDetails]);
 
   return useMemo<TimelineItems | undefined>(() => {
+    const formatDate = (date: string) => {
+      const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+      const startingDate = new Date(parseInt(date) * 1000);
+      return startingDate.toLocaleDateString(i18n.language, options);
+    };
+
     const dispute = disputeDetails?.dispute;
     if (!dispute) return;
 
@@ -79,7 +79,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
     const base: TimelineItems = [
       {
-        title: "Dispute created",
+        title: t("dispute_info.dispute_created"),
         party: (
           <ExternalLink to={txnDisputeCreatedLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />
@@ -98,8 +98,8 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       const answers = disputeData?.answers;
 
       acc.push({
-        title: `Jury Decision - Round ${index + 1}`,
-        party: isOngoing ? "Voting is ongoing" : getVoteChoice(winningChoice, answers),
+        title: t("dispute_info.jury_decision_round", { round: index + 1 }),
+        party: isOngoing ? t("voting.voting_is_ongoing") : getVoteChoice(winningChoice, answers),
         subtitle: isOngoing ? "" : `${formatDate(roundTimeline?.[Periods.vote])} / ${rounds?.[index]?.court.name}`,
         rightSided: true,
         variant: theme.secondaryPurple,
@@ -108,7 +108,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
       if (index < localRounds.length - 1) {
         acc.push({
-          title: "Appealed",
+          title: t("dispute_info.appealed"),
           party: "",
           subtitle: formatDate(roundTimeline?.[Periods.appeal]),
           rightSided: true,
@@ -116,7 +116,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
         });
       } else if (rulingOverride && dispute.currentRuling !== winningChoice) {
         acc.push({
-          title: "Won by Appeal",
+          title: t("dispute_info.won_by_appeal"),
           party: getVoteChoice(dispute.currentRuling, answers),
           subtitle: formatDate(roundTimeline?.[Periods.appeal]),
           rightSided: true,
@@ -129,7 +129,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
     if (dispute.ruled) {
       items.push({
-        title: "Enforcement",
+        title: t("dispute_info.enforcement"),
         party: (
           <ExternalLink to={txnEnforcementLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />
@@ -143,13 +143,15 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
     return [...base, ...items] as TimelineItems;
   }, [
-    disputeDetails,
-    disputeData,
-    localRounds,
-    theme,
-    rounds,
-    votingHistory,
+    disputeDetails?.dispute,
+    t,
     txnDisputeCreatedLink,
+    i18n.language,
+    votingHistory?.dispute?.createdAt,
+    theme.secondaryPurple,
+    localRounds,
+    rounds,
+    disputeData?.answers,
     txnEnforcementLink,
   ]);
 };

@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Answer, useNewDisputeContext } from "context/NewDisputeContext";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -41,6 +43,7 @@ const StyledPlusMinusField = styled(PlusMinusField)`
 
 const OptionsFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
+  const { t } = useTranslation();
 
   const updateOptions = (value: number) => {
     const defaultAnswer: Answer = { title: "", id: value.toString(), description: "" };
@@ -62,15 +65,15 @@ const OptionsFields: React.FC = () => {
           <InputContainer key={answer.id}>
             <LabeledInput
               name="title"
-              label={`Voting Option ${index + 1}`}
-              placeholder="eg. Pay 150 DAI"
+              label={t("forms.labels.voting_option_number", { number: index + 1 })}
+              placeholder={t("forms.placeholders.pay_dai_example")}
               value={answer.title ?? ""}
               onChange={(event) => handleOptionWrite(event, index)}
             />
             <LabeledInput
               name="description"
-              label="Option Description"
-              placeholder={`Description for Option ${index + 1}`}
+              label={t("forms.labels.option_description")}
+              placeholder={t("forms.placeholders.description_for_option_number", { number: index + 1 })}
               value={answer.description ?? ""}
               onChange={(event) => handleOptionWrite(event, index)}
             />

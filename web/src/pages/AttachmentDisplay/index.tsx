@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
@@ -51,10 +52,12 @@ const StyledNewTabIcon = styled(NewTabIcon)`
 `;
 
 const AttachmentDisplay: React.FC = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
   const url = searchParams.get("url");
-  const title = searchParams.get("title") ?? "Attachment";
+  const titleKey = searchParams.get("title");
+  const title = titleKey ? t(titleKey) : t("misc.attachment");
   return (
     <Container>
       <AttachmentContainer>
@@ -62,7 +65,7 @@ const AttachmentDisplay: React.FC = () => {
         {url ? (
           <>
             <StyledExternalLink to={url} rel="noreferrer" target="_blank">
-              Open in new tab <StyledNewTabIcon />
+              {t("misc.open_in_new_tab")} <StyledNewTabIcon />
             </StyledExternalLink>
             <Suspense
               fallback={

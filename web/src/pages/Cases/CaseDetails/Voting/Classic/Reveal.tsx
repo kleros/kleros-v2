@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
@@ -55,15 +56,8 @@ interface IReveal {
   disputeKitName?: DisputeKits;
 }
 
-const Reveal: React.FC<IReveal> = ({
-  arbitrable,
-  voteIDs,
-  setIsOpen,
-  commit,
-  isRevealPeriod,
-  isGated,
-  disputeKitName,
-}) => {
+const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, isGated }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [isSending, setIsSending] = useState(false);
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
@@ -127,7 +121,7 @@ const Reveal: React.FC<IReveal> = ({
   return (
     <Container>
       {isUndefined(commit) ? (
-        <StyledInfoCard msg="Failed to commit on time." />
+        <StyledInfoCard msg={t("voting.failed_to_commit")} />
       ) : isRevealPeriod ? (
         <>
           <MarkdownWrapper dir="auto">
@@ -137,7 +131,7 @@ const Reveal: React.FC<IReveal> = ({
           <StyledEnsureChain>
             <StyledButton
               variant="secondary"
-              text="Justify & Reveal"
+              text={t("buttons.justify_and_reveal")}
               disabled={isSending || isUndefined(disputeDetails)}
               isLoading={isSending}
               onClick={handleReveal}
@@ -145,7 +139,7 @@ const Reveal: React.FC<IReveal> = ({
           </StyledEnsureChain>
         </>
       ) : (
-        <StyledInfoCard msg="Your vote was successfully commited, please wait until reveal period to reveal it." />
+        <StyledInfoCard msg={t("voting.vote_successfully_committed")} />
       )}
     </Container>
   );
@@ -172,7 +166,7 @@ const getSaltAndChoice = async (
   const candidates =
     answers?.length > 0
       ? answers
-      : [{ id: "0x0", title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" } as Answer];
+      : [{ id: "0x0", title: "Refuse to Arbitrate", description: "Refuse to Arbitrate" } as Answer];
 
   const { choice } = candidates.reduce<{ found: boolean; choice: bigint }>(
     (acc, answer) => {

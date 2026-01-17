@@ -1,51 +1,19 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { useToggle } from "react-use";
 
 import Appeal from "../Appeal";
 import BinaryVoting from "../BinaryVoting";
+import DisputeResolver from "../DisputeResolver";
 import JurorLevels from "../JurorLevels";
+import PageContentsTemplate from "../PageContentsTemplate";
 import RankedVoting from "../RankedVoting";
 import Staking from "../Staking";
-import DisputeResolver from "../DisputeResolver";
 
-import PageContentsTemplate from "../PageContentsTemplate";
 import HowItWorks from "./HowItWorks";
 import PnkLogoAndTitle from "./PnkLogoAndTitle";
 import WhatDoINeed from "./WhatDoINeed";
-
-const leftPageContents = [
-  {
-    title: "Welcome to Kleros Court",
-    paragraphs: ["The decentralized arbitration service for the disputes of the new economy.", "Learn what’s new"],
-    links: [],
-  },
-  {
-    title: "What do I need to start?",
-    paragraphs: [
-      "Do you want to be a juror? If yes, you will need PNK tokens for staking on courts, and ETH for gas fees.",
-      "I don't want to be a juror. Can I still participate in the Court? Yes, sure. Users can also participate as" +
-        " contributors by helping fund appeal fees in exchange for rewards, or by submitting evidence." +
-        " In this case, you will need ETH.",
-      "I have a case that needs resolution? What do I do? It's simple. Send your case to Kleros and receive" +
-        " the resolution. You will need a few minutes to fill up the details of your case, and ETH to pay for" +
-        " Arbitration fees (It's used to pay jurors for their work).",
-    ],
-    links: [],
-  },
-  {
-    title: "Access the Mini Guides",
-    paragraphs: [],
-    links: [
-      "1. Staking",
-      "2. Binary Voting",
-      "3. Ranked Voting",
-      "4. Appeal",
-      "5. Juror Levels",
-      "6. Dispute Resolver",
-    ],
-  },
-];
 
 const rightPageComponents = [PnkLogoAndTitle, WhatDoINeed, HowItWorks];
 
@@ -54,6 +22,36 @@ interface IOnboarding {
 }
 
 const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
+  const { t } = useTranslation();
+
+  const leftPageContents = [
+    {
+      title: t("mini_guides.welcome_to_kleros"),
+      paragraphs: [t("mini_guides.decentralized_arbitration"), t("mini_guides.learn_whats_new")],
+      links: [],
+    },
+    {
+      title: t("mini_guides.what_do_i_need"),
+      paragraphs: [
+        t("mini_guides.onboarding_juror_need"),
+        t("mini_guides.onboarding_contributor_participation"),
+        t("mini_guides.onboarding_case_resolution"),
+      ],
+      links: [],
+    },
+    {
+      title: t("mini_guides.access_mini_guides"),
+      paragraphs: [],
+      links: [
+        { id: "Staking", text: t("mini_guides.onboarding_link_staking") },
+        { id: "Binary Voting", text: t("mini_guides.onboarding_link_binary_voting") },
+        { id: "Ranked Voting", text: t("mini_guides.onboarding_link_ranked_voting") },
+        { id: "Appeal", text: t("mini_guides.onboarding_link_appeal") },
+        { id: "Juror Levels", text: t("mini_guides.onboarding_link_juror_levels") },
+        { id: "Dispute Resolver", text: t("mini_guides.onboarding_link_dispute_resolver") },
+      ],
+    },
+  ];
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
   const [isBinaryVotingMiniGuideOpen, toggleBinaryVotingMiniGuide] = useToggle(false);
   const [isRankedVotingMiniGuideOpen, toggleRankedVotingMiniGuide] = useToggle(false);

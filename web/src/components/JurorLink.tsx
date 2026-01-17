@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import ArrowSvg from "svgs/icons/arrow.svg";
+import { useAccount } from "wagmi";
+
+import ArrowIcon from "svgs/icons/arrow.svg";
+import NewTabIcon from "svgs/icons/new-tab.svg";
+
+import { DEFAULT_CHAIN, getChain } from "consts/chains";
 
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
-import { useAccount } from "wagmi";
 
 const Container = styled.div`
   display: flex;
@@ -45,27 +49,36 @@ export const ReStyledArrowLink = styled(StyledArrowLink)<{ smallDisplay?: boolea
   `}
 `;
 
-interface IJurorTitle {
+interface IJurorLink {
   address: string;
+  isInternalLink?: boolean;
   smallDisplay?: boolean;
 }
 
-const JurorTitle: React.FC<IJurorTitle> = ({ address, smallDisplay }) => {
+const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, smallDisplay }) => {
   const { isConnected, address: connectedAddress } = useAccount();
   const profileLink =
     isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
-      ? "/profile/1/desc/all"
-      : `/profile/1/desc/all?address=${address}`;
+      ? "/profile"
+      : `/profile/stakes/1?address=${address}`;
+  const addressExplorerLink = useMemo(() => {
+    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${address}`;
+  }, [address]);
 
   return (
     <Container>
-      <IdenticonOrAvatar {...{ address }} />
-      <ReStyledArrowLink to={profileLink} {...{ smallDisplay }}>
+      <IdenticonOrAvatar address={address} />
+      <ReStyledArrowLink
+        {...{ smallDisplay }}
+        to={isInternalLink ? profileLink : addressExplorerLink}
+        rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
+        target={`${isInternalLink ? "" : "_blank"}`}
+      >
         <AddressOrName {...{ address, smallDisplay }} />
-        <ArrowSvg />
+        {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
       </ReStyledArrowLink>
     </Container>
   );
 };
 
-export default JurorTitle;
+export default JurorLink;

@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { DisplaySmall, Field } from "@kleros/ui-components-library";
 
 import ETH from "svgs/icons/eth.svg";
@@ -52,6 +54,7 @@ const StyledDisplay = styled(DisplaySmall)`
 `;
 
 const Jurors: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const { data } = useReadKlerosCoreArbitrationCost({
     query: {
@@ -79,9 +82,13 @@ const Jurors: React.FC = () => {
 
   return (
     <Container>
-      <Header text="Select the number of jurors" />
-      <StyledField placeholder="Select the number of jurors" value={noOfVotes} onChange={handleJurorsWrite} />
-      <StyledDisplay text={arbitrationFee} Icon={ETH} label="Arbitration Cost" />
+      <Header text={t("headers.select_number_of_jurors")} />
+      <StyledField
+        placeholder={t("forms.placeholders.select_the_number_of_jurors")}
+        value={noOfVotes}
+        onChange={handleJurorsWrite}
+      />
+      <StyledDisplay text={arbitrationFee} Icon={ETH} label={t("forms.labels.arbitration_cost")} />
       <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/voting-options" />
     </Container>
   );

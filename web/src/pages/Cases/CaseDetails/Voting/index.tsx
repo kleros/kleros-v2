@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
@@ -59,6 +60,7 @@ interface IVoting {
 }
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) => {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -88,7 +90,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
     <Container>
       {isLastRound(appealCost) && (
         <>
-          <InfoCard msg="This dispute is on its last round. Vote wisely, It cannot be appealed any further." />
+          <InfoCard msg={t("alerts.dispute_last_round")} />
           <br />
         </>
       )}
@@ -98,21 +100,21 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
           {isDrawDataLoading ? (
             <Skeleton width={300} height={20} />
           ) : (
-            <InfoCard msg="You were not drawn in current round." />
+            <InfoCard msg={t("alerts.not_drawn_current_round")} />
           )}
         </InfoCardContainer>
       )}
 
       {isPopupOpen && (
         <Popup
-          title="Thanks for Voting"
+          title={t("popups.thanks_for_voting")}
           icon={VoteIcon}
           popupType={
             disputeData?.dispute?.court?.hiddenVotes && currentPeriodIndex === Periods.commit
               ? PopupType.VOTE_WITH_COMMIT
               : PopupType.VOTE_WITHOUT_COMMIT
           }
-          date={finalDate ? formatDate(finalDate) : ""}
+          date={finalDate ? formatDate(finalDate, false, i18n.language) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
           automaticVoteReveal={isShutterDisputeKit}

@@ -1,14 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
+
+import { useTranslation } from "react-i18next";
+import { useParams, useSearchParams } from "react-router-dom";
+
 import { isUndefined } from "utils/index";
+
 import { useTopStakedJurorsByCourt } from "queries/useTopStakedJurorsByCourt";
+
 import { OrderDirection } from "src/graphql/graphql";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
-import JurorCard from "./JurorCard";
-import Header from "./Header";
 import { ListContainer as BaseListContainer } from "pages/Home/TopJurors";
+
+import Header from "./Header";
+import JurorCard from "./JurorCard";
 
 const ListContainer = styled(BaseListContainer)`
   overflow: visible;
@@ -32,6 +40,7 @@ const StyledLabel = styled.label`
 const PER_PAGE = 30;
 
 const DisplayJurors: React.FC = () => {
+  const { t } = useTranslation();
   const { id: courtId, order } = useParams();
   const [searchParams] = useSearchParams();
   const searchValue = searchParams.get("jurorStakedSearch") ?? "";
@@ -82,7 +91,7 @@ const DisplayJurors: React.FC = () => {
   return (
     <>
       {!isUndefined(jurors) && jurors.length === 0 && !isFetching ? (
-        <StyledLabel>No jurors found</StyledLabel>
+        <StyledLabel>{t("misc.no_jurors_found")}</StyledLabel>
       ) : (
         <ListContainer>
           <Header />

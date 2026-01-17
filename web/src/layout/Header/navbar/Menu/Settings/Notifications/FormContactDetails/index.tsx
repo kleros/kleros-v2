@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
+import { useAtlasProvider } from "@kleros/kleros-app";
 import { Button } from "@kleros/ui-components-library";
 
 import { EMAIL_REGEX } from "consts/index";
-import { useAtlasProvider } from "@kleros/kleros-app";
+import { timeLeftUntil } from "utils/date";
+import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
+
+import { isUndefined } from "src/utils";
 
 import { responsiveSize } from "styles/responsiveSize";
+
+import InfoCard from "components/InfoCard";
 
 import { ISettings } from "../../../../index";
 
 import EmailVerificationInfo from "./EmailVerificationInfo";
 import FormContact from "./FormContact";
-import { isUndefined } from "src/utils";
-import InfoCard from "components/InfoCard";
-import { timeLeftUntil } from "utils/date";
-import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 const FormContainer = styled.form`
   width: 100%;
@@ -47,6 +50,7 @@ const StyledInfoCard = styled(InfoCard)`
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
+  const { t } = useTranslation();
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
   const { address } = useAccount();
@@ -76,33 +80,33 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       const data = {
         newEmail: emailInput,
       };
-      infoToast("Updating Email ...");
+      infoToast(t("notifications.updating_email"));
       updateEmail(data)
         .then(async (res) => {
           if (res) {
-            successToast("Email Updated successfully!");
+            successToast(t("notifications.email_updated_successfully"));
             toggleIsSettingsOpen();
           }
         })
         .catch((err) => {
           console.log(err);
-          errorToast(`Updating Email failed: ${err?.message}`);
+          errorToast(t("notifications.updating_email_failed_error", { error: err?.message }));
         });
     } else {
       const data = {
         email: emailInput,
       };
-      infoToast("Adding User ...");
+      infoToast(t("notifications.adding_user"));
       addUser(data)
         .then(async (res) => {
           if (res) {
-            successToast("User added successfully!");
+            successToast(t("notifications.user_added_successfully"));
             toggleIsSettingsOpen();
           }
         })
         .catch((err) => {
           console.log(err);
-          errorToast(`Adding User failed: ${err?.message}`);
+          errorToast(t("notifications.adding_user_failed_error", { error: err?.message }));
         });
     }
   };
@@ -123,8 +127,8 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       </FormContactContainer> */}
       <FormContactContainer>
         <FormContact
-          contactLabel="Email"
-          contactPlaceholder="your.email@email.com"
+          contactLabel={t("forms.labels.email")}
+          contactPlaceholder={t("forms.placeholders.email_example")}
           contactInput={emailInput}
           contactIsValid={emailIsValid}
           setContactInput={setEmailInput}
@@ -134,11 +138,13 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         />
       </FormContactContainer>
       {!isEmailUpdateable ? (
-        <StyledInfoCard msg={`You can update email again ${timeLeftUntil(user?.emailUpdateableAt!)}`} />
+        <StyledInfoCard
+          msg={t("notifications.update_email_again", { time: timeLeftUntil(user?.emailUpdateableAt!) })}
+        />
       ) : null}
       <ButtonContainer>
         <Button
-          text="Save"
+          text={t("buttons.save")}
           disabled={
             !isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser || !isEmailUpdateable
           }

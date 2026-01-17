@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount, useBalance, usePublicClient } from "wagmi";
@@ -143,7 +144,8 @@ interface IFund {
   disputeKitName?: DisputeKits;
 }
 
-const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated, disputeKitName }) => {
+const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
+  const { t } = useTranslation();
   const needFund = useNeedFund();
   const { address, isDisconnected } = useAccount();
   const { data: balance } = useBalance({
@@ -185,21 +187,21 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated, disputeK
 
   return needFund ? (
     <Container>
-      <StyledLabel>How much ETH do you want to contribute?</StyledLabel>
+      <StyledLabel>{t("appeal.how_much_eth_contribute")}</StyledLabel>
       <StyledField
         type="number"
         value={amount}
         onChange={(e) => {
           setAmount(e.target.value);
         }}
-        placeholder="Amount to fund"
+        placeholder={t("forms.placeholders.amount_to_fund")}
       />
       <EnsureChain>
         <div>
           <StyledButton
             disabled={isFundDisabled}
             isLoading={(isSending || isLoading) && !insufficientBalance}
-            text={isDisconnected ? "Connect to Fund" : "Fund"}
+            text={isDisconnected ? t("buttons.connect_to_fund") : t("buttons.fund")}
             onClick={() => {
               if (fundAppeal && fundAppealConfig && publicClient) {
                 setIsSending(true);
@@ -213,7 +215,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated, disputeK
           />
           {insufficientBalance && (
             <ErrorButtonMessage>
-              <ClosedCircleIcon /> Insufficient balance
+              <ClosedCircleIcon /> {t("forms.messages.insufficient_balance")}
             </ErrorButtonMessage>
           )}
         </div>

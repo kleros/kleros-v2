@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
@@ -34,6 +35,7 @@ interface IDrawButton extends IBaseMaintenanceButton {
 const isUniversity = isKlerosUniversity();
 
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period }) => {
+  const { t } = useTranslation();
   const publicClient = usePublicClient();
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
   const { data: phase } = useSortitionModulePhase();
@@ -48,7 +50,7 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
       !isDrawn &&
       period === Period.Evidence &&
       (isUniversity ? true : phase === Phases.drawing),
-    [maintenanceData, isDrawn, phase, period, isUniversity]
+    [maintenanceData, isDrawn, phase, period]
   );
 
   const needToPassPhase = useMemo(
@@ -87,7 +89,7 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
       isLoading ||
       !canDraw ||
       (isUniversity && !isAddress(drawJuror)),
-    [id, numberOfVotes, isError, isLoading, canDraw, isUniversity, drawJuror]
+    [id, numberOfVotes, isError, isLoading, canDraw, drawJuror]
   );
   const handleClick = () => {
     if (!drawConfig || !publicClient) return;
@@ -103,14 +105,22 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
     <>
       {needToPassPhase && !isUniversity ? (
         <StyledLabel>
-          Jurors can be drawn in <small>drawing</small> phase.
-          <br /> Pass phase <Link to="/courts/1/purpose/#maintenance">here</Link>.
+          {t("maintenance.jurors_drawn_in_drawing_phase")}
+          <br />
+          <Trans
+            i18nKey="maintenance.pass_phase_here"
+            components={{ link: <Link to="/courts/1/purpose/#maintenance" /> }}
+          />
         </StyledLabel>
       ) : null}
       {isUniversity && canDraw ? (
-        <Field placeholder="Juror Address" onChange={(e) => setDrawJuror(e.target.value)} value={drawJuror} />
+        <Field
+          placeholder={t("forms.placeholders.juror_address")}
+          onChange={(e) => setDrawJuror(e.target.value)}
+          value={drawJuror}
+        />
       ) : null}
-      <StyledButton text="Draw" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
+      <StyledButton text={t("buttons.draw")} small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
     </>
   );
 };

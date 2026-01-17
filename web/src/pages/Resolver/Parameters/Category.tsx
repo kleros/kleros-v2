@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Field } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
@@ -39,6 +41,7 @@ const StyledField = styled(Field)`
 `;
 
 const Category: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -57,14 +60,14 @@ const Category: React.FC = () => {
 
   return (
     <Container ref={containerRef}>
-      <Header text="Choose a category" />
+      <Header text={t("headers.choose_a_category")} />
       <StyledField
         dir="auto"
         onChange={handleWrite}
         value={disputeData.category}
-        placeholder="eg. Freelance"
+        placeholder={t("forms.placeholders.freelance_example")}
         variant="info"
-        message="Type the category tag that you think best represents the case. eg. General, Curation, Freelancing, Listing, Insurance, Translation, Oracle, Identity, E-Commerce, etc."
+        message={t("forms.messages.type_category_tag")}
       />
       <NavigationButtons prevRoute="/resolver/court" nextRoute="/resolver/jurors" />
     </Container>
