@@ -181,3 +181,5 @@ tags
 .flaskenv*
 !.env.project
 !.env.vault
+
+scripts/queryAtlasUsers.env
