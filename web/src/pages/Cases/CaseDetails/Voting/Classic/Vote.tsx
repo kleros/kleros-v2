@@ -2,12 +2,12 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
-import { wrapWithToast } from "utils/wrapWithToast";
+import { useVote } from "hooks/useVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { DisputeKits } from "src/consts";
 
 import OptionsContainer from "../OptionsContainer";
 
@@ -28,37 +28,23 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const wagmiConfig = useConfig();
+
+  const { mutateAsync: vote } = useVote(() => {
+    setIsOpen(true);
+  });
 
   const handleVote = useCallback(
-    async (voteOption: number) => {
-      const { request } = await simulateDisputeKitClassicCastVote(wagmiConfig, {
-        args: [
-          parsedDisputeID,
-          parsedVoteIDs,
-          BigInt(voteOption),
-          BigInt(disputeData?.dispute?.currentRoundIndex),
-          justification,
-        ],
+    async (voteOption: bigint) => {
+      vote({
+        disputeId: parsedDisputeID,
+        voteIds: parsedVoteIDs,
+        choice: voteOption,
+        salt: BigInt(disputeData?.dispute?.currentRoundIndex),
+        justification,
+        type: DisputeKits.Classic,
       });
-      if (walletClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
-          setIsOpen(status);
-        });
-      }
     },
-    [
-      wagmiConfig,
-      disputeData?.dispute?.currentRoundIndex,
-      justification,
-      parsedVoteIDs,
-      parsedDisputeID,
-      publicClient,
-      setIsOpen,
-      walletClient,
-    ]
+    [disputeData?.dispute?.currentRoundIndex, justification, parsedVoteIDs, parsedDisputeID, vote]
   );
 
   return (
