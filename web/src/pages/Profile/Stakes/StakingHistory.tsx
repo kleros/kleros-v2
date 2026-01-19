@@ -55,10 +55,10 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
   );
 
   const { data: courtTreeData, isLoading: isLoadingCourtTree } = useCourtTree();
-  const totalNumberStakingEvents = stakingHistoryData?.userStakingEvents?.count ?? 0;
+  const totalNumberStakingEvents = stakingHistoryData?.userStakingEventsV2?.count ?? 0;
   const totalPages = useMemo(() => Math.ceil(totalNumberStakingEvents / eventsPerPage), [totalNumberStakingEvents]);
 
-  const stakingEvents = stakingHistoryData?.userStakingEvents?.items ?? [];
+  const stakingEvents = stakingHistoryData?.userStakingEventsV2?.items ?? [];
 
   const handlePageChange = (newPage: number) => {
     navigate(`/profile/stakes/${newPage}?address=${searchParamAddress}`);
