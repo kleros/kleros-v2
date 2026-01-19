@@ -8,7 +8,7 @@
     "my_profile": "My Profile",
     "overview": "Overview",
     "evidence": "Evidence",
-    "voting": "Voting",
+    "voting": "Votes",
     "appeal": "Appeal",
     "kleros_solutions": "Kleros Solutions",
     "stakes": "Stakes"
@@ -75,7 +75,7 @@
       "case_id_example": "eg. 45",
       "description_for_option_number": "Description for Option {{number}}",
       "describe_evidence": "Describe your evidence in detail...",
-      "search_by_id": "Search By ID",
+      "search_by_id": "Search by ID",
       "bob_hired_alice": "eg. Bob hired Alice to develop a website for him, but Alice failed to deliver...",
       "justify_your_vote": "Justify your vote..."
     },
@@ -136,7 +136,10 @@
     "appeal": "Appeal",
     "executed": "Executed",
     "commit": "Commit",
-    "period_with_name": "{{name}} Period"
+    "evidence_period": "Evidence Period",
+    "commit_period": "Commit Period",
+    "voting_period": "Voting Period",
+    "appeal_period": "Appeal Period"
   },
   "case_status": {
     "submitting_evidence": "Submitting Evidence",
@@ -206,12 +209,12 @@
     "active_jurors": "Active Jurors",
     "cases": "Cases",
     "most_cases": "Most Cases",
-    "highest_drawing_chance": "Highest drawing chance",
-    "highest_rewards_chance": "Highest rewards chance",
+    "highest_drawing_chance": "Highest Drawing Chance",
+    "highest_rewards_chance": "Highest Rewards Chance",
     "activity": "Activity",
     "staked_pnk": "Staked PNK",
-    "staked_pnk_per_court": "Staked PNK per court",
-    "cases_per_court": "Cases per court",
+    "staked_pnk_per_court": "Staked PNK Per Court",
+    "cases_per_court": "Cases Per Court",
     "votes": "Votes",
     "drawing_odds": "Drawing Odds",
     "rewards": "Rewards",
@@ -221,7 +224,7 @@
     "policy": "Policy",
     "min_stake": "Min Stake",
     "vote_stake": "Vote Stake",
-    "reward_per_vote": "Reward per Vote",
+    "reward_per_vote": "Reward Per Vote",
     "no_activity_in_this_period": "No activity in this period"
   },
   "time_ranges": {
@@ -268,7 +271,7 @@
     "level_2_description": "Mid-tier performance. Jurors at this level have demonstrated reasonable consistency in coherent voting.",
     "level_3_description": "Reliable jurors with a consistent track record of coherent votes. Just a few more coherent votes away from reaching the top.",
     "level_4_description": "Top-tier jurors with excellent coherence. Trusted members of the platform.",
-    "coherent_votes_tooltip": "A Coherent Vote is a vote coherent with the final jury decision (after all the appeal instances). If the juror vote is the same as the majority of jurors it's considered a Coherent Vote.",
+    "coherent_votes_tooltip": "A vote is coherent if it matches the majority decision of the final round, after all appeals have concluded.",
     "score_tooltip": "A score from 0 to 100 reflecting coherent voting, smoothed to prevent jurors with low vote counts from ranking too high.",
     "coherent_votes_ratio_tooltip": "This is the ratio of coherent votes made by a juror: the number in the left is the number of times where the juror voted coherently and the number in the right is the total number of times the juror voted. Hover to see the percentage of coherent votes.",
     "total_rewards_tooltip": "Users have an economic interest in serving as jurors in Kleros: collecting the Juror Rewards in exchange for their work. Each juror who is coherent with the final ruling receive the Juror Rewards composed of arbitration fees (ETH) + PNK redistribution between jurors."
@@ -296,7 +299,7 @@
     "sign_in_to_start": "Sign in to start",
     "sign_in": "Sign In",
     "signed_in_successfully": "Signed In successfully!",
-    "signing_in_user": "Signing in User...",
+    "signing_in_user": "Signing in user...",
     "sign_in_failed_error": "Sign-In failed: {{error}}"
   },
   "notifications": {
@@ -306,12 +309,12 @@
     "failed_to_submit_evidence": "Failed to submit evidence.",
     "uploading_to_ipfs": "Uploading to IPFS",
     "error_uploading_evidence": "Error uploading evidence file",
-    "updating_email": "Updating Email...",
+    "updating_email": "Updating email...",
     "email_updated_successfully": "Email updated successfully!",
-    "updating_email_failed_error": "Updating Email failed: {{error}}",
-    "adding_user": "Adding User...",
+    "updating_email_failed_error": "Updating email failed: {{error}}",
+    "adding_user": "Adding user...",
     "user_added_successfully": "User added successfully!",
-    "adding_user_failed_error": "Adding User failed: {{error}}",
+    "adding_user_failed_error": "Adding user failed: {{error}}",
     "update_email_again": "You can update email again {{time}}"
   },
   "alerts": {
@@ -326,8 +329,8 @@
     "jurors_not_drawn_yet": "Jurors have not been drawn yet."
   },
   "popups": {
-    "thanks_for_voting": "Thanks for Voting",
-    "thanks_for_funding_appeal": "Thanks for Funding the Appeal",
+    "thanks_for_voting": "Thanks for voting",
+    "thanks_for_funding_appeal": "Thanks for funding the appeal",
     "success": "Success!",
     "check_the_case": "Check the case",
     "dispute_created_full_message": "The case will be resolved by approximately <date></date>.",
@@ -524,7 +527,7 @@
     "token_gating_tooltip": "Only the jurors who possess the specified token or NFT can be selected as jurors for this case. Please input the token details below."
   },
   "errors": {
-    "something_went_wrong": "Ooops, Something went wrong in Athens!",
+    "something_went_wrong": "Ooops, something went wrong in Athens!",
     "reload_or_contact": "Please reload the page or contact us if the issue is not resolved.",
     "invalid_dispute_data": "The dispute data is not valid, please vote \"Refuse to arbitrate\"",
     "rpc_error": "RPC Error: Unable to fetch dispute data. Please avoid voting."
@@ -580,7 +583,7 @@
     "coherent_votes_label": "Coherent Votes:",
     "juror_rewards": "Juror Rewards",
     "staking_rewards": "Staking Rewards",
-    "pixel_art_alt": "Pixel Art per Level",
+    "pixel_art_alt": "Pixel art per level",
     "unclaimed": "Unclaimed:",
     "to_see_profile_connect": "To see your profile, connect first",
     "current_stakes": "Current Stakes",
@@ -592,7 +595,7 @@
     "votes": "Votes",
     "total": "Total",
     "vote_pending": "Vote Pending",
-    "case_in_progress": "Case In Progress",
+    "case_in_progress": "Case in progress",
     "resolved": "Resolved",
     "all_votes": "All Votes",
     "cases_drawn": "Cases Drawn",

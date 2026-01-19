@@ -117,6 +117,13 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     t("timeline.appeal"),
     t("timeline.executed"),
   ];
+  const periodTitles = [
+    t("timeline.evidence_period"),
+    t("timeline.commit_period"),
+    t("timeline.voting_period"),
+    t("timeline.appeal_period"),
+    t("timeline.executed"),
+  ];
 
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
@@ -146,7 +153,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     if (!dispute?.court.hiddenVotes && i === Periods.commit) return [];
     return [
       {
-        title: i + 1 < titles.length && isDesktop ? t("timeline.period_with_name", { name: title }) : title,
+        title: i + 1 < titles.length && isDesktop ? periodTitles[i] : title,
         subitems: getSubitems(i),
       },
     ];
