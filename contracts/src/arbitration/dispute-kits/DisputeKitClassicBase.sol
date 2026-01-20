@@ -358,8 +358,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 localRoundID = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[localRoundID];
         {
-            (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-            (, bool hiddenVotes, , , , ) = core.courts(courtID);
+            uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
+            bool hiddenVotes = core.getRoundInfo(_coreDisputeID, coreRoundID).hiddenVotes;
             if (hiddenVotes) {
                 _verifyHiddenVoteCommitments(localDisputeID, localRoundID, _voteIDs, _choice, _justification, _salt);
             }
