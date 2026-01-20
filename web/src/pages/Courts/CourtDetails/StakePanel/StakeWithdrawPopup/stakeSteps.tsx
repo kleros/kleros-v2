@@ -1,8 +1,6 @@
 import React from "react";
 import styled, { DefaultTheme } from "styled-components";
 
-import { useTranslation } from "react-i18next";
-
 import { _TimelineItem1, StateProp } from "@kleros/ui-components-library";
 
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
@@ -135,25 +133,46 @@ export const getStakeSteps = (
   theme: DefaultTheme,
   approvalHash?: `0x${string}`,
   stakeHash?: `0x${string}`,
-  error?: any
+  error?: any,
+  t?: (key: string) => string
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
-  const { t } = useTranslation();
+  const translate = t ?? ((key: string) => key);
   switch (stepType) {
     case StakeSteps.ApproveInitiate:
-      return createApprovalSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, error, t);
+      return createApprovalSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, error, translate);
 
     case StakeSteps.ApprovePending:
-      return createApprovalSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, error, t);
+      return createApprovalSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, error, translate);
     case StakeSteps.ApproveFailed:
-      return createApprovalSteps(theme, "refused", "active", amount, approvalHash, error, t);
+      return createApprovalSteps(theme, "refused", "active", amount, approvalHash, error, translate);
     case StakeSteps.StakeInitiate:
-      return createStakeSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, stakeHash, error, true, t);
+      return createStakeSteps(
+        theme,
+        theme.secondaryPurple,
+        "loading",
+        amount,
+        approvalHash,
+        stakeHash,
+        error,
+        true,
+        translate
+      );
     case StakeSteps.StakePending:
-      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, true, t);
+      return createStakeSteps(
+        theme,
+        theme.secondaryPurple,
+        "active",
+        amount,
+        approvalHash,
+        stakeHash,
+        error,
+        true,
+        translate
+      );
     case StakeSteps.StakeFailed:
-      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, true, t);
+      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, true, translate);
     case StakeSteps.StakeConfirmed:
-      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, true, t);
+      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, true, translate);
     case StakeSteps.WithdrawInitiate:
       return createStakeSteps(
         theme,
@@ -164,13 +183,23 @@ export const getStakeSteps = (
         stakeHash,
         error,
         false,
-        t
+        translate
       );
     case StakeSteps.WithdrawPending:
-      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, false, t);
+      return createStakeSteps(
+        theme,
+        theme.secondaryPurple,
+        "active",
+        amount,
+        approvalHash,
+        stakeHash,
+        error,
+        false,
+        translate
+      );
     case StakeSteps.WithdrawConfirmed:
-      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, false, t);
+      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, false, translate);
     default:
-      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, false, t);
+      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, false, translate);
   }
 };
