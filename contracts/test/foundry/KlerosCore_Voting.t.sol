@@ -49,6 +49,18 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
         vm.warp(block.timestamp + timesPerPeriod[0]);
 
+        // Change hidden votes back to false mid-dispute to make sure the parameter is stored in round and the new period will still be Commit and not Vote.
+        vm.prank(owner);
+        core.changeCourtParameters(
+            GENERAL_COURT,
+            false, // Hidden votes
+            1000, // min stake
+            10000, // alpha
+            0.03 ether, // fee for juror
+            511, // jurors for jump
+            [uint256(60), uint256(120), uint256(180), uint256(240)] // Times per period
+        );
+
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.commit);
         core.passPeriod(disputeID);

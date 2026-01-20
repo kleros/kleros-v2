@@ -71,8 +71,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
         uint256 drawIterations; // The number of iterations passed drawing the jurors for this round.
+        bool hiddenVotes; // Whether to use commit and reveal in this round or not.
+        uint256 jurorsForCourtJump; // Number of jurors for court jump for this round.
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
-        uint256[6] __gap; // Reserved slots for future upgrades.
+        uint256[4] __gap; // Reserved slots for future upgrades.
     }
 
     // Workaround "stack too deep" errors
@@ -684,6 +686,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         round.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
+        round.hiddenVotes = court.hiddenVotes;
+        round.jurorsForCourtJump = court.jurorsForCourtJump;
         round.timesPerPeriod = court.timesPerPeriod;
 
         sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
@@ -708,7 +712,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
                 revert EvidenceNotPassedAndNotAppeal();
             }
             if (round.drawnJurors.length != round.nbVotes) revert DisputeStillDrawing();
-            dispute.period = court.hiddenVotes ? Period.commit : Period.vote;
+            dispute.period = round.hiddenVotes ? Period.commit : Period.vote;
         } else if (dispute.period == Period.commit) {
             if (
                 block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)] &&
@@ -814,6 +818,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         extraRound.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
+        extraRound.hiddenVotes = court.hiddenVotes;
+        extraRound.jurorsForCourtJump = court.jurorsForCourtJump;
         extraRound.timesPerPeriod = court.timesPerPeriod;
 
         sortitionModule.createDisputeHook(_disputeID, extraRoundID);
@@ -1259,7 +1265,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _disputeID,
             _dispute.courtID,
             _court.parent,
-            _court.jurorsForCourtJump,
+            _round.jurorsForCourtJump,
             disputeKitID,
             _round.nbVotes
         );
