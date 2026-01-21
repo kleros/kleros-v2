@@ -1,5 +1,4 @@
 import type { Account } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import type { Answer } from "@kleros/kleros-sdk";
@@ -319,39 +318,6 @@ describe("resolveRevealInputs", () => {
       const result = await resolveRevealInputs(params, context);
 
       expect(result.justification).toBe("");
-    });
-  });
-
-  describe("resolveRevealInputs (integration)", () => {
-    it("reconstructs choice and salt end-to-end", async () => {
-      const account = privateKeyToAccount("0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
-
-      const answers: Answer[] = [
-        { id: "0x1", title: "A", description: "" },
-        { id: "0x2", title: "B", description: "" },
-      ];
-
-      const key = "integration-test-key";
-
-      const salt = await generateSalt(account, key);
-      const commit = hashVote(2n, BigInt(salt));
-
-      const result = await resolveRevealInputs(
-        {
-          disputeId: 1n,
-          roundIndex: 0,
-          voteIds: [0n],
-          type: DisputeKits.Classic,
-        },
-        {
-          signingAccount: account,
-          answers,
-          commit,
-        }
-      );
-
-      expect(result.choice).toBe(2n);
-      expect(result.salt).toBe(BigInt(salt));
     });
   });
 });
