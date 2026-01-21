@@ -55,7 +55,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.appeal);
         core.passPeriod(disputeID);
 
-        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
         (start, end) = core.appealPeriod(0);
         assertEq(uint256(period), uint256(KlerosCore.Period.appeal), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
@@ -204,7 +204,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count after appeal");
         assertEq(core.getNumberOfRounds(disputeID), 2, "Wrong number of rounds");
 
-        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
         assertEq(uint256(period), uint256(KlerosCore.Period.evidence), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
@@ -333,7 +333,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 1);
         assertEq(round.disputeKitID, DISPUTE_KIT_CLASSIC, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID");
 
         (, currentRound) = disputeKit.coreDisputeIDToActive(disputeID);
@@ -482,7 +482,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 1);
         assertEq(round.disputeKitID, dkID2, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID");
 
         (, currentRound) = disputeKit2.coreDisputeIDToActive(disputeID);
@@ -702,7 +702,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 1);
         assertEq(round.disputeKitID, dkID2, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, courtID2, "Wrong court ID after jump");
 
         (disputeActive, currentRound) = disputeKit2.coreDisputeIDToActive(0);
@@ -776,7 +776,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 2);
         assertEq(round.disputeKitID, dkID3, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (courtID, , , , ) = core.disputes(disputeID);
+        (courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID after jump");
 
         (disputeActive, currentRound) = disputeKit3.coreDisputeIDToActive(0); // local dispute id
@@ -1123,7 +1123,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.98 ether}(disputeID, 2); // 0.49 + (0.49 * 10000/10000)
 
         // Verify dispute is now in Court3
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should now be in Court3");
 
         // Verify new round has correct number of jurors
@@ -1250,7 +1250,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
         // Verify dispute jumped directly to GENERAL_COURT (not to Court3 or Court2)
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Dispute should have jumped directly to GENERAL_COURT");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -1357,7 +1357,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
         // Verify dispute jumped to GENERAL_COURT (parent), not Court3
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Dispute should be in GENERAL_COURT (parent), not Court3");
 
         // Verify nbVotes used default formula, not custom value
@@ -1450,7 +1450,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.7 ether}(disputeID, 2); // 0.35 + (0.35 * 10000/10000)
 
         // Verify dispute stayed in Court2
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2");
 
         // Verify new round has correct number of jurors
@@ -1566,7 +1566,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 1.76 ether}(disputeID, 2);
 
         // Verify dispute jumped to Court3
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should be in Court3");
 
         // CRITICAL: Verify new round has custom nbVotes, NOT default (7)
@@ -1675,7 +1675,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 1.08 ether}(disputeID, 2);
 
         // Verify dispute stayed in Court2
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2 (no jump occurred)");
 
         // CRITICAL: Verify new round has custom nbVotes (9), not default (3*2+1=7)
@@ -1834,7 +1834,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit3.fundAppeal{value: 0.98 ether}(disputeID, 2);
 
         // Verify dispute is now in Court3 with DisputeKit2
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should be in Court3");
 
         round = core.getRoundInfo(disputeID, 1);
@@ -1992,7 +1992,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit2.fundAppeal{value: 0.7 ether}(disputeID, 2);
 
         // Verify dispute stayed in Court2 with DK2 and default nbVotes
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -2157,7 +2157,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit2.fundAppeal{value: 1.6 ether}(disputeID, 2); // 0.56 + (0.56 * 10000/10000)
 
         // Verify dispute jumped to Court3 with DISPUTE_KIT_CLASSIC
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should be in Court3");
 
         round = core.getRoundInfo(disputeID, 1);
@@ -2297,7 +2297,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         mockDK.fundAppeal{value: 0.84 ether}(disputeID, 2);
 
         // Verify dispute stayed in Court2 with mockDK and default nbVotes
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -2439,7 +2439,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         mockDK.fundAppeal{value: 0.7 ether}(disputeID, 2);
 
         // Verify complete fallback
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -2574,7 +2574,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         mockDK.fundAppeal{value: 0.7 ether}(disputeID, 2);
 
         // Verify complete fallback
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);

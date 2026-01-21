@@ -119,7 +119,7 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID of the dispute");
 
         vm.expectEmit(true, true, true, true);
