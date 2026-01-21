@@ -65,7 +65,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.commit);
         core.passPeriod(disputeID);
 
-        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
 
         assertEq(uint256(period), uint256(KlerosCore.Period.commit), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
@@ -215,7 +215,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.vote);
         core.passPeriod(disputeID); // Vote
 
-        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
 
         assertEq(uint256(period), uint256(KlerosCore.Period.vote), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");

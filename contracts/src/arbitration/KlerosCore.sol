@@ -52,7 +52,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint96 courtID; // The ID of the court the dispute is in.
         IArbitrableV2 arbitrated; // The arbitrable contract.
         Period period; // The current period of the dispute.
-        bool ruled; // True if the ruling has been executed, false otherwise.
+        bool ruled; // True if the Ruling event has been emitted.
+        bool executed; // True if the ruling has been executed
         uint256 lastPeriodChange; // The last time the period was changed.
         Round[] rounds; // Rounds of the dispute.
         uint256[10] __gap; // Reserved slots for future upgrades.
@@ -74,7 +75,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         bool hiddenVotes; // Whether to use commit and reveal in this round or not.
         uint256 jurorsForCourtJump; // Number of jurors for court jump for this round.
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
-        uint256[4] __gap; // Reserved slots for future upgrades.
+        uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
     // Workaround "stack too deep" errors
@@ -1072,12 +1073,17 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     function executeRuling(uint256 _disputeID) external {
         Dispute storage dispute = disputes[_disputeID];
         if (dispute.period != Period.execution) revert NotExecutionPeriod();
-        if (dispute.ruled) revert RulingAlreadyExecuted();
 
         (uint256 winningChoice, , ) = currentRuling(_disputeID);
-        dispute.ruled = true;
-        emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
-        dispute.arbitrated.rule(_disputeID, winningChoice);
+        if (!dispute.ruled) {
+            dispute.ruled = true;
+            emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
+        }
+        if (!dispute.executed) {
+            try dispute.arbitrated.rule(_disputeID, winningChoice) {
+                dispute.executed = true;
+            } catch {}
+        }
     }
 
     // ************************************* //

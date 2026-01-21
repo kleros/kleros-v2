@@ -831,7 +831,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.execution);
         core.passPeriod(disputeID); // Execution
 
-        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
         assertEq(uint256(period), uint256(KlerosCore.Period.execution), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
@@ -844,11 +844,9 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         emit IArbitrableV2.Ruling(core, disputeID, 2);
         core.executeRuling(disputeID);
 
-        vm.expectRevert(KlerosCore.RulingAlreadyExecuted.selector);
-        core.executeRuling(disputeID);
-
-        (, , , bool ruled, ) = core.disputes(disputeID);
+        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
         assertEq(ruled, true, "Should be ruled");
+        assertEq(executed, true, "Should be executed");
     }
 
     function test_executeRuling_arbitrableRevert() public {
@@ -887,10 +885,19 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
-        vm.expectRevert(MaliciousArbitrableMock.RuleReverted.selector);
-        core.executeRuling(disputeID); // Reverts
+        core.executeRuling(disputeID); // Arbitrable reverts
+        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
+        assertEq(ruled, true, "Should be ruled");
+        assertEq(executed, false, "Should not be executed");
 
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 2); // Should not revert even if executeRuling() reverted
+
+        maliciousArbitrable.changeBehaviour(false);
+
+        core.executeRuling(disputeID);
+        (, , , ruled, executed, ) = core.disputes(disputeID);
+        assertEq(ruled, true, "Should be ruled");
+        assertEq(executed, true, "Should be executed");
     }
 
     function test_executeRuling_appealSwitch() public {
