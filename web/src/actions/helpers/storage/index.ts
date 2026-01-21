@@ -1,5 +1,6 @@
 import { CommitData, StoredCommitData } from "./types";
 
+// TODO: we might need to make it throwable in future in case of choices that cannot be brute forced
 export function storeCommitData(key: string, data: CommitData): void {
   const parsedData: StoredCommitData = {
     salt: data.salt.toString(),
@@ -7,7 +8,11 @@ export function storeCommitData(key: string, data: CommitData): void {
     justification: data.justification,
   };
 
-  localStorage.setItem(key, JSON.stringify(parsedData));
+  try {
+    localStorage.setItem(key, JSON.stringify(parsedData));
+  } catch (err) {
+    console.warn(`Failed to persist commit data for key "${key}"`, err);
+  }
 }
 
 export function restoreCommitData(key: string): CommitData | undefined {
