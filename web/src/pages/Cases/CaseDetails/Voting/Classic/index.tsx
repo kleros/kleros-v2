@@ -3,6 +3,7 @@ import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
+import { DisputeKits } from "consts/index";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
 
@@ -16,9 +17,10 @@ interface IClassic {
   arbitrable: `0x${string}`;
   setIsOpen: (val: boolean) => void;
   isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated }) => {
+const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated, disputeKitName }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -28,9 +30,11 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated }) => {
 
   return id && isHiddenVotes ? (
     isCommitPeriod && !commited ? (
-      <Commit {...{ arbitrable, setIsOpen, voteIDs, refetch, isGated }} />
+      <Commit {...{ arbitrable, setIsOpen, voteIDs, refetch, isGated, disputeKitName }} />
     ) : (
-      <Reveal {...{ arbitrable, setIsOpen, voteIDs, commit, isRevealPeriod: !isCommitPeriod, isGated }} />
+      <Reveal
+        {...{ arbitrable, setIsOpen, voteIDs, commit, isRevealPeriod: !isCommitPeriod, isGated, disputeKitName }}
+      />
     )
   ) : (
     <Vote {...{ arbitrable, setIsOpen, voteIDs }} />

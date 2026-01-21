@@ -74,7 +74,10 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit = disputeKitName === DisputeKits.Classic || disputeKitName === DisputeKits.Gated;
+  const isClassicDisputeKit =
+    disputeKitName === DisputeKits.Classic ||
+    disputeKitName === DisputeKits.Gated ||
+    disputeKitName === DisputeKits.ArgentinaConsumerProtection;
   const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
   const isGated = Boolean(disputeKitName?.includes("Gated"));
 
@@ -121,7 +124,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
           {isClassicDisputeKit ? (
-            <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ isGated }} />
+            <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ isGated, disputeKitName }} />
           ) : null}
           {isShutterDisputeKit ? (
             <Shutter

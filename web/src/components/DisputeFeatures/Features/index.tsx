@@ -9,6 +9,7 @@ import { Features } from "consts/disputeFeature";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
+import ArgentinaConsumerProtection from "./ArgentinaConsumerProtection";
 import ClassicVote from "./ClassicVote";
 import GatedErc1155 from "./GatedErc1155";
 import GatedErc20 from "./GatedErc20";
@@ -49,4 +50,5 @@ export const FeatureUIs: Record<Features, FeatureUI> = {
   [Features.ClassicEligibility]: ClassicEligibilityComponent,
   [Features.GatedErc20]: GatedErc20,
   [Features.GatedErc1155]: GatedErc1155,
+  [Features.ArgentinaConsumerProtection]: ArgentinaConsumerProtection,
 };

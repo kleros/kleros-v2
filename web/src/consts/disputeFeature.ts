@@ -11,6 +11,7 @@ export enum Features {
   ClassicEligibility = "classicEligibility",
   GatedErc20 = "gatedErc20",
   GatedErc1155 = "gatedErc1155",
+  ArgentinaConsumerProtection = "argentinaConsumerProtection",
 }
 
 /** Group of features (like radio buttons per category) */
@@ -38,7 +39,12 @@ export type DisputeKits = DisputeKit[];
 // DEV: the order of features in array , determine the order the radios appear on UI
 export const featureGroups: FeatureGroups = {
   [Group.Voting]: [Features.ClassicVote, Features.ShieldedVote],
-  [Group.Eligibility]: [Features.ClassicEligibility, Features.GatedErc20, Features.GatedErc1155],
+  [Group.Eligibility]: [
+    Features.ClassicEligibility,
+    Features.GatedErc20,
+    Features.GatedErc1155,
+    Features.ArgentinaConsumerProtection,
+  ],
 };
 
 // dispute kits
@@ -66,6 +72,11 @@ export const disputeKits: DisputeKits = [
       [Features.ShieldedVote, Features.GatedErc1155],
     ],
     type: "gated",
+  },
+  {
+    id: 5,
+    featureSets: [[Features.ClassicVote, Features.ArgentinaConsumerProtection]],
+    type: "general",
   },
 ];
 

@@ -8,12 +8,14 @@ import { useAccount, useBalance, usePublicClient } from "wagmi";
 
 import { Field, Button } from "@kleros/ui-components-library";
 
-import { REFETCH_INTERVAL } from "consts/index";
+import { REFETCH_INTERVAL, DisputeKits } from "consts/index";
 import {
   useSimulateDisputeKitClassicFundAppeal,
   useSimulateDisputeKitGatedFundAppeal,
+  useSimulateDisputeKitGatedArgentinaConsumerProtectionFundAppeal,
   useWriteDisputeKitClassicFundAppeal,
   useWriteDisputeKitGatedFundAppeal,
+  useWriteDisputeKitGatedArgentinaConsumerProtectionFundAppeal,
 } from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useParsedAmount } from "hooks/useParsedAmount";
@@ -68,16 +70,23 @@ const useNeedFund = () => {
   return needFund;
 };
 
-const useFundAppeal = (parsedAmount: bigint, isGated: boolean, insufficientBalance?: boolean) => {
+const useFundAppeal = (
+  parsedAmount: bigint,
+  isGated: boolean,
+  disputeKitName?: DisputeKits,
+  insufficientBalance?: boolean
+) => {
   const { id } = useParams();
   const { selectedOption } = useSelectedOptionContext();
+  const isArgentinaCP = disputeKitName === DisputeKits.ArgentinaConsumerProtection;
+
   const {
     data: fundAppealConfig,
     isLoading,
     isError,
   } = useSimulateDisputeKitClassicFundAppeal({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && !isGated,
+      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && !isGated && !isArgentinaCP,
     },
     args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
     value: parsedAmount,
@@ -90,21 +99,41 @@ const useFundAppeal = (parsedAmount: bigint, isGated: boolean, insufficientBalan
     isError: isErrorGated,
   } = useSimulateDisputeKitGatedFundAppeal({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && isGated,
+      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && isGated && !isArgentinaCP,
     },
     args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
     value: parsedAmount,
   });
   const { writeContractAsync: fundAppealGated } = useWriteDisputeKitGatedFundAppeal();
 
-  return isGated
+  const {
+    data: fundAppealArgentinaCPConfig,
+    isLoading: isLoadingArgentinaCP,
+    isError: isErrorArgentinaCP,
+  } = useSimulateDisputeKitGatedArgentinaConsumerProtectionFundAppeal({
+    query: {
+      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && isArgentinaCP,
+    },
+    args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
+    value: parsedAmount,
+  });
+  const { writeContractAsync: fundAppealArgentinaCP } = useWriteDisputeKitGatedArgentinaConsumerProtectionFundAppeal();
+
+  return isArgentinaCP
     ? {
-        fundAppeal: fundAppealGated,
-        fundAppealConfig: fundAppealGatedConfig,
-        isLoading: isLoadingGated,
-        isError: isErrorGated,
+        data: fundAppealArgentinaCPConfig,
+        isLoading: isLoadingArgentinaCP,
+        isError: isErrorArgentinaCP,
+        fundAppeal: fundAppealArgentinaCP,
       }
-    : { fundAppeal, fundAppealConfig, isLoading, isError };
+    : isGated
+      ? {
+          fundAppeal: fundAppealGated,
+          fundAppealConfig: fundAppealGatedConfig,
+          isLoading: isLoadingGated,
+          isError: isErrorGated,
+        }
+      : { fundAppeal, fundAppealConfig, isLoading, isError };
 };
 
 interface IFund {
@@ -112,6 +141,7 @@ interface IFund {
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
   isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
 const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
@@ -139,6 +169,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
   const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(
     parsedAmount,
     isGated,
+    disputeKitName,
     insufficientBalance
   );
 

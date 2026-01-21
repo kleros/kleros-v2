@@ -10,7 +10,12 @@ import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 import { Answer } from "@kleros/kleros-sdk";
 import { Button } from "@kleros/ui-components-library";
 
-import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } from "hooks/contracts/generated";
+import { DisputeKits } from "consts/index";
+import {
+  simulateDisputeKitClassicCastVote,
+  simulateDisputeKitGatedCastVote,
+  simulateDisputeKitGatedArgentinaConsumerProtectionCastVote,
+} from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
@@ -48,6 +53,7 @@ interface IReveal {
   commit: string;
   isRevealPeriod: boolean;
   isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
 const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, isGated }) => {
@@ -77,7 +83,12 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
       : JSON.parse(storedSaltAndChoice);
     if (isUndefined(choice)) return;
 
-    const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
+    const simulate =
+      disputeKitName === DisputeKits.ArgentinaConsumerProtection
+        ? simulateDisputeKitGatedArgentinaConsumerProtectionCastVote
+        : isGated
+          ? simulateDisputeKitGatedCastVote
+          : simulateDisputeKitClassicCastVote;
     const { request } = await catchShortMessage(
       simulate(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
@@ -104,6 +115,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     setIsOpen,
     walletClient,
     isGated,
+    disputeKitName,
   ]);
 
   return (

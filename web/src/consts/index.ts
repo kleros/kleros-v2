@@ -44,4 +44,5 @@ export enum DisputeKits {
   Shutter = "Shutter",
   Gated = "Token Gated",
   GatedShutter = "Token Gated Shutter",
+  ArgentinaConsumerProtection = "Argentina Consumer Protection",
 }

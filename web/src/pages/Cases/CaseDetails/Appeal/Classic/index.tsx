@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import AppealIcon from "svgs/icons/appeal.svg";
 
+import { DisputeKits } from "consts/index";
 import { useSelectedOptionContext } from "hooks/useClassicAppealContext";
 import { isUndefined } from "utils/index";
 
@@ -20,6 +21,7 @@ interface IClassic {
   isAppealMiniGuideOpen: boolean;
   toggleAppealMiniGuide: () => void;
   isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
 const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, isGated }) => {
@@ -51,7 +53,12 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
       </AppealHeader>
       <label>{t("appeal.jury_decision_appealed")}</label>
       <Options setAmount={setAmount} />
-      <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} {...{ isGated }} />
+      <Fund
+        amount={amount as `${number}`}
+        setAmount={setAmount}
+        setIsOpen={setIsPopupOpen}
+        {...{ isGated, disputeKitName }}
+      />
     </>
   );
 };
