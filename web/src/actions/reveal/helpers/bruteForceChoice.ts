@@ -1,6 +1,8 @@
-import { encodePacked, Hex, keccak256 } from "viem";
+import { Hex } from "viem";
 
 import { Answer } from "@kleros/kleros-sdk";
+
+import { hashVote } from "utils/crypto/hashVote";
 
 /**
  * @description Recovers choice by brute forcing
@@ -16,7 +18,7 @@ export const bruteForceChoice = async (salt: Hex, answers: Answer[], commit: str
   const { found, choice } = candidates.reduce<{ found: boolean; choice: bigint }>(
     (acc, answer) => {
       if (acc.found) return acc;
-      const innerCommit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(answer.id), BigInt(salt)]));
+      const innerCommit = hashVote(BigInt(answer.id), BigInt(salt));
       if (innerCommit === commit) {
         return { found: true, choice: BigInt(answer.id) };
       } else return acc;

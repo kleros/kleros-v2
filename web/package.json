@@ -25,6 +25,9 @@
   },
   "scripts": {
     "clean": "rimraf node_modules/ dist/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "start": "yarn start-devnet",
     "start-local": "scripts/runEnv.sh local 'yarn generate && vite'",
     "start-devnet": "scripts/runEnv.sh devnet 'yarn generate && vite'",
@@ -54,6 +57,10 @@
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/busboy": "^1.5.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -69,6 +76,7 @@
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.12.0",
+    "jsdom": "^27.4.0",
     "lru-cache": "^7.18.3",
     "rimraf": "^6.0.1",
     "typescript": "^5.6.3",
@@ -76,7 +84,8 @@
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-plugin-static-copy": "^3.0.0",
     "vite-plugin-svgr": "^4.3.0",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^4.0.17"
   },
   "dependencies": {
     "@bigmi/react": "^0.1.0",
