@@ -136,18 +136,15 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       if (signal.aborted) return;
       const isWithdraw = action === ActionType.withdraw;
       const requestData = config?.request ?? setStakeConfig?.request;
+      const commonArgs = [amount, theme, t] as const;
 
       if (requestData && publicClient) {
         updatePopupState(
           signal,
           getStakeSteps(
             isWithdraw ? StakeSteps.WithdrawInitiate : StakeSteps.StakeInitiate,
-            amount,
-            theme,
-            approvalHash,
-            undefined,
-            undefined,
-            t
+            ...commonArgs,
+            approvalHash
           )
         );
 
@@ -158,12 +155,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
               signal,
               getStakeSteps(
                 isWithdraw ? StakeSteps.WithdrawPending : StakeSteps.StakePending,
-                amount,
-                theme,
+                ...commonArgs,
                 approvalHash,
-                hash,
-                undefined,
-                t
+                hash
               )
             );
             await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then((res: TransactionReceipt) => {
@@ -174,12 +168,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
                   signal,
                   getStakeSteps(
                     isWithdraw ? StakeSteps.WithdrawConfirmed : StakeSteps.StakeConfirmed,
-                    amount,
-                    theme,
+                    ...commonArgs,
                     approvalHash,
-                    hash,
-                    undefined,
-                    t
+                    hash
                   )
                 );
                 setIsSuccess(true);
@@ -188,12 +179,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
                   signal,
                   getStakeSteps(
                     isWithdraw ? StakeSteps.WithdrawFailed : StakeSteps.StakeFailed,
-                    amount,
-                    theme,
+                    ...commonArgs,
                     approvalHash,
-                    hash,
-                    undefined,
-                    t
+                    hash
                   )
                 );
             });
@@ -203,12 +191,10 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
               signal,
               getStakeSteps(
                 isWithdraw ? StakeSteps.WithdrawFailed : StakeSteps.StakeFailed,
-                amount,
-                theme,
+                ...commonArgs,
                 approvalHash,
                 undefined,
-                err,
-                t
+                err
               )
             );
           });
@@ -217,12 +203,10 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           signal,
           getStakeSteps(
             StakeSteps.StakeFailed,
-            amount,
-            theme,
+            ...commonArgs,
             approvalHash,
             undefined,
-            new Error("Simulation Failed. Please restart the process."),
-            t
+            new Error("Simulation Failed. Please restart the process.")
           )
         );
       }
@@ -234,20 +218,15 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     setIsPopupOpen(true);
     controllerRef.current = new AbortController();
     const signal = controllerRef.current.signal;
+    const commonArgs = [amount, theme, t] as const;
 
     if (isAllowance && increaseAllowanceConfig && publicClient) {
-      updatePopupState(
-        signal,
-        getStakeSteps(StakeSteps.ApproveInitiate, amount, theme, undefined, undefined, undefined, t)
-      );
+      updatePopupState(signal, getStakeSteps(StakeSteps.ApproveInitiate, ...commonArgs));
 
       increaseAllowance(increaseAllowanceConfig.request)
         .then(async (hash) => {
           if (signal.aborted) return;
-          updatePopupState(
-            signal,
-            getStakeSteps(StakeSteps.ApprovePending, amount, theme, hash, undefined, undefined, t)
-          );
+          updatePopupState(signal, getStakeSteps(StakeSteps.ApprovePending, ...commonArgs, hash));
 
           await publicClient
             .waitForTransactionReceipt({ hash, confirmations: 2 })
@@ -264,29 +243,20 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
                     signal,
                     getStakeSteps(
                       StakeSteps.ApproveFailed,
-                      amount,
-                      theme,
+                      ...commonArgs,
                       hash,
                       undefined,
-                      new Error("Something went wrong. Please restart the process."),
-                      t
+                      new Error("Something went wrong. Please restart the process.")
                     )
                   );
                 else {
                   handleStake(signal, refetchData.data, hash);
                 }
-              } else
-                updatePopupState(
-                  signal,
-                  getStakeSteps(StakeSteps.ApproveFailed, amount, theme, hash, undefined, undefined, t)
-                );
+              } else updatePopupState(signal, getStakeSteps(StakeSteps.ApproveFailed, ...commonArgs, hash));
             });
         })
         .catch((err) => {
-          updatePopupState(
-            signal,
-            getStakeSteps(StakeSteps.ApproveFailed, amount, theme, undefined, undefined, err, t)
-          );
+          updatePopupState(signal, getStakeSteps(StakeSteps.ApproveFailed, ...commonArgs, undefined, undefined, err));
         });
     } else {
       handleStake(signal);
