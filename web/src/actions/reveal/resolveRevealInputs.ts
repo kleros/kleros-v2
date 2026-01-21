@@ -17,7 +17,7 @@ export async function resolveRevealInputs(
   const key = getVoteKey(params.disputeId, params.roundIndex, params.voteIds);
   const stored = restoreCommitData(key);
 
-  const justification = params.justification ?? "";
+  const justification = params.justification ?? stored?.justification ?? "";
 
   if (stored) return { ...params, ...stored, justification };
 

@@ -64,9 +64,7 @@ describe("resolveRevealInputs", () => {
 
       expect(result.choice).toBe(2n);
       expect(result.salt).toBe(12345n);
-      // Note: justification from params takes precedence over stored justification
-      // If params.justification is undefined, it defaults to empty string ""
-      expect(result.justification).toBe("");
+      expect(result.justification).toBe("stored justification");
     });
 
     it("should use params justification over empty storage justification", async () => {
