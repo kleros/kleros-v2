@@ -27,6 +27,8 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [Pinakion](https://arbiscan.io/address/0x330bD769382cFc6d50175903434CCC8D206DCAE5)
 - [PolicyRegistry: proxy](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c), [implementation](https://arbiscan.io/address/0xf7EE0Cd4E33C832DC05fB359896Add6E14E96C28)
 - [RandomizerRNG: proxy](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3), [implementation](https://arbiscan.io/address/0xF1a7Cd3115F5852966430f8E3877D2221F074A2e)
+- [SBTACPExperience](https://arbiscan.io/address/0xbCF80cb53f173Ff8be96813a40be20eFAb2B59ed)
+- [SBTACPLawyer](https://arbiscan.io/address/0x0d41Cb0c9Da123a7554C5eee87aD289874e85E48)
 - [SortitionModuleNeo: proxy](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D), [implementation](https://arbiscan.io/address/0x3f6D0daeD166b64FCfBb9bc7c9E26423c6C08eEE)
 - [TransactionBatcher](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
 
@@ -95,6 +97,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [KlerosCoreSnapshotProxy](https://sepolia.arbiscan.io/address/0xA90cA4E24982e1BC1400A3742593Ed63FDe5746D)
 - [KlerosCoreUniversity: proxy](https://sepolia.arbiscan.io/address/0x53451933006f5CbcCdb33fcDd6AC9A00b641C474), [implementation](https://sepolia.arbiscan.io/address/0x504F0BeB05fa3721700b1678D2e317dcc3476920)
 - [KlerosV2NeoEarlyUser](https://sepolia.arbiscan.io/address/0x0d60Ff8bbCF49Bc5352328E7E28e141834d7750F)
+- [LeaderboardOffset](https://sepolia.arbiscan.io/address/0x811eC94d73445Df262D3Bf43571B85caD122bBD7)
 - [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
 - [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0x6445F57d2Bd2AD5BC23bC899731f7D5184d6e893), [implementation](https://sepolia.arbiscan.io/address/0x4e3146Af220595Ed3c30E5485673eE27927Ad8F4)
