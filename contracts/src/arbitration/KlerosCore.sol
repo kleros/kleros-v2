@@ -53,7 +53,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         IArbitrableV2 arbitrated; // The arbitrable contract.
         Period period; // The current period of the dispute.
         bool ruled; // True if the Ruling event has been emitted.
-        bool executed; // True if the ruling has been executed
+        bool executed; // True if the ruling has been executed.
         uint256 lastPeriodChange; // The last time the period was changed.
         Round[] rounds; // Rounds of the dispute.
         uint256[10] __gap; // Reserved slots for future upgrades.
