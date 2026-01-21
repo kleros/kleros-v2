@@ -29,9 +29,13 @@ export function useVote(onSuccess?: () => void) {
         throw new Error("WalletClient not defined. Is the wallet connected?");
       }
 
+      if (isUndefined(publicClient)) {
+        throw new Error("PublicClient not defined. Is the wallet connected?");
+      }
+
       const executeTxn = () => executeVote(params, { chain, account, walletClient });
 
-      const result = await wrapWithToast(executeTxn, publicClient!);
+      const result = await wrapWithToast(executeTxn, publicClient);
 
       return result;
     },

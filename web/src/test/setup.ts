@@ -1,4 +1,4 @@
-import { vi, beforeEach } from "vitest";
+import { vi, beforeEach, afterAll } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
 // Mock localStorage
@@ -31,4 +31,8 @@ Object.defineProperty(globalThis, "localStorage", {
 beforeEach(() => {
   localStorageMock.clear();
   vi.clearAllMocks();
+});
+
+afterAll(() => {
+  vi.unstubAllEnvs();
 });

@@ -58,12 +58,15 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     setIsOpen(true);
   });
   const handleReveal = useCallback(async () => {
+    if (isUndefined(currentRoundIndex)) {
+      return;
+    }
     revealVote({
       params: {
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,
         justification,
-        roundIndex: currentRoundIndex,
+        roundIndex: Number(currentRoundIndex),
         type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
       },
       context: {

@@ -93,7 +93,7 @@ describe("bruteForceChoice", () => {
       expect(result1).toBe(result2);
     });
 
-    it("iterates answers in the given orderh", async () => {
+    it("iterates answers in the given order", async () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       const answers: Answer[] = [
         { id: "5", title: "Five", description: "" },

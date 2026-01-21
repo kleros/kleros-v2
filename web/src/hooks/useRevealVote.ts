@@ -41,11 +41,15 @@ export function useRevealVote(onSuccess?: () => void) {
         throw new Error("WalletClient not defined. Is the wallet connected?");
       }
 
+      if (isUndefined(publicClient)) {
+        throw new Error("PublicClient not defined. Is the wallet connected?");
+      }
+
       const executeParams = await resolveRevealInputs(params, { ...context, signingAccount, generateSigningAccount });
 
       const executeTxn = () => executeReveal(executeParams, { chain, account, walletClient });
 
-      const result = await wrapWithToast(executeTxn, publicClient!);
+      const result = await wrapWithToast(executeTxn, publicClient);
 
       // we can't put this inside execute as a sent transaction can still fail,
       // so we do it here with confirmation

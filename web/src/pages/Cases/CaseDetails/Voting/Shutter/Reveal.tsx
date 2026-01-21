@@ -11,6 +11,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 
 import { DisputeKits } from "src/consts";
+import { isUndefined } from "src/utils";
 
 const Container = styled.div`
   width: 100%;
@@ -43,11 +44,15 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated, commit, arbitr
     setIsOpen(true);
   });
   const handleReveal = useCallback(async () => {
+    if (isUndefined(currentRoundIndex)) {
+      return;
+    }
+
     revealVote({
       params: {
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,
-        roundIndex: currentRoundIndex,
+        roundIndex: Number(currentRoundIndex),
         justification,
         type: isGated ? DisputeKits.GatedShutter : DisputeKits.Shutter,
       },

@@ -222,15 +222,15 @@ Every versions were saved as `subgraph.yaml.bak.<timestamp>`.
 
 ## Run a local Blockscout explorer to inspect transactions on hardhat (Optional)
 
-Make sure [hardhat node](#####shell-1---local-rpc-with-contracts-deployed) is running.
+Make sure [hardhat node](#shell-1---local-rpc-with-contracts-deployed) is running.
 
-#### Step 1 - Clone [blockscout](https://github.com/blockscout/blockscout/blob/master/docker-compose/README.md) repo
+### Step 1 - Clone [blockscout](https://github.com/blockscout/blockscout/blob/master/docker-compose/README.md) repo
 
 ```bash
 git clone https://github.com/blockscout/blockscout.git
 ```
 
-#### Step 2: Start the Docker compose stack
+### Step 2: Start the Docker compose stack
 
 ```bash
 docker-compose -f hardhat-network.yml up -d

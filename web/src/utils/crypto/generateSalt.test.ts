@@ -35,7 +35,7 @@ describe("generateSalt", () => {
   });
 
   it("should produce deterministic results for same signature", async () => {
-    const mockSignature = "0xconst123" as `0x${string}`;
+    const mockSignature = "0xabcdef1234" as `0x${string}`;
     const mockAccount1 = createMockAccount(mockSignature);
     const mockAccount2 = createMockAccount(mockSignature);
 
@@ -46,8 +46,8 @@ describe("generateSalt", () => {
   });
 
   it("should produce different results for different signatures", async () => {
-    const mockAccount1 = createMockAccount("0xsig111" as `0x${string}`);
-    const mockAccount2 = createMockAccount("0xsig222" as `0x${string}`);
+    const mockAccount1 = createMockAccount("0x1111111111" as `0x${string}`);
+    const mockAccount2 = createMockAccount("0x2222222222" as `0x${string}`);
 
     const result1 = await generateSalt(mockAccount1, "message");
     const result2 = await generateSalt(mockAccount2, "message");
@@ -77,7 +77,7 @@ describe("generateSalt", () => {
   });
 
   it("should pass the correct message to signMessage", async () => {
-    const mockAccount = createMockAccount("0xsig" as `0x${string}`);
+    const mockAccount = createMockAccount("0xdeadbeef" as `0x${string}`);
     const testMessage = "dispute-123-round-0-voteids-1,2,3";
 
     await generateSalt(mockAccount, testMessage);

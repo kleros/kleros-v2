@@ -8,6 +8,7 @@ import { useCastCommit } from "hooks/useCastCommit";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { DisputeKits } from "src/consts";
+import { isUndefined } from "src/utils";
 
 import OptionsContainer from "../OptionsContainer";
 
@@ -36,12 +37,16 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, isGated }) 
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
+      if (isUndefined(currentRoundIndex)) {
+        return;
+      }
+
       castCommit({
         type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
         disputeId: parsedDisputeID,
         choice,
         voteIds: parsedVoteIDs,
-        roundIndex: currentRoundIndex,
+        roundIndex: Number(currentRoundIndex),
       });
     },
     [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, isGated]

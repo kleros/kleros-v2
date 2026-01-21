@@ -21,7 +21,7 @@ export const deployERC20 = async (
   deployer: string,
   ticker: string
 ): Promise<Contract> => {
-  // locally the ERC20contract lacks `increaseAllowance` function,
+  // locally the ERC20 contract lacks `increaseAllowance` function,
   // so we swap it with an updated contract to allow local development
   const contractName = ticker === "PNK" && isLocalhost(hre.network) ? "PinakionV2Local" : "TestERC20";
   const args = ticker === "PNK" && isLocalhost(hre.network) ? [] : [ticker, ticker];
