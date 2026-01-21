@@ -51,8 +51,6 @@ const StyledParagraph = styled.p`
   margin: 0;
 `;
 
-const extractGuideName = (linkText) => linkText.split(". ")[1];
-
 const processNewLineInParagraph = (paragraph: string) => {
   return paragraph.split("\n").map((text, index) => (
     <React.Fragment key={text}>
@@ -67,7 +65,7 @@ const LeftContent: React.FC<{
   leftPageContents: {
     title: string;
     paragraphs: string[];
-    links?: string[];
+    links?: Array<string | { id: string; text: string }>;
   }[];
   toggleSubMiniGuide?: (guideName: string) => void;
 }> = ({ currentPage, leftPageContents, toggleSubMiniGuide }) => {
@@ -83,11 +81,16 @@ const LeftContent: React.FC<{
       </ParagraphsContainer>
       {links && links.length > 0 && toggleSubMiniGuide ? (
         <LinksContainer>
-          {links.map((link, index) => (
-            <StyledLabel key={index} onClick={() => toggleSubMiniGuide(extractGuideName(link))}>
-              {link}
-            </StyledLabel>
-          ))}
+          {links.map((link, index) => {
+            const isObject = typeof link === "object";
+            const linkId = isObject ? link.id : link.split(". ")[1] || link;
+            const linkText = isObject ? link.text : link;
+            return (
+              <StyledLabel key={index} onClick={() => toggleSubMiniGuide(linkId)}>
+                {linkText}
+              </StyledLabel>
+            );
+          })}
         </LinksContainer>
       ) : null}
     </LeftContentContainer>
@@ -109,7 +112,7 @@ interface IPageContentsTemplate {
   leftPageContents: {
     title: string;
     paragraphs: string[];
-    links?: string[];
+    links?: Array<string | { id: string; text: string }>;
   }[];
   rightPageComponents: () => React.ReactNode[];
   isOnboarding: boolean;

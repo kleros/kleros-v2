@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { AlertMessage, DropdownCascader } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
@@ -52,6 +54,7 @@ const AlertMessageContainer = styled.div`
 `;
 
 const Court: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData, setSelectedFeatures } = useNewDisputeContext();
   const { data: courtTree } = useCourtTree();
   const items = useMemo(() => !isUndefined(courtTree?.court) && [rootCourtToItems(courtTree.court)], [courtTree]);
@@ -65,12 +68,12 @@ const Court: React.FC = () => {
 
   return (
     <Container>
-      <Header text="Select a court to arbitrate the case" />
+      <Header text={t("headers.select_court_to_arbitrate")} />
       {items ? (
         <StyledDropdownCascader
           items={items}
           onSelect={(path: string | number) => typeof path === "string" && handleCourtChange(path.split("/").pop()!)}
-          placeholder="Select Court"
+          placeholder={t("forms.placeholders.select_court")}
           value={`/courts/${disputeData.courtId}`}
         />
       ) : (
@@ -79,8 +82,8 @@ const Court: React.FC = () => {
 
       <AlertMessageContainer>
         <AlertMessage
-          title="Check the courts available beforehand"
-          msg="Kleros has different courts arbitrating disputes in several areas. Each court has its own purpose and policy. Take some time to choose the best court for your case. Learn more about the available courts here."
+          title={t("alerts.check_courts_beforehand")}
+          msg={t("alerts.kleros_different_courts")}
           variant="info"
         />
       </AlertMessageContainer>

@@ -20,7 +20,7 @@ export function getOneYearAgoTimestamp(): number {
   return currentTime - 31536000; // One year in seconds
 }
 
-export function formatDate(unixTimestamp: number, withTime = false): string {
+export function formatDate(unixTimestamp: number, withTime = false, locale = "en-US"): string {
   const date = new Date(unixTimestamp * 1000);
   const options: Intl.DateTimeFormatOptions = withTime
     ? {
@@ -33,7 +33,18 @@ export function formatDate(unixTimestamp: number, withTime = false): string {
         timeZoneName: "short",
       }
     : { month: "long", day: "2-digit", year: "numeric" };
-  return date.toLocaleDateString("en-US", options);
+  return date.toLocaleDateString(locale, options);
+}
+
+export function formatDateWithTime(timestamp: string): string {
+  const date = new Date(parseInt(timestamp) * 1000);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 /**

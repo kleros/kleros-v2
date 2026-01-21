@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import { TFunction } from "i18next";
+
 import EthereumVoteIcon from "svgs/icons/ethereum-vote.svg";
 import EthereumIcon from "svgs/icons/ethereum.svg";
 import BalanceWithHourglassIcon from "svgs/icons/law-balance-hourglass.svg";
@@ -37,9 +39,9 @@ const StyledBalanceWithHourglassIcon = styled(BalanceWithHourglassIcon)`
   height: 32px !important;
 `;
 
-export const stats: IStat[] = [
+export const getStats = (t: TFunction): IStat[] => [
   {
-    title: "Min Stake",
+    title: t("stats.min_stake"),
     coinId: 0,
     getText: (data) => `${formatPNK(data?.minStake)} PNK`,
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.minStake)) * (coinPrice ?? 0)),
@@ -47,7 +49,7 @@ export const stats: IStat[] = [
     icon: MinStake,
   },
   {
-    title: "Vote Stake",
+    title: t("stats.vote_stake"),
     coinId: 0,
     getText: (data) => {
       const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
@@ -61,7 +63,7 @@ export const stats: IStat[] = [
     icon: VoteStake,
   },
   {
-    title: "Reward per Vote",
+    title: t("stats.reward_per_vote"),
     coinId: 1,
     getText: (data) => {
       const jurorReward = formatUnitsWei(data?.feeForJuror);
@@ -72,7 +74,7 @@ export const stats: IStat[] = [
     icon: StyledEthereumVoteIcon,
   },
   {
-    title: "PNK Staked",
+    title: t("stats.pnk_staked"),
     coinId: 0,
     getText: (data) => `${formatPNK(data?.effectiveStake)} PNK`,
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.effectiveStake)) * (coinPrice ?? 0)),
@@ -80,25 +82,25 @@ export const stats: IStat[] = [
     icon: PNKIcon,
   },
   {
-    title: "Active Jurors",
+    title: t("stats.active_jurors"),
     getText: (data) => data?.effectiveNumberStakedJurors,
     color: "green",
     icon: StyledJurorIcon,
   },
   {
-    title: "Cases",
+    title: t("stats.cases"),
     getText: (data) => data?.numberDisputes,
     color: "green",
     icon: BalanceIcon,
   },
   {
-    title: "In Progress",
+    title: t("filters.in_progress"),
     getText: (data) => data?.numberDisputes - data?.numberClosedDisputes,
     color: "green",
     icon: StyledBalanceWithHourglassIcon,
   },
   {
-    title: "ETH paid",
+    title: t("stats.eth_paid"),
     coinId: 1,
     getText: (data) => `${formatETH(data?.paidETH)} ETH`,
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidETH)) * (coinPrice ?? 0)),
@@ -106,7 +108,7 @@ export const stats: IStat[] = [
     icon: EthereumIcon,
   },
   {
-    title: "PNK redistributed",
+    title: t("stats.pnk_redistributed"),
     coinId: 0,
     getText: (data) => `${formatPNK(data?.paidPNK)} PNK`,
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidPNK)) * (coinPrice ?? 0)),

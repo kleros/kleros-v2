@@ -1,13 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import ArrowIcon from "svgs/icons/arrow.svg";
 import PnkIcon from "svgs/tokens/pnk.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import LightButton from "components/LightButton";
 import { Divider } from "components/Divider";
+import LightButton from "components/LightButton";
 import { Token } from "pages/GetPnk/Swap/TokenSelect";
 
 const Container = styled.div`
@@ -64,6 +66,7 @@ interface ISwapSuccess {
 }
 
 const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }) => {
+  const { t } = useTranslation();
   const baseUrl = `https://sepolia.arbiscan.io/tx/${hash}`;
   return (
     <Container>
@@ -74,16 +77,14 @@ const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }
         </SVGContainer>
       </AmountContainer>
       {isClaim ? (
-        <Subtitle>Claimed: {amount} PNK (Testnet)</Subtitle>
+        <Subtitle>{t("swap.claimed_testnet", { amount })}</Subtitle>
       ) : (
-        <Subtitle>
-          Bridge from &nbsp;<small>Ethereum</small>&nbsp; to &nbsp;<small>Arbitrum</small>
-        </Subtitle>
+        <Subtitle>{t("swap.bridge_from_to", { from: "Ethereum", to: "Arbitrum" })}</Subtitle>
       )}
       <StyledDivider />
       <StyledButton
         onClick={() => window.open(baseUrl, "_blank", "rel=noopener noreferrer")}
-        text={"View transaction on Etherscan"}
+        text={t("buttons.view_transaction_etherscan")}
         Icon={ArrowIcon}
       />
     </Container>

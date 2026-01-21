@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
 
@@ -22,6 +24,7 @@ const StyledPlusMinusField = styled(PlusMinusField)`
 `;
 
 const NotablePersons: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
 
   //value here is the total number of fields-
@@ -38,7 +41,7 @@ const NotablePersons: React.FC = () => {
 
   return (
     <Container>
-      <Header text="Notable Persons" />
+      <Header text={t("headers.notable_persons")} />
       <PersonFields />
       <StyledPlusMinusField
         currentValue={disputeData.aliasesArray?.length ?? 2}

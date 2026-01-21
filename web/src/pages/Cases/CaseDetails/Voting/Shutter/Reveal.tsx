@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
@@ -30,6 +31,7 @@ interface IReveal {
 }
 
 const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated, commit, arbitrable }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
@@ -65,7 +67,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated, commit, arbitr
 
   return (
     <Container>
-      <Button text="Reveal Your Vote" onClick={handleReveal} disabled={isPending} isLoading={isPending} />
+      <Button text={t("buttons.reveal_your_vote")} onClick={handleReveal} disabled={isPending} isLoading={isPending} />
       {/* TODO: if justification is not stored, show input for it */}
     </Container>
   );

@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
@@ -46,6 +47,7 @@ interface IReveal {
 }
 
 const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, isGated }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -88,7 +90,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   return (
     <Container>
       {isUndefined(commit) ? (
-        <StyledInfoCard msg="Failed to commit on time." />
+        <StyledInfoCard msg={t("voting.failed_to_commit")} />
       ) : isRevealPeriod ? (
         <>
           <MarkdownWrapper dir="auto">
@@ -98,7 +100,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
           <StyledEnsureChain>
             <StyledButton
               variant="secondary"
-              text="Justify & Reveal"
+              text={t("buttons.justify_and_reveal")}
               disabled={isPending || isUndefined(disputeDetails)}
               isLoading={isPending}
               onClick={handleReveal}
@@ -106,7 +108,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
           </StyledEnsureChain>
         </>
       ) : (
-        <StyledInfoCard msg="Your vote was successfully committed, please wait until reveal period to reveal it." />
+        <StyledInfoCard msg={t("voting.vote_successfully_committed")} />
       )}
     </Container>
   );

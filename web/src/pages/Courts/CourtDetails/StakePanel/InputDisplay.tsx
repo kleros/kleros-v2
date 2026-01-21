@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 
@@ -69,6 +70,7 @@ interface IInputDisplay {
 }
 
 const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) => {
+  const { t } = useTranslation();
   const [debouncedAmount, setDebouncedAmount] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -86,11 +88,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
 
   useEffect(() => {
     if (parsedAmount > 0n && balance === 0n && isStaking) {
-      setErrorMsg("You need a non-zero PNK balance to stake");
+      setErrorMsg(t("forms.messages.you_need_non_zero_pnk"));
     } else if (isStaking && balance && parsedAmount > balance) {
-      setErrorMsg("Insufficient balance to stake this amount");
+      setErrorMsg(t("forms.messages.insufficient_balance_to_stake"));
     } else if (!isStaking && jurorBalance && parsedAmount > jurorBalance[2]) {
-      setErrorMsg("Insufficient staked amount to withdraw this amount");
+      setErrorMsg(t("forms.messages.insufficient_staked_amount"));
     } else if (
       action === ActionType.stake &&
       courtDetails &&
@@ -98,23 +100,23 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       parsedAmount !== 0n &&
       jurorBalance[2] + parsedAmount < BigInt(courtDetails?.court?.minStake)
     ) {
-      setErrorMsg(`Min Stake in court is: ${formatPNK(courtDetails?.court?.minStake)} PNK`);
+      setErrorMsg(t("forms.messages.min_stake_in_court", { amount: formatPNK(courtDetails?.court?.minStake) }));
     } else {
       setErrorMsg(undefined);
     }
-  }, [parsedAmount, isStaking, balance, jurorBalance, action, courtDetails]);
+  }, [parsedAmount, isStaking, balance, jurorBalance, action, courtDetails, t]);
 
   return (
     <>
       <LabelArea>
-        <label>{`Available ${isStaking ? parsedBalance : parsedStake} PNK`}</label>
+        <label>{t("staking.available_amount", { amount: isStaking ? parsedBalance : parsedStake })}</label>
         <StyledLabel
           onClick={() => {
             const amount = isStaking ? parsedBalance : parsedStake;
             setAmount(amount);
           }}
         >
-          {isStaking ? "Stake" : "Withdraw"} all
+          {isStaking ? t("staking.stake_all") : t("staking.withdraw_all")}
         </StyledLabel>
       </LabelArea>
       <InputArea>
@@ -124,7 +126,9 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
             onChange={(e) => {
               setAmount(e);
             }}
-            placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
+            placeholder={
+              isStaking ? t("forms.placeholders.amount_to_stake") : t("forms.placeholders.amount_to_withdraw")
+            }
             message={isPopupOpen ? undefined : (errorMsg ?? undefined)}
             variant={!isUndefined(errorMsg) && !isPopupOpen ? "error" : "info"}
             formatter={(number: string) => (number !== "" ? commify(roundNumberDown(Number(number))) : "")}

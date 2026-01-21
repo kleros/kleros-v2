@@ -3,37 +3,43 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import ArrowIcon from "svgs/icons/arrow.svg";
-
-import { StyledArrowLink } from "components/StyledArrowLink";
+import { InternalLink } from "components/InternalLink";
 
 const Container = styled.div`
   display: flex;
   width: 100%;
   flex-direction: row;
-  gap: 16px;
+  gap: 8px 16px;
   align-items: center;
   justify-content: space-between;
-
-  small {
-    height: 100%;
-    font-weight: 600;
-  }
+  flex-wrap: wrap;
 
   ${landscapeStyle(
     () => css`
-      justify-content: flex-start;
-      width: auto;
+      width: 100%;
+      overflow: hidden;
     `
   )}
 `;
 
-const ReStyledArrowLink = styled(StyledArrowLink)`
+const CourtLink = styled(InternalLink)`
   font-size: 14px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.primaryBlue};
+  text-decoration: none;
+  cursor: pointer;
 
-  > svg {
-    height: 15px;
-    width: 15px;
+  ${landscapeStyle(
+    () => css`
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    `
+  )}
+
+  :hover {
+    color: ${({ theme }) => theme.secondaryBlue};
   }
 `;
 
@@ -45,10 +51,7 @@ interface ICourtName {
 const CourtName: React.FC<ICourtName> = ({ name, id }) => {
   return (
     <Container>
-      <small>{name}</small>
-      <ReStyledArrowLink to={`/courts/${id?.toString()}`}>
-        Open Court <ArrowIcon />
-      </ReStyledArrowLink>
+      <CourtLink to={`/courts/${id}`}>{name}</CourtLink>
     </Container>
   );
 };

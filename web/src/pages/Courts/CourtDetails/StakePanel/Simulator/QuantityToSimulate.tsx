@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { commify } from "utils/commify";
@@ -60,6 +61,7 @@ const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
   amountToStake,
   className,
 }) => {
+  const { t } = useTranslation();
   const effectiveStakeDisplay = !isUndefined(jurorCurrentEffectiveStake) ? (
     `${commify(jurorCurrentEffectiveStake)} PNK`
   ) : (
@@ -93,9 +95,12 @@ const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
       <Quantity>{effectiveStakeDisplay}</Quantity>
       <TextWithTooltipContainer>
         <WithHelpTooltip
-          tooltipMsg={`Current Stake (Sum of): Amount of PNK staked in this court (${amountStakedInThisCourt}); Amount of PNK staked on its sub-courts (${amountStakedInSubCourts})`}
+          tooltipMsg={t("tooltips.current_stake_sum", {
+            amountInCourt: amountStakedInThisCourt,
+            amountInSubCourts: amountStakedInSubCourts,
+          })}
         >
-          Current Stake
+          {t("staking.current_stake")}
         </WithHelpTooltip>
       </TextWithTooltipContainer>
       <StyledMathematicalOperation>{isStaking ? "+" : "-"}</StyledMathematicalOperation>

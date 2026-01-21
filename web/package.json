@@ -119,6 +119,8 @@
     "ethers": "^5.8.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
+    "i18next": "^25.7.4",
+    "i18next-browser-languagedetector": "^8.2.0",
     "jose": "^5.9.6",
     "moment": "^2.30.1",
     "overlayscrollbars": "^2.10.0",
@@ -127,6 +129,7 @@
     "react-chartjs-2": "^4.3.1",
     "react-dom": "^18.3.1",
     "react-error-boundary": "^4.1.2",
+    "react-i18next": "^16.5.2",
     "react-identicons": "^1.2.5",
     "react-is": "^18.3.1",
     "react-loading-skeleton": "^3.5.0",
@@ -143,5 +146,8 @@
     "subgraph-status": "^1.2.4",
     "viem": "^2.24.1",
     "wagmi": "^2.14.15"
+  },
+  "volta": {
+    "node": "22.22.0"
   }
 }
