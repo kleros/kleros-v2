@@ -24,13 +24,14 @@ contract PinakionV2Local is ERC20, ERC20Burnable, Ownable {
     /// @param _token The address of the token contract that you want to recover, or set to 0 in case you want to extract ether.
     function recoverTokens(address _token) public onlyOwner {
         if (_token == address(0)) {
-            require(payable(owner()).send(address(this).balance), "Transfer failed");
+            (bool success, ) = payable(owner()).call{value: address(this).balance}("");
+            require(success, "Transfer failed");
             return;
         }
 
         IERC20 token = IERC20(_token);
         uint balance = token.balanceOf(address(this));
-        require(token.safeTransfer(payable(owner()), balance), "Token transfer failed");
+        token.safeTransfer(owner(), balance);
     }
 
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
