@@ -11,11 +11,7 @@ import { type Chain, extractChain } from "viem";
 
 import { isLocalDeployment, isProductionDeployment } from "./index";
 
-export const DEFAULT_CHAIN = isLocalDeployment()
-  ? hardhat.id
-  : isProductionDeployment()
-    ? arbitrum.id
-    : arbitrumSepolia.id;
+export const DEFAULT_CHAIN = isLocalDeployment() ? hardhat : isProductionDeployment() ? arbitrum : arbitrumSepolia;
 
 // Read/Write
 export const SUPPORTED_CHAINS: Record<number, AppKitNetwork> = isLocalDeployment()

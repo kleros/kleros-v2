@@ -39,7 +39,7 @@ export const usePnkData = ({ courtId = "0" }: UsePnkDataParams) => {
 
   const { data: allowance, refetch: refetchAllowance } = useReadPnkAllowance({
     query: queryConfig,
-    args: [address ?? "0x", klerosCoreAddress[DEFAULT_CHAIN]],
+    args: [address ?? "0x", klerosCoreAddress[DEFAULT_CHAIN.id]],
   });
 
   return { balance, jurorBalance, allowance, refetchAllowance };

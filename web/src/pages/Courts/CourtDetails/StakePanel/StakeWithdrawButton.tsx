@@ -102,7 +102,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         !isUndefined(balance) &&
         parsedAmount <= balance,
     },
-    args: [klerosCoreAddress[DEFAULT_CHAIN], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
+    args: [klerosCoreAddress[DEFAULT_CHAIN.id], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
 
   const { writeContractAsync: increaseAllowance } = useWritePnkIncreaseAllowance();
