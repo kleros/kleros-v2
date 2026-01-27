@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { Log, decodeEventLog, parseAbi } from "viem";
 import { useAccount, useBalance, usePublicClient } from "wagmi";
 
@@ -26,6 +27,7 @@ import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 const StyledButton = styled(Button)``;
 
 const SubmitDisputeButton: React.FC = () => {
+  const { t } = useTranslation();
   const publicClient = usePublicClient();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [courtId, setCourtId] = useState("");
@@ -79,12 +81,12 @@ const SubmitDisputeButton: React.FC = () => {
   );
 
   const errorMsg = useMemo(() => {
-    if (insufficientBalance) return "Insufficient balance";
+    if (insufficientBalance) return t("forms.messages.insufficient_balance");
     else if (error) {
       return parseWagmiError(error);
     }
     return null;
-  }, [error, insufficientBalance]);
+  }, [error, insufficientBalance, t]);
 
   return (
     <>
@@ -92,7 +94,7 @@ const SubmitDisputeButton: React.FC = () => {
       <EnsureChain>
         <div>
           <StyledButton
-            text="Submit the case"
+            text={t("buttons.submit_the_case")}
             disabled={isButtonDisabled}
             isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
             onClick={() => {
@@ -123,7 +125,7 @@ const SubmitDisputeButton: React.FC = () => {
       </EnsureChain>
       {isPopupOpen && disputeId && (
         <Popup
-          title={`Case #${disputeId} submitted`}
+          title={t("resolver.case_submitted", { disputeId })}
           icon={DisputeIcon}
           popupType={PopupType.DISPUTE_CREATED}
           setIsOpen={setIsPopupOpen}

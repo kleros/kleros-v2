@@ -1,19 +1,18 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 
+import { Answer } from "@kleros/kleros-sdk";
+import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
 import { Button, Tooltip } from "@kleros/ui-components-library";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { isUndefined } from "utils/index";
 
 import { EnsureChain } from "components/EnsureChain";
-
-import JustificationArea from "./JustificationArea";
-import { Answer } from "@kleros/kleros-sdk";
-import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
+import MarkdownEditor from "components/MarkdownEditor";
+import MarkdownRenderer from "components/MarkdownRenderer";
 
 const MainContainer = styled.div`
   width: 100%;
@@ -85,9 +84,9 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   return id ? (
     <>
       <MainContainer dir="auto">
-        <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
+        <MarkdownRenderer content={disputeDetails?.question ?? ""} />
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
-          <JustificationArea {...{ justification, setJustification }} />
+          <MarkdownEditor value={justification} onChange={setJustification} />
         ) : null}
         {isUndefined(disputeDetails?.answers) ? null : (
           <StyledEnsureChain>

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled, { DefaultTheme, useTheme } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { type TransactionReceipt } from "viem";
 import { usePublicClient } from "wagmi";
@@ -60,6 +61,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isPopupOpen,
   setIsPopupOpen,
 }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const theme = useTheme();
   const [isSuccess, setIsSuccess] = useState(false);
@@ -134,7 +136,12 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       if (signal.aborted) return;
       const isWithdraw = action === ActionType.withdraw;
       const requestData = config?.request ?? setStakeConfig?.request;
-      const commonArgs: [string, DefaultTheme, `0x${string}` | undefined] = [amount, theme, approvalHash];
+      const commonArgs: [string, DefaultTheme, (key: string) => string, `0x${string}` | undefined] = [
+        amount,
+        theme,
+        t,
+        approvalHash,
+      ];
 
       if (requestData && publicClient) {
         updatePopupState(
@@ -192,16 +199,16 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         );
       }
     },
-    [setStake, setStakeConfig, publicClient, amount, theme, action]
+    [setStake, setStakeConfig, publicClient, amount, theme, action, t]
   );
 
   const handleClick = useCallback(() => {
     setIsPopupOpen(true);
     controllerRef.current = new AbortController();
     const signal = controllerRef.current.signal;
+    const commonArgs: [string, DefaultTheme, (key: string) => string] = [amount, theme, t];
 
     if (isAllowance && increaseAllowanceConfig && publicClient) {
-      const commonArgs: [string, DefaultTheme] = [amount, theme];
       updatePopupState(signal, getStakeSteps(StakeSteps.ApproveInitiate, ...commonArgs));
 
       increaseAllowance(increaseAllowanceConfig.request)
@@ -253,6 +260,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     refetchAllowance,
     refetchSetStake,
     setIsPopupOpen,
+    t,
   ]);
 
   useEffect(() => {
@@ -305,7 +313,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     <EnsureChain>
       <Container>
         <Button
-          text={isStaking ? "Stake" : "Withdraw"}
+          text={isStaking ? t("buttons.stake") : t("buttons.withdraw")}
           isLoading={isPopupOpen || isSimulatingAllowance || isSimulatingSetStake}
           disabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
           onClick={handleClick}

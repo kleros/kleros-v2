@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Field } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
@@ -35,6 +37,7 @@ const StyledField = styled(Field)`
 `;
 
 const Title: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -53,11 +56,11 @@ const Title: React.FC = () => {
 
   return (
     <Container ref={containerRef}>
-      <Header text="Choose a title" />
+      <Header text={t("headers.choose_a_title")} />
       <StyledField
         dir="auto"
         onChange={handleWrite}
-        placeholder="eg. Freelance work disagreement between Alice and Bob"
+        placeholder={t("forms.placeholders.alice_bob_example")}
         value={disputeData.title}
       />
       <NavigationButtons prevRoute="" nextRoute="/resolver/description" />

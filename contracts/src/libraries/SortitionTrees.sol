@@ -29,7 +29,7 @@ library SortitionTrees {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Create a sortition sum tree at the specified key.
+    /// @notice Create a sortition sum tree at the specified key.
     /// @param _trees The mapping of sortition sum trees.
     /// @param _key The key of the new tree.
     /// @param _k The maximum number of children per node.
@@ -41,15 +41,16 @@ library SortitionTrees {
         tree.nodes.push(0);
     }
 
-    /// @dev Draw an ID from a tree using a number.
-    /// Note that this function reverts if the sum of all values in the tree is 0.
+    /// @notice Draw an ID from a tree using a number.
+    ///
+    /// @dev `O(k * log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
+    ///
     /// @param _tree The sortition sum tree.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
     /// @param _nonce Nonce to hash with random number.
     /// @return drawnAddress The drawn address.
-    /// `O(k * log_k(n))` where
-    /// `k` is the maximum number of children per node in the tree,
-    ///  and `n` is the maximum number of nodes ever appended.
     function draw(
         Tree storage _tree,
         uint256 _coreDisputeID,
@@ -86,13 +87,15 @@ library SortitionTrees {
         (drawnAddress, fromSubcourtID) = toAccountAndCourtID(stakePathID);
     }
 
-    /// @dev Set a value in a tree.
+    /// @notice Set a value in a tree.
+    ///
+    /// @dev `O(log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
+    ///
     /// @param _tree The sortition sum tree.
     /// @param _value The new value.
     /// @param _stakePathID The ID of the value.
-    /// `O(log_k(n))` where
-    /// `k` is the maximum number of children per node in the tree,
-    ///  and `n` is the maximum number of nodes ever appended.
     function set(Tree storage _tree, uint256 _value, bytes32 _stakePathID) internal {
         uint256 treeIndex = _tree.IDsToNodeIndexes[_stakePathID];
 
@@ -164,14 +167,16 @@ library SortitionTrees {
         }
     }
 
-    /// @dev Update all the parents of a node.
+    /// @notice Update all the parents of a node.
+    ///
+    /// @dev `O(log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
+    ///
     /// @param _tree The sortition sum tree.
     /// @param _treeIndex The index of the node to start from.
     /// @param _plusOrMinus Whether to add (true) or substract (false).
     /// @param _value The value to add or substract.
-    /// `O(log_k(n))` where
-    /// `k` is the maximum number of children per node in the tree,
-    ///  and `n` is the maximum number of nodes ever appended.
     function updateParents(Tree storage _tree, uint256 _treeIndex, bool _plusOrMinus, uint256 _value) private {
         uint256 parentIndex = _treeIndex;
         while (parentIndex != 0) {
@@ -186,7 +191,7 @@ library SortitionTrees {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Get the stake of a juror in a court.
+    /// @notice Get the stake of a juror in a court.
     /// @param _tree The sortition sum tree.
     /// @param _stakePathID The stake path ID, corresponding to a juror.
     /// @return The stake of the juror in the court.
@@ -198,7 +203,8 @@ library SortitionTrees {
         return _tree.nodes[treeIndex];
     }
 
-    /// @dev Packs an account and a court ID into a stake path ID: [20 bytes of address][12 bytes of courtID] = 32 bytes total.
+    /// @notice Packs an account and a court ID into a stake path ID
+    /// @dev [20 bytes of address][12 bytes of courtID] = 32 bytes total.
     /// @param _account The address of the juror to pack.
     /// @param _courtID The court ID to pack.
     /// @return stakePathID The stake path ID.
@@ -210,7 +216,7 @@ library SortitionTrees {
         }
     }
 
-    /// @dev Retrieves both juror's address and court ID from the stake path ID.
+    /// @notice Retrieves both juror's address and court ID from the stake path ID.
     /// @param _stakePathID The stake path ID to unpack.
     /// @return account The account.
     /// @return courtID The court ID.

@@ -2,10 +2,12 @@
 
 pragma solidity ^0.8.24;
 
-import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
-import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
+import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import "../../libraries/Constants.sol";
 
 /// @title KlerosCoreRuler
@@ -13,7 +15,7 @@ import "../../libraries/Constants.sol";
 contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -126,20 +128,21 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint96 indexed _fromCourtID,
         uint96 _toCourtID
     );
-    event TokenAndETHShift(
+    event JurorRewardPenalty(
         address indexed _account,
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _degreeOfCoherency,
-        int256 _pnkAmount,
-        int256 _feeAmount,
+        uint256 _degreeOfCoherencyPnk,
+        uint256 _degreeOfCoherencyFee,
+        int256 _amountPnk,
+        int256 _amountFee,
         IERC20 _feeToken
     );
     event LeftoverRewardSent(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _pnkAmount,
-        uint256 _feeAmount,
+        uint256 _amountPnk,
+        uint256 _amountFee,
         IERC20 _feeToken
     );
     event AutoRuled(
@@ -175,11 +178,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _owner The owner's address.
     /// @param _pinakion The address of the token contract.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
-    function initialize(
-        address _owner,
-        IERC20 _pinakion,
-        uint256[4] memory _courtParameters
-    ) external reinitializer(1) {
+    function initialize(address _owner, IERC20 _pinakion, uint256[4] memory _courtParameters) external initializer {
         owner = _owner;
         pinakion = _pinakion;
 
@@ -208,10 +207,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             _courtParameters[3],
             court.timesPerPeriod
         );
-    }
-
-    function initialize2() external reinitializer(2) {
-        // NOP
     }
 
     // ************************************* //
@@ -526,7 +521,16 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             // The dispute fees were paid in ERC20
             round.feeToken.safeTransfer(account, feeReward);
         }
-        emit TokenAndETHShift(account, _disputeID, _round, 1, int256(0), int256(feeReward), round.feeToken);
+        emit JurorRewardPenalty(
+            account,
+            _disputeID,
+            _round,
+            ONE_BASIS_POINT,
+            ONE_BASIS_POINT,
+            int256(0),
+            int256(feeReward),
+            round.feeToken
+        );
     }
 
     /// @dev Executes a specified dispute's ruling.

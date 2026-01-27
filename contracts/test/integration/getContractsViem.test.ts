@@ -33,8 +33,8 @@ const devnetContractMapping: ContractMapping = {
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
+  rngWithFallback: { name: "RNGWithFallback" },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -53,7 +53,7 @@ const testnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -66,32 +66,32 @@ const universityContractMapping: ContractMapping = {
   disputeKitGated: { name: "DisputeKitGatedUniversity", optional: true },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutterUniversity", optional: true },
   disputeResolver: { name: "DisputeResolverUniversity" },
-  disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
+  disputeTemplateRegistry: { name: "DisputeTemplateRegistryUniversity" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
 
-const neoContractMapping: ContractMapping = {
-  klerosCore: { name: "KlerosCoreNeo" },
-  sortition: { name: "SortitionModuleNeo" },
-  disputeKitClassic: { name: "DisputeKitClassicNeo" },
-  disputeKitShutter: { name: "DisputeKitShutterNeo" },
-  disputeKitGated: { name: "DisputeKitGatedNeo" },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo" },
-  disputeResolver: { name: "DisputeResolverNeo" },
+const mainnetContractMapping: ContractMapping = {
+  klerosCore: { name: "KlerosCore" },
+  sortition: { name: "SortitionModule" },
+  disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: false },
   randomizerRng: { name: "RandomizerRNG", optional: false },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -135,12 +135,14 @@ describe("getContractsViem", () => {
     verifyContractInstance(contracts.evidence);
     verifyContractInstance(contracts.policyRegistry);
     verifyContractInstance(contracts.transactionBatcher);
-    verifyContractInstance(contracts.blockHashRng);
     verifyContractInstance(contracts.pnk);
     verifyContractInstance(contracts.klerosCoreSnapshotProxy);
 
     if (contracts.chainlinkRng) {
       verifyContractInstance(contracts.chainlinkRng);
+    }
+    if (contracts.rngWithFallback) {
+      verifyContractInstance(contracts.rngWithFallback);
     }
     if (contracts.randomizerRng) {
       verifyContractInstance(contracts.randomizerRng);
@@ -240,10 +242,10 @@ describe("getContractsViem", () => {
     await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
-  it("should return correct contract instances for mainnetNeo", async () => {
+  it("should return correct contract instances for mainnet", async () => {
     const contracts = getContracts({
       publicClient: arbitrumClient,
-      deployment: "mainnetNeo",
+      deployment: "mainnet",
     });
 
     // Verify chain ID
@@ -262,7 +264,7 @@ describe("getContractsViem", () => {
     expect(contracts.randomizerRng).to.not.be.undefined;
 
     // Verify deployed addresses
-    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, neoContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, mainnetContractMapping);
   });
 
   it("should throw error for unsupported deployment", () => {

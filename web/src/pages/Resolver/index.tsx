@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
@@ -95,6 +96,7 @@ const Paragraph = styled.p`
 `;
 
 const DisputeResolver: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);
   const { isVerified } = useAtlasProvider();
@@ -107,12 +109,12 @@ const DisputeResolver: React.FC = () => {
       <Container>
         {!isConnected || !isVerified ? (
           <>
-            <Heading>Justice as a Service</Heading>
-            <Paragraph>You send your disputes. Kleros sends back decisions.</Paragraph>
+            <Heading>{t("resolver.justice_as_service")}</Heading>
+            <Paragraph>{t("resolver.send_disputes_get_decisions")}</Paragraph>
           </>
         ) : null}
         {isConnected ? (
-          <StyledEnsureAuth buttonText="Sign in to start">
+          <StyledEnsureAuth buttonText={t("wallet.sign_in_to_start")}>
             <MiddleContentContainer>
               {isConnected && !isPreviewPage ? (
                 <HowItWorksAndTimeline>
@@ -141,7 +143,7 @@ const DisputeResolver: React.FC = () => {
           </StyledEnsureAuth>
         ) : (
           <ConnectWalletContainer>
-            To create a new dispute, connect first
+            {t("resolver.to_create_dispute_connect")}
             <hr />
             <ConnectWallet />
           </ConnectWalletContainer>

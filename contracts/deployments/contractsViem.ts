@@ -13,12 +13,13 @@ import {
   policyRegistryConfig as devnetPolicyRegistryConfig,
   transactionBatcherConfig as devnetBatcherConfig,
   chainlinkRngConfig as devnetChainlinkRngConfig,
-  blockHashRngConfig as devnetBlockHashRngConfig,
+  rngWithFallbackConfig as devnetRngWithFallbackConfig,
   pnkConfig as devnetPnkConfig,
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
+  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
@@ -34,25 +35,23 @@ import {
   policyRegistryConfig as testnetPolicyRegistryConfig,
   transactionBatcherConfig as testnetBatcherConfig,
   chainlinkRngConfig as testnetChainlinkRngConfig,
-  blockHashRngConfig as testnetBlockHashRngConfig,
   pnkConfig as testnetPnkConfig,
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
 } from "./testnet.viem";
 import {
-  klerosCoreNeoConfig as mainnetCoreConfig,
-  sortitionModuleNeoConfig as mainnetSortitionConfig,
-  disputeKitClassicNeoConfig as mainnetDkClassicConfig,
-  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
-  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
-  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
-  disputeResolverNeoConfig as mainnetDrConfig,
+  klerosCoreConfig as mainnetCoreConfig,
+  sortitionModuleConfig as mainnetSortitionConfig,
+  disputeKitClassicConfig as mainnetDkClassicConfig,
+  disputeKitShutterConfig as mainnetDkShutterConfig,
+  disputeKitGatedConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterConfig as mainnetDkGatedShutterConfig,
+  disputeResolverConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
   policyRegistryConfig as mainnetPolicyRegistryConfig,
   transactionBatcherConfig as mainnetBatcherConfig,
   chainlinkRngConfig as mainnetChainlinkRngConfig,
   randomizerRngConfig as mainnetRandomizerRngConfig,
-  blockHashRngConfig as mainnetBlockHashRngConfig,
   pnkConfig as mainnetPnkConfig,
   klerosCoreSnapshotProxyConfig as mainnetSnapshotProxyConfig,
 } from "./mainnet.viem";
@@ -83,7 +82,7 @@ type ContractInstances = {
   transactionBatcher: ContractInstance;
   chainlinkRng?: ContractInstance;
   randomizerRng?: ContractInstance;
-  blockHashRng: ContractInstance;
+  rngWithFallback?: ContractInstance;
   pnk: ContractInstance;
   klerosCoreSnapshotProxy: ContractInstance;
 };
@@ -105,7 +104,7 @@ function getCommonConfigs({
     evidence: ContractConfig;
     policyRegistry: ContractConfig;
     transactionBatcher: ContractConfig;
-    blockHashRng: ContractConfig;
+    rngWithFallback?: ContractConfig;
     pnk: ContractConfig;
     klerosCoreSnapshotProxy: ContractConfig;
     chainlinkRng?: ContractConfig;
@@ -121,7 +120,6 @@ function getCommonConfigs({
     evidence: getContractConfig({ config: configs.evidence, chainId }),
     policyRegistry: getContractConfig({ config: configs.policyRegistry, chainId }),
     transactionBatcher: getContractConfig({ config: configs.transactionBatcher, chainId }),
-    blockHashRng: getContractConfig({ config: configs.blockHashRng, chainId }),
     pnk: getContractConfig({ config: configs.pnk, chainId }),
     klerosCoreSnapshotProxy: getContractConfig({ config: configs.klerosCoreSnapshotProxy, chainId }),
   };
@@ -135,6 +133,8 @@ function getCommonConfigs({
     base.disputeKitGatedShutter = getContractConfig({ config: configs.disputeKitGatedShutter, chainId });
 
   if (configs.chainlinkRng) base.chainlinkRng = getContractConfig({ config: configs.chainlinkRng, chainId });
+
+  if (configs.rngWithFallback) base.rngWithFallback = getContractConfig({ config: configs.rngWithFallback, chainId });
 
   if (configs.randomizerRng) base.randomizerRng = getContractConfig({ config: configs.randomizerRng, chainId });
 
@@ -159,7 +159,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           evidence: devnetEvidenceConfig,
           policyRegistry: devnetPolicyRegistryConfig,
           transactionBatcher: devnetBatcherConfig,
-          blockHashRng: devnetBlockHashRngConfig,
+          rngWithFallback: devnetRngWithFallbackConfig,
           pnk: devnetPnkConfig,
           klerosCoreSnapshotProxy: devnetSnapshotProxyConfig,
           chainlinkRng: devnetChainlinkRngConfig,
@@ -172,11 +172,10 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
         sortition: getContractConfig({ config: devnetSortitionUniversityConfig, chainId }),
         disputeKitClassic: getContractConfig({ config: devnetDkClassicUniversityConfig, chainId }),
         disputeResolver: getContractConfig({ config: devnetDrUniversityConfig, chainId }),
-        disputeTemplateRegistry: getContractConfig({ config: devnetDtrConfig, chainId }), // FIXME: should not be shared with devnet
+        disputeTemplateRegistry: getContractConfig({ config: devnetDtrUniversityConfig, chainId }),
         evidence: getContractConfig({ config: devnetEvidenceConfig, chainId }), // Not arbitrator specific
         policyRegistry: getContractConfig({ config: devnetPolicyRegistryConfig, chainId }), // Not arbitrator specific
         transactionBatcher: getContractConfig({ config: devnetBatcherConfig, chainId }), // Not arbitrator specific
-        blockHashRng: getContractConfig({ config: devnetBlockHashRngConfig, chainId }), // Not used in university
         pnk: getContractConfig({ config: devnetPnkConfig, chainId }), // Not arbitrator specific
         klerosCoreSnapshotProxy: getContractConfig({ config: devnetSnapshotProxyConfig, chainId }), // Not used in university
       };
@@ -196,14 +195,13 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           evidence: testnetEvidenceConfig,
           policyRegistry: testnetPolicyRegistryConfig,
           transactionBatcher: testnetBatcherConfig,
-          blockHashRng: testnetBlockHashRngConfig,
           pnk: testnetPnkConfig,
           klerosCoreSnapshotProxy: testnetSnapshotProxyConfig,
           chainlinkRng: testnetChainlinkRngConfig,
         },
       });
 
-    case "mainnetNeo":
+    case "mainnet":
       return getCommonConfigs({
         chainId,
         configs: {
@@ -218,7 +216,6 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           evidence: mainnetEvidenceConfig,
           policyRegistry: mainnetPolicyRegistryConfig,
           transactionBatcher: mainnetBatcherConfig,
-          blockHashRng: mainnetBlockHashRngConfig,
           pnk: mainnetPnkConfig,
           klerosCoreSnapshotProxy: mainnetSnapshotProxyConfig,
           chainlinkRng: mainnetChainlinkRngConfig,
@@ -309,10 +306,12 @@ export const getContracts = ({
         ...clientConfig,
       })
     : undefined;
-  const blockHashRng = getContract({
-    ...contractConfigs.blockHashRng,
-    ...clientConfig,
-  });
+  const rngWithFallback = contractConfigs.rngWithFallback
+    ? getContract({
+        ...contractConfigs.rngWithFallback,
+        ...clientConfig,
+      })
+    : undefined;
   const pnk = getContract({
     ...contractConfigs.pnk,
     ...clientConfig,
@@ -335,7 +334,7 @@ export const getContracts = ({
     transactionBatcher,
     chainlinkRng,
     randomizerRng,
-    blockHashRng,
+    rngWithFallback,
     pnk,
     klerosCoreSnapshotProxy,
   };

@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
-import "./interfaces/IDisputeTemplateRegistry.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {IDisputeTemplateRegistry} from "./interfaces/IDisputeTemplateRegistry.sol";
 
 /// @title Dispute Template Registry
-/// @dev A contract to maintain a registry of dispute templates.
+/// @notice A contract to maintain a registry of dispute templates.
 contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Initializable {
-    string public constant override version = "0.8.0";
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    /// @dev The owner of the contract.
+    /// @notice The owner of the contract.
     address public owner;
 
-    /// @dev The number of templates.
+    /// @notice The number of templates.
     uint256 public templates;
 
     // ************************************* //
@@ -38,14 +38,10 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
         _disableInitializers();
     }
 
-    /// @dev Initializer
+    /// @notice Initializer
     /// @param _owner Owner of the contract.
-    function initialize(address _owner) external reinitializer(1) {
+    function initialize(address _owner) external initializer {
         owner = _owner;
-    }
-
-    function initialize2() external reinitializer(2) {
-        // NOP
     }
 
     // ************************ //
@@ -58,7 +54,7 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
         // NOP
     }
 
-    /// @dev Changes the owner of the contract.
+    /// @notice Changes the owner of the contract.
     /// @param _owner The new owner.
     function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
@@ -68,10 +64,7 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Registers a new dispute template.
-    /// @param _templateTag The tag of the template (optional).
-    /// @param _templateData The data of the template.
-    /// @param _templateDataMappings The data mappings of the template.
+    /// @inheritdoc IDisputeTemplateRegistry
     function setDisputeTemplate(
         string memory _templateTag,
         string memory _templateData,

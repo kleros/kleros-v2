@@ -1,8 +1,8 @@
 /**
- * @authors: [@andreimvp]
- * @reviewers: [@divyangchauhan, @wadader, @fcanela, @unknownunknown1]
- * @auditors: []
- * @bounties: []
+ * @custom:authors: [@andreimvp]
+ * @custom:reviewers: [@divyangchauhan, @wadader, @fcanela, @unknownunknown1]
+ * @custom:auditors: []
+ * @custom:bounties: []
  * SPDX-License-Identifier: MIT
  */
 
@@ -19,6 +19,6 @@ library SafeSend {
         if (_to.send(_value)) return;
 
         WethLike(_wethLike).deposit{value: _value}();
-        WethLike(_wethLike).transfer(_to, _value);
+        WethLike(_wethLike).transfer(_to, _value); /// forge-lint: disable-line(erc20-unchecked-transfer)
     }
 }

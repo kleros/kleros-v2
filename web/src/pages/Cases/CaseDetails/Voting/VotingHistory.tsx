@@ -1,14 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
-import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
 import { Tabs } from "@kleros/ui-components-library";
 
-import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
 import { getLocalRounds } from "utils/getLocalRounds";
 
@@ -19,6 +18,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
+import MarkdownRenderer from "components/MarkdownRenderer";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 
 import PendingVotesBox from "./PendingVotesBox";
@@ -47,8 +47,8 @@ const StyledTitle = styled.h1`
   margin-bottom: 0;
   font-size: ${responsiveSize(18, 24)};
 `;
-const ReactMarkdownWrapper = styled.div``;
-const StyledReactMarkDown = styled(ReactMarkdown)`
+const MarkdownWrapper = styled.div``;
+const StyledMarkdownRenderer = styled(MarkdownRenderer)`
   max-width: inherit;
   word-wrap: break-word;
   p {
@@ -62,6 +62,7 @@ const TabsContainer = styled.div`
 `;
 
 const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -83,7 +84,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   return (
     <Container>
       <Header>
-        <StyledTitle>Voting History</StyledTitle>
+        <StyledTitle>{t("voting.voting_history")}</StyledTitle>
         <HowItWorks
           isMiniGuideOpen={isBinaryVotingMiniGuideOpen}
           toggleMiniGuide={toggleBinaryVotingMiniGuide}
@@ -95,11 +96,11 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           {isQuestion && (
             <>
               {disputeDetails.question ? (
-                <ReactMarkdownWrapper dir="auto">
-                  <StyledReactMarkDown>{disputeDetails.question}</StyledReactMarkDown>
-                </ReactMarkdownWrapper>
+                <MarkdownWrapper dir="auto">
+                  <StyledMarkdownRenderer content={disputeDetails.question} />
+                </MarkdownWrapper>
               ) : (
-                <StyledReactMarkDown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</StyledReactMarkDown>
+                <StyledMarkdownRenderer content={isError ? t("errors.rpc_error") : t("errors.invalid_dispute_data")} />
               )}
             </>
           )}
@@ -107,14 +108,14 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             <StyledTabs
               currentValue={currentTab}
               items={rounds.map((_, i) => ({
-                text: `Round ${i + 1}`,
+                text: t("voting.round_number", { number: i + 1 }),
                 value: i,
               }))}
               callback={(i: number) => setCurrentTab(i)}
             />
             <PendingVotesBox
-              current={localRounds.at(currentTab)?.totalVoted}
-              total={rounds.at(currentTab)?.nbVotes}
+              current={Number(localRounds.at(currentTab)?.totalVoted)}
+              total={Number(rounds.at(currentTab)?.nbVotes)}
               court={rounds.at(currentTab)?.court.name ?? ""}
             />
             <VotesAccordion

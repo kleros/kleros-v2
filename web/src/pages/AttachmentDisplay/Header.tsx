@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
@@ -65,17 +66,18 @@ const StyledButton = styled(Button)`
 `;
 
 const Header: React.FC<{ title: string }> = ({ title }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const disputeId = searchParams.get("disputeId");
-  const attachmentTitle = searchParams.get("title");
+  const titleKey = searchParams.get("title");
 
   const handleReturn = () => {
-    if (attachmentTitle === "Evidence File") {
+    if (titleKey === "misc.evidence_file") {
       navigate(`/cases/${disputeId}/evidence`);
-    } else if (attachmentTitle === "Case Policy" || attachmentTitle === "Dispute Policy") {
+    } else if (titleKey === "misc.case_policy" || titleKey === "misc.dispute_policy") {
       navigate(`/cases/${disputeId}/overview`);
-    } else if (attachmentTitle === "Policy File") {
+    } else if (titleKey === "misc.policy_file") {
       navigate(`/resolver/policy`);
     } else {
       navigate("/");
@@ -88,7 +90,7 @@ const Header: React.FC<{ title: string }> = ({ title }) => {
         <StyledPaperClip />
         <Title>{title}</Title>
       </TitleContainer>
-      <StyledButton text="Return" Icon={Arrow} onClick={handleReturn} />
+      <StyledButton text={t("buttons.return")} Icon={Arrow} onClick={handleReturn} />
     </Container>
   );
 };

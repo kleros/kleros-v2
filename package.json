@@ -27,10 +27,10 @@
     "tsconfig",
     "kleros-app"
   ],
-  "packageManager": "yarn@4.9.2",
+  "packageManager": "yarn@4.10.3",
   "volta": {
-    "node": "20.18.3",
-    "yarn": "4.9.2"
+    "node": "20.20.0",
+    "yarn": "4.10.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.8.1",
@@ -87,7 +87,9 @@
     "postinstall": "yarn check-prerequisites; husky install",
     "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable",
     "build:web:ci": "yarn workspaces focus @kleros/kleros-v2-web && yarn workspaces foreach -Ap --include kleros-app --include contracts run build && yarn workspace @kleros/kleros-v2-web build-netlify",
-    "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-web-devtools build-netlify"
+    "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-web-devtools build-netlify",
+    "build:contract-docs": "forge doc --build --out contracts/dist",
+    "start:contract-docs": "forge doc --serve"
   },
   "alias": {
     "process": "process/browser.js",

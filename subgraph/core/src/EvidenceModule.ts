@@ -1,27 +1,35 @@
 import { json, JSONValueKind, log } from "@graphprotocol/graph-ts";
 import { Evidence as EvidenceEvent } from "../generated/EvidenceModule/EvidenceModule";
-import { ClassicEvidence } from "../generated/schema";
-import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
+import { ClassicEvidence, Dispute } from "../generated/schema";
 import { ensureUser } from "./entities/User";
 import { ONE } from "./utils";
 import { JSONValueToMaybeString } from "../../utils";
 
 export function handleEvidenceEvent(event: EvidenceEvent): void {
-  const evidenceGroupID = event.params._externalDisputeID.toString();
-  const evidenceGroup = ensureClassicEvidenceGroup(evidenceGroupID);
-  const evidenceIndex = evidenceGroup.nextEvidenceIndex;
-  evidenceGroup.nextEvidenceIndex = evidenceGroup.nextEvidenceIndex.plus(ONE);
-  evidenceGroup.save();
-  const evidenceId = `${evidenceGroupID}-${evidenceIndex.toString()}`;
+  const coreDisputeID = event.params._arbitratorDisputeID;
+  const dispute = Dispute.load(coreDisputeID.toString());
+
+  if (!dispute) {
+    log.error(`EvidenceEvent: Dispute not found for id: {}`, [coreDisputeID.toString()]);
+    return;
+  }
+
+  dispute.evidenceCount = dispute.evidenceCount.plus(ONE);
+  dispute.save();
+
+  const numberOfEvidences = dispute.evidenceCount;
+  const evidenceId = `${coreDisputeID}-${numberOfEvidences.toString()}`;
+
   const evidence = new ClassicEvidence(evidenceId);
-  evidence.evidenceIndex = evidenceIndex.plus(ONE).toString();
   const userId = event.params._party.toHexString();
+
   evidence.timestamp = event.block.timestamp;
   evidence.transactionHash = event.transaction.hash;
   evidence.evidence = event.params._evidence;
-  evidence.evidenceGroup = evidenceGroupID.toString();
   evidence.sender = userId;
   evidence.senderAddress = userId;
+  evidence.evidenceIndex = numberOfEvidences.toString();
+  evidence.dispute = dispute.id;
   ensureUser(userId);
 
   let jsonObjValueAndSuccess = json.try_fromString(event.params._evidence);

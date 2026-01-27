@@ -1,0 +1,514 @@
+[
+  {
+    "name": "General Court",
+    "id": 1,
+    "parent": 1,
+    "hiddenVotes": true,
+    "minStake": "2300000000000000000000",
+    "feeForJuror": "5000000000000000",
+    "alpha": "10000",
+    "jurorsForCourtJump": "511",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Blockchain",
+    "id": 2,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "7000000000000000000000",
+    "feeForJuror": "6900000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Non-Technical",
+    "id": 3,
+    "parent": 2,
+    "hiddenVotes": false,
+    "minStake": "7000000000000000000000",
+    "feeForJuror": "3000000000000000",
+    "alpha": "3333",
+    "jurorsForCourtJump": "31",
+    "timesPerPeriod": [
+      151200,
+      324000,
+      324000,
+      302400
+    ]
+  },
+  {
+    "name": "Token Listing",
+    "id": 4,
+    "parent": 3,
+    "hiddenVotes": false,
+    "minStake": "70000000000000000000000",
+    "feeForJuror": "64000000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "47",
+    "timesPerPeriod": [
+      367200,
+      626400,
+      626400,
+      604800
+    ]
+  },
+  {
+    "name": "Technical",
+    "id": 5,
+    "parent": 2,
+    "hiddenVotes": false,
+    "minStake": "33000000000000000000000",
+    "feeForJuror": "33000000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "31",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Marketing Services",
+    "id": 6,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "7800000000000000000000",
+    "feeForJuror": "6200000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "15",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "English Language",
+    "id": 7,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "7400000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "3",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Video Production",
+    "id": 8,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "7500000000000000000000",
+    "feeForJuror": "6200000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "3",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Onboarding",
+    "id": 9,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "2300000000000000000000",
+    "feeForJuror": "700000000000000",
+    "alpha": "1300",
+    "jurorsForCourtJump": "255",
+    "timesPerPeriod": [
+      140400,
+      291600,
+      291600,
+      194400
+    ]
+  },
+  {
+    "name": "Curation",
+    "id": 10,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "2600000000000000000000",
+    "feeForJuror": "2400000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "30",
+    "timesPerPeriod": [
+      140400,
+      291600,
+      291600,
+      194400
+    ]
+  },
+  {
+    "name": "Data Analysis",
+    "id": 11,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "15000000000000000000000",
+    "feeForJuror": "18000000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "64",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Statistical Modeling",
+    "id": 12,
+    "parent": 11,
+    "hiddenVotes": false,
+    "minStake": "19000000000000000000000",
+    "feeForJuror": "19000000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "32",
+    "timesPerPeriod": [
+      367200,
+      626400,
+      626400,
+      604800
+    ]
+  },
+  {
+    "name": "Curation (Medium)",
+    "id": 13,
+    "parent": 10,
+    "hiddenVotes": false,
+    "minStake": "2900000000000000000000",
+    "feeForJuror": "2300000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "30",
+    "timesPerPeriod": [
+      210660,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Spanish-English Translation",
+    "id": 14,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "3100000000000000",
+    "alpha": "1500",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "French-English Translation",
+    "id": 15,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "3100000000000000",
+    "alpha": "1500",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Portuguese-English Translation",
+    "id": 16,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "3100000000000000",
+    "alpha": "1500",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "German-English Translation",
+    "id": 17,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "3900000000000000",
+    "alpha": "1800",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Russian-English Translation",
+    "id": 18,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "3900000000000000",
+    "alpha": "1800",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Korean-English Translation",
+    "id": 19,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "5000000000000000",
+    "alpha": "2300",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Japanese-English Translation",
+    "id": 20,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "5000000000000000",
+    "alpha": "2300",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Turkish-English Translation",
+    "id": 21,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "5000000000000000",
+    "alpha": "2300",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Chinese-English Translation",
+    "id": 22,
+    "parent": 7,
+    "hiddenVotes": false,
+    "minStake": "9000000000000000000000",
+    "feeForJuror": "5000000000000000",
+    "alpha": "2300",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Corte General en Español",
+    "id": 23,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "5100000000000000000000",
+    "feeForJuror": "5000000000000000",
+    "alpha": "10000",
+    "jurorsForCourtJump": "128",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Humanity Court",
+    "id": 24,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "5300000000000000000000",
+    "feeForJuror": "2400000000000000",
+    "alpha": "2500",
+    "jurorsForCourtJump": "31",
+    "timesPerPeriod": [
+      540000,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Development Court",
+    "id": 25,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "9500000000000000000000",
+    "feeForJuror": "11000000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Solidity Court",
+    "id": 26,
+    "parent": 25,
+    "hiddenVotes": false,
+    "minStake": "9500000000000000000000",
+    "feeForJuror": "11000000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Javascript Court",
+    "id": 27,
+    "parent": 25,
+    "hiddenVotes": false,
+    "minStake": "9500000000000000000000",
+    "feeForJuror": "11000000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      280800,
+      437400,
+      437400,
+      291600
+    ]
+  },
+  {
+    "name": "Corte de Curación en Español",
+    "id": 28,
+    "parent": 23,
+    "hiddenVotes": false,
+    "minStake": "5100000000000000000000",
+    "feeForJuror": "2400000000000000",
+    "alpha": "2500",
+    "jurorsForCourtJump": "30",
+    "timesPerPeriod": [
+      140400,
+      291600,
+      291600,
+      194400
+    ]
+  },
+  {
+    "name": "Corte de Disputas de Consumo y Vecindad",
+    "id": 29,
+    "parent": 23,
+    "hiddenVotes": false,
+    "minStake": "8400000000000000000000",
+    "feeForJuror": "5400000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "15",
+    "timesPerPeriod": [
+      21600,
+      216000,
+      216000,
+      216000
+    ]
+  },
+  {
+    "name": "Oracle Court",
+    "id": 30,
+    "parent": 1,
+    "hiddenVotes": false,
+    "minStake": "5000000000000000000000",
+    "feeForJuror": "6900000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "31",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Automated Curation",
+    "id": 31,
+    "parent": 10,
+    "hiddenVotes": false,
+    "minStake": "2600000000000000000000",
+    "alpha": "290",
+    "feeForJuror": "170000000000000",
+    "jurorsForCourtJump": "3",
+    "timesPerPeriod": [
+      140400,
+      291600,
+      291600,
+      194400
+    ]
+  },
+  {
+    "name": "Corte de Defensores del Cliente",
+    "id": 32,
+    "parent": 29,
+    "hiddenVotes": false,
+    "minStake": "8400000000000000000000",
+    "feeForJuror": "5400000000000000",
+    "alpha": "5000",
+    "jurorsForCourtJump": "15",
+    "timesPerPeriod": [
+      21600,
+      216000,
+      216000,
+      216000
+    ]
+  }
+]

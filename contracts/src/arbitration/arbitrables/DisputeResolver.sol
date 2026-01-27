@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 
-import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
-import "../interfaces/IDisputeTemplateRegistry.sol";
+import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
+import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
+import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
 
 pragma solidity ^0.8.24;
 
 /// @title DisputeResolver
-/// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
+/// @notice DisputeResolver contract
+/// @dev Adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
 contract DisputeResolver is IArbitrableV2 {
     // ************************************* //
     // *         Enums / Structs           * //
@@ -30,11 +32,21 @@ contract DisputeResolver is IArbitrableV2 {
     mapping(uint256 => uint256) public arbitratorDisputeIDToLocalID; // Maps arbitrator-side dispute IDs to local dispute IDs.
 
     // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByOwner() {
+        if (owner != msg.sender) revert OwnerOnly();
+        _;
+    }
+
+    // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @notice Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
+    /// @param _templateRegistry The dispute template registry.
     constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {
         owner = msg.sender;
         arbitrator = _arbitrator;
@@ -45,20 +57,17 @@ contract DisputeResolver is IArbitrableV2 {
     // *           Governance              * //
     // ************************************* //
 
-    /// @dev Changes the owner.
+    /// @notice Changes the owner.
     /// @param _owner The address of the new owner.
-    function changeOwner(address _owner) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
     }
 
-    function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByOwner {
         arbitrator = _arbitrator;
     }
 
-    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByOwner {
         templateRegistry = _templateRegistry;
     }
 
@@ -66,8 +75,8 @@ contract DisputeResolver is IArbitrableV2 {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
+    /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @dev No need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
     /// @param _disputeTemplate Dispute template.
     /// @param _disputeTemplateDataMappings The data mappings.
@@ -84,28 +93,11 @@ contract DisputeResolver is IArbitrableV2 {
                 _arbitratorExtraData,
                 _disputeTemplate,
                 _disputeTemplateDataMappings,
-                "",
                 _numberOfRulingOptions
             );
     }
 
-    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
-    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
-    /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
-    /// @param _disputeTemplateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'.
-    /// @param _numberOfRulingOptions Number of ruling options.
-    /// @return disputeID Dispute id (on arbitrator side) of the created dispute.
-    function createDisputeForTemplateUri(
-        bytes calldata _arbitratorExtraData,
-        string calldata _disputeTemplateUri,
-        uint256 _numberOfRulingOptions
-    ) external payable returns (uint256 disputeID) {
-        return _createDispute(_arbitratorExtraData, "", "", _disputeTemplateUri, _numberOfRulingOptions);
-    }
-
-    /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
-    /// @param _arbitratorDisputeID ID of the dispute in arbitrator contract.
-    /// @param _ruling The ruling choice of the arbitration.
+    /// @inheritdoc IArbitrableV2
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = arbitratorDisputeIDToLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
@@ -127,7 +119,6 @@ contract DisputeResolver is IArbitrableV2 {
         bytes calldata _arbitratorExtraData,
         string memory _disputeTemplate,
         string memory _disputeTemplateDataMappings,
-        string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
     ) internal virtual returns (uint256 arbitratorDisputeID) {
         if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
@@ -144,7 +135,7 @@ contract DisputeResolver is IArbitrableV2 {
         );
         arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, templateId);
     }
 
     // ************************************* //

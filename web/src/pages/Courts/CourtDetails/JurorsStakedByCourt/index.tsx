@@ -1,15 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { useTranslation } from "react-i18next";
 
 import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
 
-import Search from "./Search";
+import { responsiveSize } from "styles/responsiveSize";
+
 import DisplayJurors from "./DisplayJurors";
+import Search from "./Search";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(28, 48)};
   max-width: 578px;
 `;
 
@@ -19,9 +20,10 @@ const Title = styled.h1`
 `;
 
 const JurorsStakedByCourt: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
+  const { t } = useTranslation();
   return (
     <Container>
-      <Title>Jurors Staked in {getDescriptiveCourtName(courtName)}</Title>
+      <Title>{t("misc.jurors_staked_in_court", { court: getDescriptiveCourtName(courtName) })}</Title>
       <Search />
       <DisplayJurors />
     </Container>

@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card, CustomAccordion } from "@kleros/ui-components-library";
 
 import { Answer } from "context/NewDisputeContext";
@@ -14,6 +16,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
 import InfoCard from "components/InfoCard";
+import MarkdownRenderer from "components/MarkdownRenderer";
 
 import AccordionTitle from "./AccordionTitle";
 
@@ -78,17 +81,21 @@ const AccordionContentContainer = styled.div`
 const VotedText = styled.label`
   color: ${({ theme }) => theme.secondaryText};
   font-size: 16px;
-  ::before {
-    content: "Voted: ";
-    color: ${({ theme }) => theme.primaryText};
-  }
 `;
 
-const JustificationText = styled(VotedText)`
+const VotedLabel = styled.span`
+  color: ${({ theme }) => theme.primaryText};
+  margin-right: 4px;
+`;
+
+const JustificationContainer = styled.div`
   line-height: 1.25;
-  ::before {
-    content: "Justification: ";
-  }
+`;
+
+const JustificationLabel = styled.span`
+  color: ${({ theme }) => theme.primaryText};
+  font-size: 16px;
+  margin-right: 4px;
 `;
 
 const SecondaryTextLabel = styled.label`
@@ -108,22 +115,31 @@ const AccordionContent: React.FC<{
   timestamp?: string;
   transactionHash?: string;
 }> = ({ justification, choice, answers, timestamp, transactionHash }) => {
+  const { t, i18n } = useTranslation();
   const transactionExplorerLink = useMemo(() => {
     return getTxnExplorerLink(transactionHash ?? "");
   }, [transactionHash]);
 
   return (
     <AccordionContentContainer>
-      {!isUndefined(choice) && <VotedText dir="auto">{getVoteChoice(choice, answers)}</VotedText>}
+      {!isUndefined(choice) && (
+        <VotedText dir="auto">
+          <VotedLabel>{t("misc.voted")}</VotedLabel>
+          {getVoteChoice(choice, answers)}
+        </VotedText>
+      )}
 
       {justification ? (
-        <JustificationText dir="auto">{justification}</JustificationText>
+        <JustificationContainer dir="auto">
+          <JustificationLabel>{t("misc.justification")}</JustificationLabel>
+          <MarkdownRenderer content={justification} />
+        </JustificationContainer>
       ) : (
-        <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
+        <SecondaryTextLabel>{t("voting.no_justification_provided")}</SecondaryTextLabel>
       )}
       {!isUndefined(timestamp) && (
         <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-          {formatDate(Number(timestamp), true)}
+          {formatDate(Number(timestamp), true, i18n.language)}
         </ExternalLink>
       )}
     </AccordionContentContainer>
@@ -139,6 +155,7 @@ interface IVotesAccordion {
 }
 
 const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answers, isActiveRound, hiddenVotes }) => {
+  const { t } = useTranslation();
   const accordionItems = useMemo(() => {
     return drawnJurors
       .map((drawnJuror) =>
@@ -173,7 +190,7 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
 
   return (
     <>
-      {drawnJurors.length === 0 ? <StyledInfoCard msg="Jurors have not been drawn yet." /> : null}
+      {drawnJurors.length === 0 ? <StyledInfoCard msg={t("alerts.jurors_not_drawn_yet")} /> : null}
       <Container>
         {accordionItems.length > 0 ? <StyledAccordion items={accordionItems} /> : null}
         {drawnJurors.map(

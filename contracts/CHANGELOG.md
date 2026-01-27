@@ -8,10 +8,12 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
+- **Breaking:** Rename `KlerosCore.TokenAndETHShift` into `KlerosCore.JurorRewardPenalty` ([#2136](https://github.com/kleros/kleros-v2/issues/2136))
+- **Breaking:** Add event parameter `KlerosCore.TokenAndETHShift._degreeOfCoherencyFee` and renamed the other parameters to `_degreeOfCoherencyPnk`, `_amountPnk`, `_amountFee` ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
+- **Breaking:** Move state variable `DisputeKitClassicBase.nbVotes` to the `Round` struct ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
 - **Breaking:** Stake the juror's PNK rewards instead of transferring them out ([#2099](https://github.com/kleros/kleros-v2/issues/2099))
 - **Breaking:** Replace `require()` with `revert()` and custom errors outside KlerosCore for consistency and smaller bytecode ([#2084](https://github.com/kleros/kleros-v2/issues/2084))
 - **Breaking:** Rename the interface from `RNG` to `IRNG` ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
-- **Breaking:** Remove the `_block` parameter from `IRNG.requestRandomness()` and `IRNG.receiveRandomness()`, not needed for the primary VRF-based RNG ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
 - **Breaking:** Rename `governor` to `owner` in order to comply with the lightweight ownership standard [ERC-5313](https://eipsinsight.com/ercs/erc-5313) ([#2112](https://github.com/kleros/kleros-v2/issues/2112))
 - **Breaking:** Apply the penalties to the stakes in the Sortition Tree ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - **Breaking:** Make `SortitionModule.getJurorBalance().stakedInCourt` include the penalties ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
@@ -32,6 +34,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Added
 
+- **Breaking:** Add storage gap arrays to `KlerosCore` structs `Round`, `Dispute` and `Court` ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
+- **Breaking:** Add storage gap arrays to `DisputeKitClassicBase` state variables and to the structs `Round`, `Dispute` and `Vote` ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
 - **Breaking:** Add a new field `drawnJurorFromCourtIDs` to the `Round` struct in `KlerosCoreBase` and `KlerosCoreUniversity` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 - **Breaking:** Add a new state variable `jumpDisputeKitID` to the `DisputeKitClassicBase` contract ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
 - **Breaking:** Add a parameter `_recoveryCommit` to the event `DisputeKitShutter.CommitCastShutter` ([#2100](https://github.com/kleros/kleros-v2/issues/2100))
@@ -41,9 +45,18 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Allow the dispute kits to specify which new dispute kit to use when a court jump occurs ([#2114](https://github.com/kleros/kleros-v2/issues/2114))
 - Allow stake changes to by-pass delayed stakes when initiated by the SortitionModule by setting the `_noDelay` parameter to `true` in `SortitionModule.validateStake()` ([#2107](https://github.com/kleros/kleros-v2/issues/2107))
 
+### Removed
+
+- **Breaking:** Remove unused event parameters `IArbitrableV2.DisputeRequest._templateUri` ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
+- **Breaking:** Remove deprecated `SortitionModule` state variables `alreadyTransferred`, `randomNumberRequestBlock`, `rngLookahead` and `latestDelayedStakeIndex` ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
+- **Breaking:** Remove struct variable `DisputeKitClassicBase.Round.nbVotes` ([#2097](https://github.com/kleros/kleros-v2/issues/2097))
+- **Breaking:** Remove the `_block` parameter from `IRNG.requestRandomness()` and `IRNG.receiveRandomness()`, not needed for the primary VRF-based RNG ([#2054](https://github.com/kleros/kleros-v2/issues/2054))
+
 ### Fixed
 
 - Do not pass to Voting period if all the commits are cast because it breaks the current Shutter auto-reveal process. ([#2085](https://github.com/kleros/kleros-v2/issues/2085))
+- Do not emit the `KlerosCore.TokenAndETHShift` event if the both the PNK and fee amounts are zero ([#2135](https://github.com/kleros/kleros-v2/issues/2135))
+- Do not make PNK or ETH transfers if the amounts are zero ([#2135](https://github.com/kleros/kleros-v2/issues/2135))
 
 ## [0.12.0] - 2025-08-05
 

@@ -1,13 +1,14 @@
 import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
-import { Textarea } from "@kleros/ui-components-library";
+import { useTranslation } from "react-i18next";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import MarkdownEditor from "components/MarkdownEditor";
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
@@ -18,9 +19,7 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledTextArea = styled(Textarea)`
-  width: 84vw;
-  height: 300px;
+const MarkdownEditorContainer = styled.div`
   ${landscapeStyle(
     () => css`
       width: ${responsiveSize(442, 700, 900)};
@@ -29,31 +28,37 @@ const StyledTextArea = styled(Textarea)`
 `;
 
 const Description: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleWrite = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDisputeData({ ...disputeData, description: event.target.value });
+  const handleWrite = (value: string) => {
+    setDisputeData({ ...disputeData, description: value });
   };
 
   useEffect(() => {
     if (containerRef.current) {
-      const textareaElement = containerRef.current.querySelector("textarea");
-      if (textareaElement) {
-        textareaElement.focus();
+      const editorElement = containerRef.current.querySelector('[role="region"]');
+      if (editorElement) {
+        const contentEditable = editorElement.querySelector('[contenteditable="true"]');
+        if (contentEditable) {
+          (contentEditable as HTMLElement).focus();
+        }
       }
     }
   }, []);
 
   return (
     <Container ref={containerRef}>
-      <Header text="Describe the case" />
-      <StyledTextArea
-        dir="auto"
-        onChange={handleWrite}
-        value={disputeData.description}
-        placeholder="eg. Bob hired Alice to develop a website for him. Bob claims the contract was not fully respected, and the website was delivered incomplete. For that reason, he wants to pay part of the agreed payment: 150 DAI. On the other hand, Alice claims she should receive the full payment: 250 DAI."
-      />
+      <Header text={t("headers.describe_the_case")} />
+      <MarkdownEditorContainer>
+        <MarkdownEditor
+          value={disputeData.description}
+          onChange={handleWrite}
+          placeholder={t("forms.placeholders.bob_hired_alice")}
+          showMessage={false}
+        />
+      </MarkdownEditorContainer>
       <NavigationButtons prevRoute="/resolver/title" nextRoute="/resolver/court" />
     </Container>
   );

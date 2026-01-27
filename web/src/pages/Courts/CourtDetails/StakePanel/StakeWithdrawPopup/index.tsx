@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css, keyframes } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { _TimelineItem1, AlertMessage, CustomTimeline } from "@kleros/ui-components-library";
 
 import Close from "svgs/icons/close.svg";
@@ -101,6 +103,8 @@ interface IStakeWithdrawPopup {
 }
 
 const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup, steps, isSuccess, action }) => {
+  const { t } = useTranslation();
+
   return (
     <Overlay onClick={closePopup}>
       <Container onClick={(e) => e.stopPropagation()}>
@@ -112,8 +116,8 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
           {isSuccess && action === ActionType.stake ? (
             <AlertContainer>
               <AlertMessage
-                title="Hey there! Avoid missing a case"
-                msg="Make sure to subscribe to notifications on Settings > Notifications"
+                title={t("alerts.hey_avoid_missing_case")}
+                msg={t("alerts.subscribe_to_notifications")}
                 variant="info"
               />
             </AlertContainer>

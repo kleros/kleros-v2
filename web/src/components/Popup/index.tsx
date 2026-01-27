@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
@@ -183,6 +184,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   automaticVoteReveal,
   ...props
 }) => {
+  const { t } = useTranslation();
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
@@ -267,7 +269,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
         {popupType !== PopupType.SWAP_SUCCESS && (
           <StyledButton
             variant="secondary"
-            text={popupType === PopupType.DISPUTE_CREATED ? "Check the case" : "Close"}
+            text={popupType === PopupType.DISPUTE_CREATED ? t("popups.check_the_case") : t("buttons.close")}
             onClick={() => {
               closePopup();
               if (popupType === PopupType.DISPUTE_CREATED) {

@@ -2,7 +2,7 @@ import { type ContractTransaction } from "ethers";
 import fs from "fs";
 import { type BuilderTransaction, template, transaction, transactionBuilderUrl } from "./tx-builder";
 
-const governableAbi = [
+const ownableAbi = [
   {
     inputs: [],
     name: "owner",
@@ -24,7 +24,7 @@ export const execute = async (tx: ContractTransaction) => {
   const hre = require("hardhat");
   const { ethers } = hre;
 
-  const contract = await ethers.getContractAt(governableAbi, tx.to);
+  const contract = await ethers.getContractAt(ownableAbi, tx.to);
   const owner = await contract.owner();
   const isContract = (await ethers.provider.getCode(owner)).length > 2;
   if (isContract) {

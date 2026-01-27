@@ -23,7 +23,7 @@ contract UpgradedByRewrite is UUPSProxiable, Initializable {
         _disableInitializers();
     }
 
-    function initialize(address _owner) external virtual reinitializer(1) {
+    function initialize(address _owner) external virtual initializer {
         owner = _owner;
         counter = 1;
     }

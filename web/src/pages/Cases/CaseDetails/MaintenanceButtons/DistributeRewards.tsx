@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useAccount, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -27,6 +28,7 @@ interface IDistributeRewards extends IBaseMaintenanceButton {
 }
 
 const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIsOpen, period }) => {
+  const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const [contractConfigs, setContractConfigs] = useState<TransactionBatcherConfig>();
   const publicClient = usePublicClient();
@@ -85,7 +87,15 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
       setIsOpen(false);
     });
   };
-  return <StyledButton text="Juror Rewards" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
+  return (
+    <StyledButton
+      text={t("buttons.juror_rewards")}
+      small
+      isLoading={isLoading}
+      disabled={isDisabled}
+      onClick={handleClick}
+    />
+  );
 };
 
 export default DistributeRewards;

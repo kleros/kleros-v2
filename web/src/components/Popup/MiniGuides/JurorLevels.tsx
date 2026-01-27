@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Coherence from "pages/Profile/JurorInfo/Coherence";
-import PixelArt from "pages/Profile/JurorInfo/PixelArt";
+import Coherence from "pages/Profile/JurorCard/BottomContent/Coherence";
+import PixelArt from "pages/Profile/JurorCard/BottomContent/PixelArt";
 
 import Template from "./MainStructureTemplate";
 import { Title, ParagraphsContainer, LeftContentContainer } from "./PageContentsTemplate";
@@ -30,78 +32,75 @@ const Card = styled(_Card)`
   )}
 `;
 
-const leftPageContents = [
+const getLeftPageContents = (t: any) => [
   {
-    title: "Juror Level 0: Diogenes",
-    paragraphs: [
-      "Coherence Score below 25.",
-      "This level is for new jurors or those frequently voting incoherently. A few coherent votes can help climb out of this level quickly.",
-    ],
+    title: t("juror_levels.level_0_diogenes"),
+    paragraphs: [t("juror_levels.coherence_score_below_25"), t("juror_levels.level_0_description")],
   },
   {
-    title: "Juror Level 1: Pythagoras",
-    paragraphs: [
-      "Coherence Score between 25 and 49.",
-      "Jurors here are gaining experience and starting to build voting reliability.",
-    ],
+    title: t("juror_levels.level_1_pythagoras"),
+    paragraphs: [t("juror_levels.coherence_score_25_49"), t("juror_levels.level_1_description")],
   },
   {
-    title: "Juror Level 2: Socrates",
-    paragraphs: [
-      "Coherence Score between 50 and 69.",
-      "Mid-tier performance. Jurors at this level have demonstrated reasonable consistency in coherent voting.",
-    ],
+    title: t("juror_levels.level_2_socrates"),
+    paragraphs: [t("juror_levels.coherence_score_50_69"), t("juror_levels.level_2_description")],
   },
   {
-    title: "Juror Level 3: Plato",
-    paragraphs: [
-      "Coherence Score between 70 and 89.",
-      "Reliable jurors with a consistent track record of coherent votes. Just a few more coherent votes away from reaching the top.",
-    ],
+    title: t("juror_levels.level_3_plato"),
+    paragraphs: [t("juror_levels.coherence_score_70_89"), t("juror_levels.level_3_description")],
   },
   {
-    title: "Juror Level 4: Aristotle",
-    paragraphs: [
-      "Coherence Score between 90 and 100.",
-      "Top-tier jurors with excellent coherence. Trusted members of the platform.",
-    ],
+    title: t("juror_levels.level_4_aristotle"),
+    paragraphs: [t("juror_levels.coherence_score_90_100"), t("juror_levels.level_4_description")],
   },
 ];
 
 const userLevelData = [
   {
     level: 0,
-    title: "Diogenes",
+    titleKey: "juror_levels.diogenes",
+    minCoherenceScore: 0,
+    maxCoherenceScore: 24,
     totalCoherentVotes: 2,
     totalResolvedVotes: 10,
   },
   {
     level: 1,
-    title: "Pythagoras",
+    titleKey: "juror_levels.pythagoras",
+    minCoherenceScore: 25,
+    maxCoherenceScore: 49,
     totalCoherentVotes: 6,
     totalResolvedVotes: 12,
   },
   {
     level: 2,
-    title: "Socrates",
+    titleKey: "juror_levels.socrates",
+    minCoherenceScore: 50,
+    maxCoherenceScore: 69,
     totalCoherentVotes: 22,
     totalResolvedVotes: 34,
   },
   {
     level: 3,
-    title: "Plato",
+    titleKey: "juror_levels.plato",
+    minCoherenceScore: 70,
+    maxCoherenceScore: 89,
     totalCoherentVotes: 52,
     totalResolvedVotes: 65,
   },
   {
     level: 4,
-    title: "Aristotle",
+    titleKey: "juror_levels.aristotle",
+    minCoherenceScore: 90,
+    maxCoherenceScore: 100,
     totalCoherentVotes: 90,
     totalResolvedVotes: 90,
   },
 ];
 
 const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
+  const { t } = useTranslation();
+  const leftPageContents = getLeftPageContents(t);
   const { title, paragraphs } = leftPageContents[currentPage - 1];
 
   return (
@@ -136,7 +135,9 @@ interface IJurorLevels {
 }
 
 const JurorLevels: React.FC<IJurorLevels> = ({ toggleMiniGuide }) => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
+  const leftPageContents = getLeftPageContents(t);
 
   return (
     <Template

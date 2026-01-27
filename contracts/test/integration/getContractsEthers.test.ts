@@ -4,10 +4,8 @@ import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { getContracts } from "../../deployments/contractsEthers";
 import {
   KlerosCore__factory,
-  KlerosCoreNeo__factory,
   KlerosCoreUniversity__factory,
   SortitionModule__factory,
-  SortitionModuleNeo__factory,
   SortitionModuleUniversity__factory,
   DisputeKitClassic__factory,
   DisputeResolver__factory,
@@ -17,7 +15,7 @@ import {
   TransactionBatcher__factory,
   ChainlinkRNG__factory,
   RandomizerRNG__factory,
-  BlockHashRNG__factory,
+  RNGWithFallback__factory,
   PNK__factory,
   KlerosCoreSnapshotProxy__factory,
   DisputeKitShutter__factory,
@@ -56,7 +54,7 @@ const devnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback" },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -75,7 +73,7 @@ const testnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -88,32 +86,32 @@ const universityContractMapping: ContractMapping = {
   disputeKitGated: { name: "DisputeKitGatedUniversity", optional: true },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutterUniversity", optional: true },
   disputeResolver: { name: "DisputeResolverUniversity" },
-  disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
+  disputeTemplateRegistry: { name: "DisputeTemplateRegistryUniversity" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
 
-const neoContractMapping: ContractMapping = {
-  klerosCore: { name: "KlerosCoreNeo" },
-  sortition: { name: "SortitionModuleNeo" },
-  disputeKitClassic: { name: "DisputeKitClassicNeo" },
-  disputeKitShutter: { name: "DisputeKitShutterNeo" },
-  disputeKitGated: { name: "DisputeKitGatedNeo" },
-  disputeKitGatedShutter: { name: "DisputeKitGatedShutterNeo" },
-  disputeResolver: { name: "DisputeResolverNeo" },
+const mainnetContractMapping: ContractMapping = {
+  klerosCore: { name: "KlerosCore" },
+  sortition: { name: "SortitionModule" },
+  disputeKitClassic: { name: "DisputeKitClassic" },
+  disputeKitShutter: { name: "DisputeKitShutter" },
+  disputeKitGated: { name: "DisputeKitGated" },
+  disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: false },
   randomizerRng: { name: "RandomizerRNG", optional: false },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -153,13 +151,15 @@ describe("getContractsEthers", async () => {
     expect(contracts.evidence).to.be.instanceOf(getConstructor(EvidenceModule__factory, provider));
     expect(contracts.policyRegistry).to.be.instanceOf(getConstructor(PolicyRegistry__factory, provider));
     expect(contracts.transactionBatcher).to.be.instanceOf(getConstructor(TransactionBatcher__factory, provider));
-    expect(contracts.blockHashRng).to.be.instanceOf(getConstructor(BlockHashRNG__factory, provider));
     expect(contracts.pnk).to.be.instanceOf(getConstructor(PNK__factory, provider));
     expect(contracts.klerosCoreSnapshotProxy).to.be.instanceOf(
       getConstructor(KlerosCoreSnapshotProxy__factory, provider)
     );
     if (contracts.chainlinkRng) {
       expect(contracts.chainlinkRng).to.be.instanceOf(getConstructor(ChainlinkRNG__factory, provider));
+    }
+    if (contracts.rngWithFallback) {
+      expect(contracts.rngWithFallback).to.be.instanceOf(getConstructor(RNGWithFallback__factory, provider));
     }
     if (contracts.randomizerRng) {
       expect(contracts.randomizerRng).to.be.instanceOf(getConstructor(RandomizerRNG__factory, provider));
@@ -195,10 +195,12 @@ describe("getContractsEthers", async () => {
     if (contracts.chainlinkRng) {
       await verifyContractAddress(contracts.chainlinkRng.getAddress());
     }
+    if (contracts.rngWithFallback) {
+      await verifyContractAddress(contracts.rngWithFallback.getAddress());
+    }
     if (contracts.randomizerRng) {
       await verifyContractAddress(contracts.randomizerRng.getAddress());
     }
-    await verifyContractAddress(contracts.blockHashRng.getAddress());
     await verifyContractAddress(contracts.pnk.getAddress());
     await verifyContractAddress(contracts.klerosCoreSnapshotProxy.getAddress());
   }
@@ -291,16 +293,16 @@ describe("getContractsEthers", async () => {
     await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
-  it("should return correct contract instances for mainnetNeo", async () => {
-    const contracts = await getContracts(arbitrumProvider, "mainnetNeo");
+  it("should return correct contract instances for mainnet", async () => {
+    const contracts = await getContracts(arbitrumProvider, "mainnet");
 
     // Verify chain ID
     const network = await arbitrumProvider.getNetwork();
     expect(network.chainId).to.equal(arbitrum.id);
 
     // Verify contract instances
-    expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCoreNeo__factory, arbitrumProvider));
-    expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModuleNeo__factory, arbitrumProvider));
+    expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumProvider));
+    expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumProvider));
     verifyCommonContractInstances(contracts, arbitrumProvider);
     expect(contracts.disputeKitShutter).to.not.be.null;
     expect(contracts.disputeKitGated).to.not.be.null;
@@ -310,7 +312,7 @@ describe("getContractsEthers", async () => {
 
     // Verify all contract addresses
     await verifyAllContractAddresses(contracts);
-    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, neoContractMapping);
+    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, mainnetContractMapping);
   });
 
   it("should throw error for unsupported deployment", async () => {

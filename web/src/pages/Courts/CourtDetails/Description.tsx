@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import { Routes, Route, Navigate, useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+
 import { Tabs } from "@kleros/ui-components-library";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
+import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const Container = styled.div`
@@ -18,7 +20,7 @@ const TextContainer = styled.div`
   padding: 12px 0;
 `;
 
-const StyledReactMarkdown = styled(ReactMarkdown)`
+const StyledMarkdownRenderer = styled(MarkdownRenderer)`
   p {
     word-break: break-word;
   }
@@ -70,28 +72,8 @@ interface IPolicy {
   rules?: string;
 }
 
-const TABS = [
-  {
-    text: "Purpose",
-    value: 0,
-    path: "purpose",
-    isVisible: (policy: IPolicy) => !!policy?.purpose,
-  },
-  {
-    text: "Skills",
-    value: 1,
-    path: "skills",
-    isVisible: (policy: IPolicy) => !!policy?.requiredSkills,
-  },
-  {
-    text: "Policy",
-    value: 2,
-    path: "policy",
-    isVisible: (policy: IPolicy) => !!policy?.rules,
-  },
-];
-
 const Description: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: policy } = useCourtPolicy(id);
   const navigate = useNavigate();
@@ -99,6 +81,27 @@ const Description: React.FC = () => {
   const [searchParams] = useSearchParams();
   const suffix = searchParams.toString() ? `?${searchParams.toString()}` : "";
   const currentPathName = location.pathname.split("/").at(-1);
+
+  const TABS = [
+    {
+      text: t("stats.purpose"),
+      value: 0,
+      path: "purpose",
+      isVisible: (policy: IPolicy) => !!policy?.purpose,
+    },
+    {
+      text: t("stats.skills"),
+      value: 1,
+      path: "skills",
+      isVisible: (policy: IPolicy) => !!policy?.requiredSkills,
+    },
+    {
+      text: t("stats.policy"),
+      value: 2,
+      path: "policy",
+      isVisible: (policy: IPolicy) => !!policy?.rules,
+    },
+  ];
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
   const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
@@ -127,6 +130,6 @@ const Description: React.FC = () => {
 };
 
 const formatMarkdown = (markdown?: string) =>
-  markdown ? <StyledReactMarkdown>{markdown.replace(/\n/g, "  \n")}</StyledReactMarkdown> : <StyledSkeleton />;
+  markdown ? <StyledMarkdownRenderer content={markdown} /> : <StyledSkeleton />;
 
 export default Description;

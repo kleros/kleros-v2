@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
@@ -10,10 +11,11 @@ import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
-import OverlayPortal from "components/OverlayPortal";
 import { Overlay } from "components/Overlay";
+import OverlayPortal from "components/OverlayPortal";
 
 import { useOpenContext } from "../MobileHeader";
+
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
@@ -84,6 +86,7 @@ export interface IDappList {
 }
 
 const NavBar: React.FC = () => {
+  const { t } = useTranslation();
   const { isConnected } = useAccount();
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
@@ -98,7 +101,7 @@ const NavBar: React.FC = () => {
           <Container {...{ isOpen }}>
             <LightButton
               isMobileNavbar={true}
-              text="Kleros Solutions"
+              text={t("navigation.kleros_solutions")}
               onClick={() => {
                 toggleIsDappListOpen();
               }}

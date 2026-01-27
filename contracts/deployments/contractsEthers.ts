@@ -12,12 +12,13 @@ import {
   policyRegistryConfig as devnetPolicyRegistryConfig,
   transactionBatcherConfig as devnetBatcherConfig,
   chainlinkRngConfig as devnetChainlinkRngConfig,
-  blockHashRngConfig as devnetBlockHashRngConfig,
+  rngWithFallbackConfig as devnetRngWithFallbackConfig,
   pnkConfig as devnetPnkConfig,
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
+  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
 } from "./devnet.viem";
 import {
@@ -33,25 +34,23 @@ import {
   policyRegistryConfig as testnetPolicyRegistryConfig,
   transactionBatcherConfig as testnetBatcherConfig,
   chainlinkRngConfig as testnetChainlinkRngConfig,
-  blockHashRngConfig as testnetBlockHashRngConfig,
   pnkConfig as testnetPnkConfig,
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
 } from "./testnet.viem";
 import {
-  klerosCoreNeoConfig as mainnetCoreConfig,
-  sortitionModuleNeoConfig as mainnetSortitionConfig,
-  disputeKitClassicNeoConfig as mainnetDkcConfig,
-  disputeKitShutterNeoConfig as mainnetDkShutterConfig,
-  disputeKitGatedNeoConfig as mainnetDkGatedConfig,
-  disputeKitGatedShutterNeoConfig as mainnetDkGatedShutterConfig,
-  disputeResolverNeoConfig as mainnetDrConfig,
+  klerosCoreConfig as mainnetCoreConfig,
+  sortitionModuleConfig as mainnetSortitionConfig,
+  disputeKitClassicConfig as mainnetDkcConfig,
+  disputeKitShutterConfig as mainnetDkShutterConfig,
+  disputeKitGatedConfig as mainnetDkGatedConfig,
+  disputeKitGatedShutterConfig as mainnetDkGatedShutterConfig,
+  disputeResolverConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
   policyRegistryConfig as mainnetPolicyRegistryConfig,
   transactionBatcherConfig as mainnetBatcherConfig,
   chainlinkRngConfig as mainnetChainlinkRngConfig,
   randomizerRngConfig as mainnetRandomizerRngConfig,
-  blockHashRngConfig as mainnetBlockHashRngConfig,
   pnkConfig as mainnetPnkConfig,
   klerosCoreSnapshotProxyConfig as mainnetSnapshotProxyConfig,
 } from "./mainnet.viem";
@@ -82,8 +81,8 @@ import {
   ChainlinkRNG__factory,
   RandomizerRNG,
   RandomizerRNG__factory,
-  BlockHashRNG,
-  BlockHashRNG__factory,
+  RNGWithFallback,
+  RNGWithFallback__factory,
   PNK,
   PNK__factory,
   KlerosCoreSnapshotProxy,
@@ -92,10 +91,6 @@ import {
   KlerosCoreUniversity__factory,
   SortitionModuleUniversity,
   SortitionModuleUniversity__factory,
-  KlerosCoreNeo,
-  KlerosCoreNeo__factory,
-  SortitionModuleNeo,
-  SortitionModuleNeo__factory,
 } from "../typechain-types";
 import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 
@@ -111,7 +106,7 @@ type CommonFactoriesConfigs = {
   batcherConfig: ContractConfig;
   chainlinkRngConfig?: ContractConfig;
   randomizerRngConfig?: ContractConfig;
-  blockHashRngConfig: ContractConfig;
+  rngWithFallbackConfig?: ContractConfig;
   pnkConfig: ContractConfig;
   snapshotProxyConfig: ContractConfig;
 };
@@ -128,7 +123,7 @@ type CommonFactories = {
   transactionBatcher: TransactionBatcher;
   chainlinkRng: ChainlinkRNG | null;
   randomizerRng: RandomizerRNG | null;
-  blockHashRng: BlockHashRNG;
+  rngWithFallback: RNGWithFallback | null;
   pnk: PNK;
   klerosCoreSnapshotProxy: KlerosCoreSnapshotProxy;
 };
@@ -160,7 +155,9 @@ function getCommonFactories(
     randomizerRng: configs.randomizerRngConfig
       ? RandomizerRNG__factory.connect(getAddress(configs.randomizerRngConfig, chainId), provider)
       : null,
-    blockHashRng: BlockHashRNG__factory.connect(getAddress(configs.blockHashRngConfig, chainId), provider),
+    rngWithFallback: configs.rngWithFallbackConfig
+      ? RNGWithFallback__factory.connect(getAddress(configs.rngWithFallbackConfig, chainId), provider)
+      : null,
     pnk: PNK__factory.connect(getAddress(configs.pnkConfig, chainId), provider),
     klerosCoreSnapshotProxy: KlerosCoreSnapshotProxy__factory.connect(
       getAddress(configs.snapshotProxyConfig, chainId),
@@ -171,8 +168,8 @@ function getCommonFactories(
 
 export const getContracts = async (provider: ethers.Provider, deployment: DeploymentName) => {
   const { chainId } = deployments[deployment];
-  let klerosCore: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
-  let sortition: SortitionModule | SortitionModuleNeo | SortitionModuleUniversity;
+  let klerosCore: KlerosCore | KlerosCoreUniversity;
+  let sortition: SortitionModule | SortitionModuleUniversity;
   let commonFactories: CommonFactories;
 
   switch (deployment) {
@@ -191,7 +188,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           policyRegistryConfig: devnetPolicyRegistryConfig,
           batcherConfig: devnetBatcherConfig,
           chainlinkRngConfig: devnetChainlinkRngConfig,
-          blockHashRngConfig: devnetBlockHashRngConfig,
+          rngWithFallbackConfig: devnetRngWithFallbackConfig,
           pnkConfig: devnetPnkConfig,
           snapshotProxyConfig: devnetSnapshotProxyConfig,
         },
@@ -210,12 +207,11 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
         {
           dkClassicConfig: devnetDkClassicUniversityConfig,
           drConfig: devnetDrUniversityConfig,
-          dtrConfig: devnetDtrConfig,
+          dtrConfig: devnetDtrUniversityConfig,
           evidenceConfig: devnetEvidenceConfig,
           policyRegistryConfig: devnetPolicyRegistryConfig,
           batcherConfig: devnetBatcherConfig,
           chainlinkRngConfig: devnetChainlinkRngConfig,
-          blockHashRngConfig: devnetBlockHashRngConfig,
           pnkConfig: devnetPnkConfig,
           snapshotProxyConfig: devnetSnapshotProxyConfig,
         },
@@ -239,7 +235,6 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           policyRegistryConfig: testnetPolicyRegistryConfig,
           batcherConfig: testnetBatcherConfig,
           chainlinkRngConfig: testnetChainlinkRngConfig,
-          blockHashRngConfig: testnetBlockHashRngConfig,
           pnkConfig: testnetPnkConfig,
           snapshotProxyConfig: testnetSnapshotProxyConfig,
         },
@@ -247,9 +242,9 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
         chainId
       );
       break;
-    case "mainnetNeo":
-      klerosCore = KlerosCoreNeo__factory.connect(getAddress(mainnetCoreConfig, chainId), provider);
-      sortition = SortitionModuleNeo__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
+    case "mainnet":
+      klerosCore = KlerosCore__factory.connect(getAddress(mainnetCoreConfig, chainId), provider);
+      sortition = SortitionModule__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: mainnetDkcConfig,
@@ -263,7 +258,6 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           batcherConfig: mainnetBatcherConfig,
           chainlinkRngConfig: mainnetChainlinkRngConfig,
           randomizerRngConfig: mainnetRandomizerRngConfig,
-          blockHashRngConfig: mainnetBlockHashRngConfig,
           pnkConfig: mainnetPnkConfig,
           snapshotProxyConfig: mainnetSnapshotProxyConfig,
         },

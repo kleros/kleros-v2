@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { uncommify } from "utils/commify";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -8,8 +10,8 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import Tag from "components/Tag";
 
 import InputDisplay from "./InputDisplay";
-import { ActionType } from "./StakeWithdrawButton";
 import Simulator from "./Simulator";
+import { ActionType } from "./StakeWithdrawButton";
 
 const Container = styled.div`
   position: relative;
@@ -45,6 +47,7 @@ const InputArea = styled(TagArea)`
 `;
 
 const StakePanel: React.FC<{ courtName: string | undefined }> = ({ courtName }) => {
+  const { t } = useTranslation();
   const [amount, setAmount] = useState("");
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
@@ -59,12 +62,12 @@ const StakePanel: React.FC<{ courtName: string | undefined }> = ({ courtName }) 
     <Container>
       <StakingArea>
         <TagArea>
-          <Tag text="Stake" active={isActive} onClick={() => handleClick(ActionType.stake)} />
-          <Tag text="Withdraw" active={!isActive} onClick={() => handleClick(ActionType.withdraw)} />
+          <Tag text={t("buttons.stake")} active={isActive} onClick={() => handleClick(ActionType.stake)} />
+          <Tag text={t("buttons.withdraw")} active={!isActive} onClick={() => handleClick(ActionType.withdraw)} />
         </TagArea>
         <TextArea>
-          <strong>{`${isStaking ? "Stake" : "Withdraw"} PNK`}</strong> {`${isStaking ? "to join the" : "from"}`}{" "}
-          {courtName}
+          <strong>{`${isStaking ? t("buttons.stake") : t("buttons.withdraw")} PNK`}</strong>{" "}
+          {`${isStaking ? t("staking.to_join_the") : t("staking.from")}`} {courtName}
           {courtName?.toLowerCase().endsWith("court") || courtName?.toLowerCase().startsWith("corte") ? null : " Court"}
         </TextArea>
         <InputArea>

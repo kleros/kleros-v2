@@ -3,13 +3,14 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol"; // Import the console for logging
-import {KlerosCoreMock, KlerosCoreBase} from "../../src/test/KlerosCoreMock.sol";
-import {IArbitratorV2} from "../../src/arbitration/KlerosCoreBase.sol";
+import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
+import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
+import {IArbitratorV2} from "../../src/arbitration/interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
-import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
+import {SortitionModuleMock, SortitionModule} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
@@ -18,11 +19,12 @@ import {PNK} from "../../src/token/PNK.sol";
 import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
-import "../../src/libraries/Constants.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
+import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_TestBase
 /// @dev Abstract base contract for KlerosCore tests containing shared setup and utilities
+/// forge-lint: disable-next-item(erc20-unchecked-transfer)
 abstract contract KlerosCore_TestBase is Test {
     event Initialized(uint64 version);
 
@@ -115,23 +117,24 @@ abstract contract KlerosCore_TestBase is Test {
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
 
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address,uint256)",
+            "initialize(address,address,address)",
             owner,
             address(proxyCore),
-            address(wNative),
-            DISPUTE_KIT_CLASSIC
+            address(wNative)
         );
 
         UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address)",
+            "initialize(address,address,uint256,uint256,address,uint256,uint256)",
             owner,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
-            rng
+            rng,
+            type(uint256).max,
+            type(uint256).max
         );
 
         UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
@@ -151,7 +154,8 @@ abstract contract KlerosCore_TestBase is Test {
             timesPerPeriod,
             sortitionExtraData,
             sortitionModule,
-            address(wNative)
+            address(wNative),
+            IERC721(address(0))
         );
         vm.prank(staker1);
         pinakion.approve(address(core), 1 ether);
@@ -220,17 +224,15 @@ abstract contract KlerosCore_TestBase is Test {
         uint256 expectedMinStake,
         uint256 expectedAlpha,
         uint256 expectedFeeForJuror,
-        uint256 expectedJurorsForJump,
-        bool expectedDisabled
-    ) internal {
+        uint256 expectedJurorsForJump
+    ) internal view {
         (
             uint96 courtParent,
             bool courtHiddenVotes,
             uint256 courtMinStake,
             uint256 courtAlpha,
             uint256 courtFeeForJuror,
-            uint256 courtJurorsForCourtJump,
-            bool courtDisabled
+            uint256 courtJurorsForCourtJump
         ) = core.courts(courtId);
 
         assertEq(courtParent, expectedParent, "Wrong court parent");
@@ -239,11 +241,10 @@ abstract contract KlerosCore_TestBase is Test {
         assertEq(courtAlpha, expectedAlpha, "Wrong alpha value");
         assertEq(courtFeeForJuror, expectedFeeForJuror, "Wrong feeForJuror value");
         assertEq(courtJurorsForCourtJump, expectedJurorsForJump, "Wrong jurorsForCourtJump value");
-        assertEq(courtDisabled, expectedDisabled, "Wrong disabled state");
     }
 
     /// @dev Helper function to check times per period
-    function _assertTimesPerPeriod(uint96 courtId, uint256[4] memory expectedTimes) internal {
+    function _assertTimesPerPeriod(uint96 courtId, uint256[4] memory expectedTimes) internal view {
         uint256[4] memory courtTimesPerPeriod = core.getTimesPerPeriod(courtId);
         for (uint256 i = 0; i < 4; i++) {
             assertEq(courtTimesPerPeriod[i], expectedTimes[i], "Wrong times per period");

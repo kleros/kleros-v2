@@ -1,11 +1,11 @@
-import { ClassicContribution, Dispute, DisputeKit, Round } from "../../generated/schema";
+import { ClassicContribution, Dispute, Round } from "../../generated/schema";
 import { Contribution as ContributionEvent, Withdrawal } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { ensureUser } from "./User";
+import { BigInt } from "@graphprotocol/graph-ts";
 
-export function ensureClassicContributionFromEvent<T>(event: T): ClassicContribution | null {
+export function ensureClassicContributionFromEvent<T>(event: T, coreRoundIndex: BigInt): ClassicContribution | null {
   if (!(event instanceof ContributionEvent) && !(event instanceof Withdrawal)) return null;
   const coreDisputeID = event.params._coreDisputeID.toString();
-  const coreRoundIndex = event.params._coreRoundID.toString();
 
   const coreDispute = Dispute.load(coreDisputeID);
   if (!coreDispute) return null;
