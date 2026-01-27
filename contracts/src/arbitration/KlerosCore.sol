@@ -728,8 +728,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         if (arbitrationPaused || block.timestamp <= arbitrationPauseGracePeriodEnd)
             revert WhenArbitrationNotPausedOnly();
         Dispute storage dispute = disputes[_disputeID];
-        Court storage court = courts[dispute.courtID];
-
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
         if (dispute.period == Period.evidence) {

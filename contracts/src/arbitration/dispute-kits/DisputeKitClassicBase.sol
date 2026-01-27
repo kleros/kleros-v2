@@ -298,11 +298,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _commit The commitment hash.
-    function castCommit(
-        uint256 _coreDisputeID,
-        uint256[] calldata _voteIDs,
-        bytes32 _commit
-    ) external whenArbitrationNotPaused {
+    function castCommit(uint256 _coreDisputeID, uint256[] calldata _voteIDs, bytes32 _commit) external {
         _castCommit(_coreDisputeID, _voteIDs, _commit);
     }
 
@@ -310,7 +306,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit
-    ) internal isActive(_coreDisputeID) {
+    ) internal whenArbitrationNotPaused isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.commit) revert NotCommitPeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
