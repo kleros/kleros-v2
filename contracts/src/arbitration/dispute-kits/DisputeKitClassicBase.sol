@@ -158,6 +158,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         _;
     }
 
+    modifier whenArbitrationNotPaused() {
+        if (core.arbitrationPaused()) revert WhenArbitrationNotPausedOnly();
+        _;
+    }
+
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
@@ -293,7 +298,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _voteIDs The IDs of the votes.
     /// @param _commit The commitment hash.
-    function castCommit(uint256 _coreDisputeID, uint256[] calldata _voteIDs, bytes32 _commit) external {
+    function castCommit(
+        uint256 _coreDisputeID,
+        uint256[] calldata _voteIDs,
+        bytes32 _commit
+    ) external whenArbitrationNotPaused {
         _castCommit(_coreDisputeID, _voteIDs, _commit);
     }
 
@@ -348,7 +357,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _salt,
         string memory _justification,
         address _juror
-    ) internal isActive(_coreDisputeID) {
+    ) internal whenArbitrationNotPaused isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.vote) revert NotVotePeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
@@ -398,7 +407,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// Note that the surplus deposit will be reimbursed.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
     /// @param _choice A choice that receives funding.
-    function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable isActive(_coreDisputeID) {
+    function fundAppeal(
+        uint256 _coreDisputeID,
+        uint256 _choice
+    ) external payable isActive(_coreDisputeID) whenArbitrationNotPaused {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
 
@@ -840,4 +852,5 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     error AppealFeeIsAlreadyPaid();
     error DisputeNotResolved();
     error CoreIsPaused();
+    error WhenArbitrationNotPausedOnly();
 }
