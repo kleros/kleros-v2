@@ -33,9 +33,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
     struct Round {
         Vote[] votes; // Former votes[_appeal][].
-        uint256 winningChoice; // The choice with the most votes. Note that in the case of a tie, it is the choice that reached the tied number of votes first.
+        uint256 winningChoice; // The choice with the most votes. Note that in the case of a tie, it is the choice that reached the tied number of votes first. DEPRECATED.
         mapping(uint256 => uint256) counts; // The sum of votes for each choice in the form `counts[choice]`.
-        bool tied; // True if there is a tie, false otherwise.
+        bool tied; // True if there is a tie, false otherwise. DEPRECATED.
         uint256 totalVoted; // Former uint[_appeal] votesInEachRound.
         uint256 totalCommitted; // Former commitsInRound.
         mapping(uint256 choiceId => uint256) paidFees; // Tracks the fees paid for each choice in this round.
@@ -44,6 +44,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
         mapping(address drawnAddress => bool) alreadyDrawn; // True if the address has already been drawn, false by default.
+        uint256[] winningChoices; // Array of the choices with the most votes.
+        uint256 winningChoiceCount; // The number of votes that the winner has.
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
@@ -243,7 +245,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
         // KlerosCore.Round must have been already created.
         dispute.coreRoundIDToLocal[_coreRoundID] = dispute.rounds.length;
-        dispute.rounds.push().tied = true;
+        dispute.rounds.push();
 
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
@@ -267,7 +269,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[localRoundID];
 
         ISortitionModule sortitionModule = core.sortitionModule();
-        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
         (drawnAddress, fromSubcourtID) = sortitionModule.draw(courtID, _coreDisputeID, _nonce);
         if (drawnAddress == address(0)) {
             // Sortition can return 0 address if no one has staked yet.
@@ -300,7 +302,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256[] calldata _voteIDs,
         bytes32 _commit
     ) internal isActive(_coreDisputeID) {
-        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.commit) revert NotCommitPeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
         if (_commit == bytes32(0)) revert EmptyCommit();
@@ -347,7 +349,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         string memory _justification,
         address _juror
     ) internal isActive(_coreDisputeID) {
-        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.vote) revert NotVotePeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
 
@@ -358,8 +360,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 localRoundID = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[localRoundID];
         {
-            (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-            (, bool hiddenVotes, , , , ) = core.courts(courtID);
+            uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
+            bool hiddenVotes = core.getRoundInfo(_coreDisputeID, coreRoundID).hiddenVotes;
             if (hiddenVotes) {
                 _verifyHiddenVoteCommitments(localDisputeID, localRoundID, _voteIDs, _choice, _justification, _salt);
             }
@@ -376,18 +378,18 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         round.totalVoted += _voteIDs.length;
 
         round.counts[_choice] += _voteIDs.length;
-        if (_choice == round.winningChoice) {
-            if (round.tied) round.tied = false;
-        } else {
-            // Voted for another choice.
-            if (round.counts[_choice] == round.counts[round.winningChoice]) {
-                // Tie.
-                if (!round.tied) round.tied = true;
-            } else if (round.counts[_choice] > round.counts[round.winningChoice]) {
-                // New winner.
-                round.winningChoice = _choice;
-                round.tied = false;
-            }
+
+        if (round.winningChoices.length == 0) {
+            round.winningChoiceCount = round.counts[_choice];
+            round.winningChoices.push(_choice);
+        } else if (round.counts[_choice] == round.winningChoiceCount) {
+            // Tie.
+            round.winningChoices.push(_choice);
+        } else if (round.counts[_choice] > round.winningChoiceCount) {
+            // New winner.
+            round.winningChoiceCount = round.counts[_choice];
+            delete round.winningChoices;
+            round.winningChoices.push(_choice);
         }
         emit VoteCast(_coreDisputeID, _juror, _voteIDs, _choice, _justification);
     }
@@ -455,7 +457,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
                 dispute.coreRoundIDToLocal[coreRoundID + 1] = dispute.rounds.length;
 
                 Round storage newRound = dispute.rounds.push();
-                newRound.tied = true;
             }
             core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices, dispute.extraData);
         }
@@ -475,8 +476,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         address payable _beneficiary,
         uint256 _choice
     ) external returns (uint256 amount) {
-        (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
-        if (!isRuled) revert DisputeNotResolved();
+        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
+        if (period != KlerosCore.Period.execution) revert DisputeNotResolved();
         if (core.paused()) revert CoreIsPaused();
         if (!coreDisputeIDToActive[_coreDisputeID].dispute) revert DisputeUnknownInThisDisputeKit();
 
@@ -544,9 +545,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ) external view override returns (uint256 ruling, bool tied, bool overridden) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        tied = round.tied;
-        ruling = tied ? 0 : round.winningChoice;
-        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        tied = round.winningChoices.length != 1;
+        ruling = tied ? 0 : round.winningChoices[0];
+        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
         // Override the final ruling if only one side funded the appeals.
         if (period == KlerosCore.Period.execution) {
             uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
@@ -556,6 +557,15 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
                 overridden = true;
             }
         }
+    }
+
+    /// @inheritdoc IDisputeKit
+    function getWinningChoices(
+        uint256 _coreDisputeID
+    ) external view override returns (uint256[] memory winningChoices) {
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        return round.winningChoices;
     }
 
     /// @inheritdoc IDisputeKit
@@ -588,10 +598,19 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ) internal view returns (uint256 coherence) {
         // In this contract this degree can be either 0 or 1, but in other dispute kits this value can be something in between.
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
-        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
+        uint256 currentRoundID = dispute.coreRoundIDToLocal[_coreRoundID];
+        Round storage currentRound = dispute.rounds[currentRoundID];
+        Vote storage vote = currentRound.votes[_voteID];
+        uint256[] memory winningChoices = core.getWinningChoices(_coreDisputeID);
+        bool coherent;
+        for (uint256 i = 0; i < winningChoices.length; i++) {
+            if (vote.choice == winningChoices[i]) {
+                coherent = true;
+                break;
+            }
+        }
 
-        if (vote.voted && (vote.choice == winningChoice || tied)) {
+        if (vote.voted && coherent) {
             return ONE_BASIS_POINT;
         } else {
             return 0;
@@ -599,17 +618,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     }
 
     /// @inheritdoc IDisputeKit
-    function getCoherentCount(uint256 _coreDisputeID, uint256 _coreRoundID) external view override returns (uint256) {
+    function getCoherentCount(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID
+    ) external view override returns (uint256 coherentCount) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage currentRound = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
-        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
+        uint256[] memory winningChoices = core.getWinningChoices(_coreDisputeID);
 
-        if (currentRound.totalVoted == 0 || (!tied && currentRound.counts[winningChoice] == 0)) {
-            return 0;
-        } else if (tied) {
-            return currentRound.totalVoted;
-        } else {
-            return currentRound.counts[winningChoice];
+        for (uint256 i = 0; i < winningChoices.length; i++) {
+            coherentCount += currentRound.counts[winningChoices[i]];
         }
     }
 
@@ -625,7 +643,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
-        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
         (, bool hiddenVotes, , , , ) = core.courts(courtID);
         uint256 expectedTotalVoted = hiddenVotes ? round.totalCommitted : round.votes.length;
 
@@ -711,14 +729,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
-        return (
-            round.winningChoice,
-            round.tied,
-            round.totalVoted,
-            round.totalCommitted,
-            round.votes.length,
-            round.counts[_choice]
-        );
+        tied = round.winningChoices.length != 1;
+        // In case of a tie display the first winning choice.
+        winningChoice = round.winningChoices.length == 0 ? 0 : round.winningChoices[0];
+        return (winningChoice, tied, round.totalVoted, round.totalCommitted, round.votes.length, round.counts[_choice]);
     }
 
     /// @notice Returns the number of rounds in a dispute.

@@ -52,7 +52,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint96 courtID; // The ID of the court the dispute is in.
         IArbitrableV2 arbitrated; // The arbitrable contract.
         Period period; // The current period of the dispute.
-        bool ruled; // True if the ruling has been executed, false otherwise.
+        bool ruled; // True if the Ruling event has been emitted.
+        bool executed; // True if the ruling has been executed.
         uint256 lastPeriodChange; // The last time the period was changed.
         Round[] rounds; // Rounds of the dispute.
         uint256[10] __gap; // Reserved slots for future upgrades.
@@ -71,6 +72,9 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
         uint256 drawIterations; // The number of iterations passed drawing the jurors for this round.
+        bool hiddenVotes; // Whether to use commit and reveal in this round or not.
+        uint256 jurorsForCourtJump; // Number of jurors for court jump for this round.
+        uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
@@ -624,10 +628,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @notice Transfers PNK to the juror by SortitionModule.
     /// @param _account The account of the juror whose PNK to transfer.
     /// @param _amount The amount to transfer.
-    function transferBySortitionModule(address _account, uint256 _amount) external {
+    function transferBySortitionModule(address _account, uint256 _amount) external whenNotPaused {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
         // Note eligibility is checked in SortitionModule.
-        pinakion.safeTransfer(_account, _amount);
+        if (!pinakion.safeTransfer(_account, _amount)) revert TransferFailed();
     }
 
     /// @inheritdoc IArbitratorV2
@@ -683,6 +687,9 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         round.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
+        round.hiddenVotes = court.hiddenVotes;
+        round.jurorsForCourtJump = court.jurorsForCourtJump;
+        round.timesPerPeriod = court.timesPerPeriod;
 
         sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
 
@@ -701,15 +708,15 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         if (dispute.period == Period.evidence) {
             if (
                 currentRound == 0 &&
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)]
             ) {
                 revert EvidenceNotPassedAndNotAppeal();
             }
             if (round.drawnJurors.length != round.nbVotes) revert DisputeStillDrawing();
-            dispute.period = court.hiddenVotes ? Period.commit : Period.vote;
+            dispute.period = round.hiddenVotes ? Period.commit : Period.vote;
         } else if (dispute.period == Period.commit) {
             if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)] &&
                 !disputeKits[round.disputeKitID].areCommitsAllCast(_disputeID)
             ) {
                 revert CommitPeriodNotPassed();
@@ -717,7 +724,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             dispute.period = Period.vote;
         } else if (dispute.period == Period.vote) {
             if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)] &&
                 !disputeKits[round.disputeKitID].areVotesAllCast(_disputeID)
             ) {
                 revert VotePeriodNotPassed();
@@ -726,7 +733,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             emit AppealPossible(_disputeID, dispute.arbitrated);
         } else if (dispute.period == Period.appeal) {
             if (
-                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                block.timestamp - dispute.lastPeriodChange < round.timesPerPeriod[uint256(dispute.period)] &&
                 !disputeKits[round.disputeKitID].isAppealFunded(_disputeID)
             ) {
                 revert AppealPeriodNotPassed();
@@ -812,6 +819,9 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         extraRound.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
+        extraRound.hiddenVotes = court.hiddenVotes;
+        extraRound.jurorsForCourtJump = court.jurorsForCourtJump;
+        extraRound.timesPerPeriod = court.timesPerPeriod;
 
         sortitionModule.createDisputeHook(_disputeID, extraRoundID);
 
@@ -1063,12 +1073,17 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     function executeRuling(uint256 _disputeID) external {
         Dispute storage dispute = disputes[_disputeID];
         if (dispute.period != Period.execution) revert NotExecutionPeriod();
-        if (dispute.ruled) revert RulingAlreadyExecuted();
 
         (uint256 winningChoice, , ) = currentRuling(_disputeID);
-        dispute.ruled = true;
-        emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
-        dispute.arbitrated.rule(_disputeID, winningChoice);
+        if (!dispute.ruled) {
+            dispute.ruled = true;
+            emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
+        }
+        if (!dispute.executed) {
+            try dispute.arbitrated.rule(_disputeID, winningChoice) {
+                dispute.executed = true;
+            } catch {}
+        }
     }
 
     // ************************************* //
@@ -1116,9 +1131,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @return end The end of the appeal period.
     function appealPeriod(uint256 _disputeID) external view returns (uint256 start, uint256 end) {
         Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
         if (dispute.period == Period.appeal) {
             start = dispute.lastPeriodChange;
-            end = dispute.lastPeriodChange + courts[dispute.courtID].timesPerPeriod[uint256(Period.appeal)];
+            end = dispute.lastPeriodChange + round.timesPerPeriod[uint256(Period.appeal)];
         } else {
             start = 0;
             end = 0;
@@ -1131,6 +1147,16 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         IDisputeKit disputeKit = disputeKits[round.disputeKitID];
         (ruling, tied, overridden) = disputeKit.currentRuling(_disputeID);
+    }
+
+    /// @notice Gets the array of winning choices from the current dispute kit.
+    /// @param _disputeID The ID of the dispute.
+    /// @return winningChoices The array of winning choices.
+    function getWinningChoices(uint256 _disputeID) public view returns (uint256[] memory winningChoices) {
+        Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        IDisputeKit disputeKit = disputeKits[round.disputeKitID];
+        winningChoices = disputeKit.getWinningChoices(_disputeID);
     }
 
     /// @notice Gets the round info for a specified dispute and round.
@@ -1255,7 +1281,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _disputeID,
             _dispute.courtID,
             _court.parent,
-            _court.jurorsForCourtJump,
+            _round.jurorsForCourtJump,
             disputeKitID,
             _round.nbVotes
         );

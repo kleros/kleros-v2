@@ -141,6 +141,32 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         );
     }
 
+    function test_setStake_totalStaked() public {
+        // Increase
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 4000);
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 5001);
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 1000);
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 1500);
+
+        assertEq(sortitionModule.totalStaked(), 6501, "Wrong totalStaked");
+
+        // Decrease
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 3000);
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 2500);
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 1400);
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 1200);
+
+        assertEq(sortitionModule.totalStaked(), 3700, "Wrong totalStaked");
+    }
+
     function test_setStake_maxStakePathCheck() public {
         uint256[] memory supportedDK = new uint256[](1);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;

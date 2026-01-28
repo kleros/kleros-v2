@@ -311,7 +311,6 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         // Current phase is Staking: set stakes.
         if (stakeIncrease) {
             pnkDeposit = stakeChange;
-            totalStaked += stakeChange;
         } else {
             pnkWithdrawal = stakeChange;
             uint256 possibleWithdrawal = juror.stakedPnk > juror.lockedPnk ? juror.stakedPnk - juror.lockedPnk : 0;
@@ -319,7 +318,6 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
                 // Ensure locked tokens remain in the contract. They can only be released during Execution.
                 pnkWithdrawal = possibleWithdrawal;
             }
-            totalStaked -= pnkWithdrawal;
         }
         return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
@@ -372,6 +370,12 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         if (currentStake == 0) return false; // Juror has been unstaked, don't increase their stake.
 
         uint256 newStake = currentStake + _reward;
+
+        // Transfer reward directly to the juror so the max stake is not exceeded.
+        if (jurors[_account].stakedPnk + _reward > maxStakePerJuror || newStake > maxStakePerJuror) {
+            return false;
+        }
+
         _setStake(_account, _courtID, _reward, 0, newStake);
         return true;
     }
@@ -391,8 +395,10 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
             }
             // Increase juror's balance by deposited amount.
             juror.stakedPnk += _pnkDeposit;
+            totalStaked += _pnkDeposit;
         } else {
             juror.stakedPnk -= _pnkWithdrawal;
+            totalStaked -= _pnkWithdrawal;
             if (_newStake == 0) {
                 // Cleanup
                 for (uint256 i = juror.courtIDs.length; i > 0; i--) {
@@ -460,6 +466,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         uint256 amount = getJurorLeftoverPNK(_account);
         if (amount == 0) revert NotEligibleForWithdrawal();
         jurors[_account].stakedPnk = 0;
+        totalStaked -= amount;
         core.transferBySortitionModule(_account, amount);
         emit LeftoverPNKWithdrawn(_account, amount);
     }
