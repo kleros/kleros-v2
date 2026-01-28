@@ -11,6 +11,7 @@ import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
+import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 
 /// @title KlerosCore_InitializationTest
 /// @dev Tests for KlerosCore initialization and basic configuration
@@ -48,6 +49,7 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(core.paused(), false, "Wrong paused value");
         assertEq(core.wNative(), address(wNative), "Wrong wNative");
         assertEq(address(core.jurorNft()), address(0), "Wrong jurorNft");
+        assertEq(address(core.ratesConverter()), address(ratesConverter), "Wrong ratesConverter");
         assertEq(core.arbitrableWhitelistEnabled(), false, "Wrong arbitrableWhitelistEnabled");
 
         assertEq(pinakion.name(), "Pinakion", "Wrong token name");
@@ -140,6 +142,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         SortitionModuleMock newSortitionModule = SortitionModuleMock(address(proxySm));
         vm.prank(newOwner);
         newRng.changeConsumer(address(newSortitionModule));
+        vm.prank(newOwner); // Use the owner to deploy converter, to avoid modifying permission tests.
+        ratesConverter = new RatesConverter();
 
         KlerosCoreMock newCore = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
@@ -173,7 +177,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             newSortitionExtraData,
             newSortitionModule,
             address(wNative),
-            IERC721(address(0))
+            IERC721(address(0)),
+            ratesConverter
         );
     }
 }

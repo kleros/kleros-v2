@@ -13,6 +13,7 @@ import {SafeSend} from "../libraries/SafeSend.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "../libraries/Constants.sol";
+import {RatesConverter} from "./RatesConverter.sol";
 
 /// @title KlerosCore
 /// @notice Core arbitrator contract for Kleros v2.
@@ -90,12 +91,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 repartition; // The index of the repartition to execute.
     }
 
-    struct CurrencyRate {
-        bool feePaymentAccepted; // True if this token is supported as payment method.
-        uint64 rateInEth; // Rate of the fee token in ETH.
-        uint8 rateDecimals; // Decimals of the fee token rate.
-    }
-
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -110,12 +105,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     Court[] public courts; // The courts.
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
-    mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
+    mapping(IERC20 => bool) public acceptedFeeTokens; // True if the token is accepted.
     bool public paused; // Whether asset withdrawals are paused.
     address public wNative; // The wrapped native token for safeSend().
     mapping(address => bool) public arbitrableWhitelist; // Arbitrable whitelist.
     bool public arbitrableWhitelistEnabled; // Whether the arbitrable whitelist is enabled.
     IERC721 public jurorNft; // Eligible jurors NFT.
+    RatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
 
     // ************************************* //
     // *              Events               * //
@@ -304,6 +300,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
     /// @param _wNative The wrapped native token address, typically wETH.
     /// @param _jurorNft NFT contract to vet the jurors.
+    /// @param _ratesConverter Contract to convert ETH to fee tokens.
     function initialize(
         address _owner,
         address _guardian,
@@ -316,7 +313,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress,
         address _wNative,
-        IERC721 _jurorNft
+        IERC721 _jurorNft,
+        RatesConverter _ratesConverter
     ) external initializer {
         owner = _owner;
         guardian = _guardian;
@@ -325,6 +323,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         sortitionModule = _sortitionModuleAddress;
         wNative = _wNative;
         jurorNft = _jurorNft;
+        ratesConverter = _ratesConverter;
 
         // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a dispute kit is not supported.
         disputeKits.push();
@@ -421,6 +420,12 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _jurorProsecutionModule The new value for the `jurorProsecutionModule` storage variable.
     function changeJurorProsecutionModule(address _jurorProsecutionModule) external onlyByOwner {
         jurorProsecutionModule = _jurorProsecutionModule;
+    }
+
+    /// @notice Changes the `ratesConverter` storage variable.
+    /// @param _ratesConverter The new value for the `ratesConverter` storage variable.
+    function changeRatesConverter(RatesConverter _ratesConverter) external onlyByOwner {
+        ratesConverter = _ratesConverter;
     }
 
     /// @notice Changes the `_sortitionModule` storage variable.
@@ -570,18 +575,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
     function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByOwner {
-        currencyRates[_feeToken].feePaymentAccepted = _accepted;
+        acceptedFeeTokens[_feeToken] = _accepted;
         emit AcceptedFeeToken(_feeToken, _accepted);
-    }
-
-    /// @notice Changes the currency rate of a fee token.
-    /// @param _feeToken The fee token.
-    /// @param _rateInEth The new rate of the fee token in ETH.
-    /// @param _rateDecimals The new decimals of the fee token rate.
-    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByOwner {
-        currencyRates[_feeToken].rateInEth = _rateInEth;
-        currencyRates[_feeToken].rateDecimals = _rateDecimals;
-        emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
     }
 
     /// @notice Changes the `jurorNft` storage variable.
@@ -651,7 +646,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         IERC20 _feeToken,
         uint256 _feeAmount
     ) external override returns (uint256 disputeID) {
-        if (!currencyRates[_feeToken].feePaymentAccepted) revert TokenNotAccepted();
+        if (!acceptedFeeTokens[_feeToken]) revert TokenNotAccepted();
         if (_feeAmount < arbitrationCost(_extraData, _feeToken)) revert ArbitrationFeesNotEnough();
 
         if (!_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
@@ -1254,7 +1249,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _amountInEth ETH amount.
     /// @return Amount of tokens.
     function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
-        return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
+        return ratesConverter.convert(_toToken, _amountInEth);
     }
 
     // ************************************* //

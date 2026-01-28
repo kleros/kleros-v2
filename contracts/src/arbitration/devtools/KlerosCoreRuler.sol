@@ -9,6 +9,7 @@ import {Initializable} from "../../proxy/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import "../../libraries/Constants.sol";
+import {RatesConverter} from "../RatesConverter.sol";
 
 /// @title KlerosCoreRuler
 /// Core arbitrator contract for development and testing purposes.
@@ -69,12 +70,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         IERC20 feeToken; // The token used for paying fees in this round.
     }
 
-    struct CurrencyRate {
-        bool feePaymentAccepted;
-        uint64 rateInEth;
-        uint8 rateDecimals;
-    }
-
     struct RulingResult {
         uint256 ruling;
         bool tied;
@@ -91,10 +86,11 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     IERC20 public pinakion; // The Pinakion token contract.
     Court[] public courts; // The courts.
     Dispute[] public disputes; // The disputes.
-    mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
     mapping(IArbitrableV2 arbitrable => address ruler) public rulers; // The ruler of each arbitrable contract.
     mapping(IArbitrableV2 arbitrable => RulerSettings) public settings; // The settings of each arbitrable contract.
     mapping(uint256 disputeID => RulingResult) public rulingResults; // The ruling results of each dispute.
+    mapping(IERC20 => bool) public acceptedFeeTokens; // True if the token is accepted.
+    RatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
 
     // ************************************* //
     // *              Events               * //
@@ -178,9 +174,16 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _owner The owner's address.
     /// @param _pinakion The address of the token contract.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
-    function initialize(address _owner, IERC20 _pinakion, uint256[4] memory _courtParameters) external initializer {
+    /// @param _ratesConverter Contract to convert ETH to fee tokens.
+    function initialize(
+        address _owner,
+        IERC20 _pinakion,
+        uint256[4] memory _courtParameters,
+        RatesConverter _ratesConverter
+    ) external initializer {
         owner = _owner;
         pinakion = _pinakion;
+        ratesConverter = _ratesConverter;
 
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
@@ -239,6 +242,12 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _pinakion The new value for the `pinakion` storage variable.
     function changePinakion(IERC20 _pinakion) external onlyByOwner {
         pinakion = _pinakion;
+    }
+
+    /// @notice Changes the `ratesConverter` storage variable.
+    /// @param _ratesConverter The new value for the `ratesConverter` storage variable.
+    function changeRatesConverter(RatesConverter _ratesConverter) external onlyByOwner {
+        ratesConverter = _ratesConverter;
     }
 
     /// @dev Creates a court under a specified parent court.
@@ -317,18 +326,8 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
     function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByOwner {
-        currencyRates[_feeToken].feePaymentAccepted = _accepted;
+        acceptedFeeTokens[_feeToken] = _accepted;
         emit AcceptedFeeToken(_feeToken, _accepted);
-    }
-
-    /// @dev Changes the currency rate of a fee token.
-    /// @param _feeToken The fee token.
-    /// @param _rateInEth The new rate of the fee token in ETH.
-    /// @param _rateDecimals The new decimals of the fee token rate.
-    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByOwner {
-        currencyRates[_feeToken].rateInEth = _rateInEth;
-        currencyRates[_feeToken].rateDecimals = _rateDecimals;
-        emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
     }
 
     // ************************************* //
@@ -396,7 +395,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         IERC20 _feeToken,
         uint256 _feeAmount
     ) external override returns (uint256 disputeID) {
-        if (!currencyRates[_feeToken].feePaymentAccepted) revert TokenNotAccepted();
+        if (!acceptedFeeTokens[_feeToken]) revert TokenNotAccepted();
         if (_feeAmount < arbitrationCost(_extraData, _feeToken)) revert ArbitrationFeesNotEnough();
 
         if (!_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
@@ -631,7 +630,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     }
 
     function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
-        return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
+        return ratesConverter.convert(_toToken, _amountInEth);
     }
 
     // ************************************* //

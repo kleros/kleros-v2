@@ -80,6 +80,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       sortitionModule.address,
       weth.target,
       nft.target,
+      ZeroAddress, // RatesConverter
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)

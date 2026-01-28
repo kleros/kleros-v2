@@ -8,6 +8,7 @@ import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/Dispu
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
+import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 
 /// @title KlerosCore_GovernanceTest
 /// @dev Tests for KlerosCore governance functions (owner/guardian operations)
@@ -406,32 +407,30 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         vm.prank(other);
         core.changeAcceptedFeeTokens(feeToken, true);
 
-        (bool accepted, , ) = core.currencyRates(feeToken);
-        assertEq(accepted, false, "Token should not be accepted yet");
+        assertEq(core.acceptedFeeTokens(feeToken), false, "Token should not be accepted yet");
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.AcceptedFeeToken(feeToken, true);
         core.changeAcceptedFeeTokens(feeToken, true);
-        (accepted, , ) = core.currencyRates(feeToken);
-        assertEq(accepted, true, "Token should be accepted");
+        assertEq(core.acceptedFeeTokens(feeToken), true, "Token should be accepted");
     }
 
     function test_changeCurrencyRates() public {
-        vm.expectRevert(KlerosCore.OwnerOnly.selector);
+        vm.expectRevert(RatesConverter.OwnerOnly.selector);
         vm.prank(other);
-        core.changeCurrencyRates(feeToken, 100, 200);
+        ratesConverter.changeCurrencyRates(feeToken, 100, 200);
 
-        (, uint256 rateInEth, uint256 rateDecimals) = core.currencyRates(feeToken);
+        (uint256 rateInEth, uint256 rateDecimals) = ratesConverter.currencyRates(feeToken);
         assertEq(rateInEth, 0, "rateInEth should be 0");
         assertEq(rateDecimals, 0, "rateDecimals should be 0");
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit IArbitratorV2.NewCurrencyRate(feeToken, 100, 200);
-        core.changeCurrencyRates(feeToken, 100, 200);
+        emit RatesConverter.NewCurrencyRate(feeToken, 100, 200);
+        ratesConverter.changeCurrencyRates(feeToken, 100, 200);
 
-        (, rateInEth, rateDecimals) = core.currencyRates(feeToken);
+        (rateInEth, rateDecimals) = ratesConverter.currencyRates(feeToken);
         assertEq(rateInEth, 100, "rateInEth is incorrect");
         assertEq(rateDecimals, 200, "rateDecimals is incorrect");
     }

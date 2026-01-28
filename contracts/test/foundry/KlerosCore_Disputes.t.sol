@@ -132,7 +132,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.changeAcceptedFeeTokens(feeToken, true);
         vm.prank(owner);
-        core.changeCurrencyRates(feeToken, 500, 3);
+        ratesConverter.changeCurrencyRates(feeToken, 500, 3);
 
         vm.expectRevert(KlerosCore.ArbitrationFeesNotEnough.selector);
         vm.prank(disputer);

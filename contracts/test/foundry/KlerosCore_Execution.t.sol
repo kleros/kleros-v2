@@ -654,7 +654,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.changeAcceptedFeeTokens(feeToken, true);
         vm.prank(owner);
-        core.changeCurrencyRates(feeToken, 500, 3);
+        ratesConverter.changeCurrencyRates(feeToken, 500, 3);
 
         vm.prank(disputer);
         arbitrable.createDispute("Action", 0.18 ether);
@@ -706,7 +706,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.changeAcceptedFeeTokens(feeToken, true);
         vm.prank(owner);
-        core.changeCurrencyRates(feeToken, 500, 3);
+        ratesConverter.changeCurrencyRates(feeToken, 500, 3);
 
         vm.prank(disputer);
         arbitrable.createDispute("Action", 0.18 ether);
@@ -759,7 +759,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.changeAcceptedFeeTokens(feeToken, true);
         vm.prank(owner);
-        core.changeCurrencyRates(feeToken, 500, 3);
+        ratesConverter.changeCurrencyRates(feeToken, 500, 3);
 
         vm.prank(disputer);
         arbitrable.createDispute("Action", 0.18 ether);
