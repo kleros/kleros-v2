@@ -1,19 +1,26 @@
-import { keccak256, encodeAbiParameters, maxUint256, IntegerOutOfRangeError } from "viem";
+import { keccak256, maxUint256, IntegerOutOfRangeError, encodePacked } from "viem";
 import { describe, it, expect } from "vitest";
 
 import { hashVote } from "./hashVote";
 
 describe("hashVote", () => {
-  it("should hash choice and salt correctly", () => {
-    const choice = 1n;
-    const salt = 123456789n;
+  const contractHashVote = (choice: bigint, salt: bigint) =>
+    keccak256(encodePacked(["uint256", "uint256"], [choice, salt]));
 
-    const result = hashVote(choice, salt);
+  it("should match contract's hashVote implementation (using encodePacked)", () => {
+    const testCases = [
+      { choice: 0n, salt: 0n },
+      { choice: 1n, salt: 123456789n },
+      { choice: 42n, salt: 999n },
+      { choice: maxUint256, salt: maxUint256 },
+      { choice: 1000n, salt: 2000n },
+    ];
 
-    const expectedEncoded = encodeAbiParameters([{ type: "uint256" }, { type: "uint256" }], [choice, salt]);
-    const expectedHash = keccak256(expectedEncoded);
-
-    expect(result).toBe(expectedHash);
+    for (const { choice, salt } of testCases) {
+      const contractHash = contractHashVote(choice, salt);
+      const frontendHash = hashVote(choice, salt);
+      expect(frontendHash).toBe(contractHash);
+    }
   });
 
   it("should produce different hashes for different choices", () => {
@@ -74,8 +81,7 @@ describe("hashVote", () => {
 
       const result = hashVote(uintMaxChoice, salt);
 
-      const expectedEncoded = encodeAbiParameters([{ type: "uint256" }, { type: "uint256" }], [uintMaxChoice, salt]);
-      const expectedHash = keccak256(expectedEncoded);
+      const expectedHash = contractHashVote(uintMaxChoice, salt);
 
       expect(result).toBe(expectedHash);
     });

@@ -1,13 +1,13 @@
-import { keccak256, encodeAbiParameters } from "viem";
+import { encodePacked, keccak256 } from "viem";
 
 /**
- * Hash a vote
+ * Computes the hash of a vote
  *
- * @param choice - the vote choice
- * @param salt - the deterministic salt
- * @returns 0x-prefixed keccak256 hash
+ * @param choice The choice being voted for
+ * @param salt A random salt for commitment
+ * @return bytes32 The hash of the encoded vote parameters
  */
 export const hashVote = (choice: bigint, salt: bigint): `0x${string}` => {
-  const encoded = encodeAbiParameters([{ type: "uint256" }, { type: "uint256" }], [choice, salt]);
+  const encoded = encodePacked(["uint256", "uint256"], [choice, salt]);
   return keccak256(encoded);
 };
