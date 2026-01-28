@@ -27,10 +27,10 @@
     "tsconfig",
     "kleros-app"
   ],
-  "packageManager": "yarn@4.10.3",
+  "packageManager": "yarn@4.12.0",
   "volta": {
     "node": "20.20.0",
-    "yarn": "4.10.3"
+    "yarn": "4.12.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.8.1",
@@ -60,7 +60,7 @@
     "node-fetch": "npm:node-fetch@2.7.0",
     "underscore@npm^3.0.4": "npm:1.12.1",
     "eth-sig-util@npm:^1.4.2": "npm:3.0.0",
-    "fast-xml-parser": "npm:fast-xml-parser@4.5.2",
+    "fast-xml-parser": "npm:fast-xml-parser@4.5.3",
     "@babel/traverse:^7.22.5": "npm:7.23.6",
     "yargs-unparser@npm:1.6.0": "npm:1.6.4",
     "dompurify@npm:^2.4.0": "npm:2.5.7",
@@ -76,7 +76,7 @@
     "@openzeppelin/contracts-upgradeable@npm:4.9.3": "npm:4.9.6",
     "elliptic@npm:6.5.4": "npm:6.6.1",
     "word-wrap@npm:~1.2.3": "npm:1.2.5",
-    "@codemirror/state": "npm:6.5.2",
+    "@codemirror/state": "npm:@codemirror/state@6.5.4",
     "undici@npm:7.3.0": "npm:7.5.0",
     "viem@npm:2.x": "npm:^2.23.2"
   },

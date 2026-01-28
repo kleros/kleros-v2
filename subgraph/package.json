@@ -70,7 +70,7 @@
   },
   "devDependencies": {
     "@goldskycom/cli": "^13.1.1",
-    "@graphprotocol/graph-cli": "^0.96.0",
+    "@graphprotocol/graph-cli": "^0.98.0",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "eslint": "^9.15.0",
