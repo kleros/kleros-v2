@@ -11,7 +11,7 @@ import { shortenAddress } from "utils/shortenAddress";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-const Container = styled.div`
+const Container = styled.button`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -21,7 +21,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.whiteBackground};
   padding: 0px;
   cursor: pointer;
-
+  border: none;
   &:hover {
     label {
       color: ${({ theme }) => theme.white} !important;
@@ -167,8 +167,9 @@ export const ChainDisplay: React.FC = () => {
 };
 
 const AccountDisplay: React.FC = () => {
+  const { address } = useAccount();
   return (
-    <Container>
+    <Container aria-label={address}>
       <AccountContainer>
         <IdenticonOrAvatar size="20" />
         <AddressOrName />

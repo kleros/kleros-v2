@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { sortitionModuleAddress } from "hooks/contracts/generated";
 
+import { isLocalDeployment } from "src/consts";
 import { isUndefined } from "src/utils";
 import {
   fetchStakingEventsByCourt,
@@ -18,7 +19,7 @@ export const useStakingEventsByCourt = (courtIds: number[], skip: number, take: 
   const contractAddress = sortitionModuleAddress[DEFAULT_CHAIN.id];
 
   // Allow empty courtIds array for "all courts" query
-  const isEnabled = !isUndefined(atlasUri) && !isUndefined(contractAddress);
+  const isEnabled = !isUndefined(atlasUri) && !isUndefined(contractAddress) && !isLocalDeployment();
 
   return useQuery<StakingEventsByCourtResponse>({
     queryKey: ["stakingEventsByCourt", courtIds, skip, take, partialAddress, DEFAULT_CHAIN.id],

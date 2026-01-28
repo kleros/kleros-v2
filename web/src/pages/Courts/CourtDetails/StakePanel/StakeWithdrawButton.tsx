@@ -313,6 +313,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     <EnsureChain>
       <Container>
         <Button
+          data-testId="stake-withdraw-button"
           text={isStaking ? t("buttons.stake") : t("buttons.withdraw")}
           isLoading={isPopupOpen || isSimulatingAllowance || isSimulatingSetStake}
           disabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
