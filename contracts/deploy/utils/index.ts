@@ -28,6 +28,8 @@ export enum Courts {
 
 export const isMainnet = (network: Network) => network.tags.production ?? false;
 export const isDevnet = (network: Network) => network.name.endsWith("Devnet");
+// when deployed while starting node, the network name is "hardhat", the common factor for determining local node is chainId
+export const isLocalhost = (network: Network) => network.name === "localhost" || network.config.chainId === 31337;
 
 export const isSkipped = async (network: Network, skip: boolean) => {
   if (skip) {

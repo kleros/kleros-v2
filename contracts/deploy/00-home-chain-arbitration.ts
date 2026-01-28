@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts, isLocalhost } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
@@ -47,7 +47,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     klerosCoreAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
     console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
-  const devnet = isDevnet(hre.network);
+  const devnet = isDevnet(hre.network) || isLocalhost(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
   const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");

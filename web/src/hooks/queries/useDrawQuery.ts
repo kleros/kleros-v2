@@ -25,7 +25,7 @@ export const useDrawQuery = (address?: string | null, disputeID?: string, roundI
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<DrawQuery>({
-    queryKey: [`drawQuery${[address, disputeID, roundID]}`],
+    queryKey: ["useDrawQuery", address, disputeID, roundID],
     enabled: isEnabled,
     queryFn: async () =>
       await graphqlBatcher.fetch({

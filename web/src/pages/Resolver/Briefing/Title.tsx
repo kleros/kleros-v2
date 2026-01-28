@@ -62,6 +62,7 @@ const Title: React.FC = () => {
         onChange={handleWrite}
         placeholder={t("forms.placeholders.alice_bob_example")}
         value={disputeData.title}
+        data-testId="resolver-title-input"
       />
       <NavigationButtons prevRoute="" nextRoute="/resolver/description" />
     </Container>

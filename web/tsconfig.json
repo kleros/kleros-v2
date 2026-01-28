@@ -12,6 +12,9 @@
       "utils*": [
         "./src/utils*"
       ],
+      "actions*": [
+        "./src/actions*"
+      ],
       "assets*": [
         "./src/assets*"
       ],

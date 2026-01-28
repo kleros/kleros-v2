@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import ArrowIcon from "svgs/icons/arrow.svg";
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
@@ -62,7 +62,7 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, small
       ? "/profile"
       : `/profile/stakes/1?address=${address}`;
   const addressExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${address}`;
+    return `${DEFAULT_CHAIN?.blockExplorers?.default.url}/address/${address}`;
   }, [address]);
 
   return (

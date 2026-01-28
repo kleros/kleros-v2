@@ -96,7 +96,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
   const { data: currentRulingArray, isLoading: isLoadingCurrentRuling } = useReadKlerosCoreCurrentRuling({
     query: { refetchInterval: REFETCH_INTERVAL },
     args: [BigInt(id ?? 0)],
-    chainId: DEFAULT_CHAIN,
+    chainId: DEFAULT_CHAIN.id,
   });
   const currentRuling = Number(currentRulingArray?.[0] ?? 0);
 

@@ -1,14 +1,26 @@
-import { type AppKitNetwork, arbitrum, mainnet, arbitrumSepolia, gnosis, gnosisChiado } from "@reown/appkit/networks";
+import {
+  type AppKitNetwork,
+  arbitrum,
+  mainnet,
+  arbitrumSepolia,
+  gnosis,
+  gnosisChiado,
+  hardhat,
+} from "@reown/appkit/networks";
 import { type Chain, extractChain } from "viem";
 
-import { isProductionDeployment } from "./index";
+import { isLocalDeployment, isProductionDeployment } from "./index";
 
-export const DEFAULT_CHAIN = isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id;
+export const DEFAULT_CHAIN = isLocalDeployment() ? hardhat : isProductionDeployment() ? arbitrum : arbitrumSepolia;
 
 // Read/Write
-export const SUPPORTED_CHAINS: Record<number, AppKitNetwork> = {
-  [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment() ? arbitrum : arbitrumSepolia,
-};
+export const SUPPORTED_CHAINS: Record<number, AppKitNetwork> = isLocalDeployment()
+  ? { [hardhat.id]: hardhat }
+  : {
+      [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment()
+        ? arbitrum
+        : arbitrumSepolia,
+    };
 
 // Read Only
 export const QUERY_CHAINS: Record<number, AppKitNetwork> = {

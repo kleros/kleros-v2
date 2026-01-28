@@ -2,16 +2,13 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { useLocalStorage } from "react-use";
-import { keccak256, encodePacked } from "viem";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { simulateDisputeKitClassicCastCommit, simulateDisputeKitGatedCastCommit } from "hooks/contracts/generated";
-import useSigningAccount from "hooks/useSigningAccount";
-import { isUndefined } from "utils/index";
-import { wrapWithToast } from "utils/wrapWithToast";
+import { useCastCommit } from "hooks/useCastCommit";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { DisputeKits } from "src/consts";
+import { isUndefined } from "src/utils";
 
 import OptionsContainer from "../OptionsContainer";
 
@@ -24,68 +21,35 @@ interface ICommit {
   arbitrable: `0x${string}`;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  refetch: () => void;
   isGated: boolean;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch, isGated }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const wagmiConfig = useConfig();
-  const { signingAccount, generateSigningAccount } = useSigningAccount();
-  const saltKey = useMemo(
-    () => `dispute-${id}-round-${currentRoundIndex}-voteids-${voteIDs}`,
-    [id, currentRoundIndex, voteIDs]
-  );
-  const [_, setSalt] = useLocalStorage(saltKey);
+
+  const { mutateAsync: castCommit } = useCastCommit(() => {
+    setIsOpen(true);
+  });
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
-      const message = { message: saltKey };
-      const rawSalt = !isUndefined(signingAccount)
-        ? await signingAccount.signMessage(message)
-        : await (async () => {
-            const account = await generateSigningAccount();
-            return await account?.signMessage(message);
-          })();
-
-      if (isUndefined(rawSalt)) return;
-
-      const salt = keccak256(rawSalt);
-      setSalt(JSON.stringify({ salt, choice: choice.toString() }));
-      const commit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(choice), BigInt(salt)]));
-
-      const simulate = isGated ? simulateDisputeKitGatedCastCommit : simulateDisputeKitClassicCastCommit;
-
-      const { request } = await simulate(wagmiConfig, {
-        args: [parsedDisputeID, parsedVoteIDs, commit],
-      });
-      if (walletClient && publicClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
-          setIsOpen(status);
-        });
+      if (isUndefined(currentRoundIndex)) {
+        return;
       }
-      refetch();
+
+      castCommit({
+        type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
+        disputeId: parsedDisputeID,
+        choice,
+        voteIds: parsedVoteIDs,
+        roundIndex: Number(currentRoundIndex),
+      });
     },
-    [
-      wagmiConfig,
-      saltKey,
-      setSalt,
-      parsedVoteIDs,
-      parsedDisputeID,
-      publicClient,
-      setIsOpen,
-      walletClient,
-      generateSigningAccount,
-      signingAccount,
-      refetch,
-      isGated,
-    ]
+    [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, isGated]
   );
 
   return id ? (

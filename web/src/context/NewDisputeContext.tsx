@@ -208,8 +208,8 @@ const constructDisputeTemplate = (disputeData: IDisputeData) => {
   }
   if (!isUndefined(baseTemplate.policyURI) && isEmpty(baseTemplate.policyURI)) delete baseTemplate.policyURI;
 
-  baseTemplate.arbitratorAddress = klerosCoreAddress[DEFAULT_CHAIN];
-  baseTemplate.arbitratorChainID = DEFAULT_CHAIN.toString();
+  baseTemplate.arbitratorAddress = klerosCoreAddress[DEFAULT_CHAIN.id];
+  baseTemplate.arbitratorChainID = DEFAULT_CHAIN.id.toString();
 
   return baseTemplate as IDisputeTemplate;
 };

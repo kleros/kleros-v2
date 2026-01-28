@@ -2,21 +2,13 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { useLocalStorage } from "react-use";
-import { keccak256, stringToHex, encodeAbiParameters } from "viem";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import {
-  simulateDisputeKitGatedShutterCastCommitShutter,
-  simulateDisputeKitShutterCastCommitShutter,
-} from "hooks/contracts/generated";
+import { useCastCommit } from "hooks/useCastCommit";
 import { useCountdown } from "hooks/useCountdown";
-import useSigningAccount from "hooks/useSigningAccount";
-import { isUndefined } from "utils/index";
-import { encrypt } from "utils/shutter";
-import { wrapWithToast } from "utils/wrapWithToast";
 
-import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { DisputeKits } from "src/consts";
 
 import { getDeadline } from "../../Timeline";
 import OptionsContainer from "../OptionsContainer";
@@ -30,52 +22,21 @@ interface ICommit {
   arbitrable: `0x${string}`;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  refetch: () => void;
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
   isGated: boolean;
 }
 
-const SEPARATOR = "-";
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, currentPeriodIndex, isGated }) => {
+  const [justification, setJustification] = useState("");
 
-/**
- * This hashing function must be follow the same logic as DisputeKitClassic.hashVote()
- */
-const hashVote = (choice: bigint, salt: bigint, justification: string): `0x${string}` => {
-  const justificationHash = keccak256(stringToHex(justification));
-
-  // Encode and hash the parameters together (mimics Solidity's abi.encode)
-  const encodedParams = encodeAbiParameters(
-    [
-      { type: "uint256" }, // choice
-      { type: "uint256" }, // salt
-      { type: "bytes32" }, // justificationHash
-    ],
-    [choice, salt, justificationHash]
-  );
-
-  return keccak256(encodedParams);
-};
-
-const Commit: React.FC<ICommit> = ({
-  arbitrable,
-  voteIDs,
-  setIsOpen,
-  refetch,
-  dispute,
-  currentPeriodIndex,
-  isGated,
-}) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const wagmiConfig = useConfig();
-  const { signingAccount, generateSigningAccount } = useSigningAccount();
-  const [justification, setJustification] = useState("");
-  const saltKey = useMemo(() => `shutter-dispute-${id}-voteids-${voteIDs}`, [id, voteIDs]);
-  const [_, setSalt] = useLocalStorage(saltKey);
+
+  const { data: disputeData } = useDisputeDetailsQuery(id);
+
+  const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
   const deadlineCommitPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
@@ -83,68 +44,27 @@ const Commit: React.FC<ICommit> = ({
   );
   const countdownToVotingPeriod = useCountdown(deadlineCommitPeriod);
 
+  const { mutateAsync: castCommit } = useCastCommit(() => {
+    setIsOpen(true);
+  });
+
   const handleCommit = useCallback(
     async (choice: bigint) => {
-      if (!import.meta.env.REACT_APP_SHUTTER_API || import.meta.env.REACT_APP_SHUTTER_API.trim() === "") {
-        console.error("REACT_APP_SHUTTER_API environment variable is not set or is empty");
-        throw new Error("Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set");
-      }
-      const message = { message: saltKey };
-      const rawSalt = !isUndefined(signingAccount)
-        ? await signingAccount.signMessage(message)
-        : await (async () => {
-            const account = await generateSigningAccount();
-            return await account?.signMessage(message);
-          })();
-      if (isUndefined(rawSalt)) return;
-
-      const salt = keccak256(rawSalt);
-      setSalt(JSON.stringify({ salt, choice: choice.toString(), justification }));
-
-      const encodedMessage = `${choice.toString()}${SEPARATOR}${salt}${SEPARATOR}${justification}`;
       /* an extra 300 seconds (5 minutes) of decryptionDelay is enforced after Commit period is over
       to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
       const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
-      const { encryptedCommitment, identity } = await encrypt(encodedMessage, decryptionDelay);
 
-      const commitHash = hashVote(choice, BigInt(salt), justification);
-
-      let config;
-      if (isGated) {
-        config = await simulateDisputeKitGatedShutterCastCommitShutter(wagmiConfig, {
-          args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
-        });
-      } else {
-        config = await simulateDisputeKitShutterCastCommitShutter(wagmiConfig, {
-          args: [parsedDisputeID, parsedVoteIDs, commitHash, identity as `0x${string}`, encryptedCommitment],
-        });
-      }
-
-      if (walletClient && publicClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(config.request), publicClient).then(
-          ({ status }) => {
-            setIsOpen(status);
-          }
-        );
-      }
-      refetch();
+      castCommit({
+        type: isGated ? DisputeKits.GatedShutter : DisputeKits.Shutter,
+        disputeId: parsedDisputeID,
+        choice,
+        voteIds: parsedVoteIDs,
+        roundIndex: currentRoundIndex,
+        justification,
+        decryptionDelay,
+      });
     },
-    [
-      wagmiConfig,
-      justification,
-      saltKey,
-      setSalt,
-      parsedVoteIDs,
-      parsedDisputeID,
-      publicClient,
-      setIsOpen,
-      walletClient,
-      generateSigningAccount,
-      signingAccount,
-      refetch,
-      countdownToVotingPeriod,
-      isGated,
-    ]
+    [justification, parsedVoteIDs, parsedDisputeID, countdownToVotingPeriod, isGated, castCommit, currentRoundIndex]
   );
 
   return id ? (
