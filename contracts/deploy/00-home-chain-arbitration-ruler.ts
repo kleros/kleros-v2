@@ -10,6 +10,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
   const { deploy } = deployments;
+  const { ZeroAddress } = hre.ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -32,6 +33,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer, // owner
       pnk.target,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
+      ZeroAddress, // RatesConverter
     ],
     log: true,
   });

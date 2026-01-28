@@ -11,6 +11,7 @@ import {Initializable} from "../../proxy/Initializable.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../libraries/Constants.sol";
+import {RatesConverter} from "../RatesConverter.sol";
 
 /// @title KlerosCoreUniversity
 /// @notice Core arbitrator contract for educational purposes.
@@ -82,12 +83,6 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 repartition; // The index of the repartition to execute.
     }
 
-    struct CurrencyRate {
-        bool feePaymentAccepted;
-        uint64 rateInEth;
-        uint8 rateDecimals;
-    }
-
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -102,7 +97,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     Court[] public courts; // The courts.
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
-    mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
+    mapping(IERC20 => bool) public acceptedFeeTokens; // True if the token is accepted.
+    RatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
 
     // ************************************* //
     // *              Events               * //
@@ -202,6 +198,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
+    /// @param _ratesConverter Contract to convert ETH to fee tokens.
     function initialize(
         address _owner,
         address _instructor,
@@ -211,13 +208,15 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
-        ISortitionModuleUniversity _sortitionModuleAddress
+        ISortitionModuleUniversity _sortitionModuleAddress,
+        RatesConverter _ratesConverter
     ) external initializer {
         owner = _owner;
         instructor = _instructor;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
         sortitionModule = _sortitionModuleAddress;
+        ratesConverter = _ratesConverter;
 
         // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a dispute kit is not supported.
         disputeKits.push();
@@ -305,6 +304,12 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _sortitionModule The new value for the `sortitionModule` storage variable.
     function changeSortitionModule(ISortitionModuleUniversity _sortitionModule) external onlyByOwner {
         sortitionModule = _sortitionModule;
+    }
+
+    /// @notice Changes the `ratesConverter` storage variable.
+    /// @param _ratesConverter The new value for the `ratesConverter` storage variable.
+    function changeRatesConverter(RatesConverter _ratesConverter) external onlyByOwner {
+        ratesConverter = _ratesConverter;
     }
 
     /// @notice Add a new supported dispute kit module to the court.
@@ -434,18 +439,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
     function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByOwner {
-        currencyRates[_feeToken].feePaymentAccepted = _accepted;
+        acceptedFeeTokens[_feeToken] = _accepted;
         emit AcceptedFeeToken(_feeToken, _accepted);
-    }
-
-    /// @notice Changes the currency rate of a fee token.
-    /// @param _feeToken The fee token.
-    /// @param _rateInEth The new rate of the fee token in ETH.
-    /// @param _rateDecimals The new decimals of the fee token rate.
-    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByOwner {
-        currencyRates[_feeToken].rateInEth = _rateInEth;
-        currencyRates[_feeToken].rateDecimals = _rateDecimals;
-        emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
     }
 
     // ************************************* //
@@ -496,7 +491,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         IERC20 _feeToken,
         uint256 _feeAmount
     ) external override returns (uint256 disputeID) {
-        if (!currencyRates[_feeToken].feePaymentAccepted) revert TokenNotAccepted();
+        if (!acceptedFeeTokens[_feeToken]) revert TokenNotAccepted();
         if (_feeAmount < arbitrationCost(_extraData, _feeToken)) revert ArbitrationFeesNotEnough();
 
         if (!_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
@@ -1059,7 +1054,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     }
 
     function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
-        return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
+        return ratesConverter.convert(_toToken, _amountInEth);
     }
 
     // ************************************* //
