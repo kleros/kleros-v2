@@ -52,7 +52,7 @@
     "viem": "^2.24.1",
     "vite": "^5.4.11",
     "vite-plugin-dts": "^4.3.0",
-    "vite-plugin-node-polyfills": "^0.23.0",
+    "vite-plugin-node-polyfills": "^0.25.0",
     "wagmi": "^2.14.15"
   },
   "dependencies": {
