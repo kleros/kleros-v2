@@ -23,6 +23,10 @@ export const ethAddressOrEnsNameSchema = z.union([ethAddressSchema, ensNameSchem
   errorMap: () => ({ message: "Provided address or ENS name is invalid." }),
 });
 
+export const TxHashSchema = z.string().refine((value) => isHexId(value) && value.length === 66, {
+  message: "Provided transaction hash is invalid.",
+});
+
 export enum QuestionType {
   Bool = "bool",
   Datetime = "datetime",
@@ -53,6 +57,18 @@ export const AttachmentSchema = z.object({
 
 export const AliasSchema = z.record(ethAddressOrEnsNameSchema);
 
+// https://github.com/kleros/kleros-v2/blob/dev/contracts/specifications/evidence-format.md
+export const EvidenceSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  fileURI: z.string().optional(),
+  fileTypeExtension: z.string().optional(),
+  // court UI specific
+  transactionHash: TxHashSchema.optional(),
+  sender: ethAddressOrEnsNameSchema.optional(),
+  timestamp: z.number().optional(),
+});
+
 const MetadataSchema = z.record(z.unknown());
 
 const DisputeDetailsSchema = z.object({
@@ -72,6 +88,7 @@ const DisputeDetailsSchema = z.object({
   lang: z.string().optional(),
   specification: z.string().optional(),
   aliases: AliasSchema.optional(),
+  extraEvidences: z.array(EvidenceSchema).default([]),
   version: z.string(),
 });
 

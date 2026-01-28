@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
+import { Address } from "viem";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -12,6 +13,9 @@ import DownArrow from "svgs/icons/arrow-down.svg";
 import { useSpamEvidence } from "hooks/useSpamEvidence";
 
 import { useEvidences } from "queries/useEvidences";
+import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
+
+import { isUndefined } from "src/utils";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -78,7 +82,10 @@ const SpamLabel = styled.label`
   cursor: pointer;
 `;
 
-const Evidence: React.FC = () => {
+interface IEvidence {
+  arbitrable?: Address;
+}
+const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
   const { t } = useTranslation();
   const { id } = useParams();
   const ref = useRef<HTMLDivElement>(null);
@@ -86,7 +93,7 @@ const Evidence: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState<string>();
   const [showSpam, setShowSpam] = useState(false);
   const { data: spamEvidences } = useSpamEvidence(id!);
-
+  const { data: disputeData } = usePopulatedDisputeData(id, arbitrable);
   const { data } = useEvidences(id!, debouncedSearch);
 
   useDebounce(() => setDebouncedSearch(search), 500, [search]);
@@ -107,6 +114,7 @@ const Evidence: React.FC = () => {
     [spamEvidences]
   );
 
+  const arbitrableEvidences = disputeData?.extraEvidences;
   const evidences = useMemo(() => {
     if (!data?.evidences) return;
     const spamEvidences = data.evidences.filter((evidence) => isSpam(evidence.id));
@@ -118,6 +126,17 @@ const Evidence: React.FC = () => {
     <Container ref={ref}>
       <EvidenceSearch {...{ search, setSearch }} />
       <ScrollButton small Icon={DownArrow} text={t("buttons.scroll_to_latest")} onClick={scrollToLatest} />
+      {!isUndefined(arbitrableEvidences) && arbitrableEvidences.length > 0 ? (
+        <>
+          {arbitrableEvidences.map(({ name, description, fileURI, sender, timestamp, transactionHash }, index) => (
+            <EvidenceCard
+              key={index}
+              evidence=""
+              {...{ sender, timestamp, transactionHash, name, description, fileURI }}
+            />
+          ))}
+        </>
+      ) : null}
       {evidences?.realEvidences ? (
         <>
           {evidences?.realEvidences.map(
