@@ -170,6 +170,10 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
     }
 
+    function _loserCutoff(uint256 appealStart, uint256 appealEnd) internal pure returns (uint256) {
+        return appealStart + (appealEnd - appealStart) / 2;
+    }
+
     function _createDisputeAndAdvanceToAppeal() internal returns (uint256 disputeID) {
         disputeID = 0;
 
@@ -222,7 +226,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
                 }
             }
             vm.prank(staker2);
-            disputeKit.castVote(disputeID, voteIDsStaker2, 2, 0, "XYZ");
+            // Vote the same as staker1 to avoid a potential tie in `currentRuling()`.
+            disputeKit.castVote(disputeID, voteIDsStaker2, 1, 0, "XYZ");
         }
 
         core.passPeriod(disputeID); // Appeal
@@ -263,6 +268,78 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
         (uint256 ruling, , ) = core.currentRuling(disputeID);
         vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 1}(disputeID, ruling);
+    }
+
+    function test_loserAppealCutoffExtendedByHalfGrace() public {
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+
+        (uint256 start, uint256 baseEnd) = core.appealPeriod(disputeID);
+        uint256 baseLoserCutoff = _loserCutoff(start, baseEnd);
+
+        // Use an even grace value so grace/2 is exact. We choose a grace period which makes graceEnd == baseEnd + grace.
+        uint256 grace = 1000;
+        uint256 gracePeriod = (baseEnd - start) + grace;
+        uint256 expectedGraceEnd = block.timestamp + gracePeriod;
+        assertEq(expectedGraceEnd, baseEnd + grace, "Test setup: grace end should be baseEnd + grace");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(gracePeriod);
+
+        (, uint256 newEnd) = core.appealPeriod(disputeID);
+        assertEq(newEnd, expectedGraceEnd, "Appeal end should extend to grace end");
+
+        uint256 newLoserCutoff = _loserCutoff(start, newEnd);
+        assertEq(newLoserCutoff, baseLoserCutoff + grace / 2, "Loser cutoff should extend by grace/2");
+
+        (uint256 ruling, , ) = core.currentRuling(disputeID);
+        uint256 loserChoice = ruling == 1 ? 2 : 1;
+
+        // Warp strictly after the original loser cutoff, but before the extended one.
+        // This timestamp is inside the "added window" created by the grace extension.
+        uint256 timestampInAddedWindow = baseLoserCutoff + grace / 4;
+        vm.warp(timestampInAddedWindow);
+        assertGt(block.timestamp, baseLoserCutoff, "Warp should be after original loser cutoff");
+        assertLt(block.timestamp, newLoserCutoff, "Warp should stay within extended loser window");
+
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 1}(disputeID, loserChoice);
+    }
+
+    function test_loserBlockedAfterExtendedCutoffButBeforeGraceEnd() public {
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+
+        (uint256 start, uint256 baseEnd) = core.appealPeriod(disputeID);
+        uint256 baseLoserCutoff = _loserCutoff(start, baseEnd);
+
+        uint256 grace = 1000;
+        uint256 gracePeriod = (baseEnd - start) + grace;
+        uint256 expectedGraceEnd = block.timestamp + gracePeriod;
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(gracePeriod);
+
+        (, uint256 newEnd) = core.appealPeriod(disputeID);
+        assertEq(newEnd, expectedGraceEnd, "Appeal end should extend to grace end");
+
+        uint256 newLoserCutoff = _loserCutoff(start, newEnd);
+        assertEq(newLoserCutoff, baseLoserCutoff + grace / 2, "Loser cutoff should extend by grace/2");
+
+        (uint256 ruling, , ) = core.currentRuling(disputeID);
+        uint256 loserChoice = ruling == 1 ? 2 : 1;
+
+        vm.warp(newLoserCutoff + 1);
+        assertLt(block.timestamp, expectedGraceEnd, "Warp should stay within grace-extended appeal period");
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriodForLoser.selector);
+        disputeKit.fundAppeal{value: 1}(disputeID, loserChoice);
+
+        vm.prank(crowdfunder2);
         disputeKit.fundAppeal{value: 1}(disputeID, ruling);
     }
 
