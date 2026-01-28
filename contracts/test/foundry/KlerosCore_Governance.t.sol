@@ -4,7 +4,9 @@ pragma solidity ^0.8.24;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
+import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
+import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
@@ -45,6 +47,301 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         emit KlerosCore.Unpaused();
         core.unpause();
         assertEq(core.paused(), false, "Wrong paused value");
+    }
+
+    function test_pauseArbitration() public {
+        vm.expectRevert(KlerosCore.GuardianOrOwnerOnly.selector);
+        vm.prank(other);
+        core.pauseArbitration();
+
+        vm.prank(guardian);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.ArbitrationPaused();
+        core.pauseArbitration();
+        assertEq(core.arbitrationPaused(), true, "Wrong arbitrationPaused value");
+
+        vm.prank(owner);
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.pauseArbitration();
+    }
+
+    function test_unpauseArbitration() public {
+        uint256 grace = 3600;
+
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
+        vm.prank(other);
+        core.unpauseArbitration(grace);
+
+        vm.expectRevert(KlerosCore.WhenArbitrationPausedOnly.selector);
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        vm.prank(owner);
+        core.pauseArbitration();
+
+        uint256 expectedGraceEnd = block.timestamp + grace;
+        vm.prank(owner);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.ArbitrationUnpaused(expectedGraceEnd);
+        core.unpauseArbitration(grace);
+
+        assertEq(core.arbitrationPaused(), false, "Wrong arbitrationPaused value");
+        assertEq(core.arbitrationPauseGracePeriodEnd(), expectedGraceEnd, "Wrong arbitrationPauseGracePeriodEnd");
+    }
+
+    function test_arbitrationGraceBlocksPassPeriodButNotActions() public {
+        uint256 disputeID = 0;
+        uint256 grace = 3600;
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.passPeriod(disputeID);
+
+        vm.expectRevert(SortitionModule.NotDrawingPhase.selector);
+        core.draw(disputeID, 1);
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.NotCommitPeriod.selector);
+        disputeKit.castCommit(disputeID, voteIDs, bytes32(uint256(1)));
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.NotVotePeriod.selector);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriod.selector);
+        disputeKit.fundAppeal(disputeID, 1);
+    }
+
+    function test_arbitrationPausedBlocksActions() public {
+        uint256 disputeID = 0;
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.draw(disputeID, 1);
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        disputeKit.castCommit(disputeID, voteIDs, bytes32(uint256(1)));
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        disputeKit.fundAppeal(disputeID, 1);
+    }
+
+    function test_arbitrationGraceExpires() public {
+        uint256 disputeID = 0;
+        uint256 grace = 3600;
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.passPeriod(disputeID);
+
+        vm.warp(core.arbitrationPauseGracePeriodEnd() + 1);
+        vm.expectRevert(KlerosCore.DisputeStillDrawing.selector);
+        core.passPeriod(disputeID);
+    }
+
+    function _loserCutoff(uint256 appealStart, uint256 appealEnd) internal pure returns (uint256) {
+        return appealStart + (appealEnd - appealStart) / 2;
+    }
+
+    function _createDisputeAndAdvanceToAppeal() internal returns (uint256 disputeID) {
+        disputeID = 0;
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 10000);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        uint256 countStaker1;
+        uint256 countStaker2;
+        for (uint256 i = 0; i < round.drawnJurors.length; i++) {
+            if (round.drawnJurors[i] == staker1) countStaker1++;
+            if (round.drawnJurors[i] == staker2) countStaker2++;
+        }
+
+        if (countStaker1 > 0) {
+            uint256[] memory voteIDsStaker1 = new uint256[](countStaker1);
+            uint256 idx;
+            for (uint256 i = 0; i < round.drawnJurors.length; i++) {
+                if (round.drawnJurors[i] == staker1) {
+                    voteIDsStaker1[idx] = i;
+                    idx++;
+                }
+            }
+            vm.prank(staker1);
+            disputeKit.castVote(disputeID, voteIDsStaker1, 1, 0, "XYZ");
+        }
+
+        if (countStaker2 > 0) {
+            uint256[] memory voteIDsStaker2 = new uint256[](countStaker2);
+            uint256 idx;
+            for (uint256 i = 0; i < round.drawnJurors.length; i++) {
+                if (round.drawnJurors[i] == staker2) {
+                    voteIDsStaker2[idx] = i;
+                    idx++;
+                }
+            }
+            vm.prank(staker2);
+            // Vote the same as staker1 to avoid a potential tie in `currentRuling()`.
+            disputeKit.castVote(disputeID, voteIDsStaker2, 1, 0, "XYZ");
+        }
+
+        core.passPeriod(disputeID); // Appeal
+    }
+
+    function test_appealPeriodExtendedByGrace() public {
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+        (, uint256 baseEnd) = core.appealPeriod(disputeID);
+
+        uint256 grace = 3600;
+        uint256 expectedGraceEnd = block.timestamp + grace;
+        assertGt(expectedGraceEnd, baseEnd, "Grace end should exceed base end");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        (, uint256 end) = core.appealPeriod(disputeID);
+        assertEq(end, expectedGraceEnd, "Appeal end should extend to grace end");
+    }
+
+    function test_fundAppealAfterBaseEndDuringGrace() public {
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+        (, uint256 baseEnd) = core.appealPeriod(disputeID);
+
+        uint256 grace = 3600;
+        uint256 graceEnd = block.timestamp + grace;
+        assertGt(graceEnd, baseEnd, "Grace end should exceed base end");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        vm.warp(baseEnd + 1);
+        assertLt(block.timestamp, graceEnd, "Warp should stay within grace");
+
+        (uint256 ruling, , ) = core.currentRuling(disputeID);
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 1}(disputeID, ruling);
+    }
+
+    function test_loserAppealCutoffExtendedByHalfGrace() public {
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+
+        (uint256 start, uint256 baseEnd) = core.appealPeriod(disputeID);
+        uint256 baseLoserCutoff = _loserCutoff(start, baseEnd);
+
+        // Use an even grace value so grace/2 is exact. We choose a grace period which makes graceEnd == baseEnd + grace.
+        uint256 grace = 1000;
+        uint256 gracePeriod = (baseEnd - start) + grace;
+        uint256 expectedGraceEnd = block.timestamp + gracePeriod;
+        assertEq(expectedGraceEnd, baseEnd + grace, "Test setup: grace end should be baseEnd + grace");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(gracePeriod);
+
+        (, uint256 newEnd) = core.appealPeriod(disputeID);
+        assertEq(newEnd, expectedGraceEnd, "Appeal end should extend to grace end");
+
+        uint256 newLoserCutoff = _loserCutoff(start, newEnd);
+        assertEq(newLoserCutoff, baseLoserCutoff + grace / 2, "Loser cutoff should extend by grace/2");
+
+        (uint256 ruling, , ) = core.currentRuling(disputeID);
+        uint256 loserChoice = ruling == 1 ? 2 : 1;
+
+        // Warp strictly after the original loser cutoff, but before the extended one.
+        // This timestamp is inside the "added window" created by the grace extension.
+        uint256 timestampInAddedWindow = baseLoserCutoff + grace / 4;
+        vm.warp(timestampInAddedWindow);
+        assertGt(block.timestamp, baseLoserCutoff, "Warp should be after original loser cutoff");
+        assertLt(block.timestamp, newLoserCutoff, "Warp should stay within extended loser window");
+
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 1}(disputeID, loserChoice);
+    }
+
+    function test_loserBlockedAfterExtendedCutoffButBeforeGraceEnd() public {
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+
+        (uint256 start, uint256 baseEnd) = core.appealPeriod(disputeID);
+        uint256 baseLoserCutoff = _loserCutoff(start, baseEnd);
+
+        uint256 grace = 1000;
+        uint256 gracePeriod = (baseEnd - start) + grace;
+        uint256 expectedGraceEnd = block.timestamp + gracePeriod;
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(gracePeriod);
+
+        (, uint256 newEnd) = core.appealPeriod(disputeID);
+        assertEq(newEnd, expectedGraceEnd, "Appeal end should extend to grace end");
+
+        uint256 newLoserCutoff = _loserCutoff(start, newEnd);
+        assertEq(newLoserCutoff, baseLoserCutoff + grace / 2, "Loser cutoff should extend by grace/2");
+
+        (uint256 ruling, , ) = core.currentRuling(disputeID);
+        uint256 loserChoice = ruling == 1 ? 2 : 1;
+
+        vm.warp(newLoserCutoff + 1);
+        assertLt(block.timestamp, expectedGraceEnd, "Warp should stay within grace-extended appeal period");
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriodForLoser.selector);
+        disputeKit.fundAppeal{value: 1}(disputeID, loserChoice);
+
+        vm.prank(crowdfunder2);
+        disputeKit.fundAppeal{value: 1}(disputeID, ruling);
     }
 
     function test_executeOwnerProposal() public {

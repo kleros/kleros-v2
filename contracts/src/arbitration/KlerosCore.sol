@@ -107,6 +107,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => bool) public acceptedFeeTokens; // True if the token is accepted.
     bool public paused; // Whether asset withdrawals are paused.
+    bool public arbitrationPaused; // Whether arbitration period transitions are paused.
+    uint256 public arbitrationPauseGracePeriodEnd; // Timestamp after which period transitions can resume.
     address public wNative; // The wrapped native token for safeSend().
     mapping(address => bool) public arbitrableWhitelist; // Arbitrable whitelist.
     bool public arbitrableWhitelistEnabled; // Whether the arbitrable whitelist is enabled.
@@ -254,6 +256,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @notice Emitted when this contract is unpaused.
     event Unpaused();
 
+    /// @notice Emitted when arbitration period transitions are paused.
+    event ArbitrationPaused();
+
+    /// @notice Emitted when arbitration period transitions are unpaused.
+    /// @param _gracePeriodEnd Timestamp after which period transitions can resume.
+    event ArbitrationUnpaused(uint256 _gracePeriodEnd);
+
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
@@ -387,6 +396,22 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     function unpause() external onlyByOwner whenPaused {
         paused = false;
         emit Unpaused();
+    }
+
+    /// @notice Pause arbitration period transitions. Can only be done by guardian or owner.
+    function pauseArbitration() external onlyByGuardianOrOwner {
+        if (arbitrationPaused) revert WhenArbitrationNotPausedOnly();
+        arbitrationPaused = true;
+        emit ArbitrationPaused();
+    }
+
+    /// @notice Unpause arbitration period transitions with a grace window. Can only be done by owner.
+    /// @param _gracePeriod Duration in seconds before period transitions can resume.
+    function unpauseArbitration(uint256 _gracePeriod) external onlyByOwner {
+        if (!arbitrationPaused) revert WhenArbitrationPausedOnly();
+        arbitrationPaused = false;
+        arbitrationPauseGracePeriodEnd = block.timestamp + _gracePeriod;
+        emit ArbitrationUnpaused(arbitrationPauseGracePeriodEnd);
     }
 
     /// @notice Allows the owner to call anything on behalf of the contract.
@@ -695,9 +720,9 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @notice Passes the period of a specified dispute.
     /// @param _disputeID The ID of the dispute.
     function passPeriod(uint256 _disputeID) external {
+        if (arbitrationPaused || block.timestamp <= arbitrationPauseGracePeriodEnd)
+            revert WhenArbitrationNotPausedOnly();
         Dispute storage dispute = disputes[_disputeID];
-        Court storage court = courts[dispute.courtID];
-
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
         if (dispute.period == Period.evidence) {
@@ -747,6 +772,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _iterations The number of iterations to run.
     /// @return nbDrawnJurors The total number of jurors drawn in the round.
     function draw(uint256 _disputeID, uint256 _iterations) external returns (uint256 nbDrawnJurors) {
+        if (arbitrationPaused) revert WhenArbitrationNotPausedOnly();
         Dispute storage dispute = disputes[_disputeID];
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
@@ -1130,6 +1156,9 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         if (dispute.period == Period.appeal) {
             start = dispute.lastPeriodChange;
             end = dispute.lastPeriodChange + round.timesPerPeriod[uint256(Period.appeal)];
+            if (end < arbitrationPauseGracePeriodEnd) {
+                end = arbitrationPauseGracePeriodEnd;
+            }
         } else {
             start = 0;
             end = 0;
@@ -1478,4 +1507,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     error WhenNotPausedOnly();
     error WhenPausedOnly();
     error StakingZeroWhenNoStake();
+    error WhenArbitrationNotPausedOnly();
+    error WhenArbitrationPausedOnly();
 }
