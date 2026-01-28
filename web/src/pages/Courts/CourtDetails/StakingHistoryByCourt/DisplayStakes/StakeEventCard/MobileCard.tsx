@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { formatDateWithTime } from "utils/date";
 import { formatPNK } from "utils/format";
 import { getTxnExplorerLink } from "utils/index";
@@ -106,17 +108,18 @@ const MobileCard: React.FC<IMobileCard> = ({
   courtId,
   currentCourtId,
 }) => {
+  const { t } = useTranslation();
   const isCurrentCourt = currentCourtId === courtId;
 
   return (
     <Container>
       <JurorLink address={address} />
       <Row>
-        <Label>PNK Staked</Label>
+        <Label>{t("misc.pnk_staked")}</Label>
         <Value>{formatPNK(BigInt(stake))}</Value>
       </Row>
       <Row>
-        <Label>Court</Label>
+        <Label>{t("profile.court")}</Label>
         {isCurrentCourt ? (
           <CourtText title={courtName}>{courtName}</CourtText>
         ) : (
@@ -126,7 +129,7 @@ const MobileCard: React.FC<IMobileCard> = ({
         )}
       </Row>
       <Row>
-        <Label>Date</Label>
+        <Label>{t("profile.date")}</Label>
         <DateLink href={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
           {formatDateWithTime(timestamp)}
         </DateLink>

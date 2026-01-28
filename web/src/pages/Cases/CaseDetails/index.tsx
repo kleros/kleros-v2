@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { Route, Routes, useParams, Navigate } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
@@ -51,6 +52,7 @@ const Header = styled.h1`
 `;
 
 const CaseDetails: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id);
   const dispute = data?.dispute;
@@ -63,7 +65,7 @@ const CaseDetails: React.FC = () => {
         <Container>
           <HeaderContainer>
             <Header>
-              Case #{id} {id ? <CaseStarButton id={id} /> : null}
+              {t("misc.case")} #{id} {id ? <CaseStarButton id={id} /> : null}
             </Header>
 
             <MaintenanceButtons />

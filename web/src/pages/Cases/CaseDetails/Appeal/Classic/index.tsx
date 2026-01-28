@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import { useTranslation } from "react-i18next";
+
 import AppealIcon from "svgs/icons/appeal.svg";
 
 import { useSelectedOptionContext } from "hooks/useClassicAppealContext";
@@ -21,6 +23,7 @@ interface IClassic {
 }
 
 const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, isGated }) => {
+  const { t } = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const { selectedOption } = useSelectedOptionContext();
@@ -29,7 +32,7 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
     <>
       {isPopupOpen && (
         <Popup
-          title="Thanks for Funding the Appeal"
+          title={t("popups.thanks_for_funding_appeal")}
           icon={AppealIcon}
           popupType={PopupType.APPEAL}
           setIsOpen={setIsPopupOpen}
@@ -39,14 +42,14 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
         />
       )}
       <AppealHeader>
-        <StyledTitle>Appeal crowdfunding</StyledTitle>
+        <StyledTitle>{t("appeal.appeal_crowdfunding")}</StyledTitle>
         <HowItWorks
           isMiniGuideOpen={isAppealMiniGuideOpen}
           toggleMiniGuide={toggleAppealMiniGuide}
           MiniGuideComponent={Appeal}
         />
       </AppealHeader>
-      <label> The jury decision is appealed when two options are fully funded. </label>
+      <label>{t("appeal.jury_decision_appealed")}</label>
       <Options setAmount={setAmount} />
       <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} {...{ isGated }} />
     </>

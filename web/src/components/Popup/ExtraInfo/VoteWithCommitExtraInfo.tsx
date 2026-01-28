@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 import InfoCard from "components/InfoCard";
@@ -17,9 +19,9 @@ interface Props {
 }
 
 const VoteWithCommitExtraInfo: React.FC<Props> = ({ automaticVoteReveal = false }) => {
-  const msg = automaticVoteReveal
-    ? "Enable notifications to be updated about the progress of the case: Settings > Notifications"
-    : "Enable notifications to be reminded when the reveal time comes: Settings > Notifications";
+  const { t } = useTranslation();
+
+  const msg = automaticVoteReveal ? t("popups.enable_notifications_progress") : t("popups.enable_notifications_reveal");
   return <StyledInfoCard msg={msg} />;
 };
 

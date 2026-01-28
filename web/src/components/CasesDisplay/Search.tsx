@@ -1,9 +1,11 @@
 import React, { useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useDebounce } from "react-use";
+
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
 
 import { isEmpty, isUndefined } from "utils/index";
@@ -48,6 +50,7 @@ const StyledSearchbar = styled(Searchbar)`
 `;
 
 const Search: React.FC = () => {
+  const { t } = useTranslation();
   const { page, order, filter } = useParams();
   const location = useRootPath();
   const decodedFilter = decodeURIFilter(filter ?? "all");
@@ -76,18 +79,18 @@ const Search: React.FC = () => {
   const items = useMemo(() => {
     if (!isUndefined(courtTreeData?.court)) {
       const courts = [rootCourtToItems(courtTreeData.court, "id")];
-      courts.push({ label: "All Courts", value: "all" });
+      courts.push({ label: t("filters.all_courts"), value: "all" });
       return courts;
     }
     return undefined;
-  }, [courtTreeData]);
+  }, [courtTreeData, t]);
 
   return (
     <Container>
       {items ? (
         <DropdownCascader
           items={items}
-          placeholder={"Select Court"}
+          placeholder={t("forms.placeholders.select_court")}
           onSelect={(value) => {
             const { court: _, ...filterWithoutCourt } = decodedFilter;
             const newFilter = value === "all" ? filterWithoutCourt : { ...decodedFilter, court: value.toString() };
@@ -101,7 +104,7 @@ const Search: React.FC = () => {
         <StyledSearchbar
           dir="auto"
           type="text"
-          placeholder="Search By ID"
+          placeholder={t("forms.placeholders.search_by_id")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

@@ -21,7 +21,11 @@ type Role = {
   };
 };
 
-export const getFileUploaderMsg = (role: Roles, roleRestrictions?: Role[]) => {
+export const getFileUploaderMsg = (
+  role: Roles,
+  roleRestrictions?: Role[],
+  t?: (key: string, params?: any) => string
+) => {
   if (!roleRestrictions) return;
   const restrictions = roleRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
 
@@ -35,5 +39,11 @@ export const getFileUploaderMsg = (role: Roles, roleRestrictions?: Role[]) => {
     })
     .join(", ");
 
-  return `Allowed file types: [${typesString}], Max allowed size: ${(restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2)} MB.`;
+  const maxSizeMB = (restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2);
+
+  if (t) {
+    return t("forms.messages.allowed_file_types", { types: typesString, maxSize: maxSizeMB });
+  }
+
+  return `Allowed file types: [${typesString}], Max allowed size: ${maxSizeMB} MB.`;
 };

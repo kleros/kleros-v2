@@ -1,15 +1,16 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { useToggle } from "react-use";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { useToggle } from "react-use";
 
 import RankingIcon from "svgs/icons/ranking.svg";
 
 import { decodeURIFilter } from "utils/uri";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
@@ -57,6 +58,7 @@ const HowItWorksContainer = styled.div`
 `;
 
 export const DesktopHeader: React.FC = () => {
+  const { t } = useTranslation();
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
   const { filter } = useParams();
   const { id: searchValue } = decodeURIFilter(filter ?? "all");
@@ -65,7 +67,7 @@ export const DesktopHeader: React.FC = () => {
   return (
     <Container renderIcon={renderIcon}>
       {renderIcon ? <StyledRankingIcon /> : null}
-      <StyledLabel>Juror</StyledLabel>
+      <StyledLabel>{t("juror_levels.juror")}</StyledLabel>
       <Score />
       <Coherence />
       <Rewards />

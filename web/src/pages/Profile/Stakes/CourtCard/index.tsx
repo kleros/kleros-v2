@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
@@ -83,12 +85,14 @@ const CourtCard: React.FC<ICourtCard> = ({
   transactionHash,
   isCurrentStakeCard = true,
 }) => {
+  const { i18n } = useTranslation();
+
   return (
     <Container hover {...{ isCurrentStakeCard }}>
       <CourtName {...{ name, id }} />
       <Stake {...{ stake }} />
       <StakeAndLink>
-        {timestamp ? <DateLabel>{formatDate(timestamp)}</DateLabel> : null}
+        {timestamp ? <DateLabel>{formatDate(timestamp, false, i18n.language)}</DateLabel> : null}
         {transactionHash ? (
           <StyledLink to={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
             <NewTabIcon />

@@ -1,14 +1,15 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { Tooltip } from "chart.js";
+import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
 import { useHomePageContext } from "hooks/useHomePageContext";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -28,28 +29,32 @@ const StyledDropdown = styled(DropdownSelect)`
   align-self: start;
 `;
 
-const CHART_OPTIONS = [
-  { text: "Staked PNK", value: "stakedPNK" },
-  { text: "Staked PNK per court", value: "stakedPNKPerCourt" },
-  { text: "Cases", value: "cases" },
-  { text: "Cases per court", value: "casesPerCourt" },
-];
-
 const ChartOptionsDropdown: React.FC<{
   setChartOption: (newValue: string) => void;
-}> = ({ setChartOption }) => (
-  <StyledDropdown
-    smallButton
-    simpleButton
-    defaultValue={"stakedPNK"}
-    items={CHART_OPTIONS}
-    callback={(newValue: string | number) => {
-      if (typeof newValue === "string") {
-        setChartOption(newValue);
-      }
-    }}
-  />
-);
+}> = ({ setChartOption }) => {
+  const { t } = useTranslation();
+
+  const CHART_OPTIONS = [
+    { text: t("stats.staked_pnk"), value: "stakedPNK" },
+    { text: t("stats.staked_pnk_per_court"), value: "stakedPNKPerCourt" },
+    { text: t("stats.cases"), value: "cases" },
+    { text: t("stats.cases_per_court"), value: "casesPerCourt" },
+  ];
+
+  return (
+    <StyledDropdown
+      smallButton
+      simpleButton
+      defaultValue={"stakedPNK"}
+      items={CHART_OPTIONS}
+      callback={(newValue: string | number) => {
+        if (typeof newValue === "string") {
+          setChartOption(newValue);
+        }
+      }}
+    />
+  );
+};
 
 interface IChartData {
   x: number;

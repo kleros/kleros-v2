@@ -1,11 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useTranslation } from "react-i18next";
 
 import { Answer } from "context/NewDisputeContext";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { InternalLink } from "components/InternalLink";
 import JurorLink from "components/JurorLink";
@@ -57,21 +59,23 @@ const VoteStatus: React.FC<{
   isActiveRound: boolean;
   hiddenVotes: boolean;
 }> = ({ choice, period, answers, isActiveRound, commited, hiddenVotes }) => {
+  const { t } = useTranslation();
+
   if (hiddenVotes) {
     if (!commited && (isActiveRound ? ["vote", "appeal", "execution"].includes(period) : true))
-      return <StyledLabel>Did not commit vote </StyledLabel>;
+      return <StyledLabel>{t("voting.did_not_commit_vote")}</StyledLabel>;
 
     if (["evidence", "commit"].includes(period))
-      return <StyledLabel>{commited ? "Vote committed" : "Pending vote commitment"}</StyledLabel>;
+      return <StyledLabel>{commited ? t("voting.vote_committed") : t("voting.pending_vote_commitment")}</StyledLabel>;
   }
 
   // not voted
   if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true))
-    return <StyledLabel>Did not vote</StyledLabel>;
+    return <StyledLabel>{t("voting.did_not_vote")}</StyledLabel>;
 
   return (
     <StyledLabel>
-      {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(choice, answers)}</StyledSmall>}
+      {isUndefined(choice) ? t("voting.pending_vote") : <StyledSmall>{getVoteChoice(choice, answers)}</StyledSmall>}
     </StyledLabel>
   );
 };
@@ -86,6 +90,7 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
+  const { t } = useTranslation();
   const profileLink = `/profile/stakes/1?address=${juror}`;
 
   return (
@@ -96,9 +101,7 @@ const AccordionTitle: React.FC<{
         </StyledInternalLink>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
-      <StyledLabel variant="secondaryPurple">
-        {voteCount} vote{voteCount > 1 && "s"}
-      </StyledLabel>
+      <StyledLabel variant="secondaryPurple">{t("voting.vote", { count: voteCount })}</StyledLabel>
     </TitleContainer>
   );
 };

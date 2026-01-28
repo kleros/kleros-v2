@@ -1,15 +1,19 @@
 import React, { useMemo } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
+
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
 
-import { DisputeDetailsFragment, OrderDirection } from "src/graphql/graphql";
 import { useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
+
+import { DisputeDetailsFragment, OrderDirection } from "src/graphql/graphql";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import CasesDisplay from "components/CasesDisplay";
 
 const StyledCasesDisplay = styled(CasesDisplay)`
@@ -25,6 +29,7 @@ interface ICases {
 }
 
 const Cases: React.FC<ICases> = ({ searchParamAddress }) => {
+  const { t } = useTranslation();
   const { page, order, filter } = useParams();
   const [searchParams] = useSearchParams();
   const location = useRootPath();
@@ -51,7 +56,7 @@ const Cases: React.FC<ICases> = ({ searchParamAddress }) => {
 
   return (
     <StyledCasesDisplay
-      title="Cases Drawn"
+      title={t("profile.cases_drawn")}
       disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
       numberDisputes={totalCases}
       numberClosedDisputes={totalResolvedCases}

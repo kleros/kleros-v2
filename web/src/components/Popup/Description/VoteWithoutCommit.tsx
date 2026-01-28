@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Trans } from "react-i18next";
+
 import { VoteDescriptionEmphasizedDate } from "components/Popup";
 
 interface IVoteWithoutCommit {
@@ -9,8 +11,11 @@ interface IVoteWithoutCommit {
 const VoteWithoutCommit: React.FC<IVoteWithoutCommit> = ({ date }) => {
   return (
     <div>
-      The decision date is <VoteDescriptionEmphasizedDate>{date}</VoteDescriptionEmphasizedDate> with the possibility
-      for appeals. After that time you will be informed about the jury decision.
+      <Trans
+        i18nKey="popups.decision_date_with_appeals"
+        values={{ date }}
+        components={{ emphasized: <VoteDescriptionEmphasizedDate /> }}
+      />
     </div>
   );
 };

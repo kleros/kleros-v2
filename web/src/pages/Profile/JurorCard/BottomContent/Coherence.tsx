@@ -1,11 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useTranslation } from "react-i18next";
 
 import { CircularProgress } from "@kleros/ui-components-library";
 
 import { ILevelCriteria } from "utils/userLevelCalculation";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
@@ -22,11 +24,6 @@ const Container = styled.div`
   )}
 `;
 
-const tooltipMsg =
-  "A Coherent Vote is a vote coherent with the final jury decision" +
-  " (after all the appeal instances). If the juror vote is the same as " +
-  " the majority of jurors it's considered a Coherent Vote.";
-
 interface ICoherence {
   userLevelData: ILevelCriteria;
   totalCoherentVotes: number;
@@ -35,9 +32,12 @@ interface ICoherence {
 }
 
 const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, totalResolvedVotes, isMiniGuide }) => {
+  const { t } = useTranslation();
+  const tooltipMsg = t("juror_levels.coherent_votes_tooltip");
+
   const votesContent = (
     <label>
-      Coherent Votes:
+      {t("profile.coherent_votes_label")}
       <small>
         {" "}
         {totalCoherentVotes}/{totalResolvedVotes}{" "}
@@ -47,8 +47,8 @@ const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, to
 
   return (
     <Container>
-      <small>{userLevelData.title}</small>
-      <label>Level {userLevelData.level}</label>
+      <small>{t(userLevelData.titleKey)}</small>
+      <label>{t("juror_levels.level_number", { level: userLevelData.level })}</label>
       <CircularProgress
         progress={parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2))}
       />

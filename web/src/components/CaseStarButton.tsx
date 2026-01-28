@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Button, Tooltip } from "@kleros/ui-components-library";
 
 import Star from "svgs/icons/star.svg";
@@ -34,10 +36,11 @@ const StyledButton = styled(Button)<{ starred: boolean }>`
 `;
 
 const CaseStarButton: React.FC<{ id: string }> = ({ id }) => {
+  const { t } = useTranslation();
   const { starredCases, starCase } = useStarredCases();
   const isDesktop = useIsDesktop();
   const starred = useMemo(() => Boolean(starredCases.has(id)), [id, starredCases]);
-  const text = starred ? "Remove from favorite" : "Add to favorite";
+  const text = starred ? t("misc.remove_from_favorites") : t("misc.add_to_favorites");
   return (
     <Tooltip {...{ text }} place={isDesktop ? "right" : "bottom"}>
       <StyledButton

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useTranslation } from "react-i18next";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
@@ -9,6 +9,8 @@ import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
 import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 
@@ -39,35 +41,37 @@ interface IStat {
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
-const stats: IStat[] = [
-  {
-    title: "Most Cases",
-    getText: ({ data }) => data?.mostDisputedCourt?.name,
-    getCourtId: ({ data }) => data?.mostDisputedCourt?.id,
-    icon: LongArrowUp,
-  },
-  {
-    title: "Highest drawing chance",
-    getText: ({ data }) => data?.bestDrawingChancesCourt?.name,
-    getCourtId: ({ data }) => data?.bestDrawingChancesCourt?.id,
-    icon: LongArrowUp,
-  },
-  {
-    title: "Highest rewards chance",
-    getText: ({ data }) => data?.bestExpectedRewardCourt?.name,
-    getCourtId: ({ data }) => data?.bestExpectedRewardCourt?.id,
-    icon: LongArrowUp,
-  },
-];
-
-const timeRanges = [
-  { value: 7, text: "Last 7 days" },
-  { value: 30, text: "Last 30 days" },
-  { value: 180, text: "Last 180 days" },
-  { value: "allTime", text: "All Time" },
-];
-
 const ExtraStats = () => {
+  const { t } = useTranslation();
+
+  const stats: IStat[] = [
+    {
+      title: t("stats.most_cases"),
+      getText: ({ data }) => data?.mostDisputedCourt?.name,
+      getCourtId: ({ data }) => data?.mostDisputedCourt?.id,
+      icon: LongArrowUp,
+    },
+    {
+      title: t("stats.highest_drawing_chance"),
+      getText: ({ data }) => data?.bestDrawingChancesCourt?.name,
+      getCourtId: ({ data }) => data?.bestDrawingChancesCourt?.id,
+      icon: LongArrowUp,
+    },
+    {
+      title: t("stats.highest_rewards_chance"),
+      getText: ({ data }) => data?.bestExpectedRewardCourt?.name,
+      getCourtId: ({ data }) => data?.bestExpectedRewardCourt?.id,
+      icon: LongArrowUp,
+    },
+  ];
+
+  const timeRanges = [
+    { value: 7, text: t("time_ranges.last_7_days") },
+    { value: 30, text: t("time_ranges.last_30_days") },
+    { value: 180, text: t("time_ranges.last_180_days") },
+    { value: "allTime", text: t("time_ranges.all_time") },
+  ];
+
   const [selectedRange, setSelectedRange] = useState(timeRanges[1].value);
   const data = useHomePageExtraStats(selectedRange);
 
@@ -78,7 +82,7 @@ const ExtraStats = () => {
   return (
     <StyledCard>
       <ExtraStatsDisplay
-        title="Activity"
+        title={t("stats.activity")}
         content={
           <DropdownSelect
             smallButton
@@ -94,7 +98,7 @@ const ExtraStats = () => {
         icon={LawBalance}
       />
       {data.data?.mostDisputedCourt?.numberDisputes === 0 ? (
-        <StyledLabel>No activity in this period</StyledLabel>
+        <StyledLabel>{t("stats.no_activity_in_this_period")}</StyledLabel>
       ) : (
         stats.map(({ title, getCourtId, getText, icon }) => (
           <ExtraStatsDisplay key={title} courtId={getCourtId(data)} {...{ title, icon }} text={getText(data)} />

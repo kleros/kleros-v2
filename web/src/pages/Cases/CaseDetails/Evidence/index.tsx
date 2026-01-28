@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { Address } from "viem";
@@ -85,6 +86,7 @@ interface IEvidence {
   arbitrable?: Address;
 }
 const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const ref = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string>();
@@ -123,7 +125,7 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
   return (
     <Container ref={ref}>
       <EvidenceSearch {...{ search, setSearch }} />
-      <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
+      <ScrollButton small Icon={DownArrow} text={t("buttons.scroll_to_latest")} onClick={scrollToLatest} />
       {!isUndefined(arbitrableEvidences) && arbitrableEvidences.length > 0 ? (
         <>
           {arbitrableEvidences.map(({ name, description, fileURI, sender, timestamp, transactionHash }, index) => (
@@ -152,7 +154,7 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
               <Divider />
               {showSpam ? (
                 <>
-                  <SpamLabel onClick={() => setShowSpam(false)}>Hide spam</SpamLabel>
+                  <SpamLabel onClick={() => setShowSpam(false)}>{t("evidence.hide_spam")}</SpamLabel>
                   {evidences?.spamEvidences.map(
                     ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
                       <EvidenceCard
@@ -165,7 +167,7 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
                   )}
                 </>
               ) : (
-                <SpamLabel onClick={() => setShowSpam(true)}>Show likely spam</SpamLabel>
+                <SpamLabel onClick={() => setShowSpam(true)}>{t("evidence.show_likely_spam")}</SpamLabel>
               )}
             </>
           ) : null}
@@ -174,7 +176,7 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
         <SkeletonEvidenceCard />
       )}
 
-      {data && data.evidences.length === 0 ? <StyledLabel>There is no evidence submitted yet</StyledLabel> : null}
+      {data && data.evidences.length === 0 ? <StyledLabel>{t("evidence.no_evidence_yet")}</StyledLabel> : null}
     </Container>
   );
 };

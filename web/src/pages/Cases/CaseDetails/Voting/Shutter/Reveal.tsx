@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { useWalletClient, usePublicClient } from "wagmi";
@@ -29,6 +30,7 @@ interface IReveal {
 }
 
 const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -121,7 +123,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
     <Container>
       {!isUndefined(parsedStoredData) ? (
         <Button
-          text="Reveal Your Vote"
+          text={t("buttons.reveal_your_vote")}
           onClick={handleReveal}
           disabled={isSimulating || !isUndefined(simulateError) || isRevealing}
           isLoading={isRevealing}

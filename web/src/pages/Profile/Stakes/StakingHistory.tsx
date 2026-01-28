@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -39,6 +40,7 @@ interface IStakingHistory {
 }
 
 const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
+  const { t } = useTranslation();
   const { page } = useParams();
   const navigate = useNavigate();
   const eventsPerPage = 10;
@@ -53,10 +55,10 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
   );
 
   const { data: courtTreeData, isLoading: isLoadingCourtTree } = useCourtTree();
-  const totalNumberStakingEvents = stakingHistoryData?.userStakingEvents?.count ?? 0;
+  const totalNumberStakingEvents = stakingHistoryData?.userStakingEventsV2?.count ?? 0;
   const totalPages = useMemo(() => Math.ceil(totalNumberStakingEvents / eventsPerPage), [totalNumberStakingEvents]);
 
-  const stakingEvents = stakingHistoryData?.userStakingEvents?.items ?? [];
+  const stakingEvents = stakingHistoryData?.userStakingEventsV2?.items ?? [];
 
   const handlePageChange = (newPage: number) => {
     navigate(`/profile/stakes/${newPage}?address=${searchParamAddress}`);
@@ -64,12 +66,12 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
 
   return (
     <Container>
-      <StyledTitle>Staking History</StyledTitle>
+      <StyledTitle>{t("profile.staking_history")}</StyledTitle>
       <CourtCardsContainer>
         {!isLoadingStakingHistory && totalNumberStakingEvents === 0 ? (
-          <NoHistoryLabel>No history found</NoHistoryLabel>
+          <NoHistoryLabel>{t("profile.no_history_found")}</NoHistoryLabel>
         ) : isLoadingStakingHistory || isLoadingCourtTree ? (
-          Array.from({ length: 10 }).map((_, index) => <Skeleton height={64} key={index} />)
+          Array.from({ length: 5 }).map((_, index) => <Skeleton height={64} key={index} />)
         ) : (
           <>
             {stakingEvents.map(({ item }) => {

@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { isUndefined } from "utils/index";
 
 import { useJurorsByCoherenceScore } from "queries/useJurorsByCoherenceScore";
@@ -8,11 +10,11 @@ import { useJurorsByCoherenceScore } from "queries/useJurorsByCoherenceScore";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import SeeAllJurorsButton from "components/SeeAllJurorsButton";
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 
 import Header from "./Header";
 import JurorCard from "./JurorCard";
-import SeeAllJurorsButton from "components/SeeAllJurorsButton";
 
 const Container = styled.div`
   margin-top: ${responsiveSize(28, 48)};
@@ -49,6 +51,7 @@ export const StyledLabel = styled.label`
 `;
 
 const TopJurors: React.FC = () => {
+  const { t } = useTranslation();
   const { data: queryJurors } = useJurorsByCoherenceScore(0, 5, "coherenceScore", "desc");
 
   const topJurors = queryJurors?.users?.map((juror, index) => ({
@@ -59,11 +62,11 @@ const TopJurors: React.FC = () => {
   return (
     <Container>
       <TitleAndButtonContainer>
-        <Title>Top Jurors</Title>
+        <Title>{t("misc.top_jurors")}</Title>
         <SeeAllJurorsButton />
       </TitleAndButtonContainer>
       {!isUndefined(topJurors) && topJurors.length === 0 ? (
-        <StyledLabel>No jurors found</StyledLabel>
+        <StyledLabel>{t("misc.no_jurors_found")}</StyledLabel>
       ) : (
         <ListContainer>
           <Header />

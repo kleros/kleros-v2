@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { JurorStakeDetailsQuery } from "src/graphql/graphql";
@@ -35,6 +36,7 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
   currentStakeData,
   isCurrentStakeLoading,
 }) => {
+  const { t } = useTranslation();
   const stakedCourts = currentStakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;
 
@@ -42,7 +44,7 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
     <Container>
       <Header {...{ totalAvailableStake, lockedStake }} />
       {!isStaked && !isCurrentStakeLoading ? (
-        <NoCurrentStakesLabel>No stakes found</NoCurrentStakesLabel>
+        <NoCurrentStakesLabel>{t("profile.no_stakes_found")}</NoCurrentStakesLabel>
       ) : isCurrentStakeLoading ? (
         <Skeleton />
       ) : null}

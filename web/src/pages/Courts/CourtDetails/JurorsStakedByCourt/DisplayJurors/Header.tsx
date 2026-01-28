@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
@@ -21,10 +23,12 @@ const StyledLabel = styled.label`
 `;
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Container>
-      <StyledLabel>Juror</StyledLabel>
-      <StyledLabel>PNK Staked</StyledLabel>
+      <StyledLabel>{t("misc.juror")}</StyledLabel>
+      <StyledLabel>{t("misc.pnk_staked")}</StyledLabel>
     </Container>
   );
 };
