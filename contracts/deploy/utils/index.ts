@@ -41,3 +41,5 @@ export const isSkipped = async (network: Network, skip: boolean) => {
 
 export const PNK = (n: number) => ethers.parseUnits(String(n));
 export const ETH = (n: number) => ethers.parseUnits(String(n));
+
+export const ONE_MINUTE_IN_SECONDS = 60;
