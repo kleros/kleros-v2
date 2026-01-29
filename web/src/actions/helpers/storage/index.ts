@@ -11,7 +11,7 @@ export function storeCommitData(key: string, data: CommitData): void {
   try {
     localStorage.setItem(key, JSON.stringify(parsedData));
   } catch (err) {
-    console.warn(`Failed to persist commit data for key "${key}"`, err);
+    console.warn(`storeCommitData: Failed to persist commit data for key "${key}"`, err);
   }
 }
 
@@ -27,7 +27,11 @@ export function restoreCommitData(key: string): CommitData | undefined {
       choice: BigInt(storedData.choice),
       justification: storedData.justification,
     };
-  } catch {
+  } catch (err) {
+    if (err instanceof Error) {
+      console.warn("restoreCommitData: Failed to retrieve choice data from localStorage.", err.message);
+    }
+
     return undefined;
   }
 }
