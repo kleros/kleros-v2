@@ -9,6 +9,7 @@ import { useCountdown } from "hooks/useCountdown";
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { DisputeKits } from "src/consts";
+import { isUndefined } from "src/utils";
 
 import { getDeadline } from "../../Timeline";
 import OptionsContainer from "../OptionsContainer";
@@ -50,6 +51,9 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
+      if (isUndefined(currentRoundIndex)) {
+        return;
+      }
       /* an extra 300 seconds (5 minutes) of decryptionDelay is enforced after Commit period is over
       to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
       const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
@@ -59,7 +63,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
         disputeId: parsedDisputeID,
         choice,
         voteIds: parsedVoteIDs,
-        roundIndex: currentRoundIndex,
+        roundIndex: Number(currentRoundIndex),
         justification,
         decryptionDelay,
       });
