@@ -42,7 +42,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated }) => {
       />
     )
   ) : (
-    <Vote {...{ arbitrable, setIsOpen, voteIDs }} />
+    <Vote {...{ arbitrable, setIsOpen, voteIDs, isGated }} />
   );
 };
 
