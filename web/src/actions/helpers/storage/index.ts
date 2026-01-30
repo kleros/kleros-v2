@@ -1,6 +1,16 @@
 import { CommitData, StoredCommitData } from "./types";
 
-// TODO: we might need to make it throwable in future in case of choices that cannot be brute forced
+/**
+ * Stores commit data to localStorage.
+ * Is allowed to fail, since we can bruteforce the choice at reveal time
+ *
+ * @param key Unique identifier to store the data with.
+ * See {@link module:getVoteKey} for details on key construction.
+ * @param data Commit data to persist
+ *
+ * @remarks Never throws. Failures are logged as warnings.
+ * @todo Make this throwable for commit types where brute-forcing is not possible.
+ */
 export function storeCommitData(key: string, data: CommitData): void {
   const parsedData: StoredCommitData = {
     salt: data.salt.toString(),
@@ -15,6 +25,16 @@ export function storeCommitData(key: string, data: CommitData): void {
   }
 }
 
+/**
+ * Retrieves commit data from localStorage.
+ * Is allowed to fail, since we can bruteforce the choice
+ *
+ * @param key Unique identifier that the data was stored with.
+ * See {@link module:getVoteKey} for details on key construction.
+ *
+ * @remarks Never throws. Failures are logged as warnings.
+ * @todo Make this throwable for commit types where brute-forcing is not possible.
+ */
 export function restoreCommitData(key: string): CommitData | undefined {
   const raw = localStorage.getItem(key);
   if (!raw) return undefined;

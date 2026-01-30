@@ -13,4 +13,16 @@ export interface ClassicVoteParams extends BaseVoteParams {
   type: DisputeKits.Classic;
 }
 
-export type VoteParams = ClassicVoteParams;
+export interface ShutterVoteParams extends BaseVoteParams {
+  type: DisputeKits.Shutter;
+}
+
+export interface GatedVoteParams extends BaseVoteParams {
+  type: DisputeKits.Gated;
+}
+
+export interface GatedShutterVoteParams extends BaseVoteParams {
+  type: DisputeKits.GatedShutter;
+}
+
+export type VoteParams = ClassicVoteParams | ShutterVoteParams | GatedVoteParams | GatedShutterVoteParams;

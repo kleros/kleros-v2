@@ -3,8 +3,18 @@ import type { VoteContext } from "./context";
 import type { VoteParams } from "./params";
 
 /**
- * @description Builds and sends a vote transaction to the relevant DisputeKit
- * @returns hash - hash of the transaction
+ * Builds a vote transaction and sends it to the relevant DisputeKit contract.
+ *
+ * Internally, this calls {@link buildVoteTxn} to construct the transaction
+ * (ABI, functionName, args, etc.) and then executes it via the `walletClient`
+ * provided in `context`.
+ *
+ * @param params  Parameters for the vote transaction. Must include a `type` field
+ *                corresponding to a `DisputeKits` value.
+ * @param context Execution context, usually including chain info, account data,
+ *                and a `walletClient` to send the transaction.
+ *
+ * @returns A promise that resolves to the transaction hash returned by `walletClient.writeContract`.
  */
 export async function executeVote(params: VoteParams, context: VoteContext) {
   const tx = await buildVoteTxn(params, context);

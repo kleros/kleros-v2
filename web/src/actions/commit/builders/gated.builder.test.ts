@@ -10,11 +10,6 @@ import type { GatedCommitParams } from "../params";
 
 import { gatedCommitBuilder } from "./gated.builder";
 
-// Mock the dependencies
-vi.mock("actions/helpers/storage", () => ({
-  storeCommitData: vi.fn(),
-}));
-
 vi.mock("hooks/contracts/generated", () => ({
   disputeKitGatedAbi: [{ name: "castCommit", type: "function" }],
   disputeKitGatedAddress: {
@@ -22,14 +17,16 @@ vi.mock("hooks/contracts/generated", () => ({
   },
 }));
 
-import { storeCommitData } from "actions/helpers/storage";
-
 describe("gatedCommitBuilder", () => {
   const mockContext: CommitContext = {
     account: "0xabcdef1234567890abcdef1234567890abcdef12" as `0x${string}`,
     chain: arbitrumSepolia,
     walletClient: {} as CommitContext["walletClient"],
   };
+  const mockStoreCommitData = vi.fn();
+
+  const buildTxn = async (params: GatedCommitParams) =>
+    await gatedCommitBuilder.build(params, mockContext, { storeCommitData: mockStoreCommitData });
 
   const createParams = (overrides: Partial<GatedCommitParams> = {}): GatedCommitParams => ({
     disputeId: 1n,
@@ -49,7 +46,7 @@ describe("gatedCommitBuilder", () => {
     it("should build correct transaction structure", async () => {
       const params = createParams();
 
-      const result = await gatedCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result).toMatchObject({
         account: mockContext.account,
@@ -67,7 +64,7 @@ describe("gatedCommitBuilder", () => {
         salt: 999n,
       });
 
-      const result = await gatedCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
       const expectedCommit = hashVote(params.choice, params.salt);
 
       expect(result.args).toEqual([params.disputeId, params.voteIds, expectedCommit]);
@@ -84,10 +81,10 @@ describe("gatedCommitBuilder", () => {
         salt: 777n,
       });
 
-      await gatedCommitBuilder.build(params, mockContext);
+      await buildTxn(params);
 
-      expect(storeCommitData).toHaveBeenCalledTimes(1);
-      expect(storeCommitData).toHaveBeenCalledWith("dispute-100-round-2-voteids-5,6", {
+      expect(mockStoreCommitData).toHaveBeenCalledTimes(1);
+      expect(mockStoreCommitData).toHaveBeenCalledWith("dispute-100-round-2-voteids-5,6", {
         choice: 1n,
         salt: 777n,
       });
@@ -98,7 +95,7 @@ describe("gatedCommitBuilder", () => {
     it("should compute commit using hashVote", async () => {
       const params = createParams({ choice: 3n, salt: 12345n });
 
-      const result = await gatedCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
       const expectedCommit = hashVote(3n, 12345n);
 
       expect(result.args?.[2]).toBe(expectedCommit);
@@ -109,7 +106,7 @@ describe("gatedCommitBuilder", () => {
     it("should handle single voteId", async () => {
       const params = createParams({ voteIds: [99n] });
 
-      const result = await gatedCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.args?.[1]).toEqual([99n]);
     });
@@ -117,7 +114,7 @@ describe("gatedCommitBuilder", () => {
     it("should handle multiple voteIds", async () => {
       const params = createParams({ voteIds: [1n, 2n, 3n, 4n, 5n] });
 
-      const result = await gatedCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.args?.[1]).toEqual([1n, 2n, 3n, 4n, 5n]);
     });

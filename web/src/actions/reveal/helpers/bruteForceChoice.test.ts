@@ -17,83 +17,83 @@ describe("bruteForceChoice", () => {
   ];
 
   describe("successful choice recovery", () => {
-    it("should recover choice 0 (Refuse To Arbitrate)", async () => {
+    it("should recover choice 0 (Refuse To Arbitrate)", () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       const commit = createCommit(0n, salt);
 
-      const result = await bruteForceChoice(salt, mockAnswers, commit);
+      const result = bruteForceChoice(salt, mockAnswers, commit);
 
       expect(result).toBe(0n);
     });
 
-    it("should recover choice 1", async () => {
+    it("should recover choice 1", () => {
       const salt = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as `0x${string}`;
       const commit = createCommit(1n, salt);
 
-      const result = await bruteForceChoice(salt, mockAnswers, commit);
+      const result = bruteForceChoice(salt, mockAnswers, commit);
 
       expect(result).toBe(1n);
     });
 
-    it("should recover choice 2", async () => {
+    it("should recover choice 2", () => {
       const salt = "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321" as `0x${string}`;
       const commit = createCommit(2n, salt);
 
-      const result = await bruteForceChoice(salt, mockAnswers, commit);
+      const result = bruteForceChoice(salt, mockAnswers, commit);
 
       expect(result).toBe(2n);
     });
 
-    it("should recover the last choice in the list", async () => {
+    it("should recover the last choice in the list", () => {
       const salt = "0x9999999999999999999999999999999999999999999999999999999999999999" as `0x${string}`;
       const commit = createCommit(3n, salt);
 
-      const result = await bruteForceChoice(salt, mockAnswers, commit);
+      const result = bruteForceChoice(salt, mockAnswers, commit);
 
       expect(result).toBe(3n);
     });
   });
 
   describe("empty answers handling", () => {
-    it("should default to RFA when answers array is empty", async () => {
+    it("should default to RFA when answers array is empty", () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       const commit = createCommit(0n, salt);
 
-      const result = await bruteForceChoice(salt, [], commit);
+      const result = bruteForceChoice(salt, [], commit);
 
       expect(result).toBe(0n);
     });
   });
 
   describe("error cases", () => {
-    it("should throw error when choice cannot be found", async () => {
+    it("should throw error when choice cannot be found", () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       // Create a commit for choice 99 which doesn't exist in our answer set
       const commit = createCommit(99n, salt);
 
-      await expect(bruteForceChoice(salt, mockAnswers, commit)).rejects.toThrow("Unable to retrieve choice.");
+      expect(() => bruteForceChoice(salt, mockAnswers, commit)).toThrow("Unable to retrieve choice.");
     });
 
-    it("should throw when commit doesn't match any answer", async () => {
+    it("should throw when commit doesn't match any answer", () => {
       const salt = "0x1111111111111111111111111111111111111111111111111111111111111111" as `0x${string}`;
       const fakeCommit = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-      await expect(bruteForceChoice(salt, mockAnswers, fakeCommit)).rejects.toThrow("Unable to retrieve choice.");
+      expect(() => bruteForceChoice(salt, mockAnswers, fakeCommit)).toThrow("Unable to retrieve choice.");
     });
   });
 
   describe("deterministic behavior", () => {
-    it("should return same choice for same inputs", async () => {
+    it("should return same choice for same inputs", () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       const commit = createCommit(1n, salt);
 
-      const result1 = await bruteForceChoice(salt, mockAnswers, commit);
-      const result2 = await bruteForceChoice(salt, mockAnswers, commit);
+      const result1 = bruteForceChoice(salt, mockAnswers, commit);
+      const result2 = bruteForceChoice(salt, mockAnswers, commit);
 
       expect(result1).toBe(result2);
     });
 
-    it("iterates answers in the given order", async () => {
+    it("iterates answers in the given order", () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       const answers: Answer[] = [
         { id: "5", title: "Five", description: "" },
@@ -102,13 +102,13 @@ describe("bruteForceChoice", () => {
 
       const commit = createCommit(1n, salt);
 
-      const result = await bruteForceChoice(salt, answers, commit);
+      const result = bruteForceChoice(salt, answers, commit);
       expect(result).toBe(1n);
     });
   });
 
   describe("answer format handling", () => {
-    it("should handle answers with hex string IDs", async () => {
+    it("should handle answers with hex string IDs", () => {
       const answersWithHexIds: Answer[] = [
         { id: "0x0", title: "A", description: "" },
         { id: "0xa", title: "B", description: "" },
@@ -118,12 +118,12 @@ describe("bruteForceChoice", () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       const commit = createCommit(10n, salt); // 0xa = 10
 
-      const result = await bruteForceChoice(salt, answersWithHexIds, commit);
+      const result = bruteForceChoice(salt, answersWithHexIds, commit);
 
       expect(result).toBe(10n);
     });
 
-    it("should handle answers with numeric string IDs", async () => {
+    it("should handle answers with numeric string IDs", () => {
       const answersWithNumericIds: Answer[] = [
         { id: "0", title: "A", description: "" },
         { id: "1", title: "B", description: "" },
@@ -133,7 +133,7 @@ describe("bruteForceChoice", () => {
       const salt = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" as `0x${string}`;
       const commit = createCommit(2n, salt);
 
-      const result = await bruteForceChoice(salt, answersWithNumericIds, commit);
+      const result = bruteForceChoice(salt, answersWithNumericIds, commit);
 
       expect(result).toBe(2n);
     });

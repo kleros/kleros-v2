@@ -1,3 +1,4 @@
+import { maxUint256 } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -10,11 +11,6 @@ import type { ClassicCommitParams } from "../params";
 
 import { classicCommitBuilder } from "./classic.builder";
 
-// Mock the dependencies
-vi.mock("actions/helpers/storage", () => ({
-  storeCommitData: vi.fn(),
-}));
-
 vi.mock("hooks/contracts/generated", () => ({
   disputeKitClassicAbi: [{ name: "castCommit", type: "function" }],
   disputeKitClassicAddress: {
@@ -22,16 +18,13 @@ vi.mock("hooks/contracts/generated", () => ({
   },
 }));
 
-import { storeCommitData } from "actions/helpers/storage";
-
-import { maxUint256 } from "viem";
-
 describe("classicCommitBuilder", () => {
   const mockContext: CommitContext = {
     account: "0xabcdef1234567890abcdef1234567890abcdef12" as `0x${string}`,
     chain: arbitrumSepolia,
     walletClient: {} as CommitContext["walletClient"],
   };
+  const mockStoreCommitData = vi.fn();
 
   const createParams = (overrides: Partial<ClassicCommitParams> = {}): ClassicCommitParams => ({
     disputeId: 1n,
@@ -43,6 +36,9 @@ describe("classicCommitBuilder", () => {
     ...overrides,
   });
 
+  const buildTxn = async (params: ClassicCommitParams) =>
+    await classicCommitBuilder.build(params, mockContext, { storeCommitData: mockStoreCommitData });
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -51,7 +47,7 @@ describe("classicCommitBuilder", () => {
     it("should build correct transaction structure", async () => {
       const params = createParams();
 
-      const result = await classicCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result).toMatchObject({
         account: mockContext.account,
@@ -69,7 +65,7 @@ describe("classicCommitBuilder", () => {
         salt: 999n,
       });
 
-      const result = await classicCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       const expectedCommit = hashVote(params.choice, params.salt);
 
@@ -79,7 +75,7 @@ describe("classicCommitBuilder", () => {
     it("should use correct contract address for chain", async () => {
       const params = createParams();
 
-      const result = await classicCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.address).toBe("0x1234567890123456789012345678901234567890");
     });
@@ -95,10 +91,10 @@ describe("classicCommitBuilder", () => {
         salt: 777n,
       });
 
-      await classicCommitBuilder.build(params, mockContext);
+      await buildTxn(params);
 
-      expect(storeCommitData).toHaveBeenCalledTimes(1);
-      expect(storeCommitData).toHaveBeenCalledWith("dispute-100-round-2-voteids-5,6", {
+      expect(mockStoreCommitData).toHaveBeenCalledTimes(1);
+      expect(mockStoreCommitData).toHaveBeenCalledWith("dispute-100-round-2-voteids-5,6", {
         choice: 1n,
         salt: 777n,
       });
@@ -107,9 +103,9 @@ describe("classicCommitBuilder", () => {
     it("should store data before returning transaction", async () => {
       const params = createParams();
 
-      await classicCommitBuilder.build(params, mockContext);
+      await buildTxn(params);
 
-      expect(storeCommitData).toHaveBeenCalled();
+      expect(mockStoreCommitData).toHaveBeenCalled();
     });
   });
 
@@ -120,7 +116,7 @@ describe("classicCommitBuilder", () => {
         salt: 12345n,
       });
 
-      const result = await classicCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
       const expectedCommit = hashVote(3n, 12345n);
 
       expect(result.args?.[2]).toBe(expectedCommit);
@@ -131,7 +127,7 @@ describe("classicCommitBuilder", () => {
     it("should handle single voteId", async () => {
       const params = createParams({ voteIds: [99n] });
 
-      const result = await classicCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.args?.[1]).toEqual([99n]);
     });
@@ -139,7 +135,7 @@ describe("classicCommitBuilder", () => {
     it("should handle multiple voteIds", async () => {
       const params = createParams({ voteIds: [1n, 2n, 3n, 4n, 5n] });
 
-      const result = await classicCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.args?.[1]).toEqual([1n, 2n, 3n, 4n, 5n]);
     });
@@ -148,7 +144,7 @@ describe("classicCommitBuilder", () => {
       const largeDisputeId = maxUint256;
       const params = createParams({ disputeId: largeDisputeId });
 
-      const result = await classicCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.args?.[0]).toBe(largeDisputeId);
     });
@@ -157,9 +153,12 @@ describe("classicCommitBuilder", () => {
       const largeSalt = maxUint256;
       const params = createParams({ salt: largeSalt });
 
-      await classicCommitBuilder.build(params, mockContext);
+      await buildTxn(params);
 
-      expect(storeCommitData).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ salt: largeSalt }));
+      expect(mockStoreCommitData).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ salt: largeSalt })
+      );
     });
   });
 });

@@ -1,11 +1,8 @@
 import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { storeCommitData } from "actions/helpers/storage";
-
 import { hashJustification } from "utils/crypto/hashJustification";
 import { hashVote } from "utils/crypto/hashVote";
-import { encrypt } from "utils/crypto/shutter";
 
 import { DisputeKits } from "src/consts";
 
@@ -16,25 +13,12 @@ import type { ShutterCommitParams } from "../params";
 
 import { shutterCommitBuilder } from "./shutter.builder";
 
-// Mock the dependencies
-vi.mock("actions/helpers/storage", () => ({
-  storeCommitData: vi.fn(),
-}));
-
 vi.mock("hooks/contracts/generated", () => ({
   disputeKitShutterAbi: [{ name: "castCommitShutter", type: "function" }],
   disputeKitShutterAddress: {
     421614: "0xSHUTTER12345678901234567890123456789012" as const,
   },
 }));
-
-vi.mock("utils/crypto/shutter", async () => {
-  const { fakeEncrypt } = await import("../../../test/fakes/shutter");
-
-  return {
-    encrypt: vi.fn(fakeEncrypt),
-  };
-});
 
 // Mock import.meta.env
 vi.stubEnv("REACT_APP_SHUTTER_API", "https://shutter.test.api");
@@ -45,8 +29,8 @@ describe("shutterCommitBuilder", () => {
     chain: arbitrumSepolia,
     walletClient: {} as CommitContext["walletClient"],
   };
-
-  const mockEncrypt = vi.mocked(encrypt);
+  const mockStoreCommitData = vi.fn();
+  const mockEncrypt = vi.fn(fakeEncrypt);
 
   const createParams = (overrides: Partial<ShutterCommitParams> = {}): ShutterCommitParams => ({
     disputeId: 1n,
@@ -60,6 +44,12 @@ describe("shutterCommitBuilder", () => {
     ...overrides,
   });
 
+  const buildTxn = async (params: ShutterCommitParams) =>
+    await shutterCommitBuilder.build(params, mockContext, {
+      storeCommitData: mockStoreCommitData,
+      encrypt: mockEncrypt,
+    });
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -68,7 +58,7 @@ describe("shutterCommitBuilder", () => {
     it("should build correct transaction structure", async () => {
       const params = createParams();
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result).toMatchObject({
         account: mockContext.account,
@@ -87,7 +77,7 @@ describe("shutterCommitBuilder", () => {
         justification: "Test justification",
       });
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       // Args should be: [disputeId, voteIds, choiceCommit, justificationCommit, identity, encryptedCommitment]
       expect(result.args).toHaveLength(6);
@@ -98,7 +88,7 @@ describe("shutterCommitBuilder", () => {
     it("should compute choice commit using hashVote", async () => {
       const params = createParams({ choice: 3n, salt: 12345n });
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
       const expectedChoiceCommit = hashVote(params.choice, params.salt);
 
       expect(result.args?.[2]).toBe(expectedChoiceCommit);
@@ -107,7 +97,7 @@ describe("shutterCommitBuilder", () => {
     it("should compute justification commit using hashJustification", async () => {
       const params = createParams({ salt: 12345n, justification: "My reasoning" });
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
       const expectedJustificationCommit = hashJustification(params.salt, params.justification);
 
       expect(result.args?.[3]).toBe(expectedJustificationCommit);
@@ -125,10 +115,10 @@ describe("shutterCommitBuilder", () => {
         justification: "Stored justification",
       });
 
-      await shutterCommitBuilder.build(params, mockContext);
+      await buildTxn(params);
 
-      expect(storeCommitData).toHaveBeenCalledTimes(1);
-      expect(storeCommitData).toHaveBeenCalledWith("dispute-100-round-2-voteids-5,6", {
+      expect(mockStoreCommitData).toHaveBeenCalledTimes(1);
+      expect(mockStoreCommitData).toHaveBeenCalledWith("dispute-100-round-2-voteids-5,6", {
         choice: 1n,
         salt: 777n,
         justification: "Stored justification",
@@ -140,11 +130,11 @@ describe("shutterCommitBuilder", () => {
     it("should encrypt encoded shutter message", async () => {
       const params = createParams({ choice: 2n, salt: 555n, justification: "Test" });
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       const encoded = encodeShutterMessage(2n, 555n, "Test");
 
-      const { identity: expectedIdentity } = fakeEncrypt(encoded, params.decryptionDelay);
+      const { identity: expectedIdentity } = await fakeEncrypt(encoded, params.decryptionDelay);
 
       expect(result.args?.[4]).toBe(expectedIdentity);
     });
@@ -152,7 +142,7 @@ describe("shutterCommitBuilder", () => {
     it("should include identity and encrypted commitment from shutter", async () => {
       const params = createParams();
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       // Args[4] is identity, Args[5] is encryptedCommitment
       expect(result.args?.[4]).toMatch(/^0x[a-fA-F0-9]+$/);
@@ -167,7 +157,7 @@ describe("shutterCommitBuilder", () => {
         decryptionDelay: 120,
       });
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       const encoded = encodeShutterMessage(2n, 555n, "Test");
 
@@ -184,8 +174,8 @@ describe("shutterCommitBuilder", () => {
         decryptionDelay: 120,
       });
 
-      const result1 = await shutterCommitBuilder.build(params, mockContext);
-      const result2 = await shutterCommitBuilder.build(params, mockContext);
+      const result1 = await buildTxn(params);
+      const result2 = await buildTxn(params);
 
       // Same inputs should produce same outputs
       expect(result1.args?.[4]).toBe(result2.args?.[4]); // identity
@@ -199,7 +189,7 @@ describe("shutterCommitBuilder", () => {
         decryptionDelay: 120,
       });
 
-      await shutterCommitBuilder.build(params, mockContext);
+      await buildTxn(params);
 
       expect(mockEncrypt).toHaveBeenCalledTimes(1);
       expect(mockEncrypt).toHaveBeenCalledWith(encodeShutterMessage(2n, 555n, "Test"), 120);
@@ -211,7 +201,7 @@ describe("shutterCommitBuilder", () => {
       vi.stubEnv("REACT_APP_SHUTTER_API", "");
       const params = createParams();
 
-      await expect(shutterCommitBuilder.build(params, mockContext)).rejects.toThrow(
+      await expect(buildTxn(params)).rejects.toThrow(
         "Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set"
       );
 
@@ -224,7 +214,7 @@ describe("shutterCommitBuilder", () => {
     it("should handle empty justification", async () => {
       const params = createParams({ justification: "" });
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.args).toHaveLength(6);
     });
@@ -232,7 +222,7 @@ describe("shutterCommitBuilder", () => {
     it("should handle multiple voteIds", async () => {
       const params = createParams({ voteIds: [1n, 2n, 3n, 4n, 5n] });
 
-      const result = await shutterCommitBuilder.build(params, mockContext);
+      const result = await buildTxn(params);
 
       expect(result.args?.[1]).toEqual([1n, 2n, 3n, 4n, 5n]);
     });

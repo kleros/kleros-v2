@@ -1,6 +1,5 @@
 import { Hex } from "viem";
 
-import { storeCommitData } from "actions/helpers/storage";
 import { getVoteKey } from "actions/helpers/storage/key";
 
 import { disputeKitShutterAbi, disputeKitShutterAddress } from "hooks/contracts/generated";
@@ -8,13 +7,17 @@ import { hashJustification } from "utils/crypto/hashJustification";
 import { hashVote } from "utils/crypto/hashVote";
 import { encrypt } from "utils/crypto/shutter";
 
+import { ShutterCommitDeps } from "../deps";
 import { encodeShutterMessage } from "../helpers";
 import { ShutterCommitParams } from "../params";
 
 import { defineCommitBuilder } from "./baseBuilder";
 
 export const shutterCommitBuilder = defineCommitBuilder({
-  build: async (params: ShutterCommitParams, context) => {
+  builderDeps: {
+    encrypt,
+  },
+  build: async (params: ShutterCommitParams, context, deps: ShutterCommitDeps) => {
     if (!import.meta.env.REACT_APP_SHUTTER_API || import.meta.env.REACT_APP_SHUTTER_API.trim() === "") {
       console.error("REACT_APP_SHUTTER_API environment variable is not set or is empty");
       throw new Error("Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set");
@@ -24,11 +27,11 @@ export const shutterCommitBuilder = defineCommitBuilder({
     const { chain, account } = context;
 
     const key = getVoteKey(disputeId, roundIndex, voteIds);
-    storeCommitData(key, { choice, salt, justification });
+    deps.storeCommitData(key, { choice, salt, justification });
 
     const encodedMessage = encodeShutterMessage(choice, salt, justification);
 
-    const { encryptedCommitment, identity } = await encrypt(encodedMessage, decryptionDelay);
+    const { encryptedCommitment, identity } = await deps.encrypt(encodedMessage, decryptionDelay);
 
     const choiceCommit = hashVote(choice, BigInt(salt));
     const justificationCommit = hashJustification(BigInt(salt), justification);

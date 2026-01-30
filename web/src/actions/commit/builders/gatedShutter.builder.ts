@@ -1,6 +1,5 @@
 import { Hex } from "viem";
 
-import { storeCommitData } from "actions/helpers/storage";
 import { getVoteKey } from "actions/helpers/storage/key";
 
 import { disputeKitGatedShutterAbi, disputeKitGatedShutterAddress } from "hooks/contracts/generated";
@@ -8,13 +7,17 @@ import { hashJustification } from "utils/crypto/hashJustification";
 import { hashVote } from "utils/crypto/hashVote";
 import { encrypt } from "utils/crypto/shutter";
 
+import { GatedShutterCommitDeps } from "../deps";
 import { encodeShutterMessage } from "../helpers";
 import { GatedShutterCommitParams } from "../params";
 
 import { defineCommitBuilder } from "./baseBuilder";
 
 export const gatedShutterCommitBuilder = defineCommitBuilder({
-  build: async (params: GatedShutterCommitParams, context) => {
+  builderDeps: {
+    encrypt,
+  },
+  build: async (params: GatedShutterCommitParams, context, deps: GatedShutterCommitDeps) => {
     if (!import.meta.env.REACT_APP_SHUTTER_API || import.meta.env.REACT_APP_SHUTTER_API.trim() === "") {
       console.error("REACT_APP_SHUTTER_API environment variable is not set or is empty");
       throw new Error("Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set");
@@ -24,14 +27,14 @@ export const gatedShutterCommitBuilder = defineCommitBuilder({
     const { chain, account } = context;
 
     const key = getVoteKey(disputeId, roundIndex, voteIds);
-    storeCommitData(key, { choice, salt, justification });
+    deps.storeCommitData(key, { choice, salt, justification });
 
     const encodedMessage = encodeShutterMessage(choice, salt, justification);
 
-    const { encryptedCommitment, identity } = await encrypt(encodedMessage, decryptionDelay);
+    const { encryptedCommitment, identity } = await deps.encrypt(encodedMessage, decryptionDelay);
 
-    const choiceCommit = hashVote(choice, BigInt(salt));
-    const justificationCommit = hashJustification(BigInt(salt), justification);
+    const choiceCommit = hashVote(choice, salt);
+    const justificationCommit = hashJustification(salt, justification);
 
     return {
       account,

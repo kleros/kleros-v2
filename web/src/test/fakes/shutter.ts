@@ -15,7 +15,7 @@ interface ShutterEncryptResult {
  * This allows tests to verify the encryption is called with correct inputs
  * without relying on actual shutter crypto
  */
-export function fakeEncrypt(message: string, decryptionDelay: number): ShutterEncryptResult {
+export async function fakeEncrypt(message: string, decryptionDelay: number): Promise<ShutterEncryptResult> {
   // Create deterministic outputs based on inputs
   const identity = keccak256(encodePacked(["string", "uint256"], [message, BigInt(decryptionDelay)]));
   const encryptedCommitment = keccak256(encodePacked(["bytes32", "string"], [identity, "encrypted"]));
