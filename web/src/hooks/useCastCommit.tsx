@@ -45,9 +45,7 @@ export function useCastCommit(onSuccess?: () => void) {
       if (!signingAccount) throw new Error("No signing account available");
 
       // generate salt
-      const saltKey = getVoteKey(params.disputeId, params.roundIndex, params.voteIds);
-
-      const message = saltKey;
+      const message = getVoteKey(params.disputeId, params.roundIndex, params.voteIds);
       const salt = await generateSalt(signingAccount, message);
 
       const executeParams: CommitParams = { ...params, salt: BigInt(salt) };
