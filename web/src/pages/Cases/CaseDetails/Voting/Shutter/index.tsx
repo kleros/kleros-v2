@@ -22,7 +22,7 @@ interface IShutter {
 const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPeriodIndex, isGated }) => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: drawData, refetch } = useDrawQuery(address?.toLowerCase(), id, dispute?.currentRound.id);
+  const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, dispute?.currentRound.id);
   const { isCommitPeriod, isVotingPeriod, commit, commited } = useVotingContext();
   const voteIDs = useMemo(() => drawData?.draws?.map((draw) => draw.voteIDNum) as string[], [drawData]);
 
@@ -32,7 +32,7 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
   return (
     <>
       {shouldShowCommit && (
-        <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, refetch, dispute, currentPeriodIndex, isGated }} />
+        <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, dispute, currentPeriodIndex, isGated }} />
       )}
       {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, isGated, arbitrable, commit: commit as `0x$string` }} />}
     </>
