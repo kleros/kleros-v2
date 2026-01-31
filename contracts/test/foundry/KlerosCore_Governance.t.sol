@@ -6,9 +6,9 @@ import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
+import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
-import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 
 /// @title KlerosCore_GovernanceTest
 /// @dev Tests for KlerosCore governance functions (owner/guardian operations)

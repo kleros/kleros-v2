@@ -5,13 +5,13 @@ pragma solidity ^0.8.24;
 import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
+import {IRatesConverter} from "../interfaces/IRatesConverter.sol";
 import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../libraries/Constants.sol";
-import {RatesConverter} from "../RatesConverter.sol";
 
 /// @title KlerosCoreUniversity
 /// @notice Core arbitrator contract for educational purposes.
@@ -98,7 +98,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => bool) public acceptedFeeTokens; // True if the token is accepted.
-    RatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
+    IRatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
 
     // ************************************* //
     // *              Events               * //
@@ -209,7 +209,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         ISortitionModuleUniversity _sortitionModuleAddress,
-        RatesConverter _ratesConverter
+        IRatesConverter _ratesConverter
     ) external initializer {
         owner = _owner;
         instructor = _instructor;
@@ -308,7 +308,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
     /// @notice Changes the `ratesConverter` storage variable.
     /// @param _ratesConverter The new value for the `ratesConverter` storage variable.
-    function changeRatesConverter(RatesConverter _ratesConverter) external onlyByOwner {
+    function changeRatesConverter(IRatesConverter _ratesConverter) external onlyByOwner {
         ratesConverter = _ratesConverter;
     }
 

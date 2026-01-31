@@ -6,6 +6,7 @@ import {IArbitrableV2} from "./interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
+import {IRatesConverter} from "./interfaces/IRatesConverter.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
@@ -13,7 +14,6 @@ import {SafeSend} from "../libraries/SafeSend.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "../libraries/Constants.sol";
-import {RatesConverter} from "./RatesConverter.sol";
 
 /// @title KlerosCore
 /// @notice Core arbitrator contract for Kleros v2.
@@ -111,7 +111,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     mapping(address => bool) public arbitrableWhitelist; // Arbitrable whitelist.
     bool public arbitrableWhitelistEnabled; // Whether the arbitrable whitelist is enabled.
     IERC721 public jurorNft; // Eligible jurors NFT.
-    RatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
+    IRatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
 
     // ************************************* //
     // *              Events               * //
@@ -314,7 +314,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         ISortitionModule _sortitionModuleAddress,
         address _wNative,
         IERC721 _jurorNft,
-        RatesConverter _ratesConverter
+        IRatesConverter _ratesConverter
     ) external initializer {
         owner = _owner;
         guardian = _guardian;
@@ -424,7 +424,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
     /// @notice Changes the `ratesConverter` storage variable.
     /// @param _ratesConverter The new value for the `ratesConverter` storage variable.
-    function changeRatesConverter(RatesConverter _ratesConverter) external onlyByOwner {
+    function changeRatesConverter(IRatesConverter _ratesConverter) external onlyByOwner {
         ratesConverter = _ratesConverter;
     }
 

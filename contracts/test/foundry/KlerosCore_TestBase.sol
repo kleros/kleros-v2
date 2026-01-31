@@ -20,8 +20,8 @@ import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
-import "../../src/libraries/Constants.sol";
 import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
+import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_TestBase
 /// @dev Abstract base contract for KlerosCore tests containing shared setup and utilities

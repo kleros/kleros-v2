@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH, Courts } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, RatesConverter, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -21,6 +21,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const pnk = await deployERC20AndFaucet(hre, deployer, "PNK");
   const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
+
+  const ratesConverter = await getContractOrDeploy<RatesConverter>(hre, "RatesConverter", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
 
   await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
@@ -84,7 +90,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       sortitionModule.address,
       weth.target,
       ZeroAddress, // jurorNft
-      ZeroAddress, // RatesConverter
+      ratesConverter.target,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
@@ -106,9 +112,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const core = await hre.ethers.getContract<KlerosCore>("KlerosCore");
   try {
-    await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);
-    await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);
-    await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
+    await changeCurrencyRate(core, ratesConverter, await pnk.getAddress(), true, 12225583, 12);
+    await changeCurrencyRate(core, ratesConverter, await dai.getAddress(), true, 60327783, 11);
+    await changeCurrencyRate(core, ratesConverter, await weth.getAddress(), true, 1, 1);
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }

@@ -9,9 +9,9 @@ import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
+import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
-import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 
 /// @title KlerosCore_InitializationTest
 /// @dev Tests for KlerosCore initialization and basic configuration
