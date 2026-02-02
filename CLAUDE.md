@@ -4,17 +4,17 @@ Work style: telegraph; noun-phrases ok; drop filler/grammar; min tokens
 
 ## Monorepo Structure
 
-This is a Yarn workspaces monorepo with multiple packages:
+Yarn workspaces monorepo:
 
-- `contracts/` - Solidity smart contracts (Foundry + Hardhat)
-- `web/` - Frontend application
-- `kleros-sdk/` - SDK package
-- `kleros-app/` - App package
-- `subgraph/` - TheGraph subgraph definitions
-- `bots/` - Automation bots
-- `services/` - Backend services
+- `contracts/` - Solidity (Foundry + Hardhat)
+- `web/` - Frontend
+- `kleros-sdk/` - SDK
+- `kleros-app/` - App
+- `subgraph/` - TheGraph definitions
+- `bots/` - Automation
+- `services/` - Backend
 
-Shared configs: `eslint-config/`, `prettier-config/`, `tsconfig/`
+Shared: `eslint-config/`, `prettier-config/`, `tsconfig/`
 
 ## Contracts Package
 
@@ -48,21 +48,21 @@ export PATH="$PATH:/root/.foundry/bin" && forge test
 
 - `contracts/src/` - Solidity source files
 - `contracts/test/foundry/` - Foundry test files
-- `contracts/foundry.toml` - Foundry configuration (Solc 0.8.30, Cancun EVM, via-ir enabled)
-- `remappings.txt` - Import path remappings for both Foundry and Hardhat
+- `contracts/foundry.toml` - Foundry config (Solc 0.8.30, Cancun EVM, via-ir enabled)
+- `remappings.txt` - Import path remappings (Foundry + Hardhat)
 
 ### Contracts Known Issues
 
-File names must match contract names exactly (Linux is case-sensitive):
+File names must match contract names exactly (Linux case-sensitive):
 
-- Contract `BlockHashRNG` must be in file `BlockHashRNG.sol`, not `BlockhashRNG.sol`
+- `BlockHashRNG` contract → `BlockHashRNG.sol`, not `BlockhashRNG.sol`
 
 ### Coding Style
 
 - Function params: `_` prefix, no suffix
 - Internal functions: `_` prefix, no `Internal` suffix
-- Upgradeable contracts: `version` defined only in derived contracts, not base: `string public constant override version = "0.0.1";`
+- Upgradeable `version`: define in derived only, not base: `string public constant override version = "0.0.1";`
 
 ## Audit Context
 
-This codebase contains fixes for the Certora security audit. Related PR: https://github.com/kleros/kleros-v2/pull/2209
+Certora security audit fixes. PR: https://github.com/kleros/kleros-v2/pull/2209
