@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 
 import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
 import {KlerosCore} from "../KlerosCore.sol";
-
+import {GENERAL_COURT} from "../../libraries/Constants.sol";
 interface IBalanceHolder {
     /// @notice Returns the number of tokens in `owner` account.
     /// @dev Compatible with ERC-20 and ERC-721.
@@ -37,7 +37,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *             Storage               * //
     // ************************************* //
 
-    mapping(address token => bool supported) public supportedTokens; // Whether the token is supported or not.
+    mapping(uint96 courtID => mapping(address token => bool supported)) public supportedTokens; // Whether the token is supported or not in a court
     mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(uint256 voteID => bytes32 justificationCommitment)))
         public justificationCommitments;
 
@@ -50,6 +50,12 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
+
+    /// @dev Emitted when the supported tokens for a court are changed.
+    /// @param _courtID The ID of the court.
+    /// @param _token The address of the token.
+    /// @param _supported Whether the token is supported or not.
+    event SupportedTokensChanged(uint96 indexed _courtID, address indexed _token, bool _supported);
 
     /// @dev Emitted when a vote is cast.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
@@ -82,7 +88,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(address _owner, KlerosCore _core, address _wNative) external initializer {
         __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
-        supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
+        supportedTokens[GENERAL_COURT][NO_TOKEN_GATE] = true; // Allow disputes without token gating in the General Court
     }
 
     // ************************ //
@@ -96,11 +102,13 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     }
 
     /// @notice Changes the supported tokens.
-    /// @param _tokens The tokens to support.
+    /// @param _courtID The ID of the court.
+    /// @param _tokens The tokens to support in the given court.
     /// @param _supported Whether the tokens are supported or not.
-    function changeSupportedTokens(address[] memory _tokens, bool _supported) external onlyByOwner {
+    function changeSupportedTokens(uint96 _courtID, address[] memory _tokens, bool _supported) external onlyByOwner {
         for (uint256 i = 0; i < _tokens.length; i++) {
-            supportedTokens[_tokens[i]] = _supported;
+            supportedTokens[_courtID][_tokens[i]] = _supported;
+            emit SupportedTokensChanged(_courtID, _tokens[i], _supported);
         }
     }
 
@@ -116,8 +124,8 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         bytes calldata _extraData,
         uint256 _nbVotes
     ) public override {
-        (address tokenGate, , ) = _extraDataToTokenInfo(_extraData);
-        if (!supportedTokens[tokenGate]) revert TokenNotSupported(tokenGate);
+        (uint96 courtID, address tokenGate, , ) = _extraDataToTokenInfo(_extraData);
+        if (!supportedTokens[courtID][tokenGate]) revert TokenNotSupported(courtID, tokenGate);
 
         // super.createDispute() ensures access control onlyByCore.
         super.createDispute(_coreDisputeID, _coreRoundID, _numberOfChoices, _extraData, _nbVotes);
@@ -232,17 +240,20 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// - bytes 64-95: uint256 disputeKitID, not used here
     /// - bytes 96-127: uint256 packedTokenGateAndFlag (address tokenGate in bits 0-159, bool isERC1155 in bit 160)
     /// - bytes 128-159: uint256 tokenId
+    /// @return courtID The ID of the court.
     /// @return tokenGate The address of the token contract used for gating access.
     /// @return isERC1155 True if the token is an ERC-1155, false for ERC-20/ERC-721.
     /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).
     function _extraDataToTokenInfo(
         bytes memory _extraData
-    ) internal pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
+    ) internal pure returns (uint96 courtID, address tokenGate, bool isERC1155, uint256 tokenId) {
         // Need at least 160 bytes to safely read the parameters
-        if (_extraData.length < 160) return (address(0), false, 0);
+        if (_extraData.length < 160) return (0, address(0), false, 0);
 
         assembly {
             // solium-disable-line security/no-inline-assembly
+            courtID := mload(add(_extraData, 0x20))
+
             let packedTokenGateIsERC1155 := mload(add(_extraData, 0x80)) // 4th parameter at offset 128
             tokenId := mload(add(_extraData, 0xA0)) // 5th parameter at offset 160 (moved up)
 
@@ -264,7 +275,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         // Get the local dispute and extract token info from extraData
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
-        (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
+        (, address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
 
         // If no token gate is specified, allow all jurors
         if (tokenGate == NO_TOKEN_GATE) return true;
@@ -281,7 +292,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     // *              Errors               * //
     // ************************************* //
 
-    error TokenNotSupported(address tokenGate);
+    error TokenNotSupported(uint96 courtID, address tokenGate);
     error EmptyJustificationCommit();
     error JustificationCommitmentMismatch();
 }
