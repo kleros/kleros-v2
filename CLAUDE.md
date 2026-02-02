@@ -1,6 +1,20 @@
 # Claude Code Notes for kleros-v2
 
-## Development Environment Setup
+## Monorepo Structure
+
+This is a Yarn workspaces monorepo with multiple packages:
+
+- `contracts/` - Solidity smart contracts (Foundry + Hardhat)
+- `web/` - Frontend application
+- `kleros-sdk/` - SDK package
+- `kleros-app/` - App package
+- `subgraph/` - TheGraph subgraph definitions
+- `bots/` - Automation bots
+- `services/` - Backend services
+
+Shared configs: `eslint-config/`, `prettier-config/`, `tsconfig/`
+
+## Contracts Package
 
 ### Foundry Installation
 
@@ -28,16 +42,14 @@ yarn install
 export PATH="$PATH:/root/.foundry/bin" && forge test
 ```
 
-## Project Structure
+### Contracts Structure
 
 - `contracts/src/` - Solidity source files
 - `contracts/test/foundry/` - Foundry test files
 - `contracts/foundry.toml` - Foundry configuration (Solc 0.8.30, Cancun EVM, via-ir enabled)
 - `remappings.txt` - Import path remappings for both Foundry and Hardhat
 
-## Known Issues
-
-### Case Sensitivity
+### Contracts Known Issues
 
 File names must match contract names exactly (Linux is case-sensitive):
 
