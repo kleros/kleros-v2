@@ -1,0 +1,48 @@
+# Claude Code Notes for kleros-v2
+
+## Development Environment Setup
+
+### Foundry Installation
+
+```bash
+# Install foundryup (if not already installed)
+curl -L https://foundry.paradigm.xyz | bash
+
+# Run foundryup to install/update forge, cast, anvil, chisel
+export PATH="$PATH:/root/.foundry/bin" && foundryup
+```
+
+### Dependencies
+
+```bash
+# Install npm dependencies (required for OpenZeppelin, etc.)
+yarn install
+
+# Foundry submodules (forge-std, solmate) are auto-installed on first forge command
+```
+
+### Running Tests
+
+```bash
+# Run from repo root (foundry.toml is at root, contracts config in contracts/foundry.toml)
+export PATH="$PATH:/root/.foundry/bin" && forge test
+```
+
+## Project Structure
+
+- `contracts/src/` - Solidity source files
+- `contracts/test/foundry/` - Foundry test files
+- `contracts/foundry.toml` - Foundry configuration (Solc 0.8.30, Cancun EVM, via-ir enabled)
+- `remappings.txt` - Import path remappings for both Foundry and Hardhat
+
+## Known Issues
+
+### Case Sensitivity
+
+File names must match contract names exactly (Linux is case-sensitive):
+
+- Contract `BlockHashRNG` must be in file `BlockHashRNG.sol`, not `BlockhashRNG.sol`
+
+## Audit Context
+
+This codebase contains fixes for the Certora security audit. Related PR: https://github.com/kleros/kleros-v2/pull/2209
