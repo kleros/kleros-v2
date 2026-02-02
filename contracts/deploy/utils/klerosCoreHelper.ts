@@ -16,8 +16,8 @@ export const changeCurrencyRate = async (
     await tx.wait();
   }
   const rate = await ratesConverter.currencyRates(erc20);
-  if (rate.rateInEth !== toBigInt(rateInEth) || rate.rateDecimals !== rateDecimals) {
-    console.log(`core.changeCurrencyRates(${erc20}, ${rateInEth}, ${rateDecimals})`);
+  if (rate.rateInEth !== toBigInt(rateInEth) || rate.rateDecimals !== toBigInt(rateDecimals)) {
+    console.log(`ratesConverter.changeCurrencyRates(${erc20}, ${rateInEth}, ${rateDecimals})`);
     const tx = await ratesConverter.changeCurrencyRates(erc20, rateInEth, rateDecimals);
     await tx.wait();
   }
