@@ -10,6 +10,6 @@ contract DisputeKitGatedMock is DisputeKitGated {
     function extraDataToTokenInfo(
         bytes memory _extraData
     ) public pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
-        (tokenGate, isERC1155, tokenId) = _extraDataToTokenInfo(_extraData);
+        (, tokenGate, isERC1155, tokenId) = _extraDataToTokenInfo(_extraData);
     }
 }

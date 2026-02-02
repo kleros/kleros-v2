@@ -273,7 +273,7 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
     // If gated, whitelist DAI token
     if (config.isGated) {
       const gatedKit = disputeKit as DisputeKitGatedShutterMock;
-      await gatedKit.changeSupportedTokens([dai.target], true);
+      await gatedKit.changeSupportedTokens(Courts.GENERAL, [dai.target], true);
     }
   } else {
     throw new Error(`Unknown contract name: ${config.contractName}`);

@@ -77,10 +77,11 @@ export const encodeExtraData = (
 export const whitelistTokens = async (
   context: TokenGatedTestContext,
   tokens: (string | Addressable)[],
-  supported: boolean = true
+  supported: boolean = true,
+  courtId: BigNumberish = Courts.GENERAL
 ) => {
   const tokenAddresses = tokens.map((token) => (typeof token === "string" ? token : token.toString()));
-  return context.disputeKit.changeSupportedTokens(tokenAddresses, supported);
+  return context.disputeKit.changeSupportedTokens(courtId, tokenAddresses, supported);
 };
 
 // Helper function to create a dispute with the specified token gate
@@ -88,9 +89,10 @@ export const createDisputeWithToken = async (
   context: TokenGatedTestContext,
   token: string | Addressable,
   isERC1155: boolean = false,
-  tokenId: BigNumberish = 0
+  tokenId: BigNumberish = 0,
+  courtId: BigNumberish = Courts.GENERAL
 ) => {
-  const extraData = encodeExtraData(Courts.GENERAL, 3, context.gatedDisputeKitID, token, isERC1155, tokenId);
+  const extraData = encodeExtraData(courtId, 3, context.gatedDisputeKitID, token, isERC1155, tokenId);
   const arbitrationCost = await context.core["arbitrationCost(bytes)"](extraData);
   return context.core["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
 };
@@ -99,10 +101,11 @@ export const createDisputeWithToken = async (
 export const expectTokenSupported = async (
   context: TokenGatedTestContext,
   token: string | Addressable,
-  supported: boolean
+  supported: boolean,
+  courtId: BigNumberish = Courts.GENERAL
 ) => {
   const tokenAddress = typeof token === "string" ? token : token.toString();
-  expect(await context.disputeKit.supportedTokens(tokenAddress)).to.equal(supported);
+  expect(await context.disputeKit.supportedTokens(courtId, tokenAddress)).to.equal(supported);
 };
 
 // Helper function to stake and draw jurors
@@ -300,6 +303,32 @@ export function testTokenWhitelistManagement(context: () => TokenGatedTestContex
         await whitelistTokens(ctx, [ctx.dai.target], false);
         await expectTokenSupported(ctx, ctx.dai.target, false);
       });
+
+      it("Should not affect other courts when whitelisting tokens", async () => {
+        const ctx = context();
+
+        // Setup already whitelists DAI in GENERAL only.
+        await expectTokenSupported(ctx, ctx.dai.target, true, Courts.GENERAL);
+        await expectTokenSupported(ctx, ctx.dai.target, false, Courts.FORKING);
+
+        // Whitelist in FORKING should not affect GENERAL.
+        await whitelistTokens(ctx, [ctx.dai.target], true, Courts.FORKING);
+        await expectTokenSupported(ctx, ctx.dai.target, true, Courts.FORKING);
+        await expectTokenSupported(ctx, ctx.dai.target, true, Courts.GENERAL);
+      });
+
+      it("Should keep court-specific state isolated across add/remove operations", async () => {
+        const ctx = context();
+
+        // Whitelist DAI in both courts, then remove only in GENERAL.
+        await whitelistTokens(ctx, [ctx.dai.target], true, Courts.FORKING);
+        await expectTokenSupported(ctx, ctx.dai.target, true, Courts.GENERAL);
+        await expectTokenSupported(ctx, ctx.dai.target, true, Courts.FORKING);
+
+        await whitelistTokens(ctx, [ctx.dai.target], false, Courts.GENERAL);
+        await expectTokenSupported(ctx, ctx.dai.target, false, Courts.GENERAL);
+        await expectTokenSupported(ctx, ctx.dai.target, true, Courts.FORKING);
+      });
     });
   });
 }
@@ -308,7 +337,8 @@ export function testAccessControl(context: () => TokenGatedTestContext) {
   describe("Access Control", async () => {
     it("Should revert when non-owner tries to change supported tokens", async () => {
       const ctx = context();
-      await expect(ctx.disputeKit.connect(ctx.juror1).changeSupportedTokens([ctx.dai.target], true)).to.be.reverted;
+      await expect(ctx.disputeKit.connect(ctx.juror1).changeSupportedTokens(Courts.GENERAL, [ctx.dai.target], true)).to
+        .be.reverted;
     });
 
     it("Should revert when non-owner tries to remove supported tokens", async () => {
@@ -317,7 +347,8 @@ export function testAccessControl(context: () => TokenGatedTestContext) {
       await whitelistTokens(ctx, [ctx.dai.target], true);
 
       // Then try to remove as non-owner
-      await expect(ctx.disputeKit.connect(ctx.juror1).changeSupportedTokens([ctx.dai.target], false)).to.be.reverted;
+      await expect(ctx.disputeKit.connect(ctx.juror1).changeSupportedTokens(Courts.GENERAL, [ctx.dai.target], false)).to
+        .be.reverted;
     });
   });
 }
@@ -330,7 +361,23 @@ export function testUnsupportedTokenErrors(context: () => TokenGatedTestContext)
 
       await expect(createDisputeWithToken(ctx, ctx.dai.target))
         .to.be.revertedWithCustomError(ctx.disputeKit, "TokenNotSupported")
-        .withArgs(ctx.dai.target);
+        .withArgs(Courts.GENERAL, ctx.dai.target);
+    });
+
+    it("Should check token support using the courtID encoded in extraData", async () => {
+      const ctx = context();
+
+      // Enable the dispute kit in FORKING court so dispute creation reaches DK logic.
+      const deployerSigner = await ethers.getSigner(ctx.deployer);
+      await ctx.core.connect(deployerSigner).enableDisputeKits(Courts.FORKING, [ctx.gatedDisputeKitID], true);
+
+      // DAI is supported in GENERAL from setup, but not in FORKING by default.
+      await expectTokenSupported(ctx, ctx.dai.target, true, Courts.GENERAL);
+      await expectTokenSupported(ctx, ctx.dai.target, false, Courts.FORKING);
+
+      await expect(createDisputeWithToken(ctx, ctx.dai.target, false, 0, Courts.FORKING))
+        .to.be.revertedWithCustomError(ctx.disputeKit, "TokenNotSupported")
+        .withArgs(Courts.FORKING, ctx.dai.target);
     });
 
     it("Should revert with TokenNotSupported when creating dispute with unsupported ERC721", async () => {
@@ -339,7 +386,7 @@ export function testUnsupportedTokenErrors(context: () => TokenGatedTestContext)
 
       await expect(createDisputeWithToken(ctx, ctx.nft721.target))
         .to.be.revertedWithCustomError(ctx.disputeKit, "TokenNotSupported")
-        .withArgs(ctx.nft721.target);
+        .withArgs(Courts.GENERAL, ctx.nft721.target);
     });
 
     it("Should revert with TokenNotSupported when creating dispute with unsupported ERC1155", async () => {
@@ -348,7 +395,7 @@ export function testUnsupportedTokenErrors(context: () => TokenGatedTestContext)
 
       await expect(createDisputeWithToken(ctx, ctx.nft1155.target, true, ctx.TOKEN_ID))
         .to.be.revertedWithCustomError(ctx.disputeKit, "TokenNotSupported")
-        .withArgs(ctx.nft1155.target);
+        .withArgs(Courts.GENERAL, ctx.nft1155.target);
     });
 
     it("Should allow dispute creation after token is whitelisted", async () => {
@@ -597,7 +644,7 @@ export function testWhitelistIntegration(context: () => TokenGatedTestContext) {
       // Try to create another dispute (should fail)
       await expect(createDisputeWithToken(ctx, ctx.dai.target))
         .to.be.revertedWithCustomError(ctx.disputeKit, "TokenNotSupported")
-        .withArgs(ctx.dai.target);
+        .withArgs(Courts.GENERAL, ctx.dai.target);
     });
 
     it("Should maintain whitelist state correctly across multiple operations", async () => {
@@ -629,6 +676,28 @@ export function testNoTokenGateAddress(context: () => TokenGatedTestContext) {
     it("Should verify that address(0) is supported by default", async () => {
       const ctx = context();
       await expectTokenSupported(ctx, ethers.ZeroAddress, true);
+    });
+
+    it("Should verify that address(0) is court-scoped (GENERAL only by default)", async () => {
+      const ctx = context();
+      await expectTokenSupported(ctx, ethers.ZeroAddress, true, Courts.GENERAL);
+      await expectTokenSupported(ctx, ethers.ZeroAddress, false, Courts.FORKING);
+    });
+
+    it("Should require explicit support for address(0) outside GENERAL", async () => {
+      const ctx = context();
+
+      // Enable the dispute kit in FORKING court so dispute creation reaches DK logic.
+      const deployerSigner = await ethers.getSigner(ctx.deployer);
+      await ctx.core.connect(deployerSigner).enableDisputeKits(Courts.FORKING, [ctx.gatedDisputeKitID], true);
+
+      // Dispute without token gating should revert in FORKING unless whitelisted there.
+      await expect(createDisputeWithToken(ctx, ethers.ZeroAddress, false, 0, Courts.FORKING))
+        .to.be.revertedWithCustomError(ctx.disputeKit, "TokenNotSupported")
+        .withArgs(Courts.FORKING, ethers.ZeroAddress);
+
+      await whitelistTokens(ctx, [ethers.ZeroAddress], true, Courts.FORKING);
+      await expect(createDisputeWithToken(ctx, ethers.ZeroAddress, false, 0, Courts.FORKING)).to.not.be.reverted;
     });
 
     it("Should allow dispute creation with address(0) as tokenGate", async () => {
