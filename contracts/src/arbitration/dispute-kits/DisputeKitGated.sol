@@ -131,8 +131,9 @@ contract DisputeKitGated is DisputeKitClassicBase {
         uint256 _coreDisputeID,
         address _juror,
         uint256 _roundNbVotes
-    ) internal view override returns (bool) {
-        if (!super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes)) return false;
+    ) internal view override returns (bool success, bool ineligible) {
+        (success, ineligible) = super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes);
+        if (!success) return (success, ineligible);
 
         // Get the local dispute and extract token info from extraData
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
@@ -140,14 +141,16 @@ contract DisputeKitGated is DisputeKitClassicBase {
         (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
 
         // If no token gate is specified, allow all jurors
-        if (tokenGate == NO_TOKEN_GATE) return true;
+        if (tokenGate == NO_TOKEN_GATE) return (true, false);
 
         // Check juror's token balance
         if (isERC1155) {
-            return IBalanceHolderERC1155(tokenGate).balanceOf(_juror, tokenId) > 0;
+            success = IBalanceHolderERC1155(tokenGate).balanceOf(_juror, tokenId) > 0;
         } else {
-            return IBalanceHolder(tokenGate).balanceOf(_juror) > 0;
+            success = IBalanceHolder(tokenGate).balanceOf(_juror) > 0;
         }
+        // Mark the juror as ineligible if they don't hold the token.
+        if (!success) ineligible = true;
     }
 
     // ************************************* //

@@ -73,7 +73,11 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
         uint256 _coreDisputeID,
         address _juror,
         uint256 _roundNbVotes
-    ) internal view override returns (bool) {
-        return super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes) && poh.isHuman(_juror);
+    ) internal view override returns (bool success, bool ineligible) {
+        (success, ineligible) = super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes);
+        if (!success) return (success, ineligible);
+
+        // Mark the juror as ineligible if they are not a human.
+        if (!poh.isHuman(_juror)) return (false, true);
     }
 }

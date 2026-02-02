@@ -13,6 +13,7 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {SafeSend} from "../libraries/SafeSend.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {EnumerableSet} from "../libraries/EnumerableSet.sol";
 import "../libraries/Constants.sol";
 
 /// @title KlerosCore
@@ -21,6 +22,7 @@ import "../libraries/Constants.sol";
 contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     using SafeERC20 for IERC20;
     using SafeSend for address payable;
+    using EnumerableSet for EnumerableSet.UintSet;
 
     string public constant override version = "2.0.0";
 
@@ -45,7 +47,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 feeForJuror; // Arbitration fee paid per juror.
         uint256 jurorsForCourtJump; // The appeal after the one that reaches this number of jurors will go to the parent court if any.
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
-        mapping(uint256 disputeKitId => bool) supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
@@ -103,6 +104,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     address public jurorProsecutionModule; // The module for juror's prosecution.
     ISortitionModule public sortitionModule; // Sortition module for drawing.
     Court[] public courts; // The courts.
+    mapping(uint96 courtID => EnumerableSet.UintSet) private _supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => bool) public acceptedFeeTokens; // True if the token is accepted.
@@ -480,7 +482,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
     /// @param _sortitionExtraData Extra data for sortition module.
-    /// @param _supportedDisputeKits Indexes of dispute kits that this court will support.
+    /// @param __supportedDisputeKits Indexes of dispute kits that this court will support.
     function createCourt(
         uint96 _parent,
         bool _hiddenVotes,
@@ -490,23 +492,23 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        uint256[] memory _supportedDisputeKits
+        uint256[] memory __supportedDisputeKits
     ) external onlyByOwner {
         if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
-        if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
+        if (__supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
         if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
 
         uint96 courtID = uint96(courts.length);
         Court storage court = courts.push();
 
-        for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
-            if (_supportedDisputeKits[i] == NULL_DISPUTE_KIT || _supportedDisputeKits[i] >= disputeKits.length) {
+        for (uint256 i = 0; i < __supportedDisputeKits.length; i++) {
+            if (__supportedDisputeKits[i] == NULL_DISPUTE_KIT || __supportedDisputeKits[i] >= disputeKits.length) {
                 revert WrongDisputeKitIndex();
             }
-            _enableDisputeKit(uint96(courtID), _supportedDisputeKits[i], true);
+            _enableDisputeKit(uint96(courtID), __supportedDisputeKits[i], true);
         }
         // Check that Classic DK support was added.
-        if (!court.supportedDisputeKits[DISPUTE_KIT_CLASSIC]) revert MustSupportDisputeKitClassic();
+        if (!_supportedDisputeKits[courtID].contains(DISPUTE_KIT_CLASSIC)) revert MustSupportDisputeKitClassic();
 
         court.parent = _parent;
         court.children = new uint256[](0);
@@ -530,7 +532,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _feeForJuror,
             _jurorsForCourtJump,
             _timesPerPeriod,
-            _supportedDisputeKits
+            __supportedDisputeKits
         );
     }
 
@@ -688,7 +690,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     ) internal returns (uint256 disputeID) {
         if (arbitrableWhitelistEnabled && !arbitrableWhitelist[msg.sender]) revert ArbitrableNotWhitelisted();
         (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
-        if (!courts[courtID].supportedDisputeKits[disputeKitID]) revert DisputeKitNotSupportedByCourt();
+        if (!_supportedDisputeKits[courtID].contains(disputeKitID)) revert DisputeKitNotSupportedByCourt();
 
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
@@ -1110,6 +1112,26 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         }
     }
 
+    /// @notice Forces unstaking of those jurors who have been ineligible by any of the supported dispute kits for a given court.
+    /// @param _courtID The ID of the court for forced unstaking.
+    /// @param _jurors The addresses of the jurors.
+    function forcedUnstakeIneligibleJurors(uint96 _courtID, address[] calldata _jurors) external {
+        // Note that we are requiring *at least one* dispute kit to have marked the juror as ineligible.
+        // But we could imagine requiring *all* of the dispute kits to have marked the juror as ineligible in alternate implementation.
+        uint256[] memory supportedDisputeKits = _supportedDisputeKits[_courtID].values();
+        for (uint256 i = 0; i < supportedDisputeKits.length; i++) {
+            IDisputeKit disputeKit = disputeKits[supportedDisputeKits[i]];
+            for (uint256 j = 0; j < _jurors.length; j++) {
+                address juror = _jurors[j];
+                if (disputeKit.ineligibleJurors(juror) > 10) {
+                    // TODO: make this a governance parameter?!
+                    sortitionModule.forcedUnstake(juror, _courtID);
+                    return;
+                }
+            }
+        }
+    }
+
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
@@ -1217,7 +1239,14 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _disputeKitID The ID of the dispute kit to check the support for.
     /// @return Whether the dispute kit is supported or not.
     function isSupported(uint96 _courtID, uint256 _disputeKitID) external view returns (bool) {
-        return courts[_courtID].supportedDisputeKits[_disputeKitID];
+        return _supportedDisputeKits[_courtID].contains(_disputeKitID);
+    }
+
+    /// @notice Gets the supported dispute kits IDs for a given court.
+    /// @param _courtID The ID of the court to get the supported dispute kits for.
+    /// @return The supported dispute kits IDs for the given court.
+    function getSupportedDisputeKits(uint96 _courtID) external view returns (uint256[] memory) {
+        return _supportedDisputeKits[_courtID].values();
     }
 
     /// @notice Gets the timesPerPeriod array for a given court.
@@ -1327,7 +1356,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             newRoundNbVotes = (_round.nbVotes * 2) + 1;
         }
         // Ensure compatibility between the next round's court and dispute kit.
-        if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
+        if (!_supportedDisputeKits[newCourtID].contains(newDisputeKitID)) {
             // Falling back to `DisputeKitClassic` which is always supported and with default nbVotes increase.
             newDisputeKitID = DISPUTE_KIT_CLASSIC;
             newRoundNbVotes = (_round.nbVotes * 2) + 1;
@@ -1367,7 +1396,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _disputeKitID The ID of the dispute kit to toggle the support for.
     /// @param _enable Whether to enable or disable the support. Note that classic dispute kit should always be enabled.
     function _enableDisputeKit(uint96 _courtID, uint256 _disputeKitID, bool _enable) internal {
-        courts[_courtID].supportedDisputeKits[_disputeKitID] = _enable;
+        if (_enable) {
+            _supportedDisputeKits[_courtID].add(_disputeKitID);
+        } else {
+            _supportedDisputeKits[_courtID].remove(_disputeKitID);
+        }
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 

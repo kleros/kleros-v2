@@ -197,4 +197,9 @@ interface IDisputeKit {
         uint256 _coreRoundID,
         uint256 _voteID
     ) external view returns (address account, bytes32 commit, uint256 choice, bool voted);
+
+    /// @notice Returns the number of ineligible draws for a given juror.
+    /// @param _juror The address of the juror.
+    /// @return ineligibleDraws The number of ineligible draws for the juror.
+    function ineligibleJurors(address _juror) external view returns (uint256 ineligibleDraws);
 }

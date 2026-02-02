@@ -115,7 +115,7 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
         uint256 _coreDisputeID,
         address _juror,
         uint256 _roundNbVotes
-    ) internal view override returns (bool) {
+    ) internal view override returns (bool success, bool ineligible) {
         if (IBalanceHolder(accreditedConsumerProtectionLawyerToken).balanceOf(_juror) == 0) {
             // The juror is not a consumer protection lawyer.
             uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
@@ -127,11 +127,11 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
             ) {
                 // This is the last draw iteration and we still have not drawn a consumer protection lawyer.
                 // Reject this draw so that another iteration can try again later.
-                return false;
+                return (false, false);
             }
             if (IBalanceHolder(accreditedProfessionalToken).balanceOf(_juror) == 0) {
-                // The juror does not hold either of the tokens.
-                return false;
+                // The juror does not hold either of the tokens, mark them as ineligible.
+                return (false, true);
             }
         }
         return super._postDrawCheck(_round, _coreDisputeID, _juror, _roundNbVotes);

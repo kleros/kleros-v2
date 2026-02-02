@@ -86,6 +86,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     mapping(uint96 currentCourtID => NextRoundSettings) public courtIDToNextRoundSettings; // The settings for the next round.
     bool public singleDrawPerJuror; // Whether each juror can only draw once per round, false by default.
     address public wNative; // The wrapped native token for safeSend().
+    mapping(address juror => uint256 ineligibleDraws) public ineligibleJurors; // The count of ineligible draws for the juror.
 
     uint256[50] private __gap; // Reserved slots for future upgrades.
 
@@ -137,6 +138,12 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _courtID The ID of the court that the settings are changed for.
     /// @param _nextRoundSettings The settings for the next round.
     event NextRoundSettingsChanged(uint96 indexed _courtID, NextRoundSettings _nextRoundSettings);
+
+    /// @notice To be emitted when a juror is marked as ineligible.
+    /// @param _juror The address of the juror.
+    /// @param _courtID The ID of the court that the juror is ineligible for.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
+    event JurorIneligible(address indexed _juror, uint96 indexed _courtID, uint256 indexed _coreDisputeID);
 
     // ************************************* //
     // *              Modifiers            * //
@@ -281,12 +288,18 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             return (drawnAddress, fromSubcourtID);
         }
 
-        if (_postDrawCheck(round, _coreDisputeID, drawnAddress, _roundNbVotes)) {
+        (bool success, bool ineligible) = _postDrawCheck(round, _coreDisputeID, drawnAddress, _roundNbVotes);
+        if (success) {
             Vote storage vote = round.votes.push();
             vote.account = drawnAddress;
             round.alreadyDrawn[drawnAddress] = true;
         } else {
             drawnAddress = address(0);
+        }
+        if (!ineligible && courtID == fromSubcourtID) {
+            // Only mark the juror as ineligible if they are directly in `courtID` rather than in a child court.
+            ineligibleJurors[drawnAddress] += 1;
+            emit JurorIneligible(drawnAddress, courtID, _coreDisputeID);
         }
     }
 
@@ -808,20 +821,21 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ///
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
-    /// @return Whether the address passes the check or not.
+    /// @return success Whether the address passes the check or not.
+    /// @return ineligible Whether the address is marked as ineligible and candidate for later forced unstaking.
     function _postDrawCheck(
         Round storage /*_round*/,
         uint256 _coreDisputeID,
         address _juror,
         uint256 /*_roundNbVotes*/
-    ) internal view virtual returns (bool) {
+    ) internal view virtual returns (bool, bool) {
         if (singleDrawPerJuror) {
             uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
             Dispute storage dispute = disputes[localDisputeID];
             Round storage round = dispute.rounds[dispute.rounds.length - 1];
-            return !round.alreadyDrawn[_juror];
+            return (!round.alreadyDrawn[_juror], false);
         } else {
-            return true;
+            return (true, false);
         }
     }
 
