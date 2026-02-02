@@ -1,5 +1,7 @@
 # Claude Code Notes for kleros-v2
 
+Work style: telegraph; noun-phrases ok; drop filler/grammar; min tokens
+
 ## Monorepo Structure
 
 This is a Yarn workspaces monorepo with multiple packages:
@@ -54,6 +56,12 @@ export PATH="$PATH:/root/.foundry/bin" && forge test
 File names must match contract names exactly (Linux is case-sensitive):
 
 - Contract `BlockHashRNG` must be in file `BlockHashRNG.sol`, not `BlockhashRNG.sol`
+
+### Coding Style
+
+- Function params: `_` prefix, no suffix
+- Internal functions: `_` prefix, no `Internal` suffix
+- Upgradeable contracts: `version` defined only in derived contracts, not base: `string public constant override version = "0.0.1";`
 
 ## Audit Context
 
