@@ -6,6 +6,7 @@ import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
 import {IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
+import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_DisputesTest
@@ -35,7 +36,8 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
             50, // jurors for jump
             newTimesPerPeriod,
             abi.encode(uint256(4)), // Sortition extra data
-            supportedDK
+            supportedDK,
+            ICourtEligibility(address(0))
         );
 
         arbitrable.changeArbitratorExtraData(newExtraData);

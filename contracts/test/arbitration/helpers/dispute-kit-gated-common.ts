@@ -47,7 +47,7 @@ export interface TokenGatedTestContext {
 
 // Configuration for setting up a token gated test
 export interface TokenGatedTestConfig {
-  contractName: string; // "DisputeKitGatedMock" or "DisputeKitGatedShutterMock"
+  contractName: "DisputeKitGatedMock" | "DisputeKitGatedShutterMock";
 }
 
 // Constants for token amounts
@@ -81,7 +81,15 @@ export const whitelistTokens = async (
   courtId: BigNumberish = Courts.GENERAL
 ) => {
   const tokenAddresses = tokens.map((token) => (typeof token === "string" ? token : token.toString()));
-  return context.disputeKit.changeSupportedTokens(courtId, tokenAddresses, supported);
+
+  const nft1155Address = context.nft1155.target.toString();
+  const isErc1155Included = tokenAddresses.some((tokenAddress) => tokenAddress === nft1155Address);
+  const erc721LikeTokens = tokenAddresses.filter((tokenAddress) => tokenAddress !== nft1155Address);
+
+  if (erc721LikeTokens.length > 0)
+    await context.disputeKit.changeSupportedErc721Tokens(courtId, erc721LikeTokens, supported);
+  if (isErc1155Included)
+    await context.disputeKit.changeSupportedErc1155TokenIds(courtId, nft1155Address, [context.TOKEN_ID], supported);
 };
 
 // Helper function to create a dispute with the specified token gate
@@ -102,10 +110,23 @@ export const expectTokenSupported = async (
   context: TokenGatedTestContext,
   token: string | Addressable,
   supported: boolean,
-  courtId: BigNumberish = Courts.GENERAL
+  courtId: BigNumberish = Courts.GENERAL,
+  tokenId?: BigNumberish
 ) => {
   const tokenAddress = typeof token === "string" ? token : token.toString();
-  expect(await context.disputeKit.supportedTokens(courtId, tokenAddress)).to.equal(supported);
+
+  const nft1155Address = context.nft1155.target.toString();
+  const isKnownErc1155 = tokenAddress === nft1155Address;
+
+  if (tokenId !== undefined || isKnownErc1155) {
+    const effectiveTokenId = tokenId ?? context.TOKEN_ID;
+    expect(await context.disputeKit.isErc1155TokenIdSupported(courtId, tokenAddress, effectiveTokenId)).to.equal(
+      supported
+    );
+    return;
+  }
+
+  expect(await context.disputeKit.isErc721TokenSupported(courtId, tokenAddress)).to.equal(supported);
 };
 
 // Helper function to stake and draw jurors
@@ -242,7 +263,7 @@ export async function setupTokenGatedTest(config: TokenGatedTestConfig): Promise
 
 export function testTokenWhitelistManagement(context: () => TokenGatedTestContext) {
   describe("Token Whitelist Management", async () => {
-    describe("changeSupportedTokens function", async () => {
+    describe("changeSupportedErc721Tokens / changeSupportedErc1155TokenIds functions", async () => {
       it("Should allow owner to whitelist single token", async () => {
         const ctx = context();
         await whitelistTokens(ctx, [ctx.dai.target], true);
@@ -335,20 +356,20 @@ export function testTokenWhitelistManagement(context: () => TokenGatedTestContex
 
 export function testAccessControl(context: () => TokenGatedTestContext) {
   describe("Access Control", async () => {
-    it("Should revert when non-owner tries to change supported tokens", async () => {
+    it("Should revert when non-owner tries to change supported ERC721-like tokens", async () => {
       const ctx = context();
-      await expect(ctx.disputeKit.connect(ctx.juror1).changeSupportedTokens(Courts.GENERAL, [ctx.dai.target], true)).to
-        .be.reverted;
+      await expect(
+        ctx.disputeKit.connect(ctx.juror1).changeSupportedErc721Tokens(Courts.GENERAL, [ctx.dai.target], true)
+      ).to.be.reverted;
     });
 
-    it("Should revert when non-owner tries to remove supported tokens", async () => {
+    it("Should revert when non-owner tries to change supported ERC1155 tokenIds", async () => {
       const ctx = context();
-      // First whitelist as owner
-      await whitelistTokens(ctx, [ctx.dai.target], true);
-
-      // Then try to remove as non-owner
-      await expect(ctx.disputeKit.connect(ctx.juror1).changeSupportedTokens(Courts.GENERAL, [ctx.dai.target], false)).to
-        .be.reverted;
+      await expect(
+        ctx.disputeKit
+          .connect(ctx.juror1)
+          .changeSupportedErc1155TokenIds(Courts.GENERAL, ctx.nft1155.target, [ctx.TOKEN_ID], true)
+      ).to.be.reverted;
     });
   });
 }
@@ -671,94 +692,25 @@ export function testWhitelistIntegration(context: () => TokenGatedTestContext) {
   });
 }
 
-export function testNoTokenGateAddress(context: () => TokenGatedTestContext) {
-  describe("No Token Gate Edge Case (address(0))", async () => {
-    it("Should verify that address(0) is supported by default", async () => {
+export function testTokenGateRequired(context: () => TokenGatedTestContext) {
+  describe("Token Gate Required (address(0) is invalid)", async () => {
+    it("Should revert when whitelisting address(0)", async () => {
       const ctx = context();
-      await expectTokenSupported(ctx, ethers.ZeroAddress, true);
+      await expect(
+        ctx.disputeKit.changeSupportedErc721Tokens(Courts.GENERAL, [ethers.ZeroAddress], true)
+      ).to.be.revertedWithCustomError(ctx.disputeKit, "TokenGateRequired");
     });
 
-    it("Should verify that address(0) is court-scoped (GENERAL only by default)", async () => {
+    it("Should revert when creating dispute with tokenGate = address(0)", async () => {
       const ctx = context();
-      await expectTokenSupported(ctx, ethers.ZeroAddress, true, Courts.GENERAL);
-      await expectTokenSupported(ctx, ethers.ZeroAddress, false, Courts.FORKING);
-    });
-
-    it("Should require explicit support for address(0) outside GENERAL", async () => {
-      const ctx = context();
-
-      // Enable the dispute kit in FORKING court so dispute creation reaches DK logic.
-      const deployerSigner = await ethers.getSigner(ctx.deployer);
-      await ctx.core.connect(deployerSigner).enableDisputeKits(Courts.FORKING, [ctx.gatedDisputeKitID], true);
-
-      // Dispute without token gating should revert in FORKING unless whitelisted there.
-      await expect(createDisputeWithToken(ctx, ethers.ZeroAddress, false, 0, Courts.FORKING))
-        .to.be.revertedWithCustomError(ctx.disputeKit, "TokenNotSupported")
-        .withArgs(Courts.FORKING, ethers.ZeroAddress);
-
-      await whitelistTokens(ctx, [ethers.ZeroAddress], true, Courts.FORKING);
-      await expect(createDisputeWithToken(ctx, ethers.ZeroAddress, false, 0, Courts.FORKING)).to.not.be.reverted;
-    });
-
-    it("Should allow dispute creation with address(0) as tokenGate", async () => {
-      const ctx = context();
-      // Create dispute with address(0) as tokenGate - should not revert
-      await expect(createDisputeWithToken(ctx, ethers.ZeroAddress, false, 0)).to.not.be.reverted;
-    });
-
-    it("Should draw all staked jurors when tokenGate is address(0)", async () => {
-      const ctx = context();
-      // Neither juror has any special tokens, but both are staked
-      const nbOfJurors = 15n;
-      const tx = await stakeAndDraw(
-        ctx,
-        Courts.GENERAL,
-        nbOfJurors,
-        ctx.gatedDisputeKitID,
-        ethers.ZeroAddress,
-        false,
-        0
-      ).then((tx) => tx.wait());
-
-      // Both jurors should be eligible for drawing since there's no token gate
-      const drawLogs =
-        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === ctx.core.target) || [];
-      expect(drawLogs.length).to.equal(nbOfJurors);
-
-      // Verify that draws include both jurors (not just one)
-      const drawnJurors = new Set(drawLogs.map((log: any) => log.args[0]));
-      expect(drawnJurors.size).to.be.greaterThan(1, "Should draw from multiple jurors");
-    });
-
-    it("Should behave like non-gated dispute kit when tokenGate is address(0)", async () => {
-      const ctx = context();
-      // Verify that with address(0), jurors don't need any token balance
-      const nbOfJurors = 3n;
-
-      // Ensure jurors have no DAI tokens
-      expect(await ctx.dai.balanceOf(ctx.juror1.address)).to.equal(0);
-      expect(await ctx.dai.balanceOf(ctx.juror2.address)).to.equal(0);
-
-      const tx = await stakeAndDraw(
-        ctx,
-        Courts.GENERAL,
-        nbOfJurors,
-        ctx.gatedDisputeKitID,
-        ethers.ZeroAddress,
-        false,
-        0
-      ).then((tx) => tx.wait());
-
-      // Jurors should still be drawn despite having no tokens
-      const drawLogs =
-        tx?.logs.filter((log: any) => log.fragment?.name === "Draw" && log.address === ctx.core.target) || [];
-      expect(drawLogs).to.have.length(nbOfJurors);
+      await expect(createDisputeWithToken(ctx, ethers.ZeroAddress, false, 0)).to.be.revertedWithCustomError(
+        ctx.disputeKit,
+        "TokenGateRequired"
+      );
     });
 
     it("Should parse address(0) correctly from insufficient extraData", async () => {
       const ctx = context();
-      // Create extraData that's too short (less than 160 bytes)
-      // This should return address(0) from _extraDataToTokenInfo
       const shortExtraData = ethers.AbiCoder.defaultAbiCoder().encode(
         ["uint256", "uint256", "uint256"],
         [Courts.GENERAL, 3, ctx.gatedDisputeKitID]
@@ -768,6 +720,91 @@ export function testNoTokenGateAddress(context: () => TokenGatedTestContext) {
       expect(tokenInfo[0]).to.equal(ethers.ZeroAddress);
       expect(tokenInfo[1]).to.equal(false);
       expect(tokenInfo[2]).to.equal(0);
+    });
+  });
+}
+
+export function testCourtEligibilityMisconfiguration(context: () => TokenGatedTestContext) {
+  describe("Court eligibility misconfiguration (eligibility set before token config)", async () => {
+    async function createCourtWithEligibility(ctx: TokenGatedTestContext): Promise<number> {
+      const deployerSigner = await ethers.getSigner(ctx.deployer);
+
+      const tx = await ctx.core
+        .connect(deployerSigner)
+        .createCourt(
+          Courts.GENERAL, // parent
+          false, // hiddenVotes
+          ctx.minStake, // minStake
+          10000, // alpha
+          ethers.parseEther("0.1"), // feeForJuror
+          16, // jurorsForCourtJump
+          [300, 300, 300, 300], // timesPerPeriod
+          ethers.toBeHex(5), // sortitionExtraData
+          [1, ctx.gatedDisputeKitID], // supportedDisputeKits (must include Classic)
+          ctx.disputeKit.target // eligibility predicate
+        )
+        .then((tx) => tx.wait());
+
+      const createdLog = (tx?.logs as any[])?.find(
+        (log) => log.fragment?.name === "CourtCreated" && log.address === ctx.core.target
+      );
+      expect(createdLog, "CourtCreated log not found").to.not.equal(undefined);
+
+      return Number(createdLog.args[0]);
+    }
+
+    async function fundAndApprove(ctx: TokenGatedTestContext, juror: HardhatEthersSigner, amount: bigint) {
+      await ctx.pnk.transfer(juror.address, amount).then((tx) => tx.wait());
+      await ctx.pnk
+        .connect(juror)
+        .approve(ctx.core.target, amount, { gasLimit: 300000 })
+        .then((tx) => tx.wait());
+    }
+
+    it("Should revert NotEligibleForStaking when eligibility is set but no supported tokens are configured", async () => {
+      const ctx = context();
+      const courtId = await createCourtWithEligibility(ctx);
+
+      expect(await ctx.disputeKit.supportedErc721TokensLength(courtId)).to.equal(0);
+      expect(await ctx.disputeKit.supportedErc1155TokensLength(courtId)).to.equal(0);
+
+      await fundAndApprove(ctx, ctx.juror1, ctx.thousandPNK(10));
+      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.revertedWithCustomError(
+        ctx.core,
+        "NotEligibleForStaking"
+      );
+    });
+
+    it("Should not revert eligibility when ERC721 supported set contains address(0)", async () => {
+      const ctx = context();
+      const courtId = await createCourtWithEligibility(ctx);
+      await ctx.disputeKit.unsafeAddSupportedErc721Token(courtId, ethers.ZeroAddress);
+
+      expect(await ctx.disputeKit.supportedErc721TokensLength(courtId)).to.equal(1);
+      expect(await ctx.disputeKit.supportedErc721TokensAt(courtId, 0)).to.equal(ethers.ZeroAddress);
+      expect(await ctx.disputeKit.isEligible(ctx.juror1.address, courtId)).to.equal(false);
+
+      await fundAndApprove(ctx, ctx.juror1, ctx.thousandPNK(10));
+      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.revertedWithCustomError(
+        ctx.core,
+        "NotEligibleForStaking"
+      );
+    });
+
+    it("Should not revert eligibility when ERC1155 supported set contains address(0)", async () => {
+      const ctx = context();
+      const courtId = await createCourtWithEligibility(ctx);
+      await ctx.disputeKit.unsafeAddSupportedErc1155Token(courtId, ethers.ZeroAddress);
+
+      expect(await ctx.disputeKit.supportedErc1155TokensLength(courtId)).to.equal(1);
+      expect(await ctx.disputeKit.supportedErc1155TokensAt(courtId, 0)).to.equal(ethers.ZeroAddress);
+      expect(await ctx.disputeKit.isEligible(ctx.juror1.address, courtId)).to.equal(false);
+
+      await fundAndApprove(ctx, ctx.juror1, ctx.thousandPNK(10));
+      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.revertedWithCustomError(
+        ctx.core,
+        "NotEligibleForStaking"
+      );
     });
   });
 }

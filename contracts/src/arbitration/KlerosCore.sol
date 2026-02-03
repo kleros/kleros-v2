@@ -7,6 +7,7 @@ import {IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
 import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
 import {IRatesConverter} from "./interfaces/IRatesConverter.sol";
+import {ICourtEligibility} from "./interfaces/ICourtEligibility.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
@@ -46,6 +47,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 jurorsForCourtJump; // The appeal after the one that reaches this number of jurors will go to the parent court if any.
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
         mapping(uint256 disputeKitId => bool) supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
+        ICourtEligibility eligibility; // The eligibility predicate for the court.
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
@@ -152,6 +154,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
     /// @param _supportedDisputeKits Indexes of dispute kits that this court will support.
+    /// @param _eligibility The eligibility predicate for the court.
     event CourtCreated(
         uint96 indexed _courtID,
         uint96 indexed _parent,
@@ -161,7 +164,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] _timesPerPeriod,
-        uint256[] _supportedDisputeKits
+        uint256[] _supportedDisputeKits,
+        ICourtEligibility _eligibility
     );
 
     /// @notice Emitted when court's parameters are changed.
@@ -172,6 +176,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _feeForJuror The `feeForJuror` property value of the court.
     /// @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
+    /// @param _eligibility The eligibility predicate for the court.
     event CourtModified(
         uint96 indexed _courtID,
         bool _hiddenVotes,
@@ -179,7 +184,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 _alpha,
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
-        uint256[4] _timesPerPeriod
+        uint256[4] _timesPerPeriod,
+        ICourtEligibility _eligibility
     );
 
     /// @notice Emitted when a dispute kit is created.
@@ -372,7 +378,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _courtParameters[2],
             _courtParameters[3],
             _timesPerPeriod,
-            supportedDisputeKits
+            supportedDisputeKits,
+            ICourtEligibility(address(0))
         );
         _enableDisputeKit(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
     }
@@ -481,6 +488,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
     /// @param _sortitionExtraData Extra data for sortition module.
     /// @param _supportedDisputeKits Indexes of dispute kits that this court will support.
+    /// @param _eligibility The eligibility predicate for the court.
     function createCourt(
         uint96 _parent,
         bool _hiddenVotes,
@@ -490,7 +498,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        uint256[] memory _supportedDisputeKits
+        uint256[] memory _supportedDisputeKits,
+        ICourtEligibility _eligibility
     ) external onlyByOwner {
         if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
@@ -516,6 +525,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
+        court.eligibility = _eligibility;
 
         sortitionModule.createTree(courtID, _sortitionExtraData);
 
@@ -530,7 +540,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _feeForJuror,
             _jurorsForCourtJump,
             _timesPerPeriod,
-            _supportedDisputeKits
+            _supportedDisputeKits,
+            _eligibility
         );
     }
 
@@ -542,6 +553,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _feeForJuror The `feeForJuror` property value of the court.
     /// @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
+    /// @param _eligibility The eligibility predicate for the court.
     function changeCourtParameters(
         uint96 _courtID,
         bool _hiddenVotes,
@@ -549,7 +561,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         uint256 _alpha,
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
-        uint256[4] memory _timesPerPeriod
+        uint256[4] memory _timesPerPeriod,
+        ICourtEligibility _eligibility
     ) external onlyByOwner {
         Court storage court = courts[_courtID];
         if (_courtID != GENERAL_COURT && courts[court.parent].minStake > _minStake) {
@@ -566,6 +579,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
+        court.eligibility = _eligibility;
         emit CourtModified(
             _courtID,
             _hiddenVotes,
@@ -573,7 +587,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _alpha,
             _feeForJuror,
             _jurorsForCourtJump,
-            _timesPerPeriod
+            _timesPerPeriod,
+            _eligibility
         );
     }
 
@@ -1397,7 +1412,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _account,
             _courtID,
             _newStake,
-            _noDelay
+            _noDelay,
+            courts[_courtID].eligibility
         );
         if (stakingResult != StakingResult.Successful && stakingResult != StakingResult.Delayed) {
             _stakingFailed(_onError, stakingResult);
@@ -1433,6 +1449,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         if (_result == StakingResult.CannotStakeZeroWhenNoStake) revert StakingZeroWhenNoStake();
         if (_result == StakingResult.CannotStakeMoreThanMaxStakePerJuror) revert StakingMoreThanMaxStakePerJuror();
         if (_result == StakingResult.CannotStakeMoreThanMaxTotalStaked) revert StakingMoreThanMaxTotalStaked();
+        if (_result == StakingResult.NotEligibleForStaking) revert NotEligibleForStaking();
     }
 
     /// @notice Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.

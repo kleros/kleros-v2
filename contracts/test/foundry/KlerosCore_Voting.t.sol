@@ -5,6 +5,7 @@ import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore, IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
+import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -22,7 +23,8 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
             10000, // alpha
             0.03 ether, // fee for juror
             511, // jurors for jump
-            [uint256(60), uint256(120), uint256(180), uint256(240)] // Times per period
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
+            ICourtEligibility(address(0))
         );
 
         vm.prank(staker1);
@@ -58,7 +60,8 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
             10000, // alpha
             0.03 ether, // fee for juror
             511, // jurors for jump
-            [uint256(60), uint256(120), uint256(180), uint256(240)] // Times per period
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
+            ICourtEligibility(address(0))
         );
 
         vm.expectEmit(true, true, true, true);
@@ -161,7 +164,8 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
             10000, // alpha
             0.03 ether, // fee for juror
             511, // jurors for jump
-            [uint256(60), uint256(120), uint256(180), uint256(240)] // Times per period
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
+            ICourtEligibility(address(0))
         );
 
         vm.prank(staker1);
@@ -365,7 +369,8 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
             10000, // alpha
             0.03 ether, // fee for juror
             511, // jurors for jump
-            [uint256(60), uint256(120), uint256(180), uint256(240)] // Times per period
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
+            ICourtEligibility(address(0))
         );
 
         vm.prank(staker1);

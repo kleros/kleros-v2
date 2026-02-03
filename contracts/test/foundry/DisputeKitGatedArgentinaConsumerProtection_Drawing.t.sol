@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitGatedArgentinaConsumerProtection} from "../../src/arbitration/dispute-kits/DisputeKitGatedArgentinaConsumerProtection.sol";
+import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {ArbitrableExample} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {TestERC721} from "../../src/token/TestERC721.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
@@ -92,7 +93,8 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             sortitionExtraData,
-            supportedDK
+            supportedDK,
+            ICourtEligibility(address(0))
         );
 
         uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
@@ -142,7 +144,8 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
             uint256 minStakeValue,
             uint256 alphaValue,
             uint256 feeForJurorValue,
-            uint256 jurorsForJumpValue
+            uint256 jurorsForJumpValue,
+
         ) = core.courts(argentinaCourt);
         assertEq(parent, GENERAL_COURT, "Wrong parent court");
         assertEq(courtHiddenVotes, false, "Wrong hiddenVotes");

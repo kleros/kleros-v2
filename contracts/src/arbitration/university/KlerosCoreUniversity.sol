@@ -6,6 +6,7 @@ import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
 import {IRatesConverter} from "../interfaces/IRatesConverter.sol";
+import {ICourtEligibility} from "../interfaces/ICourtEligibility.sol";
 import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
@@ -1096,7 +1097,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             _account,
             _courtID,
             _newStake,
-            _noDelay
+            _noDelay,
+            ICourtEligibility(address(0))
         );
         if (stakingResult != StakingResult.Successful) {
             _stakingFailed(_onError, stakingResult);

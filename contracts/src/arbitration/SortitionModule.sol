@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 
 import {KlerosCore} from "./KlerosCore.sol";
 import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
+import {ICourtEligibility} from "./interfaces/ICourtEligibility.sol";
 import {Initializable} from "../proxy/Initializable.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SortitionTrees, TreeKey, CourtID} from "../libraries/SortitionTrees.sol";
@@ -263,16 +264,24 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         address _account,
         uint96 _courtID,
         uint256 _newStake,
-        bool _noDelay
+        bool _noDelay,
+        ICourtEligibility _eligibility
     ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        (pnkDeposit, pnkWithdrawal, stakingResult) = _validateStake(_account, _courtID, _newStake, _noDelay);
+        (pnkDeposit, pnkWithdrawal, stakingResult) = _validateStake(
+            _account,
+            _courtID,
+            _newStake,
+            _noDelay,
+            _eligibility
+        );
     }
 
     function _validateStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake,
-        bool _noDelay
+        bool _noDelay,
+        ICourtEligibility _eligibility
     ) internal returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
@@ -289,6 +298,10 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         }
 
         if (stakeIncrease) {
+            // Check if the juror is eligible to stake in the court.
+            if (_eligibility != ICourtEligibility(address(0)) && !_eligibility.isEligible(_account, _courtID)) {
+                return (0, 0, StakingResult.NotEligibleForStaking);
+            }
             // Check if the stake increase is within the limits.
             if (juror.stakedPnk + stakeChange > maxStakePerJuror || currentStake + stakeChange > maxStakePerJuror) {
                 return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
@@ -422,7 +435,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
             if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
-                (currentCourtID, , , , , ) = core.courts(currentCourtID); // Get the parent court.
+                (currentCourtID, , , , , , ) = core.courts(currentCourtID); // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake, juror.stakedPnk);

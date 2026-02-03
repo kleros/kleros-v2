@@ -1,6 +1,6 @@
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
-import { toBigInt, ContractTransactionResponse, HDNodeWallet } from "ethers";
+import { toBigInt, ContractTransactionResponse, HDNodeWallet, ZeroAddress } from "ethers";
 import {
   PNK,
   KlerosCore,
@@ -97,7 +97,8 @@ describe("Draw Benchmark", async () => {
         256,
         [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
         ethers.toBeHex(5), // Extra data for sortition module will return the default value of K)
-        [1]
+        [1],
+        ZeroAddress
       )
       .then((tx) => tx.wait());
   });

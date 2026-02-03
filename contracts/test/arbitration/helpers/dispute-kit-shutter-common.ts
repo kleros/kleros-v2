@@ -1,5 +1,5 @@
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
-import { toBigInt, BigNumberish } from "ethers";
+import { toBigInt, BigNumberish, ZeroAddress } from "ethers";
 import {
   PNK,
   KlerosCore,
@@ -236,7 +236,8 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       16, // jurorsForCourtJump
       [300, 300, 300, 300], // timesPerPeriod for evidence, commit, vote, appeal
       ethers.toBeHex(5), // sortitionExtraData
-      [1, shutterDKID] // supportedDisputeKits - must include Classic (1) and Shutter (2)
+      [1, shutterDKID], // supportedDisputeKits - must include Classic (1) and Shutter (2)
+      ZeroAddress
     );
   } else if (config.contractName === "DisputeKitGatedShutter") {
     // For gated shutter, we need to deploy it if not already deployed
@@ -263,7 +264,8 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       10000, // alpha
       ethers.parseEther("0.1"), // feeForJuror
       16, // jurorsForCourtJump
-      [300, 300, 300, 300] // timesPerPeriod
+      [300, 300, 300, 300], // timesPerPeriod
+      ZeroAddress
     );
 
     await core.enableDisputeKits(Courts.GENERAL, [shutterDKID], true);
@@ -273,7 +275,7 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
     // If gated, whitelist DAI token
     if (config.isGated) {
       const gatedKit = disputeKit as DisputeKitGatedShutterMock;
-      await gatedKit.changeSupportedTokens(Courts.GENERAL, [dai.target], true);
+      await gatedKit.changeSupportedErc721Tokens(Courts.GENERAL, [dai.target], true);
     }
   } else {
     throw new Error(`Unknown contract name: ${config.contractName}`);

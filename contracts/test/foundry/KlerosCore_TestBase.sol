@@ -21,6 +21,7 @@ import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrable
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
 import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
+import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_TestBase
@@ -215,7 +216,8 @@ abstract contract KlerosCore_TestBase is Test {
             jurorsForJumpValue,
             timesPerPeriod,
             sortitionExtraData,
-            supportedDK
+            supportedDK,
+            ICourtEligibility(address(0))
         );
 
         return uint96(core.getCourtChildren(parent)[core.getCourtChildren(parent).length - 1]);
@@ -237,7 +239,8 @@ abstract contract KlerosCore_TestBase is Test {
             uint256 courtMinStake,
             uint256 courtAlpha,
             uint256 courtFeeForJuror,
-            uint256 courtJurorsForCourtJump
+            uint256 courtJurorsForCourtJump,
+
         ) = core.courts(courtId);
 
         assertEq(courtParent, expectedParent, "Wrong court parent");
