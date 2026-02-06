@@ -57,20 +57,24 @@ const isProduction = isProductionDeployment();
 const isLocalhost = isLocalDeployment();
 
 const getTransports = () => {
+  const commonTransports = {
+    [isProduction ? gnosis.id : gnosisChiado.id]: isProduction
+      ? defaultTransport(gnosis)
+      : defaultTransport(gnosisChiado),
+    [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
+  };
+
   if (isLocalhost)
     return {
       [hardhat.id]: http(HARDHAT_NODE_RPC),
-      [mainnet.id]: alchemyTransport(mainnet),
+      ...commonTransports,
     };
 
   return {
     [isProduction ? arbitrum.id : arbitrumSepolia.id]: isProduction
       ? alchemyTransport(arbitrum)
       : alchemyTransport(arbitrumSepolia),
-    [isProduction ? gnosis.id : gnosisChiado.id]: isProduction
-      ? defaultTransport(gnosis)
-      : defaultTransport(gnosisChiado),
-    [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
+    ...commonTransports,
   };
 };
 
