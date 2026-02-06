@@ -71,6 +71,7 @@
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "@typescript-eslint/utils": "^8.15.0",
+    "@vitest/coverage-v8": "4.0.17",
     "@wagmi/cli": "^2.2.0",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
