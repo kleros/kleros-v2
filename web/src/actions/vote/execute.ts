@@ -19,5 +19,5 @@ import type { VoteParams } from "./params";
 export async function executeVote(params: VoteParams, context: VoteContext) {
   const tx = await buildVoteTxn(params, context);
   const { walletClient } = context;
-  return await walletClient.writeContract(tx);
+  return walletClient.writeContract(tx);
 }

@@ -19,5 +19,5 @@ import type { CommitParams } from "./params";
 export async function executeCommit(params: CommitParams, context: CommitContext) {
   const tx = await buildCommitTxn(params, context);
   const { walletClient } = context;
-  return await walletClient.writeContract(tx);
+  return walletClient.writeContract(tx);
 }
