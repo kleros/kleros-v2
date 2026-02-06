@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
+import type { Address } from "viem";
 
 import { useVote } from "hooks/useVote";
 
@@ -17,7 +18,7 @@ const Container = styled.div`
 `;
 
 interface IVote {
-  arbitrable: `0x${string}`;
+  arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   isGated: boolean;

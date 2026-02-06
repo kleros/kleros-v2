@@ -3,11 +3,13 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import type { Address } from "viem";
 
 import { Button } from "@kleros/ui-components-library";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useRevealVote } from "hooks/useRevealVote";
+import type { Bytes32Hash } from "utils/crypto/hashVote";
 import { isUndefined } from "utils/index";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -38,10 +40,10 @@ const StyledEnsureChain = styled(EnsureChain)`
 
 const MarkdownWrapper = styled.div``;
 interface IReveal {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  commit: `0x${string}`;
+  commit: Bytes32Hash;
   isRevealPeriod: boolean;
   isGated: boolean;
 }

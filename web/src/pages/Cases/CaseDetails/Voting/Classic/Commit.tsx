@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
+import type { Address } from "viem";
 
 import { useCastCommit } from "hooks/useCastCommit";
 
@@ -18,7 +19,7 @@ const Container = styled.div`
 `;
 
 interface ICommit {
-  arbitrable: `0x${string}`;
+  arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   isGated: boolean;

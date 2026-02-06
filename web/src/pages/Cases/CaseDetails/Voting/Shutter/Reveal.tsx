@@ -3,10 +3,12 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import type { Address } from "viem";
 
 import { Button } from "@kleros/ui-components-library";
 
 import { useRevealVote } from "hooks/useRevealVote";
+import type { Bytes32Hash } from "utils/crypto/hashVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
@@ -23,8 +25,8 @@ const Container = styled.div`
 `;
 
 interface IReveal {
-  arbitrable?: `0x${string}`;
-  commit: `0x${string}`;
+  arbitrable?: Address;
+  commit: Bytes32Hash;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   isGated: boolean;

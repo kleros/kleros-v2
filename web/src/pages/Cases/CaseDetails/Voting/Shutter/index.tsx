@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 
 import { useParams } from "react-router-dom";
+import type { Address } from "viem";
 import { useAccount } from "wagmi";
 
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
+import type { Bytes32Hash } from "utils/crypto/hashVote";
 
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -12,7 +14,7 @@ import ShutterCommit from "./Commit";
 import Reveal from "./Reveal";
 
 interface IShutter {
-  arbitrable: `0x${string}`;
+  arbitrable: Address;
   setIsOpen: (val: boolean) => void;
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
@@ -34,7 +36,7 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
       {shouldShowCommit && (
         <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, dispute, currentPeriodIndex, isGated }} />
       )}
-      {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, isGated, arbitrable, commit: commit as `0x$string` }} />}
+      {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, isGated, arbitrable, commit: commit as Bytes32Hash }} />}
     </>
   );
 };

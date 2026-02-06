@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
+import type { Address } from "viem";
 
 import { useCastCommit } from "hooks/useCastCommit";
 import { useCountdown } from "hooks/useCountdown";
@@ -20,7 +21,7 @@ const Container = styled.div`
 `;
 
 interface ICommit {
-  arbitrable: `0x${string}`;
+  arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   dispute: DisputeDetailsQuery["dispute"];
