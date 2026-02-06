@@ -3,11 +3,11 @@
  * Verified fake for Shutter encryption
  * This fake produces deterministic, verifiable outputs for testing
  */
-import { keccak256, encodePacked } from "viem";
+import { keccak256, encodePacked, type Hash } from "viem";
 
 interface ShutterEncryptResult {
-  encryptedCommitment: `0x${string}`;
-  identity: `0x${string}`;
+  encryptedCommitment: Hash;
+  identity: Hash;
 }
 
 /**
@@ -33,8 +33,8 @@ export async function fakeEncrypt(message: string, decryptionDelay: number): Pro
 export function verifyFakeEncryptOutput(
   message: string,
   decryptionDelay: number,
-  actualIdentity: `0x${string}`,
-  actualEncrypted: `0x${string}`
+  actualIdentity: Hash,
+  actualEncrypted: Hash
 ): boolean {
   const expectedIdentity = keccak256(encodePacked(["string", "uint256"], [message, BigInt(decryptionDelay)]));
   const expectedEncrypted = keccak256(encodePacked(["bytes32", "string"], [expectedIdentity, "encrypted"]));
