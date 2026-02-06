@@ -45,7 +45,7 @@ export const appKit = createAppKit({
     "--w3m-z-index": 10000,
   },
   features: {
-    // adding these here to toggle in futute if needed
+    // adding these here to toggle in future if needed
     // email: false,
     // socials: false,
     // onramp:false,
