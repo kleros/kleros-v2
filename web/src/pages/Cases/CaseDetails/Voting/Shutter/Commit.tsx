@@ -59,7 +59,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
       to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
       const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
 
-      castCommit({
+      await castCommit({
         type: isGated ? DisputeKits.GatedShutter : DisputeKits.Shutter,
         disputeId: parsedDisputeID,
         choice,

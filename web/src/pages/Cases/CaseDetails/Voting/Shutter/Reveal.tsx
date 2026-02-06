@@ -52,7 +52,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated, commit, arbitr
       return;
     }
 
-    revealVote({
+    await revealVote({
       params: {
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,
