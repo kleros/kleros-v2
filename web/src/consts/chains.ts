@@ -7,35 +7,38 @@ import {
   gnosisChiado,
   hardhat,
 } from "@reown/appkit/networks";
-import { type Chain, extractChain } from "viem";
 
 import { isLocalDeployment, isProductionDeployment } from "./index";
 
 export const DEFAULT_CHAIN = isLocalDeployment() ? hardhat : isProductionDeployment() ? arbitrum : arbitrumSepolia;
 
-// Read/Write
-export const SUPPORTED_CHAINS: Record<number, AppKitNetwork> = isLocalDeployment()
-  ? { [hardhat.id]: hardhat }
-  : {
-      [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment()
-        ? arbitrum
-        : arbitrumSepolia,
+const getSupportedChains = (): Record<number, AppKitNetwork> => {
+  if (isLocalDeployment()) {
+    return {
+      [hardhat.id]: hardhat,
     };
+  }
 
+  if (isProductionDeployment()) {
+    return {
+      [arbitrum.id]: arbitrum,
+    };
+  }
+
+  return {
+    [arbitrumSepolia.id]: arbitrumSepolia,
+  };
+};
+// Read/Write
+export const SUPPORTED_CHAINS = getSupportedChains();
+
+const gnosisChain = isProductionDeployment() ? gnosis : gnosisChiado;
 // Read Only
 export const QUERY_CHAINS: Record<number, AppKitNetwork> = {
-  [isProductionDeployment() ? gnosis.id : gnosisChiado.id]: isProductionDeployment() ? gnosis : gnosisChiado,
+  [gnosisChain.id]: gnosisChain,
   [mainnet.id]: mainnet,
 };
 
 export const ALL_CHAINS = [...Object.values(SUPPORTED_CHAINS), ...Object.values(QUERY_CHAINS)];
 
-export const SUPPORTED_CHAIN_IDS = Object.keys(SUPPORTED_CHAINS);
-
-export const QUERY_CHAIN_IDS = Object.keys(QUERY_CHAINS);
-
-export const getChain = (chainId: number): Chain | null =>
-  extractChain({
-    chains: ALL_CHAINS,
-    id: chainId,
-  });
+export const getChain = (chainId: number) => ALL_CHAINS.find((chain) => Number(chain.id) === chainId);
