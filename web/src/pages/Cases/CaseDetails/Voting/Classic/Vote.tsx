@@ -36,7 +36,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
 
   const handleVote = useCallback(
     async (voteOption: bigint) => {
-      vote({
+      await vote({
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,
         choice: voteOption,

@@ -63,7 +63,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     if (isUndefined(currentRoundIndex)) {
       return;
     }
-    revealVote({
+    await revealVote({
       params: {
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,

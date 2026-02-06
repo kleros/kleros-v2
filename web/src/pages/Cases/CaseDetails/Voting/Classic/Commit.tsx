@@ -41,7 +41,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, isGated }) 
         return;
       }
 
-      castCommit({
+      await castCommit({
         type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
         disputeId: parsedDisputeID,
         choice,
