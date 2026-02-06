@@ -1,6 +1,8 @@
 import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+import { getVoteKey } from "actions/helpers/storage/getVoteKey";
+
 import { hashVote } from "utils/crypto/hashVote";
 
 import { DisputeKits } from "src/consts";
@@ -80,7 +82,9 @@ describe("gatedCommitBuilder", () => {
       await buildTxn(params);
 
       expect(mockStoreCommitData).toHaveBeenCalledTimes(1);
-      expect(mockStoreCommitData).toHaveBeenCalledWith("dispute-100-round-2-voteids-5,6", {
+
+      const expectedKey = getVoteKey(params.disputeId, params.roundIndex, params.voteIds);
+      expect(mockStoreCommitData).toHaveBeenCalledWith(expectedKey, {
         choice: 1n,
         salt: 777n,
       });
