@@ -32,7 +32,7 @@ const alchemyToViemChain: Record<number, string> = {
 type AlchemyProtocol = "https" | "wss";
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/util/const.ts#L16-L18
-function alchemyURL(protocol: AlchemyProtocol, chainId: number | string): string {
+function getAlchemyRpcUrl(protocol: AlchemyProtocol, chainId: number | string): string {
   const network = alchemyToViemChain[chainId];
   if (!network) {
     throw new Error(`Unsupported chain ID: ${chainId}`);
@@ -41,12 +41,12 @@ function alchemyURL(protocol: AlchemyProtocol, chainId: number | string): string
 }
 
 export const alchemyTransport = (chain: AppKitNetwork) =>
-  fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
+  fallback([http(getAlchemyRpcUrl("https", chain.id)), webSocket(getAlchemyRpcUrl("wss", chain.id))]);
 export const defaultTransport = (chain: AppKitNetwork) =>
   fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
 
 export const getChainRpcUrl = (protocol: AlchemyProtocol, chainId: number | string) => {
-  return alchemyURL(protocol, chainId);
+  return getAlchemyRpcUrl(protocol, chainId);
 };
 
 export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
