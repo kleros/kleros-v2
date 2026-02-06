@@ -4,22 +4,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { hashVote } from "utils/crypto/hashVote";
 
 import { DisputeKits } from "src/consts";
+import { MOCK_GATED_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { CommitContext } from "../context";
 import type { GatedCommitParams } from "../params";
 
 import { gatedCommitBuilder } from "./gated.builder";
 
-vi.mock("hooks/contracts/generated", () => ({
-  disputeKitGatedAbi: [{ name: "castCommit", type: "function" }],
-  disputeKitGatedAddress: {
-    421614: "0xGATED1234567890123456789012345678901234" as const,
-  },
-}));
+vi.mock("hooks/contracts/generated", () => mockContractsGenerated);
 
 describe("gatedCommitBuilder", () => {
   const mockContext: CommitContext = {
-    account: "0xabcdef1234567890abcdef1234567890abcdef12" as `0x${string}`,
+    account: "0xabcdef1234567890abcdef1234567890abcdef12",
     chain: arbitrumSepolia,
     walletClient: {} as CommitContext["walletClient"],
   };
@@ -50,7 +46,7 @@ describe("gatedCommitBuilder", () => {
 
       expect(result).toMatchObject({
         account: mockContext.account,
-        address: "0xGATED1234567890123456789012345678901234",
+        address: MOCK_GATED_DK_ADDRESS,
         functionName: "castCommit",
         chain: mockContext.chain,
       });

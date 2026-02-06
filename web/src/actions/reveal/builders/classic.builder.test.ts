@@ -3,23 +3,18 @@ import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi } from "vitest";
 
 import { DisputeKits } from "src/consts";
+import { MOCK_CLASSIC_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { RevealContext } from "../context";
 import type { ClassicRevealParams } from "../params";
 
 import { classicRevealBuilder } from "./classic.builder";
 
-// Mock the dependencies
-vi.mock("hooks/contracts/generated", () => ({
-  disputeKitClassicAbi: [{ name: "castVote", type: "function" }],
-  disputeKitClassicAddress: {
-    421614: "0xABCDEF1234567890ABCDEF1234567890ABCDEF12" as const,
-  },
-}));
+vi.mock("hooks/contracts/generated", () => mockContractsGenerated);
 
 describe("classicRevealBuilder", () => {
   const mockContext: RevealContext = {
-    account: "0x1111111111111111111111111111111111111111" as `0x${string}`,
+    account: "0x1111111111111111111111111111111111111111",
     chain: arbitrumSepolia,
     walletClient: {} as RevealContext["walletClient"],
   };
@@ -43,7 +38,7 @@ describe("classicRevealBuilder", () => {
 
       expect(result).toMatchObject({
         account: mockContext.account,
-        address: "0xABCDEF1234567890ABCDEF1234567890ABCDEF12",
+        address: MOCK_CLASSIC_DK_ADDRESS,
         functionName: "castVote",
         chain: mockContext.chain,
       });
@@ -161,7 +156,7 @@ describe("classicRevealBuilder", () => {
     it("should use account from context", async () => {
       const customContext: RevealContext = {
         ...mockContext,
-        account: "0x9999999999999999999999999999999999999999" as `0x${string}`,
+        account: "0x9999999999999999999999999999999999999999",
       };
       const params = createParams();
 

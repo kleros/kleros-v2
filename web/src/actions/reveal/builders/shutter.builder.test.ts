@@ -3,23 +3,18 @@ import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi } from "vitest";
 
 import { DisputeKits } from "src/consts";
+import { MOCK_SHUTTER_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { RevealContext } from "../context";
 import type { ShutterRevealParams } from "../params";
 
 import { shutterRevealBuilder } from "./shutter.builder";
 
-// Mock the dependencies
-vi.mock("hooks/contracts/generated", () => ({
-  disputeKitShutterAbi: [{ name: "castVoteShutter", type: "function" }],
-  disputeKitShutterAddress: {
-    421614: "0xSHUTTER12345678901234567890123456789012" as const,
-  },
-}));
+vi.mock("hooks/contracts/generated", () => mockContractsGenerated);
 
 describe("shutterRevealBuilder", () => {
   const mockContext: RevealContext = {
-    account: "0x1111111111111111111111111111111111111111" as `0x${string}`,
+    account: "0x1111111111111111111111111111111111111111",
     chain: arbitrumSepolia,
     walletClient: {} as RevealContext["walletClient"],
   };
@@ -43,7 +38,7 @@ describe("shutterRevealBuilder", () => {
 
       expect(result).toMatchObject({
         account: mockContext.account,
-        address: "0xSHUTTER12345678901234567890123456789012",
+        address: MOCK_SHUTTER_DK_ADDRESS,
         functionName: "castVoteShutter",
         chain: mockContext.chain,
       });

@@ -5,22 +5,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { hashVote } from "utils/crypto/hashVote";
 
 import { DisputeKits } from "src/consts";
+import { MOCK_CLASSIC_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { CommitContext } from "../context";
 import type { ClassicCommitParams } from "../params";
 
 import { classicCommitBuilder } from "./classic.builder";
 
-vi.mock("hooks/contracts/generated", () => ({
-  disputeKitClassicAbi: [{ name: "castCommit", type: "function" }],
-  disputeKitClassicAddress: {
-    421614: "0x1234567890123456789012345678901234567890" as const,
-  },
-}));
+vi.mock("hooks/contracts/generated", () => mockContractsGenerated);
 
 describe("classicCommitBuilder", () => {
   const mockContext: CommitContext = {
-    account: "0xabcdef1234567890abcdef1234567890abcdef12" as `0x${string}`,
+    account: "0xabcdef1234567890abcdef1234567890abcdef12",
     chain: arbitrumSepolia,
     walletClient: {} as CommitContext["walletClient"],
   };
@@ -51,7 +47,7 @@ describe("classicCommitBuilder", () => {
 
       expect(result).toMatchObject({
         account: mockContext.account,
-        address: "0x1234567890123456789012345678901234567890",
+        address: MOCK_CLASSIC_DK_ADDRESS,
         functionName: "castCommit",
         chain: mockContext.chain,
       });
@@ -77,7 +73,7 @@ describe("classicCommitBuilder", () => {
 
       const result = await buildTxn(params);
 
-      expect(result.address).toBe("0x1234567890123456789012345678901234567890");
+      expect(result.address).toBe(MOCK_CLASSIC_DK_ADDRESS);
     });
   });
 

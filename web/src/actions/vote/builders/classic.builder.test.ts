@@ -3,23 +3,18 @@ import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi } from "vitest";
 
 import { DisputeKits } from "src/consts";
+import { MOCK_CLASSIC_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { VoteContext } from "../context";
 import type { ClassicVoteParams } from "../params";
 
 import { classicVoteBuilder } from "./classic.builder";
 
-// Mock the dependencies
-vi.mock("hooks/contracts/generated", () => ({
-  disputeKitClassicAbi: [{ name: "castVote", type: "function" }],
-  disputeKitClassicAddress: {
-    421614: "0xVOTEADDRESS12345678901234567890123456" as const,
-  },
-}));
+vi.mock("hooks/contracts/generated", () => mockContractsGenerated);
 
 describe("classicVoteBuilder", () => {
   const mockContext: VoteContext = {
-    account: "0x2222222222222222222222222222222222222222" as `0x${string}`,
+    account: "0x2222222222222222222222222222222222222222",
     chain: arbitrumSepolia,
     walletClient: {} as VoteContext["walletClient"],
   };
@@ -42,7 +37,7 @@ describe("classicVoteBuilder", () => {
 
       expect(result).toMatchObject({
         account: mockContext.account,
-        address: "0xVOTEADDRESS12345678901234567890123456",
+        address: MOCK_CLASSIC_DK_ADDRESS,
         functionName: "castVote",
         chain: mockContext.chain,
       });
@@ -185,7 +180,7 @@ describe("classicVoteBuilder", () => {
     it("should use account from context", async () => {
       const customContext: VoteContext = {
         ...mockContext,
-        account: "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" as `0x${string}`,
+        account: "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       };
       const params = createParams();
 

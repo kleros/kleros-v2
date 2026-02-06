@@ -3,23 +3,18 @@ import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi } from "vitest";
 
 import { DisputeKits } from "src/consts";
+import { MOCK_GATED_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { RevealContext } from "../context";
 import type { GatedRevealParams } from "../params";
 
 import { gatedRevealBuilder } from "./gated.builder";
 
-// Mock the dependencies
-vi.mock("hooks/contracts/generated", () => ({
-  disputeKitGatedAbi: [{ name: "castVote", type: "function" }],
-  disputeKitGatedAddress: {
-    421614: "0xGATED1234567890123456789012345678901234" as const,
-  },
-}));
+vi.mock("hooks/contracts/generated", () => mockContractsGenerated);
 
 describe("gatedRevealBuilder", () => {
   const mockContext: RevealContext = {
-    account: "0x1111111111111111111111111111111111111111" as `0x${string}`,
+    account: "0x1111111111111111111111111111111111111111",
     chain: arbitrumSepolia,
     walletClient: {} as RevealContext["walletClient"],
   };
@@ -43,7 +38,7 @@ describe("gatedRevealBuilder", () => {
 
       expect(result).toMatchObject({
         account: mockContext.account,
-        address: "0xGATED1234567890123456789012345678901234",
+        address: MOCK_GATED_DK_ADDRESS,
         functionName: "castVote",
         chain: mockContext.chain,
       });

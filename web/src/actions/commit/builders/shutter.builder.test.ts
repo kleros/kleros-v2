@@ -1,3 +1,4 @@
+import type { Hex } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -5,6 +6,7 @@ import { hashJustification } from "utils/crypto/hashJustification";
 import { hashVote } from "utils/crypto/hashVote";
 
 import { DisputeKits } from "src/consts";
+import { MOCK_SHUTTER_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import { fakeEncrypt, verifyFakeEncryptOutput } from "../../../test/fakes/shutter";
 import type { CommitContext } from "../context";
@@ -13,19 +15,14 @@ import type { ShutterCommitParams } from "../params";
 
 import { shutterCommitBuilder } from "./shutter.builder";
 
-vi.mock("hooks/contracts/generated", () => ({
-  disputeKitShutterAbi: [{ name: "castCommitShutter", type: "function" }],
-  disputeKitShutterAddress: {
-    421614: "0xSHUTTER12345678901234567890123456789012" as const,
-  },
-}));
+vi.mock("hooks/contracts/generated", () => mockContractsGenerated);
 
 // Mock import.meta.env
 vi.stubEnv("REACT_APP_SHUTTER_API", "https://shutter.test.api");
 
 describe("shutterCommitBuilder", () => {
   const mockContext: CommitContext = {
-    account: "0xabcdef1234567890abcdef1234567890abcdef12" as `0x${string}`,
+    account: "0xabcdef1234567890abcdef1234567890abcdef12",
     chain: arbitrumSepolia,
     walletClient: {} as CommitContext["walletClient"],
   };
@@ -62,7 +59,7 @@ describe("shutterCommitBuilder", () => {
 
       expect(result).toMatchObject({
         account: mockContext.account,
-        address: "0xSHUTTER12345678901234567890123456789012",
+        address: MOCK_SHUTTER_DK_ADDRESS,
         functionName: "castCommitShutter",
         chain: mockContext.chain,
       });
@@ -161,8 +158,8 @@ describe("shutterCommitBuilder", () => {
 
       const encoded = encodeShutterMessage(2n, 555n, "Test");
 
-      const identity = result.args?.[4] as `0x${string}`;
-      const encrypted = result.args?.[5] as `0x${string}`;
+      const identity = result.args?.[4] as Hex;
+      const encrypted = result.args?.[5] as Hex;
 
       expect(verifyFakeEncryptOutput(encoded, 120, identity, encrypted)).toBe(true);
     });
