@@ -3,6 +3,7 @@ import {
   ethAddressSchema,
   ensNameSchema,
   ethAddressOrEnsNameSchema,
+  TxHashSchema,
 } from "../src/dataMappings/utils/disputeDetailsSchema";
 
 describe("Dispute Details Schema", () => {
@@ -29,6 +30,23 @@ describe("Dispute Details Schema", () => {
 
   const invalidEnsNamesNoAddress = ["", "vitalik", "vitalik.ether", "vitalik.sol", "eth.vitalik"];
 
+  const validTxnHashes = [
+    "0x274fbd8f08f1d2f76a49a7fa062c0590b00d400b1429a9f7a6c21e22b65c82d8",
+    "0x274FBD8F08F1D2F76A49A7FA062C0590B00D400B1429A9F7A6C21E22B65C82D8",
+    "0xa9d24e6c40c26c64b5fe96a3ef050f9a916ce4a362d123ab85a607055e9f99ec",
+  ];
+
+  const invalidTxnHashes = [
+    "0x1234",
+    "0x1234567890abcdef",
+    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcde",
+    "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "0X1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdeg",
+    "0xZZZ4567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef00",
+  ];
+
   describe("ethAddressSchema", () => {
     it("Should accept a valid address", async () => {
       validAddresses.forEach((address) => {
@@ -42,6 +60,21 @@ describe("Dispute Details Schema", () => {
       const invalidAddress = "Provided address is invalid.";
       [...invalidAddressesNoEns, ...validEnsNames].forEach((address) => {
         expect(() => ethAddressSchema.parse(address)).toThrowError(invalidAddress);
+      });
+    });
+  });
+
+  describe("txHashSchema", () => {
+    it("Should accept a valid transaction hash", async () => {
+      validTxnHashes.forEach((hash) => {
+        expect(() => TxHashSchema.parse(hash)).not.toThrow();
+      });
+    });
+
+    it("Should refuse an invalid transaction hash", async () => {
+      const invalidTransaction = "Provided transaction hash is invalid.";
+      invalidTxnHashes.forEach((hash) => {
+        expect(() => TxHashSchema.parse(hash)).toThrowError(invalidTransaction);
       });
     });
   });
