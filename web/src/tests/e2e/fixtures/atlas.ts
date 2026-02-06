@@ -3,14 +3,9 @@ import { Hex, recoverMessageAddress } from "viem";
 
 import { createTestJwt } from "../utils/jwt";
 
-type MockAtlasOptions = {
-  address?: string;
-  accessToken?: string;
-};
-
 // mocking atlas apis
 export const test = base.extend<{
-  mockAtlas: (opts?: MockAtlasOptions) => Promise<void>;
+  mockAtlas: () => Promise<void>;
 }>({
   mockAtlas: [
     async ({ page }, use) => {
