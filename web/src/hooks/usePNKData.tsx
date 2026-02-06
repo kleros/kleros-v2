@@ -34,12 +34,12 @@ export const usePnkData = ({ courtId = "0" }: UsePnkDataParams) => {
 
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     query: queryConfig,
-    args: [address ?? "0x", BigInt(courtId)],
+    args: [address!, BigInt(courtId)],
   });
 
   const { data: allowance, refetch: refetchAllowance } = useReadPnkAllowance({
     query: queryConfig,
-    args: [address ?? "0x", klerosCoreAddress[DEFAULT_CHAIN.id]],
+    args: [address!, klerosCoreAddress[DEFAULT_CHAIN.id]],
   });
 
   return { balance, jurorBalance, allowance, refetchAllowance };
