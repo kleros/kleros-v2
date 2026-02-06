@@ -227,7 +227,8 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
 
         uint256 amount = dispute.paid;
         dispute.paid = 0;
-        payable(dispute.relayer).transfer(amount);
+        (bool success, ) = payable(dispute.relayer).call{value: amount}("");
+        if (!success) revert TransferFailed();
     }
 
     // ************************************* //
@@ -283,4 +284,5 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     error DisputeDoesNotExist();
     error CannotRuleTwice();
     error NotRuledYet();
+    error TransferFailed();
 }
