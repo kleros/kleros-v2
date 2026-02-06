@@ -38,13 +38,7 @@ const builders: Record<DisputeKits, VoteBuilder> = {
  * @param context Execution context, usually including chain info and
  *                account data required by the builder.
  *
- * @returns A promise that resolves to an object containing:
- *          - `account`: the account performing the transaction
- *          - `address`: the contract address
- *          - `abi`: the contract ABI
- *          - `functionName`: the function to call
- *          - `args`: the arguments for the function
- *          - `chain`: the chain info
+ * @returns Returns transaction parameters (ABI, functionName, args, etc.) for call to the relevant DisputeKit
  */
 export const buildVoteTxn = (params: VoteParams, context: VoteContext) => {
   return builders[params.type].build(params, context);
