@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletClient, usePublicClient, useAccount } from "wagmi";
 
 import { removeCommitData } from "actions/helpers/storage";
-import { getVoteKey } from "actions/helpers/storage/key";
+import { getVoteKey } from "actions/helpers/storage/getVoteKey";
 import { executeReveal } from "actions/reveal/execute";
 import { ResolveRevealContext, RevealParams } from "actions/reveal/params";
 import { resolveRevealInputs } from "actions/reveal/resolveRevealInputs";

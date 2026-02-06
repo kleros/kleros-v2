@@ -1,7 +1,7 @@
 import { generateSalt } from "utils/crypto/generateSalt";
 
 import { restoreCommitData } from "../helpers/storage";
-import { getVoteKey } from "../helpers/storage/key";
+import { getVoteKey } from "../helpers/storage/getVoteKey";
 
 import { bruteForceChoice } from "./helpers/bruteForceChoice";
 import { ResolveRevealContext, ResolveRevealParams, RevealParams } from "./params";

@@ -9,6 +9,7 @@ import { hashVote } from "utils/crypto/hashVote";
 import { DisputeKits } from "src/consts";
 
 import { restoreCommitData } from "../helpers/storage";
+import { getVoteKey } from "../helpers/storage/getVoteKey";
 
 import type { ResolveRevealContext, ResolveRevealParams } from "./params";
 import { resolveRevealInputs } from "./resolveRevealInputs";
@@ -111,7 +112,8 @@ describe("resolveRevealInputs", () => {
 
       await resolveRevealInputs(params, context);
 
-      expect(mockRestoreCommitData).toHaveBeenCalledWith("dispute-42-round-3-voteids-5,6");
+      const expectedKey = getVoteKey(params.disputeId, params.roundIndex, params.voteIds);
+      expect(mockRestoreCommitData).toHaveBeenCalledWith(expectedKey);
     });
 
     it("should preserve other params in result", async () => {

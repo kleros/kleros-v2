@@ -1,6 +1,6 @@
 import { Hex } from "viem";
 
-import { getVoteKey } from "actions/helpers/storage/key";
+import { getVoteKey } from "actions/helpers/storage/getVoteKey";
 
 import { disputeKitGatedShutterAbi, disputeKitGatedShutterAddress } from "hooks/contracts/generated";
 import { hashJustification } from "utils/crypto/hashJustification";

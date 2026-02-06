@@ -1,4 +1,4 @@
-import { getVoteKey } from "actions/helpers/storage/key";
+import { getVoteKey } from "actions/helpers/storage/getVoteKey";
 
 import { disputeKitGatedAbi, disputeKitGatedAddress } from "hooks/contracts/generated";
 import { hashVote } from "utils/crypto/hashVote";

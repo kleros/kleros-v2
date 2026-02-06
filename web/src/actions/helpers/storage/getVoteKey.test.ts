@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { getVoteKey } from "./key";
+import { getVoteKey } from "./getVoteKey";
 
 describe("getVoteKey", () => {
   it("should generate correct key format", () => {

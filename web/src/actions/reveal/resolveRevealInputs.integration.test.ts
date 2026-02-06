@@ -8,7 +8,7 @@ import { hashVote } from "utils/crypto/hashVote";
 
 import { DisputeKits } from "src/consts";
 
-import { getVoteKey } from "../helpers/storage/key";
+import { getVoteKey } from "../helpers/storage/getVoteKey";
 
 import type { ResolveRevealContext } from "./params";
 import { resolveRevealInputs } from "./resolveRevealInputs";

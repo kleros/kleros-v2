@@ -3,7 +3,7 @@ import { useWalletClient, usePublicClient, useAccount } from "wagmi";
 
 import { executeCommit } from "actions/commit/execute";
 import type { CommitParams } from "actions/commit/params";
-import { getVoteKey } from "actions/helpers/storage/key";
+import { getVoteKey } from "actions/helpers/storage/getVoteKey";
 
 import { generateSalt } from "utils/crypto/generateSalt";
 import { PartialBy } from "utils/types";
