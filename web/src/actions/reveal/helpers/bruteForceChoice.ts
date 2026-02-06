@@ -31,10 +31,10 @@ export const bruteForceChoice = (salt: Hex, answers: Answer[], commit: string) =
   const { found, choice } = candidates.reduce<{ found: boolean; choice: bigint }>(
     (acc, answer) => {
       if (acc.found) return acc;
+
       const innerCommit = hashVote(BigInt(answer.id), BigInt(salt));
-      if (innerCommit === commit) {
-        return { found: true, choice: BigInt(answer.id) };
-      } else return acc;
+
+      return innerCommit === commit ? { found: true, choice: BigInt(answer.id) } : acc;
     },
     { found: false, choice: BigInt(-1) }
   );
