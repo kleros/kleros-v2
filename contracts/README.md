@@ -53,6 +53,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PNKFaucet](https://sepolia.arbiscan.io/address/0x9f6ffc13B685A68ae359fCA128dfE776458Df464)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0x2668c46A14af8997417138B064ca1bEB70769585), [implementation](https://sepolia.arbiscan.io/address/0x7CC8E0787e381aE159C4d3e137f20f9203313D41)
 - [RandomizerRNG: proxy](https://sepolia.arbiscan.io/address/0x51a97ad9F0aA818e75819da3cA20CAc319580627), [implementation](https://sepolia.arbiscan.io/address/0x1237F02bBeFDAEA20cE3A66aCAe458C4106Ae203)
+- [SBTACPLawyer](https://sepolia.arbiscan.io/address/0xF83e3F4042D21a3Fa9bc1BCF7C4Cb4C46f893929)
 - [SortitionModule: proxy](https://sepolia.arbiscan.io/address/0xbAA5068F0bD1417046250A3eDe2B1F27e31383BD), [implementation](https://sepolia.arbiscan.io/address/0x0C872eeF07030107b53eaD15bb7dD7E6FBCA2b83)
 - [TransactionBatcher](https://sepolia.arbiscan.io/address/0x35f93986950804ac1F93519BF68C2a7Dd776db0E)
 - [WETH](https://sepolia.arbiscan.io/address/0xAEE953CC26DbDeA52beBE3F97f281981f2B9d511)
