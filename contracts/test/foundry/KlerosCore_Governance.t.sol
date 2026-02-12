@@ -9,7 +9,6 @@ import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/Dispu
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
-import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -392,7 +391,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
@@ -407,7 +406,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.UnsupportedDisputeKit.selector);
@@ -423,7 +422,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             emptySupportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.InvalidForkingCourtAsParent.selector);
@@ -438,7 +437,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         uint256[] memory badSupportedDK = new uint256[](2);
@@ -456,7 +455,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             badSupportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         badSupportedDK[0] = DISPUTE_KIT_CLASSIC;
@@ -473,7 +472,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             badSupportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Add new DK to check the requirement for classic DK
@@ -494,7 +493,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             badSupportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.prank(owner);
@@ -513,7 +512,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50,
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Explicitly convert otherwise it throws
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         core.createCourt(
             GENERAL_COURT,
@@ -525,7 +524,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50);
@@ -559,7 +558,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.OwnerOnly.selector);
@@ -572,7 +571,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             0.03 ether, // fee for juror
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         vm.expectRevert(abi.encodeWithSelector(KlerosCore.MinStakeHigherThanChildCourt.selector, newCourtID));
         vm.prank(owner);
@@ -585,7 +584,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             0.03 ether, // fee for juror
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         // Min stake of a child became lower than of a parent
         vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
@@ -598,7 +597,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             0.03 ether, // fee for juror
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.prank(owner);
@@ -611,7 +610,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             0.04 ether,
             50,
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Explicitly convert otherwise it throws
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         core.changeCourtParameters(
             GENERAL_COURT,
@@ -621,7 +620,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             0.04 ether, // fee for juror
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50);

@@ -1098,7 +1098,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             _courtID,
             _newStake,
             _noDelay,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         if (stakingResult != StakingResult.Successful) {
             _stakingFailed(_onError, stakingResult);

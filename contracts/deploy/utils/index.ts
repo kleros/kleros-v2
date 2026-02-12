@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, ZeroAddress } from "ethers";
 import { Network } from "hardhat/types";
 
 // TODO: derive this from hardhat.config and make it rely on viem/chains
@@ -25,6 +25,8 @@ export enum Courts {
   FORKING = 0,
   GENERAL = 1,
 }
+
+export const NULL_ELIGIBILITY_REQUIREMENT = ZeroAddress;
 
 export const isMainnet = (network: Network) => network.tags.production ?? false;
 export const isDevnet = (network: Network) => network.name.endsWith("Devnet");

@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
           viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 800, // Constrained by the size of the KlerosCore contract
+            runs: 700, // Constrained by the size of the KlerosCore contract
           },
           outputSelection: {
             "*": {

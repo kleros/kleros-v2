@@ -379,7 +379,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _courtParameters[3],
             _timesPerPeriod,
             supportedDisputeKits,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         _enableDisputeKit(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
     }

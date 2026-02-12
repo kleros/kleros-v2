@@ -6,7 +6,6 @@ import {KlerosCore, SafeERC20} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
 import {IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
-import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {IERC20} from "../../src/libraries/SafeERC20.sol";
 import {console} from "forge-std/console.sol";
 import {MaliciousArbitrableMock} from "../../src/test/MaliciousArbitrableMock.sol";
@@ -367,7 +366,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             sortitionExtraData, // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         uint256 disputeID = 0;

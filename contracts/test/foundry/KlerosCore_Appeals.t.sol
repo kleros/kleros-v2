@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
-import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {DisputeKitClassicMockUncheckedNextRoundSettings} from "../../src/test/DisputeKitClassicMockUncheckedNextRoundSettings.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import "../../src/libraries/Constants.sol";
@@ -255,7 +254,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         arbitrable.changeArbitratorExtraData(newExtraData);
@@ -403,7 +402,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         assertEq(core.isSupported(newCourtID, dkID3), true, "dkID3 should be supported by new court");
 
@@ -592,7 +591,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         assertEq(core.isSupported(courtID2, dkID2), true, "dkID2 should be supported by Court2");
 
@@ -615,7 +614,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)], // Times per period
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         assertEq(core.isSupported(courtID3, dkID3), true, "dkID3 should be supported by Court3");
 
@@ -1035,7 +1034,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court3 (also child of GENERAL_COURT, making it a sibling of Court2) with feeForJuror = 0.07 ether
@@ -1050,7 +1049,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure Court2's NextRoundSettings to jump to Court3 (a sibling, not parent)
@@ -1165,7 +1164,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court3 (child of Court2)
@@ -1180,7 +1179,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court4 (child of Court3) - so hierarchy is: GENERAL_COURT -> Court2 -> Court3 -> Court4
@@ -1195,7 +1194,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure Court4 to jump directly to GENERAL_COURT (skipping Court3 and Court2)
@@ -1287,7 +1286,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court3 (sibling of Court2)
@@ -1302,7 +1301,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure Court2's NextRoundSettings with enabled = FALSE
@@ -1397,7 +1396,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure Court2's NextRoundSettings with invalid jumpCourtID
@@ -1492,7 +1491,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court3 (sibling of Court2)
@@ -1507,7 +1506,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure Court2 to jump to Court3 with custom nbVotes
@@ -1616,7 +1615,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure NextRoundSettings with custom nbVotes > jurorsForCourtJump
@@ -1755,7 +1754,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court3 (sibling of Court2) also supporting all 3 DKs
@@ -1770,7 +1769,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // CRITICAL: Configure NextRoundSettings with BOTH jumpDisputeKitID and jumpDisputeKitIDOnCourtJump set
@@ -1918,7 +1917,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court3 (valid target court)
@@ -1933,7 +1932,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure NextRoundSettings with INVALID jumpDisputeKitID
@@ -2066,7 +2065,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Create Court3 supporting ONLY DISPUTE_KIT_CLASSIC (NOT DK2)
@@ -2083,7 +2082,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Verify Court3 does NOT support DK2
@@ -2242,7 +2241,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure NextRoundSettings with jumpCourtID = FORKING_COURT (0)
@@ -2375,7 +2374,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.prank(owner);
@@ -2389,7 +2388,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure NextRoundSettings with jumpDisputeKitID = NULL_DISPUTE_KIT (0)
@@ -2512,7 +2511,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.prank(owner);
@@ -2526,7 +2525,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
             [uint256(60), uint256(120), uint256(180), uint256(240)],
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Configure NextRoundSettings with nbVotes = 0

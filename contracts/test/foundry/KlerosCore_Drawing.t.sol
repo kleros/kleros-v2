@@ -5,7 +5,6 @@ import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
-import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {Vm} from "forge-std/Vm.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -105,7 +104,7 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             sortitionExtraData, // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         uint256[] memory children = core.getCourtChildren(GENERAL_COURT);

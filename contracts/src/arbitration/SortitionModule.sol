@@ -299,7 +299,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
 
         if (stakeIncrease) {
             // Check if the juror is eligible to stake in the court.
-            if (_eligibility != ICourtEligibility(address(0)) && !_eligibility.isEligible(_account, _courtID)) {
+            if (_eligibility != NULL_ELIGIBILITY_REQUIREMENT && !_eligibility.isEligible(_account, _courtID)) {
                 return (0, 0, StakingResult.NotEligibleForStaking);
             }
             // Check if the stake increase is within the limits.

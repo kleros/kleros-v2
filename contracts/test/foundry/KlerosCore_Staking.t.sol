@@ -5,7 +5,6 @@ import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
-import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
 import "../../src/libraries/Constants.sol";
 import {console} from "forge-std/console.sol";
@@ -185,7 +184,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
                 [uint256(10), uint256(20), uint256(30), uint256(40)],
                 abi.encode(uint256(4)),
                 supportedDK,
-                ICourtEligibility(address(0))
+                NULL_ELIGIBILITY_REQUIREMENT
             );
             vm.prank(staker1);
             core.setStake(i, 2000);
@@ -543,7 +542,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
             timesPerPeriod, // Times per period
             sortitionExtraData, // Sortition extra data
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         uint96 newCourtID = 2;

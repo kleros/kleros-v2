@@ -3,6 +3,7 @@
 pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ICourtEligibility} from "../arbitration/interfaces/ICourtEligibility.sol";
 
 // Courts
 uint96 constant FORKING_COURT = 0; // Index of the forking court.
@@ -19,6 +20,7 @@ uint256 constant DEFAULT_K = 6; // Default number of children per node.
 // Defaults
 uint256 constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
 IERC20 constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
+ICourtEligibility constant NULL_ELIGIBILITY_REQUIREMENT = ICourtEligibility(address(0)); // Null pattern to indicate the absence of an eligibility requirement for the court.
 
 // Units
 uint256 constant ONE_BASIS_POINT = 10000;

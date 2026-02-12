@@ -21,7 +21,6 @@ import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrable
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
 import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
-import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_TestBase
@@ -217,7 +216,7 @@ abstract contract KlerosCore_TestBase is Test {
             timesPerPeriod,
             sortitionExtraData,
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         return uint96(core.getCourtChildren(parent)[core.getCourtChildren(parent).length - 1]);

@@ -1,5 +1,5 @@
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
-import { toBigInt, BigNumberish, ZeroAddress } from "ethers";
+import { toBigInt, BigNumberish } from "ethers";
 import {
   PNK,
   KlerosCore,
@@ -10,7 +10,7 @@ import {
   TestERC20,
 } from "../../../typechain-types";
 import { expect } from "chai";
-import { Courts } from "../../../deploy/utils";
+import { Courts, NULL_ELIGIBILITY_REQUIREMENT } from "../../../deploy/utils";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployUpgradable } from "../../../deploy/utils/deployUpgradable";
 import { encodeExtraData as encodeGatedExtraData } from "./dispute-kit-gated-common";
@@ -237,7 +237,7 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       [300, 300, 300, 300], // timesPerPeriod for evidence, commit, vote, appeal
       ethers.toBeHex(5), // sortitionExtraData
       [1, shutterDKID], // supportedDisputeKits - must include Classic (1) and Shutter (2)
-      ZeroAddress
+      NULL_ELIGIBILITY_REQUIREMENT
     );
   } else if (config.contractName === "DisputeKitGatedShutter") {
     // For gated shutter, we need to deploy it if not already deployed
@@ -265,7 +265,7 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       ethers.parseEther("0.1"), // feeForJuror
       16, // jurorsForCourtJump
       [300, 300, 300, 300], // timesPerPeriod
-      ZeroAddress
+      NULL_ELIGIBILITY_REQUIREMENT
     );
 
     await core.enableDisputeKits(Courts.GENERAL, [shutterDKID], true);

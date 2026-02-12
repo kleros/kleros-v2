@@ -10,7 +10,6 @@ import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
-import {ICourtEligibility} from "../../src/arbitration/interfaces/ICourtEligibility.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -163,7 +162,7 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             511,
             [uint256(60), uint256(120), uint256(180), uint256(240)], // Explicitly convert otherwise it throws
             supportedDK,
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);

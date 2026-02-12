@@ -264,7 +264,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_StakingTest is KlerosCore_Te
             0.03 ether,
             50,
             [uint256(10), uint256(20), uint256(30), uint256(40)],
-            ICourtEligibility(address(0))
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Ineligible juror can increase again
