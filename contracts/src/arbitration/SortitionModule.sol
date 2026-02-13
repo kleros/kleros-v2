@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {SortitionModuleBase, KlerosCore, RNG} from "./SortitionModuleBase.sol";
+import {SortitionModuleBase, KlerosCore, IRNG} from "./SortitionModuleBase.sol";
 
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
@@ -24,16 +24,14 @@ contract SortitionModule is SortitionModuleBase {
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
-    /// @param _rngLookahead Lookahead value for rng.
     function initialize(
         address _governor,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng,
-        uint256 _rngLookahead
+        IRNG _rng
     ) external reinitializer(1) {
-        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
+        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng);
     }
 
     function initialize4() external reinitializer(4) {

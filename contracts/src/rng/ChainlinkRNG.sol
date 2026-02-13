@@ -5,17 +5,17 @@ pragma solidity ^0.8.24;
 import {VRFConsumerBaseV2Plus, IVRFCoordinatorV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
-import "./RNG.sol";
+import "./IRNG.sol";
 
 /// @title Random Number Generator that uses Chainlink VRF v2.5
 /// https://blog.chain.link/introducing-vrf-v2-5/
-contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
+contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
     address public governor; // The address that can withdraw funds.
-    address public sortitionModule; // The address of the SortitionModule.
+    address public consumer; // The address that can request random numbers.
     bytes32 public keyHash; // The gas lane key hash value - Defines the maximum gas price you are willing to pay for a request in wei (ID of the off-chain VRF job).
     uint256 public subscriptionId; // The unique identifier of the subscription used for funding requests.
     uint16 public requestConfirmations; // How many confirmations the Chainlink node should wait before responding.
@@ -29,25 +29,25 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
     // ************************************* //
 
     /// @dev Emitted when a request is sent to the VRF Coordinator
-    /// @param requestId The ID of the request
-    event RequestSent(uint256 indexed requestId);
+    /// @param _requestId The ID of the request
+    event RequestSent(uint256 indexed _requestId);
 
     /// Emitted when a request has been fulfilled.
-    /// @param requestId The ID of the request
-    /// @param randomWord The random value answering the request.
-    event RequestFulfilled(uint256 indexed requestId, uint256 randomWord);
+    /// @param _requestId The ID of the request
+    /// @param _randomWord The random value answering the request.
+    event RequestFulfilled(uint256 indexed _requestId, uint256 _randomWord);
 
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
-    modifier onlyBySortitionModule() {
-        require(sortitionModule == msg.sender, "SortitionModule only");
+    modifier onlyByConsumer() {
+        if (consumer != msg.sender) revert ConsumerOnly();
         _;
     }
 
@@ -57,7 +57,7 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
 
     /// @dev Constructor, initializing the implementation to reduce attack surface.
     /// @param _governor The Governor of the contract.
-    /// @param _sortitionModule The address of the SortitionModule contract.
+    /// @param _consumer The address that can request random numbers.
     /// @param _vrfCoordinator The address of the VRFCoordinator contract.
     /// @param _keyHash The gas lane key hash value - Defines the maximum gas price you are willing to pay for a request in wei (ID of the off-chain VRF job).
     /// @param _subscriptionId The unique identifier of the subscription used for funding requests.
@@ -66,7 +66,7 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
     /// @dev https://docs.chain.link/vrf/v2-5/subscription/get-a-random-number
     constructor(
         address _governor,
-        address _sortitionModule,
+        address _consumer,
         address _vrfCoordinator,
         bytes32 _keyHash,
         uint256 _subscriptionId,
@@ -74,7 +74,7 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
         uint32 _callbackGasLimit
     ) VRFConsumerBaseV2Plus(_vrfCoordinator) {
         governor = _governor;
-        sortitionModule = _sortitionModule;
+        consumer = _consumer;
         keyHash = _keyHash;
         subscriptionId = _subscriptionId;
         requestConfirmations = _requestConfirmations;
@@ -91,10 +91,10 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
         governor = _governor;
     }
 
-    /// @dev Changes the sortition module of the contract.
-    /// @param _sortitionModule The new sortition module.
-    function changeSortitionModule(address _sortitionModule) external onlyByGovernor {
-        sortitionModule = _sortitionModule;
+    /// @dev Changes the consumer of the RNG.
+    /// @param _consumer The new consumer.
+    function changeConsumer(address _consumer) external onlyByGovernor {
+        consumer = _consumer;
     }
 
     /// @dev Changes the VRF Coordinator of the contract.
@@ -132,8 +132,8 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Request a random number. SortitionModule only.
-    function requestRandomness(uint256 /*_block*/) external override onlyBySortitionModule {
+    /// @dev Request a random number. Consumer only.
+    function requestRandomness() external override onlyByConsumer {
         // Will revert if subscription is not set and funded.
         uint256 requestId = s_vrfCoordinator.requestRandomWords(
             VRFV2PlusClient.RandomWordsRequest({
@@ -167,7 +167,7 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
 
     /// @dev Return the random number.
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
-    function receiveRandomness(uint256 /*_block*/) external view override returns (uint256 randomNumber) {
+    function receiveRandomness() external view override returns (uint256 randomNumber) {
         randomNumber = randomNumbers[lastRequestId];
     }
 }

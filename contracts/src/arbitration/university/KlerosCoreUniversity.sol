@@ -6,9 +6,9 @@ import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
 import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
-import "../../libraries/Constants.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
+import "../../libraries/Constants.sol";
 
 /// @title KlerosCoreUniversity
 /// Core arbitrator contract for educational purposes.
@@ -87,7 +87,6 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     // *             Storage               * //
     // ************************************* //
 
-    uint256 private constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
 
     address public governor; // The governor of the contract.
@@ -526,7 +525,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             : convertEthToTokenAmount(_feeToken, court.feeForJuror);
         round.nbVotes = _feeAmount / feeForJuror;
         round.disputeKitID = disputeKitID;
-        round.pnkAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
+        round.pnkAtStakePerJuror = (court.minStake * court.alpha) / ONE_BASIS_POINT;
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
 
@@ -655,7 +654,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         Court storage court = courts[newCourtID];
         extraRound.nbVotes = msg.value / court.feeForJuror; // As many votes that can be afforded by the provided funds.
-        extraRound.pnkAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
+        extraRound.pnkAtStakePerJuror = (court.minStake * court.alpha) / ONE_BASIS_POINT;
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
 
@@ -754,20 +753,21 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         IDisputeKit disputeKit = disputeKits[round.disputeKitID];
 
         // [0, 1] value that determines how coherent the juror was in this round, in basis points.
-        uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
+        uint256 coherence = disputeKit.getDegreeOfCoherencePenalty(
             _params.disputeID,
             _params.round,
             _params.repartition,
             _params.feePerJurorInRound,
             _params.pnkAtStakePerJurorInRound
         );
-        if (degreeOfCoherence > ALPHA_DIVISOR) {
-            // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
-            degreeOfCoherence = ALPHA_DIVISOR;
+
+        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
+        if (coherence > ONE_BASIS_POINT) {
+            coherence = ONE_BASIS_POINT;
         }
 
         // Fully coherent jurors won't be penalized.
-        uint256 penalty = (round.pnkAtStakePerJuror * (ALPHA_DIVISOR - degreeOfCoherence)) / ALPHA_DIVISOR;
+        uint256 penalty = (round.pnkAtStakePerJuror * (ONE_BASIS_POINT - coherence)) / ONE_BASIS_POINT;
 
         // Unlock the PNKs affected by the penalty
         address account = round.drawnJurors[_params.repartition];
@@ -780,7 +780,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             account,
             _params.disputeID,
             _params.round,
-            degreeOfCoherence,
+            coherence,
             -int256(availablePenalty),
             0,
             round.feeToken
@@ -818,7 +818,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         IDisputeKit disputeKit = disputeKits[round.disputeKitID];
 
         // [0, 1] value that determines how coherent the juror was in this round, in basis points.
-        uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
+        (uint256 pnkCoherence, uint256 feeCoherence) = disputeKit.getDegreeOfCoherenceReward(
             _params.disputeID,
             _params.round,
             _params.repartition % _params.numberOfVotesInRound,
@@ -826,21 +826,24 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             _params.pnkAtStakePerJurorInRound
         );
 
-        // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
-        if (degreeOfCoherence > ALPHA_DIVISOR) {
-            degreeOfCoherence = ALPHA_DIVISOR;
+        // Guard against degree exceeding 1, though it should be ensured by the dispute kit.
+        if (pnkCoherence > ONE_BASIS_POINT) {
+            pnkCoherence = ONE_BASIS_POINT;
+        }
+        if (feeCoherence > ONE_BASIS_POINT) {
+            feeCoherence = ONE_BASIS_POINT;
         }
 
         address account = round.drawnJurors[_params.repartition % _params.numberOfVotesInRound];
-        uint256 pnkLocked = (round.pnkAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 pnkLocked = (round.pnkAtStakePerJuror * pnkCoherence) / ONE_BASIS_POINT;
 
         // Release the rest of the PNKs of the juror for this round.
         sortitionModule.unlockStake(account, pnkLocked);
 
         // Transfer the rewards
-        uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 pnkReward = ((_params.pnkPenaltiesInRound / _params.coherentCount) * pnkCoherence) / ONE_BASIS_POINT;
         round.sumPnkRewardPaid += pnkReward;
-        uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * feeCoherence) / ONE_BASIS_POINT;
         round.sumFeeRewardPaid += feeReward;
         pinakion.safeTransfer(account, pnkReward);
         if (round.feeToken == NATIVE_CURRENCY) {
@@ -854,7 +857,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             account,
             _params.disputeID,
             _params.round,
-            degreeOfCoherence,
+            pnkCoherence,
             int256(pnkReward),
             int256(feeReward),
             round.feeToken

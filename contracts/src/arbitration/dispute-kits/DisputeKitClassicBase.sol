@@ -6,6 +6,7 @@ import {KlerosCore, KlerosCoreBase, IDisputeKit, ISortitionModule} from "../Kler
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";
+import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitClassicBase
 /// Abstract Dispute kit classic implementation of the Kleros v1 features including:
@@ -57,7 +58,6 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
-    uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
 
     address public governor; // The governor of the contract.
     KlerosCore public core; // The Kleros Core arbitrator
@@ -125,17 +125,17 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
     modifier onlyByCore() {
-        require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
+        if (address(core) != msg.sender) revert KlerosCoreOnly();
         _;
     }
 
     modifier notJumped(uint256 _coreDisputeID) {
-        require(!disputes[coreDisputeIDToLocal[_coreDisputeID]].jumped, "Dispute jumped to a parent DK!");
+        if (disputes[coreDisputeIDToLocal[_coreDisputeID]].jumped) revert DisputeJumpedToParentDK();
         _;
     }
 
@@ -171,7 +171,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bytes memory _data
     ) external onlyByGovernor {
         (bool success, ) = _destination.call{value: _amount}(_data);
-        require(success, "Unsuccessful call");
+        if (!success) revert UnsuccessfulCall();
     }
 
     /// @dev Changes the `governor` storage variable.
@@ -269,14 +269,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bytes32 _commit
     ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        require(period == KlerosCoreBase.Period.commit, "The dispute should be in Commit period.");
-        require(_commit != bytes32(0), "Empty commit.");
-        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
+        if (period != KlerosCoreBase.Period.commit) revert NotCommitPeriod();
+        if (_commit == bytes32(0)) revert EmptyCommit();
+        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
+            if (round.votes[_voteIDs[i]].account != msg.sender) revert JurorHasToOwnTheVote();
             round.votes[_voteIDs[i]].commit = _commit;
         }
         round.totalCommitted += _voteIDs.length;
@@ -310,12 +310,12 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         address _juror
     ) internal notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        require(period == KlerosCoreBase.Period.vote, "The dispute should be in Vote period.");
-        require(_voteIDs.length > 0, "No voteID provided");
-        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
+        if (period != KlerosCoreBase.Period.vote) revert NotVotePeriod();
+        if (_voteIDs.length == 0) revert EmptyVoteIDs();
+        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        require(_choice <= dispute.numberOfChoices, "Choice out of bounds");
+        if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         {
@@ -325,12 +325,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
             //  Save the votes.
             for (uint256 i = 0; i < _voteIDs.length; i++) {
-                require(round.votes[_voteIDs[i]].account == _juror, "The juror has to own the vote.");
-                require(
-                    !hiddenVotes || round.votes[_voteIDs[i]].commit == voteHash,
-                    "The vote hash must match the commitment in courts with hidden votes."
-                );
-                require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
+                if (round.votes[_voteIDs[i]].account != _juror) revert JurorHasToOwnTheVote();
+                if (hiddenVotes && round.votes[_voteIDs[i]].commit != voteHash)
+                    revert HashDoesNotMatchHiddenVoteCommitment();
+                if (round.votes[_voteIDs[i]].voted) revert VoteAlreadyCast();
                 round.votes[_voteIDs[i]].choice = _choice;
                 round.votes[_voteIDs[i]].voted = true;
             }
@@ -361,29 +359,30 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _choice A choice that receives funding.
     function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable notJumped(_coreDisputeID) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        require(_choice <= dispute.numberOfChoices, "There is no such ruling to fund.");
-        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
+        if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
+        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
-        require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, "Appeal period is over.");
+        if (block.timestamp < appealPeriodStart || block.timestamp >= appealPeriodEnd) revert AppealPeriodIsOver();
 
         uint256 multiplier;
         (uint256 ruling, , ) = this.currentRuling(_coreDisputeID);
         if (ruling == _choice) {
             multiplier = WINNER_STAKE_MULTIPLIER;
         } else {
-            require(
-                block.timestamp - appealPeriodStart <
-                    ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT,
-                "Appeal period is over for loser"
-            );
+            if (
+                block.timestamp - appealPeriodStart >=
+                ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT
+            ) {
+                revert AppealPeriodIsOverForLoser();
+            }
             multiplier = LOSER_STAKE_MULTIPLIER;
         }
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
 
-        require(!round.hasPaid[_choice], "Appeal fee is already paid.");
+        if (round.hasPaid[_choice]) revert AppealFeeIsAlreadyPaid();
         uint256 appealCost = core.appealCost(_coreDisputeID);
         uint256 totalCost = appealCost + (appealCost * multiplier) / ONE_BASIS_POINT;
 
@@ -440,9 +439,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _choice
     ) external returns (uint256 amount) {
         (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
-        require(isRuled, "Dispute should be resolved.");
-        require(!core.paused(), "Core is paused");
-        require(coreDisputeIDToActive[_coreDisputeID], "Not active for core dispute ID");
+        if (!isRuled) revert DisputeNotResolved();
+        if (core.paused()) revert CoreIsPaused();
+        if (!coreDisputeIDToActive[_coreDisputeID]) revert NotActiveForCoreDisputeID();
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
@@ -527,14 +526,39 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
     /// @param _voteID The ID of the vote.
-    /// @return The degree of coherence in basis points.
-    function getDegreeOfCoherence(
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @return feeCoherence The degree of coherence in basis points for the dispute fee reward.
+    function getDegreeOfCoherenceReward(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
         uint256 _voteID,
         uint256 /* _feePerJuror */,
         uint256 /* _pnkAtStakePerJuror */
-    ) external view override returns (uint256) {
+    ) external view override returns (uint256 pnkCoherence, uint256 feeCoherence) {
+        uint256 coherence = _getDegreeOfCoherence(_coreDisputeID, _coreRoundID, _voteID);
+        return (coherence, coherence);
+    }
+
+    /// @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the penalty.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    function getDegreeOfCoherencePenalty(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID,
+        uint256 /* _feePerJuror */,
+        uint256 /* _pnkAtStakePerJuror */
+    ) external view override returns (uint256 pnkCoherence) {
+        return _getDegreeOfCoherence(_coreDisputeID, _coreRoundID, _voteID);
+    }
+
+    function _getDegreeOfCoherence(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID
+    ) internal view returns (uint256 coherence) {
         // In this contract this degree can be either 0 or 1, but in other dispute kits this value can be something in between.
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
@@ -710,4 +734,27 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             result = true;
         }
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error KlerosCoreOnly();
+    error DisputeJumpedToParentDK();
+    error UnsuccessfulCall();
+    error NotCommitPeriod();
+    error EmptyCommit();
+    error NotActiveForCoreDisputeID();
+    error JurorHasToOwnTheVote();
+    error NotVotePeriod();
+    error EmptyVoteIDs();
+    error ChoiceOutOfBounds();
+    error HashDoesNotMatchHiddenVoteCommitment();
+    error VoteAlreadyCast();
+    error AppealPeriodIsOver();
+    error AppealPeriodIsOverForLoser();
+    error AppealFeeIsAlreadyPaid();
+    error DisputeNotResolved();
+    error CoreIsPaused();
 }

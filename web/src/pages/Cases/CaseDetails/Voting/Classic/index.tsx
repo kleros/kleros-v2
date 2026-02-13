@@ -33,7 +33,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated }) => {
       <Reveal {...{ arbitrable, setIsOpen, voteIDs, commit, isRevealPeriod: !isCommitPeriod, isGated }} />
     )
   ) : (
-    <Vote {...{ arbitrable, setIsOpen, voteIDs }} />
+    <Vote {...{ arbitrable, setIsOpen, voteIDs, isGated }} />
   );
 };
 

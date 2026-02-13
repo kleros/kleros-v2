@@ -163,7 +163,7 @@ async function deployContracts(): Promise<[KlerosCoreRuler, DisputeResolver]> {
     fallbackToGlobal: true,
     keepExistingDeployments: false,
   });
-  const resolver = (await ethers.getContract("DisputeResolverRuler")) as DisputeResolver;
-  const core = (await ethers.getContract("KlerosCoreRuler")) as KlerosCoreRuler;
+  const resolver = await ethers.getContract<DisputeResolver>("DisputeResolverRuler");
+  const core = await ethers.getContract<KlerosCoreRuler>("KlerosCoreRuler");
   return [core, resolver];
 }

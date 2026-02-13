@@ -22,7 +22,7 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -67,4 +67,10 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
         emit Evidence(_externalDisputeID, msg.sender, _evidence);
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
 }

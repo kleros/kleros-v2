@@ -27,11 +27,11 @@ describe("Staking", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    pnk = (await ethers.getContract("PNK")) as PNK;
-    core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
-    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
-    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
+    pnk = await ethers.getContract<PNK>("PNK");
+    core = await ethers.getContract<KlerosCore>("KlerosCore");
+    sortition = await ethers.getContract<SortitionModule>("SortitionModule");
+    rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
   };
 
   describe("When outside the Staking phase", async () => {
@@ -53,11 +53,8 @@ describe("Staking", async () => {
       await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
       await network.provider.send("evm_mine");
 
-      const lookahead = await sortition.rngLookahead();
       await sortition.passPhase(); // Staking -> Generating
-      for (let index = 0; index < lookahead; index++) {
-        await network.provider.send("evm_mine");
-      }
+      await network.provider.send("evm_mine");
 
       balanceBefore = await pnk.balanceOf(deployer);
     };
@@ -393,11 +390,9 @@ describe("Staking", async () => {
       await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
       await network.provider.send("evm_mine");
 
-      const lookahead = await sortition.rngLookahead();
       await sortition.passPhase(); // Staking -> Generating
-      for (let index = 0; index < lookahead; index++) {
-        await network.provider.send("evm_mine");
-      }
+      await network.provider.send("evm_mine");
+
       await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
       await sortition.passPhase(); // Generating -> Drawing
 

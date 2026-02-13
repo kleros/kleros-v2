@@ -7,6 +7,7 @@ const shell = require("shelljs");
 module.exports = {
   istanbulReporter: ["lcov"],
   configureYulOptimizer: true,
+  irMinimum: true,
   onCompileComplete: async function (_config) {
     await run("typechain");
   },

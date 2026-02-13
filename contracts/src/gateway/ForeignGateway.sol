@@ -49,17 +49,16 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // ************************************* //
 
     modifier onlyFromVea(address _messageSender) {
-        require(
-            veaOutbox == msg.sender ||
-                (block.timestamp < deprecatedVeaOutboxExpiration && deprecatedVeaOutbox == msg.sender),
-            "Access not allowed: Vea Outbox only."
-        );
-        require(_messageSender == homeGateway, "Access not allowed: HomeGateway only.");
+        if (
+            veaOutbox != msg.sender &&
+            (block.timestamp >= deprecatedVeaOutboxExpiration || deprecatedVeaOutbox != msg.sender)
+        ) revert VeaOutboxOnly();
+        if (_messageSender != homeGateway) revert HomeGatewayMessageSenderOnly();
         _;
     }
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -105,7 +104,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     /// @dev Changes the governor.
     /// @param _governor The address of the new governor.
     function changeGovernor(address _governor) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         governor = _governor;
     }
 
@@ -122,7 +121,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     /// @dev Changes the home gateway.
     /// @param _homeGateway The address of the new home gateway.
     function changeHomeGateway(address _homeGateway) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        if (governor != msg.sender) revert GovernorOnly();
         homeGateway = _homeGateway;
     }
 
@@ -143,7 +142,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         uint256 _choices,
         bytes calldata _extraData
     ) external payable override returns (uint256 disputeID) {
-        require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
+        if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
 
         disputeID = localDisputeID++;
         uint256 chainID;
@@ -206,8 +205,8 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     ) external override onlyFromVea(_messageSender) {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
-        require(dispute.id != 0, "Dispute does not exist");
-        require(!dispute.ruled, "Cannot rule twice");
+        if (dispute.id == 0) revert DisputeDoesNotExist();
+        if (dispute.ruled) revert CannotRuleTwice();
 
         dispute.ruled = true;
         dispute.relayer = _relayer;
@@ -219,8 +218,8 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     /// @inheritdoc IForeignGateway
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
-        require(dispute.id != 0, "Dispute does not exist");
-        require(dispute.ruled, "Not ruled yet");
+        if (dispute.id == 0) revert DisputeDoesNotExist();
+        if (!dispute.ruled) revert NotRuledYet();
 
         uint256 amount = dispute.paid;
         dispute.paid = 0;
@@ -247,9 +246,9 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         revert("Not supported");
     }
 
-    // ************************ //
-    // *       Internal       * //
-    // ************************ //
+    // ************************************* //
+    // *            Internal               * //
+    // ************************************* //
 
     function extraDataToCourtIDMinJurors(
         bytes memory _extraData
@@ -268,4 +267,16 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
             minJurors = DEFAULT_NB_OF_JURORS;
         }
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error HomeGatewayMessageSenderOnly();
+    error VeaOutboxOnly();
+    error ArbitrationFeesNotEnough();
+    error DisputeDoesNotExist();
+    error CannotRuleTwice();
+    error NotRuledYet();
 }

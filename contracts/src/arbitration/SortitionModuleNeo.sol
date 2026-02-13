@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {SortitionModuleBase, KlerosCore, RNG, StakingResult} from "./SortitionModuleBase.sol";
+import {SortitionModuleBase, KlerosCore, IRNG, StakingResult} from "./SortitionModuleBase.sol";
 
 /// @title SortitionModuleNeo
 /// @dev A factory of trees that keeps track of staked values for sortition.
@@ -32,7 +32,6 @@ contract SortitionModuleNeo is SortitionModuleBase {
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
-    /// @param _rngLookahead Lookahead value for rng.
     /// @param _maxStakePerJuror The maximum amount of PNK a juror can stake in a court.
     /// @param _maxTotalStaked The maximum amount of PNK that can be staked in all courts.
     function initialize(
@@ -40,12 +39,11 @@ contract SortitionModuleNeo is SortitionModuleBase {
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng,
-        uint256 _rngLookahead,
+        IRNG _rng,
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStaked
     ) external reinitializer(2) {
-        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
+        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng);
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStaked = _maxTotalStaked;
     }

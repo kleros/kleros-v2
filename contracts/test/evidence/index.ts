@@ -19,7 +19,6 @@ function getEmittedEvent(eventName: any, receipt: ContractTransactionReceipt): E
 
 describe("Home Evidence contract", async () => {
   const arbitrationFee = 1000n;
-  const appealFee = arbitrationFee;
   const arbitratorExtraData = ethers.AbiCoder.defaultAbiCoder().encode(
     ["uint256", "uint256"],
     [1, 1] // courtId 1, minJurors 1
@@ -51,8 +50,8 @@ describe("Home Evidence contract", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    arbitrator = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    disputeTemplateRegistry = (await ethers.getContract("DisputeTemplateRegistry")) as DisputeTemplateRegistry;
+    arbitrator = await ethers.getContract<KlerosCore>("KlerosCore");
+    disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>("DisputeTemplateRegistry");
 
     const court = await arbitrator.courts(1);
     await arbitrator.changeCourtParameters(

@@ -35,7 +35,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     ],
     log: true,
   });
-  const core = (await hre.ethers.getContract("KlerosCoreRuler")) as KlerosCoreRuler;
+  const core = await hre.ethers.getContract<KlerosCoreRuler>("KlerosCoreRuler");
 
   try {
     await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);

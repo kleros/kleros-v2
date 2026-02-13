@@ -9,7 +9,7 @@ import {ITokenController} from "../interfaces/ITokenController.sol";
 import {WrappedPinakion} from "./WrappedPinakion.sol";
 import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
 
-import {SortitionSumTreeFactory} from "../../libraries/SortitionSumTreeFactory.sol";
+import {SortitionSumTreeFactory} from "../libraries/SortitionSumTreeFactory.sol";
 import "../../gateway/interfaces/IForeignGateway.sol";
 
 /// @title xKlerosLiquidV2
@@ -141,7 +141,6 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     uint256 public constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
-    uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     // General Contracts
     address public governor; // The governor of the contract.
     WrappedPinakion public pinakion; // The Pinakion token contract.
