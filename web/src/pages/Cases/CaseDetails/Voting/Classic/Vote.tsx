@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
-import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
+import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -20,9 +20,10 @@ interface IVote {
   arbitrable: `0x${string}`;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
+  isGated: boolean;
 }
 
-const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
+const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -34,7 +35,8 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
 
   const handleVote = useCallback(
     async (voteOption: number) => {
-      const { request } = await simulateDisputeKitClassicCastVote(wagmiConfig, {
+      const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
+      const { request } = await simulate(wagmiConfig, {
         args: [
           parsedDisputeID,
           parsedVoteIDs,
@@ -43,7 +45,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
           justification,
         ],
       });
-      if (walletClient) {
+      if (walletClient && publicClient) {
         await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
           setIsOpen(status);
         });
@@ -58,6 +60,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
       publicClient,
       setIsOpen,
       walletClient,
+      isGated,
     ]
   );
 
