@@ -61,26 +61,63 @@
   - on Red Hat Linux: `sudo dnf install jq yq`
   - on Ubuntu Linux: `sudo snap install jq yq`
   - on MacOS via [brew](https://brew.sh/): `brew install jq yq`
+ 
+### Environment Setup
+
+**API Keys (Required):**
+
+- **Alchemy API Key** (for blockchain connectivity)  
+  - Sign up at [alchemy.com](https://www.alchemy.com/)
+  - Create an app and get your API key
+
+- **WalletConnect Project ID** (for wallet connections)  
+  - Sign up at [cloud.walletconnect.com](https://cloud.walletconnect.com/)
+  - Create a project and get your Project ID
+
+**Environment Configuration**
+
+- Create a `.env.local` file in `/web` (or update an existing `.env.local.public`):
+
+ ```
+  cd web
+  cat > .env.local << EOF
+  REACT_APP_CORE_SUBGRAPH=http://localhost:8000/subgraphs/name/kleros/kleros-v2-core-local
+  REACT_APP_DRT_ARBSEPOLIA_SUBGRAPH=http://localhost:8000/subgraphs/name/kleros/kleros-v2-drt-local
+  ALCHEMY_API_KEY=your_alchemy_api_key_here
+  WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id_here
+  EOF
+
+```
+
+(or update an existing `.env.local.public`):
+
+```
+sed -i 's/export ALCHEMY_API_KEY=/export ALCHEMY_API_KEY=your_alchemy_api_key_here/' web/.env.local.public
+sed -i 's/export WALLETCONNECT_PROJECT_ID=/export WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id_here/' web/.env.local.public
+```
 
 ### Install the dependencies
 
 ```bash
-$ yarn install
+yarn install
 
 # Foundry libraries
-$ git submodule update --init --recursive -j 4
+git submodule update --init --recursive -j 4
+
+# If you encounter Volta-related yarn errors, run:
+volta pin yarn
 ```
 
 ### [Hardhat CLI auto-completion](https://hardhat.org/guides/shorthand.html) (optional)
 
 ```bash
-$ npm i -g hardhat-shorthand
+npm i -g hardhat-shorthand
 
-$ hardhat-completion install
+hardhat-completion install
 ✔ Which Shell do you use ? · bash
 ✔ We will install completion to ~/.bashrc, is it ok ? (y/N) · true
 
-$ exec bash
+exec bash
 ```
 
 ### Full Stack Local Deployment
@@ -92,7 +129,7 @@ Run the commands below from the top-level folder. Alternatively, it is possible 
 If you have **[tmux](https://github.com/tmux/tmux/wiki)** installed, you can get started quickly with a single command.
 
 ```bash
-$ yarn local-stack
+yarn local-stack
 ```
 
 ![terminal](/docs/local-stack-2.png)
@@ -100,7 +137,7 @@ $ yarn local-stack
 #### Shell 1 - Local RPC with Contracts Deployed
 
 ```bash
-$ yarn workspace @kleros/kleros-v2-contracts start-local
+yarn workspace @kleros/kleros-v2-contracts start-local
 ...
 Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
 
@@ -111,7 +148,7 @@ Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
 #### Shell 2 - Local Graph Node
 
 ```bash
-$ yarn workspace @kleros/kleros-v2-subgraph start-local-indexer
+yarn workspace @kleros/kleros-v2-subgraph start-local-indexer
 ...
 graph-node-graph-node-1  | INFO Successfully connected to IPFS node at: http://ipfs:5001/
 graph-node-graph-node-1  | INFO Pool successfully connected to Postgres, pool: main, shard: primary, component: Store
@@ -126,7 +163,7 @@ graph-node-graph-node-1  | INFO Connected to Ethereum, capabilities: archive, tr
 :warning: This step modifies `subgraph.yaml` and creates a backup file. See further down on how to restore it.
 
 ```bash
-$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
+yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
 ...
 ✔ Upload subgraph to IPFS
 
@@ -149,7 +186,7 @@ yarn workspace @kleros/kleros-v2-web generate
 ✔ Running plugins
 ✔ Writing to src/hooks/contracts/generated.ts
 
-$ yarn workspace @kleros/kleros-v2-web start-local
+yarn workspace @kleros/kleros-v2-web start-local
 Server running at http://localhost:1234
 ✨ Built in 2.35s
 ```
@@ -158,17 +195,17 @@ Server running at http://localhost:1234
 
 ```bash
 # Contracts
-$ yarn workspace @kleros/kleros-v2-contracts deploy-local
+yarn workspace @kleros/kleros-v2-contracts deploy-local
 
 # Subgraph
-$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
+yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
 
 ```
 
 ### Simulating Arbitration Activity
 
 ```bash
-$ yarn workspace @kleros/kleros-v2-contracts simulate-local
+yarn workspace @kleros/kleros-v2-contracts simulate-local
 
 ```
 
@@ -193,3 +230,80 @@ Every versions were saved as `subgraph.yaml.bak.<timestamp>`.
 ##### Based on the last commit
 
 `git restore subgraph.yaml`
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+- **Volta Yarn Version Errors**
+  - Pin yarn version in the project root.
+    
+    ```
+    volta pin yarn
+    ```
+
+- **Module Resolution Errors**
+  - Build the `kleros-app` package first.
+    
+    ```
+    yarn workspace @kleros/kleros-app build
+    ```
+
+- **Environment Variable Errors**
+  - Ensure all required variables are present in `/web/.env.local`:
+    
+    - `ALCHEMY_API_KEY`
+    - `WALLETCONNECT_PROJECT_ID`
+
+- **Graph Node Fulltext Search Errors**
+  - Remove `@fulltext` directives from the subgraph schema.
+
+  ```
+  cd subgraph/core
+  # Remove @fulltext directives from schema.graphql
+  sed -i '/@fulltext(/,/)/d' schema.graphql
+  rm -rf build/
+  yarn build
+  ```
+
+- **GraphQL Code Generation Failures**
+  - Ensure both subgraph endpoints are up.
+  - Test endpoints manually.
+  - Set environment variables to use local endpoints.
+
+    
+  ```
+    curl -X POST -H "Content-Type: application/json" \
+    -d '{"query": "{ _meta { block { number } } }"}' \
+    http://localhost:8000/subgraphs/name/kleros/kleros-v2-core-local
+  ```
+
+- **Docker/Graph Node Connection Issues**
+  - Ensure Docker Desktop is running.
+  - Check for port conflicts (8000, 8020, 8030, 8040, 5001, 5432).
+  - Clean up Docker resources.
+
+
+  ```
+  docker system prune -f
+  ```
+
+- **Web Frontend Loading Issues**
+  - Blank page? Check the browser console for errors.
+  - Confirm all environment variables.
+  - Ensure subgraphs are syncing at [http://localhost:8000](http://localhost:8000/).
+
+- **Simulate Task Not Found**
+  - Run tests: `yarn workspace @kleros/kleros-v2-contracts test`
+  - Use dispute bot: `yarn workspace @kleros/kleros-v2-contracts bot:disputor`
+  - Or simulate disputes via the web interface.
+
+## Getting Help
+
+If you continue to experience issues:
+
+- Check the [GitHub Issues](https://github.com/kleros/kleros-v2/issues) for similar problems
+- Join the [Kleros Discord](https://discord.gg/MhXQGCyHd9) for community support
+- Review the individual package READMEs for specific configuration details
+
+
