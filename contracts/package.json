@@ -67,6 +67,7 @@
     "validate-upgrades-against-deployed": "hardhat compare-storage",
     "simulate": "hardhat simulate:all",
     "simulate-local": "hardhat simulate:all --network localhost",
+    "sync-tenderly": "NODE_NO_WARNINGS=1 ts-node ./scripts/syncToTenderly.ts",
     "viem:generate-devnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.devnet.ts",
     "viem:generate-testnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.testnet.ts",
     "viem:generate-mainnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.mainnet.ts",

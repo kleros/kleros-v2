@@ -9,6 +9,7 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
+import "hardhat-deploy-tenderly";
 import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
