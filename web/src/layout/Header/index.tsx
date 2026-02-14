@@ -38,23 +38,27 @@ const StyledBanner = styled(StatusBanner)`
 const Header: React.FC = () => {
   const theme = useTheme();
 
+  const SHOW_STATUS_BANNER = import.meta.env.REACT_APP_SHOW_STATUS_BANNER !== "false";
+
   return (
     <Container>
-      <StyledBanner
-        autoHide
-        watcherOptions={{ threshold: 5000, interval: 60_000 }} // 5000 blocks threshold, 60 sec interval check
-        theme={{
-          colors: {
-            main: theme.whiteBackground,
-            primary: theme.primaryText,
-            secondary: theme.secondaryText,
-          },
-        }}
-        subgraphs={[
-          { name: "Kleros Core", url: getGraphqlUrl(false) },
-          { name: "Dispute Template Registry", url: getGraphqlUrl(true) },
-        ]}
-      />
+      {SHOW_STATUS_BANNER ? (
+        <StyledBanner
+          autoHide
+          watcherOptions={{ threshold: 5000, interval: 60_000 }} // 5000 blocks threshold, 60 sec interval check
+          theme={{
+            colors: {
+              main: theme.whiteBackground,
+              primary: theme.primaryText,
+              secondary: theme.secondaryText,
+            },
+          }}
+          subgraphs={[
+            { name: "Kleros Core", url: getGraphqlUrl(false) },
+            { name: "Dispute Template Registry", url: getGraphqlUrl(true) },
+          ]}
+        />
+      ) : null}
       <HeaderContainer>
         <DesktopHeader />
         <MobileHeader />
