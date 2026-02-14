@@ -127,10 +127,6 @@ export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: string
         /* not available */
       }
 
-      if (!isERC721) {
-        return { isERC721: false, tokenName, tokenSymbol, imageUri: null, nftName: null };
-      }
-
       // Try to get tokenURI - try the tokenId from extraData, then 0, then 1
       let tokenUri: string | null = null;
       const tokenIdsToTry = [BigInt(tokenGateInfo.tokenId), 0n, 1n];
@@ -143,14 +139,17 @@ export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: string
             functionName: "tokenURI",
             args: [tokenId],
           });
-          if (tokenUri) break;
+          if (tokenUri) {
+            isERC721 = true;
+            break;
+          }
         } catch {
           continue;
         }
       }
 
       if (!tokenUri) {
-        return { isERC721: true, tokenName, tokenSymbol, imageUri: null, nftName: null };
+        return { isERC721, tokenName, tokenSymbol, imageUri: null, nftName: null };
       }
 
       // Fetch metadata JSON from the resolved URI
@@ -164,9 +163,9 @@ export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: string
         const imageUri = metadata.image ? resolveUri(metadata.image) : null;
         const nftName = metadata.name || null;
 
-        return { isERC721: true, tokenName, tokenSymbol, imageUri, nftName };
+        return { isERC721, tokenName, tokenSymbol, imageUri, nftName };
       } catch {
-        return { isERC721: true, tokenName, tokenSymbol, imageUri: null, nftName: null };
+        return { isERC721, tokenName, tokenSymbol, imageUri: null, nftName: null };
       }
     },
   });

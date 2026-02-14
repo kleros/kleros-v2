@@ -21,6 +21,7 @@ const Wrapper = styled.div`
 `;
 
 const Badge = styled.span`
+  width: fit-content;
   display: inline-flex;
   align-items: center;
   gap: 4px;
