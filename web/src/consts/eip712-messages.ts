@@ -1,7 +1,13 @@
 import { DEFAULT_CHAIN } from "./chains";
 
 export default {
-  contactDetails: (address: `0x${string}`, nonce: string, telegram = "", email = "", chainId: number = DEFAULT_CHAIN) =>
+  contactDetails: (
+    address: `0x${string}`,
+    nonce: string,
+    telegram = "",
+    email = "",
+    chainId: number = DEFAULT_CHAIN.id
+  ) =>
     ({
       address: address.toLowerCase() as `0x${string}`,
       domain: {
@@ -23,7 +29,7 @@ export default {
         nonce,
       },
     }) as const,
-  signingAccount: (address: `0x${string}`, chainId: number = DEFAULT_CHAIN) =>
+  signingAccount: (address: `0x${string}`, chainId: number = DEFAULT_CHAIN.id) =>
     ({
       account: address.toLowerCase() as `0x${string}`,
       domain: {

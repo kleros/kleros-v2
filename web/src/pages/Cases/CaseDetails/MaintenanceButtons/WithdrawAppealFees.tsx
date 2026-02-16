@@ -61,7 +61,7 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
 
     const baseArgs = {
       abi: disputeKitClassicAbi,
-      address: disputeKitClassicAddress[chainId ?? DEFAULT_CHAIN],
+      address: disputeKitClassicAddress[chainId ?? DEFAULT_CHAIN.id],
       functionName: "withdrawFeesAndRewards",
     };
 

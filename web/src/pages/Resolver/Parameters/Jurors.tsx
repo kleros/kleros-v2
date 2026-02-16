@@ -62,7 +62,7 @@ const Jurors: React.FC = () => {
       refetchInterval: REFETCH_INTERVAL,
     },
     args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData?.numberOfJurors ?? 0)],
-    chainId: DEFAULT_CHAIN,
+    chainId: DEFAULT_CHAIN.id,
   });
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 18);
