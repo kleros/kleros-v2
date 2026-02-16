@@ -13,6 +13,9 @@ export const isEmpty = (str: string): boolean => str.trim() === "";
 export const getTxnExplorerLink = (hash: string) =>
   `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${hash}`;
 
+export const getAddressExplorerLink = (address: string) =>
+  `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${address}`;
+
 type Role = {
   name: string;
   restriction: {
