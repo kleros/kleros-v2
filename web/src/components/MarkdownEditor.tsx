@@ -25,6 +25,7 @@ import {
   BlockTypeSelect,
   Separator,
 } from "@mdxeditor/editor";
+import { useTranslation } from "react-i18next";
 
 import InfoIcon from "svgs/icons/info-circle.svg";
 
@@ -74,13 +75,10 @@ interface IMarkdownEditor {
   showMessage?: boolean;
 }
 
-const MarkdownEditor: React.FC<IMarkdownEditor> = ({
-  value,
-  onChange,
-  placeholder = "Justify your vote...",
-  showMessage = true,
-}) => {
+const MarkdownEditor: React.FC<IMarkdownEditor> = ({ value, onChange, placeholder, showMessage = true }) => {
+  const { t } = useTranslation();
   const editorRef = useRef<MDXEditorMethods>(null);
+  const effectivePlaceholder = placeholder ?? t("forms.placeholders.justify_your_vote");
 
   const handleChange = (markdown: string) => {
     let cleanedMarkdown = markdown === "\u200B" ? "" : markdown.replace(/^\u200B/, "");
@@ -108,7 +106,7 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({
   const editorProps: MDXEditorProps = {
     markdown: value,
     onChange: handleChange,
-    placeholder,
+    placeholder: effectivePlaceholder,
     suppressHtmlProcessing: true,
     plugins: [
       headingsPlugin(),
@@ -155,11 +153,7 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({
         {showMessage && (
           <MessageContainer>
             <StyledInfoIcon />
-            <MessageText>
-              Please provide a comprehensive justification for your decision. Quality explanations are essential for the
-              parties involved and may be eligible for additional compensation in accordance with our justification
-              policy.
-            </MessageText>
+            <MessageText>{t("voting.justification_message")}</MessageText>
           </MessageContainer>
         )}
       </Container>

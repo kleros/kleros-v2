@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import {
@@ -31,6 +32,7 @@ interface IStageTwo {
 }
 
 const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
+  const { t } = useTranslation();
   const { winningChoice, winnerRequiredFunding, fundedChoices } = useFundingContext();
   const { winnerSideCountdown } = useCountdownContext();
   const options = useOptionsContext();
@@ -62,7 +64,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
               </OptionsContainer>
             </>
           ) : (
-            <label>No losing option has been funded in time, winner is maintained.</label>
+            <label>{t("appeal.no_losing_option_funded")}</label>
           )}
         </>
       ) : (

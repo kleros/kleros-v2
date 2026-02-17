@@ -15,48 +15,48 @@ export const evidenceFragment = graphql(`
     sender {
       id
     }
+    evidenceIndex
     timestamp
     transactionHash
     name
     description
     fileURI
     fileTypeExtension
-    evidenceIndex
   }
 `);
 
 const evidencesQuery = graphql(`
-  query Evidences($evidenceGroupID: String) {
-    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: timestamp, orderDirection: asc) {
+  query Evidences($disputeID: String) {
+    evidences(where: { dispute: $disputeID }, orderBy: timestamp, orderDirection: asc) {
       ...EvidenceDetails
     }
   }
 `);
 
 const evidenceSearchQuery = graphql(`
-  query EvidenceSearch($keywords: String!, $evidenceGroupID: String) {
-    evidenceSearch(text: $keywords, where: { evidenceGroup: $evidenceGroupID }) {
+  query EvidenceSearch($keywords: String!, $disputeID: String) {
+    evidenceSearch(text: $keywords, where: { dispute: $disputeID }) {
       ...EvidenceDetails
     }
   }
 `);
 
-export const useEvidences = (evidenceGroup?: string, keywords?: string) => {
-  const isEnabled = evidenceGroup !== undefined;
+export const useEvidences = (disputeID?: string, keywords?: string) => {
+  const isEnabled = disputeID !== undefined;
   const { graphqlBatcher } = useGraphqlBatcher();
 
   const document = keywords ? evidenceSearchQuery : evidencesQuery;
   const transformedKeywords = transformSearch(keywords);
 
   return useQuery<{ evidences: EvidenceDetailsFragment[] }>({
-    queryKey: [keywords ? `evidenceSearchQuery${evidenceGroup}-${keywords}` : `evidencesQuery${evidenceGroup}`],
+    queryKey: keywords ? [`EvidenceSearchQuery`, disputeID, keywords] : [`EvidencesQuery`, disputeID],
     enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     queryFn: async () => {
       const result = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: document,
-        variables: { evidenceGroupID: evidenceGroup?.toString(), keywords: transformedKeywords },
+        variables: { disputeID, keywords: transformedKeywords },
       });
 
       return keywords ? { evidences: [...result.evidenceSearch] } : result;

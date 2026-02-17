@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
@@ -13,12 +15,8 @@ const Container = styled.div`
 `;
 
 const DisputeCreatedExtraInfo: React.FC = () => {
-  return (
-    <Container>
-      {
-        "In order to better track the case progress, we recommend you to subscribe to notifications: Settings > Notifications"
-      }
-    </Container>
-  );
+  const { t } = useTranslation();
+
+  return <Container>{t("popups.subscribe_notifications_track")}</Container>;
 };
 export default DisputeCreatedExtraInfo;

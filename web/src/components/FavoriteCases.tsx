@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { StandardPagination } from "@kleros/ui-components-library";
 
 import useStarredCases from "hooks/useStarredCases";
@@ -8,8 +10,8 @@ import { isUndefined } from "utils/index";
 
 import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { responsiveSize } from "styles/responsiveSize";
 
 import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
@@ -57,6 +59,7 @@ const StyledPagination = styled(StandardPagination)`
 `;
 
 const FavoriteCases: React.FC = () => {
+  const { t } = useTranslation();
   const { starredCaseIds, clearAll } = useStarredCases();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,8 +75,8 @@ const FavoriteCases: React.FC = () => {
   return starredCaseIds.length > 0 && (isUndefined(disputes) || disputes.length > 0) ? (
     <Container>
       <TitleAndClearLabel>
-        <Title>Favorite Cases</Title>
-        <StyledLabel onClick={clearAll}>Clear all</StyledLabel>
+        <Title>{t("misc.favorite_cases")}</Title>
+        <StyledLabel onClick={clearAll}>{t("buttons.clear_all")}</StyledLabel>
       </TitleAndClearLabel>
       <DisputeContainer>
         {isUndefined(disputes)

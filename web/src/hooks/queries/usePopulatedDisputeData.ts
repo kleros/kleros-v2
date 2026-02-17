@@ -12,6 +12,8 @@ import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
 
+import { klerosCoreAddress } from "../contracts/generated";
+
 import { useDisputeDetailsQuery } from "./useDisputeDetailsQuery";
 
 const disputeTemplateQuery = graphql(`
@@ -33,11 +35,10 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
     !isUndefined(disputeData) &&
     !isUndefined(disputeData?.dispute) &&
     !isUndefined(disputeData.dispute?.arbitrableChainId) &&
-    !isUndefined(disputeData.dispute?.externalDisputeId) &&
     !isUndefined(disputeData.dispute?.templateId);
 
   return useQuery<DisputeDetails>({
-    queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}${disputeData?.dispute?.externalDisputeId}`],
+    queryKey: [`DisputeTemplate`, disputeID],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
@@ -48,19 +49,21 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
             document: disputeTemplateQuery,
             variables: { id: disputeData.dispute?.templateId.toString() },
             isDisputeTemplate: true,
-            chainId: DEFAULT_CHAIN,
+            chainId: DEFAULT_CHAIN.id,
           });
 
           const templateData = disputeTemplate?.templateData;
           const dataMappings = disputeTemplate?.templateDataMappings;
 
           const initialContext = {
-            disputeID: disputeID,
+            // Matching the variable name to DisputeRequest
+            // https://github.com/kleros/kleros-v2/blob/592243f52d57e1540206c06afdbdac0d77311106/contracts/src/arbitration/interfaces/IArbitrableV2.sol#L21
+            arbitrator: klerosCoreAddress[DEFAULT_CHAIN.id],
+            arbitratorDisputeID: disputeID,
             arbitrableAddress: arbitrableAddress,
             arbitrableChainID: disputeData.dispute?.arbitrableChainId,
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
-            externalDisputeID: disputeData.dispute?.externalDisputeId,
           };
 
           const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};

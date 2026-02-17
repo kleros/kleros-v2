@@ -1,14 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { FallbackProps } from "react-error-boundary";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@kleros/ui-components-library";
 
 import ErrorIcon from "svgs/icons/warning-outline.svg";
+
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import HeroImage from "./HeroImage";
 
@@ -96,6 +97,7 @@ const IconContainer = styled.div`
 `;
 
 const ErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) => {
+  const { t } = useTranslation();
   // eslint-disable-next-line no-console
   console.log("Error:", { error });
 
@@ -108,12 +110,12 @@ const ErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) =
             <HeaderIconContainer>
               <ErrorIcon />
             </HeaderIconContainer>
-            <Header>Ooops, Something went wrong in Athens!</Header>
-            <Subtitle>Please reload the page or contact us if the issue is not resolved.</Subtitle>
+            <Header>{t("errors.something_went_wrong")}</Header>
+            <Subtitle>{t("errors.reload_or_contact")}</Subtitle>
             <ButtonsContainer>
-              <Button text={"Reload"} onClick={resetErrorBoundary} />
+              <Button text={t("buttons.reload")} onClick={resetErrorBoundary} />
               <a href={"https://t.me/kleros"} target="_blank" rel="noreferrer">
-                <Button text={"Contact us"} />
+                <Button text={t("buttons.contact_us")} />
               </a>
             </ButtonsContainer>
           </InfoWrapper>

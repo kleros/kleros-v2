@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useClickAway } from "react-use";
 
 import Curate from "svgs/icons/curate-image.png";
@@ -139,12 +140,13 @@ interface IDappList {
 }
 
 const DappList: React.FC<IDappList> = ({ toggleIsDappListOpen }) => {
+  const { t } = useTranslation();
   const containerRef = useRef(null);
   useClickAway(containerRef, () => toggleIsDappListOpen());
 
   return (
     <Container ref={containerRef}>
-      <Header>Kleros Solutions</Header>
+      <Header>{t("navigation.kleros_solutions")}</Header>
       <ItemsDiv>
         {ITEMS.map((item) => {
           return <Product {...item} key={item.text} />;

@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
@@ -13,12 +15,8 @@ const Container = styled.div`
 `;
 
 const StakeWithdrawExtraInfo: React.FC = () => {
-  return (
-    <Container>
-      {
-        "In order not to miss when you're drawn for cases, make sure to subscribe to notifications: Settings > Notifications"
-      }
-    </Container>
-  );
+  const { t } = useTranslation();
+
+  return <Container>{t("popups.subscribe_notifications_drawn")}</Container>;
 };
 export default StakeWithdrawExtraInfo;

@@ -1,10 +1,8 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
 
+import { useTranslation } from "react-i18next";
 import { useClickAway, useToggle } from "react-use";
-
-import { getDevToolsUrl } from "consts/index";
 
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
@@ -14,7 +12,12 @@ import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
 
+import { getDevToolsUrl } from "consts/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
+
 import Debug from "../Debug";
 import { IHelp } from "../index";
 
@@ -77,45 +80,46 @@ const Icon = styled.svg`
   fill: ${({ theme }) => theme.secondaryPurple};
 `;
 
-const ITEMS = [
-  {
-    text: "Onboarding",
-    Icon: Book,
-  },
-  {
-    text: "Get Help",
-    Icon: Telegram,
-    url: "https://t.me/kleros",
-  },
-  {
-    text: "Report a Bug",
-    Icon: Bug,
-    url: "https://github.com/kleros/kleros-v2/issues",
-  },
-  {
-    text: "DApp Guide",
-    Icon: Guide,
-    url: "https://docs.kleros.io/products/court-v2",
-  },
-  {
-    text: "Crypto Beginner's Guide",
-    Icon: ETH,
-    url: "https://ethereum.org/en/wallets/",
-  },
-  {
-    text: "FAQ",
-    Icon: Faq,
-    url: "https://docs.kleros.io/kleros-faq",
-  },
-  {
-    text: "Developer Tools",
-    Icon: Code,
-    url: getDevToolsUrl(),
-  },
-];
-
 const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
+  const { t } = useTranslation();
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
+
+  const ITEMS = [
+    {
+      text: t("menu.onboarding"),
+      Icon: Book,
+    },
+    {
+      text: t("menu.get_help"),
+      Icon: Telegram,
+      url: "https://t.me/kleros",
+    },
+    {
+      text: t("menu.report_a_bug"),
+      Icon: Bug,
+      url: "https://github.com/kleros/kleros-v2/issues",
+    },
+    {
+      text: t("menu.dapp_guide"),
+      Icon: Guide,
+      url: "https://docs.kleros.io/products/court-v2",
+    },
+    {
+      text: t("menu.crypto_beginners_guide"),
+      Icon: ETH,
+      url: "https://ethereum.org/en/wallets/",
+    },
+    {
+      text: t("menu.faq"),
+      Icon: Faq,
+      url: "https://docs.kleros.io/kleros-faq",
+    },
+    {
+      text: t("menu.developer_tools"),
+      Icon: Code,
+      url: getDevToolsUrl(),
+    },
+  ];
 
   const containerRef = useRef(null);
   useClickAway(containerRef, () => {

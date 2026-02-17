@@ -21,5 +21,8 @@ export const callAction = async (mapping: AbiCallMapping) => {
     args,
   });
 
-  return createResultObject(data, seek, populate);
+  // in case of single value returns, populate the data as {value : data}
+  const sourceData = typeof data !== "object" ? { value: data } : data;
+
+  return createResultObject(sourceData, seek, populate);
 };

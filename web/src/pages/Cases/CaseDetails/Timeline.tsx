@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Box, Steps } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
@@ -82,13 +84,15 @@ const AppealBanner: React.FC = () => {
   const { loserSideCountdown, winnerSideCountdown } = useCountdownContext();
   const { fundedChoices } = useFundingContext();
 
+  const { t } = useTranslation();
   const text = useMemo(() => {
-    if (loserSideCountdown) return `${secondsToDayHourMinute(loserSideCountdown)} remaining to fund losing options`;
+    if (loserSideCountdown)
+      return t("appeal.time_remaining_to_fund_losing", { time: secondsToDayHourMinute(loserSideCountdown) });
     // only show if loosing option was funded and winner needs funding, else no action is needed from user
     if (winnerSideCountdown && !isUndefined(fundedChoices) && fundedChoices.length > 0)
-      return `${secondsToDayHourMinute(winnerSideCountdown)} remaining to fund winning option`;
+      return t("appeal.time_remaining_to_fund_winning", { time: secondsToDayHourMinute(winnerSideCountdown) });
     return;
-  }, [loserSideCountdown, winnerSideCountdown, fundedChoices]);
+  }, [loserSideCountdown, winnerSideCountdown, fundedChoices, t]);
 
   return text ? (
     <AppealBannerContainer>
@@ -104,8 +108,22 @@ const currentPeriodToCurrentItem = (currentPeriodIndex: number, hiddenVotes?: bo
 };
 
 const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex: number) => {
+  const { t } = useTranslation();
   const isDesktop = useIsDesktop();
-  const titles = ["Evidence", "Commit", "Voting", "Appeal", "Executed"];
+  const titles = [
+    t("timeline.evidence"),
+    t("timeline.commit"),
+    t("timeline.voting"),
+    t("timeline.appeal"),
+    t("timeline.executed"),
+  ];
+  const periodTitles = [
+    t("timeline.evidence_period"),
+    t("timeline.commit_period"),
+    t("timeline.voting_period"),
+    t("timeline.appeal_period"),
+    t("timeline.executed"),
+  ];
 
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
@@ -119,7 +137,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
       if (index === titles.length - 1) {
         return [];
       } else if (index === currentPeriodIndex && countdown === 0) {
-        return ["Time's up!"];
+        return [t("voting.times_up")];
       } else if (index < currentPeriodIndex) {
         return [];
       } else if (index === currentPeriodIndex) {
@@ -135,7 +153,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     if (!dispute?.court.hiddenVotes && i === Periods.commit) return [];
     return [
       {
-        title: i + 1 < titles.length && isDesktop ? `${title} Period` : title,
+        title: i + 1 < titles.length && isDesktop ? periodTitles[i] : title,
         subitems: getSubitems(i),
       },
     ];

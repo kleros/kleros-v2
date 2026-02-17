@@ -1,17 +1,18 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-
-import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
-
+import { useTranslation } from "react-i18next";
 import { useMeasure } from "react-use";
 import { formatEther } from "viem";
 
-import { isUndefined } from "utils/index";
+import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
 
 import Gavel from "svgs/icons/gavel.svg";
+
+import { isUndefined } from "utils/index";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const StyledCard = styled(Card)<{ canBeSelected: boolean }>`
   ${hoverShortTransitionTiming}
@@ -91,18 +92,19 @@ const OptionCard: React.FC<IOptionCard> = ({
   canBeSelected = true,
   ...props
 }) => {
+  const { t } = useTranslation();
   const [ref, { width }] = useMeasure();
   const [fundingLabel, progress] = useMemo(() => {
     if (!isUndefined(required))
-      if (funding >= required) return ["Fully funded!", 100];
+      if (funding >= required) return [t("appeal.fully_funded"), 100];
       else
         return [
-          `${formatEther(funding)} out of ${formatEther(required)} ETH required.`,
+          t("appeal.funding_progress", { funded: formatEther(funding), required: formatEther(required) }),
           Number((funding * 100n) / required),
         ];
-    else if (funding > 0n) return [`Funded with ${formatEther(funding)} ETH.`, 30];
-    else return ["0 ETH contributed to this option", 0];
-  }, [funding, required]);
+    else if (funding > 0n) return [t("appeal.funded_with_amount", { amount: formatEther(funding) }), 30];
+    else return [t("appeal.no_contributions"), 0];
+  }, [funding, required, t]);
 
   return (
     <StyledCard hover {...props} {...{ canBeSelected, ref }}>
@@ -111,7 +113,7 @@ const OptionCard: React.FC<IOptionCard> = ({
           <BlockLabel>{text}</BlockLabel>
           <WinnerLabel winner={winner ? true : false}>
             <Gavel />
-            Jury decision - {winner ? "Winner" : "Loser"}
+            {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
           </WinnerLabel>
         </TextContainer>
         {canBeSelected && <StyledRadio label="" checked={selected} />}

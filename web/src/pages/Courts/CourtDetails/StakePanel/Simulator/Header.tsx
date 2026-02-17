@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-import PNKLogo from "svgs/styled/pnk.svg";
+import { useTranslation } from "react-i18next";
+
 import ChartIcon from "svgs/icons/chart.svg";
+import PNKLogo from "svgs/styled/pnk.svg";
 
 const Container = styled.div`
   display: flex;
@@ -53,15 +55,16 @@ const Last30DaysText = styled.p`
 `;
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <Container>
       <PNKLogoAndTitle>
         <StyledPNKLogo />
-        <Title>Simulator</Title>
+        <Title>{t("stats.simulator")}</Title>
       </PNKLogoAndTitle>
       <Last30DaysContainer>
         <StyledChartIcon />
-        <Last30DaysText>Last 30 Days</Last30DaysText>
+        <Last30DaysText>{t("time_ranges.last_30_days")}</Last30DaysText>
       </Last30DaysContainer>
     </Container>
   );

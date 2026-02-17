@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import {
   useCountdownContext,
   useFundingContext,
@@ -29,6 +31,7 @@ interface IStageOne {
 }
 
 const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
+  const { t } = useTranslation();
   const { winningChoice, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
   const options = useOptionsContext();
   const { loserSideCountdown } = useCountdownContext();
@@ -37,7 +40,7 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
   return (
     <Container>
       <StageExplainer countdown={loserSideCountdown} stage={1} />
-      <label> Which option do you want to fund? </label>
+      <label>{t("appeal.which_option_to_fund")}</label>
       <OptionsContainer>
         {!isUndefined(winnerRequiredFunding) &&
           !isUndefined(loserRequiredFunding) &&

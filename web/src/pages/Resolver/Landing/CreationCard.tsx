@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card, Radio } from "@kleros/ui-components-library";
 
 import CaseFromScratchIcon from "svgs/icons/caseFromScratch.svg";
@@ -103,12 +105,16 @@ const CreationCard: React.FC<ICreationCard> = ({
   setDisputeID,
   isInvalidDispute,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <StyledCard hover onClick={() => setCreationMethod(cardMethod)} selected={cardMethod === selectedMethod}>
       <CardTopContent>
         <Icon as={cardMethod === CreationMethod.Scratch ? CaseFromScratchIcon : DuplicateCaseIcon} />
         <StyledP>
-          {cardMethod === CreationMethod.Scratch ? "Create a case from scratch" : "Duplicate an existing case"}
+          {cardMethod === CreationMethod.Scratch
+            ? t("case_creation.create_from_scratch")
+            : t("case_creation.duplicate_existing_case")}
         </StyledP>
         <StyledRadio label="" checked={cardMethod === selectedMethod} onChange={() => setCreationMethod(cardMethod)} />
       </CardTopContent>
@@ -116,18 +122,18 @@ const CreationCard: React.FC<ICreationCard> = ({
         <>
           <Divider />
           <CardBottomContent>
-            <WithHelpTooltip tooltipMsg={'The case ID can be found on the top left of the Case page. eg. "Case #300".'}>
-              <Label>{"Enter the cases's ID"}</Label>
+            <WithHelpTooltip tooltipMsg={t("case_creation.case_id_tooltip")}>
+              <Label>{t("forms.labels.enter_cases_id")}</Label>
             </WithHelpTooltip>
             <StyledNumberField
-              placeholder="eg. 45"
+              placeholder={t("forms.placeholders.case_id_example")}
               value={disputeID}
               onChange={(val) => {
                 if (setDisputeID) setDisputeID(val.trim() !== "" ? val : undefined);
               }}
               variant={isInvalidDispute ? "error" : undefined}
             />
-            {isInvalidDispute ? <ErrorMsg>Invalid dispute</ErrorMsg> : null}
+            {isInvalidDispute ? <ErrorMsg>{t("forms.messages.invalid_dispute")}</ErrorMsg> : null}
           </CardBottomContent>
         </>
       ) : null}

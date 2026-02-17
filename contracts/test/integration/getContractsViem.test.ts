@@ -33,8 +33,8 @@ const devnetContractMapping: ContractMapping = {
   policyRegistry: { name: "PolicyRegistry" },
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
+  rngWithFallback: { name: "RNGWithFallback" },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -53,7 +53,7 @@ const testnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -72,7 +72,7 @@ const universityContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -91,7 +91,7 @@ const mainnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: false },
   randomizerRng: { name: "RandomizerRNG", optional: false },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -135,12 +135,14 @@ describe("getContractsViem", () => {
     verifyContractInstance(contracts.evidence);
     verifyContractInstance(contracts.policyRegistry);
     verifyContractInstance(contracts.transactionBatcher);
-    verifyContractInstance(contracts.blockHashRng);
     verifyContractInstance(contracts.pnk);
     verifyContractInstance(contracts.klerosCoreSnapshotProxy);
 
     if (contracts.chainlinkRng) {
       verifyContractInstance(contracts.chainlinkRng);
+    }
+    if (contracts.rngWithFallback) {
+      verifyContractInstance(contracts.rngWithFallback);
     }
     if (contracts.randomizerRng) {
       verifyContractInstance(contracts.randomizerRng);

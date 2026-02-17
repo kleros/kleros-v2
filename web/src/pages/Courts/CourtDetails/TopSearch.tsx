@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Card, DropdownCascader, Searchbar } from "@kleros/ui-components-library";
@@ -106,6 +107,7 @@ function flattenCourts(court, parent = null) {
 }
 
 const TopSearch: React.FC = () => {
+  const { t } = useTranslation();
   const { data } = useCourtTree();
   const navigate = useNavigate();
   const { id: currentCourtId } = useParams();
@@ -129,13 +131,13 @@ const TopSearch: React.FC = () => {
           <StyledDropdownCascader
             items={items}
             onSelect={(path) => navigate(path.toString())}
-            placeholder="Select Court"
+            placeholder={t("forms.placeholders.select_court")}
           />
           <SearchBarContainer>
             <StyledSearchbar
               dir="auto"
               type="text"
-              placeholder="Search"
+              placeholder={t("forms.placeholders.search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

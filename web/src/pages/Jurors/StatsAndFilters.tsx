@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 import Stats, { IStats } from "./Stats";
 
@@ -21,6 +22,7 @@ const Container = styled.div`
 `;
 
 const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { order, filter } = useParams();
   const location = useRootPath();
@@ -39,8 +41,8 @@ const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
         smallButton
         simpleButton
         items={[
-          { value: "desc", text: "1st to last" },
-          { value: "asc", text: "Last to 1st" },
+          { value: "desc", text: t("sorting.first_to_last") },
+          { value: "asc", text: t("sorting.last_to_first") },
         ]}
         defaultValue={order}
         callback={handleOrderChange}

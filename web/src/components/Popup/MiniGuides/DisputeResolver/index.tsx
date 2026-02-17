@@ -1,56 +1,15 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
+
 import PageContentsTemplate from "../PageContentsTemplate";
 
-import StartACase from "./StartACase";
 import Parameters from "./Parameters";
-import VotingOptions from "./VotingOptions";
 import Parties from "./Parties";
 import Policy from "./Policy";
+import StartACase from "./StartACase";
+import VotingOptions from "./VotingOptions";
 import WellDone from "./WellDone";
-
-const leftPageContents = [
-  {
-    title: "Start a case",
-    paragraphs: [
-      "First, you need to write a title, and a description for the case. Make it simple to read and understand.",
-    ],
-  },
-  {
-    title: "Parameters",
-    paragraphs: [
-      "Define some parameters:",
-      "• Choose a court to arbitrate the case.\n• Select a category.\n• Select the number of jurors.",
-      "The more jurors you select, higher the arbitration cost will be. By default we use 3 jurors for the first " +
-        "round. The arbitration cost is the value used to pay the jurors for their work.",
-    ],
-  },
-  {
-    title: "Voting options",
-    paragraphs: [
-      "Write the question jurors will answer when voting, and the voting options. You can have 2 or more options if needed.",
-    ],
-  },
-  {
-    title: "Parties of the dispute",
-    paragraphs: ["Define the parties involved in the dispute."],
-  },
-  {
-    title: "Policy",
-    paragraphs: [
-      "Submit a Policy. The Policy provides jurors with a framework to vote fairly. It can be a set of " +
-        "criteria, a contract stating the rights and duties of the parties, or any set of pre-defined rules " +
-        "that are relevant to jurors' decision-making.",
-    ],
-  },
-  {
-    title: "Well done!",
-    paragraphs: [
-      "The case is ready to be created! Review the information, and submit the case. Don't forget to submit " +
-        "evidence, and follow up the dispute resolution process until its conclusion.",
-    ],
-  },
-];
 
 const rightPageComponents = [StartACase, Parameters, VotingOptions, Parties, Policy, WellDone];
 
@@ -59,6 +18,39 @@ interface IDisputeResolver {
 }
 
 const DisputeResolver: React.FC<IDisputeResolver> = ({ toggleMiniGuide }) => {
+  const { t } = useTranslation();
+
+  const leftPageContents = [
+    {
+      title: t("mini_guides.resolver_start_case"),
+      paragraphs: [t("mini_guides.resolver_start_case_description")],
+    },
+    {
+      title: t("mini_guides.resolver_parameters"),
+      paragraphs: [
+        t("mini_guides.resolver_parameters_intro"),
+        t("mini_guides.resolver_parameters_list"),
+        t("mini_guides.resolver_parameters_cost"),
+      ],
+    },
+    {
+      title: t("mini_guides.resolver_voting_options"),
+      paragraphs: [t("mini_guides.resolver_voting_options_description")],
+    },
+    {
+      title: t("mini_guides.resolver_parties"),
+      paragraphs: [t("mini_guides.resolver_parties_description")],
+    },
+    {
+      title: t("mini_guides.resolver_policy"),
+      paragraphs: [t("mini_guides.resolver_policy_description")],
+    },
+    {
+      title: t("mini_guides.resolver_well_done"),
+      paragraphs: [t("mini_guides.resolver_well_done_description")],
+    },
+  ];
+
   return (
     <PageContentsTemplate
       toggleMiniGuide={toggleMiniGuide}

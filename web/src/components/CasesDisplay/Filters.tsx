@@ -1,8 +1,7 @@
 import React from "react";
 import styled, { css, useTheme } from "styled-components";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
@@ -13,6 +12,8 @@ import ListIcon from "svgs/icons/list.svg";
 import { useIsList } from "context/IsListProvider";
 import useIsDesktop from "hooks/useIsDesktop";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 const Container = styled.div`
   display: flex;
@@ -50,6 +51,7 @@ const StyledListIcon = styled(ListIcon)`
 `;
 
 const Filters: React.FC = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { order, filter } = useParams();
   const { ruled, period, ...filterObject } = decodeURIFilter(filter ?? "all");
@@ -77,10 +79,10 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: JSON.stringify({}), text: "All Cases", dot: theme.primaryText },
-          { value: JSON.stringify({ ruled: false }), text: "In Progress", dot: theme.primaryBlue },
-          { value: JSON.stringify({ period: "appeal" }), text: "Appeal", dot: theme.tint },
-          { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
+          { value: JSON.stringify({}), text: t("filters.all_cases"), dot: theme.primaryText },
+          { value: JSON.stringify({ ruled: false }), text: t("filters.in_progress"), dot: theme.primaryBlue },
+          { value: JSON.stringify({ period: "appeal" }), text: t("filters.appeal"), dot: theme.tint },
+          { value: JSON.stringify({ ruled: true }), text: t("filters.closed"), dot: theme.primaryPurple },
         ]}
         defaultValue={JSON.stringify({ ruled, period })}
         callback={handleStatusChange}
@@ -89,8 +91,8 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: "desc", text: "Newest" },
-          { value: "asc", text: "Oldest" },
+          { value: "desc", text: t("filters.newest") },
+          { value: "asc", text: t("filters.oldest") },
         ]}
         defaultValue={order}
         callback={handleOrderChange}

@@ -281,7 +281,16 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           const restrictions = roleRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
 
           if (!restrictions) throw new Error("Unsupported role.");
-          if (!restrictions.restriction.allowedMimeTypes.includes(file.type)) throw new Error("Unsupported file type.");
+
+          const isValidMimeType = restrictions.restriction.allowedMimeTypes.some((allowedType) => {
+            if (allowedType.endsWith("/*")) {
+              const prefix = allowedType.replace("/*", "/");
+              return file.type.startsWith(prefix);
+            }
+            return allowedType === file.type;
+          });
+
+          if (!isValidMimeType) throw new Error("Unsupported file type.");
           if (file.size > restrictions.restriction.maxSize)
             throw new Error(
               `File too big. Max allowed size : ${(restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2)} mb.`

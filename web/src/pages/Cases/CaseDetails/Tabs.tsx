@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
@@ -20,6 +19,8 @@ import { isLastRound } from "utils/isLastRound";
 
 import { useAppealCost } from "queries/useAppealCost";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 const StyledTabs = styled(TabsComponent)`
   width: 100%;
   margin-top: ${responsiveSize(10, 28)};
@@ -33,35 +34,8 @@ const StyledTabs = styled(TabsComponent)`
   }
 `;
 
-const TABS = [
-  {
-    text: "Overview",
-    value: 0,
-    Icon: EyeIcon,
-    path: "overview",
-  },
-  {
-    text: "Evidence",
-    value: 1,
-    Icon: DocIcon,
-    path: "evidence",
-  },
-  {
-    text: "Voting",
-    value: 2,
-    Icon: BalanceIcon,
-    path: "voting",
-  },
-  {
-    text: "Appeal",
-    value: 3,
-    Icon: BullhornIcon,
-    path: "appeal",
-    disabled: false,
-  },
-];
-
 const Tabs: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id);
@@ -71,10 +45,42 @@ const Tabs: React.FC = () => {
   const dispute = data?.dispute;
   const currentPeriodIndex = Periods[dispute?.period ?? 0];
   const currentPathName = useLocation().pathname.split("/").at(-1);
+
+  const TABS = useMemo(
+    () => [
+      {
+        text: t("navigation.overview"),
+        value: 0,
+        Icon: EyeIcon,
+        path: "overview",
+      },
+      {
+        text: t("navigation.evidence"),
+        value: 1,
+        Icon: DocIcon,
+        path: "evidence",
+      },
+      {
+        text: t("navigation.voting"),
+        value: 2,
+        Icon: BalanceIcon,
+        path: "voting",
+      },
+      {
+        text: t("navigation.appeal"),
+        value: 3,
+        Icon: BullhornIcon,
+        path: "appeal",
+        disabled: false,
+      },
+    ],
+    [t]
+  );
+
   const [currentTab, setCurrentTab] = useState(TABS.findIndex(({ path }) => path === currentPathName));
   useEffect(() => {
     setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName));
-  }, [currentPathName]);
+  }, [currentPathName, TABS]);
 
   const tabs = useMemo(() => {
     const updatedTabs = [...TABS];
@@ -83,7 +89,7 @@ const Tabs: React.FC = () => {
       (!isUndefined(appealCost) && isLastRound(appealCost) && parseInt(currentPeriodIndex) === 3);
 
     return updatedTabs;
-  }, [currentPeriodIndex, id, rounds.length, appealCost]);
+  }, [currentPeriodIndex, rounds.length, appealCost, TABS]);
 
   return (
     <StyledTabs

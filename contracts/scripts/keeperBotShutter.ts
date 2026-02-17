@@ -35,10 +35,12 @@ const logger = loggerFactory.createLogger(loggerOptions);
 const decode = (message: string) => {
   const SEPARATOR = "-";
   const parts = message.split(SEPARATOR);
-  if (parts.length !== 3) {
+  if (parts.length < 3) {
     throw Error(`Malformed decrypted message (${message})`);
   }
-  const [choice, salt, justification] = parts;
+  const [choice, salt, ...rest] = parts;
+  const justification = rest.join(SEPARATOR);
+  
   return {
     choice: BigInt(choice),
     salt,

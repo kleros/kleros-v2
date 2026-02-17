@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { Trans, useTranslation } from "react-i18next";
+
 import { Box } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
@@ -41,46 +43,52 @@ interface IStageExplainer {
   stage: 1 | 2;
 }
 
-const StageOneExplanation: React.FC = () => (
-  <div>
-    {" "}
-    <p>
-      Losing options can only be funded <small>before</small> the deadline.
-    </p>
-    <p>
-      If no losing option is <small>fully funded</small> in time, the jury decision is maintained.
-    </p>
-  </div>
-);
-
-const StageTwoExplanation: React.FC = () => {
-  const options = useOptionsContext();
+const StageOneExplanation: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <div>
       <p>
-        Loser deadline has <small>finalized</small>, you can only fund the current winner.
+        <Trans i18nKey="appeal.stage_one_explanation_1" components={{ small: <small /> }} />
       </p>
       <p>
-        If the current winner is not fully funded in time, the option funded during the previous stage will be declared
-        as the final winner.
+        <Trans i18nKey="appeal.stage_one_explanation_2" components={{ small: <small /> }} />
+      </p>
+    </div>
+  );
+};
+
+const StageTwoExplanation: React.FC = () => {
+  const { t } = useTranslation();
+  const options = useOptionsContext();
+  const fundedOptions = options?.filter((option) => option?.funded).map((option) => option.title);
+  return (
+    <div>
+      <p>
+        <Trans i18nKey="appeal.stage_two_explanation_1" components={{ small: <small /> }} />
       </p>
       <p>
-        {" "}
-        Following choices were funded in the stage 1 :{" "}
-        <small>{options?.map((option) => (option?.funded ? option.title : null))}</small>
+        <Trans i18nKey="appeal.stage_two_explanation_2" components={{ small: <small /> }} />
+      </p>
+      <p>
+        <Trans
+          i18nKey="appeal.stage_two_explanation_3"
+          values={{ choices: fundedOptions?.join(", ") || "" }}
+          components={{ small: <small /> }}
+        />
       </p>
     </div>
   );
 };
 
 const StageExplainer: React.FC<IStageExplainer> = ({ countdown, stage }) => {
+  const { t } = useTranslation();
   return (
     <StyledBox>
       <CountdownLabel>
         {!isUndefined(countdown) ? (
           <>
             <HourglassIcon />
-            {countdown > 0 ? secondsToDayHourMinute(countdown) : <span>Time's up</span>}
+            {countdown > 0 ? secondsToDayHourMinute(countdown) : <span>{t("appeal.times_up")}</span>}
           </>
         ) : null}
       </CountdownLabel>

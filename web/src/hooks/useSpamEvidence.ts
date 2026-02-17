@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { gql, request } from "graphql-request";
 
-import { isKlerosNeo, isKlerosUniversity, isTestnetDeployment } from "src/consts";
+import { isKlerosUniversity, isProductionDeployment, isTestnetDeployment } from "src/consts";
 import { isUndefined } from "src/utils";
 
 const spamEvidenceQuery = gql`
@@ -19,7 +19,8 @@ type SpamEvidences = {
 const getAtlasDeployment = () => {
   if (isKlerosUniversity()) {
     return "university";
-  } else if (isKlerosNeo()) {
+    // TODO: remove "beta" reference from Atlas, to be replaced with mainnet (env dependent)
+  } else if (isProductionDeployment()) {
     return "beta";
   } else if (isTestnetDeployment()) {
     return "testnet";

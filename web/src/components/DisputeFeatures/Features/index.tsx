@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Radio } from "@kleros/ui-components-library";
 
 import { Features } from "consts/disputeFeature";
@@ -27,25 +29,24 @@ export const StyledRadio = styled(Radio)`
   opacity: ${({ disabled }) => (disabled ? "0.7" : 1)};
 `;
 
-export const FeatureUIs: Record<Features, FeatureUI> = {
-  [Features.ShieldedVote]: (props: RadioInput) => (
-    <WithHelpTooltip
-      tooltipMsg={`The jurors votes are hidden. 
-        Nobody can see them before the voting period completes. 
-        It takes place in a single step via Shutter Network`}
-      key={Features.ShieldedVote}
-    >
-      <StyledRadio label="Single-step via Shutter Network" small {...props} />
+const ShieldedVoteComponent: React.FC<RadioInput> = (props) => {
+  const { t } = useTranslation();
+  return (
+    <WithHelpTooltip tooltipMsg={t("tooltips.shielded_voting_tooltip")} key={Features.ShieldedVote}>
+      <StyledRadio label={t("features.single_step_shutter")} small {...props} />
     </WithHelpTooltip>
-  ),
+  );
+};
 
-  [Features.ClassicVote]: (props: RadioInput) => <ClassicVote {...props} />,
+const ClassicEligibilityComponent: React.FC<RadioInput> = (props) => {
+  const { t } = useTranslation();
+  return <StyledRadio key={Features.ClassicEligibility} label={t("features.all_jurors_in_court")} small {...props} />;
+};
 
-  [Features.ClassicEligibility]: (props: RadioInput) => (
-    <StyledRadio key={Features.ClassicEligibility} label="All the jurors in this court" small {...props} />
-  ),
-
-  [Features.GatedErc20]: (props: RadioInput) => <GatedErc20 {...props} />,
-
-  [Features.GatedErc1155]: (props: RadioInput) => <GatedErc1155 {...props} />,
+export const FeatureUIs: Record<Features, FeatureUI> = {
+  [Features.ShieldedVote]: ShieldedVoteComponent,
+  [Features.ClassicVote]: ClassicVote,
+  [Features.ClassicEligibility]: ClassicEligibilityComponent,
+  [Features.GatedErc20]: GatedErc20,
+  [Features.GatedErc1155]: GatedErc1155,
 };

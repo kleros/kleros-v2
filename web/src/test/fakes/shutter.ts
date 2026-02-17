@@ -1,0 +1,43 @@
+// TODO: implement a test to verify these fakes against the real api, then we can proceed to use these
+/**
+ * Verified fake for Shutter encryption
+ * This fake produces deterministic, verifiable outputs for testing
+ */
+import { keccak256, encodePacked, type Hash } from "viem";
+
+interface ShutterEncryptResult {
+  encryptedCommitment: Hash;
+  identity: Hash;
+}
+
+/**
+ * Creates a deterministic "encrypted" commitment from the input message
+ * This allows tests to verify the encryption is called with correct inputs
+ * without relying on actual shutter crypto
+ */
+export async function fakeEncrypt(message: string, decryptionDelay: number): Promise<ShutterEncryptResult> {
+  // Create deterministic outputs based on inputs
+  const identity = keccak256(encodePacked(["string", "uint256"], [message, BigInt(decryptionDelay)]));
+  const encryptedCommitment = keccak256(encodePacked(["bytes32", "string"], [identity, "encrypted"]));
+
+  return {
+    encryptedCommitment,
+    identity,
+  };
+}
+
+/**
+ * Verifies that the fake encrypt was called with expected inputs
+ * by regenerating the expected outputs
+ */
+export function verifyFakeEncryptOutput(
+  message: string,
+  decryptionDelay: number,
+  actualIdentity: Hash,
+  actualEncrypted: Hash
+): boolean {
+  const expectedIdentity = keccak256(encodePacked(["string", "uint256"], [message, BigInt(decryptionDelay)]));
+  const expectedEncrypted = keccak256(encodePacked(["bytes32", "string"], [expectedIdentity, "encrypted"]));
+
+  return actualIdentity === expectedIdentity && actualEncrypted === expectedEncrypted;
+}

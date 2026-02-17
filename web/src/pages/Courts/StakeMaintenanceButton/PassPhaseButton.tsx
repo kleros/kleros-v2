@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -31,6 +32,7 @@ const StyledButton = styled(Button)`
 type IPassPhaseButton = IBaseStakeMaintenanceButton;
 
 const PassPhaseButton: React.FC<IPassPhaseButton> = ({ setIsOpen }) => {
+  const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
   const { data: phase } = useSortitionModulePhase();
@@ -87,7 +89,15 @@ const PassPhaseButton: React.FC<IPassPhaseButton> = ({ setIsOpen }) => {
       setIsOpen(false);
     });
   };
-  return <StyledButton text="Pass Phase" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
+  return (
+    <StyledButton
+      text={t("buttons.pass_phase")}
+      small
+      isLoading={isLoading}
+      disabled={isDisabled}
+      onClick={handleClick}
+    />
+  );
 };
 
 export default PassPhaseButton;

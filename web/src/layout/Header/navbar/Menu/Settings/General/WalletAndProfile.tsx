@@ -1,12 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
-import { hoverLongTransitionTiming } from "styles/commonStyles";
+import { useTranslation } from "react-i18next";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
+import { hoverLongTransitionTiming } from "styles/commonStyles";
+
 import { AddressOrName, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
+
 import { ISettings } from "../../../index";
 
 const Container = styled.div`
@@ -46,14 +49,15 @@ const ReStyledArrowLink = styled(StyledArrowLink)`
 `;
 
 const WalletAndProfile: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
+  const { t } = useTranslation();
   return (
     <Container>
       <AvatarAndAddressContainer>
         <IdenticonOrAvatar />
         <AddressOrName />
       </AvatarAndAddressContainer>
-      <ReStyledArrowLink to={"/profile/1/desc/all"} onClick={toggleIsSettingsOpen}>
-        My Profile <ArrowIcon />
+      <ReStyledArrowLink to={"/profile/stakes/1"} onClick={toggleIsSettingsOpen}>
+        {t("navigation.my_profile")} <ArrowIcon />
       </ReStyledArrowLink>
     </Container>
   );

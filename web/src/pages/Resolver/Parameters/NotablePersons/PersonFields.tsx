@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
 
 import { AliasArray, useNewDisputeContext } from "context/NewDisputeContext";
@@ -42,6 +43,7 @@ const PersonFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const validationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const publicClient = usePublicClient({ chainId: 1 });
+  const { t } = useTranslation();
 
   const debounceValidateAddress = (address: string, key: number) => {
     if (isUndefined(publicClient)) return;
@@ -98,17 +100,17 @@ const PersonFields: React.FC = () => {
         <AliasContainer key={alias?.id}>
           <LabeledInput
             name="name"
-            label={`Person ${index + 1}`}
-            placeholder="eg. Alice (Developer)"
+            label={t("forms.labels.person_number", { number: index + 1 })}
+            placeholder={t("forms.placeholders.alice_developer_example")}
             value={alias.name}
             onChange={handleAliasesWrite}
           />
           <LabeledInput
             name="address"
-            label={`Person ${index + 1} Address`}
+            label={t("forms.labels.person_address", { index: index + 1 })}
             variant={showError(alias) ? "error" : ""}
-            message={showError(alias) ? "Invalid Address or ENS" : ""}
-            placeholder="eg. Alice.eth"
+            message={showError(alias) ? t("forms.messages.invalid_address_or_ens") : ""}
+            placeholder={t("forms.placeholders.alice_eth_example")}
             value={alias.address}
             onChange={handleAliasesWrite}
           />

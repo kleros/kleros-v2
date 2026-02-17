@@ -30,16 +30,13 @@ export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
 
 export const isProductionDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "mainnet";
 export const isTestnetDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "testnet";
+export const isLocalDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "localhost";
 
 export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
-export const isKlerosNeo = () => getArbitratorType() === ArbitratorTypes.neo;
 export const getArbitratorType = (): ArbitratorTypes =>
   _getArbitratorType(import.meta.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase());
 
 export const getDevToolsUrl = () => import.meta.env.REACT_APP_DEVTOOLS_URL || "https://devtools.v2.kleros.builders";
-
-export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
-export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
 
 export const spamEvidencesIds: string[] = (import.meta.env.REACT_APP_SPAM_EVIDENCES_IDS ?? "").split(",");
 
@@ -49,3 +46,5 @@ export enum DisputeKits {
   Gated = "Token Gated",
   GatedShutter = "Token Gated Shutter",
 }
+
+export const HARDHAT_NODE_RPC = "http://127.0.0.1:8545";

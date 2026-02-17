@@ -1,13 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
+
+import JurorLink from "components/JurorLink";
 
 import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
-import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
 import Score from "./Score";
@@ -58,7 +59,7 @@ const DesktopCard: React.FC<IDesktopCard> = ({
   return (
     <Container renderRank={renderRank}>
       {renderRank && <Rank rank={rank} />}
-      <JurorTitle address={address} />
+      <JurorLink address={address} />
       <Score coherenceScore={coherenceScore} />
       <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
       <Rewards address={address} />

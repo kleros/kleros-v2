@@ -41,7 +41,6 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
   const initialContext = {
     arbitrableAddress: disputeDetails.dispute.arbitrated.id,
     arbitrableChainID: disputeDetails.dispute.arbitrableChainId,
-    externalDisputeID: disputeDetails.dispute.externalDisputeId,
     ...options?.additionalContext,
   };
 

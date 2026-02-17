@@ -1,21 +1,20 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { useLocalStorage } from "react-use";
-import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+import type { Address } from "viem";
 
-import { Answer } from "@kleros/kleros-sdk";
 import { Button } from "@kleros/ui-components-library";
 
-import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
-import useSigningAccount from "hooks/useSigningAccount";
+import { useRevealVote } from "hooks/useRevealVote";
+import type { Bytes32Hash } from "utils/crypto/hashVote";
 import { isUndefined } from "utils/index";
-import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { DisputeKits } from "src/consts";
 
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
@@ -41,73 +40,59 @@ const StyledEnsureChain = styled(EnsureChain)`
 
 const MarkdownWrapper = styled.div``;
 interface IReveal {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  commit: string;
+  commit: Bytes32Hash;
   isRevealPeriod: boolean;
   isGated: boolean;
 }
 
 const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, isGated }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
-  const [isSending, setIsSending] = useState(false);
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const wagmiConfig = useConfig();
-  const { signingAccount, generateSigningAccount } = useSigningAccount();
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
-  const saltKey = useMemo(
-    () => `dispute-${id}-round-${currentRoundIndex}-voteids-${voteIDs}`,
-    [id, currentRoundIndex, voteIDs]
-  );
-  const [storedSaltAndChoice, _] = useLocalStorage<string>(saltKey);
 
+  const { mutateAsync: revealVote, isPending } = useRevealVote(() => {
+    setIsOpen(true);
+  });
   const handleReveal = useCallback(async () => {
-    setIsSending(true);
-    const { salt, choice } = isUndefined(storedSaltAndChoice)
-      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers ?? [], commit)
-      : JSON.parse(storedSaltAndChoice);
-    if (isUndefined(choice)) return;
-
-    const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
-    const { request } = await catchShortMessage(
-      simulate(wagmiConfig, {
-        args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
-      })
-    );
-    if (request && walletClient && publicClient) {
-      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
-        setIsOpen(status);
-      });
+    if (isUndefined(currentRoundIndex)) {
+      return;
     }
-    setIsSending(false);
+    await revealVote({
+      params: {
+        disputeId: parsedDisputeID,
+        voteIds: parsedVoteIDs,
+        justification,
+        roundIndex: Number(currentRoundIndex),
+        type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
+      },
+      context: {
+        commit,
+        answers: disputeDetails?.answers,
+      },
+    });
   }, [
-    wagmiConfig,
+    currentRoundIndex,
+    revealVote,
     commit,
     disputeDetails?.answers,
-    storedSaltAndChoice,
-    generateSigningAccount,
-    signingAccount,
-    saltKey,
     justification,
     parsedVoteIDs,
     parsedDisputeID,
-    publicClient,
-    setIsOpen,
-    walletClient,
     isGated,
   ]);
 
   return (
     <Container>
       {isUndefined(commit) ? (
-        <StyledInfoCard msg="Failed to commit on time." />
+        <StyledInfoCard msg={t("voting.failed_to_commit")} />
       ) : isRevealPeriod ? (
         <>
           <MarkdownWrapper dir="auto">
@@ -117,54 +102,18 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
           <StyledEnsureChain>
             <StyledButton
               variant="secondary"
-              text="Justify & Reveal"
-              disabled={isSending || isUndefined(disputeDetails)}
-              isLoading={isSending}
+              text={t("buttons.justify_and_reveal")}
+              disabled={isPending || isUndefined(disputeDetails)}
+              isLoading={isPending}
               onClick={handleReveal}
             />
           </StyledEnsureChain>
         </>
       ) : (
-        <StyledInfoCard msg="Your vote was successfully commited, please wait until reveal period to reveal it." />
+        <StyledInfoCard msg={t("voting.vote_successfully_committed")} />
       )}
     </Container>
   );
-};
-
-const getSaltAndChoice = async (
-  signingAccount: PrivateKeyAccount | undefined,
-  generateSigningAccount: () => Promise<PrivateKeyAccount | undefined> | undefined,
-  saltKey: string,
-  answers: Answer[],
-  commit: string
-) => {
-  const message = { message: saltKey };
-  const rawSalt = !isUndefined(signingAccount)
-    ? await signingAccount.signMessage(message)
-    : await (async () => {
-        const account = await generateSigningAccount();
-        return await account?.signMessage(message);
-      })();
-  if (isUndefined(rawSalt)) return;
-  const salt = keccak256(rawSalt);
-
-  // when dispute is invalid, just add RFA to the answers array
-  const candidates =
-    answers?.length > 0
-      ? answers
-      : [{ id: "0x0", title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" } as Answer];
-
-  const { choice } = candidates.reduce<{ found: boolean; choice: bigint }>(
-    (acc, answer) => {
-      if (acc.found) return acc;
-      const innerCommit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(answer.id), BigInt(salt)]));
-      if (innerCommit === commit) {
-        return { found: true, choice: BigInt(answer.id) };
-      } else return acc;
-    },
-    { found: false, choice: BigInt(-1) }
-  );
-  return { salt, choice };
 };
 
 export default Reveal;

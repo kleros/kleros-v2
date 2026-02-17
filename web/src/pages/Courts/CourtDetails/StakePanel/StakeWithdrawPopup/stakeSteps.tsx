@@ -37,7 +37,8 @@ const createApprovalSteps = (
   state: StateProp["state"],
   amount: string,
   hash: `0x${string}` | undefined,
-  error: any
+  error: any,
+  t: (key: string) => string
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
   const party = () => {
     if (variant === "refused") return hash ? <TxnHash hash={hash} variant="error" /> : <></>;
@@ -52,15 +53,15 @@ const createApprovalSteps = (
   };
   return [
     {
-      title: "Approve in wallet",
-      subtitle: error ? (error?.shortMessage ?? error?.message) : "PNK spending",
+      title: t("wallet.approve_in_wallet"),
+      subtitle: error ? (error?.shortMessage ?? error?.message) : t("wallet.pnk_spending"),
       rightSided: true,
       variant,
       state,
       party: party(),
     },
     {
-      title: "Stake in wallet",
+      title: t("wallet.stake_in_wallet"),
       subtitle: "",
       rightSided: true,
       variant: theme.secondaryPurple,
@@ -78,7 +79,8 @@ const createStakeSteps = (
   approvalHash: `0x${string}` | undefined,
   stakeHash: `0x${string}` | undefined,
   error: any,
-  isStake: boolean
+  isStake: boolean,
+  t: (key: string) => string
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
   const party = () => {
     if (["refused", "accepted"].includes(variant))
@@ -95,15 +97,15 @@ const createStakeSteps = (
   return isStake
     ? [
         {
-          title: "Approve in wallet",
-          subtitle: "PNK spending",
+          title: t("wallet.approve_in_wallet"),
+          subtitle: t("wallet.pnk_spending"),
           rightSided: true,
           variant: theme.success,
           party: approvalHash ? <TxnHash hash={approvalHash} variant="success" /> : <></>,
           Icon: CheckIcon,
         },
         {
-          title: "Stake in wallet",
+          title: t("wallet.stake_in_wallet"),
           subtitle: error ? (error?.shortMessage ?? error?.message) : "",
           rightSided: true,
           variant,
@@ -114,7 +116,7 @@ const createStakeSteps = (
       ]
     : [
         {
-          title: "Unstake in wallet",
+          title: t("wallet.unstake_in_wallet"),
           subtitle: error ? (error?.shortMessage ?? error?.message) : "",
           rightSided: true,
           variant,
@@ -129,33 +131,44 @@ export const getStakeSteps = (
   stepType: StakeSteps,
   amount: string,
   theme: DefaultTheme,
+  t: (key: string) => string,
   approvalHash?: `0x${string}`,
   stakeHash?: `0x${string}`,
   error?: any
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
   switch (stepType) {
     case StakeSteps.ApproveInitiate:
-      return createApprovalSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, error);
+      return createApprovalSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, error, t);
 
     case StakeSteps.ApprovePending:
-      return createApprovalSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, error);
+      return createApprovalSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, error, t);
     case StakeSteps.ApproveFailed:
-      return createApprovalSteps(theme, "refused", "active", amount, approvalHash, error);
+      return createApprovalSteps(theme, "refused", "active", amount, approvalHash, error, t);
     case StakeSteps.StakeInitiate:
-      return createStakeSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, stakeHash, error, true);
+      return createStakeSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, stakeHash, error, true, t);
     case StakeSteps.StakePending:
-      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, true);
+      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, true, t);
     case StakeSteps.StakeFailed:
-      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, true);
+      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, true, t);
     case StakeSteps.StakeConfirmed:
-      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, true);
+      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, true, t);
     case StakeSteps.WithdrawInitiate:
-      return createStakeSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, stakeHash, error, false);
+      return createStakeSteps(
+        theme,
+        theme.secondaryPurple,
+        "loading",
+        amount,
+        approvalHash,
+        stakeHash,
+        error,
+        false,
+        t
+      );
     case StakeSteps.WithdrawPending:
-      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, false);
+      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, false, t);
     case StakeSteps.WithdrawConfirmed:
-      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, false);
+      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, false, t);
     default:
-      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, false);
+      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, false, t);
   }
 };

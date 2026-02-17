@@ -21,6 +21,10 @@ const StyledSkeletonDisputeListItem = styled(Skeleton)`
   height: 62px;
 `;
 
+const StyledSkeletonVoteCard = styled(Skeleton)`
+  height: 64px;
+`;
+
 const StyledSkeletonEvidenceContainer = styled.div`
   width: 100%;
   span {
@@ -37,6 +41,8 @@ export const SkeletonDisputeCard = () => (
 );
 
 export const SkeletonDisputeListItem = () => <StyledSkeletonDisputeListItem />;
+
+export const SkeletonVoteCard = () => <StyledSkeletonVoteCard />;
 
 export const SkeletonEvidenceCard = () => (
   <StyledSkeletonEvidenceContainer>

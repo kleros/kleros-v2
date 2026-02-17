@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { isUndefined } from "utils/index";
 
 import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
@@ -11,6 +13,7 @@ import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
 
 import { Dispute_Filter } from "../graphql/graphql";
+
 import SeeAllCasesButton from "./SeeAllCasesButton";
 
 const Container = styled.div`
@@ -44,7 +47,8 @@ interface ILatestCases {
   filters?: Dispute_Filter;
 }
 
-const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters }) => {
+const LatestCases: React.FC<ILatestCases> = ({ title, filters }) => {
+  const { t } = useTranslation();
   const { data } = useCasesQuery(0, 3, filters);
   const disputes: DisputeDetailsFragment[] = useMemo(() => data?.disputes as DisputeDetailsFragment[], [data]);
   const courtId = typeof filters?.court === "string" ? filters?.court : undefined;
@@ -52,7 +56,7 @@ const LatestCases: React.FC<ILatestCases> = ({ title = "Latest Cases", filters }
   return isUndefined(disputes) || disputes.length > 0 ? (
     <Container>
       <TitleAndButtonContainer>
-        <Title>{title}</Title>
+        <Title>{title ?? t("misc.latest_cases")}</Title>
         <SeeAllCasesButton {...{ courtId }} />
       </TitleAndButtonContainer>
       <DisputeContainer>

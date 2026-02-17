@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import styled, { Theme, css, useTheme } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Periods } from "consts/periods";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 interface IContainer {
   isCard: boolean;
@@ -58,13 +60,14 @@ const StyledLabel = styled.label<{ frontColor: string; withDot?: boolean; isCard
         `
       : null}
 `;
+
 export interface IPeriodBanner {
   id: number;
   period: Periods;
   isCard?: boolean;
 }
 
-const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
+export const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
   switch (period) {
     case Periods.appeal:
       return [theme.tint, theme.tintMedium];
@@ -75,30 +78,31 @@ const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
   }
 };
 
-const getPeriodLabel = (period: Periods, isCard: boolean): string => {
+const getPeriodLabel = (period: Periods, isCard: boolean, t: (key: string) => string): string => {
   switch (period) {
     case Periods.evidence:
-      return `${isCard ? "In Progress - " : ""}Submitting Evidence`;
+      return isCard ? t("case_status.in_progress_submitting_evidence") : t("case_status.submitting_evidence");
     case Periods.commit:
-      return `${isCard ? "In Progress - " : ""}Committing Vote`;
+      return isCard ? t("case_status.in_progress_committing_vote") : t("case_status.committing_vote");
     case Periods.vote:
-      return `${isCard ? "In Progress - " : ""}Voting`;
+      return isCard ? t("case_status.in_progress_voting") : t("case_status.voting");
     case Periods.appeal:
-      return "Crowdfunding Appeal";
+      return t("case_status.crowdfunding_appeal");
     case Periods.execution:
-      return "Closed";
+      return t("case_status.closed");
     default:
-      return "In Progress";
+      return t("case_status.in_progress");
   }
 };
 
 const PeriodBanner: React.FC<IPeriodBanner> = ({ id, period, isCard = true }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [frontColor, backgroundColor] = useMemo(() => getPeriodColors(period, theme), [theme, period]);
   return (
     <Container {...{ isCard, frontColor, backgroundColor }}>
       <StyledLabel frontColor={frontColor} isCard={isCard} withDot>
-        {getPeriodLabel(period, isCard)}
+        {getPeriodLabel(period, isCard, t)}
       </StyledLabel>
       <StyledLabel frontColor={frontColor}>#{id}</StyledLabel>
     </Container>

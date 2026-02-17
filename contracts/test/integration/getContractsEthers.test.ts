@@ -15,7 +15,7 @@ import {
   TransactionBatcher__factory,
   ChainlinkRNG__factory,
   RandomizerRNG__factory,
-  BlockHashRNG__factory,
+  RNGWithFallback__factory,
   PNK__factory,
   KlerosCoreSnapshotProxy__factory,
   DisputeKitShutter__factory,
@@ -54,7 +54,7 @@ const devnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback" },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -73,7 +73,7 @@ const testnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -92,7 +92,7 @@ const universityContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: true },
   randomizerRng: { name: "RandomizerRNG", optional: true },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -111,7 +111,7 @@ const mainnetContractMapping: ContractMapping = {
   transactionBatcher: { name: "TransactionBatcher" },
   chainlinkRng: { name: "ChainlinkRNG", optional: false },
   randomizerRng: { name: "RandomizerRNG", optional: false },
-  blockHashRng: { name: "BlockHashRNG" },
+  rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
 };
@@ -151,13 +151,15 @@ describe("getContractsEthers", async () => {
     expect(contracts.evidence).to.be.instanceOf(getConstructor(EvidenceModule__factory, provider));
     expect(contracts.policyRegistry).to.be.instanceOf(getConstructor(PolicyRegistry__factory, provider));
     expect(contracts.transactionBatcher).to.be.instanceOf(getConstructor(TransactionBatcher__factory, provider));
-    expect(contracts.blockHashRng).to.be.instanceOf(getConstructor(BlockHashRNG__factory, provider));
     expect(contracts.pnk).to.be.instanceOf(getConstructor(PNK__factory, provider));
     expect(contracts.klerosCoreSnapshotProxy).to.be.instanceOf(
       getConstructor(KlerosCoreSnapshotProxy__factory, provider)
     );
     if (contracts.chainlinkRng) {
       expect(contracts.chainlinkRng).to.be.instanceOf(getConstructor(ChainlinkRNG__factory, provider));
+    }
+    if (contracts.rngWithFallback) {
+      expect(contracts.rngWithFallback).to.be.instanceOf(getConstructor(RNGWithFallback__factory, provider));
     }
     if (contracts.randomizerRng) {
       expect(contracts.randomizerRng).to.be.instanceOf(getConstructor(RandomizerRNG__factory, provider));
@@ -193,10 +195,12 @@ describe("getContractsEthers", async () => {
     if (contracts.chainlinkRng) {
       await verifyContractAddress(contracts.chainlinkRng.getAddress());
     }
+    if (contracts.rngWithFallback) {
+      await verifyContractAddress(contracts.rngWithFallback.getAddress());
+    }
     if (contracts.randomizerRng) {
       await verifyContractAddress(contracts.randomizerRng.getAddress());
     }
-    await verifyContractAddress(contracts.blockHashRng.getAddress());
     await verifyContractAddress(contracts.pnk.getAddress());
     await verifyContractAddress(contracts.klerosCoreSnapshotProxy.getAddress());
   }

@@ -253,7 +253,7 @@ const handleError = (e: any) => {
 };
 
 const isRngReady = async () => {
-  const { chainlinkRng, randomizerRng, blockHashRNG, sortition } = await getContracts();
+  const { chainlinkRng, randomizerRng, sortition } = await getContracts();
   const currentRng = await sortition.rng();
   if (currentRng === chainlinkRng?.target && chainlinkRng !== null) {
     const requestID = await chainlinkRng.lastRequestId();
@@ -273,15 +273,6 @@ const isRngReady = async () => {
       return false;
     } else {
       logger.info(`RandomizerRNG is ready: ${n.toString()}`);
-      return true;
-    }
-  } else if (currentRng === blockHashRNG?.target && blockHashRNG !== null) {
-    const n = await blockHashRNG.receiveRandomness.staticCall();
-    if (Number(n) === 0) {
-      logger.info("BlockHashRNG is NOT ready yet");
-      return false;
-    } else {
-      logger.info(`BlockHashRNG is ready: ${n.toString()}`);
       return true;
     }
   } else {
@@ -450,8 +441,7 @@ const withdrawAppealContribution = async (
     amountWithdrawn = await disputeKit.withdrawFeesAndRewards.staticCall(
       localDisputeId,
       contribution.contributor.id,
-      localRoundId,
-      contribution.choice
+      localRoundId
     );
   } catch (e) {
     logger.warn(
@@ -473,21 +463,14 @@ const withdrawAppealContribution = async (
       ((await disputeKit.withdrawFeesAndRewards.estimateGas(
         localDisputeId,
         contribution.contributor.id,
-        localRoundId,
-        contribution.choice
+        localRoundId
       )) *
         150n) /
       100n; // 50% extra gas
     const tx = await (
-      await disputeKit.withdrawFeesAndRewards(
-        localDisputeId,
-        contribution.contributor.id,
-        localRoundId,
-        contribution.choice,
-        {
-          gasLimit: gas,
-        }
-      )
+      await disputeKit.withdrawFeesAndRewards(localDisputeId, contribution.contributor.id, localRoundId, {
+        gasLimit: gas,
+      })
     ).wait();
     logger.info(`WithdrawFeesAndRewards txID: ${tx?.hash}`);
     success = true;

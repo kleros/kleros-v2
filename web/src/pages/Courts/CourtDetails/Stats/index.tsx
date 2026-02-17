@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { Accordion } from "@kleros/ui-components-library";
@@ -51,6 +52,7 @@ const StyledAccordion = styled(Accordion)`
 `;
 
 const Stats = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data } = useCourtDetails(id);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
@@ -59,7 +61,7 @@ const Stats = () => {
 
   return isDesktop ? (
     <Container>
-      <Header>Statistics</Header>
+      <Header>{t("headers.statistics")}</Header>
       <StatsContent court={data?.court} {...{ pricesData, coinIds }} />
     </Container>
   ) : (
@@ -67,7 +69,7 @@ const Stats = () => {
       defaultExpanded={0}
       items={[
         {
-          title: "Statistics",
+          title: t("headers.statistics"),
           body: <StatsContent court={data?.court} {...{ pricesData, coinIds }} />,
         },
       ]}

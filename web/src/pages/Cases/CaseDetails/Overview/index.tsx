@@ -6,6 +6,7 @@ import { formatEther } from "viem";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { useGatedTokenInfo } from "hooks/useGatedTokenInfo";
 import { getLocalRounds } from "utils/getLocalRounds";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -16,8 +17,10 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
 import DisputeInfo from "components/DisputeView/DisputeInfo";
-import Verdict from "components/Verdict/index";
 import { Divider } from "components/Divider";
+import Verdict from "components/Verdict/index";
+
+import GatedTokenDisplay from "./GatedTokenDisplay";
 
 const Container = styled.div`
   width: 100%;
@@ -41,7 +44,7 @@ interface IOverview {
   currentPeriodIndex: number;
 }
 
-const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex }) => {
+const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
   const { id } = useParams();
   const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrable);
   const { data: dispute } = useDisputeDetailsQuery(id);
@@ -52,6 +55,12 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const court = dispute?.dispute?.court;
   const rewards = useMemo(() => (court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined), [court]);
   const category = disputeDetails?.category;
+
+  const gatedInfo = useGatedTokenInfo(
+    id,
+    dispute?.dispute?.currentRound.disputeKit.address,
+    dispute?.dispute?.currentRoundIndex
+  );
 
   return (
     <>
@@ -70,6 +79,12 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           round={localRounds?.length}
           {...{ rewards, category }}
         />
+        {gatedInfo.isGated ? (
+          <>
+            <Divider />
+            <GatedTokenDisplay {...gatedInfo} tokenAddress={gatedInfo.tokenGateInfo?.tokenGate ?? null} />
+          </>
+        ) : null}
       </Container>
       <Policies
         disputePolicyURI={disputeDetails?.policyURI}

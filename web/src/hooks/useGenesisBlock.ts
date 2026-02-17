@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { isKlerosNeo, isKlerosUniversity, isTestnetDeployment } from "~src/consts";
+
+import { isKlerosUniversity, isProductionDeployment, isTestnetDeployment } from "src/consts";
 
 /**
  * @returns genesis block for kleros core contract
@@ -11,8 +12,8 @@ const useGenesisBlock = () => {
       import("@kleros/kleros-v2-contracts/deployments/arbitrumSepoliaDevnet/KlerosCoreUniversity.json").then((json) =>
         setGenesisBlock(json.receipt.blockNumber)
       );
-    } else if (isKlerosNeo()) {
-      import("@kleros/kleros-v2-contracts/deployments/arbitrum/KlerosCoreNeo.json").then((json) =>
+    } else if (isProductionDeployment()) {
+      import("@kleros/kleros-v2-contracts/deployments/arbitrum/KlerosCore.json").then((json) =>
         setGenesisBlock(json.receipt.blockNumber)
       );
     } else if (isTestnetDeployment()) {

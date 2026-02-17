@@ -40,6 +40,7 @@ export function createUserFromAddress(id: string): User {
   user.totalCoherentVotes = ZERO;
   user.totalResolvedVotes = ZERO;
   user.coherenceScore = ZERO;
+  user.leaderboardOffset = ZERO;
   user.save();
 
   return user;

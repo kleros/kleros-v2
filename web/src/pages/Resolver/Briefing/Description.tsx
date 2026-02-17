@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -26,6 +28,7 @@ const MarkdownEditorContainer = styled.div`
 `;
 
 const Description: React.FC = () => {
+  const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -47,12 +50,12 @@ const Description: React.FC = () => {
 
   return (
     <Container ref={containerRef}>
-      <Header text="Describe the case" />
+      <Header text={t("headers.describe_the_case")} />
       <MarkdownEditorContainer>
         <MarkdownEditor
           value={disputeData.description}
           onChange={handleWrite}
-          placeholder="eg. Bob hired Alice to develop a website for him, but Bob failed to deliver..."
+          placeholder={t("forms.placeholders.bob_hired_alice")}
           showMessage={false}
         />
       </MarkdownEditorContainer>

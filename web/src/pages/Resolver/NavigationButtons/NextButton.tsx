@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
@@ -13,6 +14,7 @@ interface INextButton {
 }
 
 const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { disputeData, isPolicyUploading } = useNewDisputeContext();
   const location = useLocation();
@@ -43,12 +45,12 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
     (location.pathname.includes("/resolver/court") &&
       (!disputeData.courtId || !isGatedTokenValid || !disputeData.disputeKitId)) ||
-    (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
+    (location.pathname.includes("/resolver/jurors") && (!disputeData.arbitrationCost || !disputeData.numberOfJurors)) ||
     (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/notable-persons") && !areAliasesValidOrEmpty) ||
     (location.pathname.includes("/resolver/policy") && (isPolicyUploading || !disputeData.policyURI));
 
-  return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text="Next" />;
+  return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text={t("buttons.next")} />;
 };
 
 export default NextButton;

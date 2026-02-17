@@ -1,15 +1,14 @@
 import React, { useMemo } from "react";
 import styled, { Theme } from "styled-components";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import { Link } from "react-router-dom";
 
-import { ArbitratorTypes, getArbitratorType } from "consts/index";
+import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 
+import { ArbitratorTypes, getArbitratorType } from "consts/index";
 import { isUndefined } from "utils/index";
 
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 const Container = styled.div`
   display: flex;
@@ -45,8 +44,6 @@ const StyledKlerosCourtLogo = styled(KlerosCourtLogo)`
 const CourtBadge: React.FC = () => {
   const { text, color } = useMemo<{ text?: string; color?: keyof Theme }>(() => {
     switch (getArbitratorType()) {
-      case ArbitratorTypes.neo:
-        return { text: "Beta", color: "paleCyan" };
       case ArbitratorTypes.university:
         return { text: "Uni", color: "limeGreen" };
     }

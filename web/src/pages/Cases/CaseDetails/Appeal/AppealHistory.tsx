@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { useOptionsContext, useFundingContext } from "hooks/useClassicAppealContext";
@@ -9,6 +10,7 @@ import HowItWorks from "components/HowItWorks";
 import Appeal from "components/Popup/MiniGuides/Appeal";
 
 import OptionCard from "./OptionCard";
+
 import { AppealHeader, StyledTitle } from "./index";
 
 const OptionsContainer = styled.div`
@@ -24,13 +26,14 @@ interface IAppealHistory {
 }
 
 const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide }) => {
+  const { t } = useTranslation();
   const options = useOptionsContext();
   const { winningChoice, fundedChoices } = useFundingContext();
 
   return options && options.length > 2 ? (
     <div>
       <AppealHeader>
-        <StyledTitle>Appeal Results - Last Round</StyledTitle>
+        <StyledTitle>{t("appeal.appeal_results_last_round")}</StyledTitle>
         <HowItWorks
           isMiniGuideOpen={isAppealMiniGuideOpen}
           toggleMiniGuide={toggleAppealMiniGuide}

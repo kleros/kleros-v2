@@ -2,7 +2,7 @@
 
 ## Deployments
 
-### V2 Neo
+### V2 Mainnet
 
 - [Core](https://thegraph.com/studio/subgraph/kleros-v2-coreneo/)
 - [Dispute Registry Template - Arbitrum One](https://thegraph.com/studio/subgraph/kleros-v2-drt/)

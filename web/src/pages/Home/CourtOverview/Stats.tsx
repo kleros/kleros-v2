@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card } from "@kleros/ui-components-library";
 
 import EthereumIcon from "svgs/icons/ethereum.svg";
@@ -49,53 +51,54 @@ interface IStat {
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
-const stats: IStat[] = [
-  {
-    title: "PNK Staked",
-    coinId: 0,
-    getText: (counters) => formatPNK(getLastOrZero(counters, "stakedPNK")),
-    getSubtext: (counters, coinPrice) =>
-      formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "stakedPNK"))) * (coinPrice ?? 0)),
-    color: "purple",
-    icon: PNKIcon,
-  },
-  {
-    title: "ETH Paid",
-    coinId: 1,
-    getText: (counters) => formatETH(getLastOrZero(counters, "paidETH")),
-    getSubtext: (counters, coinPrice) =>
-      formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "paidETH"))) * (coinPrice ?? 0)),
-    color: "blue",
-    icon: EthereumIcon,
-  },
-  {
-    title: "PNK Redistributed",
-    coinId: 0,
-    getText: (counters) => formatPNK(getLastOrZero(counters, "redistributedPNK")),
-    getSubtext: (counters, coinPrice) =>
-      formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "redistributedPNK"))) * (coinPrice ?? 0)),
-    color: "purple",
-    icon: PNKRedistributedIcon,
-  },
-  {
-    title: "Active Jurors",
-    getText: (counters) => getLastOrZero(counters, "activeJurors"),
-    color: "green",
-    icon: JurorIcon,
-  },
-  {
-    title: "Cases",
-    getText: (counters) => getLastOrZero(counters, "cases"),
-    color: "orange",
-    icon: BalanceIcon,
-  },
-];
-
 const Stats = () => {
+  const { t } = useTranslation();
   const { data } = useHomePageContext();
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
   const isDesktop = useIsDesktop();
+
+  const stats: IStat[] = [
+    {
+      title: t("stats.pnk_staked"),
+      coinId: 0,
+      getText: (counters) => formatPNK(getLastOrZero(counters, "stakedPNK")),
+      getSubtext: (counters, coinPrice) =>
+        formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "stakedPNK"))) * (coinPrice ?? 0)),
+      color: "purple",
+      icon: PNKIcon,
+    },
+    {
+      title: t("stats.eth_paid"),
+      coinId: 1,
+      getText: (counters) => formatETH(getLastOrZero(counters, "paidETH")),
+      getSubtext: (counters, coinPrice) =>
+        formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "paidETH"))) * (coinPrice ?? 0)),
+      color: "blue",
+      icon: EthereumIcon,
+    },
+    {
+      title: t("stats.pnk_redistributed"),
+      coinId: 0,
+      getText: (counters) => formatPNK(getLastOrZero(counters, "redistributedPNK")),
+      getSubtext: (counters, coinPrice) =>
+        formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "redistributedPNK"))) * (coinPrice ?? 0)),
+      color: "purple",
+      icon: PNKRedistributedIcon,
+    },
+    {
+      title: t("stats.active_jurors"),
+      getText: (counters) => getLastOrZero(counters, "activeJurors"),
+      color: "green",
+      icon: JurorIcon,
+    },
+    {
+      title: t("stats.cases"),
+      getText: (counters) => getLastOrZero(counters, "cases"),
+      color: "orange",
+      icon: BalanceIcon,
+    },
+  ];
 
   return (
     <StyledCard>

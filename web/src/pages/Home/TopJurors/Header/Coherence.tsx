@@ -1,17 +1,19 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useTranslation } from "react-i18next";
 
 import useIsDesktop from "hooks/useIsDesktop";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-const Container = styled.div`
+const Container = styled.div<{ content: string }>`
   display: flex;
   font-size: 12px !important;
   &::before {
-    content: "Coherent\u00a0Votes";
+    content: "${({ content }) => content}";
   }
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;
@@ -24,18 +26,17 @@ const Container = styled.div`
   )}
 `;
 
-const coherentVotesTooltipMsg =
-  "This is the ratio of coherent votes made by a juror: " +
-  "the number in the left is the number of times where the juror " +
-  "voted coherently and the number in the right is the total number of times " +
-  "the juror voted. Hover to see the percentage of coherent votes.";
-
 const Coherence: React.FC = () => {
+  const { t } = useTranslation();
   const isDesktop = useIsDesktop();
+  const text = t("juror_levels.coherent_votes").replace(/ /g, "\u00A0");
 
   return (
-    <Container>
-      <WithHelpTooltip place={isDesktop ? "top" : "right"} tooltipMsg={coherentVotesTooltipMsg}></WithHelpTooltip>
+    <Container content={text}>
+      <WithHelpTooltip
+        place={isDesktop ? "top" : "right"}
+        tooltipMsg={t("juror_levels.coherent_votes_ratio_tooltip")}
+      ></WithHelpTooltip>
     </Container>
   );
 };

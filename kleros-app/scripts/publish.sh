@@ -9,7 +9,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 set -Ee
 function _catch {
     # Don't propagate to outer shell
-    exit 0 
+    exit 0
 }
 function _finally {
     # TODO: rollback version bump
@@ -39,4 +39,5 @@ git push --tags
 
 yarn clean
 yarn build
+yarn npm login
 yarn npm publish

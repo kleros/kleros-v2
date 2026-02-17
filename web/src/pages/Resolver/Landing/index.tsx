@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useDebounce } from "react-use";
 
@@ -47,6 +48,7 @@ const CardContainer = styled.div`
 `;
 
 const Landing: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [creationMethod, setCreationMethod] = useState<CreationMethod>(CreationMethod.Scratch);
 
@@ -129,7 +131,7 @@ const Landing: React.FC = () => {
 
   return (
     <Container>
-      <Header text="Create a case" />
+      <Header text={t("headers.create_a_case")} />
       <CardContainer>
         <CreationCard
           cardMethod={CreationMethod.Scratch}
@@ -144,7 +146,7 @@ const Landing: React.FC = () => {
       </CardContainer>
 
       <Button
-        text="Next"
+        text={t("buttons.next")}
         isLoading={isLoading}
         disabled={
           isLoading ||

@@ -9,9 +9,9 @@ dataSources:
     name: DisputeTemplateRegistry
     network: arbitrum-sepolia
     source:
-      address: "0xc852F94f90E3B06Da6eCfB61d76561ECfb94613f"
+      address: "0xa28cA6364B40537B3e73c395cc2B1Bb6de1F1161"
       abi: DisputeTemplateRegistry
-      startBlock: 175286171
+      startBlock: 212135272
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

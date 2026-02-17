@@ -1,20 +1,24 @@
 import React, { useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-import { isUndefined } from "utils/index";
+import { useTranslation } from "react-i18next";
+import { useParams, useNavigate } from "react-router-dom";
+
 import { StandardPagination } from "@kleros/ui-components-library";
+
+import { useScrollTop } from "hooks/useScrollTop";
+import { isUndefined } from "utils/index";
+import { decodeURIFilter } from "utils/uri";
 
 import { useJurorsByCoherenceScore } from "queries/useJurorsByCoherenceScore";
 
 import { OrderDirection } from "src/graphql/graphql";
 
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
-import JurorCard from "../Home/TopJurors/JurorCard";
+
 import { ListContainer, StyledLabel } from "../Home/TopJurors";
 import Header from "../Home/TopJurors/Header";
-import { decodeURIFilter } from "utils/uri";
-import { useScrollTop } from "hooks/useScrollTop";
+import JurorCard from "../Home/TopJurors/JurorCard";
 
 interface IDisplayJurors {
   totalLeaderboardJurors: number;
@@ -27,6 +31,7 @@ const StyledPagination = styled(StandardPagination)`
 `;
 
 const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => {
+  const { t } = useTranslation();
   const { page, order, filter } = useParams();
   const scrollTop = useScrollTop();
   const { id: searchValue } = decodeURIFilter(filter ?? "all");
@@ -83,7 +88,7 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
       ) : (
         <ListContainer>
           {!isUndefined(jurors) && jurors.length === 0 ? (
-            <StyledLabel>No jurors found</StyledLabel>
+            <StyledLabel>{t("misc.no_jurors_found")}</StyledLabel>
           ) : (
             <>
               <Header />

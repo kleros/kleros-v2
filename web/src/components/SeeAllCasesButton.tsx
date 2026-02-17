@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
+
 import { encodeURIFilter } from "utils/uri";
 
 import { BlueIconTextButtonContainer } from "./BlueIconTextButtonContainer";
@@ -10,13 +12,13 @@ interface ISeeAllCasesButton {
 }
 
 const SeeAllCasesButton: React.FC<ISeeAllCasesButton> = ({ courtId }) => {
+  const { t } = useTranslation();
   const filter = courtId ? { court: courtId } : {};
   const link = `/cases/display/1/desc/${encodeURIFilter(filter)}`;
-  const labelText = "See all";
 
   return (
     <InternalLink to={link}>
-      <BlueIconTextButtonContainer>{labelText}</BlueIconTextButtonContainer>
+      <BlueIconTextButtonContainer>{t("misc.see_all")}</BlueIconTextButtonContainer>
     </InternalLink>
   );
 };

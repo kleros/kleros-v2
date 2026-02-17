@@ -11,9 +11,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-sepolia
     source:
-      address: "0x1Bd44c4a4511DbFa7DC1d5BC201635596E7200f9"
+      address: "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F"
       abi: KlerosCore
-      startBlock: 175286093
+      startBlock: 212135308
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -35,8 +35,7 @@ dataSources:
         - name: DisputeKitClassic
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to the abi with event addition.
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -49,17 +48,14 @@ dataSources:
           handler: handleNewPeriod
         - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
           handler: handleCourtCreated
-          # FIX: This is support for old signature
-        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
-          handler: handleCourtCreated
         - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
           handler: handleCourtModified
         - event: DisputeKitCreated(indexed uint256,indexed address)
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
           handler: handleDisputeKitEnabled
-        - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
-          handler: handleTokenAndETHShift
+        - event: JurorRewardPenalty(indexed address,indexed uint256,indexed uint256,uint256,uint256,int256,int256,address)
+          handler: handleJurorRewardPenalty
         - event: Ruling(indexed address,indexed uint256,uint256)
           handler: handleRuling
         - event: AcceptedFeeToken(indexed address,indexed bool)
@@ -71,9 +67,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-sepolia
     source:
-      address: "0xd8681dBF525ecBda2F799BFddB96840065075e8A"
+      address: "0x6445F57d2Bd2AD5BC23bC899731f7D5184d6e893"
       abi: PolicyRegistry
-      startBlock: 175286057
+      startBlock: 212135252
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -91,9 +87,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-sepolia
     source:
-      address: "0xeEEbbbff8f377dCFc7d4F7876C531db0d22720e1"
+      address: "0xc77c0dFCf6845544dd45734100d385be3D649B02"
       abi: DisputeKitClassic
-      startBlock: 175286074
+      startBlock: 212135284
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -107,14 +103,13 @@ dataSources:
         - name: DisputeKitClassic
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -127,9 +122,9 @@ dataSources:
     name: DisputeKitShutter
     network: arbitrum-sepolia
     source:
-      address: "0xfE0a958bc744Bb9E224E1822625B53134ac5CB69"
+      address: "0xD143b4FcdCf5699983fF9Ad7e38DE80Aa7Eb9Ce7"
       abi: DisputeKitShutter
-      startBlock: 175286126
+      startBlock: 212135352
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -145,14 +140,13 @@ dataSources:
         - name: DisputeKitClassic # Required on Alchemy
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -165,9 +159,9 @@ dataSources:
     name: DisputeKitGated
     network: arbitrum-sepolia
     source:
-      address: "0x677dA30B4b27D129354DdA1e219Bcc86802132d1"
+      address: "0x648943Cf73b7fa053942Af576C8327fcEfD314d8"
       abi: DisputeKitGated
-      startBlock: 175286139
+      startBlock: 212135369
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -183,14 +177,13 @@ dataSources:
         - name: DisputeKitClassic # Required on Alchemy
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -203,9 +196,9 @@ dataSources:
     name: DisputeKitGatedShutter
     network: arbitrum-sepolia
     source:
-      address: "0xd86b84eb36Cd48f3f384b4490F255b494385F429"
+      address: "0x476EE17A32363aec1D32DB49ab701E70Ec56a8e6"
       abi: DisputeKitGatedShutter
-      startBlock: 175286153
+      startBlock: 212135387
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -221,14 +214,13 @@ dataSources:
         - name: DisputeKitClassic # Required on Alchemy
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/KlerosCore.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
         - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
           handler: handleContributionEvent
-        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
@@ -241,9 +233,9 @@ dataSources:
     name: EvidenceModule
     network: arbitrum-sepolia
     source:
-      address: "0xA1F72e0445fc395A393247F5B8c958Ec9b7C0B49"
+      address: "0x8AAF07ac05E81c92C6FD369aaEdE159E9893508d"
       abi: EvidenceModule
-      startBlock: 175286065
+      startBlock: 212135261
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -262,9 +254,9 @@ dataSources:
     name: SortitionModule
     network: arbitrum-sepolia
     source:
-      address: "0x6F24A90fBBeabB2B4343Bb9c1eD8ee6AcAa50663"
+      address: "0x37760BF7fC6027836E50a4D553A313f112188406"
       abi: SortitionModule
-      startBlock: 175286083
+      startBlock: 212135296
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -273,8 +265,7 @@ dataSources:
         - JurorTokensPerCourt
       abis:
         - name: SortitionModule
-          # FIX: temporarily point to abi with event addition
-          file: ./abi-migrations/SortitionModule.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
       eventHandlers:
         - event: StakeDelayed(indexed address,indexed uint96,uint256)
           handler: handleStakeDelayed
@@ -282,7 +273,24 @@ dataSources:
           handler: handleStakeLocked
         - event: StakeSet(indexed address,uint256,uint256,uint256)
           handler: handleStakeSet
-          # FIX: old stake set signature
-        - event: StakeSet(indexed address,uint256,uint256)
-          handler: handleStakeSet
       file: ./src/SortitionModule.ts
+  - kind: ethereum
+    name: LeaderboardOffset
+    network: arbitrum-sepolia
+    source:
+      address: "0x811eC94d73445Df262D3Bf43571B85caD122bBD7"
+      abi: LeaderboardOffset
+      startBlock: 217101551
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: LeaderboardOffset
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/LeaderboardOffset.json
+      eventHandlers:
+        - event: Offset(indexed address,int256,indexed address)
+          handler: handleLeaderboardOffset
+      file: ./src/LeaderboardOffset.ts

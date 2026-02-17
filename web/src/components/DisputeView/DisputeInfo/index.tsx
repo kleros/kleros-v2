@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 
+import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
 import BookmarkIcon from "svgs/icons/bookmark.svg";
@@ -16,16 +17,16 @@ import { isUndefined } from "utils/index";
 import DisputeInfoCard from "./DisputeInfoCard";
 import DisputeInfoList from "./DisputeInfoList";
 
-const getPeriodPhrase = (period: Periods): string => {
+const getPeriodPhrase = (period: Periods, t: (key: string) => string): string => {
   switch (period) {
     case Periods.evidence:
-      return "Voting Starts";
+      return t("dispute_info.voting_starts");
     case Periods.appeal:
-      return "Appeal Deadline";
+      return t("dispute_info.appeal_deadline");
     case Periods.execution:
-      return "Final Decision";
+      return t("dispute_info.final_decision");
     default:
-      return "Voting Deadline";
+      return t("dispute_info.voting_deadline");
   }
 };
 
@@ -65,6 +66,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   isOverview,
   showLabels = false,
 }) => {
+  const { t, i18n } = useTranslation();
   const { isList } = useIsList();
   const { isDisconnected } = useAccount();
   const displayAsList = isList && !overrideIsList;
@@ -73,34 +75,38 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
     () => [
       {
         icon: LawBalanceIcon,
-        name: "Court",
+        name: t("dispute_info.court"),
         value: court,
         link: `/courts/${courtId}`,
         display: !isUndefined(court) && !isUndefined(courtId),
       },
       {
         icon: RoundIcon,
-        name: "Round",
+        name: t("dispute_info.round"),
         value: round?.toString(),
         display: !isUndefined(round),
       },
       {
         icon: BookmarkIcon,
-        name: "Category",
-        value: category ?? "General",
+        name: t("dispute_info.category"),
+        value: category ?? t("dispute_info.general"),
         display: true,
         style: "justify-self: end;",
       },
-      { icon: PileCoinsIcon, name: "Juror Rewards", value: rewards, display: !isUndefined(rewards) },
+      { icon: PileCoinsIcon, name: t("dispute_info.juror_rewards"), value: rewards, display: !isUndefined(rewards) },
       {
         icon: CalendarIcon,
-        name: getPeriodPhrase(period ?? 0),
-        value: !displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date),
+        name: getPeriodPhrase(period ?? 0, t),
+        value: date
+          ? !displayAsList
+            ? new Date(date * 1000).toLocaleString(i18n.language)
+            : formatDate(date, false, i18n.language)
+          : "",
         display: !isUndefined(period) && !isUndefined(date),
         style: "grid-column: 2 / 4;",
       },
     ],
-    [category, court, courtId, date, displayAsList, isOverview, period, rewards, round]
+    [category, court, courtId, date, displayAsList, period, rewards, round, t, i18n.language]
   );
   return displayAsList ? (
     <DisputeInfoList showLabels={showLabels && !isDisconnected} {...{ disputeID, round, fieldItems }} />

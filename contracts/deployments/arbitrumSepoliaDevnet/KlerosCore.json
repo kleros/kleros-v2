@@ -1,5 +1,5 @@
 {
-  "address": "0x1Bd44c4a4511DbFa7DC1d5BC201635596E7200f9",
+  "address": "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F",
   "abi": [
     {
       "stateMutability": "payable",
@@ -22,6 +22,11 @@
     {
       "inputs": [],
       "name": "AppealPeriodNotPassed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ArbitrableNotWhitelisted",
       "type": "error"
     },
     {
@@ -76,17 +81,12 @@
     },
     {
       "inputs": [],
-      "name": "GovernorOnly",
+      "name": "GuardianOrOwnerOnly",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "GuardianOrGovernorOnly",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InvalidDisputKitParent",
+      "name": "InvalidDisputeKitParent",
       "type": "error"
     },
     {
@@ -106,6 +106,17 @@
       "type": "error"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_childCourtID",
+          "type": "uint256"
+        }
+      ],
+      "name": "MinStakeHigherThanChildCourt",
+      "type": "error"
+    },
+    {
       "inputs": [],
       "name": "MinStakeLowerThanParentCourt",
       "type": "error"
@@ -113,6 +124,11 @@
     {
       "inputs": [],
       "name": "MustSupportDisputeKitClassic",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotEligibleForStaking",
       "type": "error"
     },
     {
@@ -128,6 +144,11 @@
     {
       "inputs": [],
       "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OwnerOnly",
       "type": "error"
     },
     {
@@ -148,6 +169,16 @@
     {
       "inputs": [],
       "name": "StakingLessThanCourtMinStake",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "StakingMoreThanMaxStakePerJuror",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "StakingMoreThanMaxTotalStaked",
       "type": "error"
     },
     {
@@ -567,6 +598,12 @@
       "inputs": [
         {
           "indexed": true,
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
           "internalType": "uint256",
           "name": "_disputeID",
           "type": "uint256"
@@ -580,13 +617,62 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_pnkAmount",
+          "name": "_degreeOfCoherencyPnk",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_feeAmount",
+          "name": "_degreeOfCoherencyFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "_amountPnk",
+          "type": "int256"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "_amountFee",
+          "type": "int256"
+        },
+        {
+          "indexed": false,
+          "internalType": "contract IERC20",
+          "name": "_feeToken",
+          "type": "address"
+        }
+      ],
+      "name": "JurorRewardPenalty",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_roundID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amountPnk",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amountFee",
           "type": "uint256"
         },
         {
@@ -635,7 +721,7 @@
         },
         {
           "indexed": false,
-          "internalType": "enum KlerosCoreBase.Period",
+          "internalType": "enum KlerosCore.Period",
           "name": "_period",
           "type": "uint8"
         }
@@ -672,55 +758,6 @@
         }
       ],
       "name": "Ruling",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_account",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "_disputeID",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "_roundID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_degreeOfCoherency",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "int256",
-          "name": "_pnkAmount",
-          "type": "int256"
-        },
-        {
-          "indexed": false,
-          "internalType": "int256",
-          "name": "_feeAmount",
-          "type": "int256"
-        },
-        {
-          "indexed": false,
-          "internalType": "contract IERC20",
-          "name": "_feeToken",
-          "type": "address"
-        }
-      ],
-      "name": "TokenAndETHShift",
       "type": "event"
     },
     {
@@ -790,7 +827,7 @@
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "cost",
+          "name": "",
           "type": "uint256"
         }
       ],
@@ -816,6 +853,38 @@
           "internalType": "uint256",
           "name": "end",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "arbitrableWhitelist",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "arbitrableWhitelistEnabled",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -878,6 +947,37 @@
         }
       ],
       "name": "changeAcceptedFeeTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_arbitrable",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_allowed",
+          "type": "bool"
+        }
+      ],
+      "name": "changeArbitrableWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_enabled",
+          "type": "bool"
+        }
+      ],
+      "name": "changeArbitrableWhitelistEnabled",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -951,19 +1051,6 @@
     {
       "inputs": [
         {
-          "internalType": "address payable",
-          "name": "_governor",
-          "type": "address"
-        }
-      ],
-      "name": "changeGovernor",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "_guardian",
           "type": "address"
@@ -977,12 +1064,38 @@
     {
       "inputs": [
         {
+          "internalType": "contract IERC721",
+          "name": "_jurorNft",
+          "type": "address"
+        }
+      ],
+      "name": "changeJurorNft",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "_jurorProsecutionModule",
           "type": "address"
         }
       ],
       "name": "changeJurorProsecutionModule",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1076,11 +1189,6 @@
           "internalType": "uint256",
           "name": "jurorsForCourtJump",
           "type": "uint256"
-        },
-        {
-          "internalType": "bool",
-          "name": "disabled",
-          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -1295,7 +1403,7 @@
           "type": "address"
         },
         {
-          "internalType": "enum KlerosCoreBase.Period",
+          "internalType": "enum KlerosCore.Period",
           "name": "period",
           "type": "uint8"
         },
@@ -1401,7 +1509,7 @@
           "type": "bytes"
         }
       ],
-      "name": "executeGovernorProposal",
+      "name": "executeOwnerProposal",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1417,6 +1525,45 @@
       "name": "executeRuling",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_disputeID",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCourtAndDisputeKitJumps",
+      "outputs": [
+        {
+          "internalType": "uint96",
+          "name": "newCourtID",
+          "type": "uint96"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newDisputeKitID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newRoundNbVotes",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "courtJump",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "disputeKitJump",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1547,6 +1694,11 @@
               "type": "address[]"
             },
             {
+              "internalType": "uint96[]",
+              "name": "drawnJurorFromCourtIDs",
+              "type": "uint96[]"
+            },
+            {
               "internalType": "uint256",
               "name": "sumFeeRewardPaid",
               "type": "uint256"
@@ -1565,9 +1717,14 @@
               "internalType": "uint256",
               "name": "drawIterations",
               "type": "uint256"
+            },
+            {
+              "internalType": "uint256[10]",
+              "name": "__gap",
+              "type": "uint256[10]"
             }
           ],
-          "internalType": "struct KlerosCoreBase.Round",
+          "internalType": "struct KlerosCore.Round",
           "name": "",
           "type": "tuple"
         }
@@ -1596,19 +1753,6 @@
     },
     {
       "inputs": [],
-      "name": "governor",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "guardian",
       "outputs": [
         {
@@ -1624,7 +1768,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_governor",
+          "name": "_owner",
           "type": "address"
         },
         {
@@ -1676,30 +1820,16 @@
           "internalType": "address",
           "name": "_wNative",
           "type": "address"
+        },
+        {
+          "internalType": "contract IERC721",
+          "name": "_jurorNft",
+          "type": "address"
         }
       ],
       "name": "initialize",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_disputeID",
-          "type": "uint256"
-        }
-      ],
-      "name": "isDisputeKitJumping",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1728,7 +1858,33 @@
     },
     {
       "inputs": [],
+      "name": "jurorNft",
+      "outputs": [
+        {
+          "internalType": "contract IERC721",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "jurorProsecutionModule",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
       "outputs": [
         {
           "internalType": "address",
@@ -1801,19 +1957,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_wNative",
-          "type": "address"
-        }
-      ],
-      "name": "reinitialize",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint96",
           "name": "_courtID",
           "type": "uint96"
@@ -1848,7 +1991,13 @@
         }
       ],
       "name": "setStakeBySortitionModule",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -1951,50 +2100,50 @@
       "type": "constructor"
     }
   ],
-  "transactionHash": "0x0ae7adc55a2c6b31434c898d9a8dafc2a6e074bed9b39bd33e484141a8adbf2d",
+  "transactionHash": "0x326cb65d3fa739602ddf5d475ca55c06f39c347fce016f2c33728febb44be38c",
   "receipt": {
     "to": null,
     "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
-    "contractAddress": "0x1Bd44c4a4511DbFa7DC1d5BC201635596E7200f9",
+    "contractAddress": "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F",
     "transactionIndex": 2,
-    "gasUsed": "579894",
-    "logsBloom": "0x00000000000000000000000020000000000008000000000000000000020000000000000000000000000008000000000000000200000000000000000000040000000000000000000000000000000000000000000000040000000000000000000000000400020000000000000010000800402000000000000000000000000004000000800000000000000800000000000000000000000080000000000004000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000060000000001000000200000000000000000000000000000000000000000000000000",
-    "blockHash": "0xc9efac5f4036a1285e678e1a2b602cf6dd86473dec70415d18d97ae37652644b",
-    "transactionHash": "0x0ae7adc55a2c6b31434c898d9a8dafc2a6e074bed9b39bd33e484141a8adbf2d",
+    "gasUsed": "588712",
+    "logsBloom": "0x00000000000000000000000020000000000000000000000000000000020000000000000000800000000000000000000000000000000000000000000000040000000000000080000000000000000000000000000000040000000000000000000000000001020000000000000010000800402000000000000010000000000004000010800000000000000800000000000000000000000080000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000060000000001000000000000200000000000000000000000000000000000000000000",
+    "blockHash": "0xd4e77d475fdbfc1782cd19cd5775a17631ef82188e5bb147cc3fa9e8c71cabf1",
+    "transactionHash": "0x326cb65d3fa739602ddf5d475ca55c06f39c347fce016f2c33728febb44be38c",
     "logs": [
       {
         "transactionIndex": 2,
-        "blockNumber": 175286093,
-        "transactionHash": "0x0ae7adc55a2c6b31434c898d9a8dafc2a6e074bed9b39bd33e484141a8adbf2d",
-        "address": "0x1Bd44c4a4511DbFa7DC1d5BC201635596E7200f9",
+        "blockNumber": 212135308,
+        "transactionHash": "0x326cb65d3fa739602ddf5d475ca55c06f39c347fce016f2c33728febb44be38c",
+        "address": "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F",
         "topics": [
           "0x44063d258760b98116d53815adbc906a56b3563e540148cc0fc2457f83b5eeb2",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
-          "0x000000000000000000000000eeebbbff8f377dcfc7d4f7876c531db0d22720e1"
+          "0x000000000000000000000000c77c0dfcf6845544dd45734100d385be3d649b02"
         ],
         "data": "0x",
-        "logIndex": 1,
-        "blockHash": "0xc9efac5f4036a1285e678e1a2b602cf6dd86473dec70415d18d97ae37652644b"
+        "logIndex": 10,
+        "blockHash": "0xd4e77d475fdbfc1782cd19cd5775a17631ef82188e5bb147cc3fa9e8c71cabf1"
       },
       {
         "transactionIndex": 2,
-        "blockNumber": 175286093,
-        "transactionHash": "0x0ae7adc55a2c6b31434c898d9a8dafc2a6e074bed9b39bd33e484141a8adbf2d",
-        "address": "0x1Bd44c4a4511DbFa7DC1d5BC201635596E7200f9",
+        "blockNumber": 212135308,
+        "transactionHash": "0x326cb65d3fa739602ddf5d475ca55c06f39c347fce016f2c33728febb44be38c",
+        "address": "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F",
         "topics": [
           "0x550ff678017abc294b4786a99a046628d5a1eac07be0f1ea7e89543f13576ee6",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
           "0x0000000000000000000000000000000000000000000000000000000000000000"
         ],
         "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ad78ebc5ac62000000000000000000000000000000000000000000000000000000000000000002710000000000000000000000000000000000000000000000000016345785d8a00000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001",
-        "logIndex": 2,
-        "blockHash": "0xc9efac5f4036a1285e678e1a2b602cf6dd86473dec70415d18d97ae37652644b"
+        "logIndex": 11,
+        "blockHash": "0xd4e77d475fdbfc1782cd19cd5775a17631ef82188e5bb147cc3fa9e8c71cabf1"
       },
       {
         "transactionIndex": 2,
-        "blockNumber": 175286093,
-        "transactionHash": "0x0ae7adc55a2c6b31434c898d9a8dafc2a6e074bed9b39bd33e484141a8adbf2d",
-        "address": "0x1Bd44c4a4511DbFa7DC1d5BC201635596E7200f9",
+        "blockNumber": 212135308,
+        "transactionHash": "0x326cb65d3fa739602ddf5d475ca55c06f39c347fce016f2c33728febb44be38c",
+        "address": "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F",
         "topics": [
           "0xb47629acdf64971062d40984f77d3dee212d735b11e3e8c7a4222d9f0572cc79",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
@@ -2002,43 +2151,64 @@
           "0x0000000000000000000000000000000000000000000000000000000000000001"
         ],
         "data": "0x",
-        "logIndex": 3,
-        "blockHash": "0xc9efac5f4036a1285e678e1a2b602cf6dd86473dec70415d18d97ae37652644b"
+        "logIndex": 12,
+        "blockHash": "0xd4e77d475fdbfc1782cd19cd5775a17631ef82188e5bb147cc3fa9e8c71cabf1"
       },
       {
         "transactionIndex": 2,
-        "blockNumber": 175286093,
-        "transactionHash": "0x0ae7adc55a2c6b31434c898d9a8dafc2a6e074bed9b39bd33e484141a8adbf2d",
-        "address": "0x1Bd44c4a4511DbFa7DC1d5BC201635596E7200f9",
+        "blockNumber": 212135308,
+        "transactionHash": "0x326cb65d3fa739602ddf5d475ca55c06f39c347fce016f2c33728febb44be38c",
+        "address": "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F",
         "topics": [
           "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
         ],
         "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
-        "logIndex": 4,
-        "blockHash": "0xc9efac5f4036a1285e678e1a2b602cf6dd86473dec70415d18d97ae37652644b"
+        "logIndex": 13,
+        "blockHash": "0xd4e77d475fdbfc1782cd19cd5775a17631ef82188e5bb147cc3fa9e8c71cabf1"
       }
     ],
-    "blockNumber": 175286093,
-    "cumulativeGasUsed": "626786",
+    "blockNumber": 212135308,
+    "cumulativeGasUsed": "738385",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0x0d91F523fA287A74698A0e6Cd6A2436E91b9BEB9",
-    "0x7b4f3cc5000000000000000000000000f1c7c037891525e360c59f708739ac09a7670c59000000000000000000000000f1c7c037891525e360c59f708739ac09a7670c5900000000000000000000000034b944d42cacfc8266955d07a80181d2054aa2250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeebbbff8f377dcfc7d4f7876c531db0d22720e1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ad78ebc5ac62000000000000000000000000000000000000000000000000000000000000000002710000000000000000000000000000000000000000000000000016345785d8a00000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000002000000000000000000000000006f24a90fbbeabb2b4343bb9c1ed8ee6acaa5066300000000000000000000000000000000000000000000000000000000000000010500000000000000000000000000000000000000000000000000000000000000"
+    "0x369DA458B054CfF85F148FC3936baB74D6941c56",
+    "0xfca31d6d000000000000000000000000f1c7c037891525e360c59f708739ac09a7670c59000000000000000000000000f1c7c037891525e360c59f708739ac09a7670c5900000000000000000000000034b944d42cacfc8266955d07a80181d2054aa2250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c77c0dfcf6845544dd45734100d385be3d649b02000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ad78ebc5ac62000000000000000000000000000000000000000000000000000000000000000002710000000000000000000000000000000000000000000000000016345785d8a00000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000024000000000000000000000000037760bf7fc6027836e50a4d553a313f1121884060000000000000000000000003829a2486d53ee984a0ca2d76552715726b77138000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010500000000000000000000000000000000000000000000000000000000000000"
   ],
-  "numDeployments": 2,
-  "solcInputHash": "55ee2edfcfbef3e6f4c10ec53a4be5f5",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.28+commit.7893614a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/proxy/KlerosProxies.sol\":\"KlerosCoreProxy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/proxy/KlerosProxies.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.24;\\n\\nimport \\\"./UUPSProxy.sol\\\";\\n\\n/// Workaround to get meaningful names for the proxy contracts\\n/// Otherwise all the contracts are called `UUPSProxy` on the chain explorers\\n\\ncontract DisputeKitClassicNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitClassicUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitClassicProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitGatedProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitGatedShutterProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitShutterProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitSybilResistantProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeTemplateRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract EvidenceModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract ForeignGatewayOnEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract HomeGatewayToEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreRulerProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract PolicyRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract RandomizerRNGProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleNeoProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\",\"keccak256\":\"0xc4b339597d3141b25664fd25d91a78bed6d61220fa0ea63f0116be7a0cc53fbf\",\"license\":\"MIT\"},\"src/proxy/UUPSProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.24;\\n\\n/// @title UUPS Proxy\\n/// @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n/// @dev This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.\\n/// @dev This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.\\n/// @dev We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\\n/// @dev Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/ERC1967/ERC1967Proxy.sol>\\ncontract UUPSProxy {\\n    /// @dev Storage slot with the address of the current implementation.\\n    /// This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n    /// validated in the constructor.\\n    /// NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @dev Initializes the upgradeable proxy with an initial implementation specified by `_implementation`.\\n    /// If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded\\n    /// function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n    constructor(address _implementation, bytes memory _data) {\\n        assembly {\\n            sstore(IMPLEMENTATION_SLOT, _implementation)\\n        }\\n\\n        if (_data.length != 0) {\\n            (bool success, ) = _implementation.delegatecall(_data);\\n            require(success, \\\"Proxy Constructor failed\\\");\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Delegates the current call to `implementation`.\\n    /// NOTE: This function does not return to its internal call site, it will return directly to the external caller.\\n    function _delegate(address implementation) internal {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views            * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Fallback                * //\\n    // ************************************* //\\n\\n    /// @dev Fallback function that delegates calls to the address returned by `_implementation()`.\\n    /// @dev Will run if no other function in the contract matches the call data.\\n    fallback() external payable {\\n        _delegate(_getImplementation());\\n    }\\n\\n    receive() external payable {\\n        _delegate(_getImplementation());\\n    }\\n}\\n\",\"keccak256\":\"0x0c2cf69714fddf4aaae7dadd53afe0c376178953313ce5b3af72b834e46b2c77\",\"license\":\"MIT\"}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b5060405161030838038061030883398101604081905261002f91610151565b8181817f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc55805160001461010e576000826001600160a01b0316826040516100779190610225565b600060405180830381855af49150503d80600081146100b2576040519150601f19603f3d011682016040523d82523d6000602084013e6100b7565b606091505b505090508061010c5760405162461bcd60e51b815260206004820152601860248201527f50726f787920436f6e7374727563746f72206661696c65640000000000000000604482015260640160405180910390fd5b505b50505050610241565b634e487b7160e01b600052604160045260246000fd5b60005b83811015610148578181015183820152602001610130565b50506000910152565b6000806040838503121561016457600080fd5b82516001600160a01b038116811461017b57600080fd5b60208401519092506001600160401b0381111561019757600080fd5b8301601f810185136101a857600080fd5b80516001600160401b038111156101c1576101c1610117565b604051601f8201601f19908116603f011681016001600160401b03811182821017156101ef576101ef610117565b60405281815282820160200187101561020757600080fd5b61021882602083016020860161012d565b8093505050509250929050565b6000825161023781846020870161012d565b9190910192915050565b60b98061024f6000396000f3fe608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea264697066735822122013d7994215e0250a3caf5a61db41d7e3f7d36bd4d6c352ddb4eb5213b4783ea264736f6c634300081c0033",
-  "deployedBytecode": "0x608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea264697066735822122013d7994215e0250a3caf5a61db41d7e3f7d36bd4d6c352ddb4eb5213b4783ea264736f6c634300081c0033",
+  "numDeployments": 1,
+  "solcInputHash": "7120e939c323b678aae40a88db815cc2",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/proxy/KlerosProxies.sol\":\"KlerosCoreProxy\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":850},\"remappings\":[],\"viaIR\":true},\"sources\":{\"src/proxy/KlerosProxies.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.24;\\n\\nimport {UUPSProxy} from \\\"./UUPSProxy.sol\\\";\\n\\n/// Workaround to get meaningful names for the proxy contracts\\n/// Otherwise all the contracts are called `UUPSProxy` on the chain explorers\\n\\ncontract DisputeKitClassicUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitClassicProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitGatedProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitGatedShutterProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitShutterProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeKitSybilResistantProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeTemplateRegistryUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract DisputeTemplateRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract EvidenceModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract ForeignGatewayOnEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract HomeGatewayToEthereumProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreRulerProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract KlerosCoreProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract PolicyRegistryProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract RandomizerRNGProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleUniversityProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\\ncontract SortitionModuleProxy is UUPSProxy {\\n    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}\\n}\\n\",\"keccak256\":\"0x95b81430a3eadc0e3034aee06d94b5da0b84c9540aa20176b1b9d783943403de\",\"license\":\"MIT\"},\"src/proxy/UUPSProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.24;\\n\\n/// @title UUPS Proxy\\n/// @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n/// @notice This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.\\n///\\n/// @dev This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.\\n/// We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\\n/// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/ERC1967/ERC1967Proxy.sol>\\ncontract UUPSProxy {\\n    /// @dev Storage slot with the address of the current implementation.\\n    /// This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n    /// validated in the constructor.\\n    /// NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @notice Initializes the upgradeable proxy with an initial implementation specified by `_implementation`.\\n    /// @dev If `_data` is nonempty, it's used as data in a delegate call to `_implementation`.\\n    /// This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n    constructor(address _implementation, bytes memory _data) {\\n        assembly {\\n            sstore(IMPLEMENTATION_SLOT, _implementation)\\n        }\\n\\n        if (_data.length != 0) {\\n            (bool success, ) = _implementation.delegatecall(_data);\\n            require(success, \\\"Proxy Constructor failed\\\");\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Delegates the current call to `implementation`.\\n    /// NOTE: This function does not return to its internal call site, it will return directly to the external caller.\\n    function _delegate(address implementation) internal {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views            * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Fallback                * //\\n    // ************************************* //\\n\\n    /// @dev Fallback function that delegates calls to the address returned by `_implementation()`.\\n    /// @dev Will run if no other function in the contract matches the call data.\\n    fallback() external payable {\\n        _delegate(_getImplementation());\\n    }\\n\\n    receive() external payable {\\n        _delegate(_getImplementation());\\n    }\\n}\\n\",\"keccak256\":\"0x2d7b1f81e525787f1b8b033ce381a81cb5f39e411ff31490e019113205a661cd\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234610144576102148038038061001981610148565b928339810190604081830312610144578051906001600160a01b0382168203610144576020810151906001600160401b038211610144570182601f8201121561014457805161006f61006a82610181565b610148565b9181835260208301946020838301011161014457815f926020809301875e83010152817f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5551806100c9575b6040516077908161019d8239f35b5f9283925af43d1561013f573d6100e261006a82610181565b9081525f60203d92013e5b156100fa575f80806100bb565b60405162461bcd60e51b815260206004820152601860248201527f50726f787920436f6e7374727563746f72206661696c656400000000000000006044820152606490fd5b6100ed565b5f80fd5b6040519190601f01601f191682016001600160401b0381118382101761016d57604052565b634e487b7160e01b5f52604160045260245ffd5b6001600160401b03811161016d57601f01601f19166020019056fe60806040525f807f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc54368280378136915af43d5f803e15603d573d5ff35b3d5ffdfea264697066735822122086026bc66708910177facc9c7b0e501621422ef9a6a17c215984620a4c0c507a64736f6c634300081e0033",
+  "deployedBytecode": "0x60806040525f807f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc54368280378136915af43d5f803e15603d573d5ff35b3d5ffdfea264697066735822122086026bc66708910177facc9c7b0e501621422ef9a6a17c215984620a4c0c507a64736f6c634300081e0033",
   "execute": {
-    "methodName": "reinitialize",
+    "methodName": "initialize",
     "args": [
-      "0x3829A2486d53ee984a0ca2D76552715726b77138"
+      "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+      "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+      "0x34B944D42cAcfC8266955D07A80181D2054aa225",
+      "0x0000000000000000000000000000000000000000",
+      "0xc77c0dFCf6845544dd45734100d385be3D649B02",
+      false,
+      [
+        "200000000000000000000",
+        10000,
+        "100000000000000000",
+        256
+      ],
+      [
+        0,
+        0,
+        0,
+        10
+      ],
+      "0x05",
+      "0x37760BF7fC6027836E50a4D553A313f112188406",
+      "0x3829A2486d53ee984a0ca2D76552715726b77138",
+      "0x0000000000000000000000000000000000000000"
     ]
   },
-  "implementation": "0xaBf1AA1D08F98ED800938B1B086d0904c5BF4f0E",
+  "implementation": "0x369DA458B054CfF85F148FC3936baB74D6941c56",
   "devdoc": {
     "kind": "dev",
     "methods": {},

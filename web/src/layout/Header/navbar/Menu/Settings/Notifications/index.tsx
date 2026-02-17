@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import TelegramLogo from "svgs/socialmedia/telegram.svg";
 
 import { HERMES_TELEGRAM_BOT_URL } from "consts/index";
@@ -30,7 +32,8 @@ const HeaderContainer = styled.div`
 `;
 
 const HeaderNotifs: React.FC = () => {
-  return <HeaderContainer>Contact Details</HeaderContainer>;
+  const { t } = useTranslation();
+  return <HeaderContainer>{t("headers.contact_details")}</HeaderContainer>;
 };
 
 const EnsureChainContainer = styled.div`

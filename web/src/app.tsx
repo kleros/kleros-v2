@@ -1,14 +1,17 @@
 import React, { lazy, Suspense } from "react";
 
 import { ErrorBoundary } from "react-error-boundary";
+import { useTranslation } from "react-i18next";
 import { Route } from "react-router-dom";
 
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
+import "./i18n";
 
 import AtlasProvider from "context/AtlasProvider";
 import GraphqlBatcherProvider from "context/GraphqlBatcher";
 import IsListProvider from "context/IsListProvider";
+import { LanguageProvider } from "context/LanguageProvider";
 import { NewDisputeProvider } from "context/NewDisputeContext";
 import QueryClientProvider from "context/QueryClientProvider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
@@ -29,6 +32,11 @@ import ErrorFallback from "./components/ErrorFallback";
 import AttachmentDisplay from "./pages/AttachmentDisplay";
 import { SentryRoutes } from "./utils/sentry";
 
+const PageNotFound: React.FC = () => {
+  const { t } = useTranslation();
+  return <h1>{t("misc.page_not_found")}</h1>;
+};
+
 const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
@@ -39,83 +47,85 @@ const App: React.FC = () => {
               <AtlasProvider>
                 <IsListProvider>
                   <NewDisputeProvider>
-                    <SentryRoutes>
-                      <Route path="/" element={<Layout />}>
-                        <Route
-                          index
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <Home />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="cases/*"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <Cases />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="courts/*"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <Courts />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="jurors/:page/:order/:filter"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <Jurors />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="profile/:page/:order/:filter"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <Profile />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="resolver/*"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <DisputeResolver />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="get-pnk/*"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <GetPnk />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="settings/*"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <Settings />
-                            </Suspense>
-                          }
-                        />
-                        <Route
-                          path="attachment/*"
-                          element={
-                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                              <AttachmentDisplay />
-                            </Suspense>
-                          }
-                        />
-                        <Route path="*" element={<h1>Page not found</h1>} />
-                      </Route>
-                    </SentryRoutes>
+                    <LanguageProvider>
+                      <SentryRoutes>
+                        <Route path="/" element={<Layout />}>
+                          <Route
+                            index
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <Home />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="cases/*"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <Cases />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="courts/*"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <Courts />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="jurors/:page/:order/:filter"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <Jurors />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="profile/*"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <Profile />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="resolver/*"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <DisputeResolver />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="get-pnk/*"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <GetPnk />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="settings/*"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <Settings />
+                              </Suspense>
+                            }
+                          />
+                          <Route
+                            path="attachment/*"
+                            element={
+                              <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                                <AttachmentDisplay />
+                              </Suspense>
+                            }
+                          />
+                          <Route path="*" element={<PageNotFound />} />
+                        </Route>
+                      </SentryRoutes>
+                    </LanguageProvider>
                   </NewDisputeProvider>
                 </IsListProvider>
               </AtlasProvider>

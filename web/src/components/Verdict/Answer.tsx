@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
+
 import { Answer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 import { AnswerTitle, AnswerTitleAndDescription } from "../DisputePreview/DisputeContext";
@@ -10,6 +12,8 @@ interface IAnswer {
 }
 
 const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
+  const { t } = useTranslation();
+
   return (
     <>
       {answer ? (
@@ -18,7 +22,11 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
         </AnswerTitleAndDescription>
       ) : (
         <AnswerTitleAndDescription>
-          {currentRuling !== 0 ? <small>Answer 0x{currentRuling}</small> : <small>Refuse to Arbitrate</small>}
+          {currentRuling !== 0 ? (
+            <small>{t("voting.answer_0x", { ruling: currentRuling })}</small>
+          ) : (
+            <small>{t("voting.refuse_to_arbitrate")}</small>
+          )}
         </AnswerTitleAndDescription>
       )}
     </>
