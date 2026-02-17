@@ -1,6 +1,6 @@
 import { Address, hexToBytes } from "viem";
 
-type GatedTokenInfo = {
+export type GatedTokenInfo = {
   tokenGate: Address;
   isERC1155: boolean;
   tokenId: string;
