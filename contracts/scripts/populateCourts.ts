@@ -221,18 +221,32 @@ task("populate:courts", "Populates the courts and their parameters")
           continue;
         }
         try {
-          await core.changeCourtParameters
-            .populateTransaction(
-              court.id,
-              court.hiddenVotes,
-              court.minStake,
-              court.alpha,
-              court.feeForJuror,
-              court.jurorsForCourtJump,
-              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-              ZeroAddress
-            )
-            .then(execute);
+          if (coreType === Cores.UNIVERSITY) {
+            await (core as KlerosCoreUniversity).changeCourtParameters
+              .populateTransaction(
+                court.id,
+                court.hiddenVotes,
+                court.minStake,
+                court.alpha,
+                court.feeForJuror,
+                court.jurorsForCourtJump,
+                [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]]
+              )
+              .then(execute);
+          } else {
+            await (core as KlerosCore).changeCourtParameters
+              .populateTransaction(
+                court.id,
+                court.hiddenVotes,
+                court.minStake,
+                court.alpha,
+                court.feeForJuror,
+                court.jurorsForCourtJump,
+                [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+                ZeroAddress
+              )
+              .then(execute);
+          }
         } catch (error) {
           console.error("Error changing court parameters: %s", error);
         }
