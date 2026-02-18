@@ -1,8 +1,6 @@
 import React from "react";
 import styled, { DefaultTheme } from "styled-components";
 
-import { useTranslation } from "react-i18next";
-
 import { _TimelineItem1, StateProp } from "@kleros/ui-components-library";
 
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
@@ -133,11 +131,11 @@ export const getStakeSteps = (
   stepType: StakeSteps,
   amount: string,
   theme: DefaultTheme,
+  t: (key: string) => string,
   approvalHash?: `0x${string}`,
   stakeHash?: `0x${string}`,
   error?: any
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
-  const { t } = useTranslation();
   switch (stepType) {
     case StakeSteps.ApproveInitiate:
       return createApprovalSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, error, t);

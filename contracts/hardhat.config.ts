@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
           viaIR: process.env.VIA_IR !== "false", // Defaults to true
           optimizer: {
             enabled: true,
-            runs: 850, // Constrained by the size of the KlerosCore contract
+            runs: 700, // Constrained by the size of the KlerosCore contract
           },
           outputSelection: {
             "*": {
@@ -56,6 +56,10 @@ const config: HardhatUserConfig = {
       companionNetworks: {
         home: "hardhat",
         foreign: "hardhat",
+      },
+      mining: {
+        auto: true,
+        interval: 5_000, // mine a block every 5 seconds
       },
     },
     localhost: {

@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -95,8 +97,10 @@ const ReStyledArrowLink = styled(StyledArrowLink)`
 `;
 
 const VoteCard: React.FC = ({ vote: draw }) => {
+  const { t } = useTranslation();
+
   // Extract dispute data from draw
-  const courtName = draw.dispute?.court?.name || "Unknown Court";
+  const courtName = draw.dispute?.court?.name || t("misc.unknown_court");
   const courtId = draw.dispute?.court?.id || "0";
   const caseId = draw.dispute?.disputeID || "0";
 
@@ -130,28 +134,28 @@ const VoteCard: React.FC = ({ vote: draw }) => {
     // For hidden votes courts
     if (hiddenVotes) {
       if (!commited && (isActiveRound ? ["vote", "appeal", "execution"].includes(period) : true)) {
-        return "Did not commit vote";
+        return t("voting.did_not_commit_vote");
       }
 
       if (["evidence", "commit"].includes(period)) {
-        return commited ? "Vote committed" : "Pending vote commitment";
+        return commited ? t("voting.vote_committed") : t("voting.pending_vote_commitment");
       }
     }
 
     // For all courts - check if they voted
     if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true)) {
-      return "Did not vote";
+      return t("voting.did_not_vote");
     }
 
     // If choice is still undefined, show pending
     if (isUndefined(choice)) {
-      return "Pending";
+      return t("voting.pending_vote");
     }
 
     const choiceNum = parseInt(voteData.choice.toString());
 
     // Choice 0 is always "Refuse to Arbitrate"
-    if (choiceNum === 0) return "Refuse to Arbitrate";
+    if (choiceNum === 0) return t("voting.refuse_to_arbitrate");
 
     // If still loading dispute data or no data yet, return null to show skeleton
     if (isLoadingDisputeData || !populatedDisputeData) {
@@ -166,8 +170,8 @@ const VoteCard: React.FC = ({ vote: draw }) => {
     }
 
     // Fallback to Answer 0xN format if no answer found
-    return `Answer 0x${choiceNum}`;
-  }, [voteData, populatedDisputeData, isLoadingDisputeData, hiddenVotes, isActiveRound, period]);
+    return t("voting.answer_0x", { ruling: choiceNum });
+  }, [voteData, populatedDisputeData, isLoadingDisputeData, hiddenVotes, isActiveRound, period, t]);
 
   return (
     <Container hover>
@@ -180,7 +184,7 @@ const VoteCard: React.FC = ({ vote: draw }) => {
         <BottomRow>
           <VoteCount count={voteCount} />
           <ReStyledArrowLink to={`/cases/${caseId?.toString()}/voting`}>
-            View vote <ArrowIcon />
+            {t("voting.view_vote")} <ArrowIcon />
           </ReStyledArrowLink>
         </BottomRow>
       </LeftContent>

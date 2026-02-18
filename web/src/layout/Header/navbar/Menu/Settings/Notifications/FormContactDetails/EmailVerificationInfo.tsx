@@ -81,7 +81,7 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
         })
         .catch((err) => {
           console.log(err);
-          errorToast(`${t("email_verification.failed_to_send_verification")} ${err?.message}`);
+          errorToast(t("email_verification.failed_to_send_verification_error", { error: err?.message }));
         });
     },
     [user, updateEmail, toggleIsSettingsOpen, t]

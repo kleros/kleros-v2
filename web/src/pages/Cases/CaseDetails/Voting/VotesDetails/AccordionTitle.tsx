@@ -101,9 +101,7 @@ const AccordionTitle: React.FC<{
         </StyledInternalLink>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
-      <StyledLabel variant="secondaryPurple">
-        {voteCount} {voteCount !== 1 ? t("voting.votes") : t("voting.vote")}
-      </StyledLabel>
+      <StyledLabel variant="secondaryPurple">{t("voting.vote", { count: voteCount })}</StyledLabel>
     </TitleContainer>
   );
 };

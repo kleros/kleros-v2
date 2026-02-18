@@ -92,7 +92,8 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             sortitionExtraData,
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
@@ -142,7 +143,8 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
             uint256 minStakeValue,
             uint256 alphaValue,
             uint256 feeForJurorValue,
-            uint256 jurorsForJumpValue
+            uint256 jurorsForJumpValue,
+
         ) = core.courts(argentinaCourt);
         assertEq(parent, GENERAL_COURT, "Wrong parent court");
         assertEq(courtHiddenVotes, false, "Wrong hiddenVotes");

@@ -47,18 +47,10 @@ const StyledNewTabIcon = styled(NewTabIcon)`
   }
 `;
 
-const formatDate = (date: string) => {
-  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
-  const startingDate = new Date(parseInt(date) * 1000);
-
-  const formattedDate = startingDate.toLocaleDateString("en-US", options);
-  return formattedDate;
-};
-
 type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 
 const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string}`) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = usePopulatedDisputeData(id, arbitrable);
@@ -73,6 +65,12 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   }, [disputeDetails]);
 
   return useMemo<TimelineItems | undefined>(() => {
+    const formatDate = (date: string) => {
+      const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+      const startingDate = new Date(parseInt(date) * 1000);
+      return startingDate.toLocaleDateString(i18n.language, options);
+    };
+
     const dispute = disputeDetails?.dispute;
     if (!dispute) return;
 
@@ -100,7 +98,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       const answers = disputeData?.answers;
 
       acc.push({
-        title: `${t("dispute_info.jury_decision")} - ${t("dispute_info.round")} ${index + 1}`,
+        title: t("dispute_info.jury_decision_round", { round: index + 1 }),
         party: isOngoing ? t("voting.voting_is_ongoing") : getVoteChoice(winningChoice, answers),
         subtitle: isOngoing ? "" : `${formatDate(roundTimeline?.[Periods.vote])} / ${rounds?.[index]?.court.name}`,
         rightSided: true,
@@ -145,13 +143,15 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
     return [...base, ...items] as TimelineItems;
   }, [
-    disputeDetails,
-    disputeData,
-    localRounds,
-    theme,
-    rounds,
-    votingHistory,
+    disputeDetails?.dispute,
+    t,
     txnDisputeCreatedLink,
+    i18n.language,
+    votingHistory?.dispute?.createdAt,
+    theme.secondaryPurple,
+    localRounds,
+    rounds,
+    disputeData?.answers,
     txnEnforcementLink,
   ]);
 };

@@ -156,7 +156,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
 
   return needFund ? (
     <Container>
-      <StyledLabel>How much ETH do you want to contribute?</StyledLabel>
+      <StyledLabel>{t("appeal.how_much_eth_contribute")}</StyledLabel>
       <StyledField
         type="number"
         value={amount}
@@ -184,7 +184,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
           />
           {insufficientBalance && (
             <ErrorButtonMessage>
-              <ClosedCircleIcon /> Insufficient balance
+              <ClosedCircleIcon /> {t("forms.messages.insufficient_balance")}
             </ErrorButtonMessage>
           )}
         </div>

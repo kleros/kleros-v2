@@ -6,6 +6,7 @@ import {KlerosCoreUniversity} from "./KlerosCoreUniversity.sol";
 import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
 import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
+import {ICourtEligibility} from "../interfaces/ICourtEligibility.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -145,7 +146,8 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
         address _account,
         uint96 _courtID,
         uint256 _newStake,
-        bool /*_noDelay*/
+        bool /*_noDelay*/,
+        ICourtEligibility /*_eligibility*/
     )
         external
         view

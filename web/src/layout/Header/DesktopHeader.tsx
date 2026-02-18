@@ -15,16 +15,16 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
-import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import { Overlay } from "components/Overlay";
+import OverlayPortal from "components/OverlayPortal";
 import Appeal from "components/Popup/MiniGuides/Appeal";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 import DisputeResolver from "components/Popup/MiniGuides/DisputeResolver";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 import { MiniguideHashesType } from "components/Popup/MiniGuides/MainStructureTemplate";
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
 import RankedVoting from "components/Popup/MiniGuides/RankedVoting";
 import Staking from "components/Popup/MiniGuides/Staking";
-import OverlayPortal from "components/OverlayPortal";
-import { Overlay } from "components/Overlay";
 
 import Logo from "./Logo";
 import DappList from "./navbar/DappList";
@@ -102,7 +102,7 @@ const DesktopHeader: React.FC = () => {
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
   const { isConnected, chainId } = useAccount();
-  const isDefaultChain = chainId === DEFAULT_CHAIN;
+  const isDefaultChain = chainId === DEFAULT_CHAIN.id;
   const initializeFragmentURL = useCallback(() => {
     const hashIncludes = (hash: MiniguideHashesType | "#notifications") => location.hash.includes(hash);
     const hasJurorLevelsMiniGuidePath = hashIncludes("#jurorlevels-miniguide");

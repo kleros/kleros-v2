@@ -87,17 +87,17 @@ const Policy: React.FC = () => {
   const isDesktop = useIsDesktop();
   const handleFileUpload = (file: File) => {
     setIsPolicyUploading(true);
-    infoToast("Uploading Policy to IPFS");
+    infoToast(t("toasts.uploading_to_ipfs"));
 
     uploadFile(file, Roles.Policy)
       .then(async (cid) => {
         if (!cid) return;
-        successToast("Uploaded successfully!");
+        successToast(t("toasts.uploaded_successfully"));
         setDisputeData({ ...disputeData, policyURI: cid });
       })
       .catch((err) => {
         console.log(err);
-        errorToast(`Upload failed: ${err?.message}`);
+        errorToast(t("toasts.upload_failed", { error: err?.message }));
       })
       .finally(() => setIsPolicyUploading(false));
   };
@@ -110,7 +110,7 @@ const Policy: React.FC = () => {
       <StyledFileUploader
         callback={handleFileUpload}
         variant={isDesktop ? "info" : undefined}
-        msg={`${t("misc.you_can_attach_additional")}\n${getFileUploaderMsg(Roles.Policy, roleRestrictions)}`}
+        msg={`${t("misc.you_can_attach_additional")}\n${getFileUploaderMsg(Roles.Policy, roleRestrictions, t)}`}
       />
       {!isUndefined(disputeData.policyURI) ? (
         <StyledInternalLink to={`/attachment/?title=misc.policy_file&url=${getIpfsUrl(disputeData.policyURI)}`}>

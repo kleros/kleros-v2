@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
@@ -50,13 +50,16 @@ const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
   return (
     <Container>
       <StyledTitle>
-        {t("popups.dispute_created_full_message_part1")}{" "}
-        {isUndefined(date) ? (
-          <Skeleton width={60} height={20} />
-        ) : (
-          <StyledDateContainer>{formatDate(date, false, i18n.language)}</StyledDateContainer>
-        )}
-        .
+        <Trans
+          i18nKey="popups.dispute_created_full_message"
+          components={{
+            date: isUndefined(date) ? (
+              <Skeleton width={60} height={20} />
+            ) : (
+              <StyledDateContainer>{formatDate(date, false, i18n.language)}</StyledDateContainer>
+            ),
+          }}
+        />
       </StyledTitle>
       <StyledSubtitle>{t("popups.submit_evidence_now")}</StyledSubtitle>
     </Container>

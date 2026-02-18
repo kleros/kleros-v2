@@ -6,11 +6,12 @@ import { useAccount, useSwitchChain } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import AccountDisplay from "./AccountDisplay";
 
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
+  const { t } = useTranslation();
   // TODO isLoading is not documented, but exists in the type, might have changed to isPending
   const { switchChain, isLoading } = useSwitchChain();
   const handleSwitch = useCallback(() => {
@@ -19,7 +20,7 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
       return;
     }
     try {
-      switchChain({ chainId: DEFAULT_CHAIN });
+      switchChain({ chainId: DEFAULT_CHAIN.id });
     } catch (err) {
       console.error(err);
     }
@@ -29,7 +30,7 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
       {...{ className }}
       isLoading={isLoading}
       disabled={isLoading}
-      text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].name}`}
+      text={t("buttons.switch_to_chain", { chainName: DEFAULT_CHAIN.name })}
       onClick={handleSwitch}
     />
   );
@@ -54,7 +55,7 @@ const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
   const { isConnected, chainId } = useAccount();
 
   if (isConnected) {
-    if (chainId !== DEFAULT_CHAIN) {
+    if (chainId !== DEFAULT_CHAIN.id) {
       return <SwitchChainButton {...{ className }} />;
     } else return <AccountDisplay />;
   } else return <ConnectButton {...{ className }} />;

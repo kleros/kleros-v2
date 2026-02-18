@@ -9,6 +9,7 @@ import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
+import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -48,6 +49,7 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(core.paused(), false, "Wrong paused value");
         assertEq(core.wNative(), address(wNative), "Wrong wNative");
         assertEq(address(core.jurorNft()), address(0), "Wrong jurorNft");
+        assertEq(address(core.ratesConverter()), address(ratesConverter), "Wrong ratesConverter");
         assertEq(core.arbitrableWhitelistEnabled(), false, "Wrong arbitrableWhitelistEnabled");
 
         assertEq(pinakion.name(), "Pinakion", "Wrong token name");
@@ -140,6 +142,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         SortitionModuleMock newSortitionModule = SortitionModuleMock(address(proxySm));
         vm.prank(newOwner);
         newRng.changeConsumer(address(newSortitionModule));
+        vm.prank(newOwner); // Use the owner to deploy converter, to avoid modifying permission tests.
+        ratesConverter = new RatesConverter();
 
         KlerosCoreMock newCore = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
@@ -157,7 +161,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             0.03 ether,
             511,
             [uint256(60), uint256(120), uint256(180), uint256(240)], // Explicitly convert otherwise it throws
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
@@ -173,7 +178,8 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             newSortitionExtraData,
             newSortitionModule,
             address(wNative),
-            IERC721(address(0))
+            IERC721(address(0)),
+            ratesConverter
         );
     }
 }

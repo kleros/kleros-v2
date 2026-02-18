@@ -10,7 +10,7 @@ then
     exit 1
 fi
 
-for subgraph in core core-university drt
+for subgraph in core drt
 do
     echo "Running for ${cmdPrefix}:${subgraph}${cmdPostfix:+:}${cmdPostfix}"
     yarn "${cmdPrefix}:${subgraph}${cmdPostfix:+:}${cmdPostfix}"

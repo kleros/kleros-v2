@@ -115,7 +115,7 @@ const AccordionContent: React.FC<{
   timestamp?: string;
   transactionHash?: string;
 }> = ({ justification, choice, answers, timestamp, transactionHash }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const transactionExplorerLink = useMemo(() => {
     return getTxnExplorerLink(transactionHash ?? "");
   }, [transactionHash]);
@@ -139,7 +139,7 @@ const AccordionContent: React.FC<{
       )}
       {!isUndefined(timestamp) && (
         <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-          {formatDate(Number(timestamp), true)}
+          {formatDate(Number(timestamp), true, i18n.language)}
         </ExternalLink>
       )}
     </AccordionContentContainer>

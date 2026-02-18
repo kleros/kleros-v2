@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, RatesConverter, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -21,6 +21,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const pnk = await deployERC20AndFaucet(hre, deployer, "PNK");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
   const nft = await deployERC721(hre, deployer, "Kleros V2 Neo Early User", "KlerosV2NeoEarlyUser");
+
+  const ratesConverter = await getContractOrDeploy<RatesConverter>(hre, "RatesConverter", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
 
   await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
@@ -80,6 +86,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       sortitionModule.address,
       weth.target,
       nft.target,
+      ratesConverter.target,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
@@ -101,7 +108,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const core = await hre.ethers.getContract<KlerosCore>("KlerosCore");
   try {
-    await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
+    await changeCurrencyRate(core, ratesConverter, await weth.getAddress(), true, 1, 1);
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }

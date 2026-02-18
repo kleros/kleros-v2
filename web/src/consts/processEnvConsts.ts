@@ -20,6 +20,7 @@ export const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 export const ETH_SIGNATURE_REGEX = /^0x([a-fA-F0-9]{130})+$|^0x$/;
 
 export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT === "mainnet";
+export const isLocalDeployment = () => process.env.REACT_APP_DEPLOYMENT === "localhost";
 
 export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
 export const getArbitratorType = (): ArbitratorTypes =>

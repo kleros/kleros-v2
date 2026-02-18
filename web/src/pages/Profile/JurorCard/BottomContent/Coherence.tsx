@@ -48,9 +48,7 @@ const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, to
   return (
     <Container>
       <small>{t(userLevelData.titleKey)}</small>
-      <label>
-        {t("juror_levels.level")} {userLevelData.level}
-      </label>
+      <label>{t("juror_levels.level_number", { level: userLevelData.level })}</label>
       <CircularProgress
         progress={parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2))}
       />

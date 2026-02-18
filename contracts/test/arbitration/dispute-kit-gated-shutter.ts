@@ -7,7 +7,8 @@ import {
   testERC721Gating,
   testERC1155Gating,
   testWhitelistIntegration,
-  testNoTokenGateAddress,
+  testTokenGateRequired,
+  testCourtEligibilityMisconfiguration,
   TokenGatedTestContext,
 } from "./helpers/dispute-kit-gated-common";
 import {
@@ -49,7 +50,8 @@ describe("DisputeKitGatedShutter", async () => {
     testERC721Gating(() => tokenContext);
     testERC1155Gating(() => tokenContext);
     testWhitelistIntegration(() => tokenContext);
-    testNoTokenGateAddress(() => tokenContext);
+    testTokenGateRequired(() => tokenContext);
+    testCourtEligibilityMisconfiguration(() => tokenContext);
   });
 
   describe("Shutter Features", async () => {

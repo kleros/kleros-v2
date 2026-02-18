@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
+
 import RoundIcon from "svgs/icons/round.svg";
 
 const Container = styled.div`
@@ -17,10 +19,12 @@ interface IRound {
 }
 
 const Round: React.FC<IRound> = ({ number }) => {
+  const { t } = useTranslation();
+
   return (
     <Container>
       <RoundIcon />
-      <small>Round {number}</small>
+      <small>{t("voting.round_number", { number })}</small>
     </Container>
   );
 };

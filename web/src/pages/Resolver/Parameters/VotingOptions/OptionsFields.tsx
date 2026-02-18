@@ -65,7 +65,7 @@ const OptionsFields: React.FC = () => {
           <InputContainer key={answer.id}>
             <LabeledInput
               name="title"
-              label={`${t("forms.labels.voting_option")} ${index + 1}`}
+              label={t("forms.labels.voting_option_number", { number: index + 1 })}
               placeholder={t("forms.placeholders.pay_dai_example")}
               value={answer.title ?? ""}
               onChange={(event) => handleOptionWrite(event, index)}
@@ -73,7 +73,7 @@ const OptionsFields: React.FC = () => {
             <LabeledInput
               name="description"
               label={t("forms.labels.option_description")}
-              placeholder={`${t("forms.placeholders.description_for_option")} ${index + 1}`}
+              placeholder={t("forms.placeholders.description_for_option_number", { number: index + 1 })}
               value={answer.description ?? ""}
               onChange={(event) => handleOptionWrite(event, index)}
             />

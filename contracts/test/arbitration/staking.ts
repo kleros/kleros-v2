@@ -1,6 +1,7 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
 import { PNK, KlerosCore, SortitionModule, ChainlinkRNG, ChainlinkVRFCoordinatorV2Mock } from "../../typechain-types";
 import { expect } from "chai";
+import { NULL_ELIGIBILITY_REQUIREMENT } from "../../deploy/utils";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
@@ -40,7 +41,18 @@ describe("Staking", async () => {
     const reachDrawingPhase = async () => {
       expect(await sortition.phase()).to.be.equal(0); // Staking
       const arbitrationCost = ETH(0.1) * 3n;
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
+      await core.createCourt(
+        1,
+        false,
+        PNK(1000),
+        1000,
+        ETH(0.1),
+        3,
+        [0, 0, 0, 0],
+        ethers.toBeHex(3),
+        [1],
+        NULL_ELIGIBILITY_REQUIREMENT
+      ); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));
@@ -361,7 +373,18 @@ describe("Staking", async () => {
 
     it("Should unstake from all courts", async () => {
       const arbitrationCost = ETH(0.1) * 3n;
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
+      await core.createCourt(
+        1,
+        false,
+        PNK(1000),
+        1000,
+        ETH(0.1),
+        3,
+        [0, 0, 0, 0],
+        ethers.toBeHex(3),
+        [1],
+        NULL_ELIGIBILITY_REQUIREMENT
+      ); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));

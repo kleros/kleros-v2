@@ -60,7 +60,7 @@ interface IVoting {
 }
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -111,7 +111,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
               ? PopupType.VOTE_WITH_COMMIT
               : PopupType.VOTE_WITHOUT_COMMIT
           }
-          date={finalDate ? formatDate(finalDate) : ""}
+          date={finalDate ? formatDate(finalDate, false, i18n.language) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
           automaticVoteReveal={isShutterDisputeKit}

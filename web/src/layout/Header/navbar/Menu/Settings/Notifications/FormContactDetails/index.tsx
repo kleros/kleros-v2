@@ -90,7 +90,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         })
         .catch((err) => {
           console.log(err);
-          errorToast(`${t("notifications.updating_email_failed")} ${err?.message}`);
+          errorToast(t("notifications.updating_email_failed_error", { error: err?.message }));
         });
     } else {
       const data = {
@@ -106,7 +106,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         })
         .catch((err) => {
           console.log(err);
-          errorToast(`${t("notifications.adding_user_failed")} ${err?.message}`);
+          errorToast(t("notifications.adding_user_failed_error", { error: err?.message }));
         });
     }
   };

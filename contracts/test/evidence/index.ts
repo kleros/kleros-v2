@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { deployments, ethers } from "hardhat";
-import { ContractTransactionReceipt, EventLog } from "ethers";
+import { ContractTransactionReceipt, EventLog, ZeroAddress } from "ethers";
 import { DisputeTemplateRegistry, KlerosCore, ModeratedEvidenceModule } from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
@@ -61,7 +61,8 @@ describe("Home Evidence contract", async () => {
       court.alpha,
       arbitrationFee,
       court.jurorsForCourtJump,
-      [0, 0, 0, appealTimeout]
+      [0, 0, 0, appealTimeout],
+      ZeroAddress
     );
 
     const EvidenceModule = await ethers.getContractFactory("ModeratedEvidenceModule");

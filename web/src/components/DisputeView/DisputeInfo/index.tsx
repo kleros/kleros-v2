@@ -66,7 +66,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   isOverview,
   showLabels = false,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isList } = useIsList();
   const { isDisconnected } = useAccount();
   const displayAsList = isList && !overrideIsList;
@@ -97,12 +97,16 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
       {
         icon: CalendarIcon,
         name: getPeriodPhrase(period ?? 0, t),
-        value: !displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date),
+        value: date
+          ? !displayAsList
+            ? new Date(date * 1000).toLocaleString(i18n.language)
+            : formatDate(date, false, i18n.language)
+          : "",
         display: !isUndefined(period) && !isUndefined(date),
         style: "grid-column: 2 / 4;",
       },
     ],
-    [category, court, courtId, date, displayAsList, period, rewards, round, t]
+    [category, court, courtId, date, displayAsList, period, rewards, round, t, i18n.language]
   );
   return displayAsList ? (
     <DisputeInfoList showLabels={showLabels && !isDisconnected} {...{ disputeID, round, fieldItems }} />

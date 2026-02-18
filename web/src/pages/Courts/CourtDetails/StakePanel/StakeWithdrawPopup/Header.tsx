@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
@@ -66,6 +67,7 @@ interface IHeader {
 }
 
 const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: courtDetails } = useCourtDetails(id);
   const { address } = useAccount();
@@ -81,21 +83,28 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   );
 
   const isWithdraw = action === ActionType.withdraw;
-  const preStakeText = useMemo(() => (isWithdraw ? "withdrawing" : "staking"), [isWithdraw]);
-  const postStakeText = useMemo(() => (isWithdraw ? "withdrew" : "staked"), [isWithdraw]);
+
+  const stakingMessage = useMemo(() => {
+    if (isSuccess) {
+      return isWithdraw ? t("staking.you_successfully_withdrew") : t("staking.you_successfully_staked");
+    }
+    return isWithdraw ? t("staking.you_are_withdrawing") : t("staking.you_are_staking");
+  }, [isSuccess, isWithdraw, t]);
 
   return (
     <StakingMsgContainer>
       {isSuccess ? <CheckIcon /> : null}
-      <StakingMsg>{isSuccess ? `You successfully ${postStakeText}` : `You are ${preStakeText}`}</StakingMsg>
+      <StakingMsg>{stakingMessage}</StakingMsg>
       <StakingAmount>{amount} PNK</StakingAmount>
-      {courtDetails?.court?.name ? <CourtName>on {courtDetails.court.name}</CourtName> : null}
+      {courtDetails?.court?.name ? (
+        <CourtName>{t("staking.on_court", { court: courtDetails.court.name })}</CourtName>
+      ) : null}
       {isSuccess ? (
         <QuantityContainer>
           <Quantity>{effectiveStakeDisplay}</Quantity>
           <TextWithTooltipContainer>
-            <WithHelpTooltip tooltipMsg="The stake is confirmed! It is standard procedure to delay the execution of a change in stakes if the phase of the arbitrator is not currently Staking. It'll be updated shortly.">
-              Current Stake
+            <WithHelpTooltip tooltipMsg={t("staking.stake_confirmed_tooltip")}>
+              {t("staking.current_stake")}
             </WithHelpTooltip>
           </TextWithTooltipContainer>{" "}
         </QuantityContainer>

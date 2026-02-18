@@ -87,10 +87,10 @@ const AppealBanner: React.FC = () => {
   const { t } = useTranslation();
   const text = useMemo(() => {
     if (loserSideCountdown)
-      return `${secondsToDayHourMinute(loserSideCountdown)} ${t("appeal.remaining_to_fund_losing")}`;
+      return t("appeal.time_remaining_to_fund_losing", { time: secondsToDayHourMinute(loserSideCountdown) });
     // only show if loosing option was funded and winner needs funding, else no action is needed from user
     if (winnerSideCountdown && !isUndefined(fundedChoices) && fundedChoices.length > 0)
-      return `${secondsToDayHourMinute(winnerSideCountdown)} ${t("appeal.remaining_to_fund_winning")}`;
+      return t("appeal.time_remaining_to_fund_winning", { time: secondsToDayHourMinute(winnerSideCountdown) });
     return;
   }, [loserSideCountdown, winnerSideCountdown, fundedChoices, t]);
 
@@ -115,6 +115,13 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     t("timeline.commit"),
     t("timeline.voting"),
     t("timeline.appeal"),
+    t("timeline.executed"),
+  ];
+  const periodTitles = [
+    t("timeline.evidence_period"),
+    t("timeline.commit_period"),
+    t("timeline.voting_period"),
+    t("timeline.appeal_period"),
     t("timeline.executed"),
   ];
 
@@ -146,7 +153,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     if (!dispute?.court.hiddenVotes && i === Periods.commit) return [];
     return [
       {
-        title: i + 1 < titles.length && isDesktop ? t("timeline.period_with_name", { name: title }) : title,
+        title: i + 1 < titles.length && isDesktop ? periodTitles[i] : title,
         subitems: getSubitems(i),
       },
     ];

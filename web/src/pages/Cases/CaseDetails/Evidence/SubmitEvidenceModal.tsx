@@ -136,7 +136,7 @@ const constructEvidence = async (
     fileURI = await uploadFile(file, Roles.Evidence).catch((err) => {
       // eslint-disable-next-line no-console
       console.log(err);
-      errorToast(`${t("notifications.upload_failed")} ${err?.message}`);
+      errorToast(t("notifications.upload_failed_error", { error: err?.message }));
       return null;
     });
     if (!fileURI) throw new Error(t("notifications.error_uploading_evidence"));

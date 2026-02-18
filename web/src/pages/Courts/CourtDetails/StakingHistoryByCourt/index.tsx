@@ -24,9 +24,7 @@ const StakingHistoryByCourt: React.FC<{ courtName: string | undefined }> = ({ co
 
   return (
     <Container>
-      <Title>
-        {t("profile.staking_history_in")} {getDescriptiveCourtName(courtName)}
-      </Title>
+      <Title>{t("profile.staking_history_in_court", { court: getDescriptiveCourtName(courtName) })}</Title>
       <Search />
       <DisplayStakes />
     </Container>

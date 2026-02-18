@@ -14,5 +14,5 @@ interface IEnsureChain {
 export const EnsureChain: React.FC<IEnsureChain> = ({ children, className }) => {
   const { chainId } = useAccount();
 
-  return chainId === DEFAULT_CHAIN ? children : <ConnectWallet {...{ className }} />;
+  return chainId === DEFAULT_CHAIN.id ? children : <ConnectWallet {...{ className }} />;
 };
