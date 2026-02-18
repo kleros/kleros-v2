@@ -4,8 +4,11 @@ pragma solidity ^0.8.24;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
+import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
+import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
+import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -44,6 +47,255 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         emit KlerosCore.Unpaused();
         core.unpause();
         assertEq(core.paused(), false, "Wrong paused value");
+    }
+
+    function test_pauseArbitration() public {
+        vm.expectRevert(KlerosCore.GuardianOrOwnerOnly.selector);
+        vm.prank(other);
+        core.pauseArbitration();
+
+        vm.prank(guardian);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.ArbitrationPaused();
+        core.pauseArbitration();
+        assertEq(core.arbitrationPaused(), true, "Wrong arbitrationPaused value");
+
+        vm.prank(owner);
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.pauseArbitration();
+    }
+
+    function test_unpauseArbitration() public {
+        uint256 grace = 3600;
+
+        vm.expectRevert(KlerosCore.OwnerOnly.selector);
+        vm.prank(other);
+        core.unpauseArbitration(grace);
+
+        vm.expectRevert(KlerosCore.WhenArbitrationPausedOnly.selector);
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        vm.prank(owner);
+        core.pauseArbitration();
+
+        uint256 expectedGraceEnd = block.timestamp + grace;
+        vm.prank(owner);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.ArbitrationUnpaused(expectedGraceEnd);
+        core.unpauseArbitration(grace);
+
+        assertEq(core.arbitrationPaused(), false, "Wrong arbitrationPaused value");
+        assertEq(core.arbitrationPauseGracePeriodEnd(), expectedGraceEnd, "Wrong arbitrationPauseGracePeriodEnd");
+    }
+
+    function test_arbitrationGraceBlocksPassPeriodButNotActions() public {
+        uint256 disputeID = 0;
+        uint256 grace = 3600;
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.passPeriod(disputeID);
+
+        vm.expectRevert(SortitionModule.NotDrawingPhase.selector);
+        core.draw(disputeID, 1);
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.NotCommitPeriod.selector);
+        disputeKit.castCommit(disputeID, voteIDs, bytes32(uint256(1)));
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.NotVotePeriod.selector);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriod.selector);
+        disputeKit.fundAppeal(disputeID, 1);
+    }
+
+    function test_arbitrationPausedBlocksActions() public {
+        uint256 disputeID = 0;
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.draw(disputeID, 1);
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        disputeKit.castCommit(disputeID, voteIDs, bytes32(uint256(1)));
+
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        disputeKit.fundAppeal(disputeID, 1);
+
+        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        core.executeRuling(disputeID);
+    }
+
+    function test_arbitrationGraceExpires() public {
+        uint256 disputeID = 0;
+        uint256 grace = 3600;
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        vm.expectRevert(KlerosCore.WhenArbitrationNotPausedOnly.selector);
+        core.passPeriod(disputeID);
+
+        vm.warp(core.arbitrationPauseGracePeriodEnd() + 1);
+        vm.expectRevert(KlerosCore.DisputeStillDrawing.selector);
+        core.passPeriod(disputeID);
+    }
+
+    function _loserCutoff(uint256 appealStart, uint256 appealEnd) internal pure returns (uint256) {
+        return appealStart + (appealEnd - appealStart) / 2;
+    }
+
+    function _createDisputeAndAdvanceToAppeal() internal returns (uint256 disputeID) {
+        disputeID = 0;
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 10000);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        uint256 countStaker1;
+        uint256 countStaker2;
+        for (uint256 i = 0; i < round.drawnJurors.length; i++) {
+            if (round.drawnJurors[i] == staker1) countStaker1++;
+            if (round.drawnJurors[i] == staker2) countStaker2++;
+        }
+
+        if (countStaker1 > 0) {
+            uint256[] memory voteIDsStaker1 = new uint256[](countStaker1);
+            uint256 idx;
+            for (uint256 i = 0; i < round.drawnJurors.length; i++) {
+                if (round.drawnJurors[i] == staker1) {
+                    voteIDsStaker1[idx] = i;
+                    idx++;
+                }
+            }
+            vm.prank(staker1);
+            disputeKit.castVote(disputeID, voteIDsStaker1, 1, 0, "XYZ");
+        }
+
+        if (countStaker2 > 0) {
+            uint256[] memory voteIDsStaker2 = new uint256[](countStaker2);
+            uint256 idx;
+            for (uint256 i = 0; i < round.drawnJurors.length; i++) {
+                if (round.drawnJurors[i] == staker2) {
+                    voteIDsStaker2[idx] = i;
+                    idx++;
+                }
+            }
+            vm.prank(staker2);
+            // Vote the same as staker1 to avoid a potential tie in `currentRuling()`.
+            disputeKit.castVote(disputeID, voteIDsStaker2, 1, 0, "XYZ");
+        }
+
+        core.passPeriod(disputeID); // Appeal
+    }
+
+    function test_appealPeriodExtendedByGrace() public {
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+        (, uint256 baseEnd) = core.appealPeriod(disputeID);
+
+        uint256 grace = 3600;
+        uint256 expectedGraceEnd = block.timestamp + grace;
+        assertGt(expectedGraceEnd, baseEnd, "Grace end should exceed base end");
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        (, uint256 end) = core.appealPeriod(disputeID);
+        assertEq(end, expectedGraceEnd, "Appeal end should extend to grace end");
+    }
+
+    function test_fundAppealAfterBaseEndDuringGrace() public {
+        vm.warp(1717171717); // Set the current block timestamp to a realistic epoch time to avoid under-flows
+        uint256 disputeID = _createDisputeAndAdvanceToAppeal();
+
+        (uint256 start, uint256 baseEnd) = core.appealPeriod(disputeID);
+        uint256 baseLoserCutoff = _loserCutoff(start, baseEnd);
+        uint256 grace = 1 days;
+        uint256 pauseDuration = 3 days;
+        uint256 expectedGraceEnd = block.timestamp + pauseDuration + grace;
+
+        vm.prank(guardian);
+        core.pauseArbitration();
+        vm.warp(block.timestamp + pauseDuration);
+        vm.prank(owner);
+        core.unpauseArbitration(grace);
+
+        (, uint256 newEnd) = core.appealPeriod(disputeID);
+        assertEq(newEnd, expectedGraceEnd, "Appeal end should extend to grace end");
+
+        uint256 newLoserCutoff = _loserCutoff(start + pauseDuration, newEnd);
+        assertEq(newLoserCutoff, start + pauseDuration + grace / 2, "Loser cutoff should extend by grace/2");
+
+        (uint256 ruling, , ) = core.currentRuling(disputeID);
+        uint256 loserChoice = ruling == 1 ? 2 : 1;
+
+        // Warp to the middle of the loser's appeal period.
+        vm.warp(block.timestamp + grace / 4);
+        assertGt(block.timestamp, baseLoserCutoff, "Warp should be after original loser cutoff");
+        assertLt(block.timestamp, newLoserCutoff, "Warp should stay within extended loser window");
+
+        vm.prank(crowdfunder1);
+        disputeKit.fundAppeal{value: 1}(disputeID, loserChoice);
+
+        // Warp to the middle of the winner's appeal period.
+        vm.warp(block.timestamp + grace / 2);
+
+        vm.prank(crowdfunder1);
+        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriodForLoser.selector);
+        disputeKit.fundAppeal{value: 1}(disputeID, loserChoice);
+
+        vm.prank(crowdfunder2);
+        disputeKit.fundAppeal{value: 1}(disputeID, ruling);
     }
 
     function test_executeOwnerProposal() public {
@@ -138,7 +390,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
@@ -152,7 +405,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.UnsupportedDisputeKit.selector);
@@ -167,7 +421,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            emptySupportedDK
+            emptySupportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.InvalidForkingCourtAsParent.selector);
@@ -181,7 +436,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         uint256[] memory badSupportedDK = new uint256[](2);
@@ -198,7 +454,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            badSupportedDK
+            badSupportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         badSupportedDK[0] = DISPUTE_KIT_CLASSIC;
@@ -214,7 +471,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            badSupportedDK
+            badSupportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         // Add new DK to check the requirement for classic DK
@@ -234,7 +492,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            badSupportedDK
+            badSupportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.prank(owner);
@@ -252,7 +511,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             0.04 ether,
             50,
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Explicitly convert otherwise it throws
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         core.createCourt(
             GENERAL_COURT,
@@ -263,7 +523,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50);
@@ -296,7 +557,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             abi.encode(uint256(4)), // Sortition extra data
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.expectRevert(KlerosCore.OwnerOnly.selector);
@@ -308,7 +570,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             10000, // alpha
             0.03 ether, // fee for juror
             50, // jurors for jump
-            [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         vm.expectRevert(abi.encodeWithSelector(KlerosCore.MinStakeHigherThanChildCourt.selector, newCourtID));
         vm.prank(owner);
@@ -320,7 +583,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             10000, // alpha
             0.03 ether, // fee for juror
             50, // jurors for jump
-            [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         // Min stake of a child became lower than of a parent
         vm.expectRevert(KlerosCore.MinStakeLowerThanParentCourt.selector);
@@ -332,7 +596,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             10000, // alpha
             0.03 ether, // fee for juror
             50, // jurors for jump
-            [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         vm.prank(owner);
@@ -344,7 +609,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             20000,
             0.04 ether,
             50,
-            [uint256(10), uint256(20), uint256(30), uint256(40)] // Explicitly convert otherwise it throws
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Explicitly convert otherwise it throws
+            NULL_ELIGIBILITY_REQUIREMENT
         );
         core.changeCourtParameters(
             GENERAL_COURT,
@@ -353,7 +619,8 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             20000, // alpha
             0.04 ether, // fee for juror
             50, // jurors for jump
-            [uint256(10), uint256(20), uint256(30), uint256(40)] // Times per period
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50);
@@ -406,32 +673,30 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         vm.prank(other);
         core.changeAcceptedFeeTokens(feeToken, true);
 
-        (bool accepted, , ) = core.currencyRates(feeToken);
-        assertEq(accepted, false, "Token should not be accepted yet");
+        assertEq(core.acceptedFeeTokens(feeToken), false, "Token should not be accepted yet");
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.AcceptedFeeToken(feeToken, true);
         core.changeAcceptedFeeTokens(feeToken, true);
-        (accepted, , ) = core.currencyRates(feeToken);
-        assertEq(accepted, true, "Token should be accepted");
+        assertEq(core.acceptedFeeTokens(feeToken), true, "Token should be accepted");
     }
 
     function test_changeCurrencyRates() public {
-        vm.expectRevert(KlerosCore.OwnerOnly.selector);
+        vm.expectRevert(RatesConverter.OwnerOnly.selector);
         vm.prank(other);
-        core.changeCurrencyRates(feeToken, 100, 200);
+        ratesConverter.changeCurrencyRates(feeToken, 100, 200);
 
-        (, uint256 rateInEth, uint256 rateDecimals) = core.currencyRates(feeToken);
+        (uint256 rateInEth, uint256 rateDecimals) = ratesConverter.currencyRates(feeToken);
         assertEq(rateInEth, 0, "rateInEth should be 0");
         assertEq(rateDecimals, 0, "rateDecimals should be 0");
 
         vm.prank(owner);
         vm.expectEmit(true, true, true, true);
-        emit IArbitratorV2.NewCurrencyRate(feeToken, 100, 200);
-        core.changeCurrencyRates(feeToken, 100, 200);
+        emit RatesConverter.NewCurrencyRate(feeToken, 100, 200);
+        ratesConverter.changeCurrencyRates(feeToken, 100, 200);
 
-        (, rateInEth, rateDecimals) = core.currencyRates(feeToken);
+        (rateInEth, rateDecimals) = ratesConverter.currencyRates(feeToken);
         assertEq(rateInEth, 100, "rateInEth is incorrect");
         assertEq(rateDecimals, 200, "rateDecimals is incorrect");
     }

@@ -4,10 +4,12 @@ pragma solidity ^0.8.24;
 
 import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
 import {KlerosCore} from "../KlerosCore.sol";
+import {ICourtEligibility} from "../interfaces/ICourtEligibility.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 interface IBalanceHolder {
     /// @notice Returns the number of tokens in `owner` account.
-    /// @dev Compatible with ERC-20 and ERC-721.
+    /// @dev Compatible with ERC-721.
     /// @param owner The address of the owner.
     /// @return balance The number of tokens in `owner` account.
     function balanceOf(address owner) external view returns (uint256 balance);
@@ -23,20 +25,46 @@ interface IBalanceHolderERC1155 {
 
 /// @title DisputeKitGated
 /// @notice Dispute kit implementation adapted from DisputeKitClassic
-/// - a drawing system: proportional to staked PNK with a non-zero balance of `tokenGate` where `tokenGate` is an ERC20, ERC721 or ERC1155
+/// - a drawing system: proportional to staked PNK with a non-zero balance of `tokenGate` where `tokenGate` is ERC721 or ERC1155
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitGated is DisputeKitClassicBase {
-    string public constant override version = "2.0.0";
+contract DisputeKitGated is DisputeKitClassicBase, ICourtEligibility {
+    using EnumerableSet for EnumerableSet.AddressSet;
+    using EnumerableSet for EnumerableSet.UintSet;
 
-    address private constant NO_TOKEN_GATE = address(0);
+    string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    mapping(address token => bool supported) public supportedTokens; // Whether the token is supported or not.
+    mapping(uint96 courtID => EnumerableSet.AddressSet) internal supportedErc721Tokens; // Supported ERC-721 token gates.
+    mapping(uint96 courtID => EnumerableSet.AddressSet) internal supportedErc1155Tokens; // Supported ERC-1155 token gates.
+    mapping(uint96 courtID => mapping(address token => EnumerableSet.UintSet tokenIDs))
+        internal supportedErc1155TokenIds; // Supported ERC-1155 tokenIds for a particular ERC-1155 token contract.
+
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
+
+    /// @dev Emitted when the supported tokens for a court are changed.
+    /// @param _courtID The ID of the court.
+    /// @param _token The address of the token.
+    /// @param _supported Whether the token is supported or not.
+    event SupportedErc721TokenChanged(uint96 indexed _courtID, address indexed _token, bool _supported);
+
+    /// @dev Emitted when supported ERC-1155 tokenIds for a token are changed.
+    /// @param _courtID The ID of the court.
+    /// @param _token The ERC-1155 token contract.
+    /// @param _tokenId The ERC-1155 tokenId.
+    /// @param _supported Whether the tokenId is supported or not.
+    event SupportedErc1155TokenIdChanged(
+        uint96 indexed _courtID,
+        address indexed _token,
+        uint256 indexed _tokenId,
+        bool _supported
+    );
 
     // ************************************* //
     // *            Constructor            * //
@@ -53,7 +81,6 @@ contract DisputeKitGated is DisputeKitClassicBase {
     /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(address _owner, KlerosCore _core, address _wNative) external initializer {
         __DisputeKitClassicBase_initialize(_owner, _core, _wNative);
-        supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
     }
 
     // ************************ //
@@ -66,12 +93,49 @@ contract DisputeKitGated is DisputeKitClassicBase {
         // NOP
     }
 
-    /// @notice Changes the supported tokens.
-    /// @param _tokens The tokens to support.
+    /// @notice Changes the supported ERC-721 tokens.
+    /// @param _courtID The ID of the court.
+    /// @param _tokens The tokens to support in the given court.
     /// @param _supported Whether the tokens are supported or not.
-    function changeSupportedTokens(address[] memory _tokens, bool _supported) external onlyByOwner {
+    function changeSupportedErc721Tokens(
+        uint96 _courtID,
+        address[] memory _tokens,
+        bool _supported
+    ) external onlyByOwner {
         for (uint256 i = 0; i < _tokens.length; i++) {
-            supportedTokens[_tokens[i]] = _supported;
+            if (_tokens[i] == address(0)) revert TokenGateRequired();
+            if (_supported) {
+                supportedErc721Tokens[_courtID].add(_tokens[i]);
+            } else {
+                supportedErc721Tokens[_courtID].remove(_tokens[i]);
+            }
+            emit SupportedErc721TokenChanged(_courtID, _tokens[i], _supported);
+        }
+    }
+
+    /// @notice Changes supported ERC-1155 tokenIds for a given token contract.
+    /// @param _courtID The ID of the court.
+    /// @param _token The ERC-1155 token contract.
+    /// @param _tokenIds The ERC-1155 tokenIds to add/remove.
+    /// @param _supported Whether the tokenIds are supported or not.
+    function changeSupportedErc1155TokenIds(
+        uint96 _courtID,
+        address _token,
+        uint256[] memory _tokenIds,
+        bool _supported
+    ) external onlyByOwner {
+        if (_token == address(0)) revert TokenGateRequired();
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            if (_supported) {
+                supportedErc1155TokenIds[_courtID][_token].add(_tokenIds[i]);
+                supportedErc1155Tokens[_courtID].add(_token);
+            } else {
+                supportedErc1155TokenIds[_courtID][_token].remove(_tokenIds[i]);
+                if (supportedErc1155TokenIds[_courtID][_token].length() == 0) {
+                    supportedErc1155Tokens[_courtID].remove(_token);
+                }
+            }
+            emit SupportedErc1155TokenIdChanged(_courtID, _token, _tokenIds[i], _supported);
         }
     }
 
@@ -80,6 +144,7 @@ contract DisputeKitGated is DisputeKitClassicBase {
     // ************************************* //
 
     /// @inheritdoc DisputeKitClassicBase
+    /// @notice A token gate must be specified in the `extraData`, otherwise the transaction reverts.
     function createDispute(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -87,11 +152,115 @@ contract DisputeKitGated is DisputeKitClassicBase {
         bytes calldata _extraData,
         uint256 _nbVotes
     ) public override {
-        (address tokenGate, , ) = _extraDataToTokenInfo(_extraData);
-        if (!supportedTokens[tokenGate]) revert TokenNotSupported(tokenGate);
+        (uint96 courtID, address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(_extraData);
+
+        // DisputeKitGated must always be token-gated.
+        if (tokenGate == address(0)) revert TokenGateRequired();
+
+        if (isERC1155) {
+            if (!supportedErc1155TokenIds[courtID][tokenGate].contains(tokenId))
+                revert TokenNotSupported(courtID, tokenGate);
+        } else {
+            if (!supportedErc721Tokens[courtID].contains(tokenGate)) revert TokenNotSupported(courtID, tokenGate);
+        }
 
         // super.createDispute() ensures access control onlyByCore.
         super.createDispute(_coreDisputeID, _coreRoundID, _numberOfChoices, _extraData, _nbVotes);
+    }
+
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
+    /// @inheritdoc ICourtEligibility
+    /// @dev Complexity: O(n + m) where `n` is the number of supported ERC-721 tokens and `m` is the number of supported ERC-1155 tokens.
+    function isEligible(address _juror, uint96 _courtID) external view override returns (bool) {
+        uint256 erc721Length = supportedErc721Tokens[_courtID].length();
+        for (uint256 i = 0; i < erc721Length; i++) {
+            address token = supportedErc721Tokens[_courtID].at(i);
+            if (token == address(0)) continue;
+            if (IBalanceHolder(token).balanceOf(_juror) > 0) return true;
+        }
+
+        uint256 erc1155Length = supportedErc1155Tokens[_courtID].length();
+        for (uint256 i = 0; i < erc1155Length; i++) {
+            address token = supportedErc1155Tokens[_courtID].at(i);
+            if (token == address(0)) continue;
+            EnumerableSet.UintSet storage tokenIds = supportedErc1155TokenIds[_courtID][token];
+            uint256 tokenIdsLength = tokenIds.length();
+            for (uint256 j = 0; j < tokenIdsLength; j++) {
+                uint256 tokenId = tokenIds.at(j);
+                if (IBalanceHolderERC1155(token).balanceOf(_juror, tokenId) > 0) return true;
+            }
+        }
+        return false;
+    }
+
+    /// @notice Checks if an ERC-721 token is supported in a court.
+    /// @param _courtID The ID of the court.
+    /// @param _token The address of the token.
+    /// @return Whether the token is supported or not.
+    function isErc721TokenSupported(uint96 _courtID, address _token) external view returns (bool) {
+        return supportedErc721Tokens[_courtID].contains(_token);
+    }
+
+    /// @notice Returns the number of ERC-721 tokens supported in a court.
+    /// @param _courtID The ID of the court.
+    /// @return The number of ERC-721 tokens supported in the court.
+    function supportedErc721TokensLength(uint96 _courtID) external view returns (uint256) {
+        return supportedErc721Tokens[_courtID].length();
+    }
+
+    /// @notice Returns the ERC-721 token at the given index.
+    /// @param _courtID The ID of the court.
+    /// @param _index The index of the token.
+    /// @return The ERC-721 token at the given index.
+    function supportedErc721TokensAt(uint96 _courtID, uint256 _index) external view returns (address) {
+        return supportedErc721Tokens[_courtID].at(_index);
+    }
+
+    /// @notice Checks if an ERC-1155 `(token, tokenId)` is supported in a court.
+    /// @param _courtID The ID of the court.
+    /// @param _token The ERC-1155 token contract address.
+    /// @param _tokenId The ERC-1155 tokenId.
+    function isErc1155TokenIdSupported(uint96 _courtID, address _token, uint256 _tokenId) external view returns (bool) {
+        return supportedErc1155TokenIds[_courtID][_token].contains(_tokenId);
+    }
+
+    /// @notice Returns the number of ERC-1155 tokenIds supported for a given token contract.
+    /// @param _courtID The ID of the court.
+    /// @param _token The ERC-1155 token contract address.
+    /// @return The number of ERC-1155 tokenIds supported for the given token contract.
+    function supportedErc1155TokenIdsLength(uint96 _courtID, address _token) external view returns (uint256) {
+        return supportedErc1155TokenIds[_courtID][_token].length();
+    }
+
+    /// @notice Returns the ERC-1155 tokenId at the given index for a given token contract.
+    /// @param _courtID The ID of the court.
+    /// @param _token The ERC-1155 token contract address.
+    /// @param _index The index of the tokenId.
+    /// @return The ERC-1155 tokenId at the given index for the given token contract.
+    function supportedErc1155TokenIdsAt(
+        uint96 _courtID,
+        address _token,
+        uint256 _index
+    ) external view returns (uint256) {
+        return supportedErc1155TokenIds[_courtID][_token].at(_index);
+    }
+
+    /// @notice Returns the number of ERC-1155 tokens supported in a court.
+    /// @param _courtID The ID of the court.
+    /// @return The number of ERC-1155 tokens supported in the court.
+    function supportedErc1155TokensLength(uint96 _courtID) external view returns (uint256) {
+        return supportedErc1155Tokens[_courtID].length();
+    }
+
+    /// @notice Returns the ERC-1155 token at the given index.
+    /// @param _courtID The ID of the court.
+    /// @param _index The index of the token.
+    /// @return The ERC-1155 token at the given index.
+    function supportedErc1155TokensAt(uint96 _courtID, uint256 _index) external view returns (address) {
+        return supportedErc1155Tokens[_courtID].at(_index);
     }
 
     // ************************************* //
@@ -105,17 +274,20 @@ contract DisputeKitGated is DisputeKitClassicBase {
     /// - bytes 64-95: uint256 disputeKitID, not used here
     /// - bytes 96-127: uint256 packedTokenGateAndFlag (address tokenGate in bits 0-159, bool isERC1155 in bit 160)
     /// - bytes 128-159: uint256 tokenId
+    /// @return courtID The ID of the court.
     /// @return tokenGate The address of the token contract used for gating access.
-    /// @return isERC1155 True if the token is an ERC-1155, false for ERC-20/ERC-721.
-    /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-20/ERC-721).
+    /// @return isERC1155 True if the token is an ERC-1155, false for ERC-721.
+    /// @return tokenId The token ID for ERC-1155 tokens (ignored for ERC-721).
     function _extraDataToTokenInfo(
         bytes memory _extraData
-    ) internal pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
+    ) internal pure returns (uint96 courtID, address tokenGate, bool isERC1155, uint256 tokenId) {
         // Need at least 160 bytes to safely read the parameters
-        if (_extraData.length < 160) return (address(0), false, 0);
+        if (_extraData.length < 160) return (0, address(0), false, 0);
 
         assembly {
             // solium-disable-line security/no-inline-assembly
+            courtID := mload(add(_extraData, 0x20))
+
             let packedTokenGateIsERC1155 := mload(add(_extraData, 0x80)) // 4th parameter at offset 128
             tokenId := mload(add(_extraData, 0xA0)) // 5th parameter at offset 160 (moved up)
 
@@ -137,10 +309,9 @@ contract DisputeKitGated is DisputeKitClassicBase {
         // Get the local dispute and extract token info from extraData
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
-        (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
+        (, address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
 
-        // If no token gate is specified, allow all jurors
-        if (tokenGate == NO_TOKEN_GATE) return true;
+        if (tokenGate == address(0)) return false; // Token gate must be specified.
 
         // Check juror's token balance
         if (isERC1155) {
@@ -154,5 +325,6 @@ contract DisputeKitGated is DisputeKitClassicBase {
     // *              Errors               * //
     // ************************************* //
 
-    error TokenNotSupported(address tokenGate);
+    error TokenNotSupported(uint96 courtID, address tokenGate);
+    error TokenGateRequired();
 }

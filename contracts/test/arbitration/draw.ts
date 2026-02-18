@@ -11,7 +11,7 @@ import {
   IncrementalNG,
 } from "../../typechain-types";
 import { expect } from "chai";
-import { Courts } from "../../deploy/utils";
+import { Courts, NULL_ELIGIBILITY_REQUIREMENT } from "../../deploy/utils";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -97,7 +97,8 @@ describe("Draw Benchmark", async () => {
         256,
         [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
         ethers.toBeHex(5), // Extra data for sortition module will return the default value of K)
-        [1]
+        [1],
+        NULL_ELIGIBILITY_REQUIREMENT
       )
       .then((tx) => tx.wait());
   });
