@@ -35,22 +35,26 @@ QUERY='query users {
   }
 }'
 
-# Make the GraphQL request
-RESPONSE=$(curl -s -X POST "$ENDPOINT" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $AUTH_TOKEN" \
-    -d "{\"query\":$(echo "$QUERY" | jq -Rs .)}")
-
-# Check if curl was successful
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to query the endpoint"
-    exit 1
-fi
-
 # Check if jq is installed
 if ! command -v jq &> /dev/null; then
     echo "Error: jq is required but not installed"
     echo "Install with: sudo apt-get install jq"
+    exit 1
+fi
+
+# Make the GraphQL request
+RESPONSE=$(curl -sS --fail -X POST "$ENDPOINT" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $AUTH_TOKEN" \
+    -d "{\"query\":$(echo "$QUERY" | jq -Rs .)}") || {
+    echo "Error: Failed to query the endpoint"
+    exit 1
+}
+ 
+# Check for GraphQL errors
+if echo "$RESPONSE" | jq -e '.errors | length > 0' >/dev/null; then
+    echo "Error: GraphQL returned errors"
+    echo "$RESPONSE" | jq '.errors'
     exit 1
 fi
 

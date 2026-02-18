@@ -88,7 +88,8 @@ contract SBT is ERC721, ERC721Pausable, ERC721Burnable, IERC4906, Ownable {
         return __name;
     }
 
-    function tokenURI(uint256 /*_tokenId*/) public view override returns (string memory) {
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        _requireOwned(_tokenId); // For compatibility with ERC-721
         string memory json = Base64.encode(
             bytes(
                 string.concat(

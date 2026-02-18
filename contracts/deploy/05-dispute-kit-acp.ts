@@ -68,8 +68,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     courtUrl
   );
 
-  return;
-
   const disputeKit = await deployUpgradable(deployments, "DisputeKitGatedArgentinaConsumerProtection", {
     from: deployer,
     args: [deployer, core.target, weth.target, practitionerToken.address, lawyerToken.address],
