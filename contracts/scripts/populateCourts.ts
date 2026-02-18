@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { KlerosCore, KlerosCoreUniversity } from "../typechain-types";
-import { BigNumberish, toBigInt, toNumber } from "ethers";
+import { BigNumberish, toBigInt, toNumber, ZeroAddress } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
@@ -229,7 +229,8 @@ task("populate:courts", "Populates the courts and their parameters")
               court.alpha,
               court.feeForJuror,
               court.jurorsForCourtJump,
-              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]]
+              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+              ZeroAddress
             )
             .then(execute);
         } catch (error) {
@@ -262,7 +263,8 @@ task("populate:courts", "Populates the courts and their parameters")
                 court.jurorsForCourtJump,
                 [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
                 ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
-                [DISPUTE_KIT_CLASSIC]
+                [DISPUTE_KIT_CLASSIC],
+                ZeroAddress
               )
               .then(execute);
           }

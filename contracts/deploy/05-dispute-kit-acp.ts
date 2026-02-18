@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
-import { HomeChains, isSkipped, Courts } from "./utils";
+import { HomeChains, isSkipped } from "./utils";
 import { KlerosCore, TestERC20 } from "../typechain-types";
 import { deploySBT } from "./utils/deployTokens";
 
@@ -55,14 +55,14 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitGatedArgentinaConsumerProtection", {
     from: deployer,
-    args: [deployer, core.target, weth.target, practitionerToken.address, lawyerToken.address],
+    args: [deployer, core.target, weth.target, practitionerToken.target, lawyerToken.target],
     log: true,
   });
   await core.addNewDisputeKit(disputeKit.address);
   const disputeKitID = (await core.getDisputeKitsLength()) - 1n;
 
-  console.log(`core.enableDisputeKits(${consumerProtectionCourtID}, ${[disputeKitID]}, true)`);
-  await core.enableDisputeKits(consumerProtectionCourtID, [disputeKitID], true);
+  // console.log(`core.enableDisputeKits(${consumerProtectionCourtID}, ${[disputeKitID]}, true)`);
+  // await core.enableDisputeKits(consumerProtectionCourtID, [disputeKitID], true);
 };
 
 deployArbitration.tags = ["ArgentinaConsumerProtectionDK"];
