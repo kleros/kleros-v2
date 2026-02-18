@@ -98,7 +98,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
   });
 
   const isFundDisabled = useMemo(
-    () => isDisconnected || !balance || insufficientBalance || Number(parsedAmount) <= 0 || isPending,
+    () => isDisconnected || !balance || insufficientBalance || parsedAmount <= 0n || isPending,
     [isDisconnected, balance, insufficientBalance, parsedAmount, isPending]
   );
 

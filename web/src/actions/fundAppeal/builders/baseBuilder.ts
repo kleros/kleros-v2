@@ -8,7 +8,7 @@ import { FundAppealParams } from "../params";
  *
  * This binds the generic {@link defineActionBuilder} helper to:
  * - {@link FundAppealParams}  – parameters supplied by the caller
- * - {@link FundAppealParams} – execution context (account, chain, wallet client)
+ * - {@link FundAppealContext} – execution context (account, chain, wallet client)
  *
  *
  * Individual fund appeal builders may still:
