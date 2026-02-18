@@ -83,3 +83,20 @@ export const deployERC1155 = async (
     log: true,
   });
 };
+
+export const deploySBT = async (
+  hre: HardhatRuntimeEnvironment,
+  deployer: string,
+  name: string,
+  ticker: string,
+  description: string,
+  imageUri: string,
+  externalUrl: string
+): Promise<Contract> => {
+  return getContractOrDeploy(hre, ticker, {
+    from: deployer,
+    contract: "SBT",
+    args: [name, ticker, description, imageUri, externalUrl],
+    log: true,
+  });
+};
