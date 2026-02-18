@@ -47,8 +47,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // Check that the Gated Dispute Kit ID is correct
   const { disputeKitGated } = await getContractsFromNetwork(hre);
+  if (!disputeKitGated) {
+    throw new Error("DisputeKitGated not found in network contracts");
+  }
   const actualDisputeKitGatedAddress = await core.disputeKits(disputeKitGatedID);
-  if (actualDisputeKitGatedAddress !== disputeKitGated?.target) {
+  if (actualDisputeKitGatedAddress !== disputeKitGated.target) {
     throw new Error("DisputeKitGated address mismatch");
   }
 
