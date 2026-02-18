@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 
 import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
 import {KlerosCore} from "../KlerosCore.sol";
+import {ICourtEligibility} from "../interfaces/ICourtEligibility.sol";
 
 interface IProofOfHumanity {
     /// @notice Check whether the account corresponds to a claimed humanity.
@@ -19,7 +20,7 @@ interface IProofOfHumanity {
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitSybilResistant is DisputeKitClassicBase {
+contract DisputeKitSybilResistant is DisputeKitClassicBase, ICourtEligibility {
     string public constant override version = "2.0.0";
 
     // ************************************* //
@@ -61,6 +62,15 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase {
     ///      Only the owner can perform upgrades (`onlyByOwner`)
     function _authorizeUpgrade(address) internal view override onlyByOwner {
         // NOP
+    }
+
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
+    /// @inheritdoc ICourtEligibility
+    function isEligible(address _juror, uint96 /* _courtID */) external view override returns (bool) {
+        return poh.isHuman(_juror);
     }
 
     // ************************************* //

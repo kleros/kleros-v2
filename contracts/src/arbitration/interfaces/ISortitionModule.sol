@@ -3,6 +3,7 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import "../../libraries/Constants.sol";
+import {ICourtEligibility} from "./ICourtEligibility.sol";
 
 /// @title ISortitionModule
 /// @notice Interface for the SortitionModule contract.
@@ -47,6 +48,7 @@ interface ISortitionModule {
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     /// @param _noDelay True if the stake change should not be delayed.
+    /// @param _eligibility The eligibility predicate for the court.
     /// @return pnkDeposit The amount of PNK to be deposited.
     /// @return pnkWithdrawal The amount of PNK to be withdrawn.
     /// @return stakingResult The result of the staking operation.
@@ -54,7 +56,8 @@ interface ISortitionModule {
         address _account,
         uint96 _courtID,
         uint256 _newStake,
-        bool _noDelay
+        bool _noDelay,
+        ICourtEligibility _eligibility
     ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
 
     /// @notice Update the state of the stakes, called by KC at the end of setStake flow.

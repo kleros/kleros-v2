@@ -20,6 +20,7 @@ import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
+import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_TestBase
@@ -41,6 +42,7 @@ abstract contract KlerosCore_TestBase is Test {
     TestERC20 wNative;
     ArbitrableExample arbitrable;
     DisputeTemplateRegistry registry;
+    RatesConverter ratesConverter;
 
     // ************************************* //
     // *            Test Accounts          * //
@@ -141,6 +143,8 @@ abstract contract KlerosCore_TestBase is Test {
         sortitionModule = SortitionModuleMock(address(proxySm));
         vm.prank(owner);
         rng.changeConsumer(address(sortitionModule));
+        vm.prank(owner); // Use the owner to deploy converter, to avoid modifying permission tests.
+        ratesConverter = new RatesConverter();
 
         core = KlerosCoreMock(address(proxyCore));
         core.initialize(
@@ -155,7 +159,8 @@ abstract contract KlerosCore_TestBase is Test {
             sortitionExtraData,
             sortitionModule,
             address(wNative),
-            IERC721(address(0))
+            IERC721(address(0)),
+            ratesConverter
         );
         vm.prank(staker1);
         pinakion.approve(address(core), 1 ether);
@@ -210,7 +215,8 @@ abstract contract KlerosCore_TestBase is Test {
             jurorsForJumpValue,
             timesPerPeriod,
             sortitionExtraData,
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         return uint96(core.getCourtChildren(parent)[core.getCourtChildren(parent).length - 1]);
@@ -232,7 +238,8 @@ abstract contract KlerosCore_TestBase is Test {
             uint256 courtMinStake,
             uint256 courtAlpha,
             uint256 courtFeeForJuror,
-            uint256 courtJurorsForCourtJump
+            uint256 courtJurorsForCourtJump,
+
         ) = core.courts(courtId);
 
         assertEq(courtParent, expectedParent, "Wrong court parent");

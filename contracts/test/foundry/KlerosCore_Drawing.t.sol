@@ -103,7 +103,8 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
             sortitionExtraData, // Sortition extra data
-            supportedDK
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
         );
 
         uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
@@ -119,7 +120,7 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
-        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID of the dispute");
 
         vm.expectEmit(true, true, true, true);

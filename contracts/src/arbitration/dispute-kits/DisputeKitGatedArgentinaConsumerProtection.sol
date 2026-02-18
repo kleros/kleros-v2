@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 
 import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
 import {KlerosCore} from "../KlerosCore.sol";
+import {ICourtEligibility} from "../interfaces/ICourtEligibility.sol";
 
 interface IBalanceHolder {
     /// @notice Returns the number of tokens in `owner` account.
@@ -20,7 +21,7 @@ interface IBalanceHolder {
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
+contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase, ICourtEligibility {
     string public constant override version = "2.0.0";
 
     // ************************************* //
@@ -103,6 +104,17 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase {
             drawnConsumerProtectionLawyer[localDisputeID][localRoundID] = true;
         }
         return (drawnAddress, fromSubcourtID);
+    }
+
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
+    /// @inheritdoc ICourtEligibility
+    function isEligible(address _juror, uint96 /* _courtID */) external view override returns (bool) {
+        return
+            IBalanceHolder(accreditedConsumerProtectionLawyerToken).balanceOf(_juror) > 0 ||
+            IBalanceHolder(accreditedProfessionalToken).balanceOf(_juror) > 0;
     }
 
     // ************************************* //
