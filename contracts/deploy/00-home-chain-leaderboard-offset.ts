@@ -13,7 +13,7 @@ const deployLeaderboardOffset: DeployFunction = async (hre: HardhatRuntimeEnviro
 
   await getContractOrDeploy(hre, "LeaderboardOffset", {
     from: deployer,
-    args: [deployer],
+    args: [],
     log: true,
   });
 };

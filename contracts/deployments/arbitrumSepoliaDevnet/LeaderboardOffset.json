@@ -1,0 +1,162 @@
+{
+  "address": "0x9D2FafF0977143D2225EDA14A3b73a8B49558969",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "OnlyOwner",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "offset",
+          "type": "int256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "arbitrator",
+          "type": "address"
+        }
+      ],
+      "name": "Offset",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "juror",
+          "type": "address"
+        },
+        {
+          "internalType": "int256",
+          "name": "offset",
+          "type": "int256"
+        },
+        {
+          "internalType": "address",
+          "name": "arbitrator",
+          "type": "address"
+        }
+      ],
+      "name": "addOffset",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "updateOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xb15b90a3fa15f5820880429101410a8e94cd99cd501cda8e8a0a0a884d18473b",
+  "receipt": {
+    "to": null,
+    "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "contractAddress": "0x9D2FafF0977143D2225EDA14A3b73a8B49558969",
+    "transactionIndex": 1,
+    "gasUsed": "164554",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x8d1ef506931f81938e3813b1180be882f114652635c4a2154f94b4f81c6df3d8",
+    "transactionHash": "0xb15b90a3fa15f5820880429101410a8e94cd99cd501cda8e8a0a0a884d18473b",
+    "logs": [],
+    "blockNumber": 243673434,
+    "cumulativeGasUsed": "164554",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "56e9c5ce46e9f14c00ab06e869201d0f",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"OnlyOwner\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"offset\",\"type\":\"int256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"arbitrator\",\"type\":\"address\"}],\"name\":\"Offset\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"juror\",\"type\":\"address\"},{\"internalType\":\"int256\",\"name\":\"offset\",\"type\":\"int256\"},{\"internalType\":\"address\",\"name\":\"arbitrator\",\"type\":\"address\"}],\"name\":\"addOffset\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"updateOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"addOffset(address,int256,address)\":{\"params\":{\"arbitrator\":\"The arbitrator address.\",\"juror\":\"The address of the affected juror.\",\"offset\":\"The signed integer offset (+ or -).\"}},\"updateOwner(address)\":{\"params\":{\"newOwner\":\"The new owner address.\"}}},\"title\":\"LeaderboardOffset\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"addOffset(address,int256,address)\":{\"notice\":\"Emits an offset event for a given juror.\"},\"updateOwner(address)\":{\"notice\":\"Updates the owner address.\"}},\"notice\":\"Emits event to offset juror score for coherency\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/governance/LeaderboardOffset.sol\":\"LeaderboardOffset\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":700},\"remappings\":[],\"viaIR\":true},\"sources\":{\"src/governance/LeaderboardOffset.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.28;\\n\\n/// @title LeaderboardOffset\\n/// @notice Emits event to offset juror score for coherency\\ncontract LeaderboardOffset {\\n    // ************************************* //\\n    // *              Events               * //\\n    // ************************************* //\\n\\n    event Offset(address indexed user, int256 offset, address indexed arbitrator);\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    address public owner;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    constructor() {\\n        owner = msg.sender;\\n    }\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    modifier onlyOwner() {\\n        if (msg.sender != owner) revert OnlyOwner();\\n        _;\\n    }\\n\\n    // ************************************* //\\n    // *             Governance            * //\\n    // ************************************* //\\n\\n    /// @notice Updates the owner address.\\n    /// @param newOwner The new owner address.\\n    function updateOwner(address newOwner) external onlyOwner {\\n        owner = newOwner;\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @notice Emits an offset event for a given juror.\\n    /// @param juror The address of the affected juror.\\n    /// @param offset The signed integer offset (+ or -).\\n    /// @param arbitrator The arbitrator address.\\n    function addOffset(address juror, int256 offset, address arbitrator) external onlyOwner {\\n        emit Offset(juror, offset, arbitrator);\\n    }\\n\\n    // ************************************* //\\n    // *              Errors               * //\\n    // ************************************* //\\n\\n    error OnlyOwner();\\n}\\n\",\"keccak256\":\"0x32868b190e65421f86ca29fa05b922727a3e4324855f5fa24d471682d2a0a36b\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608080604052346026575f80546001600160a01b0319163317905561017e908161002b8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c908163749d7c6e146100bc57508063880cdc311461006657638da5cb5b1461003d575f80fd5b34610062575f3660031901126100625760206001600160a01b035f5416604051908152f35b5f80fd5b346100625760203660031901126100625761007f610132565b5f54906001600160a01b03821633036100ad576001600160a01b0316906001600160a01b031916175f555f80f35b635fc483c560e01b5f5260045ffd5b34610062576060366003190112610062576100d5610132565b90604435916001600160a01b038316809303610062576001600160a01b035f541633036100ad5760206001600160a01b037ffa924885f0d4e35a861265635470acad0f0bd25cabcc09fcde0c0f07aaa0d3e29260243585521692a3005b600435906001600160a01b03821682036100625756fea26469706673582212200540f8e48081ac527edc291d869068457cae601e9bd1e0d0f1d16ee0d3a8ba2364736f6c634300081e0033",
+  "deployedBytecode": "0x6080806040526004361015610012575f80fd5b5f3560e01c908163749d7c6e146100bc57508063880cdc311461006657638da5cb5b1461003d575f80fd5b34610062575f3660031901126100625760206001600160a01b035f5416604051908152f35b5f80fd5b346100625760203660031901126100625761007f610132565b5f54906001600160a01b03821633036100ad576001600160a01b0316906001600160a01b031916175f555f80f35b635fc483c560e01b5f5260045ffd5b34610062576060366003190112610062576100d5610132565b90604435916001600160a01b038316809303610062576001600160a01b035f541633036100ad5760206001600160a01b037ffa924885f0d4e35a861265635470acad0f0bd25cabcc09fcde0c0f07aaa0d3e29260243585521692a3005b600435906001600160a01b03821682036100625756fea26469706673582212200540f8e48081ac527edc291d869068457cae601e9bd1e0d0f1d16ee0d3a8ba2364736f6c634300081e0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "addOffset(address,int256,address)": {
+        "params": {
+          "arbitrator": "The arbitrator address.",
+          "juror": "The address of the affected juror.",
+          "offset": "The signed integer offset (+ or -)."
+        }
+      },
+      "updateOwner(address)": {
+        "params": {
+          "newOwner": "The new owner address."
+        }
+      }
+    },
+    "title": "LeaderboardOffset",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "addOffset(address,int256,address)": {
+        "notice": "Emits an offset event for a given juror."
+      },
+      "updateOwner(address)": {
+        "notice": "Updates the owner address."
+      }
+    },
+    "notice": "Emits event to offset juror score for coherency",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 12,
+        "contract": "src/governance/LeaderboardOffset.sol:LeaderboardOffset",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      }
+    }
+  }
+}

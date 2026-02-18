@@ -95,6 +95,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [KlerosCore: proxy](https://sepolia.arbiscan.io/address/0x244e65F833Be5Ab13c20a00EBc40940BD3514d4C), [implementation](https://sepolia.arbiscan.io/address/0x35FAC521Ad256D6b4346E4C057cAc73f87Be43eB)
 - [KlerosCoreSnapshotProxy](https://sepolia.arbiscan.io/address/0x171Ea9B37F3c36E8d07e7c5b30F561ad4595AD28)
 - [KlerosV2NeoEarlyUser](https://sepolia.arbiscan.io/address/0x0d60Ff8bbCF49Bc5352328E7E28e141834d7750F)
+- [LeaderboardOffset](https://sepolia.arbiscan.io/address/0x9D2FafF0977143D2225EDA14A3b73a8B49558969)
 - [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
 - [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0xe9FB76E8E9ED979E9448113c9358cab3ecD5A4eE), [implementation](https://sepolia.arbiscan.io/address/0xE29228c99F893cb226C0432daa9d1F189F6C709f)

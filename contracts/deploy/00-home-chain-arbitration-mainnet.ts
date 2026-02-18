@@ -155,9 +155,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
 
   // Snapshot proxy
-  await deploy("KlerosCoreSnapshotProxy", {
+  await getContractOrDeploy(hre, "KlerosCoreSnapshotProxy", {
     from: deployer,
     args: [deployer, core.target],
+    log: true,
+  });
+
+  await getContractOrDeploy(hre, "LeaderboardOffset", {
+    from: deployer,
+    args: [],
     log: true,
   });
 };
