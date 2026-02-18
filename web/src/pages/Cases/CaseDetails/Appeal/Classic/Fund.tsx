@@ -84,7 +84,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
     address,
   });
 
-  const [debouncedAmount, setDebouncedAmount] = useState<NumberString | "">("");
+  const [debouncedAmount, setDebouncedAmount] = useState<NumberString>("0");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
 
   const parsedAmount = useParsedAmount(debouncedAmount as NumberString);
@@ -98,8 +98,14 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
   });
 
   const isFundDisabled = useMemo(
-    () => isDisconnected || !balance || insufficientBalance || parsedAmount <= 0n || isPending,
-    [isDisconnected, balance, insufficientBalance, parsedAmount, isPending]
+    () =>
+      isDisconnected ||
+      !balance ||
+      insufficientBalance ||
+      parsedAmount <= 0n ||
+      isPending ||
+      isUndefined(selectedOption?.id),
+    [isDisconnected, balance, insufficientBalance, parsedAmount, isPending, selectedOption]
   );
 
   const handleAppeal = useCallback(async () => {
