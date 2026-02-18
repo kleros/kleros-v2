@@ -9,7 +9,7 @@ ENDPOINT="https://atlas.production.kleros.link/graphql"
 # Check if authorization token is set
 if [ -z "$AUTH_TOKEN" ]; then
     echo "Error: AUTH_TOKEN environment variable is not set"
-    echo "Usage: AUTH_TOKEN='your-token-here' ./query_users.sh"
+    echo "Usage: AUTH_TOKEN='your-token-here' $(basename "$0")"
     exit 1
 fi
 
