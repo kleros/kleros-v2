@@ -2,35 +2,20 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, Courts } from "./utils";
-import { getContractOrDeploy } from "./utils/getContractOrDeploy";
-import { Contract } from "ethers";
 import { KlerosCore, TestERC20 } from "../typechain-types";
-
-const deploySBT = async (
-  hre: HardhatRuntimeEnvironment,
-  deployer: string,
-  name: string,
-  ticker: string,
-  description: string,
-  imageUri: string,
-  externalUrl: string
-): Promise<Contract> => {
-  return getContractOrDeploy(hre, ticker, {
-    from: deployer,
-    contract: "SBT",
-    args: [name, ticker, description, imageUri, externalUrl],
-    log: true,
-  });
-};
+import { deploySBT } from "./utils/deployTokens";
 
 const config = {
   arbitrumSepoliaDevnet: {
+    consumerProtectionCourtID: 4,
     courtUrl: "https://dev--kleros-v2-testnet.netlify.app/#/courts/4/purpose",
   },
   arbitrumSepolia: {
+    consumerProtectionCourtID: 6,
     courtUrl: "https://v2-testnet.kleros.builders/#/courts/6/purpose",
   },
   arbitrum: {
+    consumerProtectionCourtID: 32,
     courtUrl: "https://v2.kleros.builders/#/courts/32/purpose",
   },
 };
@@ -43,7 +28,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const { courtUrl } = config[hre.network.name as keyof typeof config];
+  const { consumerProtectionCourtID, courtUrl } = config[hre.network.name as keyof typeof config];
 
   const weth = await ethers.getContract<TestERC20>("WETH");
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
@@ -75,7 +60,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
   await core.addNewDisputeKit(disputeKit.address);
   const disputeKitID = (await core.getDisputeKitsLength()) - 1n;
-  await core.enableDisputeKits(Courts.GENERAL, [disputeKitID], true);
+
+  console.log(`core.enableDisputeKits(${consumerProtectionCourtID}, ${[disputeKitID]}, true)`);
+  await core.enableDisputeKits(consumerProtectionCourtID, [disputeKitID], true);
 };
 
 deployArbitration.tags = ["ArgentinaConsumerProtectionDK"];

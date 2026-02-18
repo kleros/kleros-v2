@@ -1,27 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HomeChains, isSkipped } from "./utils";
-import { getContractOrDeploy } from "./utils/getContractOrDeploy";
-import { Contract } from "ethers";
 import { KlerosCore } from "../typechain-types";
 import { getContractsFromNetwork } from "../scripts/utils/contracts";
-
-const deploySBT = async (
-  hre: HardhatRuntimeEnvironment,
-  deployer: string,
-  name: string,
-  ticker: string,
-  description: string,
-  imageUri: string,
-  externalUrl: string
-): Promise<Contract> => {
-  return getContractOrDeploy(hre, ticker, {
-    from: deployer,
-    contract: "SBT",
-    args: [name, ticker, description, imageUri, externalUrl],
-    log: true,
-  });
-};
+import { deploySBT } from "./utils/deployTokens";
 
 const config = {
   arbitrumSepoliaDevnet: {
@@ -51,6 +33,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const { consumerProtectionCourtID, disputeKitGatedID, courtUrl } = config[hre.network.name as keyof typeof config];
 
+  const core = await ethers.getContract<KlerosCore>("KlerosCore");
+
   await deploySBT(
     hre,
     deployer,
@@ -60,8 +44,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     "ipfs://QmTwgaKoTPnywJ5To73ei9WVXeWG7rbdCVJM1BM7a2eDzD",
     courtUrl
   );
-
-  const core = await ethers.getContract<KlerosCore>("KlerosCore");
 
   // Check that the Gated Dispute Kit ID is correct
   const { disputeKitGated } = await getContractsFromNetwork(hre);
