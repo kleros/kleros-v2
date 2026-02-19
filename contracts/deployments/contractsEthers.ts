@@ -6,6 +6,7 @@ import {
   disputeKitShutterConfig as devnetDkShutterConfig,
   disputeKitGatedConfig as devnetDkGatedConfig,
   disputeKitGatedShutterConfig as devnetDkGatedShutterConfig,
+  disputeKitGatedArgentinaConsumerProtectionConfig as devnetDkGatedArgentinaConsumerProtectionConfig,
   disputeResolverConfig as devnetDrConfig,
   disputeTemplateRegistryConfig as devnetDtrConfig,
   evidenceModuleConfig as devnetEvidenceConfig,
@@ -15,11 +16,13 @@ import {
   rngWithFallbackConfig as devnetRngWithFallbackConfig,
   pnkConfig as devnetPnkConfig,
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
+  // University
   klerosCoreUniversityConfig as devnetCoreUniversityConfig,
   sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
   disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
   disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
   disputeResolverUniversityConfig as devnetDrUniversityConfig,
+  leaderboardOffsetConfig as devnetLeaderboardOffsetConfig,
 } from "./devnet.viem";
 import {
   klerosCoreConfig as testnetCoreConfig,
@@ -28,6 +31,7 @@ import {
   disputeKitShutterConfig as testnetDkShutterConfig,
   disputeKitGatedConfig as testnetDkGatedConfig,
   disputeKitGatedShutterConfig as testnetDkGatedShutterConfig,
+  //disputeKitGatedArgentinaConsumerProtectionConfig as testnetDkGatedArgentinaConsumerProtectionConfig,
   disputeResolverConfig as testnetDrConfig,
   disputeTemplateRegistryConfig as testnetDtrConfig,
   evidenceModuleConfig as testnetEvidenceConfig,
@@ -36,6 +40,7 @@ import {
   chainlinkRngConfig as testnetChainlinkRngConfig,
   pnkConfig as testnetPnkConfig,
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
+  // leaderboardOffsetConfig as testnetLeaderboardOffsetConfig,
 } from "./testnet.viem";
 import {
   klerosCoreConfig as mainnetCoreConfig,
@@ -44,6 +49,7 @@ import {
   disputeKitShutterConfig as mainnetDkShutterConfig,
   disputeKitGatedConfig as mainnetDkGatedConfig,
   disputeKitGatedShutterConfig as mainnetDkGatedShutterConfig,
+  // disputeKitGatedArgentinaConsumerProtectionConfig as mainnetDkGatedArgentinaConsumerProtectionConfig,
   disputeResolverConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
@@ -53,6 +59,7 @@ import {
   randomizerRngConfig as mainnetRandomizerRngConfig,
   pnkConfig as mainnetPnkConfig,
   klerosCoreSnapshotProxyConfig as mainnetSnapshotProxyConfig,
+  // leaderboardOffsetConfig as mainnetLeaderboardOffsetConfig,
 } from "./mainnet.viem";
 import {
   KlerosCore,
@@ -62,11 +69,13 @@ import {
   DisputeKitClassic,
   DisputeKitClassic__factory,
   DisputeKitShutter,
-  DisputeKitGated,
-  DisputeKitGatedShutter,
   DisputeKitShutter__factory,
+  DisputeKitGated,
   DisputeKitGated__factory,
+  DisputeKitGatedShutter,
   DisputeKitGatedShutter__factory,
+  DisputeKitGatedArgentinaConsumerProtection,
+  DisputeKitGatedArgentinaConsumerProtection__factory,
   DisputeResolver,
   DisputeResolver__factory,
   DisputeTemplateRegistry,
@@ -91,6 +100,8 @@ import {
   KlerosCoreUniversity__factory,
   SortitionModuleUniversity,
   SortitionModuleUniversity__factory,
+  LeaderboardOffset,
+  LeaderboardOffset__factory,
 } from "../typechain-types";
 import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 
@@ -99,6 +110,7 @@ type CommonFactoriesConfigs = {
   dkShutterConfig?: ContractConfig;
   dkGatedConfig?: ContractConfig;
   dkGatedShutterConfig?: ContractConfig;
+  dkGatedArgentinaConsumerProtectionConfig?: ContractConfig;
   drConfig: ContractConfig;
   dtrConfig: ContractConfig;
   evidenceConfig: ContractConfig;
@@ -109,6 +121,7 @@ type CommonFactoriesConfigs = {
   rngWithFallbackConfig?: ContractConfig;
   pnkConfig: ContractConfig;
   snapshotProxyConfig: ContractConfig;
+  leaderboardOffsetConfig?: ContractConfig;
 };
 
 type CommonFactories = {
@@ -116,6 +129,7 @@ type CommonFactories = {
   disputeKitShutter: DisputeKitShutter | null;
   disputeKitGated: DisputeKitGated | null;
   disputeKitGatedShutter: DisputeKitGatedShutter | null;
+  disputeKitGatedArgentinaConsumerProtection: DisputeKitGatedArgentinaConsumerProtection | null;
   disputeResolver: DisputeResolver;
   disputeTemplateRegistry: DisputeTemplateRegistry;
   evidence: EvidenceModule;
@@ -126,6 +140,7 @@ type CommonFactories = {
   rngWithFallback: RNGWithFallback | null;
   pnk: PNK;
   klerosCoreSnapshotProxy: KlerosCoreSnapshotProxy;
+  leaderboardOffset: LeaderboardOffset | null;
 };
 
 function getCommonFactories(
@@ -143,6 +158,12 @@ function getCommonFactories(
       : null,
     disputeKitGatedShutter: configs.dkGatedShutterConfig
       ? DisputeKitGatedShutter__factory.connect(getAddress(configs.dkGatedShutterConfig, chainId), provider)
+      : null,
+    disputeKitGatedArgentinaConsumerProtection: configs.dkGatedArgentinaConsumerProtectionConfig
+      ? DisputeKitGatedArgentinaConsumerProtection__factory.connect(
+          getAddress(configs.dkGatedArgentinaConsumerProtectionConfig, chainId),
+          provider
+        )
       : null,
     disputeResolver: DisputeResolver__factory.connect(getAddress(configs.drConfig, chainId), provider),
     disputeTemplateRegistry: DisputeTemplateRegistry__factory.connect(getAddress(configs.dtrConfig, chainId), provider),
@@ -163,6 +184,9 @@ function getCommonFactories(
       getAddress(configs.snapshotProxyConfig, chainId),
       provider
     ),
+    leaderboardOffset: configs.leaderboardOffsetConfig
+      ? LeaderboardOffset__factory.connect(getAddress(configs.leaderboardOffsetConfig, chainId), provider)
+      : null,
   };
 }
 
@@ -182,6 +206,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           dkShutterConfig: devnetDkShutterConfig,
           dkGatedConfig: devnetDkGatedConfig,
           dkGatedShutterConfig: devnetDkGatedShutterConfig,
+          dkGatedArgentinaConsumerProtectionConfig: devnetDkGatedArgentinaConsumerProtectionConfig,
           drConfig: devnetDrConfig,
           dtrConfig: devnetDtrConfig,
           evidenceConfig: devnetEvidenceConfig,
@@ -191,6 +216,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           rngWithFallbackConfig: devnetRngWithFallbackConfig,
           pnkConfig: devnetPnkConfig,
           snapshotProxyConfig: devnetSnapshotProxyConfig,
+          leaderboardOffsetConfig: devnetLeaderboardOffsetConfig,
         },
         provider,
         chainId
@@ -229,6 +255,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           dkShutterConfig: testnetDkShutterConfig,
           dkGatedConfig: testnetDkGatedConfig,
           dkGatedShutterConfig: testnetDkGatedShutterConfig,
+          // dkGatedArgentinaConsumerProtectionConfig: testnetDkGatedArgentinaConsumerProtectionConfig,
           drConfig: testnetDrConfig,
           dtrConfig: testnetDtrConfig,
           evidenceConfig: testnetEvidenceConfig,
@@ -237,6 +264,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           chainlinkRngConfig: testnetChainlinkRngConfig,
           pnkConfig: testnetPnkConfig,
           snapshotProxyConfig: testnetSnapshotProxyConfig,
+          // leaderboardOffsetConfig: testnetLeaderboardOffsetConfig,
         },
         provider,
         chainId
@@ -251,6 +279,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           dkShutterConfig: mainnetDkShutterConfig,
           dkGatedConfig: mainnetDkGatedConfig,
           dkGatedShutterConfig: mainnetDkGatedShutterConfig,
+          // dkGatedArgentinaConsumerProtectionConfig: mainnetDkGatedArgentinaConsumerProtectionConfig,
           drConfig: mainnetDrConfig,
           dtrConfig: mainnetDtrConfig,
           evidenceConfig: mainnetEvidenceConfig,
@@ -260,6 +289,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           randomizerRngConfig: mainnetRandomizerRngConfig,
           pnkConfig: mainnetPnkConfig,
           snapshotProxyConfig: mainnetSnapshotProxyConfig,
+          // leaderboardOffsetConfig: mainnetLeaderboardOffsetConfig,
         },
         provider,
         chainId

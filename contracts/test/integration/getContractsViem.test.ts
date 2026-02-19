@@ -27,6 +27,7 @@ const devnetContractMapping: ContractMapping = {
   disputeKitShutter: { name: "DisputeKitShutter" },
   disputeKitGated: { name: "DisputeKitGated" },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeKitGatedArgentinaConsumerProtection: { name: "DisputeKitGatedArgentinaConsumerProtection" },
   disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -37,6 +38,7 @@ const devnetContractMapping: ContractMapping = {
   randomizerRng: { name: "RandomizerRNG", optional: true },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
+  leaderboardOffset: { name: "LeaderboardOffset" },
 };
 
 const testnetContractMapping: ContractMapping = {
@@ -46,6 +48,7 @@ const testnetContractMapping: ContractMapping = {
   disputeKitShutter: { name: "DisputeKitShutter" },
   disputeKitGated: { name: "DisputeKitGated" },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeKitGatedArgentinaConsumerProtection: { name: "DisputeKitGatedArgentinaConsumerProtection", optional: true }, // TODO: set optional to false once redeployed
   disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -56,6 +59,7 @@ const testnetContractMapping: ContractMapping = {
   rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
+  leaderboardOffset: { name: "LeaderboardOffset", optional: true }, // TODO: set optional to false once redeployed
 };
 
 const universityContractMapping: ContractMapping = {
@@ -65,6 +69,10 @@ const universityContractMapping: ContractMapping = {
   disputeKitShutter: { name: "DisputeKitShutterUniversity", optional: true },
   disputeKitGated: { name: "DisputeKitGatedUniversity", optional: true },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutterUniversity", optional: true },
+  disputeKitGatedArgentinaConsumerProtection: {
+    name: "DisputeKitGatedArgentinaConsumerProtectionUniversity",
+    optional: true,
+  },
   disputeResolver: { name: "DisputeResolverUniversity" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistryUniversity" },
   evidence: { name: "EvidenceModule" },
@@ -75,6 +83,7 @@ const universityContractMapping: ContractMapping = {
   rngWithFallback: { name: "RNGWithFallback", optional: true },
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
+  leaderboardOffset: { name: "LeaderboardOffset", optional: true },
 };
 
 const mainnetContractMapping: ContractMapping = {
@@ -84,6 +93,7 @@ const mainnetContractMapping: ContractMapping = {
   disputeKitShutter: { name: "DisputeKitShutter" },
   disputeKitGated: { name: "DisputeKitGated" },
   disputeKitGatedShutter: { name: "DisputeKitGatedShutter" },
+  disputeKitGatedArgentinaConsumerProtection: { name: "DisputeKitGatedArgentinaConsumerProtection", optional: true }, // TODO: set optional to false once redeployed
   disputeResolver: { name: "DisputeResolver" },
   disputeTemplateRegistry: { name: "DisputeTemplateRegistry" },
   evidence: { name: "EvidenceModule" },
@@ -94,6 +104,7 @@ const mainnetContractMapping: ContractMapping = {
   rngWithFallback: { name: "RNGWithFallback", optional: true }, // TODO: set optional to false once redeployed
   pnk: { name: "PNK" },
   klerosCoreSnapshotProxy: { name: "KlerosCoreSnapshotProxy" },
+  leaderboardOffset: { name: "LeaderboardOffset", optional: true }, // TODO: set optional to false once redeployed
 };
 
 describe("getContractsViem", () => {
@@ -130,6 +141,9 @@ describe("getContractsViem", () => {
     if (contracts.disputeKitGatedShutter) {
       verifyContractInstance(contracts.disputeKitGatedShutter);
     }
+    if (contracts.disputeKitGatedArgentinaConsumerProtection) {
+      verifyContractInstance(contracts.disputeKitGatedArgentinaConsumerProtection);
+    }
     verifyContractInstance(contracts.disputeResolver);
     verifyContractInstance(contracts.disputeTemplateRegistry);
     verifyContractInstance(contracts.evidence);
@@ -137,7 +151,9 @@ describe("getContractsViem", () => {
     verifyContractInstance(contracts.transactionBatcher);
     verifyContractInstance(contracts.pnk);
     verifyContractInstance(contracts.klerosCoreSnapshotProxy);
-
+    if (contracts.leaderboardOffset) {
+      verifyContractInstance(contracts.leaderboardOffset);
+    }
     if (contracts.chainlinkRng) {
       verifyContractInstance(contracts.chainlinkRng);
     }
@@ -183,6 +199,7 @@ describe("getContractsViem", () => {
     expect(contracts.disputeKitShutter).to.not.be.undefined;
     expect(contracts.disputeKitGated).to.not.be.undefined;
     expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.not.be.undefined;
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
@@ -208,6 +225,7 @@ describe("getContractsViem", () => {
     expect(contracts.disputeKitShutter).to.be.undefined;
     expect(contracts.disputeKitGated).to.be.undefined;
     expect(contracts.disputeKitGatedShutter).to.be.undefined;
+    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be.undefined;
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.be.undefined;
@@ -233,6 +251,7 @@ describe("getContractsViem", () => {
     expect(contracts.disputeKitShutter).to.not.be.undefined;
     expect(contracts.disputeKitGated).to.not.be.undefined;
     expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be.undefined; // Not deployed yet
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
@@ -258,6 +277,7 @@ describe("getContractsViem", () => {
     expect(contracts.disputeKitShutter).to.not.be.undefined;
     expect(contracts.disputeKitGated).to.not.be.undefined;
     expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
+    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be.undefined; // Not deployed yet
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;

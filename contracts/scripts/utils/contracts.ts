@@ -5,10 +5,12 @@ import {
   DisputeKitShutter,
   DisputeKitGated,
   DisputeKitGatedShutter,
+  DisputeKitGatedArgentinaConsumerProtection,
   DisputeResolver,
   DisputeTemplateRegistry,
   KlerosCore,
   KlerosCoreUniversity,
+  LeaderboardOffset,
   PNK,
   PolicyRegistry,
   RandomizerRNG,
@@ -41,6 +43,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutter",
       disputeKitGated: "DisputeKitGated",
       disputeKitGatedShutter: "DisputeKitGatedShutter",
+      disputeKitGatedArgentinaConsumerProtection: "DisputeKitGatedArgentinaConsumerProtection",
       disputeTemplateRegistry: "DisputeTemplateRegistry",
       disputeResolver: "DisputeResolver",
     },
@@ -51,6 +54,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutterUniversity",
       disputeKitGated: "DisputeKitGatedUniversity",
       disputeKitGatedShutter: "DisputeKitGatedShutterUniversity",
+      disputeKitGatedArgentinaConsumerProtection: "DisputeKitGatedArgentinaConsumerProtectionUniversity",
       disputeTemplateRegistry: "DisputeTemplateRegistryUniversity",
       disputeResolver: "DisputeResolverUniversity",
     },
@@ -68,6 +72,7 @@ export const getContractNames = (coreType: Core) => {
     randomizerRng: "RandomizerRNG",
     pnk: "PNK",
     snapshotProxy: "KlerosCoreSnapshotProxy",
+    leaderboardOffset: "LeaderboardOffset",
   };
 };
 
@@ -101,6 +106,10 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
   const disputeKitGatedShutter = await ethers.getContractOrNull<DisputeKitGatedShutter>(
     getContractNames(coreType).disputeKitGatedShutter
   );
+  const disputeKitGatedArgentinaConsumerProtection =
+    await ethers.getContractOrNull<DisputeKitGatedArgentinaConsumerProtection>(
+      getContractNames(coreType).disputeKitGatedArgentinaConsumerProtection
+    );
   const disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
   const disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>(
     getContractNames(coreType).disputeTemplateRegistry
@@ -115,6 +124,9 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
   const snapshotProxy = await ethers.getContractOrNull<KlerosCoreSnapshotProxy>(
     getContractNames(coreType).snapshotProxy
   );
+  const leaderboardOffset = await ethers.getContractOrNull<LeaderboardOffset>(
+    getContractNames(coreType).leaderboardOffset
+  );
   return {
     core,
     sortition,
@@ -122,6 +134,7 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     disputeKitShutter,
     disputeKitGated,
     disputeKitGatedShutter,
+    disputeKitGatedArgentinaConsumerProtection,
     disputeResolver,
     disputeTemplateRegistry,
     evidence,
@@ -132,6 +145,7 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     pnk,
     batcher,
     snapshotProxy,
+    leaderboardOffset,
   };
 };
 
