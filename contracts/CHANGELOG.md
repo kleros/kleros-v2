@@ -30,10 +30,9 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Guard `KlerosCore` against malicious arbitrable contracts that manipulate state during ruling execution ([#2209](https://github.com/kleros/kleros-v2/pull/2209))
 - Standardize null court eligibility sentinel value across all contracts ([#2212](https://github.com/kleros/kleros-v2/pull/2212))
 
-[2.0.0-rc.2]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@2.0.0-rc.2
-
 ## [2.0.0-rc.1] - 2025-11-05
 
 Initial version.
 
 [2.0.0-rc.1]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@2.0.0-rc.1
+[2.0.0-rc.2]: https://github.com/kleros/kleros-v2/releases/tag/@kleros%2Fkleros-v2-contracts@2.0.0-rc.2
