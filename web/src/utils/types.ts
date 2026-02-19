@@ -8,3 +8,5 @@ export type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K
  *  Takes a Type and makes the provided key optional
  */
 export type PartialBy<T, K extends keyof T> = DistributiveOmit<T, K> & Partial<Pick<T, K>>;
+
+export type NumberString = `${number}`;
