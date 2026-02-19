@@ -1,24 +1,19 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
-import { useAccount, useBalance, usePublicClient } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 
 import { Field, Button } from "@kleros/ui-components-library";
 
-import { REFETCH_INTERVAL } from "consts/index";
-import {
-  useSimulateDisputeKitClassicFundAppeal,
-  useSimulateDisputeKitGatedFundAppeal,
-  useWriteDisputeKitClassicFundAppeal,
-  useWriteDisputeKitGatedFundAppeal,
-} from "hooks/contracts/generated";
+import { DisputeKits, REFETCH_INTERVAL } from "consts/index";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
+import { useFundAppeal } from "hooks/useFundAppeal";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { isUndefined } from "utils/index";
-import { wrapWithToast } from "utils/wrapWithToast";
+import { NumberString } from "utils/types";
 
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
@@ -68,45 +63,6 @@ const useNeedFund = () => {
   return needFund;
 };
 
-const useFundAppeal = (parsedAmount: bigint, isGated: boolean, insufficientBalance?: boolean) => {
-  const { id } = useParams();
-  const { selectedOption } = useSelectedOptionContext();
-  const {
-    data: fundAppealConfig,
-    isLoading,
-    isError,
-  } = useSimulateDisputeKitClassicFundAppeal({
-    query: {
-      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && !isGated,
-    },
-    args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
-    value: parsedAmount,
-  });
-  const { writeContractAsync: fundAppeal } = useWriteDisputeKitClassicFundAppeal();
-
-  const {
-    data: fundAppealGatedConfig,
-    isLoading: isLoadingGated,
-    isError: isErrorGated,
-  } = useSimulateDisputeKitGatedFundAppeal({
-    query: {
-      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance && isGated,
-    },
-    args: [BigInt(id ?? 0), BigInt(selectedOption?.id ?? 0)],
-    value: parsedAmount,
-  });
-  const { writeContractAsync: fundAppealGated } = useWriteDisputeKitGatedFundAppeal();
-
-  return isGated
-    ? {
-        fundAppeal: fundAppealGated,
-        fundAppealConfig: fundAppealGatedConfig,
-        isLoading: isLoadingGated,
-        isError: isErrorGated,
-      }
-    : { fundAppeal, fundAppealConfig, isLoading, isError };
-};
-
 interface IFund {
   amount: `${number}`;
   setAmount: (val: string) => void;
@@ -115,44 +71,53 @@ interface IFund {
 }
 
 const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
-  const { t } = useTranslation();
-  const needFund = useNeedFund();
+  const { id: disputeId } = useParams();
   const { address, isDisconnected } = useAccount();
+  const { t } = useTranslation();
+
+  const { selectedOption } = useSelectedOptionContext();
+  const needFund = useNeedFund();
   const { data: balance } = useBalance({
     query: {
       refetchInterval: REFETCH_INTERVAL,
     },
     address,
   });
-  const publicClient = usePublicClient();
 
-  const [isSending, setIsSending] = useState(false);
-  const [debouncedAmount, setDebouncedAmount] = useState<`${number}` | "">("");
+  const [debouncedAmount, setDebouncedAmount] = useState<NumberString>("0");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
 
-  const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
+  const parsedAmount = useParsedAmount(debouncedAmount as NumberString);
 
   const insufficientBalance = useMemo(() => {
     return balance && balance.value < parsedAmount;
   }, [balance, parsedAmount]);
 
-  const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(
-    parsedAmount,
-    isGated,
-    insufficientBalance
-  );
+  const { mutateAsync: fundAppeal, isPending } = useFundAppeal(() => {
+    setIsOpen(true);
+  });
 
   const isFundDisabled = useMemo(
     () =>
       isDisconnected ||
-      isSending ||
       !balance ||
       insufficientBalance ||
-      Number(parsedAmount) <= 0 ||
-      isError ||
-      isLoading,
-    [isDisconnected, isSending, balance, insufficientBalance, parsedAmount, isError, isLoading]
+      parsedAmount <= 0n ||
+      isPending ||
+      isUndefined(selectedOption?.id),
+    [isDisconnected, balance, insufficientBalance, parsedAmount, isPending, selectedOption]
   );
+
+  const handleAppeal = useCallback(async () => {
+    if (isUndefined(disputeId) || isUndefined(selectedOption?.id)) return;
+
+    await fundAppeal({
+      disputeId: BigInt(disputeId),
+      choice: BigInt(selectedOption.id),
+      fundAmount: parsedAmount,
+      type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
+    });
+  }, [fundAppeal, disputeId, selectedOption, parsedAmount, isGated]);
 
   return needFund ? (
     <Container>
@@ -169,18 +134,9 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
         <div>
           <StyledButton
             disabled={isFundDisabled}
-            isLoading={(isSending || isLoading) && !insufficientBalance}
+            isLoading={isPending && !insufficientBalance}
             text={isDisconnected ? t("buttons.connect_to_fund") : t("buttons.fund")}
-            onClick={() => {
-              if (fundAppeal && fundAppealConfig && publicClient) {
-                setIsSending(true);
-                wrapWithToast(async () => await fundAppeal(fundAppealConfig.request), publicClient)
-                  .then((res) => setIsOpen(res.status))
-                  .finally(() => {
-                    setIsSending(false);
-                  });
-              }
-            }}
+            onClick={handleAppeal}
           />
           {insufficientBalance && (
             <ErrorButtonMessage>

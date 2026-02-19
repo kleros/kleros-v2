@@ -10,6 +10,7 @@ export const MOCK_CLASSIC_DK_ADDRESS = "0x12345678901234567890123456789012345678
 export const MOCK_CLASSIC_DK_ABI = [
   { name: "castCommit", type: "function" },
   { name: "castVote", type: "function" },
+  { name: "fundAppeal", type: "function" },
 ];
 
 // Gated Dispute Kit
@@ -17,6 +18,7 @@ export const MOCK_GATED_DK_ADDRESS = "0x1234567890123456789012345678901234567891
 export const MOCK_GATED_DK_ABI = [
   { name: "castCommit", type: "function" },
   { name: "castVote", type: "function" },
+  { name: "fundAppeal", type: "function" },
 ];
 
 // Shutter Dispute Kit
@@ -24,6 +26,7 @@ export const MOCK_SHUTTER_DK_ADDRESS = "0x12345678901234567890123456789012345678
 export const MOCK_SHUTTER_DK_ABI = [
   { name: "castCommitShutter", type: "function" },
   { name: "castVoteShutter", type: "function" },
+  { name: "fundAppeal", type: "function" },
 ];
 
 // Chain ID for Arbitrum Sepolia
