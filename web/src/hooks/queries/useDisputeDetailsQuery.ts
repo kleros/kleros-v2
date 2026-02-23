@@ -12,8 +12,6 @@ const disputeDetailsQuery = graphql(`
     dispute(id: $disputeID) {
       court {
         id
-        timesPerPeriod
-        hiddenVotes
         feeForJuror
       }
       arbitrated {
@@ -28,6 +26,8 @@ const disputeDetailsQuery = graphql(`
       currentRound {
         id
         nbVotes
+        timesPerPeriod
+        hiddenVotes
         disputeKit {
           id
           address

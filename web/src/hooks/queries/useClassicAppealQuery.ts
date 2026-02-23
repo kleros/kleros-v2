@@ -13,6 +13,8 @@ const classicAppealQuery = graphql(`
       period
       court {
         id
+      }
+      currentRound {
         timesPerPeriod
       }
       arbitrated {

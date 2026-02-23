@@ -23,11 +23,13 @@ export const disputeFragment = graphql(`
       id
     }
     currentRoundIndex
+    currentRound {
+      timesPerPeriod
+    }
     court {
       id
       policy
       feeForJuror
-      timesPerPeriod
     }
     period
     lastPeriodChange
