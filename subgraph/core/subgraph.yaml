@@ -11,9 +11,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-sepolia
     source:
-      address: "0x9EfCaeF787d0b53d7a24fdeAB067A4BAFCDb892F"
+      address: "0x244e65F833Be5Ab13c20a00EBc40940BD3514d4C"
       abi: KlerosCore
-      startBlock: 212135308
+      startBlock: 243594096
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -29,6 +29,7 @@ dataSources:
         - Draw
         - DisputeKit
         - Counter
+        - FeeToken
       abis:
         - name: SortitionModule
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
@@ -36,6 +37,8 @@ dataSources:
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+        - name: RatesConverter
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/RatesConverter.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -46,9 +49,9 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
-        - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
+        - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[],address)
           handler: handleCourtCreated
-        - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
+        - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],address)
           handler: handleCourtModified
         - event: DisputeKitCreated(indexed uint256,indexed address)
           handler: handleDisputeKitCreated
@@ -67,9 +70,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-sepolia
     source:
-      address: "0x6445F57d2Bd2AD5BC23bC899731f7D5184d6e893"
+      address: "0xe9FB76E8E9ED979E9448113c9358cab3ecD5A4eE"
       abi: PolicyRegistry
-      startBlock: 212135252
+      startBlock: 243594053
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -87,9 +90,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-sepolia
     source:
-      address: "0xc77c0dFCf6845544dd45734100d385be3D649B02"
+      address: "0x109C193ceD10bdC09b60A1D9A547726fc8271979"
       abi: DisputeKitClassic
-      startBlock: 212135284
+      startBlock: 243594077
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -122,9 +125,9 @@ dataSources:
     name: DisputeKitShutter
     network: arbitrum-sepolia
     source:
-      address: "0xD143b4FcdCf5699983fF9Ad7e38DE80Aa7Eb9Ce7"
+      address: "0x074b7467cb567beB574a41Be44be2e34A56c6da3"
       abi: DisputeKitShutter
-      startBlock: 212135352
+      startBlock: 243594130
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -159,9 +162,9 @@ dataSources:
     name: DisputeKitGated
     network: arbitrum-sepolia
     source:
-      address: "0x648943Cf73b7fa053942Af576C8327fcEfD314d8"
+      address: "0x8bf3d23D9f52796C1909ECEEc1F4BCcCC7fbe4bf"
       abi: DisputeKitGated
-      startBlock: 212135369
+      startBlock: 243594146
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -196,9 +199,9 @@ dataSources:
     name: DisputeKitGatedShutter
     network: arbitrum-sepolia
     source:
-      address: "0x476EE17A32363aec1D32DB49ab701E70Ec56a8e6"
+      address: "0x8C7607dC538e38960916FE51fA91a77492CA4c61"
       abi: DisputeKitGatedShutter
-      startBlock: 212135387
+      startBlock: 243594161
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -233,9 +236,9 @@ dataSources:
     name: EvidenceModule
     network: arbitrum-sepolia
     source:
-      address: "0x8AAF07ac05E81c92C6FD369aaEdE159E9893508d"
+      address: "0x2242cE6Ca0F101979FD658B3a04Bf67966Ccc95f"
       abi: EvidenceModule
-      startBlock: 212135261
+      startBlock: 243594062
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -254,9 +257,9 @@ dataSources:
     name: SortitionModule
     network: arbitrum-sepolia
     source:
-      address: "0x37760BF7fC6027836E50a4D553A313f112188406"
+      address: "0xEA3D4a542c7b627f0f8644aE52C179E8908739b7"
       abi: SortitionModule
-      startBlock: 212135296
+      startBlock: 243594086
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -278,9 +281,9 @@ dataSources:
     name: LeaderboardOffset
     network: arbitrum-sepolia
     source:
-      address: "0x811eC94d73445Df262D3Bf43571B85caD122bBD7"
+      address: "0x9D2FafF0977143D2225EDA14A3b73a8B49558969"
       abi: LeaderboardOffset
-      startBlock: 217101551
+      startBlock: 243673434
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -294,3 +297,23 @@ dataSources:
         - event: Offset(indexed address,int256,indexed address)
           handler: handleLeaderboardOffset
       file: ./src/LeaderboardOffset.ts
+  - kind: ethereum
+    name: RatesConverter
+    network: arbitrum-sepolia
+    source:
+      address: "0x95D68c863075DB3B22560554761D3c318d8052F8"
+      abi: RatesConverter
+      startBlock: 243594043
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - FeeToken
+      abis:
+        - name: RatesConverter
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/RatesConverter.json
+      eventHandlers:
+        - event: NewCurrencyRate(indexed address,uint64,uint8)
+          handler: handleNewCurrencyRate
+      file: ./src/RatesConverter.ts

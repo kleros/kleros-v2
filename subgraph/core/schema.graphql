@@ -151,6 +151,7 @@ type Court @entity {
   delayedStake: BigInt!
   paidETH: BigInt!
   paidPNK: BigInt!
+  eligibility: String!
 }
 
 type Dispute @entity {
@@ -162,6 +163,7 @@ type Dispute @entity {
   arbitrated: Arbitrable!
   period: Period!
   ruled: Boolean!
+  executed: Boolean!
   currentRuling: BigInt!
   tied: Boolean!
   overridden: Boolean!
@@ -206,6 +208,9 @@ type Round @entity {
   timeline: [BigInt!]!
   jurorsDrawn: Boolean!
   jurorRewardsDispersed: Boolean!
+  timesPerPeriod: [BigInt!]!
+  hiddenVotes: Boolean!
+  jurorsForCourtJump: BigInt!
 }
 
 type Draw @entity(immutable: true) {
@@ -250,7 +255,7 @@ type CourtCounter @entity {
 }
 
 type FeeToken @entity {
-  id: ID! # The address of the ERC20 token.
+  id: ID! # The hexadecimal address of the ERC20 token.
   accepted: Boolean!
   rateInEth: BigInt!
   rateDecimals: Int!

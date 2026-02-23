@@ -28,6 +28,7 @@ dataSources:
         - Draw
         - DisputeKit
         - Counter
+        - FeeToken
       abis:
         - name: SortitionModule
           file: ../../contracts/deployments/_PLACEHOLDER_/SortitionModuleUniversity.json
@@ -35,6 +36,8 @@ dataSources:
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassicUniversity.json
         - name: KlerosCore
           file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCoreUniversity.json
+        - name: RatesConverter
+          file: ../../contracts/deployments/_PLACEHOLDER_/RatesConverter.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -45,7 +48,7 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
-        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
+        - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
           handler: handleCourtCreated
         - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
           handler: handleCourtModified
@@ -157,6 +160,46 @@ dataSources:
       eventHandlers:
         - event: StakeLocked(indexed address,uint256,bool)
           handler: handleStakeLocked
-        - event: StakeSet(indexed address,uint256,uint256)
+        - event: StakeSet(indexed address,uint256,uint256,uint256)
           handler: handleStakeSet
       file: ./src/SortitionModule.ts
+  - kind: ethereum
+    name: LeaderboardOffset
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: LeaderboardOffset
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: LeaderboardOffset
+          file: ../../contracts/deployments/_PLACEHOLDER_/LeaderboardOffset.json
+      eventHandlers:
+        - event: Offset(indexed address,int256,indexed address)
+          handler: handleLeaderboardOffset
+      file: ./src/LeaderboardOffset.ts
+  - kind: ethereum
+    name: RatesConverter
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: RatesConverter
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - FeeToken
+      abis:
+        - name: RatesConverter
+          file: ../../contracts/deployments/_PLACEHOLDER_/RatesConverter.json
+      eventHandlers:
+        - event: NewCurrencyRate(indexed address,uint64,uint8)
+          handler: handleNewCurrencyRate
+      file: ./src/RatesConverter.ts
