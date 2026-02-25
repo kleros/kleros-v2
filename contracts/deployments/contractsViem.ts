@@ -4,11 +4,11 @@ import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
   disputeKitClassicConfig as devnetDkClassicConfig,
+  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
   disputeKitShutterConfig as devnetDkShutterConfig,
   disputeKitGatedConfig as devnetDkGatedConfig,
   disputeKitGatedShutterConfig as devnetDkGatedShutterConfig,
   disputeKitGatedArgentinaConsumerProtectionConfig as devnetDkGatedArgentinaConsumerProtectionConfig,
-  leaderboardOffsetConfig as devnetLeaderboardOffsetConfig,
   disputeTemplateRegistryConfig as devnetDtrConfig,
   evidenceModuleConfig as devnetEvidenceConfig,
   policyRegistryConfig as devnetPolicyRegistryConfig,
@@ -18,12 +18,7 @@ import {
   pnkConfig as devnetPnkConfig,
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
   disputeResolverConfig as devnetDrConfig,
-  // University
-  klerosCoreUniversityConfig as devnetCoreUniversityConfig,
-  sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
-  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
-  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
-  disputeResolverUniversityConfig as devnetDrUniversityConfig,
+  leaderboardOffsetConfig as devnetLeaderboardOffsetConfig,
 } from "./devnet.viem";
 import {
   klerosCoreConfig as testnetCoreConfig,
@@ -79,6 +74,7 @@ type ContractInstances = {
   klerosCore: ContractInstance;
   sortition: ContractInstance;
   disputeKitClassic: ContractInstance;
+  disputeKitClassicUniversity?: ContractInstance;
   disputeKitShutter?: ContractInstance;
   disputeKitGated?: ContractInstance;
   disputeKitGatedShutter?: ContractInstance;
@@ -105,6 +101,7 @@ function getCommonConfigs({
     klerosCore: ContractConfig;
     sortition: ContractConfig;
     disputeKitClassic: ContractConfig;
+    disputeKitClassicUniversity?: ContractConfig;
     disputeKitShutter?: ContractConfig;
     disputeKitGated?: ContractConfig;
     disputeKitGatedShutter?: ContractConfig;
@@ -134,6 +131,9 @@ function getCommonConfigs({
     pnk: getContractConfig({ config: configs.pnk, chainId }),
     klerosCoreSnapshotProxy: getContractConfig({ config: configs.klerosCoreSnapshotProxy, chainId }),
   };
+
+  if (configs.disputeKitClassicUniversity)
+    base.disputeKitClassicUniversity = getContractConfig({ config: configs.disputeKitClassicUniversity, chainId });
 
   if (configs.disputeKitShutter)
     base.disputeKitShutter = getContractConfig({ config: configs.disputeKitShutter, chainId });
@@ -171,6 +171,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           klerosCore: devnetCoreConfig,
           sortition: devnetSortitionConfig,
           disputeKitClassic: devnetDkClassicConfig,
+          disputeKitClassicUniversity: devnetDkClassicUniversityConfig,
           disputeKitShutter: devnetDkShutterConfig,
           disputeKitGated: devnetDkGatedConfig,
           disputeKitGatedShutter: devnetDkGatedShutterConfig,
@@ -187,20 +188,6 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           chainlinkRng: devnetChainlinkRngConfig,
         },
       });
-
-    case "university":
-      return {
-        klerosCore: getContractConfig({ config: devnetCoreUniversityConfig, chainId }),
-        sortition: getContractConfig({ config: devnetSortitionUniversityConfig, chainId }),
-        disputeKitClassic: getContractConfig({ config: devnetDkClassicUniversityConfig, chainId }),
-        disputeResolver: getContractConfig({ config: devnetDrUniversityConfig, chainId }),
-        disputeTemplateRegistry: getContractConfig({ config: devnetDtrUniversityConfig, chainId }),
-        evidence: getContractConfig({ config: devnetEvidenceConfig, chainId }), // Not arbitrator specific
-        policyRegistry: getContractConfig({ config: devnetPolicyRegistryConfig, chainId }), // Not arbitrator specific
-        transactionBatcher: getContractConfig({ config: devnetBatcherConfig, chainId }), // Not arbitrator specific
-        pnk: getContractConfig({ config: devnetPnkConfig, chainId }), // Not arbitrator specific
-        klerosCoreSnapshotProxy: getContractConfig({ config: devnetSnapshotProxyConfig, chainId }), // Not used in university
-      };
 
     case "testnet":
       return getCommonConfigs({
@@ -282,6 +269,12 @@ export const getContracts = ({
     ...contractConfigs.disputeKitClassic,
     ...clientConfig,
   });
+  const disputeKitClassicUniversity = contractConfigs.disputeKitClassicUniversity
+    ? getContract({
+        ...contractConfigs.disputeKitClassicUniversity,
+        ...clientConfig,
+      })
+    : undefined;
   const disputeKitShutter = contractConfigs.disputeKitShutter
     ? getContract({
         ...contractConfigs.disputeKitShutter,
@@ -362,6 +355,7 @@ export const getContracts = ({
     klerosCore,
     sortition,
     disputeKitClassic,
+    disputeKitClassicUniversity,
     disputeKitShutter,
     disputeKitGated,
     disputeKitGatedShutter,

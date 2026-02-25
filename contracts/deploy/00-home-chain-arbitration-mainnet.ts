@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH, ONE_MINUTE_IN_SECONDS } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCore, RatesConverter, RNGWithFallback } from "../typechain-types";
@@ -48,8 +48,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
   const devnet = isDevnet(hre.network);
-  const minStakingTime = devnet ? 180 : 1800;
-  const maxFreezingTime = devnet ? 600 : 1800;
+  const minStakingTime = devnet ? 3 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
+  const maxFreezingTime = devnet ? 10 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
   const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const maxStakePerJuror = PNK(2_000);
   const maxTotalStaked = PNK(2_000_000);

@@ -3,6 +3,7 @@ import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
   disputeKitClassicConfig as devnetDkClassicConfig,
+  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
   disputeKitShutterConfig as devnetDkShutterConfig,
   disputeKitGatedConfig as devnetDkGatedConfig,
   disputeKitGatedShutterConfig as devnetDkGatedShutterConfig,
@@ -16,12 +17,6 @@ import {
   rngWithFallbackConfig as devnetRngWithFallbackConfig,
   pnkConfig as devnetPnkConfig,
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
-  // University
-  klerosCoreUniversityConfig as devnetCoreUniversityConfig,
-  sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
-  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
-  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
-  disputeResolverUniversityConfig as devnetDrUniversityConfig,
   leaderboardOffsetConfig as devnetLeaderboardOffsetConfig,
 } from "./devnet.viem";
 import {
@@ -68,6 +63,8 @@ import {
   SortitionModule__factory,
   DisputeKitClassic,
   DisputeKitClassic__factory,
+  DisputeKitClassicUniversity,
+  DisputeKitClassicUniversity__factory,
   DisputeKitShutter,
   DisputeKitShutter__factory,
   DisputeKitGated,
@@ -96,10 +93,6 @@ import {
   PNK__factory,
   KlerosCoreSnapshotProxy,
   KlerosCoreSnapshotProxy__factory,
-  KlerosCoreUniversity,
-  KlerosCoreUniversity__factory,
-  SortitionModuleUniversity,
-  SortitionModuleUniversity__factory,
   LeaderboardOffset,
   LeaderboardOffset__factory,
 } from "../typechain-types";
@@ -107,6 +100,7 @@ import { type ContractConfig, type DeploymentName, deployments, getAddress } fro
 
 type CommonFactoriesConfigs = {
   dkClassicConfig: ContractConfig;
+  dkClassicUniversityConfig?: ContractConfig;
   dkShutterConfig?: ContractConfig;
   dkGatedConfig?: ContractConfig;
   dkGatedShutterConfig?: ContractConfig;
@@ -126,6 +120,7 @@ type CommonFactoriesConfigs = {
 
 type CommonFactories = {
   disputeKitClassic: DisputeKitClassic;
+  disputeKitClassicUniversity: DisputeKitClassicUniversity | null;
   disputeKitShutter: DisputeKitShutter | null;
   disputeKitGated: DisputeKitGated | null;
   disputeKitGatedShutter: DisputeKitGatedShutter | null;
@@ -150,6 +145,9 @@ function getCommonFactories(
 ): CommonFactories {
   return {
     disputeKitClassic: DisputeKitClassic__factory.connect(getAddress(configs.dkClassicConfig, chainId), provider),
+    disputeKitClassicUniversity: configs.dkClassicUniversityConfig
+      ? DisputeKitClassicUniversity__factory.connect(getAddress(configs.dkClassicUniversityConfig, chainId), provider)
+      : null,
     disputeKitShutter: configs.dkShutterConfig
       ? DisputeKitShutter__factory.connect(getAddress(configs.dkShutterConfig, chainId), provider)
       : null,
@@ -192,8 +190,8 @@ function getCommonFactories(
 
 export const getContracts = async (provider: ethers.Provider, deployment: DeploymentName) => {
   const { chainId } = deployments[deployment];
-  let klerosCore: KlerosCore | KlerosCoreUniversity;
-  let sortition: SortitionModule | SortitionModuleUniversity;
+  let klerosCore: KlerosCore;
+  let sortition: SortitionModule;
   let commonFactories: CommonFactories;
 
   switch (deployment) {
@@ -203,6 +201,7 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: devnetDkClassicConfig,
+          dkClassicUniversityConfig: devnetDkClassicUniversityConfig,
           dkShutterConfig: devnetDkShutterConfig,
           dkGatedConfig: devnetDkGatedConfig,
           dkGatedShutterConfig: devnetDkGatedShutterConfig,
@@ -217,29 +216,6 @@ export const getContracts = async (provider: ethers.Provider, deployment: Deploy
           pnkConfig: devnetPnkConfig,
           snapshotProxyConfig: devnetSnapshotProxyConfig,
           leaderboardOffsetConfig: devnetLeaderboardOffsetConfig,
-        },
-        provider,
-        chainId
-      );
-      break;
-    }
-    case "university": {
-      klerosCore = KlerosCoreUniversity__factory.connect(getAddress(devnetCoreUniversityConfig, chainId), provider);
-      sortition = SortitionModuleUniversity__factory.connect(
-        getAddress(devnetSortitionUniversityConfig, chainId),
-        provider
-      );
-      commonFactories = getCommonFactories(
-        {
-          dkClassicConfig: devnetDkClassicUniversityConfig,
-          drConfig: devnetDrUniversityConfig,
-          dtrConfig: devnetDtrUniversityConfig,
-          evidenceConfig: devnetEvidenceConfig,
-          policyRegistryConfig: devnetPolicyRegistryConfig,
-          batcherConfig: devnetBatcherConfig,
-          chainlinkRngConfig: devnetChainlinkRngConfig,
-          pnkConfig: devnetPnkConfig,
-          snapshotProxyConfig: devnetSnapshotProxyConfig,
         },
         provider,
         chainId
