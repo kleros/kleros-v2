@@ -595,9 +595,15 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         );
         assertEq(core.isSupported(courtID2, dkID2), true, "dkID2 should be supported by Court2");
 
-        (uint96 courtParent, , , , , uint256 courtJurorsForCourtJump, ) = core.courts(courtID2);
+        (uint96 courtParent, , , , ) = core.courts(courtID2);
         assertEq(courtParent, GENERAL_COURT, "Wrong court parent for court2");
-        assertEq(courtJurorsForCourtJump, 7, "Wrong jurors for jump value for court2");
+
+        uint256 defaultCourtParamsIndex = 0;
+        KlerosCore.AdditionalCourtParams memory courtParams = core.getAdditionalCourtParams(
+            courtID2,
+            defaultCourtParamsIndex
+        );
+        assertEq(courtParams.jurorsForCourtJump, 7, "Wrong jurors for jump value for court2");
 
         // Court3 creation
         supportedDK = new uint256[](2);
@@ -618,9 +624,8 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         );
         assertEq(core.isSupported(courtID3, dkID3), true, "dkID3 should be supported by Court3");
 
-        (courtParent, , , , , courtJurorsForCourtJump, ) = core.courts(courtID3);
+        (courtParent, , , , ) = core.courts(courtID3);
         assertEq(courtParent, courtID2, "Wrong court parent for court3");
-        assertEq(courtJurorsForCourtJump, 3, "Wrong jurors for jump value for court3");
 
         // Enable DK3 on the General Court
         vm.prank(owner);

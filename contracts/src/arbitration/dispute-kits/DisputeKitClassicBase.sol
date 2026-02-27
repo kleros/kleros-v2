@@ -366,7 +366,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[localRoundID];
         {
             uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
-            bool hiddenVotes = core.getRoundInfo(_coreDisputeID, coreRoundID).hiddenVotes;
+            (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
+            uint256 courtParamsIndex = core.getRoundInfo(_coreDisputeID, coreRoundID).courtParamsIndex;
+            bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
             if (hiddenVotes) {
                 _verifyHiddenVoteCommitments(localDisputeID, localRoundID, _voteIDs, _choice, _justification, _salt);
             }
@@ -651,7 +653,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
         (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , , ) = core.courts(courtID);
+        uint256 courtParamsIndex = core
+            .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
+            .courtParamsIndex;
+        bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
         uint256 expectedTotalVoted = hiddenVotes ? round.totalCommitted : round.votes.length;
 
         return round.totalVoted == expectedTotalVoted;

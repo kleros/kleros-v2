@@ -137,21 +137,21 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
     /// @notice Test helper to verify setup is correct
     function test_setUp() public {
         // Verify the Argentina court was created
-        (
-            uint96 parent,
-            bool courtHiddenVotes,
-            uint256 minStakeValue,
-            uint256 alphaValue,
-            uint256 feeForJurorValue,
-            uint256 jurorsForJumpValue,
-
-        ) = core.courts(argentinaCourt);
+        (uint96 parent, uint256 minStakeValue, uint256 alphaValue, uint256 feeForJurorValue, ) = core.courts(
+            argentinaCourt
+        );
         assertEq(parent, GENERAL_COURT, "Wrong parent court");
-        assertEq(courtHiddenVotes, false, "Wrong hiddenVotes");
         assertEq(minStakeValue, 1000, "Wrong minStake");
         assertEq(alphaValue, 10000, "Wrong alpha");
         assertEq(feeForJurorValue, 0.03 ether, "Wrong feeForJuror");
-        assertEq(jurorsForJumpValue, 50, "Wrong jurorsForJump");
+
+        uint256 defaultCourtParamsIndex = 0;
+        KlerosCore.AdditionalCourtParams memory courtParams = core.getAdditionalCourtParams(
+            argentinaCourt,
+            defaultCourtParamsIndex
+        );
+        assertEq(courtParams.hiddenVotes, false, "Wrong hiddenVotes");
+        assertEq(courtParams.jurorsForCourtJump, 50, "Wrong jurorsForJump");
 
         // Debug: Log the values being encoded
         console.log("argentinaCourt:", argentinaCourt);

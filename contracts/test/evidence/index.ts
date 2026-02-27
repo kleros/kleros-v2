@@ -54,13 +54,14 @@ describe("Home Evidence contract", async () => {
     disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>("DisputeTemplateRegistry");
 
     const court = await arbitrator.courts(1);
+    const additionalCourtParams = await arbitrator.getAdditionalCourtParams(1, 0);
     await arbitrator.changeCourtParameters(
       1,
-      court.hiddenVotes,
+      additionalCourtParams.hiddenVotes,
       court.minStake,
       court.alpha,
       arbitrationFee,
-      court.jurorsForCourtJump,
+      additionalCourtParams.jurorsForCourtJump,
       [0, 0, 0, appealTimeout],
       ZeroAddress
     );

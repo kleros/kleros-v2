@@ -91,8 +91,14 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(round.sumPnkRewardPaid, 0, "sumPnkRewardPaid should be 0");
         assertEq(address(round.feeToken), address(0), "feeToken should be 0");
         assertEq(round.drawIterations, 0, "drawIterations should be 0");
+
+        uint256 defaultCourtParamsIndex = 0;
+        KlerosCore.AdditionalCourtParams memory courtParams = core.getAdditionalCourtParams(
+            courtID,
+            defaultCourtParamsIndex
+        );
         for (uint256 i = 0; i < 4; i++) {
-            assertEq(round.timesPerPeriod[i], newTimesPerPeriod[i], "Wrong times per period");
+            assertEq(courtParams.timesPerPeriod[i], newTimesPerPeriod[i], "Wrong times per period");
         }
 
         (uint256 numberOfChoices, bytes memory extraData) = disputeKit.disputes(disputeID);
