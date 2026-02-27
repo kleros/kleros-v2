@@ -55,15 +55,11 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
   for (const file of files) {
     const { name, ext } = parse(file);
     if (ext === ".json") {
-      let nameWithoutSuffix = name;
+      const nameWithoutSuffix = name;
       if (vanillaArtifacts.some((artifact) => name.startsWith(artifact))) {
         if (!typeSpecificArtifacts.includes(name)) {
           // console.debug(`Skipping ${name} for deployment type ${ArbitratorTypes[type]}`);
           continue;
-        }
-        if (type === ArbitratorTypes.university) {
-          nameWithoutSuffix = name.slice(0, -artifactSuffix.length);
-          // console.debug(`Using ${nameWithoutSuffix} instead of ${name}`);
         }
       }
       const filePath = join(directoryPath, file);

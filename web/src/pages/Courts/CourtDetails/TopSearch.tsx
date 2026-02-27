@@ -11,8 +11,6 @@ import { isUndefined } from "utils/index";
 
 import { useCourtTree, rootCourtToItems } from "queries/useCourtTree";
 
-import { isKlerosUniversity } from "src/consts";
-
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -112,7 +110,6 @@ const TopSearch: React.FC = () => {
   const navigate = useNavigate();
   const { id: currentCourtId } = useParams();
   const items = useMemo(() => !isUndefined(data?.court) && [rootCourtToItems(data.court)], [data]);
-  const isUniversity = isKlerosUniversity();
   const [search, setSearch] = useState("");
 
   const filteredCourts = useMemo(() => {
@@ -163,7 +160,7 @@ const TopSearch: React.FC = () => {
       ) : (
         <StyledSkeleton width={240} height={42} />
       )}
-      {isUniversity ? null : <StakeMaintenanceButtons />}
+      <StakeMaintenanceButtons />
     </Container>
   );
 };

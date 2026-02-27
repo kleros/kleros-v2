@@ -14,7 +14,6 @@ import { wrapWithToast } from "utils/wrapWithToast";
 
 import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
 
-import { isKlerosUniversity } from "src/consts";
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
@@ -32,7 +31,8 @@ interface IDrawButton extends IBaseMaintenanceButton {
   period?: string;
 }
 
-const isUniversity = isKlerosUniversity();
+// TODO: rely on DK Uni here, for now just hardcoding to `false` to wait for DK Uni support
+const isUniversity = false;
 
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period }) => {
   const { t } = useTranslation();
