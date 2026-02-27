@@ -447,7 +447,7 @@
   },
   "maintenance": {
     "jurors_drawn_in_drawing_phase": "Los jurados pueden ser sorteados en la fase de sorteo.",
-    "pass_phase_here": "Pasar fase <link>aquí</link>."
+    "pass_phase_here": "Pasar fase <anchor>aquí</anchor>."
   },
   "phase": {
     "label": "Fase: {{phase}}",

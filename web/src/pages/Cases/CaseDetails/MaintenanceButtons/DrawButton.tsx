@@ -109,7 +109,7 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
           <br />
           <Trans
             i18nKey="maintenance.pass_phase_here"
-            components={{ link: <Link to="/courts/1/purpose/#maintenance" /> }}
+            components={{ anchor: <Link to="/courts/1/purpose/#maintenance" /> }}
           />
         </StyledLabel>
       ) : null}

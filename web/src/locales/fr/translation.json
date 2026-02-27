@@ -447,7 +447,7 @@
   },
   "maintenance": {
     "jurors_drawn_in_drawing_phase": "Les jurés peuvent être tirés en phase de tirage.",
-    "pass_phase_here": "Passer la phase <link>ici</link>."
+    "pass_phase_here": "Passer la phase <anchor>ici</anchor>."
   },
   "phase": {
     "label": "Phase : {{phase}}",
