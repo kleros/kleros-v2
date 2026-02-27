@@ -2,7 +2,7 @@
 
 The following contracts have been preserved:
 
-- The University contracts (out-of-scope for now)
+- The University contracts: Functionality extracted to DisputeKitClassicUniversity
 - The ERC20 tokens and their faucets (unchanged): PinakionV2, PNK, PNKFaucet, DAI, DAIFaucet, WETH, WETHFaucet
 - The RNG contracts (unchanged): RandomizerOracle, BlockHashRNG, ChainlinkRNG, ChainlinkVRFCoordinator (mock)
 - KlerosV2NeoEarlyUser (unchanged, for Neo devnet)

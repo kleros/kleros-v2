@@ -6,6 +6,7 @@ import {
   DisputeKitShutter,
   DisputeKitGated,
   DisputeKitGatedShutter,
+  DisputeKitClassicUniversity,
 } from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
@@ -16,16 +17,18 @@ describe("DisputeKitClassic", async () => {
     disputeKit: DisputeKitClassic,
     disputeKitShutter: DisputeKitShutter,
     disputeKitGated: DisputeKitGated,
-    disputeKitGatedShutter: DisputeKitGatedShutter;
+    disputeKitGatedShutter: DisputeKitGatedShutter,
+    disputeKitClassicUniversity: DisputeKitClassicUniversity;
 
   before("Deploying", async () => {
     [deployer] = await ethers.getSigners();
-    [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter] = await deployContracts();
+    [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter, disputeKitClassicUniversity] =
+      await deployContracts();
   });
 
   it("Kleros Core initialization", async () => {
     const events = await core.queryFilter(core.filters.DisputeKitCreated());
-    expect(events.length).to.equal(4);
+    expect(events.length).to.equal(5);
     expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._disputeKitAddress).to.equal(disputeKit.target);
     expect(events[1].args._disputeKitID).to.equal(2);
@@ -34,6 +37,8 @@ describe("DisputeKitClassic", async () => {
     expect(events[2].args._disputeKitAddress).to.equal(disputeKitGated.target);
     expect(events[3].args._disputeKitID).to.equal(4);
     expect(events[3].args._disputeKitAddress).to.equal(disputeKitGatedShutter.target);
+    expect(events[4].args._disputeKitID).to.equal(5);
+    expect(events[4].args._disputeKitAddress).to.equal(disputeKitClassicUniversity.target);
 
     // Reminder: the Forking court will be added which will break these expectations.
     const events2 = await core.queryFilter(core.filters.CourtCreated());
@@ -49,7 +54,7 @@ describe("DisputeKitClassic", async () => {
     expect(events2[0].args._supportedDisputeKits).to.deep.equal([1]);
 
     const events3 = await core.queryFilter(core.filters.DisputeKitEnabled());
-    expect(events3.length).to.equal(4);
+    expect(events3.length).to.equal(5);
 
     const classicDisputeKit = events3[0].args;
     expect(classicDisputeKit._courtID).to.equal(1);
@@ -70,6 +75,11 @@ describe("DisputeKitClassic", async () => {
     expect(gatedShutterDisputeKit._courtID).to.equal(1);
     expect(gatedShutterDisputeKit._disputeKitID).to.equal(4);
     expect(gatedShutterDisputeKit._enable).to.equal(true);
+
+    const classicUniversityDisputeKit = events3[4].args;
+    expect(classicUniversityDisputeKit._courtID).to.equal(1);
+    expect(classicUniversityDisputeKit._disputeKitID).to.equal(5);
+    expect(classicUniversityDisputeKit._enable).to.equal(true);
   });
 
   it("Should create a dispute", async () => {
@@ -94,7 +104,14 @@ describe("DisputeKitClassic", async () => {
 });
 
 async function deployContracts(): Promise<
-  [KlerosCore, DisputeKitClassic, DisputeKitShutter, DisputeKitGated, DisputeKitGatedShutter]
+  [
+    KlerosCore,
+    DisputeKitClassic,
+    DisputeKitShutter,
+    DisputeKitGated,
+    DisputeKitGatedShutter,
+    DisputeKitClassicUniversity,
+  ]
 > {
   await deployments.fixture(["Arbitration", "VeaMock"], {
     fallbackToGlobal: true,
@@ -104,6 +121,8 @@ async function deployContracts(): Promise<
   const disputeKitShutter = await ethers.getContract<DisputeKitShutter>("DisputeKitShutter");
   const disputeKitGated = await ethers.getContract<DisputeKitGated>("DisputeKitGated");
   const disputeKitGatedShutter = await ethers.getContract<DisputeKitGatedShutter>("DisputeKitGatedShutter");
+  const disputeKitClassicUniversity =
+    await ethers.getContract<DisputeKitClassicUniversity>("DisputeKitClassicUniversity");
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
-  return [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter];
+  return [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter, disputeKitClassicUniversity];
 }

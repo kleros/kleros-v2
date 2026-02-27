@@ -20,6 +20,9 @@ export function createRoundFromRoundInfo(
   round.nbVotes = roundInfo.nbVotes;
   round.repartitions = roundInfo.repartitions;
   round.penalties = roundInfo.pnkPenalties;
+  round.timesPerPeriod = roundInfo.timesPerPeriod;
+  round.hiddenVotes = roundInfo.hiddenVotes;
+  round.jurorsForCourtJump = roundInfo.jurorsForCourtJump;
   round.dispute = disputeID.toString();
   const courtID = contract.disputes(disputeID).value0.toString();
   round.court = courtID;

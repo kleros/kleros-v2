@@ -104,7 +104,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   ]);
 
   const wasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
-  const isHiddenVotes = useMemo(() => disputeData?.dispute?.court.hiddenVotes ?? false, [disputeData]);
+  const isHiddenVotes = useMemo(() => disputeData?.dispute?.currentRound.hiddenVotes ?? false, [disputeData]);
   const isCommitPeriod = useMemo(() => disputeData?.dispute?.period === "commit", [disputeData]);
   const isVotingPeriod = useMemo(() => disputeData?.dispute?.period === "vote", [disputeData]);
 

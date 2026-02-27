@@ -39,6 +39,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
   court.delayedStake = ZERO;
   court.paidETH = ZERO;
   court.paidPNK = ZERO;
+  court.eligibility = event.params._eligibility.toHexString();
   court.save();
 }
 

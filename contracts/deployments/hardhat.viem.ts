@@ -1055,6 +1055,7 @@ export const disputeKitClassicAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -1520,7 +1521,7 @@ export const disputeKitClassicAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -1641,6 +1642,13 @@ export const disputeKitClassicAbi = [
       { name: "choice", internalType: "uint256", type: "uint256" },
       { name: "voted", internalType: "bool", type: "bool" },
     ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
     stateMutability: "view",
   },
   {
@@ -1757,7 +1765,7 @@ export const disputeKitClassicAbi = [
  *
  */
 export const disputeKitClassicAddress = {
-  1337: "0x59b670e9fA9D0A427751Af201D676719a970857b",
+  1337: "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
 } as const;
 
 /**
@@ -1809,6 +1817,7 @@ export const disputeKitClassicImplementationAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -2274,7 +2283,7 @@ export const disputeKitClassicImplementationAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -2395,6 +2404,13 @@ export const disputeKitClassicImplementationAbi = [
       { name: "choice", internalType: "uint256", type: "uint256" },
       { name: "voted", internalType: "bool", type: "bool" },
     ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
     stateMutability: "view",
   },
   {
@@ -2503,7 +2519,7 @@ export const disputeKitClassicImplementationAbi = [
  *
  */
 export const disputeKitClassicImplementationAddress = {
-  1337: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+  1337: "0x59b670e9fA9D0A427751Af201D676719a970857b",
 } as const;
 
 /**
@@ -2538,7 +2554,7 @@ export const disputeKitClassicProxyAbi = [
  *
  */
 export const disputeKitClassicProxyAddress = {
-  1337: "0x59b670e9fA9D0A427751Af201D676719a970857b",
+  1337: "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
 } as const;
 
 /**
@@ -2583,9 +2599,13 @@ export const disputeKitGatedAbi = [
   { type: "error", inputs: [], name: "NotInitializing" },
   { type: "error", inputs: [], name: "NotVotePeriod" },
   { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "TokenGateRequired" },
   {
     type: "error",
-    inputs: [{ name: "tokenGate", internalType: "address", type: "address" }],
+    inputs: [
+      { name: "courtID", internalType: "uint96", type: "uint96" },
+      { name: "tokenGate", internalType: "address", type: "address" },
+    ],
     name: "TokenNotSupported",
   },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -2596,6 +2616,7 @@ export const disputeKitGatedAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -2760,6 +2781,62 @@ export const disputeKitGatedAbi = [
       },
     ],
     name: "NextRoundSettingsChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_tokenId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc1155TokenIdChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc721TokenChanged",
   },
   {
     type: "event",
@@ -2947,10 +3024,23 @@ export const disputeKitGatedAbi = [
   {
     type: "function",
     inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenIds", internalType: "uint256[]", type: "uint256[]" },
+      { name: "_supported", internalType: "bool", type: "bool" },
+    ],
+    name: "changeSupportedErc1155TokenIds",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_tokens", internalType: "address[]", type: "address[]" },
       { name: "_supported", internalType: "bool", type: "bool" },
     ],
-    name: "changeSupportedTokens",
+    name: "changeSupportedErc721Tokens",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -3071,7 +3161,7 @@ export const disputeKitGatedAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -3196,6 +3286,13 @@ export const disputeKitGatedAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_choice", internalType: "uint256", type: "uint256" },
       { name: "_salt", internalType: "uint256", type: "uint256" },
@@ -3220,6 +3317,37 @@ export const disputeKitGatedAbi = [
     type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_juror", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+    ],
+    name: "isEligible",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenId", internalType: "uint256", type: "uint256" },
+    ],
+    name: "isErc1155TokenIdSupported",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "isErc721TokenSupported",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
@@ -3257,9 +3385,57 @@ export const disputeKitGatedAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "token", internalType: "address", type: "address" }],
-    name: "supportedTokens",
-    outputs: [{ name: "supported", internalType: "bool", type: "bool" }],
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokenIdsAt",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "supportedErc1155TokenIdsLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc1155TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc721TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc721TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -3315,7 +3491,7 @@ export const disputeKitGatedAbi = [
  *
  */
 export const disputeKitGatedAddress = {
-  1337: "0x998abeb3E57409262aE5b751f60747921B33613E",
+  1337: "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
 } as const;
 
 /**
@@ -3362,9 +3538,13 @@ export const disputeKitGatedShutterAbi = [
   { type: "error", inputs: [], name: "NotInitializing" },
   { type: "error", inputs: [], name: "NotVotePeriod" },
   { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "TokenGateRequired" },
   {
     type: "error",
-    inputs: [{ name: "tokenGate", internalType: "address", type: "address" }],
+    inputs: [
+      { name: "courtID", internalType: "uint96", type: "uint96" },
+      { name: "tokenGate", internalType: "address", type: "address" },
+    ],
     name: "TokenNotSupported",
   },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -3375,6 +3555,7 @@ export const disputeKitGatedShutterAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -3582,6 +3763,62 @@ export const disputeKitGatedShutterAbi = [
       },
     ],
     name: "NextRoundSettingsChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_tokenId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc1155TokenIdChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc721TokenChanged",
   },
   {
     type: "event",
@@ -3800,10 +4037,23 @@ export const disputeKitGatedShutterAbi = [
   {
     type: "function",
     inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenIds", internalType: "uint256[]", type: "uint256[]" },
+      { name: "_supported", internalType: "bool", type: "bool" },
+    ],
+    name: "changeSupportedErc1155TokenIds",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_tokens", internalType: "address[]", type: "address[]" },
       { name: "_supported", internalType: "bool", type: "bool" },
     ],
-    name: "changeSupportedTokens",
+    name: "changeSupportedErc721Tokens",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -3924,7 +4174,7 @@ export const disputeKitGatedShutterAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -4049,6 +4299,13 @@ export const disputeKitGatedShutterAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_salt", internalType: "uint256", type: "uint256" },
       { name: "_justification", internalType: "string", type: "string" },
@@ -4083,6 +4340,37 @@ export const disputeKitGatedShutterAbi = [
     type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_juror", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+    ],
+    name: "isEligible",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenId", internalType: "uint256", type: "uint256" },
+    ],
+    name: "isErc1155TokenIdSupported",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "isErc721TokenSupported",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
@@ -4137,9 +4425,57 @@ export const disputeKitGatedShutterAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "token", internalType: "address", type: "address" }],
-    name: "supportedTokens",
-    outputs: [{ name: "supported", internalType: "bool", type: "bool" }],
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokenIdsAt",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "supportedErc1155TokenIdsLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc1155TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc721TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc721TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -4195,7 +4531,7 @@ export const disputeKitGatedShutterAbi = [
  *
  */
 export const disputeKitGatedShutterAddress = {
-  1337: "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+  1337: "0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf",
 } as const;
 
 /**
@@ -4241,9 +4577,13 @@ export const disputeKitGatedShutterImplementationAbi = [
   { type: "error", inputs: [], name: "NotInitializing" },
   { type: "error", inputs: [], name: "NotVotePeriod" },
   { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "TokenGateRequired" },
   {
     type: "error",
-    inputs: [{ name: "tokenGate", internalType: "address", type: "address" }],
+    inputs: [
+      { name: "courtID", internalType: "uint96", type: "uint96" },
+      { name: "tokenGate", internalType: "address", type: "address" },
+    ],
     name: "TokenNotSupported",
   },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -4254,6 +4594,7 @@ export const disputeKitGatedShutterImplementationAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -4461,6 +4802,62 @@ export const disputeKitGatedShutterImplementationAbi = [
       },
     ],
     name: "NextRoundSettingsChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_tokenId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc1155TokenIdChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc721TokenChanged",
   },
   {
     type: "event",
@@ -4679,10 +5076,23 @@ export const disputeKitGatedShutterImplementationAbi = [
   {
     type: "function",
     inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenIds", internalType: "uint256[]", type: "uint256[]" },
+      { name: "_supported", internalType: "bool", type: "bool" },
+    ],
+    name: "changeSupportedErc1155TokenIds",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_tokens", internalType: "address[]", type: "address[]" },
       { name: "_supported", internalType: "bool", type: "bool" },
     ],
-    name: "changeSupportedTokens",
+    name: "changeSupportedErc721Tokens",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -4803,7 +5213,7 @@ export const disputeKitGatedShutterImplementationAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -4928,6 +5338,13 @@ export const disputeKitGatedShutterImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_salt", internalType: "uint256", type: "uint256" },
       { name: "_justification", internalType: "string", type: "string" },
@@ -4962,6 +5379,37 @@ export const disputeKitGatedShutterImplementationAbi = [
     type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_juror", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+    ],
+    name: "isEligible",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenId", internalType: "uint256", type: "uint256" },
+    ],
+    name: "isErc1155TokenIdSupported",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "isErc721TokenSupported",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
@@ -5016,9 +5464,57 @@ export const disputeKitGatedShutterImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "token", internalType: "address", type: "address" }],
-    name: "supportedTokens",
-    outputs: [{ name: "supported", internalType: "bool", type: "bool" }],
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokenIdsAt",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "supportedErc1155TokenIdsLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc1155TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc721TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc721TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -5066,7 +5562,7 @@ export const disputeKitGatedShutterImplementationAbi = [
  *
  */
 export const disputeKitGatedShutterImplementationAddress = {
-  1337: "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
+  1337: "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
 } as const;
 
 /**
@@ -5101,7 +5597,7 @@ export const disputeKitGatedShutterProxyAbi = [
  *
  */
 export const disputeKitGatedShutterProxyAddress = {
-  1337: "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+  1337: "0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf",
 } as const;
 
 /**
@@ -5145,9 +5641,13 @@ export const disputeKitGatedImplementationAbi = [
   { type: "error", inputs: [], name: "NotInitializing" },
   { type: "error", inputs: [], name: "NotVotePeriod" },
   { type: "error", inputs: [], name: "OwnerOnly" },
+  { type: "error", inputs: [], name: "TokenGateRequired" },
   {
     type: "error",
-    inputs: [{ name: "tokenGate", internalType: "address", type: "address" }],
+    inputs: [
+      { name: "courtID", internalType: "uint96", type: "uint96" },
+      { name: "tokenGate", internalType: "address", type: "address" },
+    ],
     name: "TokenNotSupported",
   },
   { type: "error", inputs: [], name: "UUPSUnauthorizedCallContext" },
@@ -5158,6 +5658,7 @@ export const disputeKitGatedImplementationAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -5322,6 +5823,62 @@ export const disputeKitGatedImplementationAbi = [
       },
     ],
     name: "NextRoundSettingsChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_tokenId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc1155TokenIdChanged",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_courtID",
+        internalType: "uint96",
+        type: "uint96",
+        indexed: true,
+      },
+      {
+        name: "_token",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_supported",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SupportedErc721TokenChanged",
   },
   {
     type: "event",
@@ -5509,10 +6066,23 @@ export const disputeKitGatedImplementationAbi = [
   {
     type: "function",
     inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenIds", internalType: "uint256[]", type: "uint256[]" },
+      { name: "_supported", internalType: "bool", type: "bool" },
+    ],
+    name: "changeSupportedErc1155TokenIds",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_tokens", internalType: "address[]", type: "address[]" },
       { name: "_supported", internalType: "bool", type: "bool" },
     ],
-    name: "changeSupportedTokens",
+    name: "changeSupportedErc721Tokens",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -5633,7 +6203,7 @@ export const disputeKitGatedImplementationAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -5758,6 +6328,13 @@ export const disputeKitGatedImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_choice", internalType: "uint256", type: "uint256" },
       { name: "_salt", internalType: "uint256", type: "uint256" },
@@ -5782,6 +6359,37 @@ export const disputeKitGatedImplementationAbi = [
     type: "function",
     inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
     name: "isAppealFunded",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_juror", internalType: "address", type: "address" },
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+    ],
+    name: "isEligible",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_tokenId", internalType: "uint256", type: "uint256" },
+    ],
+    name: "isErc1155TokenIdSupported",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "isErc721TokenSupported",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
   },
@@ -5819,9 +6427,57 @@ export const disputeKitGatedImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "token", internalType: "address", type: "address" }],
-    name: "supportedTokens",
-    outputs: [{ name: "supported", internalType: "bool", type: "bool" }],
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokenIdsAt",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_token", internalType: "address", type: "address" },
+    ],
+    name: "supportedErc1155TokenIdsLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc1155TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc1155TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_courtID", internalType: "uint96", type: "uint96" },
+      { name: "_index", internalType: "uint256", type: "uint256" },
+    ],
+    name: "supportedErc721TokensAt",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_courtID", internalType: "uint96", type: "uint96" }],
+    name: "supportedErc721TokensLength",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -5869,7 +6525,7 @@ export const disputeKitGatedImplementationAbi = [
  *
  */
 export const disputeKitGatedImplementationAddress = {
-  1337: "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
+  1337: "0x998abeb3E57409262aE5b751f60747921B33613E",
 } as const;
 
 /**
@@ -5904,7 +6560,7 @@ export const disputeKitGatedProxyAbi = [
  *
  */
 export const disputeKitGatedProxyAddress = {
-  1337: "0x998abeb3E57409262aE5b751f60747921B33613E",
+  1337: "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
 } as const;
 
 /**
@@ -5959,6 +6615,7 @@ export const disputeKitShutterAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -6498,7 +7155,7 @@ export const disputeKitShutterAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -6619,6 +7276,13 @@ export const disputeKitShutterAbi = [
       { name: "choice", internalType: "uint256", type: "uint256" },
       { name: "voted", internalType: "bool", type: "bool" },
     ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
     stateMutability: "view",
   },
   {
@@ -6762,7 +7426,7 @@ export const disputeKitShutterAbi = [
  *
  */
 export const disputeKitShutterAddress = {
-  1337: "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
+  1337: "0x851356ae760d987E095750cCeb3bC6014560891C",
 } as const;
 
 /**
@@ -6816,6 +7480,7 @@ export const disputeKitShutterImplementationAbi = [
   },
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "VoteAlreadyCast" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
   {
     type: "event",
     anonymous: false,
@@ -7355,7 +8020,7 @@ export const disputeKitShutterImplementationAbi = [
       { name: "_coreRoundID", internalType: "uint256", type: "uint256" },
     ],
     name: "getCoherentCount",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "coherentCount", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -7476,6 +8141,13 @@ export const disputeKitShutterImplementationAbi = [
       { name: "choice", internalType: "uint256", type: "uint256" },
       { name: "voted", internalType: "bool", type: "bool" },
     ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_coreDisputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
     stateMutability: "view",
   },
   {
@@ -7611,7 +8283,7 @@ export const disputeKitShutterImplementationAbi = [
  *
  */
 export const disputeKitShutterImplementationAddress = {
-  1337: "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
+  1337: "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
 } as const;
 
 /**
@@ -7646,7 +8318,7 @@ export const disputeKitShutterProxyAbi = [
  *
  */
 export const disputeKitShutterProxyAddress = {
-  1337: "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
+  1337: "0x851356ae760d987E095750cCeb3bC6014560891C",
 } as const;
 
 /**
@@ -7861,7 +8533,7 @@ export const disputeResolverAbi = [
  * - [__View Contract on Gnosis Chiado Blockscout__](https://blockscout.chiadochain.net/address/0x16f20604a51Ac1e68c9aAd1C0E53e951B62CC1Cb)
  */
 export const disputeResolverAddress = {
-  1337: "0x36C02dA8a0983159322a80FFE9F24b1acfF8B570",
+  1337: "0x4c5859f0F772848b2D91F1D83E2Fe57935348029",
   10200: "0x16f20604a51Ac1e68c9aAd1C0E53e951B62CC1Cb",
 } as const;
 
@@ -8035,7 +8707,7 @@ export const disputeTemplateRegistryAbi = [
  * - [__View Contract on Gnosis Chiado Blockscout__](https://blockscout.chiadochain.net/address/0x96E49552669ea81B8E9cE8694F7E4A55D8bFb957)
  */
 export const disputeTemplateRegistryAddress = {
-  1337: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
+  1337: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
   10200: "0x96E49552669ea81B8E9cE8694F7E4A55D8bFb957",
 } as const;
 
@@ -8198,7 +8870,7 @@ export const disputeTemplateRegistryImplementationAbi = [
  *
  */
 export const disputeTemplateRegistryImplementationAddress = {
-  1337: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
+  1337: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
 } as const;
 
 /**
@@ -8233,7 +8905,7 @@ export const disputeTemplateRegistryProxyAbi = [
  *
  */
 export const disputeTemplateRegistryProxyAddress = {
-  1337: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
+  1337: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
 } as const;
 
 /**
@@ -8386,7 +9058,7 @@ export const evidenceModuleAbi = [
  *
  */
 export const evidenceModuleAddress = {
-  1337: "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+  1337: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
 } as const;
 
 /**
@@ -8530,7 +9202,7 @@ export const evidenceModuleImplementationAbi = [
  *
  */
 export const evidenceModuleImplementationAddress = {
-  1337: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+  1337: "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
 } as const;
 
 /**
@@ -8565,7 +9237,7 @@ export const evidenceModuleProxyAbi = [
  *
  */
 export const evidenceModuleProxyAddress = {
-  1337: "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+  1337: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
 } as const;
 
 /**
@@ -9746,6 +10418,8 @@ export const klerosCoreAbi = [
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "UnsupportedDisputeKit" },
   { type: "error", inputs: [], name: "VotePeriodNotPassed" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
+  { type: "error", inputs: [], name: "WhenArbitrationPausedOnly" },
   { type: "error", inputs: [], name: "WhenNotPausedOnly" },
   { type: "error", inputs: [], name: "WhenPausedOnly" },
   { type: "error", inputs: [], name: "WrongDisputeKitIndex" },
@@ -9800,6 +10474,20 @@ export const klerosCoreAbi = [
       },
     ],
     name: "AppealPossible",
+  },
+  { type: "event", anonymous: false, inputs: [], name: "ArbitrationPaused" },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_gracePeriodEnd",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "ArbitrationUnpaused",
   },
   {
     type: "event",
@@ -9857,6 +10545,12 @@ export const klerosCoreAbi = [
         name: "_supportedDisputeKits",
         internalType: "uint256[]",
         type: "uint256[]",
+        indexed: false,
+      },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
         indexed: false,
       },
     ],
@@ -9937,6 +10631,12 @@ export const klerosCoreAbi = [
         name: "_timesPerPeriod",
         internalType: "uint256[4]",
         type: "uint256[4]",
+        indexed: false,
+      },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
         indexed: false,
       },
     ],
@@ -10172,31 +10872,6 @@ export const klerosCoreAbi = [
     anonymous: false,
     inputs: [
       {
-        name: "_feeToken",
-        internalType: "contract IERC20",
-        type: "address",
-        indexed: true,
-      },
-      {
-        name: "_rateInEth",
-        internalType: "uint64",
-        type: "uint64",
-        indexed: false,
-      },
-      {
-        name: "_rateDecimals",
-        internalType: "uint8",
-        type: "uint8",
-        indexed: false,
-      },
-    ],
-    name: "NewCurrencyRate",
-  },
-  {
-    type: "event",
-    anonymous: false,
-    inputs: [
-      {
         name: "_disputeID",
         internalType: "uint256",
         type: "uint256",
@@ -10237,6 +10912,26 @@ export const klerosCoreAbi = [
     ],
     name: "Ruling",
   },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_token",
+        internalType: "contract IERC20",
+        type: "address",
+        indexed: false,
+      },
+      { name: "_to", internalType: "address", type: "address", indexed: false },
+      {
+        name: "_value",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "SafeTransferFailed",
+  },
   { type: "event", anonymous: false, inputs: [], name: "Unpaused" },
   {
     type: "event",
@@ -10250,6 +10945,13 @@ export const klerosCoreAbi = [
       },
     ],
     name: "Upgraded",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "contract IERC20", type: "address" }],
+    name: "acceptedFeeTokens",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -10325,6 +11027,27 @@ export const klerosCoreAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "arbitrationPauseGracePeriodEnd",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "arbitrationPauseGracePeriodStart",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "arbitrationPaused",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_feeToken", internalType: "contract IERC20", type: "address" },
       { name: "_accepted", internalType: "bool", type: "bool" },
@@ -10364,19 +11087,13 @@ export const klerosCoreAbi = [
         internalType: "uint256[4]",
         type: "uint256[4]",
       },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
+      },
     ],
     name: "changeCourtParameters",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [
-      { name: "_feeToken", internalType: "contract IERC20", type: "address" },
-      { name: "_rateInEth", internalType: "uint64", type: "uint64" },
-      { name: "_rateDecimals", internalType: "uint8", type: "uint8" },
-    ],
-    name: "changeCurrencyRates",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -10425,6 +11142,19 @@ export const klerosCoreAbi = [
     type: "function",
     inputs: [
       {
+        name: "_ratesConverter",
+        internalType: "contract IRatesConverter",
+        type: "address",
+      },
+    ],
+    name: "changeRatesConverter",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      {
         name: "_sortitionModule",
         internalType: "contract ISortitionModule",
         type: "address",
@@ -10455,6 +11185,11 @@ export const klerosCoreAbi = [
       { name: "alpha", internalType: "uint256", type: "uint256" },
       { name: "feeForJuror", internalType: "uint256", type: "uint256" },
       { name: "jurorsForCourtJump", internalType: "uint256", type: "uint256" },
+      {
+        name: "eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
+      },
     ],
     stateMutability: "view",
   },
@@ -10477,6 +11212,11 @@ export const klerosCoreAbi = [
         name: "_supportedDisputeKits",
         internalType: "uint256[]",
         type: "uint256[]",
+      },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
       },
     ],
     name: "createCourt",
@@ -10504,17 +11244,6 @@ export const klerosCoreAbi = [
     name: "createDispute",
     outputs: [{ name: "disputeID", internalType: "uint256", type: "uint256" }],
     stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [{ name: "", internalType: "contract IERC20", type: "address" }],
-    name: "currencyRates",
-    outputs: [
-      { name: "feePaymentAccepted", internalType: "bool", type: "bool" },
-      { name: "rateInEth", internalType: "uint64", type: "uint64" },
-      { name: "rateDecimals", internalType: "uint8", type: "uint8" },
-    ],
-    stateMutability: "view",
   },
   {
     type: "function",
@@ -10547,6 +11276,7 @@ export const klerosCoreAbi = [
       },
       { name: "period", internalType: "enum KlerosCore.Period", type: "uint8" },
       { name: "ruled", internalType: "bool", type: "bool" },
+      { name: "executed", internalType: "bool", type: "bool" },
       { name: "lastPeriodChange", internalType: "uint256", type: "uint256" },
     ],
     stateMutability: "view",
@@ -10694,6 +11424,17 @@ export const klerosCoreAbi = [
             type: "address",
           },
           { name: "drawIterations", internalType: "uint256", type: "uint256" },
+          { name: "hiddenVotes", internalType: "bool", type: "bool" },
+          {
+            name: "jurorsForCourtJump",
+            internalType: "uint256",
+            type: "uint256",
+          },
+          {
+            name: "timesPerPeriod",
+            internalType: "uint256[4]",
+            type: "uint256[4]",
+          },
           { name: "__gap", internalType: "uint256[10]", type: "uint256[10]" },
         ],
       },
@@ -10711,6 +11452,13 @@ export const klerosCoreAbi = [
         type: "uint256[4]",
       },
     ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_disputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
     stateMutability: "view",
   },
   {
@@ -10755,6 +11503,11 @@ export const klerosCoreAbi = [
       },
       { name: "_wNative", internalType: "address", type: "address" },
       { name: "_jurorNft", internalType: "contract IERC721", type: "address" },
+      {
+        name: "_ratesConverter",
+        internalType: "contract IRatesConverter",
+        type: "address",
+      },
     ],
     name: "initialize",
     outputs: [],
@@ -10808,6 +11561,13 @@ export const klerosCoreAbi = [
   {
     type: "function",
     inputs: [],
+    name: "pauseArbitration",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
     name: "paused",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
@@ -10824,6 +11584,13 @@ export const klerosCoreAbi = [
     inputs: [],
     name: "proxiableUUID",
     outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "ratesConverter",
+    outputs: [{ name: "", internalType: "contract IRatesConverter", type: "address" }],
     stateMutability: "view",
   },
   {
@@ -10873,6 +11640,13 @@ export const klerosCoreAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_gracePeriod", internalType: "uint256", type: "uint256" }],
+    name: "unpauseArbitration",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "newImplementation", internalType: "address", type: "address" },
       { name: "data", internalType: "bytes", type: "bytes" },
@@ -10909,7 +11683,7 @@ export const klerosCoreAbi = [
  *
  */
 export const klerosCoreAddress = {
-  1337: "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+  1337: "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
 } as const;
 
 /**
@@ -10999,7 +11773,7 @@ export const klerosCoreSnapshotProxyAbi = [
  *
  */
 export const klerosCoreSnapshotProxyAddress = {
-  1337: "0x5eb3Bc0a489C5A8288765d2336659EbCA68FCd00",
+  1337: "0x36C02dA8a0983159322a80FFE9F24b1acfF8B570",
 } as const;
 
 /**
@@ -11074,6 +11848,8 @@ export const klerosCoreImplementationAbi = [
   { type: "error", inputs: [], name: "UnsuccessfulCall" },
   { type: "error", inputs: [], name: "UnsupportedDisputeKit" },
   { type: "error", inputs: [], name: "VotePeriodNotPassed" },
+  { type: "error", inputs: [], name: "WhenArbitrationNotPausedOnly" },
+  { type: "error", inputs: [], name: "WhenArbitrationPausedOnly" },
   { type: "error", inputs: [], name: "WhenNotPausedOnly" },
   { type: "error", inputs: [], name: "WhenPausedOnly" },
   { type: "error", inputs: [], name: "WrongDisputeKitIndex" },
@@ -11128,6 +11904,20 @@ export const klerosCoreImplementationAbi = [
       },
     ],
     name: "AppealPossible",
+  },
+  { type: "event", anonymous: false, inputs: [], name: "ArbitrationPaused" },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_gracePeriodEnd",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "ArbitrationUnpaused",
   },
   {
     type: "event",
@@ -11185,6 +11975,12 @@ export const klerosCoreImplementationAbi = [
         name: "_supportedDisputeKits",
         internalType: "uint256[]",
         type: "uint256[]",
+        indexed: false,
+      },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
         indexed: false,
       },
     ],
@@ -11265,6 +12061,12 @@ export const klerosCoreImplementationAbi = [
         name: "_timesPerPeriod",
         internalType: "uint256[4]",
         type: "uint256[4]",
+        indexed: false,
+      },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
         indexed: false,
       },
     ],
@@ -11500,31 +12302,6 @@ export const klerosCoreImplementationAbi = [
     anonymous: false,
     inputs: [
       {
-        name: "_feeToken",
-        internalType: "contract IERC20",
-        type: "address",
-        indexed: true,
-      },
-      {
-        name: "_rateInEth",
-        internalType: "uint64",
-        type: "uint64",
-        indexed: false,
-      },
-      {
-        name: "_rateDecimals",
-        internalType: "uint8",
-        type: "uint8",
-        indexed: false,
-      },
-    ],
-    name: "NewCurrencyRate",
-  },
-  {
-    type: "event",
-    anonymous: false,
-    inputs: [
-      {
         name: "_disputeID",
         internalType: "uint256",
         type: "uint256",
@@ -11565,6 +12342,26 @@ export const klerosCoreImplementationAbi = [
     ],
     name: "Ruling",
   },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_token",
+        internalType: "contract IERC20",
+        type: "address",
+        indexed: false,
+      },
+      { name: "_to", internalType: "address", type: "address", indexed: false },
+      {
+        name: "_value",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "SafeTransferFailed",
+  },
   { type: "event", anonymous: false, inputs: [], name: "Unpaused" },
   {
     type: "event",
@@ -11578,6 +12375,13 @@ export const klerosCoreImplementationAbi = [
       },
     ],
     name: "Upgraded",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "contract IERC20", type: "address" }],
+    name: "acceptedFeeTokens",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -11653,6 +12457,27 @@ export const klerosCoreImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "arbitrationPauseGracePeriodEnd",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "arbitrationPauseGracePeriodStart",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "arbitrationPaused",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "_feeToken", internalType: "contract IERC20", type: "address" },
       { name: "_accepted", internalType: "bool", type: "bool" },
@@ -11692,19 +12517,13 @@ export const klerosCoreImplementationAbi = [
         internalType: "uint256[4]",
         type: "uint256[4]",
       },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
+      },
     ],
     name: "changeCourtParameters",
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [
-      { name: "_feeToken", internalType: "contract IERC20", type: "address" },
-      { name: "_rateInEth", internalType: "uint64", type: "uint64" },
-      { name: "_rateDecimals", internalType: "uint8", type: "uint8" },
-    ],
-    name: "changeCurrencyRates",
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -11753,6 +12572,19 @@ export const klerosCoreImplementationAbi = [
     type: "function",
     inputs: [
       {
+        name: "_ratesConverter",
+        internalType: "contract IRatesConverter",
+        type: "address",
+      },
+    ],
+    name: "changeRatesConverter",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      {
         name: "_sortitionModule",
         internalType: "contract ISortitionModule",
         type: "address",
@@ -11783,6 +12615,11 @@ export const klerosCoreImplementationAbi = [
       { name: "alpha", internalType: "uint256", type: "uint256" },
       { name: "feeForJuror", internalType: "uint256", type: "uint256" },
       { name: "jurorsForCourtJump", internalType: "uint256", type: "uint256" },
+      {
+        name: "eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
+      },
     ],
     stateMutability: "view",
   },
@@ -11805,6 +12642,11 @@ export const klerosCoreImplementationAbi = [
         name: "_supportedDisputeKits",
         internalType: "uint256[]",
         type: "uint256[]",
+      },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
       },
     ],
     name: "createCourt",
@@ -11832,17 +12674,6 @@ export const klerosCoreImplementationAbi = [
     name: "createDispute",
     outputs: [{ name: "disputeID", internalType: "uint256", type: "uint256" }],
     stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [{ name: "", internalType: "contract IERC20", type: "address" }],
-    name: "currencyRates",
-    outputs: [
-      { name: "feePaymentAccepted", internalType: "bool", type: "bool" },
-      { name: "rateInEth", internalType: "uint64", type: "uint64" },
-      { name: "rateDecimals", internalType: "uint8", type: "uint8" },
-    ],
-    stateMutability: "view",
   },
   {
     type: "function",
@@ -11875,6 +12706,7 @@ export const klerosCoreImplementationAbi = [
       },
       { name: "period", internalType: "enum KlerosCore.Period", type: "uint8" },
       { name: "ruled", internalType: "bool", type: "bool" },
+      { name: "executed", internalType: "bool", type: "bool" },
       { name: "lastPeriodChange", internalType: "uint256", type: "uint256" },
     ],
     stateMutability: "view",
@@ -12022,6 +12854,17 @@ export const klerosCoreImplementationAbi = [
             type: "address",
           },
           { name: "drawIterations", internalType: "uint256", type: "uint256" },
+          { name: "hiddenVotes", internalType: "bool", type: "bool" },
+          {
+            name: "jurorsForCourtJump",
+            internalType: "uint256",
+            type: "uint256",
+          },
+          {
+            name: "timesPerPeriod",
+            internalType: "uint256[4]",
+            type: "uint256[4]",
+          },
           { name: "__gap", internalType: "uint256[10]", type: "uint256[10]" },
         ],
       },
@@ -12039,6 +12882,13 @@ export const klerosCoreImplementationAbi = [
         type: "uint256[4]",
       },
     ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_disputeID", internalType: "uint256", type: "uint256" }],
+    name: "getWinningChoices",
+    outputs: [{ name: "winningChoices", internalType: "uint256[]", type: "uint256[]" }],
     stateMutability: "view",
   },
   {
@@ -12083,6 +12933,11 @@ export const klerosCoreImplementationAbi = [
       },
       { name: "_wNative", internalType: "address", type: "address" },
       { name: "_jurorNft", internalType: "contract IERC721", type: "address" },
+      {
+        name: "_ratesConverter",
+        internalType: "contract IRatesConverter",
+        type: "address",
+      },
     ],
     name: "initialize",
     outputs: [],
@@ -12136,6 +12991,13 @@ export const klerosCoreImplementationAbi = [
   {
     type: "function",
     inputs: [],
+    name: "pauseArbitration",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
     name: "paused",
     outputs: [{ name: "", internalType: "bool", type: "bool" }],
     stateMutability: "view",
@@ -12152,6 +13014,13 @@ export const klerosCoreImplementationAbi = [
     inputs: [],
     name: "proxiableUUID",
     outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "ratesConverter",
+    outputs: [{ name: "", internalType: "contract IRatesConverter", type: "address" }],
     stateMutability: "view",
   },
   {
@@ -12201,6 +13070,13 @@ export const klerosCoreImplementationAbi = [
   },
   {
     type: "function",
+    inputs: [{ name: "_gracePeriod", internalType: "uint256", type: "uint256" }],
+    name: "unpauseArbitration",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     inputs: [
       { name: "newImplementation", internalType: "address", type: "address" },
       { name: "data", internalType: "bytes", type: "bytes" },
@@ -12229,7 +13105,7 @@ export const klerosCoreImplementationAbi = [
  *
  */
 export const klerosCoreImplementationAddress = {
-  1337: "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
+  1337: "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
 } as const;
 
 /**
@@ -12264,7 +13140,7 @@ export const klerosCoreProxyAbi = [
  *
  */
 export const klerosCoreProxyAddress = {
-  1337: "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+  1337: "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
 } as const;
 
 /**
@@ -12273,6 +13149,78 @@ export const klerosCoreProxyAddress = {
 export const klerosCoreProxyConfig = {
   address: klerosCoreProxyAddress,
   abi: klerosCoreProxyAbi,
+} as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// LeaderboardOffset
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *
+ */
+export const leaderboardOffsetAbi = [
+  { type: "constructor", inputs: [], stateMutability: "nonpayable" },
+  { type: "error", inputs: [], name: "OnlyOwner" },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      { name: "user", internalType: "address", type: "address", indexed: true },
+      {
+        name: "offset",
+        internalType: "int256",
+        type: "int256",
+        indexed: false,
+      },
+      {
+        name: "arbitrator",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+    ],
+    name: "Offset",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "juror", internalType: "address", type: "address" },
+      { name: "offset", internalType: "int256", type: "int256" },
+      { name: "arbitrator", internalType: "address", type: "address" },
+    ],
+    name: "addOffset",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "newOwner", internalType: "address", type: "address" }],
+    name: "updateOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+] as const;
+
+/**
+ *
+ */
+export const leaderboardOffsetAddress = {
+  1337: "0x809d550fca64d94Bd9F66E60752A544199cfAC3D",
+} as const;
+
+/**
+ *
+ */
+export const leaderboardOffsetConfig = {
+  address: leaderboardOffsetAddress,
+  abi: leaderboardOffsetAbi,
 } as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -12375,6 +13323,26 @@ export const pnkAbi = [
       },
     ],
     name: "OwnershipTransferred",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_token",
+        internalType: "contract IERC20",
+        type: "address",
+        indexed: false,
+      },
+      { name: "_to", internalType: "address", type: "address", indexed: false },
+      {
+        name: "_value",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "SafeTransferFailed",
   },
   {
     type: "event",
@@ -13038,7 +14006,7 @@ export const policyRegistryAbi = [
  *
  */
 export const policyRegistryAddress = {
-  1337: "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+  1337: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
 } as const;
 
 /**
@@ -13193,7 +14161,7 @@ export const policyRegistryImplementationAbi = [
  *
  */
 export const policyRegistryImplementationAddress = {
-  1337: "0x9A676e781A523b5d0C0e43731313A708CB607508",
+  1337: "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
 } as const;
 
 /**
@@ -13228,7 +14196,7 @@ export const policyRegistryProxyAbi = [
  *
  */
 export const policyRegistryProxyAddress = {
-  1337: "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+  1337: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
 } as const;
 
 /**
@@ -13369,6 +14337,102 @@ export const rngWithFallbackAddress = {
 export const rngWithFallbackConfig = {
   address: rngWithFallbackAddress,
   abi: rngWithFallbackAbi,
+} as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RatesConverter
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *
+ */
+export const ratesConverterAbi = [
+  { type: "error", inputs: [], name: "OwnerOnly" },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "_feeToken",
+        internalType: "contract IERC20",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "_rateInEth",
+        internalType: "uint64",
+        type: "uint64",
+        indexed: false,
+      },
+      {
+        name: "_rateDecimals",
+        internalType: "uint8",
+        type: "uint8",
+        indexed: false,
+      },
+    ],
+    name: "NewCurrencyRate",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_feeToken", internalType: "contract IERC20", type: "address" },
+      { name: "_rateInEth", internalType: "uint64", type: "uint64" },
+      { name: "_rateDecimals", internalType: "uint8", type: "uint8" },
+    ],
+    name: "changeCurrencyRates",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_owner", internalType: "address", type: "address" }],
+    name: "changeOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "_toToken", internalType: "contract IERC20", type: "address" },
+      { name: "_amountInEth", internalType: "uint256", type: "uint256" },
+    ],
+    name: "convert",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "contract IERC20", type: "address" }],
+    name: "currencyRates",
+    outputs: [
+      { name: "rateInEth", internalType: "uint64", type: "uint64" },
+      { name: "rateDecimals", internalType: "uint8", type: "uint8" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "owner",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+] as const;
+
+/**
+ *
+ */
+export const ratesConverterAddress = {
+  1337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+} as const;
+
+/**
+ *
+ */
+export const ratesConverterConfig = {
+  address: ratesConverterAddress,
+  abi: ratesConverterAbi,
 } as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13959,6 +15023,11 @@ export const sortitionModuleAbi = [
       { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_newStake", internalType: "uint256", type: "uint256" },
       { name: "_noDelay", internalType: "bool", type: "bool" },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
+      },
     ],
     name: "validateStake",
     outputs: [
@@ -14000,7 +15069,7 @@ export const sortitionModuleAbi = [
  *
  */
 export const sortitionModuleAddress = {
-  1337: "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
+  1337: "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
 } as const;
 
 /**
@@ -14598,6 +15667,11 @@ export const sortitionModuleImplementationAbi = [
       { name: "_courtID", internalType: "uint96", type: "uint96" },
       { name: "_newStake", internalType: "uint256", type: "uint256" },
       { name: "_noDelay", internalType: "bool", type: "bool" },
+      {
+        name: "_eligibility",
+        internalType: "contract ICourtEligibility",
+        type: "address",
+      },
     ],
     name: "validateStake",
     outputs: [
@@ -14631,7 +15705,7 @@ export const sortitionModuleImplementationAbi = [
  *
  */
 export const sortitionModuleImplementationAddress = {
-  1337: "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
+  1337: "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
 } as const;
 
 /**
@@ -14666,7 +15740,7 @@ export const sortitionModuleProxyAbi = [
  *
  */
 export const sortitionModuleProxyAddress = {
-  1337: "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
+  1337: "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
 } as const;
 
 /**
@@ -14713,7 +15787,7 @@ export const transactionBatcherAbi = [
  *
  */
 export const transactionBatcherAddress = {
-  1337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+  1337: "0x9A676e781A523b5d0C0e43731313A708CB607508",
 } as const;
 
 /**

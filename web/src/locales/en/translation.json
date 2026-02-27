@@ -447,7 +447,7 @@
   },
   "maintenance": {
     "jurors_drawn_in_drawing_phase": "Jurors can be drawn in drawing phase.",
-    "pass_phase_here": "Pass phase <link>here</link>."
+    "pass_phase_here": "Pass phase <anchor>here</anchor>."
   },
   "phase": {
     "label": "Phase: {{phase}}",

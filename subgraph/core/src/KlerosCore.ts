@@ -32,9 +32,9 @@ import { createDrawFromEvent } from "./entities/Draw";
 import { updateJurorRewardPenaltyEvent } from "./entities/JurorRewardPenalty";
 import { updateArbitrableCases } from "./entities/Arbitrable";
 import { ClassicVote, Court, Dispute, Draw, Round, User } from "../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, log } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
-import { ensureFeeToken } from "./entities/FeeToken";
+import { ensureFeeToken, updateFeeTokenRate } from "./entities/FeeToken";
 import { getAndIncrementPeriodCounter } from "./entities/PeriodIndexCounter";
 import { SortitionModule } from "../generated/SortitionModule/SortitionModule";
 
@@ -56,6 +56,7 @@ export function handleCourtModified(event: CourtModified): void {
   court.feeForJuror = event.params._feeForJuror;
   court.jurorsForCourtJump = event.params._jurorsForCourtJump;
   court.timesPerPeriod = event.params._timesPerPeriod;
+  court.eligibility = event.params._eligibility.toHexString();
   court.save();
 }
 
@@ -189,7 +190,13 @@ export function handleNewPeriod(event: NewPeriod): void {
   dispute.lastPeriodChangeBlockNumber = event.block.number;
   dispute.periodNotificationIndex = getAndIncrementPeriodCounter(newPeriod);
   if (newPeriod !== "execution") {
-    dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[event.params._period]);
+    const currentRound = Round.load(dispute.currentRound);
+    if (!currentRound) {
+      // This has to exist, if doesn't then it's a critical error
+      log.critical("CurrentRound not present at id: []", [dispute.currentRound]);
+      return;
+    }
+    dispute.periodDeadline = event.block.timestamp.plus(currentRound.timesPerPeriod[event.params._period]);
   } else {
     dispute.periodDeadline = BigInt.fromU64(U64.MAX_VALUE);
   }
@@ -206,6 +213,16 @@ export function handleRuling(event: Ruling): void {
   dispute.ruled = true;
   dispute.rulingTransactionHash = event.transaction.hash.toHexString();
   dispute.rulingTimestamp = event.block.timestamp;
+
+  // check if ruling was executed
+  const core = KlerosCore.bind(event.address);
+  const disputeInfo = core.try_disputes(disputeID);
+  if (disputeInfo.reverted) {
+    log.warning("Execute flag not updated: Unable to query dispute [] on KlerosCore.", [disputeID.toString()]);
+  } else {
+    dispute.executed = disputeInfo.value.getExecuted();
+  }
+
   dispute.save();
   const court = Court.load(dispute.court);
   if (!court) return;
@@ -307,5 +324,9 @@ export function handleJurorRewardPenalty(event: JurorRewardPenaltyEvent): void {
 }
 
 export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {
-  ensureFeeToken(event.params._token, event.address);
+  let feeToken = ensureFeeToken(event.params._token);
+  feeToken = updateFeeTokenRate(feeToken, event.address);
+  // This event is also used to toggle the acceptance of feeToken, note that ensureFeeToken marks the token as not-accepted by default
+  feeToken.accepted = event.params._accepted;
+  feeToken.save();
 }

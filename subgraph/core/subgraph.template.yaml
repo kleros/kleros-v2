@@ -28,6 +28,7 @@ dataSources:
         - Draw
         - DisputeKit
         - Counter
+        - FeeToken
       abis:
         - name: SortitionModule
           file: ../../contracts/deployments/_PLACEHOLDER_/SortitionModule.json
@@ -35,6 +36,8 @@ dataSources:
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
           file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+        - name: RatesConverter
+          file: ../../contracts/deployments/_PLACEHOLDER_/RatesConverter.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -45,9 +48,9 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
-        - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
+        - event: CourtCreated(indexed uint96,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[],address)
           handler: handleCourtCreated
-        - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
+        - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],address)
           handler: handleCourtModified
         - event: DisputeKitCreated(indexed uint256,indexed address)
           handler: handleDisputeKitCreated
@@ -101,6 +104,41 @@ dataSources:
       abis:
         - name: DisputeKitClassic
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+        - name: KlerosCore
+          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: DisputeKitClassicUniversity
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeKitClassicUniversity
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitClassicUniversity
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassicUniversity.json
         - name: KlerosCore
           file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
@@ -293,3 +331,23 @@ dataSources:
         - event: Offset(indexed address,int256,indexed address)
           handler: handleLeaderboardOffset
       file: ./src/LeaderboardOffset.ts
+  - kind: ethereum
+    name: RatesConverter
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: RatesConverter
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - FeeToken
+      abis:
+        - name: RatesConverter
+          file: ../../contracts/deployments/_PLACEHOLDER_/RatesConverter.json
+      eventHandlers:
+        - event: NewCurrencyRate(indexed address,uint64,uint8)
+          handler: handleNewCurrencyRate
+      file: ./src/RatesConverter.ts

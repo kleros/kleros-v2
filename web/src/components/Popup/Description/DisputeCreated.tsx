@@ -41,6 +41,7 @@ const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
 
   const date = useMemo(
     () =>
+      // Using court.timesPerPeriod here since at creation time both per-round and per-court periods are same.
       !isUndefined(courtDetails?.court?.timesPerPeriod)
         ? calculateMinResolveTime(courtDetails?.court.timesPerPeriod)
         : undefined,

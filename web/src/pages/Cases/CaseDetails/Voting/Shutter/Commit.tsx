@@ -42,7 +42,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
   const deadlineCommitPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
-    dispute?.court.timesPerPeriod
+    dispute?.currentRound.timesPerPeriod
   );
   const countdownToVotingPeriod = useCountdown(deadlineCommitPeriod);
 

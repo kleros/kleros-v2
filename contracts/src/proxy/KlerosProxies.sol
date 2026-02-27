@@ -31,7 +31,7 @@ contract DisputeKitSybilResistantProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
-contract DisputeTemplateRegistryUniversityProxy is UUPSProxy {
+contract DisputeKitGatedArgentinaConsumerProtectionProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
@@ -55,10 +55,6 @@ contract KlerosCoreRulerProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
-contract KlerosCoreUniversityProxy is UUPSProxy {
-    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
-}
-
 contract KlerosCoreProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
@@ -68,10 +64,6 @@ contract PolicyRegistryProxy is UUPSProxy {
 }
 
 contract RandomizerRNGProxy is UUPSProxy {
-    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
-}
-
-contract SortitionModuleUniversityProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 

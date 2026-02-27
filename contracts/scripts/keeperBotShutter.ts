@@ -4,10 +4,9 @@ import { DisputeKitGatedShutter, DisputeKitShutter } from "../typechain-types";
 import { decrypt } from "./shutter";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import { Cores, getContracts as getContractsForCoreType } from "./utils/contracts";
+import { getContracts as getContractsForCoreType } from "./utils/contracts";
 
 const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
-const CORE_TYPE = env.optional("CORE_TYPE", "base");
 const DISPUTES_TO_SKIP = env
   .optional("DISPUTES_TO_SKIP", "")
   .split(",")
@@ -40,7 +39,7 @@ const decode = (message: string) => {
   }
   const [choice, salt, ...rest] = parts;
   const justification = rest.join(SEPARATOR);
-  
+
   return {
     choice: BigInt(choice),
     salt,
@@ -310,11 +309,7 @@ export const shutterAutoReveal = async (
 };
 
 const getContracts = async () => {
-  const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
-  if (coreType === Cores.UNIVERSITY) {
-    throw new Error("University is not supported yet");
-  }
-  return await getContractsForCoreType(hre, coreType);
+  return await getContractsForCoreType(hre);
 };
 
 async function main() {

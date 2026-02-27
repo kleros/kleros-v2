@@ -1,6 +1,6 @@
 import { arbitrum, arbitrumSepolia } from "viem/chains";
 
-import { ArbitratorTypes, getArbitratorType as _getArbitratorType } from "consts/arbitratorTypes";
+import { ArbitratorTypes } from "consts/arbitratorTypes";
 
 export { ArbitratorTypes };
 
@@ -21,10 +21,6 @@ export const ETH_SIGNATURE_REGEX = /^0x([a-fA-F0-9]{130})+$|^0x$/;
 
 export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT === "mainnet";
 export const isLocalDeployment = () => process.env.REACT_APP_DEPLOYMENT === "localhost";
-
-export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
-export const getArbitratorType = (): ArbitratorTypes =>
-  _getArbitratorType(process.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase());
 
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;

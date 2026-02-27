@@ -55,7 +55,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }
   const devnetOrLocalhost = isDevnet(hre.network) || isLocalhost(hre.network);
   const minStakingTime = devnetOrLocalhost ? 3 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
-  const maxFreezingTime = devnetOrLocalhost ? 10 * ONE_MINUTE_IN_SECONDS : 60 * ONE_MINUTE_IN_SECONDS;
+  const maxFreezingTime = devnetOrLocalhost ? 10 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
   const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
@@ -147,10 +147,25 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true); // enable disputeKitGatedShutter on the General Court
 
+  const disputeKitClassicUniversity = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
+    from: deployer,
+    args: [deployer, core.target, weth.target],
+    log: true,
+  });
+  await core.addNewDisputeKit(disputeKitClassicUniversity.address);
+  const disputeKitClassicUniversityID = (await core.getDisputeKitsLength()) - 1n;
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitClassicUniversityID], true); // enable disputeKitClassicUniversity on the General Court
+
   // Snapshot proxy
-  await deploy("KlerosCoreSnapshotProxy", {
+  await getContractOrDeploy(hre, "KlerosCoreSnapshotProxy", {
     from: deployer,
     args: [deployer, core.target],
+    log: true,
+  });
+
+  await getContractOrDeploy(hre, "LeaderboardOffset", {
+    from: deployer,
+    args: [],
     log: true,
   });
 };

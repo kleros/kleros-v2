@@ -26,7 +26,7 @@ dist
 .env.development.local
 .env.test.local
 .env.production.local
-.env.devnet-university
+
 # public env files
 !.env.*.public
 

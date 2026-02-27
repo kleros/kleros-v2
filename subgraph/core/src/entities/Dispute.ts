@@ -15,6 +15,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.arbitrated = event.params._arbitrable.toHexString();
   dispute.period = "evidence";
   dispute.ruled = false;
+  dispute.executed = false;
   dispute.currentRuling = ZERO;
   dispute.tied = true;
   dispute.overridden = false;
@@ -25,6 +26,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.evidenceCount = ZERO;
   const court = Court.load(courtID);
   if (!court) return;
+  // Note: It's okay to use `timesPerPeriod` from court here since, at this point, both are the same.
   dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[0]);
   dispute.currentRoundIndex = ZERO;
   const roundID = `${disputeID.toString()}-${ZERO.toString()}`;
