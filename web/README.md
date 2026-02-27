@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://app.netlify.com/sites/kleros-v2-neo/deploys"><img src="https://api.netlify.com/api/v1/badges/46f40014-ff00-4a9a-a1a2-4fefeeb1606a/deploy-status" alt="Netlify Build Status"> Neo</a>
+  <a href="https://app.netlify.com/sites/kleros-v2-neo/deploys"><img src="https://api.netlify.com/api/v1/badges/46f40014-ff00-4a9a-a1a2-4fefeeb1606a/deploy-status" alt="Netlify Build Status"> Beta</a>
   </br>
   <a href="https://app.netlify.com/sites/kleros-v2-testnet/deploys"><img src="https://api.netlify.com/api/v1/badges/86d94ae8-f655-46a4-a859-d68696173f3a/deploy-status" alt="Netlify Build Status"> Testnet / Devnet</a>
 </p>
