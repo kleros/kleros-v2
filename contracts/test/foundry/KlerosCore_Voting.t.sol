@@ -560,7 +560,6 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         assertEq(round.disputeKitID, newDkID, "Wrong DK ID");
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
-        core.draw(0, DEFAULT_NB_OF_JURORS);
 
         vm.warp(block.timestamp + timesPerPeriod[0]);
         core.passPeriod(disputeID); // Vote
