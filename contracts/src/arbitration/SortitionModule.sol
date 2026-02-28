@@ -384,11 +384,6 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
 
         uint256 newStake = currentStake + _reward;
 
-        // Transfer reward directly to the juror so the max stake is not exceeded.
-        if (jurors[_account].stakedPnk + _reward > maxStakePerJuror || newStake > maxStakePerJuror) {
-            return false;
-        }
-
         _setStake(_account, _courtID, _reward, 0, newStake);
         return true;
     }
