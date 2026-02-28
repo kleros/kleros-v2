@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore, IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {DisputeKitShutter} from "../../src/arbitration/dispute-kits/DisputeKitShutter.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import "../../src/libraries/Constants.sol";
@@ -514,6 +515,79 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         assertEq(totalVoted, 3, "totalVoted should be 3");
         assertEq(totalCommited, 0, "totalCommited should be 0");
         assertEq(choiceCount, 3, "choiceCount should be 3");
+    }
+
+    function test_castVote_shutterDK() public {
+        DisputeKitShutter dkLogic = new DisputeKitShutter();
+        // Create a shutter DK to check voting without hidden votes.
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            owner,
+            address(core),
+            address(wNative)
+        );
+
+        UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
+        DisputeKitShutter newDisputeKit = DisputeKitShutter(address(proxyDk));
+
+        vm.prank(owner);
+        core.addNewDisputeKit(newDisputeKit);
+
+        uint256 newDkID = 2;
+        uint256[] memory supportedDK = new uint256[](1);
+        bytes memory newExtraData = abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, newDkID);
+
+        vm.prank(owner);
+        supportedDK[0] = newDkID;
+        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+
+        arbitrable.changeArbitratorExtraData(newExtraData);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        uint256 disputeID = 0;
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.disputeKitID, newDkID, "Wrong DK ID");
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Vote
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+
+        // HiddenVotes is false so only the juror should be able to vote
+        vm.prank(other);
+        vm.expectRevert(DisputeKitShutter.CallerMustBeJurorIfNoHiddenVotes.selector);
+        newDisputeKit.castVoteShutter(disputeID, voteIDs, 2, 0, "XYZ");
+
+        vm.prank(staker1);
+        newDisputeKit.castVoteShutter(disputeID, voteIDs, 2, 0, "XYZ");
+
+        (
+            uint256 winningChoice,
+            bool tied,
+            uint256 totalVoted,
+            uint256 totalCommited,
+            ,
+            uint256 choiceCount
+        ) = newDisputeKit.getRoundInfo(disputeID, 0, 2);
+        assertEq(winningChoice, 2, "Wrong winning choice");
+        assertEq(tied, false, "tied should be false");
+        assertEq(totalVoted, 1, "totalVoted should be 1");
+        assertEq(totalCommited, 0, "totalCommited should be 0");
+        assertEq(choiceCount, 1, "choiceCount should be 1");
     }
 
     function testFuzz_castVote(uint256 numberOfOptions, uint256 choice1, uint256 choice2) public {

@@ -138,6 +138,10 @@ contract DisputeKitShutter is DisputeKitClassicBase {
 
         callerIsJuror = juror == msg.sender;
 
+        uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
+        bool hiddenVotes = core.getRoundInfo(_coreDisputeID, coreRoundID).hiddenVotes;
+        if (!hiddenVotes && !callerIsJuror) revert CallerMustBeJurorIfNoHiddenVotes();
+
         // `_castVote()` ensures that all the `_voteIDs` do belong to `juror`
         _castVote(_coreDisputeID, _voteIDs, _choice, _salt, _justification, juror);
 
@@ -187,4 +191,5 @@ contract DisputeKitShutter is DisputeKitClassicBase {
 
     error EmptyJustificationCommit();
     error JustificationCommitmentMismatch();
+    error CallerMustBeJurorIfNoHiddenVotes();
 }
