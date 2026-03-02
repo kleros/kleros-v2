@@ -24,7 +24,7 @@ interface IClassic {
   disputeKitName?: DisputeKits;
 }
 
-const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, isGated }) => {
+const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, isGated, disputeKitName }) => {
   const { t } = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [amount, setAmount] = useState("");
