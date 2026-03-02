@@ -1072,9 +1072,22 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         sortitionModule.unlockStake(account, pnkLocked);
 
         // Compute the rewards
-        uint256 pnkReward = _applyCoherence(_params.pnkPenaltiesInRound / _params.coherentCount, pnkCoherence);
+        (uint256 pnkReward, uint256 feeReward) = disputeKit.getRewards(
+            _params.coherentCount,
+            _params.pnkPenaltiesInRound,
+            round.totalFeesForJurors,
+            pnkCoherence,
+            feeCoherence
+        );
+        // Sanity check to protect against reward's miscalculation.
+        if (round.sumPnkRewardPaid + pnkReward > _params.pnkPenaltiesInRound) {
+            pnkReward = _params.pnkPenaltiesInRound - round.sumPnkRewardPaid;
+        }
         round.sumPnkRewardPaid += pnkReward;
-        uint256 feeReward = _applyCoherence(round.totalFeesForJurors / _params.coherentCount, feeCoherence);
+
+        if (round.sumFeeRewardPaid + feeReward > round.totalFeesForJurors) {
+            feeReward = round.totalFeesForJurors - round.sumFeeRewardPaid;
+        }
         round.sumFeeRewardPaid += feeReward;
 
         if (feeReward != 0) {

@@ -103,6 +103,22 @@ interface IDisputeKit {
         uint256 _pnkAtStakePerJuror
     ) external view returns (uint256 pnkCoherence);
 
+    /// @notice Gets the rewards for PNK and fees based on coherence and total reward pool.
+    /// @param _coherentCount The number of jurors eligible for reward.
+    /// @param _pnkRewardPool Total amount of PNK available for rewards to all coherent jurors.
+    /// @param _feeRewardPool Total amount of fees available for rewards to all coherent jurors.
+    /// @param _pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @param _feeCoherence The degree of coherence in basis points for the dispute fee reward.
+    /// @return pnkReward The pnk reward the juror is eligible to.
+    /// @return feeReward The fee reward the juror is eligible to.
+    function getRewards(
+        uint256 _coherentCount,
+        uint256 _pnkRewardPool,
+        uint256 _feeRewardPool,
+        uint256 _pnkCoherence,
+        uint256 _feeCoherence
+    ) external view returns (uint256 pnkReward, uint256 feeReward);
+
     /// @notice Gets the number of jurors who are eligible to a reward in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
