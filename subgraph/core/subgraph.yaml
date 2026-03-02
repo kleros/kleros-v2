@@ -268,6 +268,43 @@ dataSources:
           handler: handleCommitCast
       file: ./src/DisputeKitClassic.ts
   - kind: ethereum
+    name: DisputeKitGatedArgentinaConsumerProtection
+    network: arbitrum-sepolia
+    source:
+      address: "0xBe8ea5d936BFc5Dd3E533d0Dc9fCf2ce16b460B1"
+      abi: DisputeKitGatedArgentinaConsumerProtection
+      startBlock: 243594192
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitGatedArgentinaConsumerProtection
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitGatedArgentinaConsumerProtection.json
+        - name: DisputeKitClassic # Required on Alchemy
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+        - name: KlerosCore
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
     name: EvidenceModule
     network: arbitrum-sepolia
     source:
