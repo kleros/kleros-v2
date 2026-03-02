@@ -1,37 +1,35 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-/**
- * @title LeaderboardOffset
- * @notice Emits event to offset juror score for coherency
- */
+/// @title LeaderboardOffset
+/// @notice Emits event to offset juror score for coherency
 contract LeaderboardOffset {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
-    event Offset(address indexed user, int256 offset, address indexed arbitrator);
 
-    event GovernorUpdated(address indexed oldGovernor, address indexed newGovernor);
+    event Offset(address indexed user, int256 offset, address indexed arbitrator);
 
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    address public governor;
+    address public owner;
 
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
-    constructor(address governor_) {
-        if (governor_ == address(0)) revert InvalidGovernor();
-        governor = governor_;
+
+    constructor() {
+        owner = msg.sender;
     }
 
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
-    modifier onlyGovernor() {
-        if (msg.sender != governor) revert NotGovernor();
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert OnlyOwner();
         _;
     }
 
@@ -39,30 +37,27 @@ contract LeaderboardOffset {
     // *             Governance            * //
     // ************************************* //
 
-    /**
-     * @notice Emits an offset event for a given juror.
-     * @param juror The address of the affected juror.
-     * @param offset The signed integer offset (+ or -).
-     * @param arbitrator The arbitrator address.
-     */
-    function setOffset(address juror, int256 offset, address arbitrator) external onlyGovernor {
-        emit Offset(juror, offset, arbitrator);
+    /// @notice Updates the owner address.
+    /// @param newOwner The new owner address.
+    function updateOwner(address newOwner) external onlyOwner {
+        owner = newOwner;
     }
 
-    /**
-     * @notice Updates the governor address.
-     * @param newGovernor The new governor address.
-     */
-    function updateGovernor(address newGovernor) external onlyGovernor {
-        if (newGovernor == address(0)) revert InvalidGovernor();
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
 
-        emit GovernorUpdated(governor, newGovernor);
-        governor = newGovernor;
+    /// @notice Emits an offset event for a given juror.
+    /// @param juror The address of the affected juror.
+    /// @param offset The signed integer offset (+ or -).
+    /// @param arbitrator The arbitrator address.
+    function addOffset(address juror, int256 offset, address arbitrator) external onlyOwner {
+        emit Offset(juror, offset, arbitrator);
     }
 
     // ************************************* //
     // *              Errors               * //
     // ************************************* //
-    error NotGovernor();
-    error InvalidGovernor();
+
+    error OnlyOwner();
 }

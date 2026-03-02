@@ -1,13 +1,12 @@
 import { task } from "hardhat/config";
 import { prompt, print } from "gluegun";
-import { Cores, getContracts } from "./utils/contracts";
+import { getContracts } from "./utils/contracts";
 import { isAddress } from "viem";
 
 const { bold } = print.colors;
 
 task("change-owner", "Changes the owner for all the contracts")
   .addPositionalParam("newOwner", "The address of the new owner")
-  .addOptionalParam("coreType", "The type of core to use between base, university (default: base)", Cores.BASE)
   .setAction(async (taskArgs, hre) => {
     const newOwner = taskArgs.newOwner;
     if (!isAddress(newOwner)) {
@@ -25,16 +24,10 @@ task("change-owner", "Changes the owner for all the contracts")
       return;
     }
 
-    const coreType = Cores[taskArgs.coreType.toUpperCase() as keyof typeof Cores];
-    if (coreType === undefined) {
-      console.error("Invalid core type, must be one of base, university");
-      return;
-    }
-    console.log("Using core type %s", coreType);
-
     const {
       core,
       disputeKitClassic,
+      disputeKitClassicUniversity,
       disputeKitShutter,
       disputeKitGated,
       disputeKitGatedShutter,
@@ -47,7 +40,7 @@ task("change-owner", "Changes the owner for all the contracts")
       snapshotProxy,
       sortition,
       evidence,
-    } = await getContracts(hre, coreType);
+    } = await getContracts(hre);
 
     const updateOwner = async (contractName: string, contractInstance: any) => {
       print.info(`Changing owner for ${contractName}`);
@@ -74,6 +67,7 @@ task("change-owner", "Changes the owner for all the contracts")
     await updateOwner("KlerosCoreSnapshotProxy", snapshotProxy);
     await updateOwner("SortitionModule", sortition);
     await updateOwner("EvidenceModule", evidence);
+    if (disputeKitClassicUniversity) await updateOwner("DisputeKitClassicUniversity", disputeKitClassicUniversity);
     if (disputeKitShutter) await updateOwner("DisputeKitShutter", disputeKitShutter);
     if (disputeKitGated) await updateOwner("DisputeKitGated", disputeKitGated);
     if (disputeKitGatedShutter) await updateOwner("DisputeKitGatedShutter", disputeKitGatedShutter);

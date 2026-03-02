@@ -2,6 +2,8 @@ import React, { useMemo, createContext, useContext, useState } from "react";
 
 import { useParams } from "react-router-dom";
 
+import { Answer, DisputeDetails } from "@kleros/kleros-sdk";
+
 import { ONE_BASIS_POINT } from "consts/index";
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -12,7 +14,6 @@ import { isUndefined } from "utils/index";
 import { useAppealCost } from "queries/useAppealCost";
 import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
-import { Answer, DisputeDetails } from "@kleros/kleros-sdk";
 
 type Option = Answer & { paidFee?: string; funded?: boolean };
 interface ICountdownContext {
@@ -67,13 +68,13 @@ export const ClassicAppealProvider: React.FC<{
 
   const loserSideCountdown = useLoserSideCountdown(
     dispute?.lastPeriodChange,
-    dispute?.court.timesPerPeriod[Periods.appeal],
+    dispute?.currentRound.timesPerPeriod[Periods.appeal],
     multipliers?.loser_appeal_period_multiplier.toString()
   );
 
   const winnerSideCountdown = useWinnerSideCountdown(
     dispute?.lastPeriodChange,
-    dispute?.court.timesPerPeriod[Periods.appeal]
+    dispute?.currentRound.timesPerPeriod[Periods.appeal]
   );
 
   const isLoading = useMemo(() => isUndefined(dispute) || isUndefined(multipliers), [dispute, multipliers]);

@@ -9,7 +9,7 @@ import {
 } from "../typechain-types";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import { Cores, getContracts as getContractsForCoreType } from "./utils/contracts";
+import { getContracts as getContractsForCoreType } from "./utils/contracts";
 import { shutterAutoReveal } from "./keeperBotShutter";
 
 const { ethers } = hre;
@@ -43,11 +43,7 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
 const logger = loggerFactory.createLogger(loggerOptions);
 
 const getContracts = async () => {
-  const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
-  if (coreType === Cores.UNIVERSITY) {
-    throw new Error("University is not supported yet");
-  }
-  const contracts = await getContractsForCoreType(hre, coreType);
+  const contracts = await getContractsForCoreType(hre);
   return { ...contracts, sortition: contracts.sortition as SortitionModule };
 };
 

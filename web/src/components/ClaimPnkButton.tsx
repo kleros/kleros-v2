@@ -67,7 +67,7 @@ const ClaimPnkButton: React.FC = () => {
   const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   return (
     <>
-      {chainId === DEFAULT_CHAIN && !claimed ? (
+      {chainId === DEFAULT_CHAIN.id && !claimed ? (
         <Button
           variant="primary"
           text={faucetCheck ? t("buttons.claim_pnk") : t("buttons.empty_faucet")}

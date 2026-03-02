@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getContractOrDeploy } from "./getContractOrDeploy";
-import { isMainnet } from ".";
+import { isLocalhost, isMainnet } from ".";
 
 export const deployERC20AndFaucet = async (
   hre: HardhatRuntimeEnvironment,
@@ -21,10 +21,14 @@ export const deployERC20 = async (
   deployer: string,
   ticker: string
 ): Promise<Contract> => {
+  // locally the ERC20 contract lacks `increaseAllowance` function,
+  // so we swap it with an updated contract to allow local development
+  const contractName = ticker === "PNK" && isLocalhost(hre.network) ? "PinakionV2" : "TestERC20";
+  const args = ticker === "PNK" && isLocalhost(hre.network) ? [] : [ticker, ticker];
   return await getContractOrDeploy(hre, ticker, {
     from: deployer,
-    contract: "TestERC20",
-    args: [ticker, ticker],
+    contract: contractName,
+    args: args,
     log: true,
   });
 };
@@ -76,6 +80,23 @@ export const deployERC1155 = async (
     from: deployer,
     contract: "TestERC1155",
     args: [],
+    log: true,
+  });
+};
+
+export const deploySBT = async (
+  hre: HardhatRuntimeEnvironment,
+  deployer: string,
+  name: string,
+  ticker: string,
+  description: string,
+  imageUri: string,
+  externalUrl: string
+): Promise<Contract> => {
+  return getContractOrDeploy(hre, ticker, {
+    from: deployer,
+    contract: "SBT",
+    args: [name, ticker, description, imageUri, externalUrl],
     log: true,
   });
 };

@@ -77,10 +77,11 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
 
   const answers = disputeDetails?.answers;
   const drawnJurors = useMemo(
-    () => getDrawnJurorsWithCount(votingHistory?.dispute?.rounds.at(currentTab)?.drawnJurors ?? []),
+    () => getDrawnJurorsWithCount(votingHistory?.dispute?.rounds[currentTab]?.drawnJurors ?? []),
     [votingHistory, currentTab]
   );
 
+  const isHiddenVotes = Boolean(votingHistory?.dispute?.rounds[currentTab].hiddenVotes);
   return (
     <Container>
       <Header>
@@ -114,16 +115,16 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
               callback={(i: number) => setCurrentTab(i)}
             />
             <PendingVotesBox
-              current={Number(localRounds.at(currentTab)?.totalVoted)}
-              total={Number(rounds.at(currentTab)?.nbVotes)}
-              court={rounds.at(currentTab)?.court.name ?? ""}
+              current={Number(localRounds?.[currentTab]?.totalVoted)}
+              total={Number(rounds[currentTab]?.nbVotes)}
+              court={rounds[currentTab]?.court.name ?? ""}
             />
             <VotesAccordion
               drawnJurors={drawnJurors}
               period={disputeData?.dispute?.period}
               answers={answers}
               isActiveRound={localRounds?.length - 1 === currentTab}
-              hiddenVotes={Boolean(disputeData?.dispute?.court.hiddenVotes)}
+              hiddenVotes={isHiddenVotes}
             />
           </TabsContainer>
         </>

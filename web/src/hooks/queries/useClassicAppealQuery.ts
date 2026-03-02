@@ -13,6 +13,8 @@ const classicAppealQuery = graphql(`
       period
       court {
         id
+      }
+      currentRound {
         timesPerPeriod
       }
       arbitrated {
@@ -46,7 +48,7 @@ export const useClassicAppealQuery = (id?: string | number) => {
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<ClassicAppealQuery>({
-    queryKey: [`classicAppealQuery${id}`],
+    queryKey: ["useClassicAppealQuery", id],
     enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     staleTime: STALE_TIME,

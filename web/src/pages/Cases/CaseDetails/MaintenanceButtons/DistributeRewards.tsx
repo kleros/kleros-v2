@@ -47,7 +47,7 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
 
     const baseArgs = {
       abi: klerosCoreAbi,
-      address: klerosCoreAddress[chainId ?? DEFAULT_CHAIN],
+      address: klerosCoreAddress[chainId ?? DEFAULT_CHAIN.id],
       functionName: "execute",
     };
 

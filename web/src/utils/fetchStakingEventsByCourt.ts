@@ -16,7 +16,7 @@ export type StakingEventItem = {
 };
 
 export type StakingEventsByCourtResponse = {
-  userStakingEvents: {
+  userStakingEventsV2: {
     items: Array<{ item: StakingEventItem }>;
     count: number;
   };
@@ -29,7 +29,7 @@ const query = `
     $contract: ContractInput!
     $pagination: PaginationArgs
   ) {
-    userStakingEvents(
+    userStakingEventsV2(
       partialAddress: $partialAddress
       courtIDs: $courtIDs
       contract: $contract

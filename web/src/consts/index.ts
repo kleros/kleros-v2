@@ -30,8 +30,8 @@ export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
 
 export const isProductionDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "mainnet";
 export const isTestnetDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "testnet";
+export const isLocalDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "localhost";
 
-export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
 export const getArbitratorType = (): ArbitratorTypes =>
   _getArbitratorType(import.meta.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase());
 
@@ -46,3 +46,5 @@ export enum DisputeKits {
   GatedShutter = "Token Gated Shutter",
   ArgentinaConsumerProtection = "Argentina Consumer Protection",
 }
+
+export const HARDHAT_NODE_RPC = "http://127.0.0.1:8545";

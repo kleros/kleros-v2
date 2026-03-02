@@ -10,7 +10,7 @@ import {
   TestERC20,
 } from "../../../typechain-types";
 import { expect } from "chai";
-import { Courts } from "../../../deploy/utils";
+import { Courts, NULL_ELIGIBILITY_REQUIREMENT } from "../../../deploy/utils";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployUpgradable } from "../../../deploy/utils/deployUpgradable";
 import { encodeExtraData as encodeGatedExtraData } from "./dispute-kit-gated-common";
@@ -236,7 +236,8 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       16, // jurorsForCourtJump
       [300, 300, 300, 300], // timesPerPeriod for evidence, commit, vote, appeal
       ethers.toBeHex(5), // sortitionExtraData
-      [1, shutterDKID] // supportedDisputeKits - must include Classic (1) and Shutter (2)
+      [1, shutterDKID], // supportedDisputeKits - must include Classic (1) and Shutter (2)
+      NULL_ELIGIBILITY_REQUIREMENT
     );
   } else if (config.contractName === "DisputeKitGatedShutter") {
     // For gated shutter, we need to deploy it if not already deployed
@@ -263,7 +264,8 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       10000, // alpha
       ethers.parseEther("0.1"), // feeForJuror
       16, // jurorsForCourtJump
-      [300, 300, 300, 300] // timesPerPeriod
+      [300, 300, 300, 300], // timesPerPeriod
+      NULL_ELIGIBILITY_REQUIREMENT
     );
 
     await core.enableDisputeKits(Courts.GENERAL, [shutterDKID], true);
@@ -273,7 +275,7 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
     // If gated, whitelist DAI token
     if (config.isGated) {
       const gatedKit = disputeKit as DisputeKitGatedShutterMock;
-      await gatedKit.changeSupportedTokens([dai.target], true);
+      await gatedKit.changeSupportedErc721Tokens(Courts.GENERAL, [dai.target], true);
     }
   } else {
     throw new Error(`Unknown contract name: ${config.contractName}`);

@@ -1,12 +1,9 @@
-import React, { useMemo } from "react";
-import styled, { Theme } from "styled-components";
+import React from "react";
+import styled from "styled-components";
 
 import { Link } from "react-router-dom";
 
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-
-import { ArbitratorTypes, getArbitratorType } from "consts/index";
-import { isUndefined } from "utils/index";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 
@@ -15,18 +12,6 @@ const Container = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 16px;
-`;
-
-const BadgeContainer = styled.div<{ backgroundColor: keyof Theme }>`
-  transform: skewX(-15deg);
-  background-color: ${({ theme, backgroundColor }) => theme[backgroundColor]};
-  border-radius: 3px;
-  padding: 1px 8px;
-  height: fit-content;
-`;
-
-const BadgeText = styled.label`
-  color: ${({ theme }) => theme.darkPurple};
 `;
 
 const StyledKlerosCourtLogo = styled(KlerosCourtLogo)`
@@ -41,29 +26,11 @@ const StyledKlerosCourtLogo = styled(KlerosCourtLogo)`
   }
 `;
 
-const CourtBadge: React.FC = () => {
-  const { text, color } = useMemo<{ text?: string; color?: keyof Theme }>(() => {
-    switch (getArbitratorType()) {
-      case ArbitratorTypes.university:
-        return { text: "Uni", color: "limeGreen" };
-    }
-    return {};
-  }, []);
-
-  return !isUndefined(color) ? (
-    <BadgeContainer {...{ backgroundColor: color }}>
-      <BadgeText>{text}</BadgeText>
-    </BadgeContainer>
-  ) : null;
-};
-
 const Logo: React.FC = () => (
   <Container>
-    {" "}
     <Link to={"/"}>
       <StyledKlerosCourtLogo />
     </Link>
-    <CourtBadge />
   </Container>
 );
 

@@ -42,16 +42,24 @@ export function ensureAnswer(localRoundId: string, answerId: BigInt): Answer {
   return answer;
 }
 
-export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt, delta: BigInt): CurrentRulingInfo {
-  const round = ClassicRound.load(id);
+// Updates the count for choice and compares with the current Winning choice (if different).
+//
+// Note: In DK, Round.winningChoices is an array, if round.winningChoices.length > 1 , then there's a tie.
+// But here we don't need to handle that array, here the round.winningChoice is the winning one, unless round.tied is true, in which case RTA is winning.
+export function updateCountsAndGetCurrentRuling(
+  classicRoundId: string,
+  choice: BigInt,
+  delta: BigInt
+): CurrentRulingInfo {
+  const round = ClassicRound.load(classicRoundId);
   if (!round) return { ruling: ZERO, tied: false };
-  const answer = ensureAnswer(id, choice);
+  const answer = ensureAnswer(classicRoundId, choice);
 
   answer.count = answer.count.plus(delta);
 
   const newChoiceCount = answer.count;
 
-  const winningAnswer = ensureAnswer(id, round.winningChoice);
+  const winningAnswer = ensureAnswer(classicRoundId, round.winningChoice);
   const currentWinningCount = winningAnswer.count;
 
   if (choice.equals(round.winningChoice)) {

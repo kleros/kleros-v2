@@ -12,7 +12,7 @@ import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 
 import { type Evidence } from "src/graphql/graphql";
-import { getTxnExplorerLink } from "src/utils";
+import { getTxnExplorerLink, isUndefined } from "src/utils";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -191,9 +191,9 @@ const AttachedFileText: React.FC = () => {
 };
 
 interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
-  sender: string;
-  index: number;
-  transactionHash: string;
+  sender?: string;
+  index?: number;
+  transactionHash?: string;
 }
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({
@@ -218,7 +218,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
     <StyledCard>
       <TopContent dir="auto">
         <IndexAndName>
-          <Index>#{index}. </Index>
+          {isUndefined(index) ? null : <Index>#{index}. </Index>}
           <h3>{name}</h3>
         </IndexAndName>
         {name && description ? (
@@ -233,12 +233,16 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
       </TopContent>
       <BottomShade>
         <BottomLeftContent>
-          <StyledJurorInternalLink to={profileLink}>
-            <JurorLink address={sender} />
-          </StyledJurorInternalLink>
-          <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-            <label>{formatDate(Number(timestamp), true, i18n.language)}</label>
-          </StyledExternalLink>
+          {isUndefined(sender) ? null : (
+            <StyledJurorInternalLink to={profileLink}>
+              <JurorLink address={sender} />
+            </StyledJurorInternalLink>
+          )}
+          {isUndefined(timestamp) || isUndefined(transactionExplorerLink) ? null : (
+            <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+              <label>{formatDate(Number(timestamp), true, i18n.language)}</label>
+            </StyledExternalLink>
+          )}
         </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>

@@ -69,7 +69,7 @@ const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
 }> = ({ currentPeriodIndex, dispute }) => {
-  const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.court.hiddenVotes);
+  const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.currentRound.hiddenVotes);
   const items = useTimeline(dispute, currentPeriodIndex);
 
   return (
@@ -117,11 +117,18 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     t("timeline.appeal"),
     t("timeline.executed"),
   ];
+  const periodTitles = [
+    t("timeline.evidence_period"),
+    t("timeline.commit_period"),
+    t("timeline.voting_period"),
+    t("timeline.appeal_period"),
+    t("timeline.executed"),
+  ];
 
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
-    dispute?.court.timesPerPeriod
+    dispute?.currentRound.timesPerPeriod
   );
 
   const countdown = useCountdown(deadlineCurrentPeriod);
@@ -136,17 +143,17 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
       } else if (index === currentPeriodIndex) {
         return [secondsToDayHourMinute(countdown)];
       } else {
-        return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
+        return [secondsToDayHourMinute(dispute?.currentRound.timesPerPeriod[index])];
       }
     }
     return [<StyledSkeleton key={index} width={60} />];
   };
   return titles.flatMap((title, i) => {
     // if not hidden votes, skip commit index
-    if (!dispute?.court.hiddenVotes && i === Periods.commit) return [];
+    if (!dispute?.currentRound.hiddenVotes && i === Periods.commit) return [];
     return [
       {
-        title: i + 1 < titles.length && isDesktop ? t("timeline.period_with_name", { name: title }) : title,
+        title: i + 1 < titles.length && isDesktop ? periodTitles[i] : title,
         subitems: getSubitems(i),
       },
     ];

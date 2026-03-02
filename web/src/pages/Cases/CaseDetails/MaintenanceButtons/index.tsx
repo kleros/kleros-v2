@@ -70,7 +70,7 @@ const MaintenanceButtons: React.FC = () => {
 
       if (
         (dispute.period !== Period.Execution &&
-          now > parseInt(dispute.lastPeriodChange) + parseInt(dispute.court.timesPerPeriod[period])) ||
+          now > parseInt(dispute.lastPeriodChange) + parseInt(dispute.currentRound.timesPerPeriod[period])) ||
         (dispute.period === Period.Execution && !dispute.ruled)
       ) {
         setDisplayRipple(true);

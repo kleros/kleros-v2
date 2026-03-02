@@ -69,7 +69,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   useLockOverlayScroll(isPopupOpen);
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
-  const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
+  const timesPerPeriod = disputeData?.dispute?.currentRound.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
@@ -110,7 +110,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
           title={t("popups.thanks_for_voting")}
           icon={VoteIcon}
           popupType={
-            disputeData?.dispute?.court?.hiddenVotes && currentPeriodIndex === Periods.commit
+            disputeData?.dispute?.currentRound?.hiddenVotes && currentPeriodIndex === Periods.commit
               ? PopupType.VOTE_WITH_COMMIT
               : PopupType.VOTE_WITHOUT_COMMIT
           }

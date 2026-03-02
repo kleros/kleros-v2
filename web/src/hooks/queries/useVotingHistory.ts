@@ -17,6 +17,7 @@ const votingHistoryQuery = graphql(`
       rounds {
         nbVotes
         jurorRewardsDispersed
+        hiddenVotes
         court {
           id
           name

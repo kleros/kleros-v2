@@ -3,10 +3,10 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH, ONE_MINUTE_IN_SECONDS } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCore, RNGWithFallback } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, RatesConverter, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -21,6 +21,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const pnk = await deployERC20AndFaucet(hre, deployer, "PNK");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
   const nft = await deployERC721(hre, deployer, "Kleros V2 Neo Early User", "KlerosV2NeoEarlyUser");
+
+  const ratesConverter = await getContractOrDeploy<RatesConverter>(hre, "RatesConverter", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
 
   await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
@@ -42,8 +48,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
   const devnet = isDevnet(hre.network);
-  const minStakingTime = devnet ? 180 : 1800;
-  const maxFreezingTime = devnet ? 600 : 1800;
+  const minStakingTime = devnet ? 3 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
+  const maxFreezingTime = devnet ? 10 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
   const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const maxStakePerJuror = PNK(2_000);
   const maxTotalStaked = PNK(2_000_000);
@@ -80,6 +86,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       sortitionModule.address,
       weth.target,
       nft.target,
+      ratesConverter.target,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
@@ -101,7 +108,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const core = await hre.ethers.getContract<KlerosCore>("KlerosCore");
   try {
-    await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
+    await changeCurrencyRate(core, ratesConverter, await weth.getAddress(), true, 1, 1);
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }
@@ -148,9 +155,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
 
   // Snapshot proxy
-  await deploy("KlerosCoreSnapshotProxy", {
+  await getContractOrDeploy(hre, "KlerosCoreSnapshotProxy", {
     from: deployer,
     args: [deployer, core.target],
+    log: true,
+  });
+
+  await getContractOrDeploy(hre, "LeaderboardOffset", {
+    from: deployer,
+    args: [],
     log: true,
   });
 };

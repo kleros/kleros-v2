@@ -103,7 +103,7 @@ const DisplayStakes: React.FC = () => {
   }, [searchValue, courtId]);
 
   useEffect(() => {
-    const allItems = data?.userStakingEvents?.items ?? [];
+    const allItems = data?.userStakingEventsV2?.items ?? [];
 
     const chunk = allItems.map((item) => {
       const itemCourtId = item.item.args._courtID;

@@ -48,7 +48,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
   } = useTransactionBatcher(
     Array.from({ length: batchSize }, () => ({
       abi: disputeResolverAbi,
-      address: disputeResolverAddress[chainId ?? DEFAULT_CHAIN],
+      address: disputeResolverAddress[chainId ?? DEFAULT_CHAIN.id],
       functionName: "createDisputeForTemplate",
       args: [
         prepareArbitratorExtradata(

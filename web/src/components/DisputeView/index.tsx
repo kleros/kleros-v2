@@ -35,6 +35,7 @@ const DisputeView: React.FC<IDisputeView> = ({
   lastPeriodChange,
   court,
   overrideIsList,
+  currentRound,
 }) => {
   const { t } = useTranslation();
   const { isList } = useIsList();
@@ -43,17 +44,17 @@ const DisputeView: React.FC<IDisputeView> = ({
   const date =
     currentPeriodIndex === 4
       ? lastPeriodChange
-      : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
-  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
+      : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, currentRound.timesPerPeriod);
+  const { data: populatedDisputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
 
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
-  const category = disputeDetails?.category;
+  const category = populatedDisputeDetails?.category;
   const errMsg = isError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
 
   return !isList || overrideIsList ? (
     <DisputeCardView
-      title={disputeDetails?.title ?? errMsg}
+      title={populatedDisputeDetails?.title ?? errMsg}
       disputeID={id}
       courtId={court?.id}
       court={courtName}
@@ -61,11 +62,11 @@ const DisputeView: React.FC<IDisputeView> = ({
       round={parseInt(currentRoundIndex) + 1}
       showLabels
       {...{ category, rewards, date, overrideIsList }}
-      isLoading={isUndefined(disputeDetails)}
+      isLoading={isUndefined(populatedDisputeDetails)}
     />
   ) : (
     <DisputeListView
-      title={disputeDetails?.title ?? errMsg}
+      title={populatedDisputeDetails?.title ?? errMsg}
       disputeID={id}
       courtId={court?.id}
       court={courtName}

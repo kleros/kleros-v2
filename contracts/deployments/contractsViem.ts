@@ -4,10 +4,11 @@ import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
   disputeKitClassicConfig as devnetDkClassicConfig,
+  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
   disputeKitShutterConfig as devnetDkShutterConfig,
   disputeKitGatedConfig as devnetDkGatedConfig,
   disputeKitGatedShutterConfig as devnetDkGatedShutterConfig,
-  disputeResolverConfig as devnetDrConfig,
+  disputeKitGatedArgentinaConsumerProtectionConfig as devnetDkGatedArgentinaConsumerProtectionConfig,
   disputeTemplateRegistryConfig as devnetDtrConfig,
   evidenceModuleConfig as devnetEvidenceConfig,
   policyRegistryConfig as devnetPolicyRegistryConfig,
@@ -16,11 +17,8 @@ import {
   rngWithFallbackConfig as devnetRngWithFallbackConfig,
   pnkConfig as devnetPnkConfig,
   klerosCoreSnapshotProxyConfig as devnetSnapshotProxyConfig,
-  klerosCoreUniversityConfig as devnetCoreUniversityConfig,
-  sortitionModuleUniversityConfig as devnetSortitionUniversityConfig,
-  disputeKitClassicUniversityConfig as devnetDkClassicUniversityConfig,
-  disputeTemplateRegistryUniversityConfig as devnetDtrUniversityConfig,
-  disputeResolverUniversityConfig as devnetDrUniversityConfig,
+  disputeResolverConfig as devnetDrConfig,
+  leaderboardOffsetConfig as devnetLeaderboardOffsetConfig,
 } from "./devnet.viem";
 import {
   klerosCoreConfig as testnetCoreConfig,
@@ -29,6 +27,7 @@ import {
   disputeKitShutterConfig as testnetDkShutterConfig,
   disputeKitGatedConfig as testnetDkGatedConfig,
   disputeKitGatedShutterConfig as testnetDkGatedShutterConfig,
+  // disputeKitGatedArgentinaConsumerProtectionConfig as testnetDkGatedArgentinaConsumerProtectionConfig,
   disputeResolverConfig as testnetDrConfig,
   disputeTemplateRegistryConfig as testnetDtrConfig,
   evidenceModuleConfig as testnetEvidenceConfig,
@@ -37,6 +36,7 @@ import {
   chainlinkRngConfig as testnetChainlinkRngConfig,
   pnkConfig as testnetPnkConfig,
   klerosCoreSnapshotProxyConfig as testnetSnapshotProxyConfig,
+  // leaderboardOffsetConfig as testnetLeaderboardOffsetConfig,
 } from "./testnet.viem";
 import {
   klerosCoreConfig as mainnetCoreConfig,
@@ -45,6 +45,7 @@ import {
   disputeKitShutterConfig as mainnetDkShutterConfig,
   disputeKitGatedConfig as mainnetDkGatedConfig,
   disputeKitGatedShutterConfig as mainnetDkGatedShutterConfig,
+  // disputeKitGatedArgentinaConsumerProtectionConfig as mainnetDkGatedArgentinaConsumerProtectionConfig,
   disputeResolverConfig as mainnetDrConfig,
   disputeTemplateRegistryConfig as mainnetDtrConfig,
   evidenceModuleConfig as mainnetEvidenceConfig,
@@ -54,6 +55,7 @@ import {
   randomizerRngConfig as mainnetRandomizerRngConfig,
   pnkConfig as mainnetPnkConfig,
   klerosCoreSnapshotProxyConfig as mainnetSnapshotProxyConfig,
+  // leaderboardOffsetConfig as mainnetLeaderboardOffsetConfig,
 } from "./mainnet.viem";
 
 type ContractInstance = {
@@ -72,9 +74,11 @@ type ContractInstances = {
   klerosCore: ContractInstance;
   sortition: ContractInstance;
   disputeKitClassic: ContractInstance;
+  disputeKitClassicUniversity?: ContractInstance;
   disputeKitShutter?: ContractInstance;
   disputeKitGated?: ContractInstance;
   disputeKitGatedShutter?: ContractInstance;
+  disputeKitGatedArgentinaConsumerProtection?: ContractInstance;
   disputeResolver: ContractInstance;
   disputeTemplateRegistry: ContractInstance;
   evidence: ContractInstance;
@@ -85,6 +89,7 @@ type ContractInstances = {
   rngWithFallback?: ContractInstance;
   pnk: ContractInstance;
   klerosCoreSnapshotProxy: ContractInstance;
+  leaderboardOffset?: ContractInstance;
 };
 
 function getCommonConfigs({
@@ -96,9 +101,11 @@ function getCommonConfigs({
     klerosCore: ContractConfig;
     sortition: ContractConfig;
     disputeKitClassic: ContractConfig;
+    disputeKitClassicUniversity?: ContractConfig;
     disputeKitShutter?: ContractConfig;
     disputeKitGated?: ContractConfig;
     disputeKitGatedShutter?: ContractConfig;
+    disputeKitGatedArgentinaConsumerProtection?: ContractConfig;
     disputeResolver: ContractConfig;
     disputeTemplateRegistry: ContractConfig;
     evidence: ContractConfig;
@@ -107,6 +114,7 @@ function getCommonConfigs({
     rngWithFallback?: ContractConfig;
     pnk: ContractConfig;
     klerosCoreSnapshotProxy: ContractConfig;
+    leaderboardOffset?: ContractConfig;
     chainlinkRng?: ContractConfig;
     randomizerRng?: ContractConfig;
   };
@@ -124,6 +132,9 @@ function getCommonConfigs({
     klerosCoreSnapshotProxy: getContractConfig({ config: configs.klerosCoreSnapshotProxy, chainId }),
   };
 
+  if (configs.disputeKitClassicUniversity)
+    base.disputeKitClassicUniversity = getContractConfig({ config: configs.disputeKitClassicUniversity, chainId });
+
   if (configs.disputeKitShutter)
     base.disputeKitShutter = getContractConfig({ config: configs.disputeKitShutter, chainId });
 
@@ -132,11 +143,20 @@ function getCommonConfigs({
   if (configs.disputeKitGatedShutter)
     base.disputeKitGatedShutter = getContractConfig({ config: configs.disputeKitGatedShutter, chainId });
 
+  if (configs.disputeKitGatedArgentinaConsumerProtection)
+    base.disputeKitGatedArgentinaConsumerProtection = getContractConfig({
+      config: configs.disputeKitGatedArgentinaConsumerProtection,
+      chainId,
+    });
+
   if (configs.chainlinkRng) base.chainlinkRng = getContractConfig({ config: configs.chainlinkRng, chainId });
 
   if (configs.rngWithFallback) base.rngWithFallback = getContractConfig({ config: configs.rngWithFallback, chainId });
 
   if (configs.randomizerRng) base.randomizerRng = getContractConfig({ config: configs.randomizerRng, chainId });
+
+  if (configs.leaderboardOffset)
+    base.leaderboardOffset = getContractConfig({ config: configs.leaderboardOffset, chainId });
 
   return base;
 }
@@ -151,9 +171,11 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           klerosCore: devnetCoreConfig,
           sortition: devnetSortitionConfig,
           disputeKitClassic: devnetDkClassicConfig,
+          disputeKitClassicUniversity: devnetDkClassicUniversityConfig,
           disputeKitShutter: devnetDkShutterConfig,
           disputeKitGated: devnetDkGatedConfig,
           disputeKitGatedShutter: devnetDkGatedShutterConfig,
+          disputeKitGatedArgentinaConsumerProtection: devnetDkGatedArgentinaConsumerProtectionConfig,
           disputeResolver: devnetDrConfig,
           disputeTemplateRegistry: devnetDtrConfig,
           evidence: devnetEvidenceConfig,
@@ -162,23 +184,10 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           rngWithFallback: devnetRngWithFallbackConfig,
           pnk: devnetPnkConfig,
           klerosCoreSnapshotProxy: devnetSnapshotProxyConfig,
+          leaderboardOffset: devnetLeaderboardOffsetConfig,
           chainlinkRng: devnetChainlinkRngConfig,
         },
       });
-
-    case "university":
-      return {
-        klerosCore: getContractConfig({ config: devnetCoreUniversityConfig, chainId }),
-        sortition: getContractConfig({ config: devnetSortitionUniversityConfig, chainId }),
-        disputeKitClassic: getContractConfig({ config: devnetDkClassicUniversityConfig, chainId }),
-        disputeResolver: getContractConfig({ config: devnetDrUniversityConfig, chainId }),
-        disputeTemplateRegistry: getContractConfig({ config: devnetDtrUniversityConfig, chainId }),
-        evidence: getContractConfig({ config: devnetEvidenceConfig, chainId }), // Not arbitrator specific
-        policyRegistry: getContractConfig({ config: devnetPolicyRegistryConfig, chainId }), // Not arbitrator specific
-        transactionBatcher: getContractConfig({ config: devnetBatcherConfig, chainId }), // Not arbitrator specific
-        pnk: getContractConfig({ config: devnetPnkConfig, chainId }), // Not arbitrator specific
-        klerosCoreSnapshotProxy: getContractConfig({ config: devnetSnapshotProxyConfig, chainId }), // Not used in university
-      };
 
     case "testnet":
       return getCommonConfigs({
@@ -190,6 +199,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           disputeKitShutter: testnetDkShutterConfig,
           disputeKitGated: testnetDkGatedConfig,
           disputeKitGatedShutter: testnetDkGatedShutterConfig,
+          // disputeKitGatedArgentinaConsumerProtectionConfig: testnetDkGatedArgentinaConsumerProtectionConfig,
           disputeResolver: testnetDrConfig,
           disputeTemplateRegistry: testnetDtrConfig,
           evidence: testnetEvidenceConfig,
@@ -197,6 +207,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           transactionBatcher: testnetBatcherConfig,
           pnk: testnetPnkConfig,
           klerosCoreSnapshotProxy: testnetSnapshotProxyConfig,
+          // leaderboardOffsetConfig: testnetLeaderboardOffsetConfig,
           chainlinkRng: testnetChainlinkRngConfig,
         },
       });
@@ -211,6 +222,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           disputeKitShutter: mainnetDkShutterConfig,
           disputeKitGated: mainnetDkGatedConfig,
           disputeKitGatedShutter: mainnetDkGatedShutterConfig,
+          // disputeKitGatedArgentinaConsumerProtectionConfig: mainnetDkGatedArgentinaConsumerProtectionConfig,
           disputeResolver: mainnetDrConfig,
           disputeTemplateRegistry: mainnetDtrConfig,
           evidence: mainnetEvidenceConfig,
@@ -218,6 +230,7 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           transactionBatcher: mainnetBatcherConfig,
           pnk: mainnetPnkConfig,
           klerosCoreSnapshotProxy: mainnetSnapshotProxyConfig,
+          // leaderboardOffsetConfig: mainnetLeaderboardOffsetConfig,
           chainlinkRng: mainnetChainlinkRngConfig,
           randomizerRng: mainnetRandomizerRngConfig,
         },
@@ -256,6 +269,12 @@ export const getContracts = ({
     ...contractConfigs.disputeKitClassic,
     ...clientConfig,
   });
+  const disputeKitClassicUniversity = contractConfigs.disputeKitClassicUniversity
+    ? getContract({
+        ...contractConfigs.disputeKitClassicUniversity,
+        ...clientConfig,
+      })
+    : undefined;
   const disputeKitShutter = contractConfigs.disputeKitShutter
     ? getContract({
         ...contractConfigs.disputeKitShutter,
@@ -271,6 +290,12 @@ export const getContracts = ({
   const disputeKitGatedShutter = contractConfigs.disputeKitGatedShutter
     ? getContract({
         ...contractConfigs.disputeKitGatedShutter,
+        ...clientConfig,
+      })
+    : undefined;
+  const disputeKitGatedArgentinaConsumerProtection = contractConfigs.disputeKitGatedArgentinaConsumerProtection
+    ? getContract({
+        ...contractConfigs.disputeKitGatedArgentinaConsumerProtection,
         ...clientConfig,
       })
     : undefined;
@@ -320,13 +345,21 @@ export const getContracts = ({
     ...contractConfigs.klerosCoreSnapshotProxy,
     ...clientConfig,
   });
+  const leaderboardOffset = contractConfigs.leaderboardOffset
+    ? getContract({
+        ...contractConfigs.leaderboardOffset,
+        ...clientConfig,
+      })
+    : undefined;
   return {
     klerosCore,
     sortition,
     disputeKitClassic,
+    disputeKitClassicUniversity,
     disputeKitShutter,
     disputeKitGated,
     disputeKitGatedShutter,
+    disputeKitGatedArgentinaConsumerProtection,
     disputeResolver,
     disputeTemplateRegistry,
     evidence,
@@ -337,5 +370,6 @@ export const getContracts = ({
     rngWithFallback,
     pnk,
     klerosCoreSnapshotProxy,
+    leaderboardOffset,
   };
 };

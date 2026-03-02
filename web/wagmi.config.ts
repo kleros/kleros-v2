@@ -5,34 +5,17 @@ import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
 import { type Chain } from "viem";
-import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
-
-import { ArbitratorTypes, getArbitratorType } from "consts/arbitratorTypes";
+import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia, hardhat } from "viem/chains";
 
 import IArbitrableV2 from "../contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
 import * as devnetViem from "../contracts/deployments/devnet.viem";
+import * as hardhatViem from "../contracts/deployments/hardhat.viem";
 import * as mainnetViem from "../contracts/deployments/mainnet.viem";
 import * as testnetViem from "../contracts/deployments/testnet.viem";
 
 dotenv.config();
 
-const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardhatChainName?: string) => {
-  const artifactSuffix =
-    type === ArbitratorTypes.vanilla
-      ? ""
-      : ArbitratorTypes[type].toString().charAt(0).toUpperCase() + ArbitratorTypes[type].toString().slice(1);
-  const vanillaArtifacts = [
-    "KlerosCore",
-    "DisputeKitClassic",
-    "DisputeKitShutter",
-    "DisputeKitGated",
-    "DisputeKitGatedShutter",
-    "DisputeKitGatedArgentinaConsumerProtection",
-    "SortitionModule",
-    "DisputeResolver",
-  ];
-  const typeSpecificArtifacts = vanillaArtifacts.map((artifact) => `${artifact}${artifactSuffix}`);
-
+const readArtifacts = async (viemChainName: string, hardhatChainName?: string) => {
   const chainMap: Record<string, Chain> = {
     arbitrum,
     arbitrumSepolia,
@@ -40,6 +23,7 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
     mainnet,
     gnosisChiado,
     gnosis,
+    hardhat,
   };
 
   const chain = chainMap[viemChainName];
@@ -54,22 +38,11 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
   for (const file of files) {
     const { name, ext } = parse(file);
     if (ext === ".json") {
-      let nameWithoutSuffix = name;
-      if (vanillaArtifacts.some((artifact) => name.startsWith(artifact))) {
-        if (!typeSpecificArtifacts.includes(name)) {
-          // console.debug(`Skipping ${name} for deployment type ${ArbitratorTypes[type]}`);
-          continue;
-        }
-        if (type === ArbitratorTypes.university) {
-          nameWithoutSuffix = name.slice(0, -artifactSuffix.length);
-          // console.debug(`Using ${nameWithoutSuffix} instead of ${name}`);
-        }
-      }
       const filePath = join(directoryPath, file);
       const fileContent = await readFile(filePath, "utf-8");
       const jsonContent = JSON.parse(fileContent);
       results.push({
-        name: nameWithoutSuffix,
+        name,
         address: {
           [chain.id]: jsonContent.address as `0x{string}`,
         },
@@ -82,12 +55,16 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
 
 const getConfig = async (): Promise<Config> => {
   const deployment = process.env.REACT_APP_DEPLOYMENT ?? "testnet";
-  const type = getArbitratorType(process.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase() as keyof typeof ArbitratorTypes);
 
   let viemNetwork: string;
   let hardhatNetwork: string;
   let arbitratorContracts;
   switch (deployment) {
+    case "localhost":
+      viemNetwork = "hardhat";
+      hardhatNetwork = "localhost";
+      arbitratorContracts = hardhatViem;
+      break;
     case "devnet":
       viemNetwork = "arbitrumSepolia";
       hardhatNetwork = "arbitrumSepoliaDevnet";
@@ -107,7 +84,7 @@ const getConfig = async (): Promise<Config> => {
       throw new Error(`Unknown deployment ${deployment}`);
   }
 
-  const deploymentContracts = await readArtifacts(type, viemNetwork, hardhatNetwork);
+  const deploymentContracts = await readArtifacts(viemNetwork, hardhatNetwork);
 
   return {
     out: "src/hooks/contracts/generated.ts",

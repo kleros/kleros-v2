@@ -20,6 +20,7 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
     disputeKitShutter,
     disputeKitGated,
     disputeKitGatedShutter,
+    disputeKitGatedArgentinaConsumerProtection,
     disputeTemplateRegistry,
     evidence,
     core,
@@ -71,6 +72,7 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   await upgrade(disputeKitShutter, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGated, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGatedShutter, "reinitialize", [wETH.address]);
+  await upgrade(disputeKitGatedArgentinaConsumerProtection, "reinitialize", [wETH.address]);
   await upgrade(disputeTemplateRegistry, "reinitialize", []);
   await upgrade(evidence, "reinitialize", []);
   await upgrade(core, "reinitialize", [wETH.address]);

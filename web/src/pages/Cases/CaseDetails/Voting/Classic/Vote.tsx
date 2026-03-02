@@ -2,12 +2,13 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+import type { Address } from "viem";
 
-import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
-import { wrapWithToast } from "utils/wrapWithToast";
+import { useVote } from "hooks/useVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { DisputeKits } from "src/consts";
 
 import OptionsContainer from "../OptionsContainer";
 
@@ -17,48 +18,36 @@ const Container = styled.div`
 `;
 
 interface IVote {
-  arbitrable: `0x${string}`;
+  arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
+  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
+const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, disputeKitName }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const wagmiConfig = useConfig();
+
+  const { mutateAsync: vote } = useVote(() => {
+    setIsOpen(true);
+  });
 
   const handleVote = useCallback(
-    async (voteOption: number) => {
-      const { request } = await simulateDisputeKitClassicCastVote(wagmiConfig, {
-        args: [
-          parsedDisputeID,
-          parsedVoteIDs,
-          BigInt(voteOption),
-          BigInt(disputeData?.dispute?.currentRoundIndex),
-          justification,
-        ],
+    async (voteOption: bigint) => {
+      await vote({
+        disputeId: parsedDisputeID,
+        voteIds: parsedVoteIDs,
+        choice: voteOption,
+        salt: BigInt(disputeData?.dispute?.currentRoundIndex),
+        justification,
+        type: disputeKitName ?? DisputeKits.Classic,
       });
-      if (walletClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
-          setIsOpen(status);
-        });
-      }
     },
-    [
-      wagmiConfig,
-      disputeData?.dispute?.currentRoundIndex,
-      justification,
-      parsedVoteIDs,
-      parsedDisputeID,
-      publicClient,
-      setIsOpen,
-      walletClient,
-    ]
+    [disputeData?.dispute?.currentRoundIndex, justification, parsedVoteIDs, parsedDisputeID, vote, disputeKitName]
   );
 
   return (
