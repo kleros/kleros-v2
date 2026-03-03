@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import AppealIcon from "svgs/icons/appeal.svg";
 
+import { DisputeKits } from "consts/index";
 import { useSelectedOptionContext } from "hooks/useClassicAppealContext";
 
 import HowItWorks from "components/HowItWorks";
@@ -18,10 +19,10 @@ import Fund from "./Fund";
 interface IShutter {
   isAppealMiniGuideOpen: boolean;
   toggleAppealMiniGuide: () => void;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Shutter: React.FC<IShutter> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, isGated }) => {
+const Shutter: React.FC<IShutter> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, disputeKitName }) => {
   const { t } = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -50,7 +51,7 @@ const Shutter: React.FC<IShutter> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
       </AppealHeader>
       <label>{t("appeal.jury_decision_appealed")}</label>
       <Options setAmount={setAmount} />
-      <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} {...{ isGated }} />
+      <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} {...{ disputeKitName }} />
     </>
   );
 };

@@ -58,7 +58,6 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
     disputeKitName === DisputeKits.Gated ||
     disputeKitName === DisputeKits.ArgentinaConsumerProtection;
   const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
-  const isGated = Boolean(disputeKitName?.includes("Gated"));
   return (
     <Container>
       {Periods.appeal === currentPeriodIndex ? (
@@ -67,14 +66,14 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
             <Classic
               isAppealMiniGuideOpen={isAppealMiniGuideOpen}
               toggleAppealMiniGuide={toggleAppealMiniGuide}
-              {...{ isGated, disputeKitName }}
+              {...{ disputeKitName }}
             />
           )}
           {isShutterDisputeKit && (
             <Shutter
               isAppealMiniGuideOpen={isAppealMiniGuideOpen}
               toggleAppealMiniGuide={toggleAppealMiniGuide}
-              {...{ isGated }}
+              {...{ disputeKitName }}
             />
           )}
         </>

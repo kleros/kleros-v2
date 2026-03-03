@@ -29,10 +29,10 @@ interface IReveal {
   commit: Bytes32Hash;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated, commit, arbitrable }) => {
+const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitName, commit, arbitrable }) => {
   const { t } = useTranslation();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -58,14 +58,23 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated, commit, arbitr
         voteIds: parsedVoteIDs,
         roundIndex: Number(currentRoundIndex),
         justification,
-        type: isGated ? DisputeKits.GatedShutter : DisputeKits.Shutter,
+        type: disputeKitName ?? DisputeKits.Shutter,
       },
       context: {
         commit,
         answers: disputeDetails?.answers,
       },
     });
-  }, [parsedVoteIDs, justification, currentRoundIndex, revealVote, disputeDetails, commit, isGated, parsedDisputeID]);
+  }, [
+    parsedVoteIDs,
+    justification,
+    currentRoundIndex,
+    revealVote,
+    disputeDetails,
+    commit,
+    disputeKitName,
+    parsedDisputeID,
+  ]);
 
   return (
     <Container>

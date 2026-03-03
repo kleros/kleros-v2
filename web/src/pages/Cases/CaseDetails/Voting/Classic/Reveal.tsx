@@ -45,7 +45,6 @@ interface IReveal {
   setIsOpen: (val: boolean) => void;
   commit: Bytes32Hash;
   isRevealPeriod: boolean;
-  isGated: boolean;
   disputeKitName?: DisputeKits;
 }
 

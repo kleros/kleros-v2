@@ -18,11 +18,10 @@ import Vote from "./Vote";
 interface IClassic {
   arbitrable: Address;
   setIsOpen: (val: boolean) => void;
-  isGated: boolean;
   disputeKitName?: DisputeKits;
 }
 
-const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated, disputeKitName }) => {
+const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, disputeKitName }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -32,7 +31,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated, disputeKi
 
   return id && isHiddenVotes ? (
     isCommitPeriod && !commited ? (
-      <Commit {...{ arbitrable, setIsOpen, voteIDs, isGated, disputeKitName }} />
+      <Commit {...{ arbitrable, setIsOpen, voteIDs, disputeKitName }} />
     ) : (
       <Reveal
         {...{
@@ -40,14 +39,13 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, isGated, disputeKi
           setIsOpen,
           voteIDs,
           isRevealPeriod: !isCommitPeriod,
-          isGated,
           disputeKitName,
           commit: commit as Bytes32Hash,
         }}
       />
     )
   ) : (
-    <Vote {...{ arbitrable, setIsOpen, voteIDs, isGated, disputeKitName }} />
+    <Vote {...{ arbitrable, setIsOpen, voteIDs, disputeKitName }} />
   );
 };
 

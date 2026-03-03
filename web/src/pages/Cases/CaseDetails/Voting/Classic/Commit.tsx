@@ -22,7 +22,6 @@ interface ICommit {
   arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  isGated: boolean;
   disputeKitName?: DisputeKits;
 }
 

@@ -67,7 +67,6 @@ interface IFund {
   amount: `${number}`;
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
-  isGated: boolean;
   disputeKitName?: DisputeKits;
 }
 
