@@ -8,7 +8,7 @@ import { useAccount } from "wagmi";
 
 import VoteIcon from "svgs/icons/voted.svg";
 
-import { DisputeKits } from "consts/index";
+import { isClassicLikeDisputeKit, isShutterLikeDisputeKit } from "consts/index";
 import { Periods } from "consts/periods";
 import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
@@ -74,11 +74,8 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit =
-    disputeKitName === DisputeKits.Classic ||
-    disputeKitName === DisputeKits.Gated ||
-    disputeKitName === DisputeKits.ArgentinaConsumerProtection;
-  const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
+  const isClassicDisputeKit = isClassicLikeDisputeKit(disputeKitName);
+  const isShutterDisputeKit = isShutterLikeDisputeKit(disputeKitName);
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
     [currentPeriodIndex]

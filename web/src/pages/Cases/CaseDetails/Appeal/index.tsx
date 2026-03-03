@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
-import { DisputeKits } from "consts/index";
+import { isClassicLikeDisputeKit, isShutterLikeDisputeKit } from "consts/index";
 import { Periods } from "consts/periods";
 import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
 
@@ -53,11 +53,8 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit =
-    disputeKitName === DisputeKits.Classic ||
-    disputeKitName === DisputeKits.Gated ||
-    disputeKitName === DisputeKits.ArgentinaConsumerProtection;
-  const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
+  const isClassicDisputeKit = isClassicLikeDisputeKit(disputeKitName);
+  const isShutterDisputeKit = isShutterLikeDisputeKit(disputeKitName);
   return (
     <Container>
       {Periods.appeal === currentPeriodIndex ? (
