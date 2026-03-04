@@ -29,7 +29,15 @@ export interface GatedShutterCommitDeps extends BaseCommitBuilderDeps {
   encrypt: typeof encrypt;
 }
 
-export type CommitBuilderDeps = ClassicCommitDeps | ShutterCommitDeps | GatedCommitDeps | GatedShutterCommitDeps;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ArgentinaConsumerProtectionCommitDeps extends BaseCommitBuilderDeps {}
+
+export type CommitBuilderDeps =
+  | ClassicCommitDeps
+  | ShutterCommitDeps
+  | GatedCommitDeps
+  | GatedShutterCommitDeps
+  | ArgentinaConsumerProtectionCommitDeps;
 export const defaultCommitBuilderDeps: BaseCommitBuilderDeps = {
   storeCommitData,
 };

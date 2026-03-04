@@ -32,7 +32,16 @@ export interface GatedShutterRevealParams extends BaseRevealParams {
   type: DisputeKits.GatedShutter;
 }
 
-export type RevealParams = ClassicRevealParams | ShutterRevealParams | GatedRevealParams | GatedShutterRevealParams;
+export interface ArgentinaConsumerProtectionRevealParams extends BaseRevealParams {
+  type: DisputeKits.ArgentinaConsumerProtection;
+}
+
+export type RevealParams =
+  | ClassicRevealParams
+  | ShutterRevealParams
+  | GatedRevealParams
+  | GatedShutterRevealParams
+  | ArgentinaConsumerProtectionRevealParams;
 
 export type ResolveRevealParams = DistributiveOmit<PartialBy<RevealParams, "justification">, "choice" | "salt">;
 export type ResolveRevealContext = {

@@ -8,7 +8,7 @@ import { useAccount } from "wagmi";
 
 import VoteIcon from "svgs/icons/voted.svg";
 
-import { DisputeKits } from "consts/index";
+import { isClassicLikeDisputeKit, isShutterLikeDisputeKit } from "consts/index";
 import { Periods } from "consts/periods";
 import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
@@ -74,10 +74,8 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit = disputeKitName === DisputeKits.Classic || disputeKitName === DisputeKits.Gated;
-  const isShutterDisputeKit = disputeKitName === DisputeKits.Shutter || disputeKitName === DisputeKits.GatedShutter;
-  const isGated = Boolean(disputeKitName?.includes("Gated"));
-
+  const isClassicDisputeKit = isClassicLikeDisputeKit(disputeKitName);
+  const isShutterDisputeKit = isShutterLikeDisputeKit(disputeKitName);
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
     [currentPeriodIndex]
@@ -121,13 +119,13 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
           {isClassicDisputeKit ? (
-            <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ isGated }} />
+            <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ disputeKitName }} />
           ) : null}
           {isShutterDisputeKit ? (
             <Shutter
               arbitrable={arbitrable ?? "0x0"}
               setIsOpen={setIsPopupOpen}
-              {...{ dispute, currentPeriodIndex, isGated }}
+              {...{ dispute, currentPeriodIndex, disputeKitName }}
             />
           ) : null}
         </>

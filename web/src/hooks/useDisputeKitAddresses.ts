@@ -19,6 +19,7 @@ const DISPUTE_KIT_CONFIG = {
   [DisputeKits.Shutter]: "disputeKitShutterAddress",
   [DisputeKits.Gated]: "disputeKitGatedAddress",
   [DisputeKits.GatedShutter]: "disputeKitGatedShutterAddress",
+  [DisputeKits.ArgentinaConsumerProtection]: "disputeKitGatedArgentinaConsumerProtectionAddress",
 } as const;
 
 /**

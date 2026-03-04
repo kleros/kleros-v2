@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import type { Address } from "viem";
 import { useAccount } from "wagmi";
 
+import { DisputeKits } from "consts/index";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
 import type { Bytes32Hash } from "utils/crypto/hashVote";
@@ -18,10 +19,10 @@ interface IShutter {
   setIsOpen: (val: boolean) => void;
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPeriodIndex, isGated }) => {
+const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPeriodIndex, disputeKitName }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, dispute?.currentRound.id);
@@ -34,9 +35,11 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
   return (
     <>
       {shouldShowCommit && (
-        <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, dispute, currentPeriodIndex, isGated }} />
+        <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, dispute, currentPeriodIndex, disputeKitName }} />
       )}
-      {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, isGated, arbitrable, commit: commit as Bytes32Hash }} />}
+      {shouldShowReveal && (
+        <Reveal {...{ setIsOpen, voteIDs, disputeKitName, arbitrable, commit: commit as Bytes32Hash }} />
+      )}
     </>
   );
 };

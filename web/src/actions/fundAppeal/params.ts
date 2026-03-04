@@ -23,8 +23,13 @@ export interface GatedShutterFundAppealParams extends BaseFundAppealParams {
   type: DisputeKits.GatedShutter;
 }
 
+export interface ArgentinaConsumerProtectionFundAppealParams extends BaseFundAppealParams {
+  type: DisputeKits.ArgentinaConsumerProtection;
+}
+
 export type FundAppealParams =
   | ClassicFundAppealParams
   | ShutterFundAppealParams
   | GatedFundAppealParams
-  | GatedShutterFundAppealParams;
+  | GatedShutterFundAppealParams
+  | ArgentinaConsumerProtectionFundAppealParams;

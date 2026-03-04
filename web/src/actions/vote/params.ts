@@ -25,4 +25,13 @@ export interface GatedShutterVoteParams extends BaseVoteParams {
   type: DisputeKits.GatedShutter;
 }
 
-export type VoteParams = ClassicVoteParams | ShutterVoteParams | GatedVoteParams | GatedShutterVoteParams;
+export interface ArgentinaConsumerProtectionVoteParams extends BaseVoteParams {
+  type: DisputeKits.ArgentinaConsumerProtection;
+}
+
+export type VoteParams =
+  | ClassicVoteParams
+  | ShutterVoteParams
+  | GatedVoteParams
+  | GatedShutterVoteParams
+  | ArgentinaConsumerProtectionVoteParams;

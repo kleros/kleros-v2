@@ -26,10 +26,10 @@ interface ICommit {
   setIsOpen: (val: boolean) => void;
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, currentPeriodIndex, isGated }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, currentPeriodIndex, disputeKitName }) => {
   const [justification, setJustification] = useState("");
 
   const { id } = useParams();
@@ -60,7 +60,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
       const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
 
       await castCommit({
-        type: isGated ? DisputeKits.GatedShutter : DisputeKits.Shutter,
+        type: disputeKitName ?? DisputeKits.Shutter,
         disputeId: parsedDisputeID,
         choice,
         voteIds: parsedVoteIDs,
@@ -69,7 +69,15 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
         decryptionDelay,
       });
     },
-    [justification, parsedVoteIDs, parsedDisputeID, countdownToVotingPeriod, isGated, castCommit, currentRoundIndex]
+    [
+      justification,
+      parsedVoteIDs,
+      parsedDisputeID,
+      countdownToVotingPeriod,
+      disputeKitName,
+      castCommit,
+      currentRoundIndex,
+    ]
   );
 
   return id ? (

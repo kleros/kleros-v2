@@ -45,10 +45,10 @@ interface IReveal {
   setIsOpen: (val: boolean) => void;
   commit: Bytes32Hash;
   isRevealPeriod: boolean;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, isGated }) => {
+const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, disputeKitName }) => {
   const { t } = useTranslation();
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
@@ -65,13 +65,14 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     if (isUndefined(currentRoundIndex)) {
       return;
     }
+
     await revealVote({
       params: {
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,
         justification,
         roundIndex: Number(currentRoundIndex),
-        type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
+        type: disputeKitName ?? DisputeKits.Classic,
       },
       context: {
         commit,
@@ -86,7 +87,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     justification,
     parsedVoteIDs,
     parsedDisputeID,
-    isGated,
+    disputeKitName,
   ]);
 
   return (

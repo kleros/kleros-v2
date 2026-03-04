@@ -4,6 +4,7 @@ import { FundAppealContext } from "../context";
 import { FundAppealParams } from "../params";
 
 import { FundAppealBuilder } from "./baseBuilder";
+import { argentinaConsumerProtectionFundAppealBuilder } from "./argentinaConsumerProtection.builder";
 import { classicFundAppealBuilder } from "./classic.builder";
 import { gatedFundAppealBuilder } from "./gated.builder";
 import { gatedShutterFundAppealBuilder } from "./gatedShutter.builder";
@@ -21,6 +22,7 @@ const builders: Record<DisputeKits, FundAppealBuilder> = {
   [DisputeKits.Shutter]: shutterFundAppealBuilder,
   [DisputeKits.Gated]: gatedFundAppealBuilder,
   [DisputeKits.GatedShutter]: gatedShutterFundAppealBuilder,
+  [DisputeKits.ArgentinaConsumerProtection]: argentinaConsumerProtectionFundAppealBuilder,
 };
 
 /**

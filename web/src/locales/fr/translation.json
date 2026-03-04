@@ -633,7 +633,9 @@
     "two_step_commit": "Engagement-révélation en deux étapes",
     "disabled": "Désactivé",
     "hidden_votes_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en un processus d'engagement-révélation en deux étapes.",
-    "non_hidden_votes_tooltip": "Les votes des jurés ne sont pas cachés. Tout le monde peut voir la justification et le choix voté avant la fin de la période de vote."
+    "non_hidden_votes_tooltip": "Les votes des jurés ne sont pas cachés. Tout le monde peut voir la justification et le choix voté avant la fin de la période de vote.",
+    "argentina_consumer_protection": "Protection du consommateur en Argentine",
+    "argentina_consumer_protection_tooltip": "Les jurés doivent détenir soit un token de professionnel accrédité, soit un token d'avocat accrédité en protection du consommateur pour participer. Au moins un juré tiré au sort doit détenir le token d'avocat en protection du consommateur."
   },
   "swap": {
     "claimed_testnet": "Réclamé : {{amount}} PNK (Testnet)",

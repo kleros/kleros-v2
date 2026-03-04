@@ -4,6 +4,7 @@ import { CommitContext } from "../context";
 import { CommitParams } from "../params";
 
 import { CommitBuilder } from "./baseBuilder";
+import { argentinaConsumerProtectionCommitBuilder } from "./argentinaConsumerProtection.builder";
 import { classicCommitBuilder } from "./classic.builder";
 import { gatedCommitBuilder } from "./gated.builder";
 import { gatedShutterCommitBuilder } from "./gatedShutter.builder";
@@ -21,6 +22,7 @@ const builders: Record<DisputeKits, CommitBuilder> = {
   [DisputeKits.Shutter]: shutterCommitBuilder,
   [DisputeKits.Gated]: gatedCommitBuilder,
   [DisputeKits.GatedShutter]: gatedShutterCommitBuilder,
+  [DisputeKits.ArgentinaConsumerProtection]: argentinaConsumerProtectionCommitBuilder,
 };
 
 /**

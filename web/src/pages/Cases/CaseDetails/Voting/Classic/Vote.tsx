@@ -21,10 +21,10 @@ interface IVote {
   arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
+const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, disputeKitName }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -43,10 +43,10 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
         choice: voteOption,
         salt: BigInt(disputeData?.dispute?.currentRoundIndex),
         justification,
-        type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
+        type: disputeKitName ?? DisputeKits.Classic,
       });
     },
-    [disputeData?.dispute?.currentRoundIndex, justification, parsedVoteIDs, parsedDisputeID, vote, isGated]
+    [disputeData?.dispute?.currentRoundIndex, justification, parsedVoteIDs, parsedDisputeID, vote, disputeKitName]
   );
 
   return (

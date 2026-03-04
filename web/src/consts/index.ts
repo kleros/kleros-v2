@@ -44,6 +44,15 @@ export enum DisputeKits {
   Shutter = "Shutter",
   Gated = "Token Gated",
   GatedShutter = "Token Gated Shutter",
+  ArgentinaConsumerProtection = "Argentina Consumer Protection",
 }
+
+export const isClassicLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
+  disputeKit === DisputeKits.Classic ||
+  disputeKit === DisputeKits.Gated ||
+  disputeKit === DisputeKits.ArgentinaConsumerProtection;
+
+export const isShutterLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
+  disputeKit === DisputeKits.Shutter || disputeKit === DisputeKits.GatedShutter;
 
 export const HARDHAT_NODE_RPC = "http://127.0.0.1:8545";

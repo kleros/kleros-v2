@@ -4,6 +4,7 @@ import { RevealContext } from "../context";
 import { RevealParams } from "../params";
 
 import { RevealBuilder } from "./baseBuilder";
+import { argentinaConsumerProtectionRevealBuilder } from "./argentinaConsumerProtection.builder";
 import { classicRevealBuilder } from "./classic.builder";
 import { gatedRevealBuilder } from "./gated.builder";
 import { gatedShutterRevealBuilder } from "./gatedShutter.builder";
@@ -21,6 +22,7 @@ const builders: Record<DisputeKits, RevealBuilder> = {
   [DisputeKits.Shutter]: shutterRevealBuilder,
   [DisputeKits.Gated]: gatedRevealBuilder,
   [DisputeKits.GatedShutter]: gatedShutterRevealBuilder,
+  [DisputeKits.ArgentinaConsumerProtection]: argentinaConsumerProtectionRevealBuilder,
 };
 
 /**

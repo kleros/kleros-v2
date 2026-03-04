@@ -29,4 +29,13 @@ export interface GatedShutterCommitParams extends BaseCommitParams {
   justification: string;
 }
 
-export type CommitParams = ClassicCommitParams | ShutterCommitParams | GatedCommitParams | GatedShutterCommitParams;
+export interface ArgentinaConsumerProtectionCommitParams extends BaseCommitParams {
+  type: DisputeKits.ArgentinaConsumerProtection;
+}
+
+export type CommitParams =
+  | ClassicCommitParams
+  | ShutterCommitParams
+  | GatedCommitParams
+  | GatedShutterCommitParams
+  | ArgentinaConsumerProtectionCommitParams;

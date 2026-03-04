@@ -22,10 +22,10 @@ interface ICommit {
   arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitName }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -43,14 +43,14 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, isGated }) 
       }
 
       await castCommit({
-        type: isGated ? DisputeKits.Gated : DisputeKits.Classic,
+        type: disputeKitName ?? DisputeKits.Classic,
         disputeId: parsedDisputeID,
         choice,
         voteIds: parsedVoteIDs,
         roundIndex: Number(currentRoundIndex),
       });
     },
-    [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, isGated]
+    [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, disputeKitName]
   );
 
   return id ? (

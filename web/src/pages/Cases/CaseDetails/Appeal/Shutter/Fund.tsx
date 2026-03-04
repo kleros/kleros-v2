@@ -66,10 +66,10 @@ interface IFund {
   amount: `${number}`;
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
-  isGated: boolean;
+  disputeKitName?: DisputeKits;
 }
 
-const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
+const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName }) => {
   const { id: disputeId } = useParams();
   const { t } = useTranslation();
   const { address, isDisconnected } = useAccount();
@@ -109,9 +109,9 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, isGated }) => {
       disputeId: BigInt(disputeId),
       choice: BigInt(selectedOption.id),
       fundAmount: parsedAmount,
-      type: isGated ? DisputeKits.GatedShutter : DisputeKits.Shutter,
+      type: disputeKitName ?? DisputeKits.Shutter,
     });
-  }, [fundAppeal, disputeId, selectedOption, parsedAmount, isGated]);
+  }, [fundAppeal, disputeId, selectedOption, parsedAmount, disputeKitName]);
 
   return needFund ? (
     <Container>
