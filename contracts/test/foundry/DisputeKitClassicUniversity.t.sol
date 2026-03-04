@@ -392,7 +392,7 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + 40);
         core.passPeriod(disputeID);
 
-        (, , KlerosCore.Period period, , , ) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , ) = core.disputes(disputeID);
         assertEq(uint256(period), uint256(KlerosCore.Period.execution), "Should be execution period");
 
         // Execute penalties + rewards
@@ -407,12 +407,11 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
 
         // Execute ruling
         vm.expectEmit(true, true, true, true);
-        emit IArbitratorV2.Ruling(uniArbitrable, disputeID, 2);
+        emit IArbitratorV2.RulingExecuted(uniArbitrable, disputeID, 2);
         core.executeRuling(disputeID);
 
-        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
+        (, , , bool ruled, ) = core.disputes(disputeID);
         assertEq(ruled, true, "Should be ruled");
-        assertEq(executed, true, "Should be executed");
     }
 
     function test_fullLifecycle_unanimousVote() public {
@@ -471,7 +470,7 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         }
 
         core.executeRuling(disputeID);
-        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
-        assertTrue(ruled && executed, "Dispute should be ruled and executed");
+        (, , , bool ruled, ) = core.disputes(disputeID);
+        assertTrue(ruled, "Dispute should be ruled");
     }
 }

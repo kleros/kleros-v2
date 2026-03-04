@@ -69,7 +69,6 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
             IArbitrableV2 arbitrated,
             KlerosCore.Period period,
             bool ruled,
-            bool executed,
             uint256 lastPeriodChange
         ) = core.disputes(disputeID);
 
@@ -77,7 +76,6 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(address(arbitrated), address(arbitrable), "Wrong arbitrable");
         assertEq(uint256(period), uint256(KlerosCore.Period.evidence), "Wrong period");
         assertEq(ruled, false, "Should not be ruled");
-        assertEq(executed, false, "Should not be executed");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);

@@ -54,7 +54,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         IArbitrableV2 arbitrated; // The arbitrable contract.
         Period period; // The current period of the dispute.
         bool ruled; // True if the Ruling event has been emitted.
-        bool executed; // True if the ruling has been executed.
         uint256 lastPeriodChange; // The last time the period was changed.
         Round[] rounds; // Rounds of the dispute.
         uint256[10] __gap; // Reserved slots for future upgrades.
@@ -796,6 +795,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
                 revert AppealPeriodNotPassed();
             }
             dispute.period = Period.execution;
+            (uint256 winningChoice, , ) = currentRuling(_disputeID);
+            emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
         } else if (dispute.period == Period.execution) {
             revert DisputePeriodIsFinal();
         }
@@ -1143,17 +1144,12 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         if (arbitrationPaused) revert WhenArbitrationNotPausedOnly();
         Dispute storage dispute = disputes[_disputeID];
         if (dispute.period != Period.execution) revert NotExecutionPeriod();
+        if (dispute.ruled) revert RulingAlreadyExecuted();
 
         (uint256 winningChoice, , ) = currentRuling(_disputeID);
-        if (!dispute.ruled) {
-            dispute.ruled = true;
-            emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
-        }
-        if (!dispute.executed) {
-            try dispute.arbitrated.rule(_disputeID, winningChoice) {
-                dispute.executed = true;
-            } catch {}
-        }
+        dispute.ruled = true;
+        emit RulingExecuted(dispute.arbitrated, _disputeID, winningChoice);
+        dispute.arbitrated.rule(_disputeID, winningChoice);
     }
 
     // ************************************* //

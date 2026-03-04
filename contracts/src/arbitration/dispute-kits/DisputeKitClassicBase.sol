@@ -272,7 +272,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[localRoundID];
 
         ISortitionModule sortitionModule = core.sortitionModule();
-        (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         (drawnAddress, fromSubcourtID) = sortitionModule.draw(courtID, _coreDisputeID, _nonce);
         if (drawnAddress == address(0)) {
             // Sortition can return 0 address if no one has staked yet.
@@ -305,7 +305,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256[] calldata _voteIDs,
         bytes32 _commit
     ) internal whenArbitrationNotPaused isActive(_coreDisputeID) {
-        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.commit) revert NotCommitPeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
         if (_commit == bytes32(0)) revert EmptyCommit();
@@ -352,7 +352,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         string memory _justification,
         address _juror
     ) internal whenArbitrationNotPaused isActive(_coreDisputeID) {
-        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.vote) revert NotVotePeriod();
         if (_voteIDs.length == 0) revert EmptyVoteIDs();
 
@@ -364,7 +364,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[localRoundID];
         {
             uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
-            (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
+            (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
             uint256 courtParamsIndex = core.getRoundInfo(_coreDisputeID, coreRoundID).courtParamsIndex;
             bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
             if (hiddenVotes) {
@@ -485,7 +485,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         address payable _beneficiary,
         uint256 _choice
     ) external returns (uint256 amount) {
-        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         if (period != KlerosCore.Period.execution) revert DisputeNotResolved();
         if (core.paused()) revert CoreIsPaused();
         if (!coreDisputeIDToActive[_coreDisputeID].dispute) revert DisputeUnknownInThisDisputeKit();
@@ -556,7 +556,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         tied = round.tied;
         ruling = tied ? 0 : round.winningChoice;
-        (, , KlerosCore.Period period, , , ) = core.disputes(_coreDisputeID);
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         // Override the final ruling if only one side funded the appeals.
         if (period == KlerosCore.Period.execution) {
             uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
@@ -650,7 +650,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
-        (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         uint256 courtParamsIndex = core
             .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
             .courtParamsIndex;

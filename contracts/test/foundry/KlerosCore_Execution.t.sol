@@ -696,10 +696,12 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
         vm.expectEmit(true, true, true, true);
+        emit IArbitratorV2.Ruling(arbitrable, disputeID, 2); // Winning choice = 2
+        vm.expectEmit(true, true, true, true);
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.execution);
         core.passPeriod(disputeID); // Execution
 
-        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
         assertEq(uint256(period), uint256(KlerosCore.Period.execution), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
@@ -707,14 +709,13 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
 
         vm.expectEmit(true, true, true, true);
-        emit IArbitratorV2.Ruling(arbitrable, disputeID, 2); // Winning choice = 2
+        emit IArbitratorV2.RulingExecuted(arbitrable, disputeID, 2); // Winning choice = 2
         vm.expectEmit(true, true, true, true);
         emit IArbitrableV2.Ruling(core, disputeID, 2);
         core.executeRuling(disputeID);
 
-        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
+        (, , , bool ruled, ) = core.disputes(disputeID);
         assertEq(ruled, true, "Should be ruled");
-        assertEq(executed, true, "Should be executed");
     }
 
     function test_executeRuling_arbitrableRevert() public {
@@ -753,19 +754,16 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
+        vm.expectRevert(MaliciousArbitrableMock.RuleReverted.selector);
         core.executeRuling(disputeID); // Arbitrable reverts
-        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
-        assertEq(ruled, true, "Should be ruled");
-        assertEq(executed, false, "Should not be executed");
 
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 2); // Should not revert even if executeRuling() reverted
 
         maliciousArbitrable.changeBehaviour(false);
 
         core.executeRuling(disputeID);
-        (, , , ruled, executed, ) = core.disputes(disputeID);
+        (, , , bool ruled, ) = core.disputes(disputeID);
         assertEq(ruled, true, "Should be ruled");
-        assertEq(executed, true, "Should be executed");
     }
 
     function test_executeRuling_appealSwitch() public {
@@ -798,10 +796,12 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1); // Fund the losing choice
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
+        vm.expectEmit(true, true, true, true);
+        emit IArbitratorV2.Ruling(arbitrable, disputeID, 1); // Winning choice is switched to 1
         core.passPeriod(disputeID); // Execution
 
         vm.expectEmit(true, true, true, true);
-        emit IArbitratorV2.Ruling(arbitrable, disputeID, 1); // Winning choice is switched to 1
+        emit IArbitratorV2.RulingExecuted(arbitrable, disputeID, 1); // Winning choice is switched to 1
         vm.expectEmit(true, true, true, true);
         emit IArbitrableV2.Ruling(core, disputeID, 1);
         core.executeRuling(disputeID);

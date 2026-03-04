@@ -252,7 +252,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
 
         callerIsJuror = juror == msg.sender;
 
-        (uint96 courtID, , , , , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         uint256 courtParamsIndex = core
             .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
             .courtParamsIndex;
