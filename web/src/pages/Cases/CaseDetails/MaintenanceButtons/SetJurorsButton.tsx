@@ -106,11 +106,16 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
 
     setIsSending(true);
 
-    wrapWithToast(async () => await setJurors(setJurorsConfig.request), publicClient).finally(() => {
-      setIsSending(false);
-      setJurorsInput("");
-      refetchJurorsInQueue();
-    });
+    wrapWithToast(async () => await setJurors(setJurorsConfig.request), publicClient)
+      .then((res) => {
+        if (res.status) {
+          setJurorsInput("");
+          refetchJurorsInQueue();
+        }
+      })
+      .finally(() => {
+        setIsSending(false);
+      });
   };
 
   return (
