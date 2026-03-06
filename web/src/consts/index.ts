@@ -44,13 +44,15 @@ export enum DisputeKits {
   Shutter = "Shutter",
   Gated = "Token Gated",
   GatedShutter = "Token Gated Shutter",
+  ClassicUniversity = "Classic University",
   ArgentinaConsumerProtection = "Argentina Consumer Protection",
 }
 
 export const isClassicLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
   disputeKit === DisputeKits.Classic ||
   disputeKit === DisputeKits.Gated ||
-  disputeKit === DisputeKits.ArgentinaConsumerProtection;
+  disputeKit === DisputeKits.ArgentinaConsumerProtection ||
+  disputeKit === DisputeKits.ClassicUniversity;
 
 export const isShutterLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
   disputeKit === DisputeKits.Shutter || disputeKit === DisputeKits.GatedShutter;

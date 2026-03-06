@@ -1,3 +1,5 @@
+import { isProductionDeployment } from "./index";
+
 export enum Group {
   Voting = "Voting",
   Eligibility = "Eligibility",
@@ -8,6 +10,7 @@ export enum Group {
 export enum Features {
   ShieldedVote = "shieldedVote",
   ClassicVote = "classicVote",
+  UniversityVote = "universityVote",
   ClassicEligibility = "classicEligibility",
   GatedErc20 = "gatedErc20",
   GatedErc1155 = "gatedErc1155",
@@ -38,7 +41,7 @@ export type DisputeKits = DisputeKit[];
 // NOTE: a feature cannot appear in more than one Group
 // DEV: the order of features in array , determine the order the radios appear on UI
 export const featureGroups: FeatureGroups = {
-  [Group.Voting]: [Features.ClassicVote, Features.ShieldedVote],
+  [Group.Voting]: [Features.ClassicVote, Features.ShieldedVote, Features.UniversityVote],
   [Group.Eligibility]: [
     Features.ClassicEligibility,
     Features.GatedErc20,
@@ -78,7 +81,34 @@ export const disputeKits: DisputeKits = [
     featureSets: [[Features.ClassicVote, Features.ArgentinaConsumerProtection]],
     type: "general",
   },
+  {
+    id: 6,
+    featureSets: [[Features.UniversityVote, Features.ClassicEligibility]],
+    type: "general",
+  },
 ];
+
+// excluded on mainnet, we can later update it to an array if we want to have more deployment specific kits
+const UNIVERSITY_DISPUTE_KIT_ID = 6;
+
+/**
+ * Dispute kits available for the current deployment.
+ * University DK is excluded on mainnet.
+ */
+export const getDisputeKitsForDeployment = (): DisputeKits =>
+  isProductionDeployment() ? disputeKits.filter((kit) => kit.id !== UNIVERSITY_DISPUTE_KIT_ID) : disputeKits;
+
+/**
+ * Feature groups for the current deployment.
+ * University vote is excluded on mainnet.
+ */
+export const getFeatureGroupsForDeployment = (): FeatureGroups =>
+  isProductionDeployment()
+    ? {
+        ...featureGroups,
+        [Group.Voting]: featureGroups[Group.Voting].filter((f) => f !== Features.UniversityVote),
+      }
+    : featureGroups;
 
 /** Canonical string for a feature set (order-independent) */
 function normalize(features: Features[]): string {

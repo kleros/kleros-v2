@@ -3,12 +3,13 @@ import styled from "styled-components";
 
 import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { Button, Field } from "@kleros/ui-components-library";
+import { Button } from "@kleros/ui-components-library";
 
+import { DisputeKits } from "consts/index";
 import { useSimulateKlerosCoreDraw, useWriteKlerosCoreDraw } from "hooks/contracts/generated";
+import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
 import { useSortitionModulePhase } from "hooks/useSortitionModule";
 import { wrapWithToast } from "utils/wrapWithToast";
 
@@ -19,6 +20,8 @@ import { isUndefined } from "src/utils";
 
 import { Phases } from "components/Phase";
 
+import SetJurorsButton from "./SetJurorsButton";
+
 import { IBaseMaintenanceButton } from ".";
 
 const StyledButton = styled(Button)`
@@ -26,22 +29,22 @@ const StyledButton = styled(Button)`
 `;
 
 const StyledLabel = styled.label``;
+
 interface IDrawButton extends IBaseMaintenanceButton {
   numberOfVotes?: string;
   period?: string;
+  disputeKitAddress?: string;
 }
 
-// TODO: rely on DK Uni here, for now just hardcoding to `false` to wait for DK Uni support
-const isUniversity = false;
-
-const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period }) => {
+const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period, disputeKitAddress }) => {
   const { t } = useTranslation();
   const publicClient = usePublicClient();
+  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
   const { data: phase } = useSortitionModulePhase();
   const [isSending, setIsSending] = useState(false);
-  const [drawJuror, setDrawJuror] = useState("");
 
+  const isUniversity = disputeKitName === DisputeKits.ClassicUniversity;
   const isDrawn = useMemo(() => maintenanceData?.dispute?.currentRound.jurorsDrawn, [maintenanceData]);
 
   const canDraw = useMemo(
@@ -49,16 +52,26 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
       !isUndefined(maintenanceData) &&
       !isDrawn &&
       period === Period.Evidence &&
+      // university DK doesn't rely on sortition module, so we skip this check
       (isUniversity ? true : phase === Phases.drawing),
-    [maintenanceData, isDrawn, phase, period]
+    [maintenanceData, isDrawn, phase, period, isUniversity]
   );
 
   const needToPassPhase = useMemo(
-    () => !isUndefined(maintenanceData) && !isDrawn && period === Period.Evidence && phase !== Phases.drawing,
-    [maintenanceData, isDrawn, phase, period]
+    () =>
+      !isUniversity &&
+      !isUndefined(maintenanceData) &&
+      !isDrawn &&
+      period === Period.Evidence &&
+      phase !== Phases.drawing,
+    [maintenanceData, isDrawn, phase, period, isUniversity]
   );
 
-  const drawIterations = useMemo(() => Math.min(100, Number(numberOfVotes ?? 0) * 4), [numberOfVotes]);
+  const drawIterations = useMemo(
+    // for uni DK, the jurors are drawn from the jurorQueue, so calling the exact number of Votes is sufficient
+    () => (isUniversity ? Number(numberOfVotes ?? 0) : Math.min(100, Number(numberOfVotes ?? 0) * 4)),
+    [numberOfVotes, isUniversity]
+  );
 
   const {
     data: drawConfig,
@@ -66,31 +79,19 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
     isError,
   } = useSimulateKlerosCoreDraw({
     query: {
-      enabled:
-        !isUndefined(id) &&
-        !isUndefined(numberOfVotes) &&
-        !isUndefined(period) &&
-        canDraw &&
-        (isUniversity ? isAddress(drawJuror) : true),
+      enabled: !isUndefined(id) && !isUndefined(numberOfVotes) && !isUndefined(period) && canDraw,
     },
-    // eslint-disable-next-line
-    // @ts-ignore
-    args: [BigInt(id ?? 0), isUniversity ? drawJuror : drawIterations],
+    args: [BigInt(id ?? 0), BigInt(drawIterations)],
   });
 
   const { writeContractAsync: draw } = useWriteKlerosCoreDraw();
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
-    () =>
-      isUndefined(id) ||
-      isUndefined(numberOfVotes) ||
-      isError ||
-      isLoading ||
-      !canDraw ||
-      (isUniversity && !isAddress(drawJuror)),
-    [id, numberOfVotes, isError, isLoading, canDraw, drawJuror]
+    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading || !canDraw || drawIterations <= 0,
+    [id, numberOfVotes, isError, isLoading, canDraw, drawIterations]
   );
+
   const handleClick = () => {
     if (!drawConfig || !publicClient) return;
 
@@ -101,9 +102,10 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
       setIsOpen(false);
     });
   };
+
   return (
     <>
-      {needToPassPhase && !isUniversity ? (
+      {needToPassPhase ? (
         <StyledLabel>
           {t("maintenance.jurors_drawn_in_drawing_phase")}
           <br />
@@ -113,13 +115,7 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
           />
         </StyledLabel>
       ) : null}
-      {isUniversity && canDraw ? (
-        <Field
-          placeholder={t("forms.placeholders.juror_address")}
-          onChange={(e) => setDrawJuror(e.target.value)}
-          value={drawJuror}
-        />
-      ) : null}
+      {isUniversity && canDraw ? <SetJurorsButton {...{ id, disputeKitAddress }} /> : null}
       <StyledButton text={t("buttons.draw")} small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
     </>
   );

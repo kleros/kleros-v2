@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useChainId } from "wagmi";
 
-import { DisputeKits } from "consts/index";
+import { DisputeKits, isProductionDeployment } from "consts/index";
 
 interface UseDisputeKitAddressesParams {
   disputeKitAddress?: string;
@@ -14,13 +14,28 @@ interface UseDisputeKitAddressesAllReturn {
   error: string | null;
 }
 
-const DISPUTE_KIT_CONFIG = {
+const BASE_DISPUTE_KIT_CONFIG: Record<DisputeKits, string> = {
   [DisputeKits.Classic]: "disputeKitClassicAddress",
   [DisputeKits.Shutter]: "disputeKitShutterAddress",
   [DisputeKits.Gated]: "disputeKitGatedAddress",
   [DisputeKits.GatedShutter]: "disputeKitGatedShutterAddress",
   [DisputeKits.ArgentinaConsumerProtection]: "disputeKitGatedArgentinaConsumerProtectionAddress",
-} as const;
+  [DisputeKits.ClassicUniversity]: "disputeKitClassicUniversityAddress",
+};
+
+/** Dispute kits available in production (ClassicUniversity is devnet only) */
+type ProductionDisputeKits = Exclude<DisputeKits, DisputeKits.ClassicUniversity>;
+
+type DisputeKitConfigMap = Record<DisputeKits, string> | Record<ProductionDisputeKits, string>;
+
+/** Returns the dispute kits config based on deployment */
+const getDisputeKitConfig = (): DisputeKitConfigMap => {
+  if (isProductionDeployment()) {
+    const { [DisputeKits.ClassicUniversity]: _, ...restKits } = BASE_DISPUTE_KIT_CONFIG;
+    return restKits as Record<ProductionDisputeKits, string>;
+  }
+  return { ...BASE_DISPUTE_KIT_CONFIG };
+};
 
 /**
  * Hook to get dispute kit name based on address
@@ -32,6 +47,7 @@ export const useDisputeKitAddresses = ({ disputeKitAddress }: UseDisputeKitAddre
   const [disputeKitName, setDisputeKitName] = useState<DisputeKits | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const disputeKitConfig = useMemo(() => getDisputeKitConfig(), []);
 
   useEffect(() => {
     const loadDisputeKitName = async () => {
@@ -58,7 +74,7 @@ export const useDisputeKitAddresses = ({ disputeKitAddress }: UseDisputeKitAddre
           const generatedContracts = await import("hooks/contracts/generated");
 
           // Check each dispute kit to see if the address matches
-          for (const [humanName, contractKey] of Object.entries(DISPUTE_KIT_CONFIG)) {
+          for (const [humanName, contractKey] of Object.entries(disputeKitConfig)) {
             const addressMapping = generatedContracts[contractKey as keyof typeof generatedContracts];
 
             if (addressMapping && typeof addressMapping === "object" && chainId in addressMapping) {
@@ -90,7 +106,7 @@ export const useDisputeKitAddresses = ({ disputeKitAddress }: UseDisputeKitAddre
     };
 
     loadDisputeKitName();
-  }, [chainId, disputeKitAddress]);
+  }, [chainId, disputeKitAddress, disputeKitConfig]);
 
   return {
     disputeKitName,
@@ -108,6 +124,7 @@ export const useDisputeKitAddressesAll = (): UseDisputeKitAddressesAllReturn => 
   const [availableDisputeKits, setAvailableDisputeKits] = useState<Record<string, DisputeKits>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const disputeKitConfig = useMemo(() => getDisputeKitConfig(), []);
 
   useEffect(() => {
     const loadAllDisputeKitAddresses = async () => {
@@ -128,7 +145,7 @@ export const useDisputeKitAddressesAll = (): UseDisputeKitAddressesAllReturn => 
           const newAvailableDisputeKits: Record<string, DisputeKits> = {};
 
           // Iterate through all dispute kits and get their addresses
-          for (const [humanName, contractKey] of Object.entries(DISPUTE_KIT_CONFIG)) {
+          for (const [humanName, contractKey] of Object.entries(disputeKitConfig)) {
             const addressMapping = generatedContracts[contractKey as keyof typeof generatedContracts];
 
             if (addressMapping && typeof addressMapping === "object" && chainId in addressMapping) {
@@ -154,7 +171,7 @@ export const useDisputeKitAddressesAll = (): UseDisputeKitAddressesAllReturn => 
     };
 
     loadAllDisputeKitAddresses();
-  }, [chainId]);
+  }, [chainId, disputeKitConfig]);
 
   return {
     availableDisputeKits,

@@ -4,7 +4,7 @@ import { parse, join } from "path";
 import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import { type Chain } from "viem";
+import { Address, zeroAddress, type Abi, type Chain } from "viem";
 import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia, hardhat } from "viem/chains";
 
 import IArbitrableV2 from "../contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
@@ -40,7 +40,7 @@ const readArtifacts = async (viemChainName: string, hardhatChainName?: string) =
     if (ext === ".json") {
       const filePath = join(directoryPath, file);
       const fileContent = await readFile(filePath, "utf-8");
-      const jsonContent = JSON.parse(fileContent);
+      const jsonContent = JSON.parse(fileContent) as { address: Address; abi: Abi };
       results.push({
         name,
         address: {
@@ -86,10 +86,29 @@ const getConfig = async (): Promise<Config> => {
 
   const deploymentContracts = await readArtifacts(viemNetwork, hardhatNetwork);
 
+  // On mainnet, DisputeKitClassicUniversity is not deployed. Adding a stub so the generated
+  // hook exists (when useVotingContext, setJurorsButton imports it).
+  // The hook is never enabled on mainnet since we filter out the DisputeKitConfig in useDisputeKitAddresses.
+  let universityStub: ContractConfig[] = [];
+  if (deployment === "mainnet") {
+    console.info("Injecting DisputeKitClassicUniversity stub from arbitrum sepolia deployment");
+    const stubPath = "../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassicUniversity.json";
+
+    const stubContent = JSON.parse(await readFile(stubPath, "utf-8")) as { address: Address; abi: Abi };
+    universityStub = [
+      {
+        name: "DisputeKitClassicUniversity",
+        address: { [arbitrum.id]: zeroAddress },
+        abi: stubContent.abi,
+      },
+    ];
+  }
+
   return {
     out: "src/hooks/contracts/generated.ts",
     contracts: [
       ...deploymentContracts,
+      ...universityStub,
       {
         name: "IHomeGateway",
         abi: arbitratorContracts.iHomeGatewayAbi,

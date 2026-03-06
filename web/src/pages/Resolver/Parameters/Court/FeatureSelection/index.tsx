@@ -6,12 +6,12 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@kleros/ui-components-library";
 
 import {
-  disputeKits,
   ensureValidSmart,
-  featureGroups,
   Features,
   findMatchingKits,
   getDisabledOptions,
+  getDisputeKitsForDeployment,
+  getFeatureGroupsForDeployment,
   getVisibleFeaturesForCourt,
   Group,
   toggleFeature,
@@ -54,10 +54,13 @@ const FeatureSelection: React.FC = () => {
   } = useNewDisputeContext();
   const { data: supportedDisputeKits } = useSupportedDisputeKits(disputeData.courtId);
 
+  const disputeKitsForDeployment = useMemo(() => getDisputeKitsForDeployment(), []);
+  const featureGroupsForDeployment = useMemo(() => getFeatureGroupsForDeployment(), []);
+
   // DEV: initial feature selection logic, included hardcoded logic
   useEffect(() => {
     if (!isUndefined(disputeData?.disputeKitId)) {
-      const defaultKit = disputeKits.find((dk) => dk.id === disputeData.disputeKitId);
+      const defaultKit = disputeKitsForDeployment.find((dk) => dk.id === disputeData.disputeKitId);
       if (!defaultKit) return;
 
       // some kits like gated can have two feature sets, one for gatedERC20 and other for ERC1155
@@ -77,15 +80,15 @@ const FeatureSelection: React.FC = () => {
   const allowedDisputeKits = useMemo(() => {
     if (!supportedDisputeKits?.court?.supportedDisputeKits) return [];
     const allowedIds = supportedDisputeKits.court.supportedDisputeKits.map((dk) => Number(dk.id));
-    return disputeKits.filter((kit) => allowedIds.includes(kit.id));
-  }, [supportedDisputeKits]);
+    return disputeKitsForDeployment.filter((kit) => allowedIds.includes(kit.id));
+  }, [supportedDisputeKits, disputeKitsForDeployment]);
 
   // Court specific groups
   const courtGroups = useMemo(() => {
     const courtKits = supportedDisputeKits?.court?.supportedDisputeKits.map((dk) => Number(dk.id));
     if (isUndefined(courtKits) || allowedDisputeKits.length === 0) return {};
-    return getVisibleFeaturesForCourt(courtKits, allowedDisputeKits, featureGroups);
-  }, [supportedDisputeKits, allowedDisputeKits]);
+    return getVisibleFeaturesForCourt(courtKits, allowedDisputeKits, featureGroupsForDeployment);
+  }, [supportedDisputeKits, allowedDisputeKits, featureGroupsForDeployment]);
 
   const disabled = useMemo(
     () => getDisabledOptions(selected, courtGroups, allowedDisputeKits),

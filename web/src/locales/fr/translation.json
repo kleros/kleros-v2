@@ -32,6 +32,7 @@
     "reveal_your_vote": "Révéler votre vote",
     "justify_and_reveal": "Justifier et révéler",
     "draw": "Tirer au sort",
+    "set_jurors": "Définir les jurés",
     "rule": "Statuer",
     "pass_period": "Passer la période",
     "pass_phase": "Passer la phase",
@@ -63,6 +64,7 @@
       "amount_to_withdraw": "Montant à retirer",
       "amount_to_fund": "Montant à financer",
       "juror_address": "Adresse du juré",
+      "juror_addresses_comma_separated": "0x123..., 0x456... (séparés par des virgules)",
       "search_evidence": "Rechercher des preuves par numéro, mot ou soumetteur",
       "freelance_example": "ex. Freelance",
       "alice_bob_example": "ex. Désaccord sur un travail freelance entre Alice et Bob",
@@ -446,6 +448,7 @@
     "unknown_court": "Cour inconnue"
   },
   "maintenance": {
+    "jurors_in_queue": "Jurés en file d'attente : {{count}}",
     "jurors_drawn_in_drawing_phase": "Les jurés peuvent être tirés en phase de tirage.",
     "pass_phase_here": "Passer la phase <anchor>ici</anchor>."
   },
@@ -635,7 +638,10 @@
     "hidden_votes_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en un processus d'engagement-révélation en deux étapes.",
     "non_hidden_votes_tooltip": "Les votes des jurés ne sont pas cachés. Tout le monde peut voir la justification et le choix voté avant la fin de la période de vote.",
     "argentina_consumer_protection": "Protection du consommateur en Argentine",
-    "argentina_consumer_protection_tooltip": "Les jurés doivent détenir soit un token de professionnel accrédité, soit un token d'avocat accrédité en protection du consommateur pour participer. Au moins un juré tiré au sort doit détenir le token d'avocat en protection du consommateur."
+    "argentina_consumer_protection_tooltip": "Les jurés doivent détenir soit un token de professionnel accrédité, soit un token d'avocat accrédité en protection du consommateur pour participer. Au moins un juré tiré au sort doit détenir le token d'avocat en protection du consommateur.",
+    "university_vote": "Université (Jurés sélectionnés par l'instructeur)",
+    "university_vote_tooltip": "Conçu pour un usage éducatif. Un instructeur présélectionne les jurés au lieu du tirage aléatoire. Utilise le vote engagement-révélation standard comme le kit de litige classique.",
+    "university_instructor": "Instructeur"
   },
   "swap": {
     "claimed_testnet": "Réclamé : {{amount}} PNK (Testnet)",

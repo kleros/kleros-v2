@@ -32,6 +32,7 @@
     "reveal_your_vote": "Reveal Your Vote",
     "justify_and_reveal": "Justify & Reveal",
     "draw": "Draw",
+    "set_jurors": "Set Jurors",
     "rule": "Rule",
     "pass_period": "Pass Period",
     "pass_phase": "Pass Phase",
@@ -63,6 +64,7 @@
       "amount_to_withdraw": "Amount to withdraw",
       "amount_to_fund": "Amount to fund",
       "juror_address": "Juror Address",
+      "juror_addresses_comma_separated": "0x123..., 0x456... (comma-separated)",
       "search_evidence": "Search evidence by number, word, or submitter",
       "freelance_example": "eg. Freelance",
       "alice_bob_example": "eg. Freelance work disagreement between Alice and Bob",
@@ -447,7 +449,8 @@
   },
   "maintenance": {
     "jurors_drawn_in_drawing_phase": "Jurors can be drawn in drawing phase.",
-    "pass_phase_here": "Pass phase <anchor>here</anchor>."
+    "pass_phase_here": "Pass phase <anchor>here</anchor>.",
+    "jurors_in_queue": "Jurors in queue: {{count}}"
   },
   "phase": {
     "label": "Phase: {{phase}}",
@@ -635,7 +638,10 @@
     "hidden_votes_tooltip": "The jurors votes are hidden. Nobody can see them before the voting period completes. It takes place in a two-step commit-reveal process.",
     "non_hidden_votes_tooltip": "The jurors votes are not hidden. Everybody can see the justification and voted choice before the voting period completes.",
     "argentina_consumer_protection": "Argentina Consumer Protection",
-    "argentina_consumer_protection_tooltip": "Jurors must hold either an accredited professional token or an accredited consumer protection lawyer token to participate. At least one drawn juror must hold the consumer protection lawyer token."
+    "argentina_consumer_protection_tooltip": "Jurors must hold either an accredited professional token or an accredited consumer protection lawyer token to participate. At least one drawn juror must hold the consumer protection lawyer token.",
+    "university_vote": "University (Instructor-Selected Jurors)",
+    "university_vote_tooltip": "Designed for educational use. An instructor pre-selects the jurors instead of random sortition. Uses standard commit-reveal voting like the classic dispute kit.",
+    "university_instructor": "Instructor"
   },
   "swap": {
     "claimed_testnet": "Claimed: {{amount}} PNK (Testnet)",

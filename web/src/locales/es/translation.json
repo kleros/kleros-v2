@@ -32,6 +32,7 @@
     "reveal_your_vote": "Revelar tu voto",
     "justify_and_reveal": "Justificar y revelar",
     "draw": "Sortear",
+    "set_jurors": "Establecer jurados",
     "rule": "Decidir",
     "pass_period": "Pasar período",
     "pass_phase": "Pasar fase",
@@ -63,6 +64,7 @@
       "amount_to_withdraw": "Cantidad a retirar",
       "amount_to_fund": "Cantidad a financiar",
       "juror_address": "Dirección del jurado",
+      "juror_addresses_comma_separated": "0x123..., 0x456... (separados por comas)",
       "search_evidence": "Buscar evidencia por número, palabra o remitente",
       "freelance_example": "ej. Freelance",
       "alice_bob_example": "ej. Desacuerdo de trabajo freelance entre Alice y Bob",
@@ -446,6 +448,7 @@
     "unknown_court": "Corte desconocida"
   },
   "maintenance": {
+    "jurors_in_queue": "Jurados en cola: {{count}}",
     "jurors_drawn_in_drawing_phase": "Los jurados pueden ser sorteados en la fase de sorteo.",
     "pass_phase_here": "Pasar fase <anchor>aquí</anchor>."
   },
@@ -635,7 +638,10 @@
     "hidden_votes_tooltip": "Los votos de los jurados están ocultos. Nadie puede verlos antes de que se complete el período de votación. Se lleva a cabo en un proceso de dos pasos: comprometer y revelar.",
     "non_hidden_votes_tooltip": "Los votos de los jurados no están ocultos. Todos pueden ver la justificación y la opción votada antes de que se complete el período de votación.",
     "argentina_consumer_protection": "Protección al Consumidor de Argentina",
-    "argentina_consumer_protection_tooltip": "Los jurados deben poseer un token de profesional acreditado o un token de abogado acreditado en protección al consumidor para participar. Al menos un jurado sorteado debe poseer el token de abogado de protección al consumidor."
+    "argentina_consumer_protection_tooltip": "Los jurados deben poseer un token de profesional acreditado o un token de abogado acreditado en protección al consumidor para participar. Al menos un jurado sorteado debe poseer el token de abogado de protección al consumidor.",
+    "university_vote": "Universidad (Jurados seleccionados por el instructor)",
+    "university_vote_tooltip": "Diseñado para uso educativo. Un instructor preselecciona los jurados en lugar del sorteo aleatorio. Utiliza el voto compromiso-revelación estándar como el kit de disputa clásico.",
+    "university_instructor": "Instructor"
   },
   "swap": {
     "claimed_testnet": "Reclamado: {{amount}} PNK (Testnet)",

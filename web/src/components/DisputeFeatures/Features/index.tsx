@@ -13,6 +13,7 @@ import ArgentinaConsumerProtection from "./ArgentinaConsumerProtection";
 import ClassicVote from "./ClassicVote";
 import GatedErc1155 from "./GatedErc1155";
 import GatedErc20 from "./GatedErc20";
+import UniversityVote from "./UniversityVote";
 
 export type RadioInput = {
   name: string;
@@ -47,6 +48,7 @@ const ClassicEligibilityComponent: React.FC<RadioInput> = (props) => {
 export const FeatureUIs: Record<Features, FeatureUI> = {
   [Features.ShieldedVote]: ShieldedVoteComponent,
   [Features.ClassicVote]: ClassicVote,
+  [Features.UniversityVote]: UniversityVote,
   [Features.ClassicEligibility]: ClassicEligibilityComponent,
   [Features.GatedErc20]: GatedErc20,
   [Features.GatedErc1155]: GatedErc1155,
