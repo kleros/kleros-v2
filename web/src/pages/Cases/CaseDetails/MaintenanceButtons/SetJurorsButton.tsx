@@ -59,12 +59,14 @@ interface ISetJurorsButton extends Pick<IBaseMaintenanceButton, "id"> {
   disputeKitAddress?: string;
 }
 
-const parseJurorAddresses = (input: string): Address[] => {
-  return input
+const parseJurorAddresses = (input: string): { jurors: Address[]; hasInvalidTokens: boolean } => {
+  const tokens = input
     .split(/[,\s]+/)
     .map((s) => s.trim())
-    .filter(Boolean)
-    .filter((addr) => isAddress(addr));
+    .filter(Boolean);
+
+  const jurors = tokens.filter((addr): addr is Address => isAddress(addr));
+  return { jurors, hasInvalidTokens: jurors.length !== tokens.length };
 };
 
 const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) => {
@@ -73,8 +75,8 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
   const [isSending, setIsSending] = useState(false);
   const [jurorsInput, setJurorsInput] = useState("");
 
-  const jurors = useMemo(() => parseJurorAddresses(jurorsInput), [jurorsInput]);
-  const hasValidJurors = jurors.length > 0;
+  const { jurors, hasInvalidTokens } = useMemo(() => parseJurorAddresses(jurorsInput), [jurorsInput]);
+  const hasValidJurors = jurors.length > 0 && !hasInvalidTokens;
 
   const { data: instructorAddress } = useReadDisputeKitClassicUniversityInstructor();
   const { data: jurorsInQueue, refetch: refetchJurorsInQueue } = useReadDisputeKitClassicUniversityGetJurors({
