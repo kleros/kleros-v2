@@ -53,7 +53,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     mapping(TreeKey key => SortitionTrees.Tree) sortitionSumTrees; // The mapping of sortition trees by keys.
     mapping(address account => Juror) public jurors; // The jurors.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
-    uint256 public maxStakePerJuror; // The maximum amount of PNK that a juror can stake across the courts.
+    uint256 public maxStakePerJuror; // The maximum amount of PNK that a juror can stake across the courts. Accrued rewards do not count toward this limit.
     uint256 public maxTotalStaked; // The maximum amount of PNK that all the jurors can stake across the courts.
     uint256 public totalStaked; // The amount of PNK that is currently staked across the courts.
 
@@ -111,7 +111,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
-    /// @param _maxStakePerJuror The maximum amount of PNK a juror can stake across the courts.
+    /// @param _maxStakePerJuror The maximum amount of PNK a juror can stake across the courts. Accrued rewards do not count.
     /// @param _maxTotalStaked The maximum amount of PNK that all the jurors can stake across the courts.
     function initialize(
         address _owner,
