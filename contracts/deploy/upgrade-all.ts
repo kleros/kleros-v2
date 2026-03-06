@@ -67,6 +67,9 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
 
       switch (contractName) {
         case "DisputeKitClassicNeo":
+        case "DisputeKitShutterNeo":
+        case "DisputeKitGatedNeo":
+        case "DisputeKitGatedShutterNeo":
         case "DisputeResolverNeo":
           await deployUpgradable(deployments, contractName, {
             contract: contractName,
@@ -96,8 +99,8 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
 
   await upgrade(disputeKitClassic, "reinitialize", [wETH.address]);
   await upgrade(disputeKitShutter, "reinitialize", [wETH.address]);
-  await upgrade(disputeKitGated, "reinitialize", [wETH.address]);
-  await upgrade(disputeKitGatedShutter, "reinitialize", [wETH.address]);
+  await upgrade(disputeKitGated, "reinitialize", []);
+  await upgrade(disputeKitGatedShutter, "reinitialize", []);
   await upgrade(disputeTemplateRegistry, "initialize2", []);
   await upgrade(evidence, "initialize2", []);
   await upgrade(core, "reinitialize", [wETH.address]);

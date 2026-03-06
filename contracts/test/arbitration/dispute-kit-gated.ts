@@ -5,15 +5,16 @@ import {
   KlerosCore,
   SortitionModule,
   IncrementalNG,
-  DisputeKitGated,
   TestERC20,
   TestERC721,
   TestERC1155,
+  DisputeKitGatedMock,
 } from "../../typechain-types";
 import { expect } from "chai";
 import { Courts } from "../../deploy/utils";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployERC1155, deployERC721 } from "../../deploy/utils/deployTokens";
+import { deployUpgradable } from "../../deploy/utils/deployUpgradable";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -26,16 +27,17 @@ describe("DisputeKitGated", async () => {
   let deployer: string;
   let juror1: HardhatEthersSigner;
   let juror2: HardhatEthersSigner;
-  let disputeKitGated: DisputeKitGated;
+  let disputeKitGated: DisputeKitGatedMock;
   let pnk: PNK;
   let dai: TestERC20;
+  let weth: TestERC20;
   let core: KlerosCore;
   let sortitionModule: SortitionModule;
   let rng: IncrementalNG;
   let nft721: TestERC721;
   let nft1155: TestERC1155;
   const RANDOM = 424242n;
-  const GATED_DK_ID = 3;
+  let GATED_DK_ID: number;
   const TOKEN_ID = 888;
   const minStake = PNK(200);
 
@@ -47,11 +49,23 @@ describe("DisputeKitGated", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    disputeKitGated = await ethers.getContract<DisputeKitGated>("DisputeKitGated");
     pnk = await ethers.getContract<PNK>("PNK");
     dai = await ethers.getContract<TestERC20>("DAI");
+    weth = await ethers.getContract<TestERC20>("WETH");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
     sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
+
+    const deploymentResult = await deployUpgradable(deployments, "DisputeKitGatedMock", {
+      from: deployer,
+      proxyAlias: "UUPSProxy",
+      args: [deployer, core.target, weth.target],
+      log: true,
+    });
+    await core.addNewDisputeKit(deploymentResult.address);
+    GATED_DK_ID = Number((await core.getDisputeKitsLength()) - 1n);
+    await core.enableDisputeKits(Courts.GENERAL, [GATED_DK_ID], true);
+
+    disputeKitGated = await ethers.getContract<DisputeKitGatedMock>("DisputeKitGatedMock");
 
     // Make the tests more deterministic with this dummy RNG
     await deployments.deploy("IncrementalNG", {
@@ -70,6 +84,8 @@ describe("DisputeKitGated", async () => {
     await deployERC1155(hre, deployer, "TestERC1155", "Nft1155");
     nft1155 = await ethers.getContract<TestERC1155>("Nft1155");
     await nft1155.mint(deployer, TOKEN_ID, 1, "0x00");
+
+    await disputeKitGated.changeSupportedTokens([dai.target, nft721.target, nft1155.target], true);
   });
 
   const encodeExtraData = (
