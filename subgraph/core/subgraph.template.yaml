@@ -139,6 +139,8 @@ dataSources:
       abis:
         - name: DisputeKitClassicUniversity
           file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassicUniversity.json
+        - name: DisputeKitClassic # Required on Alchemy
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
           file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:

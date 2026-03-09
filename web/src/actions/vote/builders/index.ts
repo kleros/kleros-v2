@@ -3,9 +3,10 @@ import { DisputeKits } from "src/consts";
 import { VoteContext } from "../context";
 import { VoteParams } from "../params";
 
-import { VoteBuilder } from "./baseBuilder";
 import { argentinaConsumerProtectionVoteBuilder } from "./argentinaConsumerProtection.builder";
+import { VoteBuilder } from "./baseBuilder";
 import { classicVoteBuilder } from "./classic.builder";
+import { classicUniversityVoteBuilder } from "./classicUniversity.builder";
 import { gatedVoteBuilder } from "./gated.builder";
 import { gatedShutterVoteBuilder } from "./gatedShutter.builder";
 import { shutterVoteBuilder } from "./shutter.builder";
@@ -25,6 +26,7 @@ const builders: Record<DisputeKits, VoteBuilder> = {
   [DisputeKits.Shutter]: shutterVoteBuilder,
   [DisputeKits.GatedShutter]: gatedShutterVoteBuilder,
   [DisputeKits.ArgentinaConsumerProtection]: argentinaConsumerProtectionVoteBuilder,
+  [DisputeKits.ClassicUniversity]: classicUniversityVoteBuilder,
 };
 
 /**

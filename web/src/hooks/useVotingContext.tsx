@@ -10,6 +10,7 @@ import {
   useReadDisputeKitGatedIsVoteActive,
   useReadDisputeKitGatedShutterIsVoteActive,
   useReadDisputeKitGatedArgentinaConsumerProtectionIsVoteActive,
+  useReadDisputeKitClassicUniversityIsVoteActive,
 } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
@@ -90,6 +91,14 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
     args: hookArgs,
   });
 
+  const classicUniversityVoteResult = useReadDisputeKitClassicUniversityIsVoteActive({
+    query: {
+      enabled: isEnabled && disputeKitName === DisputeKits.ClassicUniversity,
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: hookArgs,
+  });
+
   // Add a return for each DisputeKit
   const hasVoted = useMemo(() => {
     switch (disputeKitName) {
@@ -103,6 +112,8 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
         return gatedShutterVoteResult.data;
       case DisputeKits.ArgentinaConsumerProtection:
         return argentinaConsumerProtectionVoteResult.data;
+      case DisputeKits.ClassicUniversity:
+        return classicUniversityVoteResult.data;
       default:
         return undefined;
     }
@@ -113,6 +124,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
     gatedVoteResult.data,
     gatedShutterVoteResult.data,
     argentinaConsumerProtectionVoteResult.data,
+    classicUniversityVoteResult.data,
   ]);
 
   const wasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);

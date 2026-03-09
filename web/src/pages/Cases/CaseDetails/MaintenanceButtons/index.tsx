@@ -109,6 +109,7 @@ const MaintenanceButtons: React.FC = () => {
                   {...{ id, setIsOpen }}
                   numberOfVotes={dispute?.currentRound.nbVotes}
                   period={dispute?.period}
+                  disputeKitAddress={dispute?.currentRound?.disputeKit?.address}
                 />
                 <PassPeriodButton {...{ id, setIsOpen }} period={dispute?.period} />
                 <ExecuteRulingButton {...{ id, setIsOpen }} period={dispute?.period} ruled={dispute?.ruled} />

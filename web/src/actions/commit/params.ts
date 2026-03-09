@@ -33,9 +33,14 @@ export interface ArgentinaConsumerProtectionCommitParams extends BaseCommitParam
   type: DisputeKits.ArgentinaConsumerProtection;
 }
 
+export interface ClassicUniversityCommitParams extends BaseCommitParams {
+  type: DisputeKits.ClassicUniversity;
+}
+
 export type CommitParams =
   | ClassicCommitParams
   | ShutterCommitParams
   | GatedCommitParams
   | GatedShutterCommitParams
-  | ArgentinaConsumerProtectionCommitParams;
+  | ArgentinaConsumerProtectionCommitParams
+  | ClassicUniversityCommitParams;

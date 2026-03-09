@@ -3,9 +3,10 @@ import { DisputeKits } from "src/consts";
 import { RevealContext } from "../context";
 import { RevealParams } from "../params";
 
-import { RevealBuilder } from "./baseBuilder";
 import { argentinaConsumerProtectionRevealBuilder } from "./argentinaConsumerProtection.builder";
+import { RevealBuilder } from "./baseBuilder";
 import { classicRevealBuilder } from "./classic.builder";
+import { classicUniversityRevealBuilder } from "./classicUniversity.builder";
 import { gatedRevealBuilder } from "./gated.builder";
 import { gatedShutterRevealBuilder } from "./gatedShutter.builder";
 import { shutterRevealBuilder } from "./shutter.builder";
@@ -23,6 +24,7 @@ const builders: Record<DisputeKits, RevealBuilder> = {
   [DisputeKits.Gated]: gatedRevealBuilder,
   [DisputeKits.GatedShutter]: gatedShutterRevealBuilder,
   [DisputeKits.ArgentinaConsumerProtection]: argentinaConsumerProtectionRevealBuilder,
+  [DisputeKits.ClassicUniversity]: classicUniversityRevealBuilder,
 };
 
 /**

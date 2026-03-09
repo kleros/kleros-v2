@@ -27,9 +27,14 @@ export interface ArgentinaConsumerProtectionFundAppealParams extends BaseFundApp
   type: DisputeKits.ArgentinaConsumerProtection;
 }
 
+export interface ClassicUniversityFundAppealParams extends BaseFundAppealParams {
+  type: DisputeKits.ClassicUniversity;
+}
+
 export type FundAppealParams =
   | ClassicFundAppealParams
   | ShutterFundAppealParams
   | GatedFundAppealParams
   | GatedShutterFundAppealParams
-  | ArgentinaConsumerProtectionFundAppealParams;
+  | ArgentinaConsumerProtectionFundAppealParams
+  | ClassicUniversityFundAppealParams;

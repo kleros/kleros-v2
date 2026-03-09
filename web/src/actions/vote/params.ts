@@ -29,9 +29,14 @@ export interface ArgentinaConsumerProtectionVoteParams extends BaseVoteParams {
   type: DisputeKits.ArgentinaConsumerProtection;
 }
 
+export interface ClassicUniversityVoteParams extends BaseVoteParams {
+  type: DisputeKits.ClassicUniversity;
+}
+
 export type VoteParams =
   | ClassicVoteParams
   | ShutterVoteParams
   | GatedVoteParams
   | GatedShutterVoteParams
-  | ArgentinaConsumerProtectionVoteParams;
+  | ArgentinaConsumerProtectionVoteParams
+  | ClassicUniversityVoteParams;

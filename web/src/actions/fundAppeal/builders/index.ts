@@ -3,9 +3,10 @@ import { DisputeKits } from "src/consts";
 import { FundAppealContext } from "../context";
 import { FundAppealParams } from "../params";
 
-import { FundAppealBuilder } from "./baseBuilder";
 import { argentinaConsumerProtectionFundAppealBuilder } from "./argentinaConsumerProtection.builder";
+import { FundAppealBuilder } from "./baseBuilder";
 import { classicFundAppealBuilder } from "./classic.builder";
+import { classicUniversityFundAppealBuilder } from "./classicUniversity.builder";
 import { gatedFundAppealBuilder } from "./gated.builder";
 import { gatedShutterFundAppealBuilder } from "./gatedShutter.builder";
 import { shutterFundAppealBuilder } from "./shutter.builder";
@@ -23,6 +24,7 @@ const builders: Record<DisputeKits, FundAppealBuilder> = {
   [DisputeKits.Gated]: gatedFundAppealBuilder,
   [DisputeKits.GatedShutter]: gatedShutterFundAppealBuilder,
   [DisputeKits.ArgentinaConsumerProtection]: argentinaConsumerProtectionFundAppealBuilder,
+  [DisputeKits.ClassicUniversity]: classicUniversityFundAppealBuilder,
 };
 
 /**

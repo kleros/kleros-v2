@@ -36,12 +36,17 @@ export interface ArgentinaConsumerProtectionRevealParams extends BaseRevealParam
   type: DisputeKits.ArgentinaConsumerProtection;
 }
 
+export interface ClassicUniversityRevealParams extends BaseRevealParams {
+  type: DisputeKits.ClassicUniversity;
+}
+
 export type RevealParams =
   | ClassicRevealParams
   | ShutterRevealParams
   | GatedRevealParams
   | GatedShutterRevealParams
-  | ArgentinaConsumerProtectionRevealParams;
+  | ArgentinaConsumerProtectionRevealParams
+  | ClassicUniversityRevealParams;
 
 export type ResolveRevealParams = DistributiveOmit<PartialBy<RevealParams, "justification">, "choice" | "salt">;
 export type ResolveRevealContext = {
