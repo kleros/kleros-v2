@@ -1074,9 +1074,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
         // Compute the rewards
         (uint256 pnkReward, uint256 feeReward) = disputeKit.getRewards(
+            _params.disputeID,
+            _params.round,
+            repartition,
             _params.coherentCount,
             _params.pnkPenaltiesInRound,
-            round.totalFeesForJurors,
             pnkCoherence,
             feeCoherence
         );

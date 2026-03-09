@@ -625,16 +625,20 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
     /// @inheritdoc IDisputeKit
     function getRewards(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 /*_voteID*/,
         uint256 _coherentCount,
         uint256 _pnkRewardPool,
-        uint256 _feeRewardPool,
         uint256 _pnkCoherence,
         uint256 _feeCoherence
     ) external view override returns (uint256 pnkReward, uint256 feeReward) {
+        uint256 feeRewardPool = core.getRoundInfo(_coreDisputeID, _coreRoundID).totalFeesForJurors;
+
         uint256 availablePnkAmount = _pnkRewardPool / _coherentCount;
         pnkReward = (availablePnkAmount * _pnkCoherence) / ONE_BASIS_POINT;
 
-        uint256 availableFeeAmount = _feeRewardPool / _coherentCount;
+        uint256 availableFeeAmount = feeRewardPool / _coherentCount;
         feeReward = (availableFeeAmount * _feeCoherence) / ONE_BASIS_POINT;
     }
 
