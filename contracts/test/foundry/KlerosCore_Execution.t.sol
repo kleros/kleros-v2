@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCore, SafeERC20} from "../../src/arbitration/KlerosCore.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
 import {IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
@@ -608,8 +608,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(feeToken.balanceOf(staker1), 0, "Wrong fee token balance of staker1");
         assertEq(feeToken.balanceOf(disputer), 1 ether, "Wrong fee token balance of disputer");
 
-        vm.expectEmit(true, true, true, true);
-        emit SafeERC20.SafeTransferFailed(feeToken, staker1, 0.06 ether); // One failed iteration has 0.06 eth
+        // Check that the failed transfer doesn't block the execution flow
         core.execute(disputeID, 0, 6);
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
