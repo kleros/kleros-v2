@@ -139,9 +139,10 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         callerIsJuror = juror == msg.sender;
 
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        uint256 courtParamsIndex = core
-            .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
-            .courtParamsIndex;
+        uint256 courtParamsIndex = core.getCourtParametersIndex(
+            _coreDisputeID,
+            core.getNumberOfRounds(_coreDisputeID) - 1
+        );
         bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
         if (!hiddenVotes && !callerIsJuror) revert CallerMustBeJurorIfNoHiddenVotes();
 

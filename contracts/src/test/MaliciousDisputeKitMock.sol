@@ -19,7 +19,7 @@ contract MaliciousDisputeKitMock is DisputeKitClassic {
         uint256 _pnkCoherence,
         uint256 _feeCoherence
     ) external view override returns (uint256 pnkReward, uint256 feeReward) {
-        uint256 feeRewardPool = core.getRoundInfo(_coreDisputeID, _coreRoundID).totalFeesForJurors;
+        uint256 feeRewardPool = core.getTotalFeesForJurors(_coreDisputeID, _coreRoundID);
 
         uint256 availablePnkAmount = _pnkRewardPool / _coherentCount;
         // Multiply the rewards

@@ -365,7 +365,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         {
             uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
             (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-            uint256 courtParamsIndex = core.getRoundInfo(_coreDisputeID, coreRoundID).courtParamsIndex;
+            uint256 courtParamsIndex = core.getCourtParametersIndex(_coreDisputeID, coreRoundID);
             bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
             if (hiddenVotes) {
                 _verifyHiddenVoteCommitments(localDisputeID, localRoundID, _voteIDs, _choice, _justification, _salt);
@@ -633,7 +633,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _pnkCoherence,
         uint256 _feeCoherence
     ) external view virtual override returns (uint256 pnkReward, uint256 feeReward) {
-        uint256 feeRewardPool = core.getRoundInfo(_coreDisputeID, _coreRoundID).totalFeesForJurors;
+        uint256 feeRewardPool = core.getTotalFeesForJurors(_coreDisputeID, _coreRoundID);
 
         uint256 availablePnkAmount = _pnkRewardPool / _coherentCount;
         pnkReward = (availablePnkAmount * _pnkCoherence) / ONE_BASIS_POINT;
@@ -655,9 +655,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        uint256 courtParamsIndex = core
-            .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
-            .courtParamsIndex;
+        uint256 courtParamsIndex = core.getCourtParametersIndex(
+            _coreDisputeID,
+            core.getNumberOfRounds(_coreDisputeID) - 1
+        );
         bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
         uint256 expectedTotalVoted = hiddenVotes ? round.totalCommitted : round.votes.length;
 

@@ -1245,6 +1245,22 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         return courts[_courtID].additionalCourtParamsChanges[_index];
     }
 
+    /// @notice Gets the court parameters index used for a specific round of a dispute.
+    /// @param _disputeID The ID of the dispute.
+    /// @param _round The round to get the info for.
+    /// @return courtParamsIndex Index of court parameters.
+    function getCourtParametersIndex(uint256 _disputeID, uint256 _round) external view returns (uint256) {
+        return disputes[_disputeID].rounds[_round].courtParamsIndex;
+    }
+
+    /// @notice Gets the total fees for juror for a specified dispute and round.
+    /// @param _disputeID The ID of the dispute.
+    /// @param _round The round to get the info for.
+    /// @return totalFeesForJurors The total juror fees paid in this round.
+    function getTotalFeesForJurors(uint256 _disputeID, uint256 _round) external view returns (uint256) {
+        return disputes[_disputeID].rounds[_round].totalFeesForJurors;
+    }
+
     /// @notice Gets the PNK at stake per juror for a specified dispute and round.
     /// @param _disputeID The ID of the dispute.
     /// @param _round The round to get the info for.
@@ -1282,11 +1298,12 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     // *   Public Views for Dispute Kits   * //
     // ************************************* //
 
-    /// @notice Gets the number of votes permitted for the specified dispute in the latest round.
+    /// @notice Gets the number of votes permitted for the specified dispute in the specified round.
     /// @param _disputeID The ID of the dispute.
-    function getNumberOfVotes(uint256 _disputeID) external view returns (uint256) {
+    /// @param _round The ID of the round.
+    function getNumberOfVotes(uint256 _disputeID, uint256 _round) external view returns (uint256) {
         Dispute storage dispute = disputes[_disputeID];
-        return dispute.rounds[dispute.rounds.length - 1].nbVotes;
+        return dispute.rounds[_round].nbVotes;
     }
 
     /// @notice Checks whether a dispute will jump to new court/DK and enforces a compatibility check.
