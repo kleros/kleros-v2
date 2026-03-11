@@ -589,7 +589,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         court.feeForJuror = _feeForJuror;
         court.eligibility = _eligibility;
 
-        // TODO: push it even if it's not changed? Or create a separate function?
         court.additionalCourtParamsChanges.push(
             AdditionalCourtParams({
                 hiddenVotes: _hiddenVotes,
