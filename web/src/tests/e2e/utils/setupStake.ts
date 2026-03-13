@@ -58,7 +58,11 @@ export async function setupStake(
     args: [klerosCoreContractConfig.address, parsedStakeAmount],
     account,
   });
-  await hardhat.waitForTransactionReceipt({ hash: approvalHash });
+  const approvalReceipt = await hardhat.waitForTransactionReceipt({ hash: approvalHash });
+
+  if (approvalReceipt.status === "reverted") {
+    throw new Error(`setupStake: Failed to approve stake for ${accountKey} in court ${courtId}`);
+  }
 
   const hash = await hardhat.writeContract({
     ...klerosCoreContractConfig,
@@ -69,8 +73,9 @@ export async function setupStake(
 
   const receipt = await hardhat.waitForTransactionReceipt({ hash });
 
-  if (receipt.status === "reverted")
+  if (receipt.status === "reverted") {
     throw new Error(`setupStake: Failed to set stake for ${accountKey} in court ${courtId}`);
+  }
 }
 
 export default setupStake;

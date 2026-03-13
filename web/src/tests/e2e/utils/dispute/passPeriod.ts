@@ -39,6 +39,9 @@ export async function passPeriod(hardhat: HardhatClient, time: TimeFixture, disp
     account,
   });
   const receipt = await hardhat.waitForTransactionReceipt({ hash });
+  await time.sync();
 
-  if (receipt.status === "reverted") throw new Error(`passPeriod: Failed to pass period for dispute ${disputeId}`);
+  if (receipt.status === "reverted") {
+    throw new Error(`passPeriod: Failed to pass period for dispute ${disputeId}`);
+  }
 }

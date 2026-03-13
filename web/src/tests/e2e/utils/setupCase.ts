@@ -81,7 +81,11 @@ export async function setupCase(
   });
 
   const hash = await hardhat.writeContract(request);
-  await hardhat.waitForTransactionReceipt({ hash });
+  const receipt = await hardhat.waitForTransactionReceipt({ hash });
+
+  if (receipt.status === "reverted") {
+    throw new Error(`setupCase: Failed to setup case - 'createDisputeForTemplate' reverted`);
+  }
 
   // I could have used isUndefined here, but it creates issues with package resolution
   if (disputeId === undefined || disputeId === null) {

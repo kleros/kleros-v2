@@ -15,6 +15,7 @@ export const executeRulingForDispute = async (hardhat: HardhatClient, disputeId:
   });
   const receipt = await hardhat.waitForTransactionReceipt({ hash });
 
-  if (receipt.status === "reverted")
+  if (receipt.status === "reverted") {
     throw new Error(`executeRulingForDispute: Failed to execute for dispute ${disputeId}`);
+  }
 };
