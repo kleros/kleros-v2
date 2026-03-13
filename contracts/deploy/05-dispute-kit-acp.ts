@@ -18,6 +18,10 @@ const config = {
     consumerProtectionCourtID: 32,
     courtUrl: "https://v2.kleros.builders/#/courts/32/purpose",
   },
+  hardhat: {
+    consumerProtectionCourtID: 4,
+    courtUrl: "http://localhost:5173/#/courts/4/purpose",
+  },
 };
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
