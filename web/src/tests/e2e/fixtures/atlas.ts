@@ -1,6 +1,7 @@
 import { test as base } from "@playwright/test";
 import { Hex, recoverMessageAddress } from "viem";
 
+import { MOCK_IPFS_HASH } from "../utils/dispute";
 import { createTestJwt } from "../utils/jwt";
 
 // mocking atlas apis
@@ -110,7 +111,7 @@ export const test = base.extend<{
         return route.fulfill({
           status: 200,
           contentType: "text/plain",
-          body: "QmVDEj29zAvoBzSPkJMDx7B1Rb5CR8sGNrwei8DDULvDWp",
+          body: MOCK_IPFS_HASH,
         });
       });
       await use(async () => {});

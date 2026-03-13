@@ -10,7 +10,9 @@ const client = createTestClient({
   .extend(publicActions)
   .extend(walletActions);
 
-export const test = base.extend<{ hardhat: typeof client }>({
+export type HardhatClient = typeof client;
+
+export const test = base.extend<{ hardhat: HardhatClient }>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   hardhat: async ({ page }, use) => {
     await use(client);
