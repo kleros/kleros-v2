@@ -283,29 +283,6 @@ This event enables:
 - Historical template tracking
 - Integration with dispute browsers
 
-### Direct URI References
-
-For flexibility, arbitrable contracts can also reference templates directly:
-
-```solidity
-function createDisputeForTemplateUri(
-    bytes calldata _arbitratorExtraData,
-    string calldata _disputeTemplateUri,
-    uint256 _numberOfRulingOptions
-) external payable returns (uint256 disputeID)
-```
-
-**Use Cases**:
-- Large templates that exceed transaction size limits
-- Templates hosted on IPFS or other decentralized storage
-- Private or proprietary dispute formats
-- Integration with external template systems
-
-**Example URI formats**:
-- IPFS: `/ipfs/QmHash...`
-- HTTP: `https://templates.example.com/dispute/123`
-- Custom protocols: `template://registry/identifier`
-
 ## 🔧 Implementation Best Practices
 
 ### For Arbitrable Contract Developers
