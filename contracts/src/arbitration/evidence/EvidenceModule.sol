@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IEvidence} from "../interfaces/IEvidence.sol";

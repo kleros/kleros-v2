@@ -4,7 +4,7 @@ import {DisputeResolver} from "../arbitrables/DisputeResolver.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 interface IKlerosCoreRulerFragment {
     function getNextDisputeID() external view returns (uint256);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 // This contract is adapted from `@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol` to remove the `ConfirmedOwner` dependency.
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IDisputeKit} from "../arbitration/interfaces/IDisputeKit.sol";
 import {DisputeKitClassic} from "../arbitration/dispute-kits/DisputeKitClassic.sol";

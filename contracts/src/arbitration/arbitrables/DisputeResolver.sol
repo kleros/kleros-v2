@@ -4,7 +4,7 @@ import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 /// @title DisputeResolver
 /// @notice DisputeResolver contract

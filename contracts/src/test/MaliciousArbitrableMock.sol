@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IArbitratorV2, IDisputeTemplateRegistry, IERC20, ArbitrableExample} from "../arbitration/arbitrables/ArbitrableExample.sol";
 

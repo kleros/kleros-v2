@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IForeignGateway} from "./interfaces/IForeignGateway.sol";
 import {IArbitrableV2} from "../arbitration/interfaces/IArbitrableV2.sol";
