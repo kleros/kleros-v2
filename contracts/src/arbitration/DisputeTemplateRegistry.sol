@@ -25,7 +25,7 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 

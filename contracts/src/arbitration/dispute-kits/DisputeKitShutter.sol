@@ -98,7 +98,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
         bytes32 _identity,
         bytes calldata _encryptedVote
     ) external {
-        if (_justificationCommit == bytes32(0)) revert EmptyJustificationCommit();
+        require(_justificationCommit != bytes32(0), EmptyJustificationCommit());
 
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
@@ -144,7 +144,7 @@ contract DisputeKitShutter is DisputeKitClassicBase {
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
         bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
-        if (!hiddenVotes && !callerIsJuror) revert CallerMustBeJurorIfNoHiddenVotes();
+        require(hiddenVotes || callerIsJuror, CallerMustBeJurorIfNoHiddenVotes());
 
         // `_castVote()` ensures that all the `_voteIDs` do belong to `juror`
         _castVote(_coreDisputeID, _voteIDs, _choice, _salt, _justification, juror);
@@ -184,8 +184,10 @@ contract DisputeKitShutter is DisputeKitClassicBase {
 
         bytes32 actualJustificationHash = hashJustification(_salt, _justification);
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            if (justificationCommitments[_localDisputeID][_localRoundID][_voteIDs[i]] != actualJustificationHash)
-                revert JustificationCommitmentMismatch();
+            require(
+                justificationCommitments[_localDisputeID][_localRoundID][_voteIDs[i]] == actualJustificationHash,
+                JustificationCommitmentMismatch()
+            );
         }
     }
 

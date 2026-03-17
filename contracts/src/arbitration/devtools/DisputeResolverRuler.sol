@@ -37,7 +37,7 @@ contract DisputeResolverRuler is DisputeResolver {
         string memory _disputeTemplateDataMappings,
         uint256 _numberOfRulingOptions
     ) internal override returns (uint256 arbitratorDisputeID) {
-        if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
+        require(_numberOfRulingOptions > 1, ShouldBeAtLeastTwoRulingOptions());
 
         uint256 localDisputeID = disputes.length;
         DisputeStruct storage dispute = disputes.push();

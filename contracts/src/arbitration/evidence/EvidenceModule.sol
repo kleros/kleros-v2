@@ -22,7 +22,7 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 

@@ -138,12 +138,12 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
     modifier onlyByCore() {
-        if (address(core) != msg.sender) revert KlerosCoreOnly();
+        require(address(core) == msg.sender, KlerosCoreOnly());
         _;
     }
 
@@ -203,18 +203,19 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     /// @inheritdoc ISortitionModule
     function passPhase() external override {
         if (phase == Phase.staking) {
-            if (block.timestamp - lastPhaseChange < minStakingTime) revert MinStakingTimeNotPassed();
-            if (disputesWithoutJurors == 0) revert NoDisputesThatNeedJurors();
+            require(block.timestamp - lastPhaseChange >= minStakingTime, MinStakingTimeNotPassed());
+            require(disputesWithoutJurors > 0, NoDisputesThatNeedJurors());
             rng.requestRandomness();
             phase = Phase.generating;
         } else if (phase == Phase.generating) {
             randomNumber = rng.receiveRandomness();
-            if (randomNumber == 0) revert RandomNumberNotReady();
+            require(randomNumber != 0, RandomNumberNotReady());
             phase = Phase.drawing;
         } else if (phase == Phase.drawing) {
-            if (disputesWithoutJurors > 0 && block.timestamp - lastPhaseChange < maxDrawingTime) {
-                revert DisputesWithoutJurorsAndMaxDrawingTimeNotPassed();
-            }
+            require(
+                disputesWithoutJurors == 0 || block.timestamp - lastPhaseChange >= maxDrawingTime,
+                DisputesWithoutJurorsAndMaxDrawingTimeNotPassed()
+            );
             phase = Phase.staking;
         }
 
@@ -231,8 +232,8 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
 
     /// @inheritdoc ISortitionModule
     function executeDelayedStakes(uint256 _iterations) external override {
-        if (phase != Phase.staking) revert NotStakingPhase();
-        if (delayedStakeWriteIndex < delayedStakeReadIndex) revert NoDelayedStakeToExecute();
+        require(phase == Phase.staking, NotStakingPhase());
+        require(delayedStakeWriteIndex >= delayedStakeReadIndex, NoDelayedStakeToExecute());
 
         uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
             ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
@@ -290,24 +291,24 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
 
         uint256 nbCourts = juror.courtIDs.length;
         if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
-            return (0, 0, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
+            return (0, 0, StakingResult.Failed); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
         if (currentStake == 0 && _newStake == 0) {
-            return (0, 0, StakingResult.CannotStakeZeroWhenNoStake); // Forbid staking 0 amount when current stake is 0 to avoid flaky behaviour.
+            return (0, 0, StakingResult.Failed); // Forbid staking 0 amount when current stake is 0 to avoid flaky behaviour.
         }
 
         if (stakeIncrease) {
             // Check if the juror is eligible to stake in the court.
             if (_eligibility != NULL_ELIGIBILITY_REQUIREMENT && !_eligibility.isEligible(_account, _courtID)) {
-                return (0, 0, StakingResult.NotEligibleForStaking);
+                return (0, 0, StakingResult.Failed);
             }
             // Check if the stake increase is within the limits.
             if (juror.stakedPnk + stakeChange > maxStakePerJuror || currentStake + stakeChange > maxStakePerJuror) {
-                return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
+                return (0, 0, StakingResult.Failed);
             }
             if (totalStaked + stakeChange > maxTotalStaked) {
-                return (0, 0, StakingResult.CannotStakeMoreThanMaxTotalStaked);
+                return (0, 0, StakingResult.Failed);
             }
         }
 
@@ -472,7 +473,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         // Can withdraw the leftover PNK if fully unstaked, has no tokens locked and has positive balance.
         // This withdrawal can't be triggered by calling setStake() in KlerosCore because current stake is technically 0, thus it is done via separate function.
         uint256 amount = getJurorLeftoverPNK(_account);
-        if (amount == 0) revert NotEligibleForWithdrawal();
+        require(amount > 0, NotEligibleForWithdrawal());
         jurors[_account].stakedPnk = 0;
         totalStaked -= amount;
         core.transferBySortitionModule(_account, amount);
@@ -489,7 +490,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         uint256 _coreDisputeID,
         uint256 _nonce
     ) public view override returns (address drawnAddress, uint96 fromSubcourtID) {
-        if (phase != Phase.drawing) revert NotDrawingPhase();
+        require(phase == Phase.drawing, NotDrawingPhase());
 
         TreeKey key = CourtID.wrap(_courtID).toTreeKey();
         (drawnAddress, fromSubcourtID) = sortitionSumTrees[key].draw(_coreDisputeID, _nonce, randomNumber);

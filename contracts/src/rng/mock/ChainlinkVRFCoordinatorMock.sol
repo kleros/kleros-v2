@@ -33,10 +33,8 @@ contract ChainlinkVRFCoordinatorV2Mock is IVRFCoordinatorV2Plus {
     // ************************************* //
 
     function fulfillRandomWords(uint256 _requestId, address _consumer, uint256[] memory _words) public {
-        if (_consumer == address(0)) revert("zero address consumer");
-        if (requests[_requestId].subId == 0) {
-            revert("nonexistent request");
-        }
+        require(_consumer != address(0), "zero address consumer");
+        require(requests[_requestId].subId != 0, "nonexistent request");
         VRFV2PlusClient.RandomWordsRequest memory req = requests[_requestId];
 
         if (_words.length == 0) {

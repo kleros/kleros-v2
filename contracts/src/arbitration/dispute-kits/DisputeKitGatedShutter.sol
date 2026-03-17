@@ -128,7 +128,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         bool _supported
     ) external onlyByOwner {
         for (uint256 i = 0; i < _tokens.length; i++) {
-            if (_tokens[i] == address(0)) revert TokenGateRequired();
+            require(_tokens[i] != address(0), TokenGateRequired());
             if (_supported) {
                 supportedErc721Tokens[_courtID].add(_tokens[i]);
             } else {
@@ -149,7 +149,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         uint256[] memory _tokenIds,
         bool _supported
     ) external onlyByOwner {
-        if (_token == address(0)) revert TokenGateRequired();
+        require(_token != address(0), TokenGateRequired());
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             if (_supported) {
                 supportedErc1155TokenIds[_courtID][_token].add(_tokenIds[i]);
@@ -180,13 +180,15 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         (uint96 courtID, address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(_extraData);
 
         // DisputeKitGated must always be token-gated.
-        if (tokenGate == address(0)) revert TokenGateRequired();
+        require(tokenGate != address(0), TokenGateRequired());
 
         if (isERC1155) {
-            if (!supportedErc1155TokenIds[courtID][tokenGate].contains(tokenId))
-                revert TokenNotSupported(courtID, tokenGate);
+            require(
+                supportedErc1155TokenIds[courtID][tokenGate].contains(tokenId),
+                TokenNotSupported(courtID, tokenGate)
+            );
         } else {
-            if (!supportedErc721Tokens[courtID].contains(tokenGate)) revert TokenNotSupported(courtID, tokenGate);
+            require(supportedErc721Tokens[courtID].contains(tokenGate), TokenNotSupported(courtID, tokenGate));
         }
 
         // super.createDispute() ensures access control onlyByCore.
@@ -212,7 +214,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         bytes32 _identity,
         bytes calldata _encryptedVote
     ) external {
-        if (_justificationCommit == bytes32(0)) revert EmptyJustificationCommit();
+        require(_justificationCommit != bytes32(0), EmptyJustificationCommit());
 
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
@@ -258,7 +260,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
         bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
-        if (!hiddenVotes && !callerIsJuror) revert CallerMustBeJurorIfNoHiddenVotes();
+        require(hiddenVotes || callerIsJuror, CallerMustBeJurorIfNoHiddenVotes());
 
         // `_castVote()` ensures that all the `_voteIDs` do belong to `juror`
         _castVote(_coreDisputeID, _voteIDs, _choice, _salt, _justification, juror);
@@ -389,8 +391,10 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
 
         bytes32 actualJustificationHash = hashJustification(_salt, _justification);
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            if (justificationCommitments[_localDisputeID][_localRoundID][_voteIDs[i]] != actualJustificationHash)
-                revert JustificationCommitmentMismatch();
+            require(
+                justificationCommitments[_localDisputeID][_localRoundID][_voteIDs[i]] == actualJustificationHash,
+                JustificationCommitmentMismatch()
+            );
         }
     }
 

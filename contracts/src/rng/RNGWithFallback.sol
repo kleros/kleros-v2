@@ -33,7 +33,7 @@ contract RNGWithFallback is IRNG {
     /// @param _fallbackTimeoutSeconds Time in seconds to wait before falling back to next RNG
     /// @param _rng The RNG address (e.g. Chainlink)
     constructor(address _owner, address _consumer, uint256 _fallbackTimeoutSeconds, IRNG _rng) {
-        if (address(_rng) == address(0)) revert InvalidDefaultRNG();
+        require(address(_rng) != address(0), InvalidDefaultRNG());
 
         owner = _owner;
         consumer = _consumer;
@@ -46,12 +46,12 @@ contract RNGWithFallback is IRNG {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
     modifier onlyByConsumer() {
-        if (consumer != msg.sender) revert ConsumerOnly();
+        require(consumer == msg.sender, ConsumerOnly());
         _;
     }
 

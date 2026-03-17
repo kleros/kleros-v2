@@ -38,12 +38,12 @@ contract DisputeKitClassicUniversity is DisputeKitClassicBase {
     // ************************************* //
 
     modifier onlyByInstructor() {
-        if (msg.sender != instructor) revert InstructorOnly();
+        require(msg.sender == instructor, InstructorOnly());
         _;
     }
 
     modifier onlyByOwnerOrInstructor() {
-        if (msg.sender != owner && msg.sender != instructor) revert OwnerOrInstructorOnly();
+        require(msg.sender == owner || msg.sender == instructor, OwnerOrInstructorOnly());
         _;
     }
 

@@ -36,7 +36,7 @@ contract DisputeResolver is IArbitrableV2 {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -101,9 +101,9 @@ contract DisputeResolver is IArbitrableV2 {
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = arbitratorDisputeIDToLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
-        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
-        if (_ruling > dispute.numberOfRulingOptions) revert RulingOutOfBounds();
-        if (dispute.isRuled) revert DisputeAlreadyRuled();
+        require(msg.sender == address(arbitrator), ArbitratorOnly());
+        require(_ruling <= dispute.numberOfRulingOptions, RulingOutOfBounds());
+        require(!dispute.isRuled, DisputeAlreadyRuled());
 
         dispute.isRuled = true;
         dispute.ruling = _ruling;
@@ -121,7 +121,7 @@ contract DisputeResolver is IArbitrableV2 {
         string memory _disputeTemplateDataMappings,
         uint256 _numberOfRulingOptions
     ) internal virtual returns (uint256 arbitratorDisputeID) {
-        if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
+        require(_numberOfRulingOptions > 1, ShouldBeAtLeastTwoRulingOptions());
 
         arbitratorDisputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
         uint256 localDisputeID = disputes.length;

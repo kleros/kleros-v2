@@ -103,7 +103,7 @@ contract DisputeKitGated is DisputeKitClassicBase, ICourtEligibility {
         bool _supported
     ) external onlyByOwner {
         for (uint256 i = 0; i < _tokens.length; i++) {
-            if (_tokens[i] == address(0)) revert TokenGateRequired();
+            require(_tokens[i] != address(0), TokenGateRequired());
             if (_supported) {
                 supportedErc721Tokens[_courtID].add(_tokens[i]);
             } else {
@@ -124,7 +124,7 @@ contract DisputeKitGated is DisputeKitClassicBase, ICourtEligibility {
         uint256[] memory _tokenIds,
         bool _supported
     ) external onlyByOwner {
-        if (_token == address(0)) revert TokenGateRequired();
+        require(_token != address(0), TokenGateRequired());
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             if (_supported) {
                 supportedErc1155TokenIds[_courtID][_token].add(_tokenIds[i]);
@@ -155,13 +155,15 @@ contract DisputeKitGated is DisputeKitClassicBase, ICourtEligibility {
         (uint96 courtID, address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(_extraData);
 
         // DisputeKitGated must always be token-gated.
-        if (tokenGate == address(0)) revert TokenGateRequired();
+        require(tokenGate != address(0), TokenGateRequired());
 
         if (isERC1155) {
-            if (!supportedErc1155TokenIds[courtID][tokenGate].contains(tokenId))
-                revert TokenNotSupported(courtID, tokenGate);
+            require(
+                supportedErc1155TokenIds[courtID][tokenGate].contains(tokenId),
+                TokenNotSupported(courtID, tokenGate)
+            );
         } else {
-            if (!supportedErc721Tokens[courtID].contains(tokenGate)) revert TokenNotSupported(courtID, tokenGate);
+            require(supportedErc721Tokens[courtID].contains(tokenGate), TokenNotSupported(courtID, tokenGate));
         }
 
         // super.createDispute() ensures access control onlyByCore.

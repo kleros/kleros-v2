@@ -26,7 +26,7 @@ contract KlerosCoreSnapshotProxy {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 

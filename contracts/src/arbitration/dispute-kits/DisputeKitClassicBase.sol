@@ -141,23 +141,23 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
     modifier onlyByCore() {
-        if (address(core) != msg.sender) revert KlerosCoreOnly();
+        require(address(core) == msg.sender, KlerosCoreOnly());
         _;
     }
 
     modifier isActive(uint256 _coreDisputeID) {
-        if (!coreDisputeIDToActive[_coreDisputeID].dispute) revert DisputeUnknownInThisDisputeKit();
-        if (!coreDisputeIDToActive[_coreDisputeID].currentRound) revert DisputeJumpedToAnotherDisputeKit();
+        require(coreDisputeIDToActive[_coreDisputeID].dispute, DisputeUnknownInThisDisputeKit());
+        require(coreDisputeIDToActive[_coreDisputeID].currentRound, DisputeJumpedToAnotherDisputeKit());
         _;
     }
 
     modifier whenArbitrationNotPaused() {
-        if (core.arbitrationPaused()) revert WhenArbitrationNotPausedOnly();
+        require(!core.arbitrationPaused(), WhenArbitrationNotPausedOnly());
         _;
     }
 
@@ -189,7 +189,7 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     /// @param _data The data sent with the call.
     function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
-        if (!success) revert UnsuccessfulCall();
+        require(success, UnsuccessfulCall());
     }
 
     /// @notice Changes the `owner` storage variable.
@@ -306,16 +306,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         bytes32 _commit
     ) internal whenArbitrationNotPaused isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        if (period != KlerosCore.Period.commit) revert NotCommitPeriod();
-        if (_voteIDs.length == 0) revert EmptyVoteIDs();
-        if (_commit == bytes32(0)) revert EmptyCommit();
+        require(period == KlerosCore.Period.commit, NotCommitPeriod());
+        require(_voteIDs.length > 0, EmptyVoteIDs());
+        require(_commit != bytes32(0), EmptyCommit());
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         // Introduce a counter so we don't count a re-commited votes.
         uint256 commitCount;
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            if (round.votes[_voteIDs[i]].account != msg.sender) revert JurorHasToOwnTheVote();
+            require(round.votes[_voteIDs[i]].account == msg.sender, JurorHasToOwnTheVote());
             if (round.votes[_voteIDs[i]].commit == bytes32(0)) {
                 commitCount++;
             }
@@ -353,12 +353,12 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         address _juror
     ) internal whenArbitrationNotPaused isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        if (period != KlerosCore.Period.vote) revert NotVotePeriod();
-        if (_voteIDs.length == 0) revert EmptyVoteIDs();
+        require(period == KlerosCore.Period.vote, NotVotePeriod());
+        require(_voteIDs.length > 0, EmptyVoteIDs());
 
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
-        if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
+        require(_choice <= dispute.numberOfChoices, ChoiceOutOfBounds());
 
         uint256 localRoundID = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[localRoundID];
@@ -373,8 +373,8 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
 
             //  Save the votes.
             for (uint256 i = 0; i < _voteIDs.length; i++) {
-                if (round.votes[_voteIDs[i]].account != _juror) revert JurorHasToOwnTheVote();
-                if (round.votes[_voteIDs[i]].voted) revert VoteAlreadyCast();
+                require(round.votes[_voteIDs[i]].account == _juror, JurorHasToOwnTheVote());
+                require(!round.votes[_voteIDs[i]].voted, VoteAlreadyCast());
                 round.votes[_voteIDs[i]].choice = _choice;
                 round.votes[_voteIDs[i]].voted = true;
             }
@@ -409,29 +409,28 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _choice
     ) external payable whenArbitrationNotPaused isActive(_coreDisputeID) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        if (_choice > dispute.numberOfChoices) revert ChoiceOutOfBounds();
+        require(_choice <= dispute.numberOfChoices, ChoiceOutOfBounds());
 
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
-        if (block.timestamp < appealPeriodStart || block.timestamp >= appealPeriodEnd) revert NotAppealPeriod();
+        require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, NotAppealPeriod());
 
         uint256 multiplier;
         (uint256 ruling, , ) = this.currentRuling(_coreDisputeID);
         if (ruling == _choice) {
             multiplier = WINNER_STAKE_MULTIPLIER;
         } else {
-            if (
-                block.timestamp - appealPeriodStart >=
-                ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT
-            ) {
-                revert NotAppealPeriodForLoser();
-            }
+            require(
+                block.timestamp - appealPeriodStart <
+                    ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT,
+                NotAppealPeriodForLoser()
+            );
             multiplier = LOSER_STAKE_MULTIPLIER;
         }
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
 
-        if (round.hasPaid[_choice]) revert AppealFeeIsAlreadyPaid();
+        require(!round.hasPaid[_choice], AppealFeeIsAlreadyPaid());
         uint256 appealCost = core.appealCost(_coreDisputeID);
         uint256 totalCost = appealCost + (appealCost * multiplier) / ONE_BASIS_POINT;
 
@@ -486,9 +485,9 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         uint256 _choice
     ) external returns (uint256 amount) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        if (period != KlerosCore.Period.execution) revert DisputeNotResolved();
-        if (core.paused()) revert CoreIsPaused();
-        if (!coreDisputeIDToActive[_coreDisputeID].dispute) revert DisputeUnknownInThisDisputeKit();
+        require(period == KlerosCore.Period.execution, DisputeNotResolved());
+        require(!core.paused(), CoreIsPaused());
+        require(coreDisputeIDToActive[_coreDisputeID].dispute, DisputeUnknownInThisDisputeKit());
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         (uint256 finalRuling, , ) = core.currentRuling(_coreDisputeID);
@@ -806,8 +805,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     ) internal view virtual {
         bytes32 actualVoteHash = hashVote(_choice, _salt, _justification);
         for (uint256 i = 0; i < _voteIDs.length; i++) {
-            if (disputes[_localDisputeID].rounds[_localRoundID].votes[_voteIDs[i]].commit != actualVoteHash)
-                revert ChoiceCommitmentMismatch();
+            require(
+                disputes[_localDisputeID].rounds[_localRoundID].votes[_voteIDs[i]].commit == actualVoteHash,
+                ChoiceCommitmentMismatch()
+            );
         }
     }
 

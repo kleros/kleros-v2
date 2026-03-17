@@ -41,12 +41,12 @@ contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
     modifier onlyByConsumer() {
-        if (consumer != msg.sender) revert ConsumerOnly();
+        require(consumer == msg.sender, ConsumerOnly());
         _;
     }
 

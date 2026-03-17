@@ -29,7 +29,7 @@ contract LeaderboardOffset {
     // ************************************* //
 
     modifier onlyOwner() {
-        if (msg.sender != owner) revert OnlyOwner();
+        require(msg.sender == owner, OnlyOwner());
         _;
     }
 

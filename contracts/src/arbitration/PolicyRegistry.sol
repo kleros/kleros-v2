@@ -32,7 +32,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
 
     /// @notice Requires that the sender is the owner.
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 

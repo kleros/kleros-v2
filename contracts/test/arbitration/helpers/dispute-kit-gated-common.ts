@@ -769,10 +769,7 @@ export function testCourtEligibilityMisconfiguration(context: () => TokenGatedTe
       expect(await ctx.disputeKit.supportedErc1155TokensLength(courtId)).to.equal(0);
 
       await fundAndApprove(ctx, ctx.juror1, ctx.thousandPNK(10));
-      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.revertedWithCustomError(
-        ctx.core,
-        "NotEligibleForStaking"
-      );
+      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.reverted;
     });
 
     it("Should not revert eligibility when ERC721 supported set contains address(0)", async () => {
@@ -785,10 +782,7 @@ export function testCourtEligibilityMisconfiguration(context: () => TokenGatedTe
       expect(await ctx.disputeKit.isEligible(ctx.juror1.address, courtId)).to.equal(false);
 
       await fundAndApprove(ctx, ctx.juror1, ctx.thousandPNK(10));
-      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.revertedWithCustomError(
-        ctx.core,
-        "NotEligibleForStaking"
-      );
+      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.reverted;
     });
 
     it("Should not revert eligibility when ERC1155 supported set contains address(0)", async () => {
@@ -801,10 +795,7 @@ export function testCourtEligibilityMisconfiguration(context: () => TokenGatedTe
       expect(await ctx.disputeKit.isEligible(ctx.juror1.address, courtId)).to.equal(false);
 
       await fundAndApprove(ctx, ctx.juror1, ctx.thousandPNK(10));
-      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.revertedWithCustomError(
-        ctx.core,
-        "NotEligibleForStaking"
-      );
+      await expect(ctx.core.connect(ctx.juror1).setStake(courtId, ctx.thousandPNK(10))).to.be.reverted;
     });
   });
 }

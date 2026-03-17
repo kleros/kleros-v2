@@ -53,16 +53,17 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // ************************************* //
 
     modifier onlyFromVea(address _messageSender) {
-        if (
-            veaOutbox != msg.sender &&
-            (block.timestamp >= deprecatedVeaOutboxExpiration || deprecatedVeaOutbox != msg.sender)
-        ) revert VeaOutboxOnly();
-        if (_messageSender != homeGateway) revert HomeGatewayMessageSenderOnly();
+        require(
+            veaOutbox == msg.sender ||
+                (block.timestamp < deprecatedVeaOutboxExpiration && deprecatedVeaOutbox == msg.sender),
+            VeaOutboxOnly()
+        );
+        require(_messageSender == homeGateway, HomeGatewayMessageSenderOnly());
         _;
     }
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -107,8 +108,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
 
     /// @notice Changes the owner.
     /// @param _owner The address of the new owner.
-    function changeOwner(address _owner) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
     }
 
@@ -124,8 +124,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
 
     /// @notice Changes the home gateway.
     /// @param _homeGateway The address of the new home gateway.
-    function changeHomeGateway(address _homeGateway) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeHomeGateway(address _homeGateway) external onlyByOwner {
         homeGateway = _homeGateway;
     }
 
@@ -146,7 +145,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         uint256 _choices,
         bytes calldata _extraData
     ) external payable override returns (uint256 disputeID) {
-        if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
+        require(msg.value >= arbitrationCost(_extraData), ArbitrationFeesNotEnough());
 
         disputeID = localDisputeID++;
         uint256 chainID;
@@ -209,8 +208,8 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     ) external override onlyFromVea(_messageSender) {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
-        if (dispute.id == 0) revert DisputeDoesNotExist();
-        if (dispute.ruled) revert CannotRuleTwice();
+        require(dispute.id != 0, DisputeDoesNotExist());
+        require(!dispute.ruled, CannotRuleTwice());
 
         dispute.ruled = true;
         dispute.relayer = _relayer;
@@ -222,8 +221,8 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     /// @inheritdoc IForeignGateway
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
-        if (dispute.id == 0) revert DisputeDoesNotExist();
-        if (!dispute.ruled) revert NotRuledYet();
+        require(dispute.id != 0, DisputeDoesNotExist());
+        require(dispute.ruled, NotRuledYet());
 
         uint256 amount = dispute.paid;
         dispute.paid = 0;

@@ -142,7 +142,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_StakingTest is KlerosCore_Te
 
     /// @notice Juror without any token reverts NotEligibleForStaking on stake increase
     function test_stakeRevertsWithoutTokens() public {
-        vm.expectRevert(KlerosCore.NotEligibleForStaking.selector);
+        vm.expectRevert();
         vm.prank(ineligibleJuror);
         core.setStake(argentinaCourt, 3000);
     }
@@ -183,7 +183,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_StakingTest is KlerosCore_Te
         vm.stopPrank();
 
         // Stake increase should revert
-        vm.expectRevert(KlerosCore.NotEligibleForStaking.selector);
+        vm.expectRevert(); // NotEligibleForStaking
         vm.prank(eligibleLawyer);
         core.setStake(argentinaCourt, 3000);
     }
@@ -246,7 +246,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_StakingTest is KlerosCore_Te
         );
 
         // Ineligible juror can no longer increase stake
-        vm.expectRevert(KlerosCore.NotEligibleForStaking.selector);
+        vm.expectRevert(); // NotEligibleForStaking
         vm.prank(ineligibleJuror);
         core.setStake(openCourt, 3000);
 

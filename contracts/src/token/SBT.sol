@@ -109,7 +109,7 @@ contract SBT is ERC721, ERC721Pausable, ERC721Burnable, IERC4906, Ownable {
     }
 
     function safeMint(address _to) public onlyOwner returns (uint256) {
-        if (balanceOf(_to) > 0) revert AddressAlreadyHasToken();
+        require(balanceOf(_to) == 0, AddressAlreadyHasToken());
         uint256 tokenId = __nextTokenId++;
         _safeMint(_to, tokenId);
         emit MetadataUpdate(tokenId);
