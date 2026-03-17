@@ -5,7 +5,6 @@ pragma solidity ^0.8.28;
 import {DisputeKitClassicBase} from "./DisputeKitClassicBase.sol";
 import {KlerosCore} from "../KlerosCore.sol";
 import {ICourtEligibility} from "../interfaces/ICourtEligibility.sol";
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 interface IBalanceHolder {
     /// @notice Returns the number of tokens in `owner` account.
@@ -31,19 +30,22 @@ interface IBalanceHolderERC1155 {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
-    using EnumerableSet for EnumerableSet.AddressSet;
-    using EnumerableSet for EnumerableSet.UintSet;
-
     string public constant override version = "2.0.0";
 
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    mapping(uint96 courtID => EnumerableSet.AddressSet) internal supportedErc721Tokens; // Supported ERC-721 token gates.
-    mapping(uint96 courtID => EnumerableSet.AddressSet) internal supportedErc1155Tokens; // Supported ERC-1155 token gates.
-    mapping(uint96 courtID => mapping(address token => EnumerableSet.UintSet tokenIDs))
-        internal supportedErc1155TokenIds; // Supported ERC-1155 tokenIds for a particular ERC-1155 token contract.
+    mapping(uint96 courtID => address[] tokens) public supportedErc721Tokens; // Supported ERC-721 token gates.
+    mapping(uint96 courtID => mapping(address token => uint256 index)) public erc721TokenToIndex; // Index of the ERC-721 token in supported tokens array. Starts with 1.
+
+    mapping(uint96 courtID => address[] tokens) public supportedErc1155Tokens; // Supported ERC-1155 token gates.
+    mapping(uint96 courtID => mapping(address token => uint256 index)) public erc1155TokenToIndex; // Index of the ERC-1155 token in supported tokens array. Starts with 1.
+
+    mapping(uint96 courtID => mapping(address token => uint256[] tokenIds)) public supportedErc1155TokenIds; // Supported ERC-1155 tokenIds for a particular ERC-1155 token contract.
+    mapping(uint96 courtID => mapping(address token => mapping(uint256 tokenId => uint256 index)))
+        public erc1155TokenIdToIndex; // Index of the tokenID in supported token IDs array. Starts with 1.
+
     mapping(uint256 localDisputeID => mapping(uint256 localRoundID => mapping(uint256 voteID => bytes32 justificationCommitment)))
         public justificationCommitments;
 
@@ -127,14 +129,27 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         address[] memory _tokens,
         bool _supported
     ) external onlyByOwner {
+        address[] storage supportedTokens = supportedErc721Tokens[_courtID];
         for (uint256 i = 0; i < _tokens.length; i++) {
-            require(_tokens[i] != address(0), TokenGateRequired());
-            if (_supported) {
-                supportedErc721Tokens[_courtID].add(_tokens[i]);
-            } else {
-                supportedErc721Tokens[_courtID].remove(_tokens[i]);
+            address token = _tokens[i];
+            require(token != address(0), TokenGateRequired());
+            uint256 currentIndex = erc721TokenToIndex[_courtID][token];
+            if (_supported && currentIndex == 0) {
+                supportedTokens.push(token);
+                erc721TokenToIndex[_courtID][token] = supportedTokens.length;
+                emit SupportedErc721TokenChanged(_courtID, token, _supported);
+            } else if (!_supported && currentIndex != 0) {
+                uint256 lastIndex = supportedTokens.length;
+                if (currentIndex != lastIndex) {
+                    // Swap the last element. Note that index represents the length of the array, thus it should be deducted by 1.
+                    address lastToken = supportedTokens[lastIndex - 1];
+                    supportedTokens[currentIndex - 1] = lastToken;
+                    erc721TokenToIndex[_courtID][lastToken] = currentIndex;
+                }
+                supportedTokens.pop();
+                delete erc721TokenToIndex[_courtID][token];
+                emit SupportedErc721TokenChanged(_courtID, token, _supported);
             }
-            emit SupportedErc721TokenChanged(_courtID, _tokens[i], _supported);
         }
     }
 
@@ -150,17 +165,50 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         bool _supported
     ) external onlyByOwner {
         require(_token != address(0), TokenGateRequired());
+
+        address[] storage supportedTokens = supportedErc1155Tokens[_courtID];
+        uint256[] storage supportedIds = supportedErc1155TokenIds[_courtID][_token];
+        uint256 currentTokenIndex = erc1155TokenToIndex[_courtID][_token];
         for (uint256 i = 0; i < _tokenIds.length; i++) {
-            if (_supported) {
-                supportedErc1155TokenIds[_courtID][_token].add(_tokenIds[i]);
-                supportedErc1155Tokens[_courtID].add(_token);
-            } else {
-                supportedErc1155TokenIds[_courtID][_token].remove(_tokenIds[i]);
-                if (supportedErc1155TokenIds[_courtID][_token].length() == 0) {
-                    supportedErc1155Tokens[_courtID].remove(_token);
+            uint256 tokenId = _tokenIds[i];
+            uint256 currentTokenIdIndex = erc1155TokenIdToIndex[_courtID][_token][tokenId];
+            if (_supported && currentTokenIdIndex == 0) {
+                // Add token contract to supported tokens if not there yet.
+                if (currentTokenIndex == 0) {
+                    supportedTokens.push(_token);
+                    // Assign the index so this clause can be skipped in future iterations.
+                    currentTokenIndex = supportedTokens.length;
+                    erc1155TokenToIndex[_courtID][_token] = currentTokenIndex;
                 }
+                // Add tokenId.
+                supportedIds.push(tokenId);
+                erc1155TokenIdToIndex[_courtID][_token][tokenId] = supportedIds.length;
+                emit SupportedErc1155TokenIdChanged(_courtID, _token, tokenId, _supported);
+            } else if (!_supported && currentTokenIdIndex != 0) {
+                uint256 lastTokenIdIndex = supportedIds.length;
+                if (currentTokenIdIndex != lastTokenIdIndex) {
+                    // Swap the last element. Note that index represents the length of the array, thus it should be deducted by 1.
+                    uint256 lastTokenId = supportedIds[lastTokenIdIndex - 1];
+                    supportedIds[currentTokenIdIndex - 1] = lastTokenId;
+                    erc1155TokenIdToIndex[_courtID][_token][lastTokenId] = currentTokenIdIndex;
+                }
+                supportedIds.pop();
+                delete erc1155TokenIdToIndex[_courtID][_token][tokenId];
+
+                // If no tokenIds left for this token contract, remove the token contract too.
+                if (supportedIds.length == 0) {
+                    uint256 lastTokenIndex = supportedTokens.length;
+                    if (currentTokenIndex != lastTokenIndex) {
+                        address lastToken = supportedTokens[lastTokenIndex - 1];
+                        supportedTokens[currentTokenIndex - 1] = lastToken;
+                        erc1155TokenToIndex[_courtID][lastToken] = currentTokenIndex;
+                    }
+                    supportedTokens.pop();
+                    delete erc1155TokenToIndex[_courtID][_token];
+                    currentTokenIndex = 0;
+                }
+                emit SupportedErc1155TokenIdChanged(_courtID, _token, tokenId, _supported);
             }
-            emit SupportedErc1155TokenIdChanged(_courtID, _token, _tokenIds[i], _supported);
         }
     }
 
@@ -183,12 +231,9 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         require(tokenGate != address(0), TokenGateRequired());
 
         if (isERC1155) {
-            require(
-                supportedErc1155TokenIds[courtID][tokenGate].contains(tokenId),
-                TokenNotSupported(courtID, tokenGate)
-            );
+            require(erc1155TokenIdToIndex[courtID][tokenGate][tokenId] != 0, TokenNotSupported(courtID, tokenGate));
         } else {
-            require(supportedErc721Tokens[courtID].contains(tokenGate), TokenNotSupported(courtID, tokenGate));
+            require(erc721TokenToIndex[courtID][tokenGate] != 0, TokenNotSupported(courtID, tokenGate));
         }
 
         // super.createDispute() ensures access control onlyByCore.
@@ -283,21 +328,21 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
     /// @inheritdoc ICourtEligibility
     /// @dev Complexity: O(n + m) where `n` is the number of supported ERC-721 tokens and `m` is the number of supported ERC-1155 tokens.
     function isEligible(address _juror, uint96 _courtID) external view override returns (bool) {
-        uint256 erc721Length = supportedErc721Tokens[_courtID].length();
+        uint256 erc721Length = supportedErc721Tokens[_courtID].length;
         for (uint256 i = 0; i < erc721Length; i++) {
-            address token = supportedErc721Tokens[_courtID].at(i);
+            address token = supportedErc721Tokens[_courtID][i];
             if (token == address(0)) continue;
             if (IBalanceHolder(token).balanceOf(_juror) > 0) return true;
         }
 
-        uint256 erc1155Length = supportedErc1155Tokens[_courtID].length();
+        uint256 erc1155Length = supportedErc1155Tokens[_courtID].length;
         for (uint256 i = 0; i < erc1155Length; i++) {
-            address token = supportedErc1155Tokens[_courtID].at(i);
+            address token = supportedErc1155Tokens[_courtID][i];
             if (token == address(0)) continue;
-            EnumerableSet.UintSet storage tokenIds = supportedErc1155TokenIds[_courtID][token];
-            uint256 tokenIdsLength = tokenIds.length();
+            uint256[] storage tokenIds = supportedErc1155TokenIds[_courtID][token];
+            uint256 tokenIdsLength = tokenIds.length;
             for (uint256 j = 0; j < tokenIdsLength; j++) {
-                uint256 tokenId = tokenIds.at(j);
+                uint256 tokenId = tokenIds[j];
                 if (IBalanceHolderERC1155(token).balanceOf(_juror, tokenId) > 0) return true;
             }
         }
@@ -309,14 +354,14 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
     /// @param _token The address of the token.
     /// @return Whether the token is supported or not.
     function isErc721TokenSupported(uint96 _courtID, address _token) external view returns (bool) {
-        return supportedErc721Tokens[_courtID].contains(_token);
+        return erc721TokenToIndex[_courtID][_token] != 0;
     }
 
     /// @notice Returns the number of ERC-721 tokens supported in a court.
     /// @param _courtID The ID of the court.
     /// @return The number of ERC-721 tokens supported in the court.
     function supportedErc721TokensLength(uint96 _courtID) external view returns (uint256) {
-        return supportedErc721Tokens[_courtID].length();
+        return supportedErc721Tokens[_courtID].length;
     }
 
     /// @notice Returns the ERC-721 token at the given index.
@@ -324,7 +369,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
     /// @param _index The index of the token.
     /// @return The ERC-721 token at the given index.
     function supportedErc721TokensAt(uint96 _courtID, uint256 _index) external view returns (address) {
-        return supportedErc721Tokens[_courtID].at(_index);
+        return supportedErc721Tokens[_courtID][_index];
     }
 
     /// @notice Checks if an ERC-1155 `(token, tokenId)` is supported in a court.
@@ -332,7 +377,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
     /// @param _token The ERC-1155 token contract address.
     /// @param _tokenId The ERC-1155 tokenId.
     function isErc1155TokenIdSupported(uint96 _courtID, address _token, uint256 _tokenId) external view returns (bool) {
-        return supportedErc1155TokenIds[_courtID][_token].contains(_tokenId);
+        return erc1155TokenIdToIndex[_courtID][_token][_tokenId] != 0;
     }
 
     /// @notice Returns the number of ERC-1155 tokenIds supported for a given token contract.
@@ -340,7 +385,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
     /// @param _token The ERC-1155 token contract address.
     /// @return The number of ERC-1155 tokenIds supported for the given token contract.
     function supportedErc1155TokenIdsLength(uint96 _courtID, address _token) external view returns (uint256) {
-        return supportedErc1155TokenIds[_courtID][_token].length();
+        return supportedErc1155TokenIds[_courtID][_token].length;
     }
 
     /// @notice Returns the ERC-1155 tokenId at the given index for a given token contract.
@@ -353,14 +398,14 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
         address _token,
         uint256 _index
     ) external view returns (uint256) {
-        return supportedErc1155TokenIds[_courtID][_token].at(_index);
+        return supportedErc1155TokenIds[_courtID][_token][_index];
     }
 
     /// @notice Returns the number of ERC-1155 tokens supported in a court.
     /// @param _courtID The ID of the court.
     /// @return The number of ERC-1155 tokens supported in the court.
     function supportedErc1155TokensLength(uint96 _courtID) external view returns (uint256) {
-        return supportedErc1155Tokens[_courtID].length();
+        return supportedErc1155Tokens[_courtID].length;
     }
 
     /// @notice Returns the ERC-1155 token at the given index.
@@ -368,7 +413,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase, ICourtEligibility {
     /// @param _index The index of the token.
     /// @return The ERC-1155 token at the given index.
     function supportedErc1155TokensAt(uint96 _courtID, uint256 _index) external view returns (address) {
-        return supportedErc1155Tokens[_courtID].at(_index);
+        return supportedErc1155Tokens[_courtID][_index];
     }
 
     // ************************************* //
