@@ -132,7 +132,12 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IHomeGateway
+    /// @notice Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
+    ///
+    /// @dev Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    /// This function accepts the fees payment in the native currency of the home chain, typically ETH.
+    ///
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
         require(feeToken == NATIVE_CURRENCY, FeesPaidInNativeCurrencyOnly());
         require(_params.foreignChainID == foreignChainID, ForeignChainIDNotSupported());
@@ -168,7 +173,12 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         );
     }
 
-    /// @inheritdoc IHomeGateway
+    /// @notice Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
+    ///
+    /// @dev Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    /// This function accepts the fees payment in the ERC20 `acceptedFeeToken()`.
+    ///
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
     function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external {
         require(feeToken != NATIVE_CURRENCY, FeesPaidInERC20Only());
         require(_params.foreignChainID == foreignChainID, ForeignChainIDNotSupported());
@@ -208,7 +218,14 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         );
     }
 
-    /// @inheritdoc IArbitrableV2
+    /// @notice Give a ruling for a dispute.
+    ///
+    /// @dev This is a callback function for the arbitrator to provide the ruling to this contract.
+    /// Only the arbitrator must be allowed to call this function.
+    /// Ruling 0 is reserved for "Not able/wanting to make a decision".
+    ///
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator.
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), ArbitratorOnly());
 
@@ -226,12 +243,13 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IHomeGateway
+    /// @notice Looks up the local home disputeID for a disputeHash
+    /// @param _disputeHash dispute hash
+    /// @return disputeID dispute identifier on the home chain
     function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }
 
-    /// @inheritdoc ISenderGateway
     function receiverGateway() external view override returns (address) {
         return foreignGateway;
     }

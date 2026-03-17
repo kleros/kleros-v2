@@ -87,7 +87,13 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase, IC
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc DisputeKitClassicBase
+    /// @notice Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
+    /// @dev Access restricted to Kleros Core only.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _nonce Nonce.
+    /// @param _roundNbVotes The number of votes in the round, including already drawn and yet to be drawn.
+    /// @return drawnAddress The drawn address.
+    /// @return fromSubcourtID The subcourt ID from which the juror was drawn.
     function draw(
         uint256 _coreDisputeID,
         uint256 _nonce,
@@ -110,7 +116,10 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase, IC
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc ICourtEligibility
+    /// @notice Checks if the juror is eligible to stake or to vote in the court.
+    /// @param _juror The address of the juror.
+    /// @param - courtID The ID of the court. Unused, required by interface.
+    /// @return True if the juror is eligible, false otherwise.
     function isEligible(address _juror, uint96 /* _courtID */) external view override returns (bool) {
         return
             IBalanceHolder(accreditedConsumerProtectionLawyerToken).balanceOf(_juror) > 0 ||
@@ -121,7 +130,12 @@ contract DisputeKitGatedArgentinaConsumerProtection is DisputeKitClassicBase, IC
     // *            Internal               * //
     // ************************************* //
 
-    /// @inheritdoc DisputeKitClassicBase
+    /// @notice Checks that the chosen address satisfies certain conditions for being drawn.
+    /// @param _round Round struct.
+    /// @param _coreDisputeID ID of the dispute in the core contract.
+    /// @param _juror Chosen address.
+    /// @param _roundNbVotes The number of votes in the round
+    /// @return Whether the address passes the check or not.
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,

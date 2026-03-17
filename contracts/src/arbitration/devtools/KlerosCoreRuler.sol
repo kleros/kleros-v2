@@ -378,7 +378,11 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         emit RulerChanged(_arbitrable, msg.sender, _newRuler);
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Create a dispute and pay for the fees in the native currency, typically ETH.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData)` in ETH.
+    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return disputeID The identifier of the dispute created.
     function createDispute(
         uint256 _numberOfChoices,
         bytes memory _extraData
@@ -388,7 +392,13 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         return _createDispute(_numberOfChoices, _extraData, NATIVE_CURRENCY, msg.value);
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Create a dispute and pay for the fees in a supported ERC20 token.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData, _feeToken)` in the supported ERC20 token.
+    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @param _feeToken The ERC20 token used to pay fees.
+    /// @param _feeAmount Amount of the ERC20 token used to pay fees.
+    /// @return disputeID The identifier of the dispute created.
     function createDispute(
         uint256 _numberOfChoices,
         bytes calldata _extraData,

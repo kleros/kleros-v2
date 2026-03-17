@@ -687,7 +687,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         require(pinakion.safeTransfer(_account, _amount), TransferFailed());
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Create a dispute and pay for the fees in the native currency, typically ETH.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData)` in ETH.
+    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return disputeID The identifier of the dispute created.
     function createDispute(
         uint256 _numberOfChoices,
         bytes memory _extraData
@@ -697,7 +701,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         return _createDispute(_numberOfChoices, _extraData, NATIVE_CURRENCY, msg.value);
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Create a dispute and pay for the fees in a supported ERC20 token.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData, _feeToken)` in the supported ERC20 token.
+    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @param _feeToken The ERC20 token used to pay fees.
+    /// @param _feeAmount Amount of the ERC20 token used to pay fees.
+    /// @return disputeID The identifier of the dispute created.
     function createDispute(
         uint256 _numberOfChoices,
         bytes calldata _extraData,
@@ -1151,13 +1161,20 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Compute the cost of arbitration denominated in the native currency, typically ETH.
+    /// @dev It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return cost The arbitration cost in ETH.
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors, ) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
         cost = courts[courtID].feeForJuror * minJurors;
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Compute the cost of arbitration denominated in `_feeToken`.
+    /// @dev It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @param _feeToken The ERC20 token used to pay fees.
+    /// @return cost The arbitration cost in `_feeToken`.
     function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) public view override returns (uint256 cost) {
         cost = convertEthToTokenAmount(_feeToken, arbitrationCost(_extraData));
     }
@@ -1210,7 +1227,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         }
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Gets the current ruling of a specified dispute.
+    /// @param _disputeID The ID of the dispute.
+    /// @return ruling The current ruling.
+    /// @return tied Whether it's a tie or not.
+    /// @return overridden Whether the ruling was overridden by appeal funding or not.
     function currentRuling(uint256 _disputeID) public view returns (uint256 ruling, bool tied, bool overridden) {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];

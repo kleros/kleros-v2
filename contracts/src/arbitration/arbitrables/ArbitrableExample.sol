@@ -148,7 +148,14 @@ contract ArbitrableExample is IArbitrableV2 {
         emit DisputeRequest(arbitrator, disputeID, templateId);
     }
 
-    /// @inheritdoc IArbitrableV2
+    /// @notice Give a ruling for a dispute.
+    ///
+    /// @dev This is a callback function for the arbitrator to provide the ruling to this contract.
+    /// Only the arbitrator must be allowed to call this function.
+    /// Ruling 0 is reserved for "Not able/wanting to make a decision".
+    ///
+    /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator.
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external virtual override {
         uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];

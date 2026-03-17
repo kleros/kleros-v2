@@ -148,9 +148,8 @@ abstract contract VRFConsumerBaseV2Plus is IVRFMigratableConsumerV2Plus {
         fulfillRandomWords(requestId, randomWords);
     }
 
-    /**
-     * @inheritdoc IVRFMigratableConsumerV2Plus
-     */
+    /// @notice Sets the VRF Coordinator address
+    /// @notice This method should only be callable by the coordinator or contract owner
     function setCoordinator(address _vrfCoordinator) external override onlyOwnerOrCoordinator {
         if (_vrfCoordinator == address(0)) {
             revert ZeroAddress();

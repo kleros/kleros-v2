@@ -68,7 +68,10 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase, ICourtEligibility {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc ICourtEligibility
+    /// @notice Checks if the juror is eligible to stake or to vote in the court.
+    /// @param _juror The address of the juror.
+    /// @param - courtID The ID of the court. Unused, required by interface.
+    /// @return True if the juror is eligible, false otherwise.
     function isEligible(address _juror, uint96 /* _courtID */) external view override returns (bool) {
         return poh.isHuman(_juror);
     }
@@ -77,7 +80,12 @@ contract DisputeKitSybilResistant is DisputeKitClassicBase, ICourtEligibility {
     // *            Internal               * //
     // ************************************* //
 
-    /// @inheritdoc DisputeKitClassicBase
+    /// @notice Checks that the chosen address satisfies certain conditions for being drawn.
+    /// @param _round Round struct.
+    /// @param _coreDisputeID ID of the dispute in the core contract.
+    /// @param _juror Chosen address.
+    /// @param _roundNbVotes The number of votes in the round
+    /// @return Whether the address passes the check or not.
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,

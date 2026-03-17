@@ -190,7 +190,14 @@ contract DisputeKitGated is DisputeKitClassicBase, ICourtEligibility {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc DisputeKitClassicBase
+    /// @notice Creates a local dispute and maps it to the dispute ID in the Core contract.
+    /// @dev Access restricted to Kleros Core only.
+    /// @dev The new `KlerosCore.Round` must be created before calling this function.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _numberOfChoices Number of choices of the dispute
+    /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.
+    /// @param _nbVotes Maximal number of votes this dispute can get. Added for future-proofing.
     /// @notice A token gate must be specified in the `extraData`, otherwise the transaction reverts.
     function createDispute(
         uint256 _coreDisputeID,
@@ -218,7 +225,10 @@ contract DisputeKitGated is DisputeKitClassicBase, ICourtEligibility {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc ICourtEligibility
+    /// @notice Checks if the juror is eligible to stake or to vote in the court.
+    /// @param _juror The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @return True if the juror is eligible, false otherwise.
     /// @dev Complexity: O(n + m) where `n` is the number of supported ERC-721 tokens and `m` is the number of supported ERC-1155 tokens.
     function isEligible(address _juror, uint96 _courtID) external view override returns (bool) {
         uint256 erc721Length = supportedErc721Tokens[_courtID].length;
@@ -343,7 +353,12 @@ contract DisputeKitGated is DisputeKitClassicBase, ICourtEligibility {
         }
     }
 
-    /// @inheritdoc DisputeKitClassicBase
+    /// @notice Checks that the chosen address satisfies certain conditions for being drawn.
+    /// @param _round Round struct.
+    /// @param _coreDisputeID ID of the dispute in the core contract.
+    /// @param _juror Chosen address.
+    /// @param _roundNbVotes The number of votes in the round
+    /// @return Whether the address passes the check or not.
     function _postDrawCheck(
         Round storage _round,
         uint256 _coreDisputeID,

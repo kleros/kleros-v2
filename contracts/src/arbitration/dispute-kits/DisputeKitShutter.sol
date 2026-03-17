@@ -168,7 +168,13 @@ contract DisputeKitShutter is DisputeKitClassicBase {
     // *            Internal               * //
     // ************************************* //
 
-    /// @inheritdoc DisputeKitClassicBase
+    /// @notice Verifies that revealed choice and justification match the hidden vote commitments.
+    /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
+    /// @param _localRoundID The ID of the round in the Dispute Kit.
+    /// @param _voteIDs The IDs of the votes.
+    /// @param _choice The choice.
+    /// @param _justification The justification.
+    /// @param _salt The salt.
     function _verifyHiddenVoteCommitments(
         uint256 _localDisputeID,
         uint256 _localRoundID,

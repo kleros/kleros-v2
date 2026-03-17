@@ -219,7 +219,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Creates a local dispute and maps it to the dispute ID in the Core contract.
+    /// @dev Access restricted to Kleros Core only.
+    /// @dev The new `KlerosCore.Round` must be created before calling this function.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _numberOfChoices Number of choices of the dispute
+    /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.
+    /// @param - nbVotes Maximal number of votes this dispute can get. Added for future-proofing.
     function createDispute(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -253,7 +260,13 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
+    /// @dev Access restricted to Kleros Core only.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _nonce Nonce.
+    /// @param _roundNbVotes The number of votes in the round, including already drawn and yet to be drawn.
+    /// @return drawnAddress The drawn address.
+    /// @return fromSubcourtID The subcourt ID from which the juror was drawn.
     function draw(
         uint256 _coreDisputeID,
         uint256 _nonce,
@@ -547,7 +560,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return lastRound.fundedChoices;
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Gets the current ruling of a specified dispute.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @return ruling The current ruling.
+    /// @return tied Whether it's a tie or not.
+    /// @return overridden Whether the ruling was overridden by appeal funding or not.
     function currentRuling(
         uint256 _coreDisputeID
     ) external view override returns (uint256 ruling, bool tied, bool overridden) {
@@ -567,7 +584,15 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         }
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Gets the degree of coherence of a particular voter.
+    /// @dev This function is called by Kleros Core in order to determine the amount of the reward.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @param - feePerJuror The fee per juror. Unused, required by interface.
+    /// @param - pnkAtStakePerJuror The PNK at stake per juror. Unused, required by interface.
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @return feeCoherence The degree of coherence in basis points for the dispute fee reward.
     function getDegreeOfCoherenceReward(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -579,7 +604,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return (coherence, coherence);
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Gets the degree of coherence of a particular voter.
+    /// @dev This function is called by Kleros Core in order to determine the amount of the penalty.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @param - feePerJuror The fee per juror. Unused, required by interface.
+    /// @param - pnkAtStakePerJuror The PNK at stake per juror. Unused, required by interface.
+    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
     function getDegreeOfCoherencePenalty(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -607,7 +639,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         }
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Gets the number of jurors who are eligible to a reward in this round.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @return The number of coherent jurors.
     function getCoherentCount(uint256 _coreDisputeID, uint256 _coreRoundID) external view override returns (uint256) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage currentRound = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
@@ -622,7 +657,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         }
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Gets the rewards for PNK and fees based on coherence and total reward pool.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param - voteID The ID of the vote. Unused, required by interface.
+    /// @param _coherentCount The number of jurors eligible for reward.
+    /// @param _pnkRewardPool Total amount of PNK available for rewards to all coherent jurors.
+    /// @param _pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @param _feeCoherence The degree of coherence in basis points for the dispute fee reward.
+    /// @return pnkReward The pnk reward the juror is eligible to.
+    /// @return feeReward The fee reward the juror is eligible to.
     function getRewards(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -641,14 +685,19 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         feeReward = (availableFeeAmount * _feeCoherence) / ONE_BASIS_POINT;
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Returns true if all of the jurors have cast their commits for the last round.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @return Whether all of the jurors have cast their commits for the last round.
     function areCommitsAllCast(uint256 _coreDisputeID) external view override returns (bool) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         return round.totalCommitted == round.votes.length;
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Returns true if all of the jurors have cast their votes for the last round.
+    /// @dev This function is to be called directly by the core contract and is not for off-chain usage.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @return Whether all of the jurors have cast their votes for the last round.
     function areVotesAllCast(uint256 _coreDisputeID) external view override returns (bool) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
@@ -664,7 +713,10 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return round.totalVoted == expectedTotalVoted;
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Returns true if the appeal funding is finished prematurely (e.g. when losing side didn't fund).
+    /// @dev This function is to be called directly by the core contract and is not for off-chain usage.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @return Whether the appeal funding is finished.
     function isAppealFunded(uint256 _coreDisputeID) external view override returns (bool) {
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
 
@@ -675,7 +727,17 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
             ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT);
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Returns the next round settings for a given dispute.
+    /// @dev This function does not check for compatibility between `newDisputeKitID` and `newCourtID`, this is the Core's responsibility.
+    /// @param - coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit. Unused, required by interface.
+    /// @param _currentCourtID The ID of the current court.
+    /// @param _parentCourtID The ID of the parent court.
+    /// @param _currentCourtJurorsForJump The court jump threshold defined by the current court.
+    /// @param _currentDisputeKitID The ID of the current dispute kit.
+    /// @param _currentRoundNbVotes The number of votes in the current round.
+    /// @return newCourtID Court ID after jump.
+    /// @return newDisputeKitID Dispute kit ID after jump.
+    /// @return newRoundNbVotes The number of votes in the new round.
     function getNextRoundSettings(
         uint256 /* _coreDisputeID */,
         uint96 _currentCourtID,
@@ -712,7 +774,11 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         }
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Returns true if the specified voter was active in this round.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the voter.
+    /// @return Whether the voter was active or not.
     function isVoteActive(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -723,7 +789,16 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         return vote.voted;
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Returns the info of the specified round in the core contract.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _choice The choice to query.
+    /// @return winningChoice The winning choice of this round.
+    /// @return tied Whether it's a tie or not.
+    /// @return totalVoted Number of jurors who cast the vote already.
+    /// @return totalCommitted Number of jurors who cast the commit already (only relevant for hidden votes).
+    /// @return nbVoters Total number of voters in this round.
+    /// @return choiceCount Number of votes cast for the queried choice.
     function getRoundInfo(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
@@ -773,7 +848,14 @@ abstract contract DisputeKitClassicBase is IDisputeKit, Initializable, UUPSProxi
         localRoundID = disputes[localDisputeID].coreRoundIDToLocal[_coreRoundID];
     }
 
-    /// @inheritdoc IDisputeKit
+    /// @notice Returns the vote information for a given vote ID.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
+    /// @param _voteID The ID of the vote.
+    /// @return account The address of the juror who cast the vote.
+    /// @return commit The commit of the vote.
+    /// @return choice The choice that got the vote.
+    /// @return voted Whether the vote was cast or not.
     function getVoteInfo(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,

@@ -180,7 +180,7 @@ interface IDisputeKit {
     /// @return winningChoice The winning choice of this round.
     /// @return tied Whether it's a tie or not.
     /// @return totalVoted Number of jurors who cast the vote already.
-    /// @return totalCommited Number of jurors who cast the commit already (only relevant for hidden votes).
+    /// @return totalCommitted Number of jurors who cast the commit already (only relevant for hidden votes).
     /// @return nbVoters Total number of voters in this round.
     /// @return choiceCount Number of votes cast for the queried choice.
     function getRoundInfo(
@@ -194,7 +194,7 @@ interface IDisputeKit {
             uint256 winningChoice,
             bool tied,
             uint256 totalVoted,
-            uint256 totalCommited,
+            uint256 totalCommitted,
             uint256 nbVoters,
             uint256 choiceCount
         );
