@@ -737,7 +737,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             : convertEthToTokenAmount(_feeToken, court.feeForJuror);
         round.nbVotes = _feeAmount / feeForJuror;
         round.disputeKitID = disputeKitID;
-        round.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
+        round.pnkAtStakePerJuror = (court.minStake * court.alpha) / ONE_BASIS_POINT;
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
         round.courtParamsIndex = court.additionalCourtParamsChanges.length - 1;
@@ -868,7 +868,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
         Court storage court = courts[newCourtID];
         extraRound.nbVotes = msg.value / court.feeForJuror; // As many votes that can be afforded by the provided funds.
-        extraRound.pnkAtStakePerJuror = _calculatePnkAtStake(court.minStake, court.alpha);
+        extraRound.pnkAtStakePerJuror = (court.minStake * court.alpha) / ONE_BASIS_POINT;
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
         extraRound.courtParamsIndex = court.additionalCourtParamsChanges.length - 1;
@@ -1060,7 +1060,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         }
 
         address account = round.drawnJurors[repartition];
-        uint256 pnkLocked = _applyCoherence(round.pnkAtStakePerJuror, pnkCoherence);
+        uint256 pnkLocked = (round.pnkAtStakePerJuror * pnkCoherence) / ONE_BASIS_POINT;
 
         // Release the rest of the PNKs of the juror for this round.
         sortitionModule.unlockStake(account, pnkLocked);
@@ -1405,22 +1405,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         } else {
             _feeToken.safeTransfer(_recipient, _amount);
         }
-    }
-
-    /// @notice Applies degree of coherence to an amount
-    /// @param _amount The base amount to apply coherence to.
-    /// @param _coherence The degree of coherence in basis points.
-    /// @return The amount after applying the degree of coherence.
-    function _applyCoherence(uint256 _amount, uint256 _coherence) internal pure returns (uint256) {
-        return (_amount * _coherence) / ONE_BASIS_POINT;
-    }
-
-    /// @notice Calculates PNK at stake per juror based on court parameters
-    /// @param _minStake The minimum stake for the court.
-    /// @param _alpha The alpha parameter for the court in basis points.
-    /// @return The amount of PNK at stake per juror.
-    function _calculatePnkAtStake(uint256 _minStake, uint256 _alpha) internal pure returns (uint256) {
-        return (_minStake * _alpha) / ONE_BASIS_POINT;
     }
 
     /// @notice Toggles the dispute kit support for a given court.
