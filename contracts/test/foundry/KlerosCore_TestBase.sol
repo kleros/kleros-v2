@@ -148,7 +148,7 @@ abstract contract KlerosCore_TestBase is Test {
 
         core = KlerosCoreMock(address(proxyCore));
         core.initialize(
-            owner,
+            payable(owner),
             guardian,
             pinakion,
             jurorProsecutionModule,

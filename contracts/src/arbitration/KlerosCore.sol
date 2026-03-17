@@ -100,7 +100,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
 
-    address public owner; // The owner of the contract.
+    address payable public owner; // The owner of the contract.
     address public guardian; // The guardian able to pause asset withdrawals.
     IERC20 public pinakion; // The Pinakion token contract.
     address public jurorProsecutionModule; // The module for juror's prosecution.
@@ -319,7 +319,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _jurorNft NFT contract to vet the jurors.
     /// @param _ratesConverter Contract to convert ETH to fee tokens.
     function initialize(
-        address _owner,
+        address payable _owner,
         address _guardian,
         IERC20 _pinakion,
         address _jurorProsecutionModule,
@@ -1021,7 +1021,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the owner.
-            _transferFeeToken(round.feeToken, payable(owner), round.totalFeesForJurors);
+            _transferFeeToken(round.feeToken, owner, round.totalFeesForJurors);
             pinakion.safeTransfer(owner, _params.pnkPenaltiesInRound);
             emit LeftoverRewardSent(
                 _params.disputeID,
@@ -1120,7 +1120,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
                     pinakion.safeTransfer(owner, leftoverPnkReward);
                 }
                 if (leftoverFeeReward != 0) {
-                    _transferFeeToken(round.feeToken, payable(owner), leftoverFeeReward);
+                    _transferFeeToken(round.feeToken, owner, leftoverFeeReward);
                 }
                 emit LeftoverRewardSent(
                     _params.disputeID,

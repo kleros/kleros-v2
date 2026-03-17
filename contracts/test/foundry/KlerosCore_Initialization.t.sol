@@ -167,7 +167,7 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
         newCore.initialize(
-            newOwner,
+            payable(newOwner),
             newGuardian,
             newPinakion,
             newJurorProsecutionModule,
