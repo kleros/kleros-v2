@@ -7204,6 +7204,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.31.0"
     eslint-plugin-react: "npm:^7.37.2"
     eslint-plugin-react-hooks: "npm:^4.6.2"
+    ethereum-identity-kit: "npm:^0.2.74"
     ethers: "npm:^5.8.0"
     globals: "npm:^15.12.0"
     graphql: "npm:^16.9.0"
@@ -21166,6 +21167,24 @@ __metadata:
     "@scure/bip32": "npm:1.4.0"
     "@scure/bip39": "npm:1.3.0"
   checksum: 10/ab123bbfe843500ac2d645ce9edc4bc814962ffb598db6bf8bf01fbecac656e6c81ff4cf2472f1734844bbcbad2bf658d8b699cb7248d768e0f06ae13ecf43b8
+  languageName: node
+  linkType: hard
+
+"ethereum-identity-kit@npm:^0.2.74":
+  version: 0.2.74
+  resolution: "ethereum-identity-kit@npm:0.2.74"
+  peerDependencies:
+    "@tanstack/react-query": ^5.0.0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+    viem: ^2.0.0
+    wagmi: ^2.0.0
+  peerDependenciesMeta:
+    react:
+      optional: false
+    react-dom:
+      optional: false
+  checksum: 10/c69628d9f53b5baf99592582464e424ec4c074f86c73b783fdb0dbe972197090c03651335c48de889dbddaea37737193f2710750a4a70e97c7427e98f7e5b935
   languageName: node
   linkType: hard
 

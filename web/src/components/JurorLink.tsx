@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { ProfileTooltip } from "ethereum-identity-kit";
 import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -66,18 +67,20 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, small
   }, [address]);
 
   return (
-    <Container>
-      <IdenticonOrAvatar address={address} />
-      <ReStyledArrowLink
-        {...{ smallDisplay }}
-        to={isInternalLink ? profileLink : addressExplorerLink}
-        rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
-        target={`${isInternalLink ? "" : "_blank"}`}
-      >
-        <AddressOrName {...{ address, smallDisplay }} />
-        {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
-      </ReStyledArrowLink>
-    </Container>
+    <ProfileTooltip addressOrName={address} showFollowButton connectedAddress={connectedAddress}>
+      <Container>
+        <IdenticonOrAvatar address={address} />
+        <ReStyledArrowLink
+          {...{ smallDisplay }}
+          to={isInternalLink ? profileLink : addressExplorerLink}
+          rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
+          target={`${isInternalLink ? "" : "_blank"}`}
+        >
+          <AddressOrName {...{ address, smallDisplay }} />
+          {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
+        </ReStyledArrowLink>
+      </Container>
+    </ProfileTooltip>
   );
 };
 
