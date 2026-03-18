@@ -200,7 +200,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @notice Passes the phase.
+    /// @notice Passes the phase. TRUSTED.
     function passPhase() external override {
         if (phase == Phase.staking) {
             require(block.timestamp - lastPhaseChange >= minStakingTime, MinStakingTimeNotPassed());

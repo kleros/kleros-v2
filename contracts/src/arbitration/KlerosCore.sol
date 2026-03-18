@@ -758,7 +758,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
-    /// @notice Passes the period of a specified dispute.
+    /// @notice Passes the period of a specified dispute. TRUSTED.
     /// @param _disputeID The ID of the dispute.
     function passPeriod(uint256 _disputeID) external {
         require(!arbitrationPaused && block.timestamp > arbitrationPauseGracePeriodEnd, WhenArbitrationNotPausedOnly());
@@ -808,7 +808,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         emit NewPeriod(_disputeID, dispute.period);
     }
 
-    /// @notice Draws jurors for the dispute. Can be called in parts.
+    /// @notice Draws jurors for the dispute. Can be called in parts. TRUSTED.
     /// @param _disputeID The ID of the dispute.
     /// @param _iterations The number of iterations to run.
     /// @return nbDrawnJurors The total number of jurors drawn in the round.
@@ -844,7 +844,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         return round.drawnJurors.length;
     }
 
-    /// @notice Appeals the ruling of a specified dispute.
+    /// @notice Appeals the ruling of a specified dispute. TRUSTED.
     /// @dev Access restricted to the Dispute Kit for this `_disputeID`.
     /// @param _disputeID The ID of the dispute.
     /// @param _numberOfChoices Number of choices for the dispute. Can be required during court jump.
@@ -901,7 +901,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         emit NewPeriod(_disputeID, Period.evidence);
     }
 
-    /// @notice Distribute the PNKs at stake and the dispute fees for the specific round of the dispute. Can be called in parts.
+    /// @notice Distribute the PNKs at stake and the dispute fees for the specific round of the dispute. Can be called in parts. TRUSTED.
     /// @dev Reward distributions are forbidden during pause.
     /// @param _disputeID The ID of the dispute.
     /// @param _round The appeal round.
@@ -1143,7 +1143,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         }
     }
 
-    /// @notice Executes a specified dispute's ruling.
+    /// @notice Executes a specified dispute's ruling. UNTRUSTED.
     /// @param _disputeID The ID of the dispute.
     function executeRuling(uint256 _disputeID) external {
         require(!arbitrationPaused, WhenArbitrationNotPausedOnly());
