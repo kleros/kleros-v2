@@ -284,22 +284,6 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         bool _noDelay,
         ICourtEligibility _eligibility
     ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
-        (pnkDeposit, pnkWithdrawal, stakingResult) = _validateStake(
-            _account,
-            _courtID,
-            _newStake,
-            _noDelay,
-            _eligibility
-        );
-    }
-
-    function _validateStake(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake,
-        bool _noDelay,
-        ICourtEligibility _eligibility
-    ) internal returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
         bool stakeIncrease = _newStake > currentStake;
