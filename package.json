@@ -82,7 +82,7 @@
     "@zksync/contracts": "npm:empty-npm-package@1.0.0",
     "@graphprotocol/graph-cli/glob": "^11.1.0",
     "@graphprotocol/graph-cli/immutable": "^5.1.5",
-    "@graphprotocol/graph-cli/undici": "^7.17.0"
+    "@graphprotocol/graph-cli/undici": "^7.24.0"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
