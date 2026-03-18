@@ -22982,7 +22982,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^11.0.4":
+"glob@npm:^11.1.0":
   version: 11.1.0
   resolution: "glob@npm:11.1.0"
   dependencies:
@@ -24468,7 +24468,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immutable@npm:^5.1.4":
+"immutable@npm:^5.1.5":
   version: 5.1.5
   resolution: "immutable@npm:5.1.5"
   checksum: 10/7aec2740239772ec8e92e793c991bd809203a97694f4ff3a18e50e28f9a6b02393ad033d87b458037bdf8c0ea37d4446d640e825f6171df3405cf6cf300ce028
@@ -38147,7 +38147,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^7.16.0":
+"undici@npm:^7.17.0":
   version: 7.24.4
   resolution: "undici@npm:7.24.4"
   checksum: 10/747e76e0fd685ae1bb6fc1a2ebce0caca4ee8bd5599a77da36a3f94eac146987a9547bdbec7a74d18c0776df8ad348dccb4209901ca83fc4076f560de0d5dc7a
