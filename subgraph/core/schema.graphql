@@ -61,7 +61,7 @@ interface Evidence {
 # Entities #
 ############
 
-type User @entity {
+type User @entity(immutable: false) {
   id: ID! # address
   userAddress: String!
   tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
@@ -86,7 +86,7 @@ type User @entity {
   penalties: [Penalty!]! @derivedFrom(field: "juror")
 }
 
-type Penalty @entity {
+type Penalty @entity(immutable: false) {
   id: ID! # dispute.id-roundIndex-user.id
   dispute: Dispute!
   round: Round!
@@ -97,13 +97,13 @@ type Penalty @entity {
   degreeOfCoherencyFee: BigInt!
 }
 
-type Arbitrable @entity {
+type Arbitrable @entity(immutable: false) {
   id: ID! # address
   disputes: [Dispute!]! @derivedFrom(field: "arbitrated")
   totalDisputes: BigInt!
 }
 
-type JurorRewardPenalty @entity {
+type JurorRewardPenalty @entity(immutable: false) {
   id: ID! # user.id-dispute.id
   juror: User!
   dispute: Dispute!
@@ -114,7 +114,7 @@ type JurorRewardPenalty @entity {
   feeToken: FeeToken
 }
 
-type JurorTokensPerCourt @entity {
+type JurorTokensPerCourt @entity(immutable: false) {
   id: ID! # user.id-court.id
   juror: User!
   court: Court!
@@ -124,7 +124,7 @@ type JurorTokensPerCourt @entity {
   delayed: BigInt!
 }
 
-type Court @entity {
+type Court @entity(immutable: false) {
   id: ID!
   policy: String
   name: String
@@ -154,7 +154,7 @@ type Court @entity {
   eligibility: String!
 }
 
-type Dispute @entity {
+type Dispute @entity(immutable: false) {
   id: ID!
   disputeID: BigInt!
   court: Court!
@@ -187,12 +187,12 @@ type Dispute @entity {
   evidences: [ClassicEvidence!]! @derivedFrom(field: "dispute")
 }
 
-type PeriodIndexCounter @entity {
+type PeriodIndexCounter @entity(immutable: false) {
   id: String!
   counter: BigInt!
 }
 
-type Round @entity {
+type Round @entity(immutable: false) {
   id: ID! # dispute.id-dispute.rounds.length
   disputeKit: DisputeKit!
   tokensAtStakePerJuror: BigInt!
@@ -224,7 +224,7 @@ type Draw @entity(immutable: true) {
   drawNotificationIndex: BigInt
 }
 
-type DisputeKit @entity {
+type DisputeKit @entity(immutable: false) {
   id: ID!
   address: Bytes
   needsFreezing: Boolean!
@@ -232,7 +232,7 @@ type DisputeKit @entity {
   courts: [Court!]! @derivedFrom(field: "supportedDisputeKits")
 }
 
-type Counter @entity {
+type Counter @entity(immutable: false) {
   id: ID! # Will be the timestamp except for the counter which will be 0
   stakedPNK: BigInt!
   redistributedPNK: BigInt!
@@ -245,7 +245,7 @@ type Counter @entity {
   totalLeaderboardJurors: BigInt!
 }
 
-type CourtCounter @entity {
+type CourtCounter @entity(immutable: false) {
   id: ID! # court.id-timestamp
   court: Court!
   numberDisputes: BigInt!
@@ -254,7 +254,7 @@ type CourtCounter @entity {
   timestamp: BigInt!
 }
 
-type FeeToken @entity {
+type FeeToken @entity(immutable: false) {
   id: ID! # The hexadecimal address of the ERC20 token.
   accepted: Boolean!
   rateInEth: BigInt!
@@ -269,7 +269,7 @@ type FeeToken @entity {
 # ClassicDisputeKit #
 #####################
 
-type ClassicDispute implements DisputeKitDispute @entity {
+type ClassicDispute implements DisputeKitDispute @entity(immutable: false) {
   id: ID! # disputeKit.id-coreDispute
   coreDispute: Dispute!
   localRounds: [DisputeKitRound!]! @derivedFrom(field: "localDispute")
@@ -280,7 +280,7 @@ type ClassicDispute implements DisputeKitDispute @entity {
   extraData: Bytes!
 }
 
-type Answer @entity {
+type Answer @entity(immutable: false) {
   id: ID! # classicRound.id-answerId
   answerId: BigInt!
   count: BigInt!
@@ -289,7 +289,7 @@ type Answer @entity {
   localRound: ClassicRound!
 }
 
-type ClassicRound implements DisputeKitRound @entity {
+type ClassicRound implements DisputeKitRound @entity(immutable: false) {
   id: ID! # disputeKit.id-coreDispute-dispute.rounds.length
   localDispute: DisputeKitDispute!
   votes: [Vote!]! @derivedFrom(field: "localRound")
@@ -307,7 +307,7 @@ type ClassicRound implements DisputeKitRound @entity {
   justifications: [ClassicJustification!] @derivedFrom(field: "localRound")
 }
 
-type ClassicVote implements Vote @entity {
+type ClassicVote implements Vote @entity(immutable: false) {
   id: ID! # disputeKit.id-coreDispute-currentRound-voteID
   coreDispute: Dispute!
   localRound: DisputeKitRound!
@@ -321,7 +321,7 @@ type ClassicVote implements Vote @entity {
   justification: ClassicJustification
 }
 
-type ClassicJustification @entity {
+type ClassicJustification @entity(immutable: false) {
   id: ID! # disputeKit.id-coreDispute-currentRound-voteIDs
   coreDispute: Dispute!
   localRound: ClassicRound!
@@ -349,7 +349,7 @@ type ClassicEvidence implements Evidence @entity(immutable: true) {
   fileTypeExtension: String
 }
 
-type ClassicContribution implements Contribution @entity {
+type ClassicContribution implements Contribution @entity(immutable: false) {
   id: ID! # disputeKit.id-dispute.id-classicround.id-contributor-choice
   contributor: User!
   coreDispute: Dispute!

@@ -1,4 +1,4 @@
-type DisputeTemplate @entity {
+type DisputeTemplate @entity(immutable: false) {
   id: ID! # disputeTemplateId
   templateTag: String
   templateData: String!
