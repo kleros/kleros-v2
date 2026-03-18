@@ -665,7 +665,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external whenNotPaused {
         require(address(jurorNft) == address(0) || jurorNft.balanceOf(msg.sender) > 0, NotEligibleForStaking());
-        require(_setStake(msg.sender, _courtID, _newStake, false));
+        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
     /// @notice Sets the stake of a specified account in a court without delaying stake changes, typically to apply a delayed stake or unstake inactive jurors.
@@ -675,7 +675,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @return True if the stake was set successfully.
     function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external returns (bool) {
         require(msg.sender == address(sortitionModule), SortitionModuleOnly());
-        return _setStake(_account, _courtID, _newStake, true);
+        return _setStake(_account, _courtID, _newStake, true, OnError.Return);
     }
 
     /// @notice Transfers PNK to the juror by SortitionModule.
@@ -1442,14 +1442,21 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _courtID The ID of the court to set the stake for.
     /// @param _newStake The new stake.
     /// @param _noDelay True if the stake change should not be delayed.
+    /// @param _onError Whether to revert or return false on error.
     /// @return Whether the stake was successfully set or not.
-    function _setStake(address _account, uint96 _courtID, uint256 _newStake, bool _noDelay) internal returns (bool) {
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _noDelay,
+        OnError _onError
+    ) internal returns (bool) {
         if (_courtID == FORKING_COURT || _courtID >= courts.length) {
-            // Staking directly into the forking court is not allowed.
+            _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
             return false;
         }
         if (_newStake != 0 && _newStake < courts[_courtID].minStake) {
-            // Staking less than the minimum stake is not allowed.
+            _stakingFailed(_onError, StakingResult.CannotStakeLessThanMinStake); // Staking less than the minimum stake is not allowed.
             return false;
         }
         (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.validateStake(
@@ -1459,24 +1466,41 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             _noDelay,
             courts[_courtID].eligibility
         );
-        if (stakingResult == StakingResult.Failed) {
+        if (stakingResult != StakingResult.Successful && stakingResult != StakingResult.Delayed) {
+            _stakingFailed(_onError, stakingResult);
             return false;
         } else if (stakingResult == StakingResult.Delayed) {
             return true;
         }
         if (pnkDeposit > 0) {
             if (!pinakion.safeTransferFrom(_account, address(this), pnkDeposit)) {
+                _stakingFailed(_onError, StakingResult.StakingTransferFailed);
                 return false;
             }
         }
         if (pnkWithdrawal > 0) {
             if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
+                _stakingFailed(_onError, StakingResult.UnstakingTransferFailed);
                 return false;
             }
         }
         sortitionModule.setStake(_account, _courtID, pnkDeposit, pnkWithdrawal, _newStake);
 
         return true;
+    }
+
+    /// @notice It may revert depending on the _onError parameter.
+    function _stakingFailed(OnError _onError, StakingResult _result) internal pure {
+        if (_onError == OnError.Return) return;
+        if (_result == StakingResult.StakingTransferFailed) revert StakingTransferFailed();
+        if (_result == StakingResult.UnstakingTransferFailed) revert UnstakingTransferFailed();
+        if (_result == StakingResult.CannotStakeInMoreCourts) revert StakingInTooManyCourts();
+        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibleInThisCourt();
+        if (_result == StakingResult.CannotStakeLessThanMinStake) revert StakingLessThanCourtMinStake();
+        if (_result == StakingResult.CannotStakeZeroWhenNoStake) revert StakingZeroWhenNoStake();
+        if (_result == StakingResult.CannotStakeMoreThanMaxStakePerJuror) revert StakingMoreThanMaxStakePerJuror();
+        if (_result == StakingResult.CannotStakeMoreThanMaxTotalStaked) revert StakingMoreThanMaxTotalStaked();
+        if (_result == StakingResult.NotEligibleForStaking) revert NotEligibleForStaking();
     }
 
     /// @notice Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
@@ -1529,6 +1553,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
     error NotEligibleForStaking();
+    error StakingMoreThanMaxStakePerJuror();
+    error StakingMoreThanMaxTotalStaked();
+    error StakingInTooManyCourts();
+    error StakingNotPossibleInThisCourt();
+    error StakingLessThanCourtMinStake();
+    error StakingTransferFailed();
+    error UnstakingTransferFailed();
     error ArbitrableNotWhitelisted();
     error ArbitrationFeesNotEnough();
     error DisputeKitNotSupportedByCourt();
@@ -1550,4 +1581,5 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     error WhenPausedOnly();
     error WhenArbitrationNotPausedOnly();
     error WhenArbitrationPausedOnly();
+    error StakingZeroWhenNoStake();
 }

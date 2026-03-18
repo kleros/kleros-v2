@@ -291,24 +291,24 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
 
         uint256 nbCourts = juror.courtIDs.length;
         if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
-            return (0, 0, StakingResult.Failed); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
+            return (0, 0, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
         if (currentStake == 0 && _newStake == 0) {
-            return (0, 0, StakingResult.Failed); // Forbid staking 0 amount when current stake is 0 to avoid flaky behaviour.
+            return (0, 0, StakingResult.CannotStakeZeroWhenNoStake); // Forbid staking 0 amount when current stake is 0 to avoid flaky behaviour.
         }
 
         if (stakeIncrease) {
             // Check if the juror is eligible to stake in the court.
             if (_eligibility != NULL_ELIGIBILITY_REQUIREMENT && !_eligibility.isEligible(_account, _courtID)) {
-                return (0, 0, StakingResult.Failed);
+                return (0, 0, StakingResult.NotEligibleForStaking);
             }
             // Check if the stake increase is within the limits.
             if (juror.stakedPnk + stakeChange > maxStakePerJuror || currentStake + stakeChange > maxStakePerJuror) {
-                return (0, 0, StakingResult.Failed);
+                return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
             }
             if (totalStaked + stakeChange > maxTotalStaked) {
-                return (0, 0, StakingResult.Failed);
+                return (0, 0, StakingResult.CannotStakeMoreThanMaxTotalStaked);
             }
         }
 

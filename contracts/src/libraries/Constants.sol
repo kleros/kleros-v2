@@ -33,5 +33,13 @@ enum OnError {
 enum StakingResult {
     Successful,
     Delayed,
-    Failed
+    StakingTransferFailed,
+    UnstakingTransferFailed,
+    CannotStakeInMoreCourts,
+    CannotStakeInThisCourt,
+    CannotStakeLessThanMinStake,
+    CannotStakeMoreThanMaxStakePerJuror,
+    CannotStakeMoreThanMaxTotalStaked,
+    NotEligibleForStaking,
+    CannotStakeZeroWhenNoStake
 }

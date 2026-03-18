@@ -22,20 +22,20 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         vm.prank(owner);
         core.unpause();
 
-        vm.expectRevert(); // StakingNotPossibleInThisCourt
+        vm.expectRevert(KlerosCore.StakingNotPossibleInThisCourt.selector);
         vm.prank(staker1);
         core.setStake(FORKING_COURT, 1000);
 
         uint96 badCourtID = 2;
-        vm.expectRevert(); // StakingNotPossibleInThisCourt
+        vm.expectRevert(KlerosCore.StakingNotPossibleInThisCourt.selector);
         vm.prank(staker1);
         core.setStake(badCourtID, 1000);
 
-        vm.expectRevert(); // StakingLessThanCourtMinStake
+        vm.expectRevert(KlerosCore.StakingLessThanCourtMinStake.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 800);
 
-        vm.expectRevert(); // StakingZeroWhenNoStake
+        vm.expectRevert(KlerosCore.StakingZeroWhenNoStake.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 0);
 
@@ -60,7 +60,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         assertEq(pinakion.balanceOf(staker1), 999999999999998999, "Wrong token balance of staker1"); // 1 eth - 1001 wei
         assertEq(pinakion.allowance(staker1, address(core)), 999999999999998999, "Wrong allowance for staker1");
 
-        vm.expectRevert(); // StakingTransferFailed This  error will be caught because owner didn't approve any tokens for KlerosCore
+        vm.expectRevert(KlerosCore.StakingTransferFailed.selector); // This  error will be caught because owner didn't approve any tokens for KlerosCore
         vm.prank(owner);
         core.setStake(GENERAL_COURT, 1000);
 
@@ -113,7 +113,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         vm.prank(address(core));
         pinakion.transfer(staker1, 1); // Manually send 1 token to make the withdrawal fail
 
-        vm.expectRevert(); // StakingTransferFailed
+        vm.expectRevert(KlerosCore.UnstakingTransferFailed.selector);
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 0);
 
@@ -194,7 +194,7 @@ contract KlerosCore_StakingTest is KlerosCore_TestBase {
         assertEq(courts.length, 4, "Wrong courts count");
 
         uint96 excessiveCourtID = 5;
-        vm.expectRevert(); // StakingInTooManyCourts
+        vm.expectRevert(KlerosCore.StakingInTooManyCourts.selector);
         vm.prank(staker1);
         core.setStake(excessiveCourtID, 2000);
     }

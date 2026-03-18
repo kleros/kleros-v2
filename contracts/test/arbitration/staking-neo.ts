@@ -279,7 +279,10 @@ describe("Staking", async () => {
       describe("When stakes are NOT delayed", () => {
         it("Should not be able to stake more than maxStakePerJuror", async () => {
           await pnk.connect(juror).approve(core.target, PNK(5000));
-          await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.reverted;
+          await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
+            core,
+            "StakingMoreThanMaxStakePerJuror"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
         });
       });
@@ -288,10 +291,16 @@ describe("Staking", async () => {
         it("Should not be able to stake more than maxStakePerJuror", async () => {
           await createDisputeAndReachGeneratingPhaseFromStaking();
           await pnk.connect(juror).approve(core.target, PNK(5000));
-          await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.reverted;
+          await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
+            core,
+            "StakingMoreThanMaxStakePerJuror"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
           await drawAndReachStakingPhaseFromGenerating();
-          await expect(sortition.executeDelayedStakes(10)).to.reverted;
+          await expect(sortition.executeDelayedStakes(10)).to.revertedWithCustomError(
+            sortition,
+            "NoDelayedStakeToExecute"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
         });
 
@@ -326,7 +335,10 @@ describe("Staking", async () => {
       describe("When stakes are NOT delayed", () => {
         it("Should not be able to stake more than maxTotalStaked", async () => {
           await pnk.connect(juror).approve(core.target, PNK(2000));
-          await expect(core.connect(juror).setStake(1, PNK(2000))).to.be.reverted;
+          await expect(core.connect(juror).setStake(1, PNK(2000))).to.be.revertedWithCustomError(
+            core,
+            "StakingMoreThanMaxTotalStaked"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
         });
 
@@ -346,7 +358,10 @@ describe("Staking", async () => {
 
         it("Should not be able to stake more than maxTotalStaked", async () => {
           await pnk.connect(juror).approve(core.target, PNK(2000));
-          await expect(core.connect(juror).setStake(1, PNK(2000))).to.be.reverted;
+          await expect(core.connect(juror).setStake(1, PNK(2000))).to.be.revertedWithCustomError(
+            core,
+            "StakingMoreThanMaxTotalStaked"
+          );
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
           await drawAndReachStakingPhaseFromGenerating();
           await expect(sortition.executeDelayedStakes(10)).to.revertedWithCustomError(
