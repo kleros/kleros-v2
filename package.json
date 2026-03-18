@@ -80,7 +80,8 @@
     "undici@npm:7.3.0": "npm:7.5.0",
     "viem@npm:2.x": "npm:^2.23.2",
     "@zksync/contracts": "npm:empty-npm-package@1.0.0",
-    "@graphprotocol/graph-cli/glob": "^11.0.4"
+    "@graphprotocol/graph-cli/glob": "^11.0.4",
+    "@graphprotocol/graph-cli/immutable": "^5.1.4"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
