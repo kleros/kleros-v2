@@ -126,7 +126,11 @@ const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
 
   const period = dispute.period;
   const lastDisputeKitDispute = dispute.disputeKitDispute[dispute.disputeKitDispute.length - 1];
+  if (!lastDisputeKitDispute) return undefined;
+
   const currentLocalRoundIndex = lastDisputeKitDispute?.currentLocalRoundIndex;
+  if (currentLocalRoundIndex === undefined) return undefined;
+
   const adjustedRoundIndex = ["appeal", "execution"].includes(period)
     ? Number(BigInt(currentLocalRoundIndex))
     : Number(BigInt(currentLocalRoundIndex) - 1n);
