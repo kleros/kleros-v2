@@ -60,7 +60,7 @@
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
     "coverage": "scripts/coverage.sh",
     "start": "hardhat node --tags nop",
-    "start-local": "hardhat node --tags Arbitration,HomeArbitrable,Resolver --hostname 0.0.0.0",
+    "start-local": "hardhat node --tags Arbitration,HomeArbitrable,Resolver,ArgentinaConsumerProtectionDK --hostname 0.0.0.0",
     "deploy": "hardhat deploy",
     "deploy-local": "hardhat deploy --tags Arbitration,HomeArbitrable,Resolver --network localhost",
     "validate-upgrades": "openzeppelin-upgrades-core validate --exclude 'src/proxy/mock/**/*.sol' --exclude 'src/test/**/*.sol' artifacts/build-info",

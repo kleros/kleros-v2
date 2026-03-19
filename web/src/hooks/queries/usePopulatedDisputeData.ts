@@ -71,6 +71,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
 
           return disputeDetails;
         } catch (error) {
+          console.warn({ error });
           if (error instanceof HttpRequestError || error instanceof RpcError) {
             debounceErrorToast("RPC failed!, Please avoid voting.");
             throw Error;

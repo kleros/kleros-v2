@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
-import { Log, decodeEventLog, parseAbi } from "viem";
+import { useNavigate } from "react-router-dom";
 import { useAccount, useBalance, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -17,6 +17,7 @@ import {
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
+import { retrieveDisputeIdFromLogs } from "utils/retrieveDisputeId";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { EnsureChain } from "components/EnsureChain";
@@ -27,6 +28,7 @@ import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 const StyledButton = styled(Button)``;
 
 const SubmitDisputeButton: React.FC = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const publicClient = usePublicClient();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -103,10 +105,16 @@ const SubmitDisputeButton: React.FC = () => {
                 wrapWithToast(async () => await submitCase(submitCaseConfig.request), publicClient)
                   .then((res) => {
                     if (res.status && !isUndefined(res.result)) {
-                      const id = retrieveDisputeId(res.result.logs[1]);
-                      setDisputeId(Number(id));
-                      setCourtId(disputeData.courtId ?? "1");
-                      setIsPopupOpen(true);
+                      const id = retrieveDisputeIdFromLogs(res.result.logs);
+                      if (id) {
+                        setDisputeId(Number(id));
+                        setCourtId(disputeData.courtId ?? "1");
+                        setIsPopupOpen(true);
+                      } else {
+                        // if unable to retrieve dispute id, just navigate to cases page
+                        navigate("/cases/display/1/desc/all");
+                      }
+
                       resetDisputeData();
                     }
                   })
@@ -147,12 +155,5 @@ export const isTemplateValid = (disputeTemplate: IDisputeTemplate) => {
     disputeTemplate.policyURI &&
     areVotingOptionsFilled) as boolean;
 };
-
-const retrieveDisputeId = (eventLog: Log) =>
-  decodeEventLog({
-    abi: parseAbi(["event DisputeCreation(uint256 indexed, address indexed)"]),
-    data: eventLog.data,
-    topics: eventLog.topics,
-  }).args[0];
 
 export default SubmitDisputeButton;
