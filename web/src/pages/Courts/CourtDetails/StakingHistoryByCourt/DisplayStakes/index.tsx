@@ -103,6 +103,8 @@ const DisplayStakes: React.FC = () => {
   }, [searchValue, courtId]);
 
   useEffect(() => {
+    if (!courtTree) return;
+
     const allItems = data?.userStakingEventsV2?.items ?? [];
 
     const chunk = allItems.map((item) => {

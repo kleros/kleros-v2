@@ -1,7 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import styled from "styled-components";
 
 import { ProfileTooltip } from "ethereum-identity-kit";
+import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -57,17 +58,27 @@ interface IJurorLink {
 }
 
 const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, smallDisplay }) => {
-  const { isConnected, address: connectedAddress } = useAccount();
-  const profileLink =
-    isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
-      ? "/profile"
-      : `/profile/stakes/1?address=${address}`;
+  const navigate = useNavigate();
+  const { address: connectedAddress } = useAccount();
+  const profileLink = `/profile/stakes/1?address=${address}`;
   const addressExplorerLink = useMemo(() => {
     return `${DEFAULT_CHAIN?.blockExplorers?.default.url}/address/${address}`;
   }, [address]);
 
+  const handleProfileClick = useCallback(
+    (addressOrName: string) => {
+      navigate(`/profile/stakes/1?address=${addressOrName}`);
+    },
+    [navigate]
+  );
+
   return (
-    <ProfileTooltip addressOrName={address} showFollowButton connectedAddress={connectedAddress}>
+    <ProfileTooltip
+      addressOrName={address}
+      showFollowButton={!!connectedAddress && connectedAddress.toLowerCase() !== address.toLowerCase()}
+      connectedAddress={connectedAddress}
+      onProfileClick={handleProfileClick}
+    >
       <Container>
         <IdenticonOrAvatar address={address} />
         <ReStyledArrowLink

@@ -5,9 +5,23 @@ import { FollowButton, FollowerTag, ProfileSocials, useProfileDetails } from "et
 import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
+import { useScoutActivity } from "hooks/queries/useScoutActivity";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import JurorLink from "components/JurorLink";
+
+const HIDE_ALL_EXCEPT_TWITTER = [
+  "etherscan",
+  "ens",
+  "grails",
+  "opensea",
+  "vision",
+  "com.github",
+  "org.telegram",
+  "com.discord",
+  "email",
+] as const;
 
 const Container = styled.div`
   display: flex;
@@ -36,12 +50,36 @@ const StyledLabel = styled.label`
   font-size: 14px;
 `;
 
-const SocialsWrapper = styled.div`
+const KlerosAppsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
   ${landscapeStyle(
     () => css`
       margin-left: auto;
     `
   )}
+`;
+
+const KlerosAppLink = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.2s ease,
+    scale 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+    scale: 1.1;
+  }
+
+  img {
+    width: 28px;
+    height: 28px;
+    ${({ theme }) => theme.name === "dark" && "filter: invert(1);"}
+  }
 `;
 
 interface ITopContent {
@@ -53,6 +91,7 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
   const { t } = useTranslation();
   const { address: connectedAddress } = useAccount();
   const { ens } = useProfileDetails({ addressOrName: address });
+  const { data: hasScoutActivity } = useScoutActivity(address);
   const isOwnProfile = connectedAddress?.toLowerCase() === address.toLowerCase();
 
   return (
@@ -67,9 +106,25 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
           <FollowButton lookupAddress={address} connectedAddress={connectedAddress} />
         ) : null}
       </LeftGroup>
-      <SocialsWrapper>
-        <ProfileSocials userAddress={address} name={ens?.name} records={ens?.records ?? {}} />
-      </SocialsWrapper>
+      <KlerosAppsWrapper>
+        {hasScoutActivity ? (
+          <KlerosAppLink
+            href={`https://scout-app.kleros.io/#/profile/pending?address=${address}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Kleros Scout"
+          >
+            <img src="/scout-logo.svg" alt="Kleros Scout" />
+          </KlerosAppLink>
+        ) : null}
+        <ProfileSocials
+          userAddress={address}
+          name={ens?.name}
+          records={ens?.records ?? {}}
+          hideSocials={[...HIDE_ALL_EXCEPT_TWITTER]}
+          iconSize={28}
+        />
+      </KlerosAppsWrapper>
     </Container>
   );
 };

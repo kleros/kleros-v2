@@ -178,8 +178,29 @@ export const GlobalStyle = createGlobalStyle`
 
   /* EthID layout overrides */
   .tooltip-wrapper { width: fit-content; }
-  .socials-container { flex-wrap: wrap; }
+  .profile-tooltip-content { z-index: 9998 !important; }
   .avatar-container { font-size: 0; line-height: 0; overflow: hidden; }
+
+  /* Scale down EthID buttons to match the rest of the UI */
+  .follow-button {
+    transform: scale(0.85) !important;
+    transform-origin: left center;
+    border-width: 1px !important;
+    border-color: ${({ theme }) => theme.stroke} !important;
+  }
+  /* Match skeleton placeholder size to the scaled follow button */
+  div[style*="39px"][style*="110px"]:has(> .loading-cell) {
+    transform: scale(0.85);
+    transform-origin: left center;
+  }
+  .follow-button:hover {
+    transform: scale(0.9) !important;
+    transform-origin: left center;
+  }
+  .follower-tag {
+    transform: scale(0.85);
+    transform-origin: left center;
+  }
 
   /* The library reuses --neutral-light as a text color for dark-mode
    * stat labels, so the variable override alone is insufficient. */
@@ -222,8 +243,19 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.primaryText} !important;
   }
 
+  /* White text/icons on the red unfollow hover state in light mode */
+  html:not(.dark) .follow-button-following:hover,
+  html:not(.dark) .follow-button-unfollow {
+    color: white !important;
+  }
+  html:not(.dark) .follow-button-following:hover svg path,
+  html:not(.dark) .follow-button-unfollow svg path {
+    fill: white !important;
+  }
+
   /* Tooltip/card borders and arrow */
   .tooltip-card {
+    width: 360px !important;
     border-color: ${({ theme }) => theme.stroke} !important;
   }
   .profile-tooltip-arrow {
@@ -270,7 +302,10 @@ export const GlobalStyle = createGlobalStyle`
     color: transparent !important;
   }
 
-  /* Replace EFP confetti particles with Kleros-blue versions */
+  /* Replace EFP confetti particles with Kleros-blue versions and scale down */
+  #efp_coolMode img {
+    transform: scale(0.7);
+  }
   html:not(.dark) #efp_coolMode img {
     content: url("/efp-follow.svg");
   }
