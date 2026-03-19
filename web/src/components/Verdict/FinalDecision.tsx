@@ -122,7 +122,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
             )}
           </JuryContainer>
         )}
-        {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
+        {!ruled && periodIndex > 1 && BigInt(localRounds?.[localRounds.length - 1]?.totalVoted) > 0n && (
           <JuryContainer>
             <JuryDecisionTag>{t("voting.this_option_winning")}</JuryDecisionTag>
             {isLoadingCurrentRuling ? (

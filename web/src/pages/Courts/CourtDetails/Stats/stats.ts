@@ -43,8 +43,8 @@ export const getStats = (t: TFunction): IStat[] => [
   {
     title: t("stats.min_stake"),
     coinId: 0,
-    getText: (data) => `${formatPNK(data?.minStake)} PNK`,
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.minStake)) * (coinPrice ?? 0)),
+    getText: (data) => `${formatPNK(BigInt(data?.minStake ?? 0))} PNK`,
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(BigInt(data?.minStake))) * (coinPrice ?? 0)),
     color: "blue",
     icon: MinStake,
   },
@@ -52,7 +52,7 @@ export const getStats = (t: TFunction): IStat[] => [
     title: t("stats.vote_stake"),
     coinId: 0,
     getText: (data) => {
-      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      const stake = BigInt((BigInt(data?.minStake) * BigInt(data?.alpha)) / BigInt(1e4));
       return `${formatPNK(stake)} PNK`;
     },
     getSubtext: (data, coinPrice) => {
@@ -66,18 +66,18 @@ export const getStats = (t: TFunction): IStat[] => [
     title: t("stats.reward_per_vote"),
     coinId: 1,
     getText: (data) => {
-      const jurorReward = formatUnitsWei(data?.feeForJuror);
+      const jurorReward = formatUnitsWei(BigInt(data?.feeForJuror));
       return `${jurorReward} ETH`;
     },
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.feeForJuror)) * (coinPrice ?? 0)),
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(BigInt(data?.feeForJuror))) * (coinPrice ?? 0)),
     color: "blue",
     icon: StyledEthereumVoteIcon,
   },
   {
     title: t("stats.pnk_staked"),
     coinId: 0,
-    getText: (data) => `${formatPNK(data?.effectiveStake)} PNK`,
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.effectiveStake)) * (coinPrice ?? 0)),
+    getText: (data) => `${formatPNK(BigInt(data?.effectiveStake))} PNK`,
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(BigInt(data?.effectiveStake))) * (coinPrice ?? 0)),
     color: "green",
     icon: PNKIcon,
   },
@@ -95,23 +95,23 @@ export const getStats = (t: TFunction): IStat[] => [
   },
   {
     title: t("filters.in_progress"),
-    getText: (data) => data?.numberDisputes - data?.numberClosedDisputes,
+    getText: (data) => Number(BigInt(data?.numberDisputes)) - Number(BigInt(data?.numberClosedDisputes)),
     color: "green",
     icon: StyledBalanceWithHourglassIcon,
   },
   {
     title: t("stats.eth_paid"),
     coinId: 1,
-    getText: (data) => `${formatETH(data?.paidETH)} ETH`,
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidETH)) * (coinPrice ?? 0)),
+    getText: (data) => `${formatETH(BigInt(data?.paidETH))} ETH`,
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(BigInt(data?.paidETH))) * (coinPrice ?? 0)),
     color: "purple",
     icon: EthereumIcon,
   },
   {
     title: t("stats.pnk_redistributed"),
     coinId: 0,
-    getText: (data) => `${formatPNK(data?.paidPNK)} PNK`,
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidPNK)) * (coinPrice ?? 0)),
+    getText: (data) => `${formatPNK(BigInt(data?.paidPNK))} PNK`,
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(BigInt(data?.paidPNK))) * (coinPrice ?? 0)),
     color: "purple",
     icon: PNKRedistributedIcon,
   },

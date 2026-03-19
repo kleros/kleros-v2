@@ -41,14 +41,14 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
-  const roundId = disputeData?.dispute?.currentRoundIndex;
-  const voteId = drawData?.draws?.[0]?.voteIDNum;
+  const rawRoundId = disputeData?.dispute?.currentRoundIndex;
+  const rawVoteId = drawData?.draws?.[0]?.voteIDNum;
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
 
-  const hookArgs = [BigInt(id ?? 0), roundId, voteId] as const;
-  const isEnabled = !isUndefined(roundId) && !isUndefined(voteId);
+  const isEnabled = !isUndefined(rawRoundId) && !isUndefined(rawVoteId);
+  const hookArgs = [BigInt(id ?? 0), BigInt(rawRoundId ?? 0), BigInt(rawVoteId ?? 0)] as const;
 
   // Add a hook call for each DisputeKit
   const classicVoteResult = useReadDisputeKitClassicIsVoteActive({

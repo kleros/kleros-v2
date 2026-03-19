@@ -73,8 +73,9 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   const { address } = useAccount();
   const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
   const jurorStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
-  const jurorCurrentEffectiveStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
-  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
+  const jurorCurrentEffectiveStake =
+    address && jurorStakeData ? Number(formatEther(BigInt(jurorStakeData.effectiveStake))) : 0;
+  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(BigInt(jurorStakeData.staked))) : 0;
 
   const effectiveStakeDisplay = !isUndefined(jurorCurrentEffectiveStake) ? (
     `${commify(jurorCurrentEffectiveStake)} PNK`

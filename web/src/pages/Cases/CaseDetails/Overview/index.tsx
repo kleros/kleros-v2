@@ -53,7 +53,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
   const court = dispute?.dispute?.court;
-  const rewards = useMemo(() => (court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined), [court]);
+  const rewards = useMemo(() => (court ? `≥ ${formatEther(BigInt(court.feeForJuror))} ETH` : undefined), [court]);
   const category = disputeDetails?.category;
 
   const gatedInfo = useGatedTokenInfo(

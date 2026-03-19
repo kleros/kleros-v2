@@ -40,10 +40,10 @@ const DisputeView: React.FC<IDisputeView> = ({
   const { t } = useTranslation();
   const { isList } = useIsList();
   const currentPeriodIndex = Periods[period];
-  const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
+  const rewards = `≥ ${formatEther(BigInt(court.feeForJuror))} ETH`;
   const date =
     currentPeriodIndex === 4
-      ? lastPeriodChange
+      ? parseInt(lastPeriodChange, 10)
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, currentRound.timesPerPeriod);
   const { data: populatedDisputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
 

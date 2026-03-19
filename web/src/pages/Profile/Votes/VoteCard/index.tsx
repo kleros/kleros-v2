@@ -115,7 +115,7 @@ const VoteCard: React.FC = ({ vote: draw }) => {
   const voteData = draw.vote;
   const period = draw.dispute?.period || "";
   const hiddenVotes = draw.dispute?.court?.hiddenVotes || false;
-  const currentRoundIndex = draw.dispute?.currentRoundIndex || 0;
+  const currentRoundIndex = parseInt(draw.dispute?.currentRoundIndex ?? 0);
   const roundIndexNum = parseInt(roundIndex);
   const isActiveRound = currentRoundIndex === roundIndexNum;
 

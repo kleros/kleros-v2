@@ -133,8 +133,9 @@ const Simulator: React.FC<ISimulator> = ({ amountToStake, isStaking }) => {
   const { address } = useAccount();
   const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
   const jurorStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
-  const jurorCurrentEffectiveStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
-  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
+  const jurorCurrentEffectiveStake =
+    address && jurorStakeData ? Number(formatEther(BigInt(jurorStakeData.effectiveStake))) : 0;
+  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(BigInt(jurorStakeData.staked))) : 0;
 
   const timeframedCourtData = useHomePageExtraStats(30);
   const { prices: pricesData } = useCoinPrice([CoinIds.ETH]);

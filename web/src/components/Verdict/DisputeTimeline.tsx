@@ -65,7 +65,8 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   }, [disputeDetails]);
 
   return useMemo<TimelineItems | undefined>(() => {
-    const formatDate = (date: string) => {
+    const formatDate = (date?: string | null) => {
+      if (!date) return "";
       const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
       const startingDate = new Date(parseInt(date) * 1000);
       return startingDate.toLocaleDateString(i18n.language, options);

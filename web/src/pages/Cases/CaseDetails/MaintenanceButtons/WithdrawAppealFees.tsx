@@ -70,7 +70,7 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
     for (const contribution of filteredContributions) {
       argsArr.push({
         ...baseArgs,
-        args: [BigInt(id), contribution.contributor.id, contribution.choice],
+        args: [BigInt(id), contribution.contributor.id, BigInt(contribution.choice)],
       });
     }
 
