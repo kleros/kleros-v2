@@ -212,6 +212,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   const profileLink = `/profile/stakes/1?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
+    if (!transactionHash) return undefined;
     return getTxnExplorerLink(transactionHash as `0x${string}`);
   }, [transactionHash]);
 

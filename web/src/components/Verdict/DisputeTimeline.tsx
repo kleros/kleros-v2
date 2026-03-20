@@ -58,9 +58,11 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const rounds = votingHistory?.dispute?.rounds;
   const theme = useTheme();
   const txnDisputeCreatedLink = useMemo(() => {
+    if (!votingHistory?.dispute?.transactionHash) return undefined;
     return getTxnExplorerLink(votingHistory?.dispute?.transactionHash as `0x${string}`);
   }, [votingHistory]);
   const txnEnforcementLink = useMemo(() => {
+    if (!disputeDetails?.dispute?.rulingTransactionHash) return undefined;
     return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash as `0x${string}`);
   }, [disputeDetails]);
 
@@ -81,10 +83,12 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
     const base: TimelineItems = [
       {
         title: t("dispute_info.dispute_created"),
-        party: (
+        party: txnDisputeCreatedLink ? (
           <ExternalLink to={txnDisputeCreatedLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />
           </ExternalLink>
+        ) : (
+          ""
         ),
         subtitle: formatDate(votingHistory?.dispute?.createdAt),
         rightSided: true,
@@ -131,10 +135,12 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
     if (dispute.ruled) {
       items.push({
         title: t("dispute_info.enforcement"),
-        party: (
+        party: txnEnforcementLink ? (
           <ExternalLink to={txnEnforcementLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />
           </ExternalLink>
+        ) : (
+          ""
         ),
         subtitle: `${formatDate(dispute.rulingTimestamp)} / ${rounds?.at(-1)?.court.name}`,
         rightSided: true,

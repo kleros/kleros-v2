@@ -117,6 +117,7 @@ const AccordionContent: React.FC<{
 }> = ({ justification, choice, answers, timestamp, transactionHash }) => {
   const { t, i18n } = useTranslation();
   const transactionExplorerLink = useMemo(() => {
+    if (!transactionHash) return undefined;
     return getTxnExplorerLink(transactionHash as `0x${string}`);
   }, [transactionHash]);
 
@@ -137,7 +138,7 @@ const AccordionContent: React.FC<{
       ) : (
         <SecondaryTextLabel>{t("voting.no_justification_provided")}</SecondaryTextLabel>
       )}
-      {!isUndefined(timestamp) && (
+      {!isUndefined(timestamp) && !isUndefined(transactionExplorerLink) && (
         <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
           {formatDate(Number(timestamp), true, i18n.language)}
         </ExternalLink>
