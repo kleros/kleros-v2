@@ -5,8 +5,6 @@ import { FollowButton, FollowerTag, ProfileSocials, useProfileDetails } from "et
 import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
-import { useScoutActivity } from "hooks/queries/useScoutActivity";
-
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import JurorLink from "components/JurorLink";
@@ -91,7 +89,6 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
   const { t } = useTranslation();
   const { address: connectedAddress } = useAccount();
   const { ens } = useProfileDetails({ addressOrName: address });
-  const { data: hasScoutActivity } = useScoutActivity(address);
   const isOwnProfile = connectedAddress?.toLowerCase() === address.toLowerCase();
 
   return (
@@ -107,16 +104,14 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
         ) : null}
       </LeftGroup>
       <KlerosAppsWrapper>
-        {hasScoutActivity ? (
-          <KlerosAppLink
-            href={`https://scout-app.kleros.io/#/profile/pending?address=${address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Kleros Scout"
-          >
-            <img src="/scout-logo.svg" alt="Kleros Scout" />
-          </KlerosAppLink>
-        ) : null}
+        <KlerosAppLink
+          href={`https://scout-app.kleros.io/#/profile/pending?address=${address}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Kleros Scout"
+        >
+          <img src="/scout-logo.svg" alt="Kleros Scout" />
+        </KlerosAppLink>
         <ProfileSocials
           userAddress={address}
           name={ens?.name}
