@@ -54,7 +54,7 @@ export const prepareArbitratorExtradata = (
   const extraData = ethers.utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256"],
     [subcourtID, noOfVotes, disputeKit]
-  ) as `0x{string}`;
+  ) as `0x${string}`;
   if (!disputeKitData) {
     return extraData;
   }
@@ -64,5 +64,5 @@ export const prepareArbitratorExtradata = (
     throw new Error(`Unknown dispute kit data type: ${disputeKitData.type}`);
   }
   const encodedDisputeKitData = encoder(disputeKitData as any);
-  return ethers.utils.hexConcat([extraData, encodedDisputeKitData]) as `0x{string}`;
+  return ethers.utils.hexConcat([extraData, encodedDisputeKitData]) as `0x${string}`;
 };

@@ -25,7 +25,7 @@ interface IVotingContext {
   isCommitPeriod: boolean;
   isVotingPeriod: boolean;
   commited?: boolean;
-  commit?: string;
+  commit?: `0x${string}`;
 }
 
 const VotingContext = createContext<IVotingContext>({
@@ -44,7 +44,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const rawRoundId = disputeData?.dispute?.currentRoundIndex;
   const rawVoteId = drawData?.draws?.[0]?.voteIDNum;
 
-  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
+  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
 
   const isEnabled = !isUndefined(rawRoundId) && !isUndefined(rawVoteId);
@@ -133,7 +133,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const isVotingPeriod = useMemo(() => disputeData?.dispute?.period === "vote", [disputeData]);
 
   const commited = useMemo(() => !isUndefined(drawData) && drawData?.draws?.[0]?.vote?.commited, [drawData]);
-  const commit = useMemo(() => drawData?.draws?.[0]?.vote?.commit, [drawData]);
+  const commit = useMemo(() => drawData?.draws?.[0]?.vote?.commit ?? undefined, [drawData]);
   return (
     <VotingContext.Provider
       value={useMemo(

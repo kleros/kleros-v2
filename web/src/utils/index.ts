@@ -10,9 +10,9 @@ export const isUndefined = (maybeObject: any): maybeObject is undefined | null =
  */
 export const isEmpty = (str: string): boolean => str.trim() === "";
 
-export const getTxnExplorerLink = (hash: string) => `${DEFAULT_CHAIN?.blockExplorers?.default.url}/tx/${hash}`;
+export const getTxnExplorerLink = (hash: `0x${string}`) => `${DEFAULT_CHAIN?.blockExplorers?.default.url}/tx/${hash}`;
 
-export const getAddressExplorerLink = (address: string) =>
+export const getAddressExplorerLink = (address: `0x${string}`) =>
   `${DEFAULT_CHAIN?.blockExplorers?.default.url}/address/${address}`;
 
 type Role = {

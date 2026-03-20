@@ -134,7 +134,7 @@ const SkeletonImage = styled(StyledSkeleton)`
 
 interface IGatedTokenDisplay {
   isERC721: boolean;
-  tokenAddress: string | null;
+  tokenAddress: `0x${string}` | null;
   tokenName: string | null;
   tokenSymbol: string | null;
   imageUri: string | null;

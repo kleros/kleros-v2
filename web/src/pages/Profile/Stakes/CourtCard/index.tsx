@@ -94,7 +94,11 @@ const CourtCard: React.FC<ICourtCard> = ({
       <StakeAndLink>
         {timestamp ? <DateLabel>{formatDate(timestamp, false, i18n.language)}</DateLabel> : null}
         {transactionHash ? (
-          <StyledLink to={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
+          <StyledLink
+            to={getTxnExplorerLink(transactionHash as `0x${string}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <NewTabIcon />
           </StyledLink>
         ) : null}

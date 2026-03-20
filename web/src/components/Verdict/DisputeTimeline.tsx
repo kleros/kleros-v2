@@ -58,10 +58,10 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const rounds = votingHistory?.dispute?.rounds;
   const theme = useTheme();
   const txnDisputeCreatedLink = useMemo(() => {
-    return getTxnExplorerLink(votingHistory?.dispute?.transactionHash ?? "");
+    return getTxnExplorerLink(votingHistory?.dispute?.transactionHash as `0x${string}`);
   }, [votingHistory]);
   const txnEnforcementLink = useMemo(() => {
-    return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash ?? "");
+    return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash as `0x${string}`);
   }, [disputeDetails]);
 
   return useMemo<TimelineItems | undefined>(() => {

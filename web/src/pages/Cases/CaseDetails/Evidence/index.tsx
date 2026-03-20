@@ -132,7 +132,14 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
             <EvidenceCard
               key={index}
               evidence=""
-              {...{ sender, timestamp, transactionHash, name, description, fileURI }}
+              {...{
+                sender,
+                timestamp: isUndefined(timestamp) ? undefined : timestamp.toString(),
+                transactionHash: isUndefined(transactionHash) ? undefined : (transactionHash as `0x${string}`),
+                name,
+                description,
+                fileURI,
+              }}
             />
           ))}
         </>

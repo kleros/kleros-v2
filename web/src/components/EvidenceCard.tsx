@@ -190,10 +190,11 @@ const AttachedFileText: React.FC = () => {
   );
 };
 
-interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
+interface IEvidenceCard extends Pick<Evidence, "evidence" | "name" | "description" | "fileURI"> {
   sender?: string;
   index?: number;
-  transactionHash?: string;
+  transactionHash?: `0x${string}`;
+  timestamp?: string;
 }
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({
@@ -211,7 +212,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   const profileLink = `/profile/stakes/1?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
-    return getTxnExplorerLink(transactionHash ?? "");
+    return getTxnExplorerLink(transactionHash as `0x${string}`);
   }, [transactionHash]);
 
   return (

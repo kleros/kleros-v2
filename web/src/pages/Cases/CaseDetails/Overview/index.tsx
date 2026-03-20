@@ -58,8 +58,8 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
 
   const gatedInfo = useGatedTokenInfo(
     id,
-    dispute?.dispute?.currentRound.disputeKit.address,
-    dispute?.dispute?.currentRoundIndex
+    dispute?.dispute?.currentRound.disputeKit.address ?? undefined,
+    parseInt(dispute?.dispute?.currentRoundIndex ?? "0", 10)
   );
 
   return (

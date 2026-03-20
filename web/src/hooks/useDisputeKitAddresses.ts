@@ -5,7 +5,7 @@ import { useChainId } from "wagmi";
 import { DisputeKits, isProductionDeployment } from "consts/index";
 
 interface UseDisputeKitAddressesParams {
-  disputeKitAddress?: string;
+  disputeKitAddress?: `0x${string}`;
 }
 
 interface UseDisputeKitAddressesAllReturn {

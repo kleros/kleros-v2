@@ -21,7 +21,7 @@ import { hashVote } from "utils/crypto/hashVote";
  *
  * @throws Will throw an error if no matching choice is found.
  */
-export const bruteForceChoice = (salt: Hex, answers: Answer[], commit: string) => {
+export const bruteForceChoice = (salt: Hex, answers: Answer[], commit: `0x${string}`) => {
   // when dispute is invalid, just add RFA to the answers array
   const candidates =
     answers?.length > 0

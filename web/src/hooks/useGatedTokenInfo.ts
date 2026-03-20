@@ -55,7 +55,7 @@ export type GatedTokenResult = {
  * @param currentRoundIndex - Round index for extraData lookup.
  * @returns Resolved gated and NFT metadata state.
  */
-export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: string, currentRoundIndex?: number) {
+export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: `0x${string}`, currentRoundIndex?: number) {
   const publicClient = usePublicClient();
   const { disputeKitName, isLoading: isLoadingKit } = useDisputeKitAddresses({
     disputeKitAddress,

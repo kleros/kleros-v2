@@ -56,7 +56,7 @@ const StyledButton = styled(Button)`
 `;
 
 interface ISetJurorsButton extends Pick<IBaseMaintenanceButton, "id"> {
-  disputeKitAddress?: string;
+  disputeKitAddress?: `0x${string}`;
 }
 
 const parseJurorAddresses = (input: string): { jurors: Address[]; hasInvalidTokens: boolean } => {

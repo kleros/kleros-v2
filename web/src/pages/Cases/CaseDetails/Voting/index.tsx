@@ -72,7 +72,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
   const timesPerPeriod = disputeData?.dispute?.currentRound.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
 
-  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
+  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
   const isClassicDisputeKit = isClassicLikeDisputeKit(disputeKitName);
   const isShutterDisputeKit = isShutterLikeDisputeKit(disputeKitName);

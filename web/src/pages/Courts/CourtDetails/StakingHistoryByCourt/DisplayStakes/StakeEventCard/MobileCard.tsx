@@ -130,7 +130,7 @@ const MobileCard: React.FC<IMobileCard> = ({
       </Row>
       <Row>
         <Label>{t("profile.date")}</Label>
-        <DateLink href={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
+        <DateLink href={getTxnExplorerLink(transactionHash as `0x${string}`)} target="_blank" rel="noopener noreferrer">
           {formatDateWithTime(timestamp)}
         </DateLink>
       </Row>

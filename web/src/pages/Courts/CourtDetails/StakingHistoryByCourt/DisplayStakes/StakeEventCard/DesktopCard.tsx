@@ -138,7 +138,7 @@ const DesktopCard: React.FC<IDesktopCard> = ({
         )}
       </CourtLabelContainer>
       <DateLabelContainer>
-        <DateLink href={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
+        <DateLink href={getTxnExplorerLink(transactionHash as `0x${string}`)} target="_blank" rel="noopener noreferrer">
           {formatDateWithTime(timestamp)}
         </DateLink>
       </DateLabelContainer>
