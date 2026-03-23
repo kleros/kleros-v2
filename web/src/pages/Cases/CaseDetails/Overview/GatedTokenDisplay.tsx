@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
+import { Address } from "viem";
+
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { shortenAddress } from "utils/shortenAddress";
@@ -134,7 +136,7 @@ const SkeletonImage = styled(StyledSkeleton)`
 
 interface IGatedTokenDisplay {
   isERC721: boolean;
-  tokenAddress: `0x${string}` | null;
+  tokenAddress: Address | null;
   tokenName: string | null;
   tokenSymbol: string | null;
   imageUri: string | null;

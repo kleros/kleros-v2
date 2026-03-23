@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
-import { formatEther } from "viem";
+import { Address, formatEther } from "viem";
 import { useAccount } from "wagmi";
 
 import Check from "svgs/icons/check-circle-outline.svg";
@@ -71,7 +71,7 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   const { id } = useParams();
   const { data: courtDetails } = useCourtDetails(id);
   const { address } = useAccount();
-  const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
+  const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as Address);
   const jurorStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
   const jurorCurrentEffectiveStake =
     address && jurorStakeData ? Number(formatEther(BigInt(jurorStakeData.effectiveStake))) : 0;

@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Address } from "viem";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
@@ -108,7 +109,7 @@ const VoteCard: React.FC = ({ vote: draw }) => {
   const roundIndex = draw.round?.id?.split("-").pop() || "0";
   const roundNumber = (parseInt(roundIndex) + 1).toString();
 
-  const arbitrableAddress = draw.dispute?.arbitrated?.id as `0x${string}` | undefined;
+  const arbitrableAddress = draw.dispute?.arbitrated?.id as Address | undefined;
   const voteCount = draw.voteCount || 1;
 
   // Extract vote data (may be null if juror didn't vote)

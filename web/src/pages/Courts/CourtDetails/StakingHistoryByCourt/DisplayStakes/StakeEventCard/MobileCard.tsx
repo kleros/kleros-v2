@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { Hash } from "viem";
 
 import { useTranslation } from "react-i18next";
 
@@ -93,7 +94,7 @@ interface IMobileCard {
   address: string;
   stake: string;
   timestamp: string;
-  transactionHash: string;
+  transactionHash: Hash;
   courtName: string;
   courtId: number;
   currentCourtId?: number;
@@ -130,7 +131,7 @@ const MobileCard: React.FC<IMobileCard> = ({
       </Row>
       <Row>
         <Label>{t("profile.date")}</Label>
-        <DateLink href={getTxnExplorerLink(transactionHash as `0x${string}`)} target="_blank" rel="noopener noreferrer">
+        <DateLink href={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
           {formatDateWithTime(timestamp)}
         </DateLink>
       </Row>

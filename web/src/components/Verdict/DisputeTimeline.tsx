@@ -20,7 +20,7 @@ import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeD
 import { useVotingHistory } from "queries/useVotingHistory";
 
 import { ClassicRound } from "src/graphql/graphql";
-import { getTxnExplorerLink } from "src/utils";
+import { getTxnExplorerLink, isUndefined } from "src/utils";
 
 import { StyledClosedCircle } from "components/StyledIcons/ClosedCircleIcon";
 
@@ -59,11 +59,11 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
   const rounds = votingHistory?.dispute?.rounds;
   const theme = useTheme();
   const txnDisputeCreatedLink = useMemo(() => {
-    if (!votingHistory?.dispute?.transactionHash) return undefined;
+    if (isUndefined(votingHistory?.dispute?.transactionHash)) return undefined;
     return getTxnExplorerLink(votingHistory?.dispute?.transactionHash as Hash);
   }, [votingHistory]);
   const txnEnforcementLink = useMemo(() => {
-    if (!disputeDetails?.dispute?.rulingTransactionHash) return undefined;
+    if (isUndefined(disputeDetails?.dispute?.rulingTransactionHash)) return undefined;
     return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash as Hash);
   }, [disputeDetails]);
 

@@ -118,7 +118,7 @@ const AccordionContent: React.FC<{
 }> = ({ justification, choice, answers, timestamp, transactionHash }) => {
   const { t, i18n } = useTranslation();
   const transactionExplorerLink = useMemo(() => {
-    if (!transactionHash) return undefined;
+    if (isUndefined(transactionHash)) return undefined;
     return getTxnExplorerLink(transactionHash);
   }, [transactionHash]);
 

@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Address } from "viem";
 
 import { useTranslation } from "react-i18next";
 import { Route, Routes, useParams, Navigate } from "react-router-dom";
@@ -57,7 +58,7 @@ const CaseDetails: React.FC = () => {
   const { data } = useDisputeDetailsQuery(id);
   const dispute = data?.dispute;
   const currentPeriodIndex = (dispute ? Periods[dispute.period] : 0) as number;
-  const arbitrable = dispute?.arbitrated.id as `0x${string}`;
+  const arbitrable = dispute?.arbitrated.id as Address;
 
   return (
     <VotingContextProvider>
