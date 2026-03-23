@@ -33,8 +33,6 @@ contract RNGWithFallback is IRNG {
     /// @param _fallbackTimeoutSeconds Time in seconds to wait before falling back to next RNG
     /// @param _rng The RNG address (e.g. Chainlink)
     constructor(address _owner, address _consumer, uint256 _fallbackTimeoutSeconds, IRNG _rng) {
-        require(address(_rng) != address(0), InvalidDefaultRNG());
-
         owner = _owner;
         consumer = _consumer;
         fallbackTimeoutSeconds = _fallbackTimeoutSeconds;
@@ -101,10 +99,4 @@ contract RNGWithFallback is IRNG {
         }
         return randomNumber;
     }
-
-    // ************************************* //
-    // *              Errors               * //
-    // ************************************* //
-
-    error InvalidDefaultRNG();
 }
