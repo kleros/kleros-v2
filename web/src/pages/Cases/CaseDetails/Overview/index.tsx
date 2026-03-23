@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { formatEther } from "viem";
+import { Address, formatEther } from "viem";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
@@ -39,7 +39,7 @@ const Container = styled.div`
 `;
 
 interface IOverview {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   courtID?: string;
   currentPeriodIndex: number;
 }

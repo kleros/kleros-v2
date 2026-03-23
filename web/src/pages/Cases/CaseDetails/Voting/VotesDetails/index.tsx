@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Hash } from "viem";
 
 import { Card, CustomAccordion } from "@kleros/ui-components-library";
 
@@ -113,12 +114,12 @@ const AccordionContent: React.FC<{
   answers: Answer[];
   justification: string;
   timestamp?: string;
-  transactionHash?: string;
+  transactionHash?: Hash;
 }> = ({ justification, choice, answers, timestamp, transactionHash }) => {
   const { t, i18n } = useTranslation();
   const transactionExplorerLink = useMemo(() => {
     if (!transactionHash) return undefined;
-    return getTxnExplorerLink(transactionHash as `0x${string}`);
+    return getTxnExplorerLink(transactionHash);
   }, [transactionHash]);
 
   return (

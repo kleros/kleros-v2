@@ -15,6 +15,7 @@ import {
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
+import { Bytes32Hash } from "utils/crypto/hashVote";
 import { isUndefined } from "utils/index";
 
 interface IVotingContext {
@@ -25,7 +26,7 @@ interface IVotingContext {
   isCommitPeriod: boolean;
   isVotingPeriod: boolean;
   commited?: boolean;
-  commit?: `0x${string}`;
+  commit?: Bytes32Hash;
 }
 
 const VotingContext = createContext<IVotingContext>({

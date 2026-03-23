@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
+import { Address } from "viem";
 import { useAccount } from "wagmi";
 
 import VoteIcon from "svgs/icons/voted.svg";
@@ -54,7 +55,7 @@ const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, tim
   }, [lastPeriodChange, currentPeriodIndex, timesPerPeriod]);
 
 interface IVoting {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   currentPeriodIndex: number;
   dispute: DisputeDetailsQuery["dispute"];
 }

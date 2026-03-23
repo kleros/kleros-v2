@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
-import { Address } from "viem";
+import { Address, Hash } from "viem";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -135,7 +135,7 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
               {...{
                 sender,
                 timestamp: isUndefined(timestamp) ? undefined : timestamp.toString(),
-                transactionHash: isUndefined(transactionHash) ? undefined : (transactionHash as `0x${string}`),
+                transactionHash: isUndefined(transactionHash) ? undefined : (transactionHash as Hash),
                 name,
                 description,
                 fileURI,

@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
+import { Address } from "viem";
 import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -79,7 +80,7 @@ const ReStyledArrowLink = styled(StyledArrowLink)`
 `;
 
 interface IFinalDecision {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   votingHistory: VotingHistoryQuery | undefined;
 }
 

@@ -3,6 +3,7 @@ import styled, { useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import { Address, Hash } from "viem";
 
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
@@ -49,7 +50,7 @@ const StyledNewTabIcon = styled(NewTabIcon)`
 
 type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 
-const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string}`) => {
+const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) => {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
@@ -59,11 +60,11 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const theme = useTheme();
   const txnDisputeCreatedLink = useMemo(() => {
     if (!votingHistory?.dispute?.transactionHash) return undefined;
-    return getTxnExplorerLink(votingHistory?.dispute?.transactionHash as `0x${string}`);
+    return getTxnExplorerLink(votingHistory?.dispute?.transactionHash as Hash);
   }, [votingHistory]);
   const txnEnforcementLink = useMemo(() => {
     if (!disputeDetails?.dispute?.rulingTransactionHash) return undefined;
-    return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash as `0x${string}`);
+    return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash as Hash);
   }, [disputeDetails]);
 
   return useMemo<TimelineItems | undefined>(() => {
@@ -164,7 +165,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 };
 
 interface IDisputeTimeline {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
 }
 
 const DisputeTimeline: React.FC<IDisputeTimeline> = ({ arbitrable }) => {

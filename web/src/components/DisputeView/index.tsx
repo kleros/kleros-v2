@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useTranslation } from "react-i18next";
-import { formatEther } from "viem";
+import { Address, formatEther } from "viem";
 
 import { Periods } from "consts/periods";
 import { useIsList } from "context/IsListProvider";
@@ -45,7 +45,7 @@ const DisputeView: React.FC<IDisputeView> = ({
     currentPeriodIndex === 4
       ? parseInt(lastPeriodChange, 10)
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, currentRound.timesPerPeriod);
-  const { data: populatedDisputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
+  const { data: populatedDisputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as Address);
 
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
