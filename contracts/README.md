@@ -13,7 +13,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [BlockHashRNG](https://arbiscan.io/address/0x39D123fc4cFD24EA5bB76195f9ecFE1f0DF35b0B)
 - [ChainlinkRNG](https://arbiscan.io/address/0x897d83a7d5F23555eFA15e1BE297d5503522cbA3)
 - [DisputeKitClassicNeo: proxy](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421), [implementation](https://arbiscan.io/address/0x371Aa4B1AE5b5f9422f3Ff1d105029AAd1D319BC)
-- [DisputeKitGatedNeo: proxy](https://arbiscan.io/address/0xaE1eed20C125B739b64c948820C61F809ad9a925), [implementation](https://arbiscan.io/address/0xcc811dE3fBeEE3A34b765804cF9Ff339C26C3078)
+- [DisputeKitGatedNeo: proxy](https://arbiscan.io/address/0xaE1eed20C125B739b64c948820C61F809ad9a925), [implementation](https://arbiscan.io/address/0xD9ddceb7C399518F23b69D155a67C6AFF13f9fF0)
 - [DisputeKitGatedShutterNeo: proxy](https://arbiscan.io/address/0x788330092B9704809C19858E39EB9Ac402c2E47b), [implementation](https://arbiscan.io/address/0xb12EB4c0716d3A9861a9AC471c6CdDB808d61b32)
 - [DisputeKitShutterNeo: proxy](https://arbiscan.io/address/0x9D3e3f1765744c2a1BC6F6088549770444BBC768), [implementation](https://arbiscan.io/address/0xF3103B46403A0bBd4551648BFb29BCC2b8783947)
 - [DisputeResolverNeo](https://arbiscan.io/address/0xb5526D022962A1fFf6eD32C93e8b714c901F4323)

@@ -27,7 +27,7 @@ interface IBalanceHolderERC1155 {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitGated is DisputeKitClassicBase {
-    string public constant override version = "0.12.1";
+    string public constant override version = "0.12.2";
 
     address private constant NO_TOKEN_GATE = address(0);
 
@@ -55,9 +55,7 @@ contract DisputeKitGated is DisputeKitClassicBase {
         supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
     }
 
-    function reinitialize() external reinitializer(10) {
-        supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
-    }
+    function reinitialize() external reinitializer(11) {}
 
     // ************************ //
     // *      Governance      * //
