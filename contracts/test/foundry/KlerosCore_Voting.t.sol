@@ -397,7 +397,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         vm.prank(staker1);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
-        (, , , uint256 totalCommited, uint256 nbVoters, uint256 choiceCount) = disputeKit.getRoundInfo(disputeID, 0, 0);
+        (, , , uint256 totalCommited, , ) = disputeKit.getRoundInfo(disputeID, 0, 0);
         assertEq(totalCommited, 1, "totalCommited should be 1");
         assertEq(disputeKit.areCommitsAllCast(disputeID), false, "Commits should not all be cast");
 
