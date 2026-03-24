@@ -72,7 +72,7 @@ const Chart: React.FC = () => {
       ...accData,
       {
         x: Number(counter.id) * 1000,
-        y: Number(chartOption === "stakedPNK" ? formatUnits(counter[chartOption], 18) : counter[chartOption]),
+        y: Number(chartOption === "stakedPNK" ? formatUnits(BigInt(counter[chartOption]), 18) : counter[chartOption]),
       },
     ];
   }, []);
@@ -82,7 +82,7 @@ const Chart: React.FC = () => {
       if (BigInt(current.numberDisputes) > 0) {
         return {
           labels: [...accData.labels, current.name ?? ""],
-          cases: [...accData.cases, current.numberDisputes],
+          cases: [...accData.cases, parseInt(current.numberDisputes, 10)],
           totalCases: accData.totalCases + parseInt(current.numberDisputes, 10),
         };
       }
@@ -96,8 +96,8 @@ const Chart: React.FC = () => {
       if (BigInt(current.effectiveStake) > 0) {
         return {
           labels: [...accData.labels, current.name ?? ""],
-          stakes: [...accData.stakes, parseFloat(formatUnits(current.effectiveStake, 18))],
-          totalStake: accData.totalStake + parseFloat(formatUnits(current.stake, 18)),
+          stakes: [...accData.stakes, parseFloat(formatUnits(BigInt(current.effectiveStake), 18))],
+          totalStake: accData.totalStake + parseFloat(formatUnits(BigInt(current.stake), 18)),
         };
       }
       return accData;

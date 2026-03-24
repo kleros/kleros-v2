@@ -26,7 +26,7 @@ const Container = styled.div`
 
 interface IReveal {
   arbitrable?: Address;
-  commit: Bytes32Hash;
+  commit?: Bytes32Hash;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
   disputeKitName?: DisputeKits;

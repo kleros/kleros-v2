@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
+import { Address } from "viem";
 import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -79,7 +80,7 @@ const ReStyledArrowLink = styled(StyledArrowLink)`
 `;
 
 interface IFinalDecision {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   votingHistory: VotingHistoryQuery | undefined;
 }
 
@@ -122,7 +123,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
             )}
           </JuryContainer>
         )}
-        {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
+        {!ruled && periodIndex > 1 && BigInt(localRounds?.[localRounds.length - 1]?.totalVoted ?? "0") > 0n && (
           <JuryContainer>
             <JuryDecisionTag>{t("voting.this_option_winning")}</JuryDecisionTag>
             {isLoadingCurrentRuling ? (

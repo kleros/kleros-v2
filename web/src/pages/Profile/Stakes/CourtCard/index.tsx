@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Hash } from "viem";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
@@ -73,7 +74,7 @@ interface ICourtCard {
   stake: string;
   id: string;
   timestamp?: number;
-  transactionHash?: string;
+  transactionHash?: Hash;
   isCurrentStakeCard?: boolean;
 }
 

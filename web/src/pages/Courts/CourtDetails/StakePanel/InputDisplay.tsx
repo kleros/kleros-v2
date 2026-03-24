@@ -98,9 +98,10 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       courtDetails &&
       jurorBalance &&
       parsedAmount !== 0n &&
+      courtDetails?.court?.minStake &&
       jurorBalance[2] + parsedAmount < BigInt(courtDetails?.court?.minStake)
     ) {
-      setErrorMsg(t("forms.messages.min_stake_in_court", { amount: formatPNK(courtDetails?.court?.minStake) }));
+      setErrorMsg(t("forms.messages.min_stake_in_court", { amount: formatPNK(BigInt(courtDetails?.court?.minStake)) }));
     } else {
       setErrorMsg(undefined);
     }

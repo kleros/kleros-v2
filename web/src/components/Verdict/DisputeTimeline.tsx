@@ -3,6 +3,7 @@ import styled, { useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import { Address, Hash } from "viem";
 
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
@@ -19,7 +20,7 @@ import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeD
 import { useVotingHistory } from "queries/useVotingHistory";
 
 import { ClassicRound } from "src/graphql/graphql";
-import { getTxnExplorerLink } from "src/utils";
+import { getTxnExplorerLink, isUndefined } from "src/utils";
 
 import { StyledClosedCircle } from "components/StyledIcons/ClosedCircleIcon";
 
@@ -49,7 +50,7 @@ const StyledNewTabIcon = styled(NewTabIcon)`
 
 type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 
-const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string}`) => {
+const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) => {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
@@ -58,14 +59,17 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const rounds = votingHistory?.dispute?.rounds;
   const theme = useTheme();
   const txnDisputeCreatedLink = useMemo(() => {
-    return getTxnExplorerLink(votingHistory?.dispute?.transactionHash ?? "");
+    if (isUndefined(votingHistory?.dispute?.transactionHash)) return undefined;
+    return getTxnExplorerLink(votingHistory?.dispute?.transactionHash as Hash);
   }, [votingHistory]);
   const txnEnforcementLink = useMemo(() => {
-    return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash ?? "");
+    if (isUndefined(disputeDetails?.dispute?.rulingTransactionHash)) return undefined;
+    return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash as Hash);
   }, [disputeDetails]);
 
   return useMemo<TimelineItems | undefined>(() => {
-    const formatDate = (date: string) => {
+    const formatDate = (date?: string | null) => {
+      if (!date) return "";
       const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
       const startingDate = new Date(parseInt(date) * 1000);
       return startingDate.toLocaleDateString(i18n.language, options);
@@ -80,10 +84,12 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
     const base: TimelineItems = [
       {
         title: t("dispute_info.dispute_created"),
-        party: (
+        party: txnDisputeCreatedLink ? (
           <ExternalLink to={txnDisputeCreatedLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />
           </ExternalLink>
+        ) : (
+          ""
         ),
         subtitle: formatDate(votingHistory?.dispute?.createdAt),
         rightSided: true,
@@ -130,10 +136,12 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
     if (dispute.ruled) {
       items.push({
         title: t("dispute_info.enforcement"),
-        party: (
+        party: txnEnforcementLink ? (
           <ExternalLink to={txnEnforcementLink} rel="noopener noreferrer" target="_blank">
             <StyledNewTabIcon />
           </ExternalLink>
+        ) : (
+          ""
         ),
         subtitle: `${formatDate(dispute.rulingTimestamp)} / ${rounds?.at(-1)?.court.name}`,
         rightSided: true,
@@ -157,7 +165,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 };
 
 interface IDisputeTimeline {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
 }
 
 const DisputeTimeline: React.FC<IDisputeTimeline> = ({ arbitrable }) => {

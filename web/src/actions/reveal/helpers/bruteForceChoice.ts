@@ -2,7 +2,7 @@ import { Hex } from "viem";
 
 import { Answer } from "@kleros/kleros-sdk";
 
-import { hashVote } from "utils/crypto/hashVote";
+import { Bytes32Hash, hashVote } from "utils/crypto/hashVote";
 /**
  * Attempts to recover a user's original vote choice from a salted commit.
  *
@@ -21,7 +21,7 @@ import { hashVote } from "utils/crypto/hashVote";
  *
  * @throws Will throw an error if no matching choice is found.
  */
-export const bruteForceChoice = (salt: Hex, answers: Answer[], commit: string) => {
+export const bruteForceChoice = (salt: Hex, answers: Answer[], commit: Bytes32Hash) => {
   // when dispute is invalid, just add RFA to the answers array
   const candidates =
     answers?.length > 0

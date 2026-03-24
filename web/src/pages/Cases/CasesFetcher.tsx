@@ -23,18 +23,18 @@ const calculateStats = (
 ): { totalCases: number; ruledCases: number } => {
   let totalCases: number, ruledCases: number;
   if (filter?.period === "appeal") {
-    totalCases = isCourtFilter ? courtData?.numberAppealingDisputes : counters?.casesAppealing;
+    totalCases = isCourtFilter ? Number(courtData?.numberAppealingDisputes) : Number(counters?.casesAppealing);
     ruledCases = 0;
   } else if (isUndefined(filter?.ruled)) {
-    totalCases = isCourtFilter ? courtData?.numberDisputes : counters?.cases;
-    ruledCases = isCourtFilter ? courtData?.numberClosedDisputes : counters?.casesRuled;
+    totalCases = isCourtFilter ? Number(courtData?.numberDisputes) : Number(counters?.cases);
+    ruledCases = isCourtFilter ? Number(courtData?.numberClosedDisputes) : Number(counters?.casesRuled);
   } else if (filter?.ruled) {
-    totalCases = isCourtFilter ? courtData?.numberClosedDisputes : counters?.casesRuled;
+    totalCases = isCourtFilter ? Number(courtData?.numberClosedDisputes) : Number(counters?.casesRuled);
     ruledCases = totalCases;
   } else {
     totalCases = isCourtFilter
-      ? courtData?.numberDisputes - courtData?.numberClosedDisputes
-      : counters?.cases - counters?.casesRuled;
+      ? Number(courtData?.numberDisputes) - Number(courtData?.numberClosedDisputes)
+      : Number(counters?.cases) - Number(counters?.casesRuled);
     ruledCases = 0;
   }
   return {

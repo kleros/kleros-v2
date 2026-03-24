@@ -7,7 +7,6 @@ import { useAccount } from "wagmi";
 import { DisputeKits } from "consts/index";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
-import type { Bytes32Hash } from "utils/crypto/hashVote";
 
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -37,9 +36,7 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
       {shouldShowCommit && (
         <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, dispute, currentPeriodIndex, disputeKitName }} />
       )}
-      {shouldShowReveal && (
-        <Reveal {...{ setIsOpen, voteIDs, disputeKitName, arbitrable, commit: commit as Bytes32Hash }} />
-      )}
+      {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, disputeKitName, arbitrable, commit }} />}
     </>
   );
 };

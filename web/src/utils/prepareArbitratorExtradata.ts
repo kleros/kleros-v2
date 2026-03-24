@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { Hex } from "viem";
 
 import { IDisputeKitData, IGatedDisputeData, ISomeFutureDisputeData } from "context/NewDisputeContext";
 
@@ -54,7 +55,7 @@ export const prepareArbitratorExtradata = (
   const extraData = ethers.utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256"],
     [subcourtID, noOfVotes, disputeKit]
-  ) as `0x{string}`;
+  ) as Hex;
   if (!disputeKitData) {
     return extraData;
   }
@@ -64,5 +65,5 @@ export const prepareArbitratorExtradata = (
     throw new Error(`Unknown dispute kit data type: ${disputeKitData.type}`);
   }
   const encodedDisputeKitData = encoder(disputeKitData as any);
-  return ethers.utils.hexConcat([extraData, encodedDisputeKitData]) as `0x{string}`;
+  return ethers.utils.hexConcat([extraData, encodedDisputeKitData]) as Hex;
 };

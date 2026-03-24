@@ -43,7 +43,7 @@ interface IReveal {
   arbitrable?: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  commit: Bytes32Hash;
+  commit?: Bytes32Hash;
   isRevealPeriod: boolean;
   disputeKitName?: DisputeKits;
 }

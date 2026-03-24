@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
-import { formatEther } from "viem";
+import { Address, formatEther } from "viem";
 import { useAccount } from "wagmi";
 
 import ArrowRightIcon from "svgs/icons/arrow-right.svg";
@@ -131,10 +131,11 @@ const Simulator: React.FC<ISimulator> = ({ amountToStake, isStaking }) => {
   const { t } = useTranslation();
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
+  const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as Address);
   const jurorStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
-  const jurorCurrentEffectiveStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
-  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
+  const jurorCurrentEffectiveStake =
+    address && jurorStakeData ? Number(formatEther(BigInt(jurorStakeData.effectiveStake))) : 0;
+  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(BigInt(jurorStakeData.staked))) : 0;
 
   const timeframedCourtData = useHomePageExtraStats(30);
   const { prices: pricesData } = useCoinPrice([CoinIds.ETH]);

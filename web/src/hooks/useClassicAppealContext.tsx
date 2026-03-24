@@ -1,6 +1,7 @@
 import React, { useMemo, createContext, useContext, useState } from "react";
 
 import { useParams } from "react-router-dom";
+import { Address } from "viem";
 
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk";
 
@@ -59,7 +60,7 @@ export const ClassicAppealProvider: React.FC<{
   const winningChoice = getWinningChoice(data?.dispute);
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
-  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable as `0x${string}`);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable as Address);
   const { data: multipliers } = useDisputeKitClassicMultipliers();
 
   const [selectedOption, setSelectedOption] = useState<Option>();
@@ -125,10 +126,15 @@ const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
   if (!dispute) return undefined;
 
   const period = dispute.period;
-  const currentLocalRoundIndex = dispute.disputeKitDispute.at(-1)?.currentLocalRoundIndex;
+  const lastDisputeKitDispute = dispute.disputeKitDispute[dispute.disputeKitDispute.length - 1];
+  if (isUndefined(lastDisputeKitDispute)) return undefined;
+
+  const currentLocalRoundIndex = lastDisputeKitDispute?.currentLocalRoundIndex;
+  if (isUndefined(currentLocalRoundIndex)) return undefined;
+
   const adjustedRoundIndex = ["appeal", "execution"].includes(period)
-    ? currentLocalRoundIndex
-    : currentLocalRoundIndex - 1;
+    ? Number(BigInt(currentLocalRoundIndex))
+    : Number(BigInt(currentLocalRoundIndex) - 1n);
 
   return getLocalRounds(dispute.disputeKitDispute)[adjustedRoundIndex];
 };

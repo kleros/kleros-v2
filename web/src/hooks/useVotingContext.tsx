@@ -15,6 +15,7 @@ import {
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
+import { Bytes32Hash } from "utils/crypto/hashVote";
 import { isUndefined } from "utils/index";
 
 interface IVotingContext {
@@ -25,7 +26,7 @@ interface IVotingContext {
   isCommitPeriod: boolean;
   isVotingPeriod: boolean;
   commited?: boolean;
-  commit?: string;
+  commit?: Bytes32Hash;
 }
 
 const VotingContext = createContext<IVotingContext>({
@@ -41,14 +42,14 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
-  const roundId = disputeData?.dispute?.currentRoundIndex;
-  const voteId = drawData?.draws?.[0]?.voteIDNum;
+  const rawRoundId = disputeData?.dispute?.currentRoundIndex;
+  const rawVoteId = drawData?.draws?.[0]?.voteIDNum;
 
-  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address;
+  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
   const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
 
-  const hookArgs = [BigInt(id ?? 0), roundId, voteId] as const;
-  const isEnabled = !isUndefined(roundId) && !isUndefined(voteId);
+  const isEnabled = !isUndefined(rawRoundId) && !isUndefined(rawVoteId);
+  const hookArgs = [BigInt(id ?? 0), BigInt(rawRoundId ?? 0), BigInt(rawVoteId ?? 0)] as const;
 
   // Add a hook call for each DisputeKit
   const classicVoteResult = useReadDisputeKitClassicIsVoteActive({
@@ -133,7 +134,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const isVotingPeriod = useMemo(() => disputeData?.dispute?.period === "vote", [disputeData]);
 
   const commited = useMemo(() => !isUndefined(drawData) && drawData?.draws?.[0]?.vote?.commited, [drawData]);
-  const commit = useMemo(() => drawData?.draws?.[0]?.vote?.commit, [drawData]);
+  const commit = useMemo(() => drawData?.draws?.[0]?.vote?.commit ?? undefined, [drawData]);
   return (
     <VotingContext.Provider
       value={useMemo(

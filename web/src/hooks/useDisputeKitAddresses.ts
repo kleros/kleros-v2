@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { Address } from "viem";
 import { useChainId } from "wagmi";
 
 import { DisputeKits, isProductionDeployment } from "consts/index";
 
 interface UseDisputeKitAddressesParams {
-  disputeKitAddress?: string;
+  disputeKitAddress?: Address;
 }
 
 interface UseDisputeKitAddressesAllReturn {
