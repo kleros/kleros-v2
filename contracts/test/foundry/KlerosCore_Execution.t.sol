@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
-import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {IERC20} from "../../src/libraries/SafeERC20.sol";
 import {console} from "forge-std/console.sol";
@@ -1127,7 +1127,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
 
-        vm.expectRevert(DisputeKitClassicBase.DisputeNotResolved.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeNotResolved.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 1);
 
         core.passPeriod(disputeID); // Execution
@@ -1136,7 +1136,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         vm.prank(owner);
         core.pause();
-        vm.expectRevert(DisputeKitClassicBase.CoreIsPaused.selector);
+        vm.expectRevert(DisputeKitClassic.CoreIsPaused.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 1);
         vm.prank(owner);
         core.unpause();
@@ -1146,11 +1146,11 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(address(disputeKit).balance, 1.04 ether, "Wrong balance of the DK");
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 1, crowdfunder1, 0.63 ether);
+        emit DisputeKitClassic.Withdrawal(disputeID, 1, crowdfunder1, 0.63 ether);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1);
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 2, crowdfunder2, 0.41 ether);
+        emit DisputeKitClassic.Withdrawal(disputeID, 2, crowdfunder2, 0.41 ether);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2);
 
         assertEq(crowdfunder1.balance, 10 ether, "Wrong balance of the crowdfunder1");

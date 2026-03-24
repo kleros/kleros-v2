@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
-import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -58,7 +58,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         uint256 nbChoices = 2;
         vm.prank(disputer);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.DisputeCreation(disputeID, nbChoices, newExtraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, nbChoices, newExtraData);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.DisputeCreation(disputeID, arbitrable);
         arbitrable.createDispute{value: 0.04 ether}("Action");

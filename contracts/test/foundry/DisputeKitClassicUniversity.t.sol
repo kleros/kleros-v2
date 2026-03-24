@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore, IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassicUniversity} from "../../src/arbitration/dispute-kits/DisputeKitClassicUniversity.sol";
-import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {ArbitrableExample} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
