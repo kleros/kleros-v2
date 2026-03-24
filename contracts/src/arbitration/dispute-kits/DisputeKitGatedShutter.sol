@@ -28,7 +28,15 @@ interface IBalanceHolderERC1155 {
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitGatedShutter is DisputeKitClassicBase {
-    string public constant override version = "0.12.0";
+    string public constant override version = "0.12.1";
+
+    address private constant NO_TOKEN_GATE = address(0);
+
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    mapping(address token => bool supported) public supportedTokens; // Whether the token is supported or not.
 
     // ************************************* //
     // *              Events               * //
@@ -63,10 +71,11 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
     /// @param _wNative The wrapped native token address, typically wETH.
     function initialize(address _governor, KlerosCore _core, address _wNative) external reinitializer(1) {
         __DisputeKitClassicBase_initialize(_governor, _core, _wNative);
+        supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
     }
 
-    function reinitialize(address _wNative) external reinitializer(9) {
-        wNative = _wNative;
+    function reinitialize() external reinitializer(10) {
+        supportedTokens[NO_TOKEN_GATE] = true; // Allows disputes without token gating
     }
 
     // ************************ //
@@ -79,9 +88,32 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         // NOP
     }
 
+    /// @notice Changes the supported tokens.
+    /// @param _tokens The tokens to support.
+    /// @param _supported Whether the tokens are supported or not.
+    function changeSupportedTokens(address[] memory _tokens, bool _supported) external onlyByGovernor {
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            supportedTokens[_tokens[i]] = _supported;
+        }
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
+
+    /// @inheritdoc DisputeKitClassicBase
+    function createDispute(
+        uint256 _coreDisputeID,
+        uint256 _numberOfChoices,
+        bytes calldata _extraData,
+        uint256 _nbVotes
+    ) public override {
+        (address tokenGate, , ) = _extraDataToTokenInfo(_extraData);
+        if (!supportedTokens[tokenGate]) revert TokenNotSupported(tokenGate);
+
+        // super.createDispute() ensures access control onlyByCore.
+        super.createDispute(_coreDisputeID, _numberOfChoices, _extraData, _nbVotes);
+    }
 
     /// @dev Sets the caller's commit for the specified votes. It can be called multiple times during the
     /// commit period, each call overrides the commits of the previous one.
@@ -182,7 +214,7 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
         (address tokenGate, bool isERC1155, uint256 tokenId) = _extraDataToTokenInfo(dispute.extraData);
 
         // If no token gate is specified, allow all jurors
-        if (tokenGate == address(0)) return true;
+        if (tokenGate == NO_TOKEN_GATE) return true;
 
         // Check juror's token balance
         if (isERC1155) {
@@ -191,4 +223,10 @@ contract DisputeKitGatedShutter is DisputeKitClassicBase {
             return IBalanceHolder(tokenGate).balanceOf(_juror) > 0;
         }
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error TokenNotSupported(address tokenGate);
 }
