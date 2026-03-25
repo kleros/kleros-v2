@@ -75,7 +75,7 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, small
   return (
     <ProfileTooltip
       addressOrName={address}
-      showFollowButton={!!connectedAddress && connectedAddress.toLowerCase() !== address.toLowerCase()}
+      showFollowButton={false}
       connectedAddress={connectedAddress}
       onProfileClick={handleProfileClick}
     >

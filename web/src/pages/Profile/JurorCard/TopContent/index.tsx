@@ -1,9 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { FollowButton, FollowerTag, ProfileSocials, useProfileDetails } from "ethereum-identity-kit";
+import { /* FollowButton, FollowerTag, */ ProfileSocials, useProfileDetails } from "ethereum-identity-kit";
 import { useTranslation } from "react-i18next";
-import { useAccount } from "wagmi";
+// import { useAccount } from "wagmi";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -87,9 +87,9 @@ interface ITopContent {
 
 const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) => {
   const { t } = useTranslation();
-  const { address: connectedAddress } = useAccount();
+  // const { address: connectedAddress } = useAccount();
   const { ens } = useProfileDetails({ addressOrName: address });
-  const isOwnProfile = connectedAddress?.toLowerCase() === address.toLowerCase();
+  // const isOwnProfile = connectedAddress?.toLowerCase() === address.toLowerCase();
 
   return (
     <Container>
@@ -98,10 +98,10 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
         {totalResolvedDisputes > 0 ? (
           <StyledLabel>{t("profile.juror_in_cases", { count: totalResolvedDisputes })}</StyledLabel>
         ) : null}
-        {connectedAddress ? <FollowerTag lookupAddressOrName={address} connectedAddress={connectedAddress} /> : null}
+        {/* {connectedAddress ? <FollowerTag lookupAddressOrName={address} connectedAddress={connectedAddress} /> : null}
         {!isOwnProfile && connectedAddress ? (
           <FollowButton lookupAddress={address} connectedAddress={connectedAddress} />
-        ) : null}
+        ) : null} */}
       </LeftGroup>
       <KlerosAppsWrapper>
         <KlerosAppLink
