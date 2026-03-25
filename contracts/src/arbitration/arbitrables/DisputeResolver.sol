@@ -128,8 +128,6 @@ contract DisputeResolver is IArbitrableV2 {
         string memory _disputeTemplateDataMappings,
         uint256 _numberOfRulingOptions
     ) internal virtual returns (uint256 arbitratorDisputeID) {
-        require(_numberOfRulingOptions > 1, ShouldBeAtLeastTwoRulingOptions());
-
         arbitratorDisputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
         uint256 localDisputeID = disputes.length;
         disputes.push(
@@ -153,5 +151,4 @@ contract DisputeResolver is IArbitrableV2 {
     error ArbitratorOnly();
     error RulingOutOfBounds();
     error DisputeAlreadyRuled();
-    error ShouldBeAtLeastTwoRulingOptions();
 }
