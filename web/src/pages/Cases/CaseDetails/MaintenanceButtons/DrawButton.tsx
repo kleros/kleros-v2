@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { Address } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -33,7 +34,7 @@ const StyledLabel = styled.label``;
 interface IDrawButton extends IBaseMaintenanceButton {
   numberOfVotes?: string;
   period?: string;
-  disputeKitAddress?: string;
+  disputeKitAddress?: Address;
 }
 
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period, disputeKitAddress }) => {

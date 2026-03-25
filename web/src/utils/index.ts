@@ -1,3 +1,5 @@
+import { Address, Hash } from "viem";
+
 import { Roles } from "@kleros/kleros-app";
 
 import { DEFAULT_CHAIN } from "consts/chains";
@@ -10,9 +12,9 @@ export const isUndefined = (maybeObject: any): maybeObject is undefined | null =
  */
 export const isEmpty = (str: string): boolean => str.trim() === "";
 
-export const getTxnExplorerLink = (hash: string) => `${DEFAULT_CHAIN?.blockExplorers?.default.url}/tx/${hash}`;
+export const getTxnExplorerLink = (hash: Hash) => `${DEFAULT_CHAIN?.blockExplorers?.default.url}/tx/${hash}`;
 
-export const getAddressExplorerLink = (address: string) =>
+export const getAddressExplorerLink = (address: Address) =>
   `${DEFAULT_CHAIN?.blockExplorers?.default.url}/address/${address}`;
 
 type Role = {

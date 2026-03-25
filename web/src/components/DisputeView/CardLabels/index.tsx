@@ -145,8 +145,8 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview
   const rewardsData = useMemo(() => {
     const shift = shifts?.reduce(
       (acc, val) => {
-        acc.ethShift += Number(formatEther(val.ethAmount));
-        acc.pnkShift += Number(formatUnits(val.pnkAmount, 18));
+        acc.ethShift += Number(formatEther(BigInt(val.ethAmount)));
+        acc.pnkShift += Number(formatUnits(BigInt(val.pnkAmount), 18));
         return acc;
       },
       { ethShift: 0, pnkShift: 0 }

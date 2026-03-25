@@ -109,7 +109,7 @@ const MaintenanceButtons: React.FC = () => {
                   {...{ id, setIsOpen }}
                   numberOfVotes={dispute?.currentRound.nbVotes}
                   period={dispute?.period}
-                  disputeKitAddress={dispute?.currentRound?.disputeKit?.address}
+                  disputeKitAddress={dispute?.currentRound?.disputeKit?.address ?? undefined}
                 />
                 <PassPeriodButton {...{ id, setIsOpen }} period={dispute?.period} />
                 <ExecuteRulingButton {...{ id, setIsOpen }} period={dispute?.period} ruled={dispute?.ruled} />
@@ -120,7 +120,7 @@ const MaintenanceButtons: React.FC = () => {
                 />
                 <WithdrawAppealFees
                   {...{ id, setIsOpen }}
-                  roundIndex={parseInt(dispute?.currentRoundIndex, 10)}
+                  roundIndex={parseInt(dispute?.currentRoundIndex ?? "0", 10)}
                   period={dispute?.period}
                   ruled={dispute?.ruled}
                 />

@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { Hash } from "viem";
 
 import { useTranslation } from "react-i18next";
 
@@ -93,7 +94,7 @@ interface IMobileCard {
   address: string;
   stake: string;
   timestamp: string;
-  transactionHash: string;
+  transactionHash: Hash;
   courtName: string;
   courtId: number;
   currentCourtId?: number;

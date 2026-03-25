@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import { Hash } from "viem";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -190,10 +191,11 @@ const AttachedFileText: React.FC = () => {
   );
 };
 
-interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
+interface IEvidenceCard extends Pick<Evidence, "evidence" | "name" | "description" | "fileURI"> {
   sender?: string;
   index?: number;
-  transactionHash?: string;
+  transactionHash?: Hash;
+  timestamp?: string;
 }
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({
@@ -211,7 +213,8 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   const profileLink = `/profile/stakes/1?address=${sender}`;
 
   const transactionExplorerLink = useMemo(() => {
-    return getTxnExplorerLink(transactionHash ?? "");
+    if (isUndefined(transactionHash)) return undefined;
+    return getTxnExplorerLink(transactionHash);
   }, [transactionHash]);
 
   return (

@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Hash } from "viem";
 
 import { Card, CustomAccordion } from "@kleros/ui-components-library";
 
@@ -113,11 +114,12 @@ const AccordionContent: React.FC<{
   answers: Answer[];
   justification: string;
   timestamp?: string;
-  transactionHash?: string;
+  transactionHash?: Hash;
 }> = ({ justification, choice, answers, timestamp, transactionHash }) => {
   const { t, i18n } = useTranslation();
   const transactionExplorerLink = useMemo(() => {
-    return getTxnExplorerLink(transactionHash ?? "");
+    if (isUndefined(transactionHash)) return undefined;
+    return getTxnExplorerLink(transactionHash);
   }, [transactionHash]);
 
   return (
@@ -137,7 +139,7 @@ const AccordionContent: React.FC<{
       ) : (
         <SecondaryTextLabel>{t("voting.no_justification_provided")}</SecondaryTextLabel>
       )}
-      {!isUndefined(timestamp) && (
+      {!isUndefined(timestamp) && !isUndefined(transactionExplorerLink) && (
         <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
           {formatDate(Number(timestamp), true, i18n.language)}
         </ExternalLink>

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { erc721Abi } from "viem";
+import { Address, Hex, erc721Abi } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { DisputeKits } from "consts/index";
@@ -25,7 +25,7 @@ const ERC165_ABI = [
 
 // ERC165 identifier for ERC721
 // See https://github.com/ethereum/ercs/blob/master/ERCS/erc-721.md#specification
-const ERC721_INTERFACE_ID = "0x80ac58cd";
+const ERC721_INTERFACE_ID: Hex = "0x80ac58cd";
 
 export type GatedTokenResult = {
   isGated: boolean;
@@ -55,7 +55,7 @@ export type GatedTokenResult = {
  * @param currentRoundIndex - Round index for extraData lookup.
  * @returns Resolved gated and NFT metadata state.
  */
-export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: string, currentRoundIndex?: number) {
+export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: Address, currentRoundIndex?: number) {
   const publicClient = usePublicClient();
   const { disputeKitName, isLoading: isLoadingKit } = useDisputeKitAddresses({
     disputeKitAddress,
@@ -99,7 +99,7 @@ export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: string
           address,
           abi: ERC165_ABI,
           functionName: "supportsInterface",
-          args: [ERC721_INTERFACE_ID as `0x${string}`],
+          args: [ERC721_INTERFACE_ID],
         });
       } catch {
         // Not ERC165 compatible - try tokenURI as fallback

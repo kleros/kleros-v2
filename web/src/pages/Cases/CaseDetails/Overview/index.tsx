@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { formatEther } from "viem";
+import { Address, formatEther } from "viem";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
@@ -39,7 +39,7 @@ const Container = styled.div`
 `;
 
 interface IOverview {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   courtID?: string;
   currentPeriodIndex: number;
 }
@@ -53,13 +53,13 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
   const court = dispute?.dispute?.court;
-  const rewards = useMemo(() => (court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined), [court]);
+  const rewards = useMemo(() => (court ? `≥ ${formatEther(BigInt(court.feeForJuror))} ETH` : undefined), [court]);
   const category = disputeDetails?.category;
 
   const gatedInfo = useGatedTokenInfo(
     id,
-    dispute?.dispute?.currentRound.disputeKit.address,
-    dispute?.dispute?.currentRoundIndex
+    dispute?.dispute?.currentRound.disputeKit.address ?? undefined,
+    parseInt(dispute?.dispute?.currentRoundIndex ?? "0", 10)
   );
 
   return (

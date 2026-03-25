@@ -7,7 +7,6 @@ import { useAccount } from "wagmi";
 import { DisputeKits } from "consts/index";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
-import type { Bytes32Hash } from "utils/crypto/hashVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -40,7 +39,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, disputeKitName }) 
           voteIDs,
           isRevealPeriod: !isCommitPeriod,
           disputeKitName,
-          commit: commit as Bytes32Hash,
+          commit,
         }}
       />
     )

@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { Hash } from "viem";
 
 import { formatDateWithTime } from "utils/date";
 import { formatPNK } from "utils/format";
@@ -100,7 +101,7 @@ interface IDesktopCard {
   address: string;
   stake: string;
   timestamp: string;
-  transactionHash: string;
+  transactionHash: Hash;
   courtName: string;
   courtId: number;
   currentCourtId?: number;
