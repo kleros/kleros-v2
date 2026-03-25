@@ -98,7 +98,8 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
         {totalResolvedDisputes > 0 ? (
           <StyledLabel>{t("profile.juror_in_cases", { count: totalResolvedDisputes })}</StyledLabel>
         ) : null}
-        {/* {connectedAddress ? <FollowerTag lookupAddressOrName={address} connectedAddress={connectedAddress} /> : null}
+        {/* TODO: Re-enable when there's a use case for EFP follow in the app
+        {connectedAddress ? <FollowerTag lookupAddressOrName={address} connectedAddress={connectedAddress} /> : null}
         {!isOwnProfile && connectedAddress ? (
           <FollowButton lookupAddress={address} connectedAddress={connectedAddress} />
         ) : null} */}

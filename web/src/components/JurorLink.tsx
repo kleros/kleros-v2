@@ -75,6 +75,8 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, small
   return (
     <ProfileTooltip
       addressOrName={address}
+      // TODO: Re-enable when there's a use case for EFP follow in the app
+      // showFollowButton={!!connectedAddress && connectedAddress.toLowerCase() !== address.toLowerCase()}
       showFollowButton={false}
       connectedAddress={connectedAddress}
       onProfileClick={handleProfileClick}
