@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
-import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
@@ -111,15 +111,15 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         voteIDs[0] = 0;
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.NotCommitPeriod.selector);
+        vm.expectRevert(DisputeKitClassic.NotCommitPeriod.selector);
         disputeKit.castCommit(disputeID, voteIDs, bytes32(uint256(1)));
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.NotVotePeriod.selector);
+        vm.expectRevert(DisputeKitClassic.NotVotePeriod.selector);
         disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriod.selector);
+        vm.expectRevert(DisputeKitClassic.NotAppealPeriod.selector);
         disputeKit.fundAppeal(disputeID, 1);
     }
 
@@ -139,18 +139,18 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         voteIDs[0] = 0;
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        vm.expectRevert(DisputeKitClassic.WhenArbitrationNotPausedOnly.selector);
         disputeKit.castCommit(disputeID, voteIDs, bytes32(uint256(1)));
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        vm.expectRevert(DisputeKitClassic.WhenArbitrationNotPausedOnly.selector);
         disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        vm.expectRevert(DisputeKitClassic.WhenArbitrationNotPausedOnly.selector);
         disputeKit.fundAppeal(disputeID, 1);
 
-        vm.expectRevert(DisputeKitClassicBase.WhenArbitrationNotPausedOnly.selector);
+        vm.expectRevert(DisputeKitClassic.WhenArbitrationNotPausedOnly.selector);
         core.executeRuling(disputeID);
     }
 
@@ -291,7 +291,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + grace / 2);
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriodForLoser.selector);
+        vm.expectRevert(DisputeKitClassic.NotAppealPeriodForLoser.selector);
         disputeKit.fundAppeal{value: 1}(disputeID, loserChoice);
 
         vm.prank(crowdfunder2);
@@ -527,7 +527,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             NULL_ELIGIBILITY_REQUIREMENT
         );
 
-        _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50);
+        _assertCourtParameters(2, GENERAL_COURT, true, 2000, 20000, 0.04 ether, 50, 1);
 
         uint256[] memory children = core.getCourtChildren(2);
         assertEq(children.length, 0, "No children");
@@ -623,7 +623,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
             NULL_ELIGIBILITY_REQUIREMENT
         );
 
-        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50);
+        _assertCourtParameters(GENERAL_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50, 2);
         _assertTimesPerPeriod(GENERAL_COURT, [uint256(10), uint256(20), uint256(30), uint256(40)]);
     }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IEvidence} from "../interfaces/IEvidence.sol";
@@ -22,7 +22,7 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 

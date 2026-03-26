@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import "../interfaces/IKlerosLiquid.sol";
 import "../interfaces/ITokenController.sol";
@@ -107,7 +107,14 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
         dispute.klerosLiquidDisputeID = _disputeID;
     }
 
-    /// @inheritdoc IArbitrableV2
+    /// @notice Give a ruling for a dispute.
+    ///
+    /// @dev This is a callback function for the arbitrator to provide the ruling to this contract.
+    /// Only the arbitrator must be allowed to call this function.
+    /// Ruling 0 is reserved for "Not able/wanting to make a decision".
+    ///
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator.
     function rule(uint256 _disputeID, uint256 _ruling) public override {
         require(msg.sender == address(foreignGateway), "Not the arbitrator.");
         DisputeData storage dispute = disputes[_disputeID];
@@ -148,12 +155,18 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
         }
     }
 
-    /// @inheritdoc ITokenController
+    /// @notice Called when `_owner` sends ether to the MiniMe Token contract
+    /// @param - owner The address that sent the ether to create tokens
+    /// @return allowed True if the ether is accepted, false if it throws
     function proxyPayment(address /*_owner*/) external payable override returns (bool allowed) {
         allowed = false;
     }
 
-    /// @inheritdoc ITokenController
+    /// @notice Notifies the controller about a token transfer allowing the controller to react if desired
+    /// @param _from The origin of the transfer
+    /// @param - to The destination of the transfer
+    /// @param _amount The amount of the transfer
+    /// @return allowed False if the controller does not authorize the transfer
     function onTransfer(address _from, address /*_to*/, uint256 _amount) external view override returns (bool allowed) {
         if (klerosLiquid.lockInsolventTransfers()) {
             // Never block penalties or rewards.
@@ -168,7 +181,11 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
         allowed = true;
     }
 
-    /// @inheritdoc ITokenController
+    /// @notice Notifies the controller about an approval allowing the controller to react if desired
+    /// @param - owner The address that calls `approve()`
+    /// @param - spender The spender in the `approve()` call
+    /// @param - amount The amount in the `approve()` call
+    /// @return allowed False if the controller does not authorize the approval
     function onApprove(
         address /*_owner*/,
         address /*_spender*/,

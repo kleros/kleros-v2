@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {ERC721, IERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
@@ -109,7 +109,7 @@ contract SBT is ERC721, ERC721Pausable, ERC721Burnable, IERC4906, Ownable {
     }
 
     function safeMint(address _to) public onlyOwner returns (uint256) {
-        if (balanceOf(_to) > 0) revert AddressAlreadyHasToken();
+        require(balanceOf(_to) == 0, AddressAlreadyHasToken());
         uint256 tokenId = __nextTokenId++;
         _safeMint(_to, tokenId);
         emit MetadataUpdate(tokenId);

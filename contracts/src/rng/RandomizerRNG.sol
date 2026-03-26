@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IRNG} from "./IRNG.sol";
 import {IRandomizer} from "./IRandomizer.sol";
@@ -37,12 +37,12 @@ contract RandomizerRNG is IRNG {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
     modifier onlyByConsumer() {
-        if (consumer != msg.sender) revert ConsumerOnly();
+        require(consumer == msg.sender, ConsumerOnly());
         _;
     }
 
@@ -111,7 +111,7 @@ contract RandomizerRNG is IRNG {
     /// @param _id The ID of the request.
     /// @param _value The random value answering the request.
     function randomizerCallback(uint256 _id, bytes32 _value) external {
-        if (msg.sender != address(randomizer)) revert RandomizerOnly();
+        require(msg.sender == address(randomizer), RandomizerOnly());
         randomNumbers[_id] = uint256(_value);
         emit RequestFulfilled(_id, uint256(_value));
     }

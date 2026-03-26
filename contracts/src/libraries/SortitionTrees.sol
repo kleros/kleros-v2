@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 type TreeKey is bytes32;
 type CourtID is uint96;
@@ -35,8 +35,8 @@ library SortitionTrees {
     /// @param _k The maximum number of children per node.
     function createTree(mapping(TreeKey key => Tree) storage _trees, TreeKey _key, uint256 _k) internal {
         Tree storage tree = _trees[_key];
-        if (tree.K != 0) revert TreeAlreadyExists();
-        if (_k <= 1) revert KMustBeGreaterThanOne();
+        require(tree.K == 0, TreeAlreadyExists());
+        require(_k > 1, KMustBeGreaterThanOne());
         tree.K = _k;
         tree.nodes.push(0);
     }

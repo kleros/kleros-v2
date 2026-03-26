@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol"; // Import the console for logging
@@ -7,7 +7,7 @@ import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
 import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
-import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {SortitionModuleMock, SortitionModule} from "../../src/test/SortitionModuleMock.sol";
@@ -148,7 +148,7 @@ abstract contract KlerosCore_TestBase is Test {
 
         core = KlerosCoreMock(address(proxyCore));
         core.initialize(
-            owner,
+            payable(owner),
             guardian,
             pinakion,
             jurorProsecutionModule,
@@ -230,24 +230,26 @@ abstract contract KlerosCore_TestBase is Test {
         uint256 expectedMinStake,
         uint256 expectedAlpha,
         uint256 expectedFeeForJuror,
-        uint256 expectedJurorsForJump
+        uint256 expectedJurorsForJump,
+        uint256 courtParamsLength
     ) internal view {
-        (
-            uint96 courtParent,
-            bool courtHiddenVotes,
-            uint256 courtMinStake,
-            uint256 courtAlpha,
-            uint256 courtFeeForJuror,
-            uint256 courtJurorsForCourtJump,
-
-        ) = core.courts(courtId);
+        (uint96 courtParent, uint256 courtMinStake, uint256 courtAlpha, uint256 courtFeeForJuror, ) = core.courts(
+            courtId
+        );
 
         assertEq(courtParent, expectedParent, "Wrong court parent");
-        assertEq(courtHiddenVotes, expectedHiddenVotes, "Wrong hiddenVotes value");
         assertEq(courtMinStake, expectedMinStake, "Wrong minStake value");
         assertEq(courtAlpha, expectedAlpha, "Wrong alpha value");
         assertEq(courtFeeForJuror, expectedFeeForJuror, "Wrong feeForJuror value");
-        assertEq(courtJurorsForCourtJump, expectedJurorsForJump, "Wrong jurorsForCourtJump value");
+        // Before asserting check that the court has additional court parameters initialized (e.g Forking court doesn't)
+        if (courtParamsLength > 0) {
+            KlerosCore.AdditionalCourtParams memory courtParams = core.getAdditionalCourtParams(
+                courtId,
+                courtParamsLength - 1
+            );
+            assertEq(courtParams.hiddenVotes, expectedHiddenVotes, "Wrong hiddenVotes value");
+            assertEq(courtParams.jurorsForCourtJump, expectedJurorsForJump, "Wrong jurorsForCourtJump value");
+        }
     }
 
     /// @dev Helper function to check times per period

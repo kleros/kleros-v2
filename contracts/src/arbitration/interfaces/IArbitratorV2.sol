@@ -24,6 +24,12 @@ interface IArbitratorV2 {
     /// @param _ruling The ruling which was given.
     event Ruling(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);
 
+    /// @notice To be raised when a ruling is relayed to arbitrable.
+    /// @param _arbitrable The arbitrable receiving the ruling.
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling The ruling which was executed.
+    event RulingExecuted(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);
+
     /// @notice To be emitted when an ERC20 token is added or removed as a method to pay fees.
     /// @param _token The ERC20 token.
     /// @param _accepted Whether the token is accepted or not.

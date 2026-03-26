@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -466,7 +466,6 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
         emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
-    /// @inheritdoc IArbitratorV2
     function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/,
@@ -608,12 +607,14 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Compute the cost of arbitration denominated in the native currency, typically ETH.
+    /// @dev It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return cost The arbitration cost in ETH.
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
         cost = foreignGateway.arbitrationCost(_extraData);
     }
 
-    /// @inheritdoc IArbitratorV2
     function arbitrationCost(
         bytes calldata /*_extraData*/,
         IERC20 /*_feeToken*/

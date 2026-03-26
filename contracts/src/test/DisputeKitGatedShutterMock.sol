@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {DisputeKitGatedShutter} from "../arbitration/dispute-kits/DisputeKitGatedShutter.sol";
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /// @title DisputeKitGatedShutterMock
 /// DisputeKitGatedShutter with view functions to use in the tests.
 contract DisputeKitGatedShutterMock is DisputeKitGatedShutter {
-    using EnumerableSet for EnumerableSet.AddressSet;
-
     function extraDataToTokenInfo(
         bytes memory _extraData
     ) public pure returns (address tokenGate, bool isERC1155, uint256 tokenId) {
@@ -19,12 +16,18 @@ contract DisputeKitGatedShutterMock is DisputeKitGatedShutter {
     /// @notice TEST ONLY: bypasses governance validation.
     /// @dev May violate invariants. For example, `address(0)` is normally forbidden as a token gate.
     function unsafeAddSupportedErc721Token(uint96 _courtID, address _token) external onlyByOwner {
-        supportedErc721Tokens[_courtID].add(_token);
+        if (erc721TokenToIndex[_courtID][_token] == 0) {
+            supportedErc721Tokens[_courtID].push(_token);
+            erc721TokenToIndex[_courtID][_token] = supportedErc721Tokens[_courtID].length;
+        }
     }
 
     /// @notice TEST ONLY: bypasses governance validation.
     /// @dev May violate invariants. For example, `address(0)` is normally forbidden as a token gate.
     function unsafeAddSupportedErc1155Token(uint96 _courtID, address _token) external onlyByOwner {
-        supportedErc1155Tokens[_courtID].add(_token);
+        if (erc1155TokenToIndex[_courtID][_token] == 0) {
+            supportedErc1155Tokens[_courtID].push(_token);
+            erc1155TokenToIndex[_courtID][_token] = supportedErc1155Tokens[_courtID].length;
+        }
     }
 }

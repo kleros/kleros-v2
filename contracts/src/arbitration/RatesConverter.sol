@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IRatesConverter} from "./interfaces/IRatesConverter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -38,7 +38,7 @@ contract RatesConverter is IRatesConverter {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -66,7 +66,10 @@ contract RatesConverter is IRatesConverter {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IRatesConverter
+    /// @notice Converts ETH into tokens.
+    /// @param _toToken The token to convert ETH into.
+    /// @param _amountInEth ETH amount.
+    /// @return Amount of tokens.
     function convert(IERC20 _toToken, uint256 _amountInEth) external view override returns (uint256) {
         return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
     }

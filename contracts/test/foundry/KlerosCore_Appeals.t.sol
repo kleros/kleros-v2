@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
-import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitClassicMockUncheckedNextRoundSettings} from "../../src/test/DisputeKitClassicMockUncheckedNextRoundSettings.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import "../../src/libraries/Constants.sol";
@@ -55,7 +55,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.appeal);
         core.passPeriod(disputeID);
 
-        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
         (start, end) = core.appealPeriod(0);
         assertEq(uint256(period), uint256(KlerosCore.Period.appeal), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
@@ -77,12 +77,12 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         core.appeal{value: 0.21 ether}(disputeID, 2, arbitratorExtraData);
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.ChoiceOutOfBounds.selector);
+        vm.expectRevert(DisputeKitClassic.ChoiceOutOfBounds.selector);
         disputeKit.fundAppeal(disputeID, 3);
 
         vm.prank(crowdfunder1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Contribution(disputeID, 0, 1, crowdfunder1, 0.21 ether);
+        emit DisputeKitClassic.Contribution(disputeID, 0, 1, crowdfunder1, 0.21 ether);
         disputeKit.fundAppeal{value: 0.21 ether}(disputeID, 1); // Fund the losing choice. Total cost will be 0.63 (0.21 + 0.21 * (20000/10000))
 
         assertEq(crowdfunder1.balance, 9.79 ether, "Wrong balance of the crowdfunder");
@@ -91,9 +91,9 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(crowdfunder1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Contribution(disputeID, 0, 1, crowdfunder1, 0.42 ether);
+        emit DisputeKitClassic.Contribution(disputeID, 0, 1, crowdfunder1, 0.42 ether);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.ChoiceFunded(disputeID, 0, 1);
+        emit DisputeKitClassic.ChoiceFunded(disputeID, 0, 1);
         disputeKit.fundAppeal{value: 5 ether}(disputeID, 1); // Deliberately overpay to check reimburse
 
         assertEq(crowdfunder1.balance, 9.37 ether, "Wrong balance of the crowdfunder");
@@ -102,7 +102,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq((disputeKit.getFundedChoices(disputeID))[0], 1, "Incorrect funded choice");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.AppealFeeIsAlreadyPaid.selector);
+        vm.expectRevert(DisputeKitClassic.AppealFeeIsAlreadyPaid.selector);
         disputeKit.fundAppeal(disputeID, 1);
     }
 
@@ -134,7 +134,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriod.selector);
+        vm.expectRevert(DisputeKitClassic.NotAppealPeriod.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1);
         core.passPeriod(disputeID);
 
@@ -142,14 +142,14 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + ((end - start) / 2 + 1));
-        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriodForLoser.selector);
+        vm.expectRevert(DisputeKitClassic.NotAppealPeriodForLoser.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 1); // Losing choice
 
         disputeKit.fundAppeal(disputeID, 2); // Winning choice funding should not revert yet
 
         vm.prank(crowdfunder1);
         vm.warp(block.timestamp + (end - start) / 2); // Warp one more to cover the whole period
-        vm.expectRevert(DisputeKitClassicBase.NotAppealPeriod.selector);
+        vm.expectRevert(DisputeKitClassic.NotAppealPeriod.selector);
         disputeKit.fundAppeal{value: 0.1 ether}(disputeID, 2);
     }
 
@@ -204,7 +204,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count after appeal");
         assertEq(core.getNumberOfRounds(disputeID), 2, "Wrong number of rounds");
 
-        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
         assertEq(uint256(period), uint256(KlerosCore.Period.evidence), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
@@ -269,7 +269,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         newDisputeKit.changeNextRoundSettings(
             newCourtID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: GENERAL_COURT,
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
@@ -315,7 +315,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitJump(disputeID, 1, newDkID, DISPUTE_KIT_CLASSIC);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, 2, newExtraData);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
@@ -334,7 +334,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 1);
         assertEq(round.disputeKitID, DISPUTE_KIT_CLASSIC, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID");
 
         (, currentRound) = disputeKit.coreDisputeIDToActive(disputeID);
@@ -342,7 +342,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         // Check jump modifier
         vm.prank(address(core));
-        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeJumpedToAnotherDisputeKit.selector);
         newDisputeKit.draw(disputeID, 1, round.nbVotes);
 
         // And check that draw in the new round works
@@ -416,7 +416,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit3.changeNextRoundSettings(
             newCourtID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: 0,
                 jumpDisputeKitID: 0,
@@ -465,7 +465,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitJump(disputeID, 1, dkID3, dkID2);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, 2, newExtraData);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
@@ -484,7 +484,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 1);
         assertEq(round.disputeKitID, dkID2, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID");
 
         (, currentRound) = disputeKit2.coreDisputeIDToActive(disputeID);
@@ -492,7 +492,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
         // Check jump modifier
         vm.prank(address(core));
-        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeJumpedToAnotherDisputeKit.selector);
         disputeKit3.draw(disputeID, 1, round.nbVotes);
 
         // And check that draw in the new round works
@@ -540,7 +540,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit2.changeNextRoundSettings(
             courtID2,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: 0,
                 jumpDisputeKitID: 0,
@@ -562,7 +562,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit3.changeNextRoundSettings(
             courtID3,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: 0,
                 jumpDisputeKitID: 0,
@@ -595,9 +595,15 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         );
         assertEq(core.isSupported(courtID2, dkID2), true, "dkID2 should be supported by Court2");
 
-        (uint96 courtParent, , , , , uint256 courtJurorsForCourtJump, ) = core.courts(courtID2);
+        (uint96 courtParent, , , , ) = core.courts(courtID2);
         assertEq(courtParent, GENERAL_COURT, "Wrong court parent for court2");
-        assertEq(courtJurorsForCourtJump, 7, "Wrong jurors for jump value for court2");
+
+        uint256 defaultCourtParamsIndex = 0;
+        KlerosCore.AdditionalCourtParams memory courtParams = core.getAdditionalCourtParams(
+            courtID2,
+            defaultCourtParamsIndex
+        );
+        assertEq(courtParams.jurorsForCourtJump, 7, "Wrong jurors for jump value for court2");
 
         // Court3 creation
         supportedDK = new uint256[](2);
@@ -618,9 +624,8 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         );
         assertEq(core.isSupported(courtID3, dkID3), true, "dkID3 should be supported by Court3");
 
-        (courtParent, , , , , courtJurorsForCourtJump, ) = core.courts(courtID3);
+        (courtParent, , , , ) = core.courts(courtID3);
         assertEq(courtParent, courtID2, "Wrong court parent for court3");
-        assertEq(courtJurorsForCourtJump, 3, "Wrong jurors for jump value for court3");
 
         // Enable DK3 on the General Court
         vm.prank(owner);
@@ -680,7 +685,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitJump(disputeID, 1, dkID3, dkID2);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, newExtraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, 2, newExtraData);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
@@ -706,7 +711,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 1);
         assertEq(round.disputeKitID, dkID2, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, courtID2, "Wrong court ID after jump");
 
         (disputeActive, currentRound) = disputeKit2.coreDisputeIDToActive(0);
@@ -718,7 +723,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(localRoundID, 0, "Wrong local round ID for dk2");
 
         vm.prank(address(core));
-        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeJumpedToAnotherDisputeKit.selector);
         disputeKit3.draw(disputeID, 1, round.nbVotes);
 
         core.draw(disputeID, 7); // New round requires 7 jurors
@@ -731,7 +736,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         }
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeJumpedToAnotherDisputeKit.selector);
         disputeKit3.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
@@ -740,7 +745,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         core.passPeriod(disputeID); // Appeal
 
         vm.prank(crowdfunder1);
-        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeJumpedToAnotherDisputeKit.selector);
         disputeKit3.fundAppeal{value: 1.35 ether}(disputeID, 1);
 
         (, , , , isDisputeKitJumping) = core.getCourtAndDisputeKitJumps(disputeID);
@@ -780,7 +785,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         round = core.getRoundInfo(disputeID, 2);
         assertEq(round.disputeKitID, dkID3, "Wrong DK ID");
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Wrong disputesWithoutJurors count");
-        (courtID, , , , , ) = core.disputes(disputeID);
+        (courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Wrong court ID after jump");
 
         (disputeActive, currentRound) = disputeKit3.coreDisputeIDToActive(0); // local dispute id
@@ -797,7 +802,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         assertEq(localRoundID, 0, "Wrong local round ID for dk2 round3");
 
         vm.prank(address(core));
-        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeJumpedToAnotherDisputeKit.selector);
         disputeKit2.draw(disputeID, 1, round.nbVotes);
 
         core.draw(disputeID, 15); // New round requires 15 jurors
@@ -810,7 +815,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         }
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.DisputeJumpedToAnotherDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeJumpedToAnotherDisputeKit.selector);
         disputeKit2.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
@@ -828,19 +833,19 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1); // wrong side, no reward
 
         vm.expectEmit();
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 2, payable(crowdfunder2), 0.84 ether);
+        emit DisputeKitClassic.Withdrawal(disputeID, 2, payable(crowdfunder2), 0.84 ether);
         disputeKit3.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2); // REWARDS
 
         disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1); // wrong DK, no reward
 
         vm.expectEmit();
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 2, payable(crowdfunder2), 1.8 ether);
+        emit DisputeKitClassic.Withdrawal(disputeID, 2, payable(crowdfunder2), 1.8 ether);
         disputeKit2.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2); // REWARDS
 
-        vm.expectRevert(DisputeKitClassicBase.DisputeUnknownInThisDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeUnknownInThisDisputeKit.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1); // wrong DK, no reward
 
-        vm.expectRevert(DisputeKitClassicBase.DisputeUnknownInThisDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeUnknownInThisDisputeKit.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2); // wrong DK, no reward
     }
 
@@ -1056,7 +1061,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: court3ID, // Jump to sibling Court3, NOT parent GENERAL_COURT
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC, // Stay with same DK
@@ -1129,7 +1134,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.98 ether}(disputeID, 2); // 0.49 + (0.49 * 10000/10000)
 
         // Verify dispute is now in Court3
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should now be in Court3");
 
         // Verify new round has correct number of jurors
@@ -1201,7 +1206,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit.changeNextRoundSettings(
             court4ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: GENERAL_COURT, // Jump to grandparent, skipping Court3 and Court2
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
@@ -1259,7 +1264,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
         // Verify dispute jumped directly to GENERAL_COURT (not to Court3 or Court2)
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Dispute should have jumped directly to GENERAL_COURT");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -1309,7 +1314,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: false, // DISABLED - settings should be ignored
                 jumpCourtID: court3ID, // This should be IGNORED
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
@@ -1368,7 +1373,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.42 ether}(disputeID, 2);
 
         // Verify dispute jumped to GENERAL_COURT (parent), not Court3
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, GENERAL_COURT, "Dispute should be in GENERAL_COURT (parent), not Court3");
 
         // Verify nbVotes used default formula, not custom value
@@ -1403,7 +1408,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: invalidCourtID, // Invalid court ID - should cause fallback
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
@@ -1462,7 +1467,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.7 ether}(disputeID, 2); // 0.35 + (0.35 * 10000/10000)
 
         // Verify dispute stayed in Court2
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2");
 
         // Verify new round has correct number of jurors
@@ -1513,7 +1518,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: court3ID,
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
@@ -1580,7 +1585,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 1.76 ether}(disputeID, 2);
 
         // Verify dispute jumped to Court3
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should be in Court3");
 
         // CRITICAL: Verify new round has custom nbVotes, NOT default (7)
@@ -1623,7 +1628,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: 0, // UNDEFINED - use default jump logic
                 jumpDisputeKitID: DISPUTE_KIT_CLASSIC,
@@ -1690,7 +1695,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 1.08 ether}(disputeID, 2);
 
         // Verify dispute stayed in Court2
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2 (no jump occurred)");
 
         // CRITICAL: Verify new round has custom nbVotes (9), not default (3*2+1=7)
@@ -1777,7 +1782,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit3.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: court3ID, // Force court jump to Court3
                 jumpDisputeKitID: dkID2, // Should be used (takes precedence)
@@ -1842,7 +1847,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitJump(disputeID, 1, dkID3, dkID2); // DK3 -> DK2 (NOT DK3)
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, extraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, 2, extraData);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
@@ -1851,7 +1856,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit3.fundAppeal{value: 0.98 ether}(disputeID, 2);
 
         // Verify dispute is now in Court3 with DisputeKit2
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should be in Court3");
 
         round = core.getRoundInfo(disputeID, 1);
@@ -1940,7 +1945,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit2.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: court3ID, // VALID court (should be ignored due to invalid DK)
                 jumpDisputeKitID: invalidDKID, // INVALID DK - triggers complete fallback
@@ -2011,7 +2016,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit2.fundAppeal{value: 0.7 ether}(disputeID, 2);
 
         // Verify dispute stayed in Court2 with DK2 and default nbVotes
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -2094,7 +2099,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         disputeKit2.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: court3ID, // Valid court
                 jumpDisputeKitID: dkID2, // Valid DK BUT Court3 doesn't support it
@@ -2169,7 +2174,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitJump(disputeID, 1, dkID2, DISPUTE_KIT_CLASSIC);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.DisputeCreation(disputeID, 2, extraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, 2, extraData);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.AppealDecision(disputeID, arbitrable);
         vm.expectEmit(true, true, true, true);
@@ -2178,7 +2183,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         disputeKit2.fundAppeal{value: 1.6 ether}(disputeID, 2); // 0.56 + (0.56 * 10000/10000)
 
         // Verify dispute jumped to Court3 with DISPUTE_KIT_CLASSIC
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court3ID, "Dispute should be in Court3");
 
         round = core.getRoundInfo(disputeID, 1);
@@ -2201,7 +2206,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
 
     /// @dev Test that jumpCourtID = FORKING_COURT triggers KlerosCore fallback
     /// Uses DisputeKitClassicMockUncheckedNextRoundSettings which returns raw values without
-    /// DisputeKitClassicBase's safety logic. This allows testing KlerosCore._getCompatibleNextRoundSettings()
+    /// DisputeKitClassic's safety logic. This allows testing KlerosCore._getCompatibleNextRoundSettings()
     /// sanity check: if newCourtID == FORKING_COURT, trigger complete fallback.
     /// Verifies complete triple fallback of all three parameters (court, DK, nbVotes).
     function test_appeal_forkingCourtTriggersKlerosCoreFallback() public {
@@ -2210,7 +2215,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         uint256 mockDKID = 2;
         uint256 customNbVotes = 11;
 
-        // Create mock DK that bypasses DisputeKitClassicBase safety logic
+        // Create mock DK that bypasses DisputeKitClassic safety logic
         DisputeKitClassicMockUncheckedNextRoundSettings mockDKLogic = new DisputeKitClassicMockUncheckedNextRoundSettings();
         bytes memory initDataMockDK = abi.encodeWithSignature(
             "initialize(address,address,address)",
@@ -2249,7 +2254,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         mockDK.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: FORKING_COURT, // 0 - will be passed raw to KlerosCore
                 jumpDisputeKitID: mockDKID, // Valid DK (non-zero)
@@ -2319,7 +2324,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         mockDK.fundAppeal{value: 0.84 ether}(disputeID, 2);
 
         // Verify dispute stayed in Court2 with mockDK and default nbVotes
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Dispute should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -2333,7 +2338,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
     }
 
     /// @dev Test that jumpDisputeKitID = NULL_DISPUTE_KIT triggers KlerosCore fallback
-    /// Uses mock DK to bypass DisputeKitClassicBase safety logic and test KlerosCore sanity check:
+    /// Uses mock DK to bypass DisputeKitClassic safety logic and test KlerosCore sanity check:
     /// if newDisputeKitID == NULL_DISPUTE_KIT, trigger complete fallback.
     /// Verifies complete triple fallback of all three parameters.
     function test_appeal_nullDisputeKitTriggersKlerosCoreFallback() public {
@@ -2395,7 +2400,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         mockDK.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: court3ID, // Valid court (non-zero)
                 jumpDisputeKitID: NULL_DISPUTE_KIT, // 0 - will be passed raw to KlerosCore
@@ -2463,7 +2468,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         mockDK.fundAppeal{value: 0.7 ether}(disputeID, 2);
 
         // Verify complete fallback
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);
@@ -2532,7 +2537,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         vm.prank(owner);
         mockDK.changeNextRoundSettings(
             court2ID,
-            DisputeKitClassicBase.NextRoundSettings({
+            DisputeKitClassic.NextRoundSettings({
                 enabled: true,
                 jumpCourtID: court3ID, // Valid court (non-zero)
                 jumpDisputeKitID: mockDKID, // Valid DK (non-zero)
@@ -2600,7 +2605,7 @@ contract KlerosCore_AppealsTest is KlerosCore_TestBase {
         mockDK.fundAppeal{value: 0.7 ether}(disputeID, 2);
 
         // Verify complete fallback
-        (uint96 courtID, , , , , ) = core.disputes(disputeID);
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
         assertEq(courtID, court2ID, "Should still be in Court2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 1);

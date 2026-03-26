@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IForeignGateway} from "./interfaces/IForeignGateway.sol";
 import {IArbitrableV2} from "../arbitration/interfaces/IArbitrableV2.sol";
@@ -53,16 +53,17 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // ************************************* //
 
     modifier onlyFromVea(address _messageSender) {
-        if (
-            veaOutbox != msg.sender &&
-            (block.timestamp >= deprecatedVeaOutboxExpiration || deprecatedVeaOutbox != msg.sender)
-        ) revert VeaOutboxOnly();
-        if (_messageSender != homeGateway) revert HomeGatewayMessageSenderOnly();
+        require(
+            veaOutbox == msg.sender ||
+                (block.timestamp < deprecatedVeaOutboxExpiration && deprecatedVeaOutbox == msg.sender),
+            VeaOutboxOnly()
+        );
+        require(_messageSender == homeGateway, HomeGatewayMessageSenderOnly());
         _;
     }
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -107,8 +108,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
 
     /// @notice Changes the owner.
     /// @param _owner The address of the new owner.
-    function changeOwner(address _owner) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeOwner(address _owner) external onlyByOwner {
         owner = _owner;
     }
 
@@ -124,8 +124,7 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
 
     /// @notice Changes the home gateway.
     /// @param _homeGateway The address of the new home gateway.
-    function changeHomeGateway(address _homeGateway) external {
-        if (owner != msg.sender) revert OwnerOnly();
+    function changeHomeGateway(address _homeGateway) external onlyByOwner {
         homeGateway = _homeGateway;
     }
 
@@ -141,12 +140,16 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Create a dispute and pay for the fees in the native currency, typically ETH.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData)` in ETH.
+    /// @param _choices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return disputeID The identifier of the dispute created.
     function createDispute(
         uint256 _choices,
         bytes calldata _extraData
     ) external payable override returns (uint256 disputeID) {
-        if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
+        require(msg.value >= arbitrationCost(_extraData), ArbitrationFeesNotEnough());
 
         disputeID = localDisputeID++;
         uint256 chainID;
@@ -176,7 +179,6 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         emit CrossChainDisputeOutgoing(blockhash(block.number - 1), msg.sender, disputeID, _choices, _extraData);
     }
 
-    /// @inheritdoc IArbitratorV2
     function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/,
@@ -186,13 +188,15 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         revert("Not supported");
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Compute the cost of arbitration denominated in the native currency, typically ETH.
+    /// @dev It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return cost The arbitration cost in ETH.
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;
     }
 
-    /// @inheritdoc IArbitratorV2
     function arbitrationCost(
         bytes calldata /*_extraData*/,
         IERC20 /*_feeToken*/
@@ -200,7 +204,11 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         revert("Not supported");
     }
 
-    /// @inheritdoc IForeignGateway
+    /// @notice Relay the rule call from the home gateway to the arbitrable.
+    /// @param _messageSender The address of the message sender.
+    /// @param _disputeHash The dispute hash.
+    /// @param _ruling The ruling.
+    /// @param _relayer The address of the relayer.
     function relayRule(
         address _messageSender,
         bytes32 _disputeHash,
@@ -209,8 +217,8 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     ) external override onlyFromVea(_messageSender) {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
-        if (dispute.id == 0) revert DisputeDoesNotExist();
-        if (dispute.ruled) revert CannotRuleTwice();
+        require(dispute.id != 0, DisputeDoesNotExist());
+        require(!dispute.ruled, CannotRuleTwice());
 
         dispute.ruled = true;
         dispute.relayer = _relayer;
@@ -219,11 +227,12 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
         arbitrable.rule(dispute.id, _ruling);
     }
 
-    /// @inheritdoc IForeignGateway
+    /// @notice Reimburses the dispute fees to the relayer who paid for these fees on the home chain.
+    /// @param _disputeHash The dispute hash for which to withdraw the fees.
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
-        if (dispute.id == 0) revert DisputeDoesNotExist();
-        if (!dispute.ruled) revert NotRuledYet();
+        require(dispute.id != 0, DisputeDoesNotExist());
+        require(dispute.ruled, NotRuledYet());
 
         uint256 amount = dispute.paid;
         dispute.paid = 0;
@@ -234,12 +243,13 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IForeignGateway
+    /// @notice Looks up the local foreign disputeID for a disputeHash
+    /// @param _disputeHash The dispute hash.
+    /// @return The local foreign disputeID.
     function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
     }
 
-    /// @inheritdoc IReceiverGateway
     function senderGateway() external view override returns (address) {
         return homeGateway;
     }

@@ -70,11 +70,6 @@ interface IDisputeKit {
     /// @return overridden Whether the ruling was overridden by appeal funding or not.
     function currentRuling(uint256 _coreDisputeID) external view returns (uint256 ruling, bool tied, bool overridden);
 
-    /// @notice Gets the array of winning choices.
-    /// @param _coreDisputeID The ID of the dispute.
-    /// @return winningChoices The array of winning choices.
-    function getWinningChoices(uint256 _coreDisputeID) external view returns (uint256[] memory winningChoices);
-
     /// @notice Gets the degree of coherence of a particular voter.
     /// @dev This function is called by Kleros Core in order to determine the amount of the reward.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
@@ -107,6 +102,26 @@ interface IDisputeKit {
         uint256 _feePerJuror,
         uint256 _pnkAtStakePerJuror
     ) external view returns (uint256 pnkCoherence);
+
+    /// @notice Gets the rewards for PNK and fees based on coherence and total reward pool.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @param _voteID The ID of the vote.
+    /// @param _coherentCount The number of jurors eligible for reward.
+    /// @param _pnkRewardPool Total amount of PNK available for rewards to all coherent jurors.
+    /// @param _pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
+    /// @param _feeCoherence The degree of coherence in basis points for the dispute fee reward.
+    /// @return pnkReward The pnk reward the juror is eligible to.
+    /// @return feeReward The fee reward the juror is eligible to.
+    function getRewards(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID,
+        uint256 _coherentCount,
+        uint256 _pnkRewardPool,
+        uint256 _pnkCoherence,
+        uint256 _feeCoherence
+    ) external view returns (uint256 pnkReward, uint256 feeReward);
 
     /// @notice Gets the number of jurors who are eligible to a reward in this round.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
@@ -165,7 +180,7 @@ interface IDisputeKit {
     /// @return winningChoice The winning choice of this round.
     /// @return tied Whether it's a tie or not.
     /// @return totalVoted Number of jurors who cast the vote already.
-    /// @return totalCommited Number of jurors who cast the commit already (only relevant for hidden votes).
+    /// @return totalCommitted Number of jurors who cast the commit already (only relevant for hidden votes).
     /// @return nbVoters Total number of voters in this round.
     /// @return choiceCount Number of votes cast for the queried choice.
     function getRoundInfo(
@@ -179,7 +194,7 @@ interface IDisputeKit {
             uint256 winningChoice,
             bool tied,
             uint256 totalVoted,
-            uint256 totalCommited,
+            uint256 totalCommitted,
             uint256 nbVoters,
             uint256 choiceCount
         );

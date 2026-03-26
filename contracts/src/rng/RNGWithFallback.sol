@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IRNG} from "./IRNG.sol";
 
@@ -33,8 +33,6 @@ contract RNGWithFallback is IRNG {
     /// @param _fallbackTimeoutSeconds Time in seconds to wait before falling back to next RNG
     /// @param _rng The RNG address (e.g. Chainlink)
     constructor(address _owner, address _consumer, uint256 _fallbackTimeoutSeconds, IRNG _rng) {
-        if (address(_rng) == address(0)) revert InvalidDefaultRNG();
-
         owner = _owner;
         consumer = _consumer;
         fallbackTimeoutSeconds = _fallbackTimeoutSeconds;
@@ -46,12 +44,12 @@ contract RNGWithFallback is IRNG {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
     modifier onlyByConsumer() {
-        if (consumer != msg.sender) revert ConsumerOnly();
+        require(consumer == msg.sender, ConsumerOnly());
         _;
     }
 
@@ -101,10 +99,4 @@ contract RNGWithFallback is IRNG {
         }
         return randomNumber;
     }
-
-    // ************************************* //
-    // *              Errors               * //
-    // ************************************* //
-
-    error InvalidDefaultRNG();
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
@@ -49,7 +49,7 @@ contract ArbitrableExample is IArbitrableV2 {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -139,8 +139,8 @@ contract ArbitrableExample is IArbitrableV2 {
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 
-        if (!weth.safeTransferFrom(msg.sender, address(this), _feeInWeth)) revert TransferFailed();
-        if (!weth.increaseAllowance(address(arbitrator), _feeInWeth)) revert AllowanceIncreaseFailed();
+        require(weth.safeTransferFrom(msg.sender, address(this), _feeInWeth), TransferFailed());
+        require(weth.increaseAllowance(address(arbitrator), _feeInWeth), AllowanceIncreaseFailed());
 
         disputeID = arbitrator.createDispute(numberOfRulingOptions, arbitratorExtraData, weth, _feeInWeth);
         externalIDtoLocalID[disputeID] = localDisputeID;
@@ -148,13 +148,20 @@ contract ArbitrableExample is IArbitrableV2 {
         emit DisputeRequest(arbitrator, disputeID, templateId);
     }
 
-    /// @inheritdoc IArbitrableV2
+    /// @notice Give a ruling for a dispute.
+    ///
+    /// @dev This is a callback function for the arbitrator to provide the ruling to this contract.
+    /// Only the arbitrator must be allowed to call this function.
+    /// Ruling 0 is reserved for "Not able/wanting to make a decision".
+    ///
+    /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator.
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external virtual override {
         uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
-        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
-        if (_ruling > dispute.numberOfRulingOptions) revert RulingOutOfBounds();
-        if (dispute.isRuled) revert DisputeAlreadyRuled();
+        require(msg.sender == address(arbitrator), ArbitratorOnly());
+        require(_ruling <= dispute.numberOfRulingOptions, RulingOutOfBounds());
+        require(!dispute.isRuled, DisputeAlreadyRuled());
 
         dispute.isRuled = true;
         dispute.ruling = _ruling;

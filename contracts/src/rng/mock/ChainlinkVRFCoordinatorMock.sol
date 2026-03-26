@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IVRFCoordinatorV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
@@ -33,10 +33,7 @@ contract ChainlinkVRFCoordinatorV2Mock is IVRFCoordinatorV2Plus {
     // ************************************* //
 
     function fulfillRandomWords(uint256 _requestId, address _consumer, uint256[] memory _words) public {
-        if (_consumer == address(0)) revert("zero address consumer");
-        if (requests[_requestId].subId == 0) {
-            revert("nonexistent request");
-        }
+        require(requests[_requestId].subId != 0, "nonexistent request");
         VRFV2PlusClient.RandomWordsRequest memory req = requests[_requestId];
 
         if (_words.length == 0) {
