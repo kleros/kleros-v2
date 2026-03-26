@@ -1,4 +1,4 @@
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 
 interface BaseVoteParams {
   disputeId: bigint;
@@ -6,31 +6,31 @@ interface BaseVoteParams {
   choice: bigint;
   salt: bigint;
   justification: string;
-  type: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
 export interface ClassicVoteParams extends BaseVoteParams {
-  type: DisputeKits.Classic;
+  disputeKitId: DisputeKits.Classic;
 }
 
 export interface ShutterVoteParams extends BaseVoteParams {
-  type: DisputeKits.Shutter;
+  disputeKitId: DisputeKits.Shutter;
 }
 
 export interface GatedVoteParams extends BaseVoteParams {
-  type: DisputeKits.Gated;
+  disputeKitId: DisputeKits.Gated;
 }
 
 export interface GatedShutterVoteParams extends BaseVoteParams {
-  type: DisputeKits.GatedShutter;
+  disputeKitId: DisputeKits.GatedShutter;
 }
 
 export interface ArgentinaConsumerProtectionVoteParams extends BaseVoteParams {
-  type: DisputeKits.ArgentinaConsumerProtection;
+  disputeKitId: DisputeKits.ArgentinaConsumerProtection;
 }
 
 export interface ClassicUniversityVoteParams extends BaseVoteParams {
-  type: DisputeKits.ClassicUniversity;
+  disputeKitId: DisputeKits.ClassicUniversity;
 }
 
 export type VoteParams =

@@ -1,34 +1,34 @@
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 
 interface BaseFundAppealParams {
   disputeId: bigint;
   choice: bigint;
   fundAmount: bigint;
-  type: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
 export interface ClassicFundAppealParams extends BaseFundAppealParams {
-  type: DisputeKits.Classic;
+  disputeKitId: DisputeKits.Classic;
 }
 
 export interface ShutterFundAppealParams extends BaseFundAppealParams {
-  type: DisputeKits.Shutter;
+  disputeKitId: DisputeKits.Shutter;
 }
 
 export interface GatedFundAppealParams extends BaseFundAppealParams {
-  type: DisputeKits.Gated;
+  disputeKitId: DisputeKits.Gated;
 }
 
 export interface GatedShutterFundAppealParams extends BaseFundAppealParams {
-  type: DisputeKits.GatedShutter;
+  disputeKitId: DisputeKits.GatedShutter;
 }
 
 export interface ArgentinaConsumerProtectionFundAppealParams extends BaseFundAppealParams {
-  type: DisputeKits.ArgentinaConsumerProtection;
+  disputeKitId: DisputeKits.ArgentinaConsumerProtection;
 }
 
 export interface ClassicUniversityFundAppealParams extends BaseFundAppealParams {
-  type: DisputeKits.ClassicUniversity;
+  disputeKitId: DisputeKits.ClassicUniversity;
 }
 
 export type FundAppealParams =

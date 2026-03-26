@@ -6,7 +6,7 @@ import type { Answer } from "@kleros/kleros-sdk";
 import { generateSalt } from "utils/crypto/generateSalt";
 import { hashVote } from "utils/crypto/hashVote";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 
 import { restoreCommitData } from "../helpers/storage";
 import { getVoteKey } from "../helpers/storage/getVoteKey";
@@ -32,7 +32,7 @@ describe("resolveRevealInputs", () => {
     disputeId: 1n,
     voteIds: [0n],
     roundIndex: 0,
-    type: DisputeKits.Classic,
+    disputeKitId: DisputeKits.Classic,
     ...overrides,
   });
 
@@ -121,7 +121,7 @@ describe("resolveRevealInputs", () => {
         disputeId: 99n,
         voteIds: [7n, 8n],
         roundIndex: 2,
-        type: DisputeKits.Classic,
+        disputeKitId: DisputeKits.Classic,
       });
       const context: ResolveRevealContext = {};
 
@@ -135,7 +135,7 @@ describe("resolveRevealInputs", () => {
       expect(result.disputeId).toBe(99n);
       expect(result.voteIds).toEqual([7n, 8n]);
       expect(result.roundIndex).toBe(2);
-      expect(result.type).toBe(DisputeKits.Classic);
+      expect(result.disputeKitId).toBe(DisputeKits.Classic);
     });
   });
 

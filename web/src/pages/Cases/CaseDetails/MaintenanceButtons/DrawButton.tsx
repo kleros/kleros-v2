@@ -3,19 +3,19 @@ import styled from "styled-components";
 
 import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Address } from "viem";
+import type { Address } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { DisputeKits } from "consts/index";
 import { useSimulateKlerosCoreDraw, useWriteKlerosCoreDraw } from "hooks/contracts/generated";
-import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
+import { useDisputeKitInfo } from "hooks/useDisputeKitInfo";
 import { useSortitionModulePhase } from "hooks/useSortitionModule";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
 
+import { DisputeKits } from "src/dispute-kits";
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
@@ -34,18 +34,18 @@ const StyledLabel = styled.label``;
 interface IDrawButton extends IBaseMaintenanceButton {
   numberOfVotes?: string;
   period?: string;
-  disputeKitAddress?: Address;
+  disputeKitAddress: Address;
 }
 
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period, disputeKitAddress }) => {
   const { t } = useTranslation();
   const publicClient = usePublicClient();
-  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
+  const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
   const { data: phase } = useSortitionModulePhase();
   const [isSending, setIsSending] = useState(false);
 
-  const isUniversity = disputeKitName === DisputeKits.ClassicUniversity;
+  const isUniversity = disputeKitInfo?.id === DisputeKits.ClassicUniversity;
   const isDrawn = useMemo(() => maintenanceData?.dispute?.currentRound.jurorsDrawn, [maintenanceData]);
 
   const canDraw = useMemo(

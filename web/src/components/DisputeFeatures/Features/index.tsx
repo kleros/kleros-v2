@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { Radio } from "@kleros/ui-components-library";
 
-import { Features } from "consts/disputeFeature";
+import { Features } from "src/dispute-kits/disputeFeature";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 

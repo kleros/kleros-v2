@@ -1,4 +1,4 @@
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 
 interface BaseCommitParams {
   disputeId: bigint;
@@ -6,35 +6,35 @@ interface BaseCommitParams {
   choice: bigint;
   salt: bigint;
   roundIndex: number;
-  type: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
 export interface ClassicCommitParams extends BaseCommitParams {
-  type: DisputeKits.Classic;
+  disputeKitId: DisputeKits.Classic;
 }
 
 export interface ShutterCommitParams extends BaseCommitParams {
-  type: DisputeKits.Shutter;
+  disputeKitId: DisputeKits.Shutter;
   decryptionDelay: number;
   justification: string;
 }
 
 export interface GatedCommitParams extends BaseCommitParams {
-  type: DisputeKits.Gated;
+  disputeKitId: DisputeKits.Gated;
 }
 
 export interface GatedShutterCommitParams extends BaseCommitParams {
-  type: DisputeKits.GatedShutter;
+  disputeKitId: DisputeKits.GatedShutter;
   decryptionDelay: number;
   justification: string;
 }
 
 export interface ArgentinaConsumerProtectionCommitParams extends BaseCommitParams {
-  type: DisputeKits.ArgentinaConsumerProtection;
+  disputeKitId: DisputeKits.ArgentinaConsumerProtection;
 }
 
 export interface ClassicUniversityCommitParams extends BaseCommitParams {
-  type: DisputeKits.ClassicUniversity;
+  disputeKitId: DisputeKits.ClassicUniversity;
 }
 
 export type CommitParams =

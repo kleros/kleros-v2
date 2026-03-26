@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next";
 
 import { Field } from "@kleros/ui-components-library";
 
-import { Features } from "consts/disputeFeature";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC1155Validation } from "hooks/useTokenAddressValidation";
 
+import { Features } from "src/dispute-kits/disputeFeature";
 import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";

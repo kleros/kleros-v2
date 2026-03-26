@@ -1,22 +1,17 @@
 import React, { useContext, createContext, useMemo } from "react";
 
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
+import type { Address } from "viem";
+import { useAccount, useReadContract } from "wagmi";
 
-import { REFETCH_INTERVAL, DisputeKits } from "consts/index";
-import {
-  useReadDisputeKitClassicIsVoteActive,
-  useReadDisputeKitShutterIsVoteActive,
-  useReadDisputeKitGatedIsVoteActive,
-  useReadDisputeKitGatedShutterIsVoteActive,
-  useReadDisputeKitGatedArgentinaConsumerProtectionIsVoteActive,
-  useReadDisputeKitClassicUniversityIsVoteActive,
-} from "hooks/contracts/generated";
+import { REFETCH_INTERVAL } from "consts/index";
+import { disputeKitClassicAbi } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
-import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
 import { Bytes32Hash } from "utils/crypto/hashVote";
 import { isUndefined } from "utils/index";
+
+import { useDisputeKitInfo } from "./useDisputeKitInfo";
 
 interface IVotingContext {
   wasDrawn: boolean;
@@ -37,96 +32,30 @@ const VotingContext = createContext<IVotingContext>({
   isCommitPeriod: false,
   isVotingPeriod: false,
 });
+
 export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
-  const rawRoundId = disputeData?.dispute?.currentRoundIndex;
-  const rawVoteId = drawData?.draws?.[0]?.voteIDNum;
+  const roundId = disputeData?.dispute?.currentRoundIndex;
+  const voteId = drawData?.draws?.[0]?.voteIDNum;
 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
-  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
+  const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
 
-  const isEnabled = !isUndefined(rawRoundId) && !isUndefined(rawVoteId);
-  const hookArgs = [BigInt(id ?? 0), BigInt(rawRoundId ?? 0), BigInt(rawVoteId ?? 0)] as const;
-
-  // Add a hook call for each DisputeKit
-  const classicVoteResult = useReadDisputeKitClassicIsVoteActive({
+  const voteResult = useReadContract({
+    address: disputeKitAddress as Address | undefined,
+    abi: disputeKitInfo?.disputeKitAbi ?? disputeKitClassicAbi,
+    functionName: "isVoteActive",
+    args: [BigInt(id ?? 0), BigInt(roundId ?? 0), BigInt(voteId ?? 0)],
     query: {
-      enabled: isEnabled && disputeKitName === DisputeKits.Classic,
+      enabled: !isUndefined(disputeKitAddress) && !isUndefined(roundId) && !isUndefined(voteId) && !isUndefined(id),
       refetchInterval: REFETCH_INTERVAL,
     },
-    args: hookArgs,
   });
 
-  const shutterVoteResult = useReadDisputeKitShutterIsVoteActive({
-    query: {
-      enabled: isEnabled && disputeKitName === DisputeKits.Shutter,
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: hookArgs,
-  });
-
-  const gatedVoteResult = useReadDisputeKitGatedIsVoteActive({
-    query: {
-      enabled: isEnabled && disputeKitName === DisputeKits.Gated,
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: hookArgs,
-  });
-
-  const gatedShutterVoteResult = useReadDisputeKitGatedShutterIsVoteActive({
-    query: {
-      enabled: isEnabled && disputeKitName === DisputeKits.GatedShutter,
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: hookArgs,
-  });
-
-  const argentinaConsumerProtectionVoteResult = useReadDisputeKitGatedArgentinaConsumerProtectionIsVoteActive({
-    query: {
-      enabled: isEnabled && disputeKitName === DisputeKits.ArgentinaConsumerProtection,
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: hookArgs,
-  });
-
-  const classicUniversityVoteResult = useReadDisputeKitClassicUniversityIsVoteActive({
-    query: {
-      enabled: isEnabled && disputeKitName === DisputeKits.ClassicUniversity,
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: hookArgs,
-  });
-
-  // Add a return for each DisputeKit
-  const hasVoted = useMemo(() => {
-    switch (disputeKitName) {
-      case DisputeKits.Classic:
-        return classicVoteResult.data;
-      case DisputeKits.Shutter:
-        return shutterVoteResult.data;
-      case DisputeKits.Gated:
-        return gatedVoteResult.data;
-      case DisputeKits.GatedShutter:
-        return gatedShutterVoteResult.data;
-      case DisputeKits.ArgentinaConsumerProtection:
-        return argentinaConsumerProtectionVoteResult.data;
-      case DisputeKits.ClassicUniversity:
-        return classicUniversityVoteResult.data;
-      default:
-        return undefined;
-    }
-  }, [
-    disputeKitName,
-    classicVoteResult.data,
-    shutterVoteResult.data,
-    gatedVoteResult.data,
-    gatedShutterVoteResult.data,
-    argentinaConsumerProtectionVoteResult.data,
-    classicUniversityVoteResult.data,
-  ]);
+  const hasVoted = voteResult.data as boolean | undefined;
 
   const wasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
   const isHiddenVotes = useMemo(() => disputeData?.dispute?.currentRound.hiddenVotes ?? false, [disputeData]);

@@ -5,6 +5,10 @@ import { useTranslation } from "react-i18next";
 
 import { Card } from "@kleros/ui-components-library";
 
+import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
+
+import { useSupportedDisputeKits } from "queries/useSupportedDisputeKits";
+
 import {
   ensureValidSmart,
   Features,
@@ -15,11 +19,7 @@ import {
   getVisibleFeaturesForCourt,
   Group,
   toggleFeature,
-} from "consts/disputeFeature";
-import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
-
-import { useSupportedDisputeKits } from "queries/useSupportedDisputeKits";
-
+} from "src/dispute-kits/disputeFeature";
 import { isUndefined } from "src/utils";
 
 import { FeatureUIs } from "components/DisputeFeatures/Features";

@@ -14,7 +14,7 @@ import { isUndefined } from "utils/index";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
@@ -45,10 +45,10 @@ interface IReveal {
   setIsOpen: (val: boolean) => void;
   commit?: Bytes32Hash;
   isRevealPeriod: boolean;
-  disputeKitName?: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
-const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, disputeKitName }) => {
+const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isRevealPeriod, disputeKitId }) => {
   const { t } = useTranslation();
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
@@ -72,7 +72,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
         voteIds: parsedVoteIDs,
         justification,
         roundIndex: Number(currentRoundIndex),
-        type: disputeKitName ?? DisputeKits.Classic,
+        disputeKitId,
       },
       context: {
         commit,
@@ -87,7 +87,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     justification,
     parsedVoteIDs,
     parsedDisputeID,
-    disputeKitName,
+    disputeKitId,
   ]);
 
   return (

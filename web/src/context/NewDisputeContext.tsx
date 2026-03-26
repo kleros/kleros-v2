@@ -4,12 +4,12 @@ import { useLocation } from "react-router-dom";
 import { Address } from "viem";
 
 import { DEFAULT_CHAIN } from "consts/chains";
-import { Features } from "consts/disputeFeature";
 import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isEmpty, isUndefined } from "utils/index";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
+import { Features } from "src/dispute-kits/disputeFeature";
 
 export const MIN_DISPUTE_BATCH_SIZE = 2;
 
@@ -25,12 +25,6 @@ export type AliasArray = {
   name: string;
   address: string | Address;
   isValid?: boolean;
-};
-
-export type DisputeKitOption = {
-  text: DisputeKits;
-  value: number;
-  gated: boolean;
 };
 
 export type Alias = Record<string, string>;
@@ -107,7 +101,7 @@ const getInitialDisputeData = (): IDisputeData => ({
     { title: "", id: "2", description: "" },
   ],
   aliasesArray: [{ name: "", address: "", id: "1" }],
-  disputeKitId: 1,
+  disputeKitId: DisputeKits.Classic,
   version: "1.0",
 });
 

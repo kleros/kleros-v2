@@ -2,10 +2,11 @@ import React from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { Features } from "consts/disputeFeature";
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
 import { useCourtDetails } from "queries/useCourtDetails";
+
+import { Features } from "src/dispute-kits/disputeFeature";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 

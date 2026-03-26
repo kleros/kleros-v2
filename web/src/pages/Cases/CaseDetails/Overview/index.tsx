@@ -6,11 +6,13 @@ import { Address, formatEther } from "viem";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
-import { useGatedTokenInfo } from "hooks/useGatedTokenInfo";
+import { useDisputeKitInfo } from "hooks/useDisputeKitInfo";
 import { getLocalRounds } from "utils/getLocalRounds";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { isUndefined } from "src/utils";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -19,8 +21,6 @@ import { Policies } from "components/DisputePreview/Policies";
 import DisputeInfo from "components/DisputeView/DisputeInfo";
 import { Divider } from "components/Divider";
 import Verdict from "components/Verdict/index";
-
-import GatedTokenDisplay from "./GatedTokenDisplay";
 
 const Container = styled.div`
   width: 100%;
@@ -56,12 +56,11 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
   const rewards = useMemo(() => (court ? `≥ ${formatEther(BigInt(court.feeForJuror))} ETH` : undefined), [court]);
   const category = disputeDetails?.category;
 
-  const gatedInfo = useGatedTokenInfo(
-    id,
-    dispute?.dispute?.currentRound.disputeKit.address ?? undefined,
-    parseInt(dispute?.dispute?.currentRoundIndex ?? "0", 10)
-  );
+  const disputeKitAddress = dispute?.dispute?.currentRound.disputeKit?.address ?? undefined;
+  const currentRoundIndex = Number.parseInt(dispute?.dispute?.currentRoundIndex ?? "0", 10);
+  const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
 
+  const DisputeKitOverviewExtraInfoComponent = disputeKitInfo?.OverviewExtraInfo;
   return (
     <>
       <Container>
@@ -79,11 +78,8 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
           round={localRounds?.length}
           {...{ rewards, category }}
         />
-        {gatedInfo.isGated ? (
-          <>
-            <Divider />
-            <GatedTokenDisplay {...gatedInfo} tokenAddress={gatedInfo.tokenGateInfo?.tokenGate ?? null} />
-          </>
+        {!isUndefined(id) && !isUndefined(disputeKitAddress) && DisputeKitOverviewExtraInfoComponent ? (
+          <DisputeKitOverviewExtraInfoComponent disputeId={id} {...{ disputeKitAddress, currentRoundIndex }} />
         ) : null}
       </Container>
       <Policies

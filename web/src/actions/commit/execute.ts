@@ -5,7 +5,7 @@ import type { CommitParams } from "./params";
 /**
  * Builds a commit transaction and sends it to the relevant DisputeKit contract.
  *
- * @param params  Parameters for the commit transaction. Must include a `type` field
+ * @param params  Parameters for the commit transaction. Must include a `disputeKitId` field
  *                corresponding to a `DisputeKits` value.
  * @param context Execution context, usually including chain info, account data,
  *                and a `walletClient` to send the transaction.

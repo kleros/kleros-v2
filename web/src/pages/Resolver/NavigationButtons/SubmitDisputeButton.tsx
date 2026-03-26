@@ -20,6 +20,8 @@ import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { retrieveDisputeIdFromLogs } from "utils/retrieveDisputeId";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { DisputeKits } from "src/dispute-kits";
+
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import Popup, { PopupType } from "components/Popup";
@@ -59,7 +61,7 @@ const SubmitDisputeButton: React.FC = () => {
       prepareArbitratorExtradata(
         disputeData.courtId ?? "1",
         disputeData.numberOfJurors ?? 0,
-        disputeData.disputeKitId ?? 1,
+        disputeData.disputeKitId ?? DisputeKits.Classic,
         disputeData.disputeKitData
       ),
       JSON.stringify(disputeTemplate),

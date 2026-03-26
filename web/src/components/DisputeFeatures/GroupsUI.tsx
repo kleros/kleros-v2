@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Group } from "consts/disputeFeature";
+import { Group } from "src/dispute-kits/disputeFeature";
 
 import LightButton from "../LightButton";
 

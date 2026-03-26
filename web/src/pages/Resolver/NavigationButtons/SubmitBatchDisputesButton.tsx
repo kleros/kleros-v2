@@ -16,6 +16,8 @@ import { parseWagmiError } from "utils/parseWagmiError";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { DisputeKits } from "src/dispute-kits";
+
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
@@ -55,7 +57,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
         prepareArbitratorExtradata(
           disputeData.courtId ?? "1",
           disputeData.numberOfJurors ?? 3,
-          disputeData.disputeKitId ?? 1,
+          disputeData.disputeKitId ?? DisputeKits.Classic,
           disputeData.disputeKitData
         ),
         JSON.stringify(disputeTemplate),

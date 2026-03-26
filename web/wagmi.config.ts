@@ -88,7 +88,7 @@ const getConfig = async (): Promise<Config> => {
 
   // On mainnet, DisputeKitClassicUniversity is not deployed. Adding a stub so the generated
   // hook exists (when useVotingContext, setJurorsButton imports it).
-  // The hook is never enabled on mainnet since we filter out the DisputeKitConfig in useDisputeKitAddresses.
+  // The hook is never enabled on mainnet since we filter out the DisputeKit in selectable kits in disputeFeature.ts.
   let universityStub: ContractConfig[] = [];
   if (deployment === "mainnet") {
     console.info("Injecting DisputeKitClassicUniversity stub from arbitrum sepolia deployment");

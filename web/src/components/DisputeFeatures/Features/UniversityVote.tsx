@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
-import { Features } from "consts/disputeFeature";
 import { useReadDisputeKitClassicUniversityInstructor } from "hooks/contracts/generated";
 import { shortenAddress } from "utils/shortenAddress";
 
+import { Features } from "src/dispute-kits/disputeFeature";
 import { getAddressExplorerLink } from "src/utils";
 
 import { ExternalLink } from "components/ExternalLink";

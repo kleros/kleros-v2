@@ -40,22 +40,4 @@ export const getDevToolsUrl = () => import.meta.env.REACT_APP_DEVTOOLS_URL || "h
 
 export const spamEvidencesIds: string[] = (import.meta.env.REACT_APP_SPAM_EVIDENCES_IDS ?? "").split(",");
 
-export enum DisputeKits {
-  Classic = "Classic",
-  Shutter = "Shutter",
-  Gated = "Token Gated",
-  GatedShutter = "Token Gated Shutter",
-  ClassicUniversity = "Classic University",
-  ArgentinaConsumerProtection = "Argentina Consumer Protection",
-}
-
-export const isClassicLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
-  disputeKit === DisputeKits.Classic ||
-  disputeKit === DisputeKits.Gated ||
-  disputeKit === DisputeKits.ArgentinaConsumerProtection ||
-  disputeKit === DisputeKits.ClassicUniversity;
-
-export const isShutterLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
-  disputeKit === DisputeKits.Shutter || disputeKit === DisputeKits.GatedShutter;
-
 export const HARDHAT_NODE_RPC = "http://127.0.0.1:8545";
