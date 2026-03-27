@@ -21,6 +21,18 @@
       "types": "./types/deployments/index.d.ts",
       "import": "./esm/deployments/index.js",
       "default": "./esm/deployments/index.js"
+    },
+    "./viem": {
+      "types": "./types/deployments/viem.d.ts",
+      "import": "./esm/deployments/viem.js",
+      "require": "./cjs/deployments/viem.js",
+      "default": "./esm/deployments/viem.js"
+    },
+    "./ethers": {
+      "types": "./types/deployments/ethers.d.ts",
+      "import": "./esm/deployments/ethers.js",
+      "require": "./cjs/deployments/ethers.js",
+      "default": "./esm/deployments/ethers.js"
     }
   },
   "files": [
@@ -159,11 +171,15 @@
     "isomorphic-fetch": "^3.0.0"
   },
   "peerDependencies": {
+    "ethers": "^6.15.0",
     "viem": "^2.24.1"
   },
   "peerDependenciesMeta": {
+    "ethers": {
+      "optional": true
+    },
     "viem": {
-      "optional": false
+      "optional": true
     }
   },
   "stableVersion": "0.12.0"
