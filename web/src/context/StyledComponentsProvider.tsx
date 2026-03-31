@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ThemeProvider } from "styled-components";
 
 import { useLocalStorage } from "hooks/useLocalStorage";
@@ -15,6 +15,11 @@ const StyledComponentsProvider: React.FC<{
     if (theme === "light") setTheme("dark");
     else setTheme("light");
   };
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme !== "light");
+  }, [theme]);
+
   return (
     <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
       <ToggleThemeProvider {...{ theme, toggleTheme }}>

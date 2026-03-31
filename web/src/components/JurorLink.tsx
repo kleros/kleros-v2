@@ -1,6 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import styled from "styled-components";
 
+import { ProfileTooltip } from "ethereum-identity-kit";
+import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -56,28 +58,42 @@ interface IJurorLink {
 }
 
 const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, smallDisplay }) => {
-  const { isConnected, address: connectedAddress } = useAccount();
-  const profileLink =
-    isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
-      ? "/profile"
-      : `/profile/stakes/1?address=${address}`;
+  const navigate = useNavigate();
+  const { address: connectedAddress } = useAccount();
+  const profileLink = `/profile/stakes/1?address=${address}`;
   const addressExplorerLink = useMemo(() => {
     return `${DEFAULT_CHAIN?.blockExplorers?.default.url}/address/${address}`;
   }, [address]);
 
+  const handleProfileClick = useCallback(
+    (addressOrName: string) => {
+      navigate(`/profile/stakes/1?address=${addressOrName}`);
+    },
+    [navigate]
+  );
+
   return (
-    <Container>
-      <IdenticonOrAvatar address={address} />
-      <ReStyledArrowLink
-        {...{ smallDisplay }}
-        to={isInternalLink ? profileLink : addressExplorerLink}
-        rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
-        target={`${isInternalLink ? "" : "_blank"}`}
-      >
-        <AddressOrName {...{ address, smallDisplay }} />
-        {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
-      </ReStyledArrowLink>
-    </Container>
+    <ProfileTooltip
+      addressOrName={address}
+      // TODO: Re-enable when there's a use case for EFP follow in the app
+      // showFollowButton={!!connectedAddress && connectedAddress.toLowerCase() !== address.toLowerCase()}
+      showFollowButton={false}
+      connectedAddress={connectedAddress}
+      onProfileClick={handleProfileClick}
+    >
+      <Container>
+        <IdenticonOrAvatar address={address} />
+        <ReStyledArrowLink
+          {...{ smallDisplay }}
+          to={isInternalLink ? profileLink : addressExplorerLink}
+          rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
+          target={`${isInternalLink ? "" : "_blank"}`}
+        >
+          <AddressOrName {...{ address, smallDisplay }} />
+          {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
+        </ReStyledArrowLink>
+      </Container>
+    </ProfileTooltip>
   );
 };
 

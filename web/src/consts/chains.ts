@@ -1,7 +1,9 @@
 import {
   type AppKitNetwork,
   arbitrum,
+  base,
   mainnet,
+  optimism,
   arbitrumSepolia,
   gnosis,
   gnosisChiado,
@@ -39,6 +41,16 @@ export const QUERY_CHAINS: Record<number, AppKitNetwork> = {
   [mainnet.id]: mainnet,
 };
 
-export const ALL_CHAINS = [...Object.values(SUPPORTED_CHAINS), ...Object.values(QUERY_CHAINS)];
+// Chains required by ethereum-identity-kit for EFP follow transactions
+const EFP_CHAINS: Record<number, AppKitNetwork> = {
+  [base.id]: base,
+  [optimism.id]: optimism,
+};
+
+export const ALL_CHAINS = [
+  ...Object.values(SUPPORTED_CHAINS),
+  ...Object.values(QUERY_CHAINS),
+  ...Object.values(EFP_CHAINS),
+];
 
 export const getChain = (chainId: number) => ALL_CHAINS.find((chain) => Number(chain.id) === chainId);
