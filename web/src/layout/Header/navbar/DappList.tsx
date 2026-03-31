@@ -10,6 +10,7 @@ import Escrow from "svgs/icons/escrow.svg";
 import Governor from "svgs/icons/governor.svg";
 import Court from "svgs/icons/kleros.svg";
 import POH from "svgs/icons/poh-image.png";
+import Scout from "svgs/icons/scout.svg";
 import Vea from "svgs/icons/vea.svg";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -120,7 +121,7 @@ const ITEMS = [
   },
   {
     text: "Kleros Scout",
-    Icon: Curate,
+    Icon: Scout,
     url: "https://klerosscout.eth.limo",
   },
   {

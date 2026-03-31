@@ -64,8 +64,8 @@ const getTransports = () => {
       ? defaultTransport(gnosis)
       : defaultTransport(gnosisChiado),
     [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
-    [base.id]: http(base.rpcUrls.default?.http?.[0]), // Required for EFP follow transactions
-    [optimism.id]: http(optimism.rpcUrls.default?.http?.[0]), // Required for EFP follow transactions
+    [base.id]: http(), // Required for EFP follow transactions
+    [optimism.id]: http(), // Required for EFP follow transactions
   };
 
   if (isLocalhost)

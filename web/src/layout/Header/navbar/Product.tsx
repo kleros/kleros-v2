@@ -27,6 +27,7 @@ const Container = styled.a`
 const StyledIcon = styled.svg`
   width: 48px;
   height: 48px;
+  color: ${({ theme }) => theme.primaryText};
 `;
 
 const StyledImg = styled.img<{ isLoaded: boolean }>`

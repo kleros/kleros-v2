@@ -5,9 +5,13 @@ import { /* FollowButton, FollowerTag, */ ProfileSocials, useProfileDetails } fr
 import { useTranslation } from "react-i18next";
 // import { useAccount } from "wagmi";
 
+import ScoutIcon from "svgs/icons/scout.svg";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import JurorLink from "components/JurorLink";
+
+const getScoutProfileUrl = (address: string) => `https://scout-app.kleros.io/#/profile/pending?address=${address}`;
 
 const HIDE_ALL_EXCEPT_TWITTER = [
   "etherscan",
@@ -73,10 +77,10 @@ const KlerosAppLink = styled.a`
     scale: 1.1;
   }
 
-  img {
+  svg {
     width: 28px;
     height: 28px;
-    ${({ theme }) => theme.name === "dark" && "filter: invert(1);"}
+    color: ${({ theme }) => theme.primaryText};
   }
 `;
 
@@ -106,12 +110,12 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
       </LeftGroup>
       <KlerosAppsWrapper>
         <KlerosAppLink
-          href={`https://scout-app.kleros.io/#/profile/pending?address=${address}`}
+          href={getScoutProfileUrl(address)}
           target="_blank"
           rel="noopener noreferrer"
           title="Kleros Scout"
         >
-          <img src="/scout-logo.svg" alt="Kleros Scout" />
+          <ScoutIcon />
         </KlerosAppLink>
         <ProfileSocials
           userAddress={address}
