@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {SortitionModule} from "../arbitration/SortitionModule.sol";
 import {SortitionTrees, TreeKey} from "../libraries/SortitionTrees.sol";

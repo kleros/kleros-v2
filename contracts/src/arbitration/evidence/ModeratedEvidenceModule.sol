@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
@@ -375,7 +375,14 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         _beneficiary.send(reward); // It is the user responsibility to accept ETH.
     }
 
-    /// @inheritdoc IArbitrableV2
+    /// @notice Give a ruling for a dispute.
+    ///
+    /// @dev This is a callback function for the arbitrator to provide the ruling to this contract.
+    /// Only the arbitrator must be allowed to call this function.
+    /// Ruling 0 is reserved for "Not able/wanting to make a decision".
+    ///
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator.
     function rule(uint256 _disputeID, uint256 _ruling) public override {
         bytes32 evidenceID = disputeIDtoEvidenceID[_disputeID];
         EvidenceData storage evidenceData = evidences[evidenceID];

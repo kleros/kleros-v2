@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
@@ -157,7 +157,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -229,7 +229,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _data The data sent with the call.
     function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
-        if (!success) revert UnsuccessfulCall();
+        require(success, UnsuccessfulCall());
     }
 
     /// @dev Changes the `owner` storage variable.
@@ -267,7 +267,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
     ) external onlyByOwner {
-        if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
+        require(_parent != FORKING_COURT, InvalidForkingCourtAsParent());
 
         uint256 courtID = courts.length;
         Court storage court = courts.push();
@@ -336,7 +336,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
     function changeRulingModeToManual(IArbitrableV2 _arbitrable) external {
         if (rulers[_arbitrable] == address(0)) rulers[_arbitrable] = msg.sender;
-        if (rulers[_arbitrable] != msg.sender) revert RulerOnly();
+        require(rulers[_arbitrable] == msg.sender, RulerOnly());
 
         delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
@@ -346,7 +346,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
     function changeRulingModeToAutomaticRandom(IArbitrableV2 _arbitrable) external {
         if (rulers[_arbitrable] == address(0)) rulers[_arbitrable] = msg.sender;
-        if (rulers[_arbitrable] != msg.sender) revert RulerOnly();
+        require(rulers[_arbitrable] == msg.sender, RulerOnly());
 
         delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
@@ -361,7 +361,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         bool _presetOverridden
     ) external {
         if (rulers[_arbitrable] == address(0)) rulers[_arbitrable] = msg.sender;
-        if (rulers[_arbitrable] != msg.sender) revert RulerOnly();
+        require(rulers[_arbitrable] == msg.sender, RulerOnly());
 
         delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
@@ -373,32 +373,42 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     }
 
     function changeRuler(IArbitrableV2 _arbitrable, address _newRuler) external {
-        if (rulers[_arbitrable] != msg.sender) revert RulerOnly();
+        require(rulers[_arbitrable] == msg.sender, RulerOnly());
         rulers[_arbitrable] = _newRuler;
         emit RulerChanged(_arbitrable, msg.sender, _newRuler);
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Create a dispute and pay for the fees in the native currency, typically ETH.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData)` in ETH.
+    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return disputeID The identifier of the dispute created.
     function createDispute(
         uint256 _numberOfChoices,
         bytes memory _extraData
     ) external payable override returns (uint256 disputeID) {
-        if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
+        require(msg.value >= arbitrationCost(_extraData), ArbitrationFeesNotEnough());
 
         return _createDispute(_numberOfChoices, _extraData, NATIVE_CURRENCY, msg.value);
     }
 
-    /// @inheritdoc IArbitratorV2
+    /// @notice Create a dispute and pay for the fees in a supported ERC20 token.
+    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData, _feeToken)` in the supported ERC20 token.
+    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @param _feeToken The ERC20 token used to pay fees.
+    /// @param _feeAmount Amount of the ERC20 token used to pay fees.
+    /// @return disputeID The identifier of the dispute created.
     function createDispute(
         uint256 _numberOfChoices,
         bytes calldata _extraData,
         IERC20 _feeToken,
         uint256 _feeAmount
     ) external override returns (uint256 disputeID) {
-        if (!acceptedFeeTokens[_feeToken]) revert TokenNotAccepted();
-        if (_feeAmount < arbitrationCost(_extraData, _feeToken)) revert ArbitrationFeesNotEnough();
+        require(acceptedFeeTokens[_feeToken], TokenNotAccepted());
+        require(_feeAmount >= arbitrationCost(_extraData, _feeToken), ArbitrationFeesNotEnough());
 
-        if (!_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
+        require(_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), TransferFailed());
         return _createDispute(_numberOfChoices, _extraData, _feeToken, _feeAmount);
     }
 
@@ -427,7 +437,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         Dispute storage dispute = disputes[_disputeID];
         uint256 roundID = dispute.rounds.length - 1;
         RulerSettings storage arbitratedSettings = settings[dispute.arbitrated];
-        if (arbitratedSettings.rulingMode == RulingMode.uninitialized) revert RulingModeNotSet();
+        require(arbitratedSettings.rulingMode != RulingMode.uninitialized, RulingModeNotSet());
         if (arbitratedSettings.rulingMode == RulingMode.manual) {
             // NOP
         } else if (arbitratedSettings.rulingMode == RulingMode.automaticPreset) {
@@ -473,11 +483,11 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         bytes memory /*_extraData*/,
         bool _jump
     ) external payable {
-        if (msg.value < appealCost(_disputeID, _jump)) revert AppealFeesNotEnough();
+        require(msg.value >= appealCost(_disputeID, _jump), AppealFeesNotEnough());
 
         Dispute storage dispute = disputes[_disputeID];
-        if (rulers[dispute.arbitrated] != msg.sender) revert RulerOnly();
-        if (dispute.period != Period.appeal) revert DisputeNotAppealable();
+        require(rulers[dispute.arbitrated] == msg.sender, RulerOnly());
+        require(dispute.period == Period.appeal, DisputeNotAppealable());
 
         uint96 newCourtID = dispute.courtID;
 
@@ -507,7 +517,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     function execute(uint256 _disputeID, uint256 _round) external {
         Dispute storage dispute = disputes[_disputeID];
         address account = rulers[dispute.arbitrated];
-        if (account == address(0)) revert NoRulerSet();
+        require(account != address(0), NoRulerSet());
 
         // Transfer the fees back to the ruler
         Round storage round = dispute.rounds[_round];
@@ -536,8 +546,8 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _disputeID The ID of the dispute.
     function executeRuling(uint256 _disputeID, uint256 _ruling, bool tied, bool overridden) external {
         Dispute storage dispute = disputes[_disputeID];
-        if (dispute.ruled) revert RulingAlreadyExecuted();
-        if (msg.sender != rulers[dispute.arbitrated] && msg.sender != address(this)) revert RulerOnly();
+        require(!dispute.ruled, RulingAlreadyExecuted());
+        require(msg.sender == rulers[dispute.arbitrated] || msg.sender == address(this), RulerOnly());
 
         rulingResults[_disputeID] = RulingResult(_ruling, tied, overridden);
         dispute.ruled = true;

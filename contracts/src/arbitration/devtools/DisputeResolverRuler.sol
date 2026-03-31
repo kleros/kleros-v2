@@ -4,7 +4,7 @@ import {DisputeResolver} from "../arbitrables/DisputeResolver.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 interface IKlerosCoreRulerFragment {
     function getNextDisputeID() external view returns (uint256);
@@ -37,8 +37,6 @@ contract DisputeResolverRuler is DisputeResolver {
         string memory _disputeTemplateDataMappings,
         uint256 _numberOfRulingOptions
     ) internal override returns (uint256 arbitratorDisputeID) {
-        if (_numberOfRulingOptions <= 1) revert ShouldBeAtLeastTwoRulingOptions();
-
         uint256 localDisputeID = disputes.length;
         DisputeStruct storage dispute = disputes.push();
         dispute.arbitratorExtraData = _arbitratorExtraData;

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/KlerosCore.sol";
-import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -58,7 +58,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         uint256 nbChoices = 2;
         vm.prank(disputer);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.DisputeCreation(disputeID, nbChoices, newExtraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, nbChoices, newExtraData);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.DisputeCreation(disputeID, arbitrable);
         arbitrable.createDispute{value: 0.04 ether}("Action");
@@ -69,7 +69,6 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
             IArbitrableV2 arbitrated,
             KlerosCore.Period period,
             bool ruled,
-            bool executed,
             uint256 lastPeriodChange
         ) = core.disputes(disputeID);
 
@@ -77,7 +76,6 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(address(arbitrated), address(arbitrable), "Wrong arbitrable");
         assertEq(uint256(period), uint256(KlerosCore.Period.evidence), "Wrong period");
         assertEq(ruled, false, "Should not be ruled");
-        assertEq(executed, false, "Should not be executed");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
@@ -91,8 +89,14 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(round.sumPnkRewardPaid, 0, "sumPnkRewardPaid should be 0");
         assertEq(address(round.feeToken), address(0), "feeToken should be 0");
         assertEq(round.drawIterations, 0, "drawIterations should be 0");
+
+        uint256 defaultCourtParamsIndex = 0;
+        KlerosCore.AdditionalCourtParams memory courtParams = core.getAdditionalCourtParams(
+            courtID,
+            defaultCourtParamsIndex
+        );
         for (uint256 i = 0; i < 4; i++) {
-            assertEq(round.timesPerPeriod[i], newTimesPerPeriod[i], "Wrong times per period");
+            assertEq(courtParams.timesPerPeriod[i], newTimesPerPeriod[i], "Wrong times per period");
         }
 
         (uint256 numberOfChoices, bytes memory extraData) = disputeKit.disputes(disputeID);

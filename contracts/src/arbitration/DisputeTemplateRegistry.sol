@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {Initializable} from "../proxy/Initializable.sol";
@@ -25,7 +25,7 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -64,7 +64,11 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IDisputeTemplateRegistry
+    /// @notice Registers a new dispute template.
+    /// @param _templateTag An optional tag for the dispute template, such as "registration" or "removal".
+    /// @param _templateData The template data.
+    /// @param _templateDataMappings The data mappings for the template.
+    /// @return templateId The identifier of the dispute template.
     function setDisputeTemplate(
         string memory _templateTag,
         string memory _templateData,

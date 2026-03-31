@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IVeaInbox} from "@kleros/vea-contracts/src/interfaces/inboxes/IVeaInbox.sol";
 import {ISenderGateway} from "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
@@ -50,7 +50,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @notice Requires that the sender is the owner.
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
@@ -132,10 +132,15 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IHomeGateway
+    /// @notice Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
+    ///
+    /// @dev Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    /// This function accepts the fees payment in the native currency of the home chain, typically ETH.
+    ///
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
-        if (feeToken != NATIVE_CURRENCY) revert FeesPaidInNativeCurrencyOnly();
-        if (_params.foreignChainID != foreignChainID) revert ForeignChainIDNotSupported();
+        require(feeToken == NATIVE_CURRENCY, FeesPaidInNativeCurrencyOnly());
+        require(_params.foreignChainID == foreignChainID, ForeignChainIDNotSupported());
 
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -149,7 +154,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
-        if (relayedData.relayer != address(0)) revert DisputeAlreadyRelayed();
+        require(relayedData.relayer == address(0), DisputeAlreadyRelayed());
 
         uint256 disputeID = arbitrator.createDispute{value: msg.value}(_params.choices, _params.extraData);
         disputeIDtoHash[disputeID] = disputeHash;
@@ -168,10 +173,15 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         );
     }
 
-    /// @inheritdoc IHomeGateway
+    /// @notice Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
+    ///
+    /// @dev Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    /// This function accepts the fees payment in the ERC20 `acceptedFeeToken()`.
+    ///
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
     function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external {
-        if (feeToken == NATIVE_CURRENCY) revert FeesPaidInERC20Only();
-        if (_params.foreignChainID != foreignChainID) revert ForeignChainIDNotSupported();
+        require(feeToken != NATIVE_CURRENCY, FeesPaidInERC20Only());
+        require(_params.foreignChainID == foreignChainID, ForeignChainIDNotSupported());
 
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -185,10 +195,10 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
-        if (relayedData.relayer != address(0)) revert DisputeAlreadyRelayed();
+        require(relayedData.relayer == address(0), DisputeAlreadyRelayed());
 
-        if (!feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
-        if (!feeToken.increaseAllowance(address(arbitrator), _feeAmount)) revert AllowanceIncreaseFailed();
+        require(feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), TransferFailed());
+        require(feeToken.increaseAllowance(address(arbitrator), _feeAmount), AllowanceIncreaseFailed());
 
         uint256 disputeID = arbitrator.createDispute(_params.choices, _params.extraData, feeToken, _feeAmount);
         disputeIDtoHash[disputeID] = disputeHash;
@@ -208,9 +218,16 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
         );
     }
 
-    /// @inheritdoc IArbitrableV2
+    /// @notice Give a ruling for a dispute.
+    ///
+    /// @dev This is a callback function for the arbitrator to provide the ruling to this contract.
+    /// Only the arbitrator must be allowed to call this function.
+    /// Ruling 0 is reserved for "Not able/wanting to make a decision".
+    ///
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator.
     function rule(uint256 _disputeID, uint256 _ruling) external override {
-        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
+        require(msg.sender == address(arbitrator), ArbitratorOnly());
 
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
@@ -226,12 +243,13 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IHomeGateway
+    /// @notice Looks up the local home disputeID for a disputeHash
+    /// @param _disputeHash dispute hash
+    /// @return disputeID dispute identifier on the home chain
     function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }
 
-    /// @inheritdoc ISenderGateway
     function receiverGateway() external view override returns (address) {
         return foreignGateway;
     }

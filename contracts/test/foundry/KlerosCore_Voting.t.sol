@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore, IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
-import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitShutter} from "../../src/arbitration/dispute-kits/DisputeKitShutter.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
@@ -44,7 +44,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         voteIDs[0] = 0;
         bytes32 commit;
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.NotCommitPeriod.selector);
+        vm.expectRevert(DisputeKitClassic.NotCommitPeriod.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         vm.expectRevert(KlerosCore.EvidenceNotPassedAndNotAppeal.selector);
@@ -68,24 +68,24 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.commit);
         core.passPeriod(disputeID);
 
-        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
 
         assertEq(uint256(period), uint256(KlerosCore.Period.commit), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.EmptyCommit.selector);
+        vm.expectRevert(DisputeKitClassic.EmptyCommit.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         commit = keccak256(abi.encodePacked(YES, salt));
 
         vm.prank(other);
-        vm.expectRevert(DisputeKitClassicBase.JurorHasToOwnTheVote.selector);
+        vm.expectRevert(DisputeKitClassic.JurorHasToOwnTheVote.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.CommitCast(disputeID, staker1, voteIDs, commit);
+        emit DisputeKitClassic.CommitCast(disputeID, staker1, voteIDs, commit);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         (, , , uint256 totalCommited, uint256 nbVoters, uint256 choiceCount) = disputeKit.getRoundInfo(disputeID, 0, 0);
@@ -115,7 +115,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.CommitCast(disputeID, staker1, voteIDs, commit);
+        emit DisputeKitClassic.CommitCast(disputeID, staker1, voteIDs, commit);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
         (, , , totalCommited, nbVoters, choiceCount) = disputeKit.getRoundInfo(disputeID, 0, 0);
@@ -134,11 +134,11 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         // Check the require with the wrong choice and then with the wrong salt
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.ChoiceCommitmentMismatch.selector);
+        vm.expectRevert(DisputeKitClassic.ChoiceCommitmentMismatch.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, salt, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.ChoiceCommitmentMismatch.selector);
+        vm.expectRevert(DisputeKitClassic.ChoiceCommitmentMismatch.selector);
         disputeKit.castVote(disputeID, voteIDs, YES, salt - 1, "XYZ");
 
         vm.prank(staker1);
@@ -207,7 +207,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         uint256[] memory voteIDs = new uint256[](0);
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.NotVotePeriod.selector);
+        vm.expectRevert(DisputeKitClassic.NotVotePeriod.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ"); // Leave salt empty as not needed
 
         vm.expectRevert(KlerosCore.DisputeStillDrawing.selector);
@@ -219,23 +219,23 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.vote);
         core.passPeriod(disputeID); // Vote
 
-        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
 
         assertEq(uint256(period), uint256(KlerosCore.Period.vote), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.EmptyVoteIDs.selector);
+        vm.expectRevert(DisputeKitClassic.EmptyVoteIDs.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         voteIDs = new uint256[](1);
         voteIDs[0] = 0; // Split vote IDs to see how the winner changes
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.ChoiceOutOfBounds.selector);
+        vm.expectRevert(DisputeKitClassic.ChoiceOutOfBounds.selector);
         disputeKit.castVote(disputeID, voteIDs, 2 + 1, 0, "XYZ");
 
         vm.prank(other);
-        vm.expectRevert(DisputeKitClassicBase.JurorHasToOwnTheVote.selector);
+        vm.expectRevert(DisputeKitClassic.JurorHasToOwnTheVote.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
@@ -244,7 +244,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.VoteAlreadyCast.selector);
+        vm.expectRevert(DisputeKitClassic.VoteAlreadyCast.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         (
@@ -397,7 +397,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         vm.prank(staker1);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
-        (, , , uint256 totalCommited, uint256 nbVoters, uint256 choiceCount) = disputeKit.getRoundInfo(disputeID, 0, 0);
+        (, , , uint256 totalCommited, , ) = disputeKit.getRoundInfo(disputeID, 0, 0);
         assertEq(totalCommited, 1, "totalCommited should be 1");
         assertEq(disputeKit.areCommitsAllCast(disputeID), false, "Commits should not all be cast");
 
@@ -495,7 +495,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         // Deliberately cast votes using the old DK to see if the exception will be caught.
         vm.prank(staker1);
-        vm.expectRevert(DisputeKitClassicBase.DisputeUnknownInThisDisputeKit.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeUnknownInThisDisputeKit.selector);
         disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         // And check the new DK.

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IArbitratorV2, IDisputeTemplateRegistry, IERC20, ArbitrableExample} from "../arbitration/arbitrables/ArbitrableExample.sol";
 
@@ -34,13 +34,13 @@ contract MaliciousArbitrableMock is ArbitrableExample {
     }
 
     function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
-        if (doRevert) revert RuleReverted();
+        require(!doRevert, RuleReverted());
 
         uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
-        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
-        if (_ruling > dispute.numberOfRulingOptions) revert RulingOutOfBounds();
-        if (dispute.isRuled) revert DisputeAlreadyRuled();
+        require(msg.sender == address(arbitrator), ArbitratorOnly());
+        require(_ruling <= dispute.numberOfRulingOptions, RulingOutOfBounds());
+        require(!dispute.isRuled, DisputeAlreadyRuled());
 
         dispute.isRuled = true;
         dispute.ruling = _ruling;

@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
-import {KlerosCore, SafeERC20} from "../../src/arbitration/KlerosCore.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
-import {DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassicBase.sol";
+import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {IERC20} from "../../src/libraries/SafeERC20.sol";
 import {console} from "forge-std/console.sol";
 import {MaliciousArbitrableMock} from "../../src/test/MaliciousArbitrableMock.sol";
+import {MaliciousDisputeKitMock} from "../../src/test/MaliciousDisputeKitMock.sol";
+import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_ExecutionTest
@@ -153,48 +155,100 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(pinakion.balanceOf(staker2), 999999999999980000, "Wrong token balance of staker2");
     }
 
-    function test_execute_multipleWinners() public {
+    function test_execute_tiedChoices() public {
         uint256 disputeID = 0;
-        uint256 numberOfOptions = 5; // 5 choices, 2 will be winners, the rest - losers
 
-        arbitrable.changeNumberOfRulingOptions(numberOfOptions);
+        vm.prank(owner);
+        pinakion.transfer(other, 1 ether);
+        // Make other address a 3rd juror
+        vm.prank(other);
+        pinakion.approve(address(core), 1 ether);
+
+        uint256 newNumberOfJurors = 5;
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 10000);
         vm.prank(disputer);
-        arbitrable.createDispute{value: feeForJuror * 5}("Action"); // 5 jurors, with future votes distribution 2-2-1-0-0
+        arbitrable.createDispute{value: feeForJuror * newNumberOfJurors}("Action"); // 5 jurors, with future votes distribution 2-2-1
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
         vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
-        core.draw(disputeID, 5);
+        // Split the stakers' votes. First and 2nd juror get 2 votes, the 3rd juror - 1 vote.
+        core.draw(disputeID, 2);
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking phase to stake the 2nd voter and unstake the first voter to make sure he won't be drawn again
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 0);
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 10000);
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 2);
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking phase to stake the 3rd voter and unstake the 2nd voter to make sure he won't be drawn again
+
+        vm.prank(staker2);
+        core.setStake(GENERAL_COURT, 0);
+        vm.prank(other);
+        core.setStake(GENERAL_COURT, 1000);
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, 1);
+
+        // Check that jurors are correctly drawn
+        address account;
+        for (uint256 i = 0; i < 2; i++) {
+            (account, , , ) = disputeKit.getVoteInfo(0, 0, i);
+            assertEq(account, staker1, "Wrong drawn account");
+        }
+        for (uint256 i = 2; i < 4; i++) {
+            (account, , , ) = disputeKit.getVoteInfo(0, 0, i);
+            assertEq(account, staker2, "Wrong drawn account");
+        }
+        (account, , , ) = disputeKit.getVoteInfo(0, 0, 4);
+        assertEq(account, other, "Wrong drawn account");
 
         vm.warp(block.timestamp + timesPerPeriod[0]);
         core.passPeriod(disputeID); // Vote
+
+        // Locked tokens remain in the contract for all stakers.
+        assertEq(pinakion.balanceOf(staker1), 999999999999998000, "Wrong token balance of staker1");
+        assertEq(pinakion.balanceOf(staker2), 999999999999998000, "Wrong token balance of staker2");
+        assertEq(pinakion.balanceOf(other), 999999999999999000, "Wrong token balance of staker3");
 
         uint256[] memory voteIDs = new uint256[](2);
         voteIDs[0] = 0;
         voteIDs[1] = 1;
         vm.prank(staker1);
-        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ"); // Cast first 2 votes for 1st choice
+        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ");
 
         voteIDs = new uint256[](2);
         voteIDs[0] = 2;
         voteIDs[1] = 3;
-        vm.prank(staker1);
-        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ"); // Cast next 2 votes for 2nd choice
+        vm.prank(staker2);
+        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
 
         voteIDs = new uint256[](1);
         voteIDs[0] = 4;
-        vm.prank(staker1);
-        disputeKit.castVote(disputeID, voteIDs, 3, 0, "XYZ"); // Cast the last vote for 3rd choice.
+        vm.prank(other);
+        disputeKit.castVote(disputeID, voteIDs, 0, 0, "XYZ"); // The 3rd staker cast his vote for 0 choice and is in the minority, but should still be rewarded later.
         core.passPeriod(disputeID); // Appeal
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
-        assertEq(disputeKit.getCoherentCount(disputeID, 0), 4, "Wrong coherent count"); // Votes casted for first 2 choices are coherent
+        assertEq(disputeKit.getCoherentCount(disputeID, 0), 5, "Wrong coherent count"); // All votes should be coherent since there is a tie
 
         uint256 pnkCoherence;
         uint256 feeCoherence;
@@ -216,35 +270,85 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(feeCoherence, 10000, "Wrong reward fee coherence 3 vote ID");
 
         (pnkCoherence, feeCoherence) = disputeKit.getDegreeOfCoherenceReward(disputeID, 0, 4, 0, 0);
-        assertEq(pnkCoherence, 0, "Wrong reward pnk coherence 4 vote ID");
-        assertEq(feeCoherence, 0, "Wrong reward fee coherence 4 vote ID");
+        assertEq(pnkCoherence, 10000, "Wrong reward pnk coherence 4 vote ID");
+        assertEq(feeCoherence, 10000, "Wrong reward fee coherence 4 vote ID");
+
+        core.execute(disputeID, 0, 10);
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.repartitions, 10, "Wrong repartitions");
+        assertEq(round.pnkPenalties, 0, "Wrong pnkPenalties"); // No one is penalized
+        assertEq(round.sumFeeRewardPaid, 0.15 ether, "Wrong sumFeeRewardPaid");
+        assertEq(round.sumPnkRewardPaid, 0, "Wrong sumPnkRewardPaid");
+
+        assertEq(address(core).balance, 0, "Wrong balance of the core");
+        assertEq(staker1.balance, 0.06 ether, "Wrong balance of the staker1");
+        assertEq(staker2.balance, 0.06 ether, "Wrong balance of the staker2");
+        assertEq(other.balance, 0.03 ether, "Wrong balance of the staker3");
     }
 
-    function test_execute_maxStakeCheck() public {
-        uint256 disputeID = 0;
+    function test_execute_maliciousDK() public {
+        // Transfer extra assets to the core to check that it's not touched by malicious dk.
+        vm.prank(owner);
+        pinakion.transfer(address(core), 1 ether);
+        vm.deal(address(core), 1 ether);
 
-        vm.prank(staker1);
-        core.setStake(GENERAL_COURT, 2000);
+        MaliciousDisputeKitMock dkLogic = new MaliciousDisputeKitMock();
+        // Create a new DK to check castVote.
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            owner,
+            address(core),
+            address(wNative)
+        );
+
+        UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
+        MaliciousDisputeKitMock maliciousDK = MaliciousDisputeKitMock(address(proxyDk));
+
+        vm.prank(owner);
+        core.addNewDisputeKit(maliciousDK);
+
+        uint256 newDkID = 2;
+        uint256[] memory supportedDK = new uint256[](1);
+        bytes memory newExtraData = abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, newDkID);
+
+        vm.prank(owner);
+        supportedDK[0] = newDkID;
+        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
+
+        arbitrable.changeArbitratorExtraData(newExtraData);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        uint256 disputeID = 0;
+
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.disputeKitID, newDkID, "Wrong DK ID");
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
         vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
-        // Split the stakers' votes. The first staker will get VoteID 0 and the second will take the rest.
+        // Split the stakers' votes. First staker gets 1 vote and 2nd - 2 votes.
         core.draw(disputeID, 1);
 
         vm.warp(block.timestamp + maxDrawingTime);
-        sortitionModule.passPhase(); // Staking phase to stake the 2nd voter
+        sortitionModule.passPhase(); // Staking phase to stake the 2nd voter and unstake the first voter to make sure he won't be drawn again
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 0);
         vm.prank(staker2);
-        core.setStake(GENERAL_COURT, 20000);
+        core.setStake(GENERAL_COURT, 10000);
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
         vm.warp(block.timestamp + rngLookahead);
         sortitionModule.passPhase(); // Drawing phase
 
-        core.draw(disputeID, 2); // Assign leftover votes to staker2
+        core.draw(disputeID, 2);
 
         vm.warp(block.timestamp + timesPerPeriod[0]);
         core.passPeriod(disputeID); // Vote
@@ -252,38 +356,85 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         uint256[] memory voteIDs = new uint256[](1);
         voteIDs[0] = 0;
         vm.prank(staker1);
-        disputeKit.castVote(disputeID, voteIDs, 1, 0, "XYZ"); // Staker1 only got 1 vote because of low stake
+        maliciousDK.castVote(disputeID, voteIDs, 1, 0, "XYZ");
 
         voteIDs = new uint256[](2);
         voteIDs[0] = 1;
         voteIDs[1] = 2;
         vm.prank(staker2);
-        disputeKit.castVote(disputeID, voteIDs, 2, 0, "XYZ");
+        maliciousDK.castVote(disputeID, voteIDs, 2, 0, "XYZ");
         core.passPeriod(disputeID); // Appeal
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
-        (uint256 totalStaked, , uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
-        assertEq(totalStaked, 20000, "Wrong totalStaked for staker2");
-        assertEq(stakedInCourt, 20000, "Wrong stakedInCourt for staker2");
-        assertEq(pinakion.balanceOf(address(core)), 22000, "Wrong token balance of the core");
+        core.execute(disputeID, 0, 4); // Do 4 iterations to check penalties first. 3 iterations are for penalties and the 4th is for staker1 rewards that shouldn't do anything since he is incoherent.
 
-        vm.prank(owner);
-        sortitionModule.changeMaxStakePerJuror(20000); // Decrease max total stake to check that it's not exceeded after rewards
+        (uint256 totalStaked, uint256 totalLocked, , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
+        assertEq(totalStaked, 0, "totalStaked should be 0 for the first staker");
+        assertEq(totalLocked, 0, "Tokens should be released for staker1");
+        (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
+        assertEq(totalLocked, 2000, "Tokens should still be locked for staker2");
 
-        core.execute(disputeID, 0, 6);
+        round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.repartitions, 4, "Wrong repartitions");
+        assertEq(round.pnkPenalties, 1000, "Wrong pnkPenalties");
+        assertEq(round.sumFeeRewardPaid, 0, "Wrong sumFeeRewardPaid");
+        assertEq(round.sumPnkRewardPaid, 0, "Wrong sumPnkRewardPaid");
 
-        (totalStaked, , stakedInCourt, ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
-        assertEq(totalStaked, 20000, "totalStaked should not change");
-        assertEq(stakedInCourt, 20000, "Wrong stakedInCourt for staker2");
+        assertEq(address(core).balance, 1.09 ether, "Wrong balance of the core");
+        assertEq(staker1.balance, 0, "Wrong balance of the staker1");
+        assertEq(staker2.balance, 0, "Wrong balance of the staker2");
 
-        assertEq(
-            pinakion.balanceOf(address(core)),
-            21000,
-            "Token balance of the core should decreased by token reward value"
-        );
-        assertEq(pinakion.balanceOf(staker2), 999999999999981000, "Wrong token balance of staker2"); // Balance should increased by reward's value (1000)
+        assertEq(pinakion.balanceOf(address(core)), 1 ether + 11000, "Wrong token balance of the core"); // 11000 = 1000 penalty from staker1 + 10000 staked amount from staker2
+        assertEq(sortitionModule.totalStaked(), 10000, "Wrong totalStaked amount");
+
+        assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
+        assertEq(pinakion.balanceOf(staker2), 999999999999990000, "Wrong token balance of staker2");
+
+        // The next iteration should deplete the whole reward pool since malicious DK doubles the amount of rewards.
+        core.execute(disputeID, 0, 1);
+
+        (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
+        assertEq(totalLocked, 1000, "Tokens should still be locked for staker2");
+
+        round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.repartitions, 5, "Wrong repartitions");
+        assertEq(round.pnkPenalties, 1000, "Wrong pnkPenalties");
+        assertEq(round.sumFeeRewardPaid, 0.09 ether, "Wrong sumFeeRewardPaid");
+        assertEq(round.sumPnkRewardPaid, 1000, "Wrong sumPnkRewardPaid");
+
+        assertEq(address(core).balance, 1 ether, "Wrong balance of the core"); // Rewards should be depleted with this iteration
+        assertEq(staker1.balance, 0, "Wrong balance of the staker1");
+        assertEq(staker2.balance, 0.09 ether, "Wrong balance of the staker2");
+
+        assertEq(pinakion.balanceOf(address(core)), 1 ether + 11000, "Wrong token balance of the core"); // The amount is the same because the penalty was given to staker2 as a reward
+        assertEq(sortitionModule.totalStaked(), 11000, "Wrong totalStaked amount"); // An extra 1000 was added to staker2's stake as a reward
+
+        assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
+        assertEq(pinakion.balanceOf(staker2), 999999999999990000, "Wrong token balance of staker2");
+
+        // Do the final iteration to check that no extra money was spent and balances stayed the same.
+        core.execute(disputeID, 0, 1);
+
+        (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
+        assertEq(totalLocked, 0, "Tokens should be released for staker2");
+
+        round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.repartitions, 6, "Wrong repartitions");
+        assertEq(round.pnkPenalties, 1000, "Wrong pnkPenalties");
+        assertEq(round.sumFeeRewardPaid, 0.09 ether, "Wrong sumFeeRewardPaid");
+        assertEq(round.sumPnkRewardPaid, 1000, "Wrong sumPnkRewardPaid");
+
+        assertEq(address(core).balance, 1 ether, "Wrong balance of the core");
+        assertEq(staker1.balance, 0, "Wrong balance of the staker1");
+        assertEq(staker2.balance, 0.09 ether, "Wrong balance of the staker2");
+
+        assertEq(pinakion.balanceOf(address(core)), 1 ether + 11000, "Wrong token balance of the core");
+        assertEq(sortitionModule.totalStaked(), 11000, "Wrong totalStaked amount");
+
+        assertEq(pinakion.balanceOf(staker1), 999999999999999000, "Wrong token balance of staker1");
+        assertEq(pinakion.balanceOf(staker2), 999999999999990000, "Wrong token balance of staker2");
     }
 
     function test_execute_NoCoherence() public {
@@ -741,8 +892,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(feeToken.balanceOf(staker1), 0, "Wrong fee token balance of staker1");
         assertEq(feeToken.balanceOf(disputer), 1 ether, "Wrong fee token balance of disputer");
 
-        vm.expectEmit(true, true, true, true);
-        emit SafeERC20.SafeTransferFailed(feeToken, staker1, 0.06 ether); // One failed iteration has 0.06 eth
+        // Check that the failed transfer doesn't block the execution flow
         core.execute(disputeID, 0, 6);
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
@@ -829,10 +979,12 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
         vm.expectEmit(true, true, true, true);
+        emit IArbitratorV2.Ruling(arbitrable, disputeID, 2); // Winning choice = 2
+        vm.expectEmit(true, true, true, true);
         emit KlerosCore.NewPeriod(disputeID, KlerosCore.Period.execution);
         core.passPeriod(disputeID); // Execution
 
-        (, , KlerosCore.Period period, , , uint256 lastPeriodChange) = core.disputes(disputeID);
+        (, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
         assertEq(uint256(period), uint256(KlerosCore.Period.execution), "Wrong period");
         assertEq(lastPeriodChange, block.timestamp, "Wrong lastPeriodChange");
 
@@ -840,14 +992,13 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
 
         vm.expectEmit(true, true, true, true);
-        emit IArbitratorV2.Ruling(arbitrable, disputeID, 2); // Winning choice = 2
+        emit IArbitratorV2.RulingExecuted(arbitrable, disputeID, 2); // Winning choice = 2
         vm.expectEmit(true, true, true, true);
         emit IArbitrableV2.Ruling(core, disputeID, 2);
         core.executeRuling(disputeID);
 
-        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
+        (, , , bool ruled, ) = core.disputes(disputeID);
         assertEq(ruled, true, "Should be ruled");
-        assertEq(executed, true, "Should be executed");
     }
 
     function test_executeRuling_arbitrableRevert() public {
@@ -886,19 +1037,16 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + timesPerPeriod[3]);
         core.passPeriod(disputeID); // Execution
 
+        vm.expectRevert(MaliciousArbitrableMock.RuleReverted.selector);
         core.executeRuling(disputeID); // Arbitrable reverts
-        (, , , bool ruled, bool executed, ) = core.disputes(disputeID);
-        assertEq(ruled, true, "Should be ruled");
-        assertEq(executed, false, "Should not be executed");
 
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 2); // Should not revert even if executeRuling() reverted
 
         maliciousArbitrable.changeBehaviour(false);
 
         core.executeRuling(disputeID);
-        (, , , ruled, executed, ) = core.disputes(disputeID);
+        (, , , bool ruled, ) = core.disputes(disputeID);
         assertEq(ruled, true, "Should be ruled");
-        assertEq(executed, true, "Should be executed");
     }
 
     function test_executeRuling_appealSwitch() public {
@@ -931,10 +1079,12 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         disputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1); // Fund the losing choice
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
+        vm.expectEmit(true, true, true, true);
+        emit IArbitratorV2.Ruling(arbitrable, disputeID, 1); // Winning choice is switched to 1
         core.passPeriod(disputeID); // Execution
 
         vm.expectEmit(true, true, true, true);
-        emit IArbitratorV2.Ruling(arbitrable, disputeID, 1); // Winning choice is switched to 1
+        emit IArbitratorV2.RulingExecuted(arbitrable, disputeID, 1); // Winning choice is switched to 1
         vm.expectEmit(true, true, true, true);
         emit IArbitrableV2.Ruling(core, disputeID, 1);
         core.executeRuling(disputeID);
@@ -977,7 +1127,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         vm.warp(block.timestamp + timesPerPeriod[3]);
 
-        vm.expectRevert(DisputeKitClassicBase.DisputeNotResolved.selector);
+        vm.expectRevert(DisputeKitClassic.DisputeNotResolved.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 1);
 
         core.passPeriod(disputeID); // Execution
@@ -986,7 +1136,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         vm.prank(owner);
         core.pause();
-        vm.expectRevert(DisputeKitClassicBase.CoreIsPaused.selector);
+        vm.expectRevert(DisputeKitClassic.CoreIsPaused.selector);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(staker1), 1);
         vm.prank(owner);
         core.unpause();
@@ -996,11 +1146,11 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(address(disputeKit).balance, 1.04 ether, "Wrong balance of the DK");
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 1, crowdfunder1, 0.63 ether);
+        emit DisputeKitClassic.Withdrawal(disputeID, 1, crowdfunder1, 0.63 ether);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder1), 1);
 
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassicBase.Withdrawal(disputeID, 2, crowdfunder2, 0.41 ether);
+        emit DisputeKitClassic.Withdrawal(disputeID, 2, crowdfunder2, 0.41 ether);
         disputeKit.withdrawFeesAndRewards(disputeID, payable(crowdfunder2), 2);
 
         assertEq(crowdfunder1.balance, 10 ether, "Wrong balance of the crowdfunder1");

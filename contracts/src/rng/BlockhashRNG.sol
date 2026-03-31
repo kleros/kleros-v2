@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {IRNG} from "./IRNG.sol";
 
@@ -26,12 +26,12 @@ contract BlockHashRNG is IRNG {
     // ************************************* //
 
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
     modifier onlyByConsumer() {
-        if (consumer != msg.sender) revert ConsumerOnly();
+        require(consumer == msg.sender, ConsumerOnly());
         _;
     }
 

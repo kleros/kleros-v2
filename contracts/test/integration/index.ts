@@ -174,14 +174,14 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_increaseTime", [100]); // Wait for the appeal period
     await network.provider.send("evm_mine");
 
-    await core.passPeriod(0);
+    await expect(core.passPeriod(0)).to.emit(core, "Ruling").withArgs(homeGateway.target, 0, 0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     await expect(core.execute(0, 0, 1000))
       .to.emit(core, "JurorRewardPenalty")
       .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n, ethers.ZeroAddress);
 
     await expect(core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }))
-      .to.emit(core, "Ruling")
+      .to.emit(core, "RulingExecuted")
       .withArgs(homeGateway.target, 0, 0)
       .and.to.emit(arbitrable, "Ruling")
       .withArgs(foreignGateway.target, 1, 0); // The ForeignGateway starts counting disputeID from 1.

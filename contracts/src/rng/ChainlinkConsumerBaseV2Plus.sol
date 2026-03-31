@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 // This contract is adapted from `@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol` to remove the `ConfirmedOwner` dependency.
 
@@ -148,9 +148,8 @@ abstract contract VRFConsumerBaseV2Plus is IVRFMigratableConsumerV2Plus {
         fulfillRandomWords(requestId, randomWords);
     }
 
-    /**
-     * @inheritdoc IVRFMigratableConsumerV2Plus
-     */
+    /// @notice Sets the VRF Coordinator address
+    /// @notice This method should only be callable by the coordinator or contract owner
     function setCoordinator(address _vrfCoordinator) external override onlyOwnerOrCoordinator {
         if (_vrfCoordinator == address(0)) {
             revert ZeroAddress();

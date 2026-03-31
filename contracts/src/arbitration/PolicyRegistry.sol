@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {Initializable} from "../proxy/Initializable.sol";
@@ -32,7 +32,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
 
     /// @notice Requires that the sender is the owner.
     modifier onlyByOwner() {
-        if (owner != msg.sender) revert OwnerOnly();
+        require(owner == msg.sender, OwnerOnly());
         _;
     }
 
