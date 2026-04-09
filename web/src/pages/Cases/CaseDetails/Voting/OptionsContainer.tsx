@@ -10,8 +10,7 @@ import { Button, Tooltip } from "@kleros/ui-components-library";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { isUndefined } from "utils/index";
-
-import { isVoteJustificationSufficient } from "src/utils/voteJustification";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 
 import { EnsureChain } from "components/EnsureChain";
 

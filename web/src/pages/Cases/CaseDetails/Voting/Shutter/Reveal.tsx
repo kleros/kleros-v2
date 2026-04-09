@@ -14,8 +14,6 @@ import {
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 
-import { isVoteJustificationSufficient } from "src/utils/voteJustification";
-
 const Container = styled.div`
   width: 100%;
   height: auto;
@@ -56,7 +54,6 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
       return undefined;
     }
   }, [storedData]);
-  const hasValidJustification = isVoteJustificationSufficient(parsedStoredData?.justification ?? "");
 
   const {
     data: simulateDefaultData,
@@ -101,9 +98,6 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
       console.error("No committed vote found or simulation not ready.");
       return;
     }
-    if (!hasValidJustification) {
-      return;
-    }
 
     setIsRevealing(true);
     try {
@@ -121,7 +115,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
     } finally {
       setIsRevealing(false);
     }
-  }, [parsedStoredData, simulateData, walletClient, publicClient, setIsOpen, removeStoredData, hasValidJustification]);
+  }, [parsedStoredData, simulateData, walletClient, publicClient, setIsOpen, removeStoredData]);
 
   return (
     <Container>
@@ -129,7 +123,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
         <Button
           text="Reveal Your Vote"
           onClick={handleReveal}
-          disabled={isSimulating || !isUndefined(simulateError) || isRevealing || !hasValidJustification}
+          disabled={isSimulating || !isUndefined(simulateError) || isRevealing}
           isLoading={isRevealing}
         />
       ) : null}

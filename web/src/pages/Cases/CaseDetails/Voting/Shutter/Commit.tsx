@@ -14,11 +14,10 @@ import { useCountdown } from "hooks/useCountdown";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { encrypt } from "utils/shutter";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-
-import { isVoteJustificationSufficient } from "src/utils/voteJustification";
 
 import { getDeadline } from "../../Timeline";
 import OptionsContainer from "../OptionsContainer";

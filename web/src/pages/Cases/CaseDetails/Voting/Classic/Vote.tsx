@@ -5,11 +5,10 @@ import { useParams } from "react-router-dom";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } from "hooks/contracts/generated";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-
-import { isVoteJustificationSufficient } from "src/utils/voteJustification";
 
 import OptionsContainer from "../OptionsContainer";
 

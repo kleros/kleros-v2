@@ -14,11 +14,10 @@ import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } fr
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-
-import { isVoteJustificationSufficient } from "src/utils/voteJustification";
 
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
