@@ -4,16 +4,18 @@ import styled from "styled-components";
 import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 
+import { Answer } from "@kleros/kleros-sdk";
+import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
 import { Button, Tooltip } from "@kleros/ui-components-library";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { isUndefined } from "utils/index";
 
+import { isVoteJustificationSufficient } from "src/utils/voteJustification";
+
 import { EnsureChain } from "components/EnsureChain";
 
 import JustificationArea from "./JustificationArea";
-import { Answer } from "@kleros/kleros-sdk";
-import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
 
 const MainContainer = styled.div`
   width: 100%;
@@ -59,6 +61,8 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(BigInt(-1));
   const [isSending, setIsSending] = useState(false);
+  const requiresJustification = !isUndefined(justification) && !isUndefined(setJustification);
+  const hasValidJustification = !requiresJustification || isVoteJustificationSufficient(justification ?? "");
 
   const updatedRTA = useMemo(() => {
     const RTAFromTemplate = disputeDetails?.answers?.find((answer) => BigInt(answer.id) === BigInt(0));
@@ -68,6 +72,9 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
 
   const onClick = useCallback(
     async (id: bigint) => {
+      if (!hasValidJustification) {
+        return;
+      }
       setIsSending(true);
       setChosenOption(id);
       try {
@@ -79,7 +86,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
         setIsSending(false);
       }
     },
-    [handleSelection]
+    [handleSelection, hasValidJustification]
   );
 
   return id ? (
@@ -97,7 +104,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
                   <Tooltip text={answer.description} key={answer.title}>
                     <Button
                       text={answer.title}
-                      disabled={isSending}
+                      disabled={isSending || !hasValidJustification}
                       isLoading={chosenOption === BigInt(answer.id)}
                       onClick={() => onClick(BigInt(answer.id))}
                     />
@@ -114,7 +121,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
             <Button
               variant="secondary"
               text={updatedRTA.title}
-              disabled={isSending}
+              disabled={isSending || !hasValidJustification}
               isLoading={chosenOption === BigInt(0)}
               onClick={() => onClick(BigInt(0))}
             />

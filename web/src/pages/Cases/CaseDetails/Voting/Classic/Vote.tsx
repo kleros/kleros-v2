@@ -9,6 +9,8 @@ import { wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
+import { isVoteJustificationSufficient } from "src/utils/voteJustification";
+
 import OptionsContainer from "../OptionsContainer";
 
 const Container = styled.div`
@@ -35,6 +37,9 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
 
   const handleVote = useCallback(
     async (voteOption: number) => {
+      if (!isVoteJustificationSufficient(justification)) {
+        return;
+      }
       const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
       const { request } = await simulate(wagmiConfig, {
         args: [

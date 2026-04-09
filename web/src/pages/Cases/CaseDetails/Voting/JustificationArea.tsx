@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 import { Textarea } from "@kleros/ui-components-library";
 
+import { MIN_VOTE_JUSTIFICATION_LENGTH } from "src/utils/voteJustification";
+
 const StyledTextarea = styled(Textarea)`
   width: 100%;
   height: auto;
@@ -28,7 +30,8 @@ const JustificationArea: React.FC<IJustificationArea> = ({ justification, setJus
     onChange={(e) => setJustification(e.target.value)}
     placeholder="Justify your vote..."
     message={
-      "A good justification contributes to case comprehension. " + "Low quality justifications can be challenged."
+      `A good justification contributes to case comprehension. ` +
+      `Low quality justifications can be challenged. Minimum ${MIN_VOTE_JUSTIFICATION_LENGTH} characters.`
     }
     variant="info"
   />

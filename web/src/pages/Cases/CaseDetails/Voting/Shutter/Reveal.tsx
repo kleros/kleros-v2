@@ -14,6 +14,8 @@ import {
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { isVoteJustificationSufficient } from "src/utils/voteJustification";
+
 const Container = styled.div`
   width: 100%;
   height: auto;
@@ -44,7 +46,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
   const parsedStoredData = useMemo(() => {
     if (isUndefined(storedData)) return undefined;
     try {
-      const data = JSON.parse(storedData);
+      const data = JSON.parse(String(storedData));
       if (isUndefined(data.salt) || isUndefined(data.choice) || isUndefined(data.justification)) {
         throw new Error("Invalid stored data");
       }
@@ -54,6 +56,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
       return undefined;
     }
   }, [storedData]);
+  const hasValidJustification = isVoteJustificationSufficient(parsedStoredData?.justification ?? "");
 
   const {
     data: simulateDefaultData,
@@ -98,6 +101,9 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
       console.error("No committed vote found or simulation not ready.");
       return;
     }
+    if (!hasValidJustification) {
+      return;
+    }
 
     setIsRevealing(true);
     try {
@@ -115,7 +121,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
     } finally {
       setIsRevealing(false);
     }
-  }, [parsedStoredData, simulateData, walletClient, publicClient, setIsOpen, removeStoredData]);
+  }, [parsedStoredData, simulateData, walletClient, publicClient, setIsOpen, removeStoredData, hasValidJustification]);
 
   return (
     <Container>
@@ -123,7 +129,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
         <Button
           text="Reveal Your Vote"
           onClick={handleReveal}
-          disabled={isSimulating || !isUndefined(simulateError) || isRevealing}
+          disabled={isSimulating || !isUndefined(simulateError) || isRevealing || !hasValidJustification}
           isLoading={isRevealing}
         />
       ) : null}

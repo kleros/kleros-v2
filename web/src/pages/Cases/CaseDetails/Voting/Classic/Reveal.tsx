@@ -18,6 +18,8 @@ import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
+import { isVoteJustificationSufficient } from "src/utils/voteJustification";
+
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
 
@@ -70,6 +72,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const [storedSaltAndChoice, _] = useLocalStorage<string>(saltKey);
 
   const handleReveal = useCallback(async () => {
+    if (!isVoteJustificationSufficient(justification)) return;
     setIsSending(true);
     const { salt, choice } = isUndefined(storedSaltAndChoice)
       ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers ?? [], commit)
@@ -119,7 +122,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
             <StyledButton
               variant="secondary"
               text="Justify & Reveal"
-              disabled={isSending || isUndefined(disputeDetails)}
+              disabled={isSending || isUndefined(disputeDetails) || !isVoteJustificationSufficient(justification)}
               isLoading={isSending}
               onClick={handleReveal}
             />
