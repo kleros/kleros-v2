@@ -27,8 +27,8 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [Pinakion](https://arbiscan.io/address/0x330bD769382cFc6d50175903434CCC8D206DCAE5)
 - [PolicyRegistry: proxy](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c), [implementation](https://arbiscan.io/address/0xf7EE0Cd4E33C832DC05fB359896Add6E14E96C28)
 - [RandomizerRNG: proxy](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3), [implementation](https://arbiscan.io/address/0xF1a7Cd3115F5852966430f8E3877D2221F074A2e)
-- [SBTACPExperience](https://arbiscan.io/address/0xbCF80cb53f173Ff8be96813a40be20eFAb2B59ed)
-- [SBTACPLawyer](https://arbiscan.io/address/0x0d41Cb0c9Da123a7554C5eee87aD289874e85E48)
+- [SBTACPExperience](https://arbiscan.io/address/0x4249564a17EE0143819a109FAB241F55B1A5e9B4)
+- [SBTACPLawyer](https://arbiscan.io/address/0x2A2f1fBBf07C1372371cf4a65cB28C2DF681850b)
 - [SortitionModule: proxy](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D), [implementation](https://arbiscan.io/address/0x3f6D0daeD166b64FCfBb9bc7c9E26423c6C08eEE)
 - [TransactionBatcher](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
 
