@@ -14,6 +14,7 @@ import { useCountdown } from "hooks/useCountdown";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { encrypt } from "utils/shutter";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -85,6 +86,9 @@ const Commit: React.FC<ICommit> = ({
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
+      if (!isVoteJustificationSufficient(justification)) {
+        return;
+      }
       if (!import.meta.env.REACT_APP_SHUTTER_API || import.meta.env.REACT_APP_SHUTTER_API.trim() === "") {
         console.error("REACT_APP_SHUTTER_API environment variable is not set or is empty");
         throw new Error("Cannot commit vote: REACT_APP_SHUTTER_API environment variable is required but not set");

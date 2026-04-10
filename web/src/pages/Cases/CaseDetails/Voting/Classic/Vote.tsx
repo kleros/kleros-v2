@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } from "hooks/contracts/generated";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -35,6 +36,9 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, isGated }) => {
 
   const handleVote = useCallback(
     async (voteOption: number) => {
+      if (!isVoteJustificationSufficient(justification)) {
+        return;
+      }
       const simulate = isGated ? simulateDisputeKitGatedCastVote : simulateDisputeKitClassicCastVote;
       const { request } = await simulate(wagmiConfig, {
         args: [

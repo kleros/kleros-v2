@@ -14,6 +14,7 @@ import { simulateDisputeKitClassicCastVote, simulateDisputeKitGatedCastVote } fr
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -70,6 +71,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const [storedSaltAndChoice, _] = useLocalStorage<string>(saltKey);
 
   const handleReveal = useCallback(async () => {
+    if (!isVoteJustificationSufficient(justification)) return;
     setIsSending(true);
     const { salt, choice } = isUndefined(storedSaltAndChoice)
       ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers ?? [], commit)
@@ -119,7 +121,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
             <StyledButton
               variant="secondary"
               text="Justify & Reveal"
-              disabled={isSending || isUndefined(disputeDetails)}
+              disabled={isSending || isUndefined(disputeDetails) || !isVoteJustificationSufficient(justification)}
               isLoading={isSending}
               onClick={handleReveal}
             />

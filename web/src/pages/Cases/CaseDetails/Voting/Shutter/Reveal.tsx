@@ -44,7 +44,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, isGated }) => {
   const parsedStoredData = useMemo(() => {
     if (isUndefined(storedData)) return undefined;
     try {
-      const data = JSON.parse(storedData);
+      const data = JSON.parse(String(storedData));
       if (isUndefined(data.salt) || isUndefined(data.choice) || isUndefined(data.justification)) {
         throw new Error("Invalid stored data");
       }
