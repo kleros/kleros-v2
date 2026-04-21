@@ -993,12 +993,12 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             coherence = ONE_BASIS_POINT;
         }
 
+        // Unlock all the PNKs for this draw.
+        address account = round.drawnJurors[_params.repartition];
+        sortitionModule.unlockStake(account, round.pnkAtStakePerJuror);
+
         // Fully coherent jurors won't be penalized.
         uint256 penalty = (round.pnkAtStakePerJuror * (ONE_BASIS_POINT - coherence)) / ONE_BASIS_POINT;
-
-        // Unlock the PNKs affected by the penalty
-        address account = round.drawnJurors[_params.repartition];
-        sortitionModule.unlockStake(account, penalty);
 
         // Apply the penalty to the staked PNKs.
         uint96 penalizedInCourtID = round.drawnJurorFromCourtIDs[_params.repartition];
@@ -1069,12 +1069,6 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             feeCoherence = ONE_BASIS_POINT;
         }
 
-        address account = round.drawnJurors[repartition];
-        uint256 pnkLocked = (round.pnkAtStakePerJuror * pnkCoherence) / ONE_BASIS_POINT;
-
-        // Release the rest of the PNKs of the juror for this round.
-        sortitionModule.unlockStake(account, pnkLocked);
-
         // Compute the rewards
         (uint256 pnkReward, uint256 feeReward) = disputeKit.getRewards(
             _params.disputeID,
@@ -1095,6 +1089,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             feeReward = round.totalFeesForJurors - round.sumFeeRewardPaid;
         }
         round.sumFeeRewardPaid += feeReward;
+
+        address account = round.drawnJurors[repartition];
 
         if (feeReward != 0) {
             // Transfer the fee reward

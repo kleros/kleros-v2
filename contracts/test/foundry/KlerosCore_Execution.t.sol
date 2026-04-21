@@ -109,34 +109,27 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         emit KlerosCore.JurorRewardPenalty(staker1, disputeID, 0, 0, 0, -int256(1000), 0, IERC20(address(0))); // penalties
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
-        emit SortitionModule.StakeLocked(staker2, 0, true);
+        emit SortitionModule.StakeLocked(staker2, 1000, true);
+        vm.expectEmit(true, true, true, true);
+        emit SortitionModule.StakeLocked(staker2, 1000, true);
         core.execute(disputeID, 0, 3); // Do 3 iterations to check penalties first
 
         (uint256 totalStaked, uint256 totalLocked, , ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
         assertEq(totalStaked, 1000, "totalStaked should be penalized"); // 2000 - 1000
         assertEq(totalLocked, 0, "Tokens should be released for staker1");
         (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
-        assertEq(totalLocked, 2000, "Tokens should still be locked for staker2");
+        assertEq(totalLocked, 0, "Tokens should be unlocked for staker2");
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
         assertEq(round.repartitions, 3, "Wrong repartitions");
         assertEq(round.pnkPenalties, 1000, "Wrong pnkPenalties");
 
-        vm.expectEmit(true, true, true, true);
-        emit SortitionModule.StakeLocked(staker1, 0, true);
         // Check iterations for the winning staker to see the shifts
         vm.expectEmit(true, true, true, true);
-        emit SortitionModule.StakeLocked(staker2, 1000, true);
-        vm.expectEmit(true, true, true, true);
         emit KlerosCore.JurorRewardPenalty(staker2, disputeID, 0, 10000, 10000, 500, 0.045 ether, IERC20(address(0))); // rewards
-        vm.expectEmit(true, true, true, true);
-        emit SortitionModule.StakeLocked(staker2, 1000, true);
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.JurorRewardPenalty(staker2, disputeID, 0, 10000, 10000, 500, 0.045 ether, IERC20(address(0))); // rewards
         core.execute(disputeID, 0, 10); // Finish the iterations. We need only 3 but check that it corrects the count.
-
-        (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
-        assertEq(totalLocked, 0, "Tokens should be unlocked for staker2");
 
         round = core.getRoundInfo(disputeID, 0);
         assertEq(round.repartitions, 6, "Wrong repartitions");
@@ -374,7 +367,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         assertEq(totalStaked, 0, "totalStaked should be 0 for the first staker");
         assertEq(totalLocked, 0, "Tokens should be released for staker1");
         (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
-        assertEq(totalLocked, 2000, "Tokens should still be locked for staker2");
+        assertEq(totalLocked, 0, "Tokens should still be released for staker2");
 
         round = core.getRoundInfo(disputeID, 0);
         assertEq(round.repartitions, 4, "Wrong repartitions");
@@ -395,9 +388,6 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         // The next iteration should deplete the whole reward pool since malicious DK doubles the amount of rewards.
         core.execute(disputeID, 0, 1);
 
-        (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
-        assertEq(totalLocked, 1000, "Tokens should still be locked for staker2");
-
         round = core.getRoundInfo(disputeID, 0);
         assertEq(round.repartitions, 5, "Wrong repartitions");
         assertEq(round.pnkPenalties, 1000, "Wrong pnkPenalties");
@@ -416,9 +406,6 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
 
         // Do the final iteration to check that no extra money was spent and balances stayed the same.
         core.execute(disputeID, 0, 1);
-
-        (, totalLocked, , ) = sortitionModule.getJurorBalance(staker2, GENERAL_COURT);
-        assertEq(totalLocked, 0, "Tokens should be released for staker2");
 
         round = core.getRoundInfo(disputeID, 0);
         assertEq(round.repartitions, 6, "Wrong repartitions");
@@ -1283,7 +1270,7 @@ contract KlerosCore_ExecutionTest is KlerosCore_TestBase {
         );
 
         uint256 pnkAtStake = (minStake * alpha) / ONE_BASIS_POINT;
-        uint256 unlockedTokens = iterationsCount < nbJurors ? 0 : (iterationsCount - nbJurors) * pnkAtStake;
+        uint256 unlockedTokens = iterationsCount >= nbJurors ? nbJurors * pnkAtStake : iterationsCount * pnkAtStake;
         assertEq(totalStaked, 2000, "Wrong amount total staked");
         assertEq(totalLocked, (pnkAtStake * nbJurors) - unlockedTokens, "Wrong amount locked");
         assertEq(stakedInCourt, 2000, "Wrong amount staked in court");
