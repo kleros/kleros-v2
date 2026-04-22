@@ -23,7 +23,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "check-style": "eslint 'src/**/*.{ts,tsx}'",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc --noEmit -p tsconfig.check.json",
     "start": "vite dev src/",
     "build": "yarn clean && vite build",
     "release:patch": "scripts/publish.sh patch",
