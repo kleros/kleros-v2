@@ -7,10 +7,9 @@ set -e
 #Get the list of staged files
 staged_files=$(git diff --cached --name-only)
 
-#Check if any file is in the kleros-app directory and if so, check types and lint
+#Check if any file is in the kleros-app directory and if so, check types
 if echo "$staged_files" | grep -q "^kleros-app/"; then
   yarn workspace @kleros/kleros-app check-types
-  yarn workspace @kleros/kleros-app check-style
 fi
 
 yarn lint-staged
