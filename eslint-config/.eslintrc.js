@@ -16,7 +16,7 @@ module.exports = {
     "plugin:prettier/recommended",
     "plugin:import/recommended",
   ],
-  plugins: ["@typescript-eslint", "prettier", "import"],
+  plugins: ["@typescript-eslint", "prettier", "import", "n"],
   rules: {
     "no-unused-vars": [
       "error",
@@ -32,13 +32,13 @@ module.exports = {
         commonjs: true,
       },
     ],
-    "node/no-unsupported-features/es-syntax": [
+    "n/no-unsupported-features/es-syntax": [
       "error",
       {
         ignores: ["modules"],
       },
     ],
-    "node/no-missing-import": [
+    "n/no-missing-import": [
       "error",
       {
         tryExtensions: [".js", ".ts", ".json", ".node"],
