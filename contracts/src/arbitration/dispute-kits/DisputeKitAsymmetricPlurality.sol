@@ -12,7 +12,7 @@ import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitAsymmetricPlurality
 /// @notice Dispute kit implementation adapted from DisputeKitClassic
-/// - a drawing system: at most 1 vote per juror registered on Proof of Humanity,
+/// - a drawing system: proportional to staked PNK,
 /// - a vote aggregation system: asymmetric plurality. The coherence differentiates between choices,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
