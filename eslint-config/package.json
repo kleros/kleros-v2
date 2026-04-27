@@ -16,6 +16,7 @@
     "@typescript-eslint/utils": "^8.15.0",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^17.10.0",
     "eslint-plugin-prettier": "^5.2.1",

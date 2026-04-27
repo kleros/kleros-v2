@@ -18,7 +18,8 @@ module.exports = {
   ],
   plugins: ["@typescript-eslint", "prettier", "import", "n"],
   rules: {
-    "no-unused-vars": [
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
       "error",
       {
         varsIgnorePattern: "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)",
@@ -38,11 +39,12 @@ module.exports = {
         ignores: ["modules"],
       },
     ],
-    "n/no-missing-import": [
-      "error",
-      {
-        tryExtensions: [".js", ".ts", ".json", ".node"],
-      },
-    ],
+    "n/no-missing-import": "off",
+  },
+  settings: {
+    "import/resolver": {
+      typescript: { project: "./tsconfig.json" },
+      node: { extensions: [".js", ".jsx", ".ts", ".tsx"] },
+    },
   },
 };
