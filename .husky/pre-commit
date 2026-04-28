@@ -12,4 +12,9 @@ if echo "$staged_files" | grep -q "^kleros-app/"; then
   yarn workspace @kleros/kleros-app check-types
 fi
 
+#Check if any file is in the kleros-sdk directory and if so, check types
+if echo "$staged_files" | grep -q "^kleros-sdk/"; then
+  yarn workspace @kleros/kleros-sdk check-types
+fi
+
 yarn lint-staged

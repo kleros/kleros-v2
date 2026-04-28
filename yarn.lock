@@ -7003,11 +7003,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-sdk@workspace:kleros-sdk"
   dependencies:
+    "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@reality.eth/reality-eth-lib": "npm:^3.4.15"
     "@types/mustache": "npm:^4.2.5"
     "@types/node": "npm:^20.19.24"
     "@urql/core": "npm:^5.0.8"
     "@vitest/ui": "npm:^1.6.1"
+    eslint: "npm:^9.15.0"
     mocha: "npm:^10.8.2"
     mustache: "npm:^4.2.0"
     rimraf: "npm:^6.0.1"
