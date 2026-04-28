@@ -1,6 +1,7 @@
 import { InvalidContextError, NotFoundError } from "../errors";
 import { executeAction } from "./executeActions";
 import { AbiEventMapping } from "./utils/actionTypes";
+import rc_question from "@reality.eth/reality-eth-lib/formatters/question.js";
 
 export type RealityAnswer = {
   title: string;
@@ -10,7 +11,10 @@ export type RealityAnswer = {
   last?: boolean;
 };
 
-export const retrieveRealityData = async (realityQuestionID: string, arbitrable?: `0x${string}`) => {
+export const retrieveRealityData = async (
+  realityQuestionID: string,
+  arbitrable?: `0x${string}`,
+) => {
   if (!arbitrable) {
     throw new InvalidContextError("No arbitrable address provided");
   }
@@ -67,17 +71,22 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   const templateData = await executeAction(templateMapping);
 
   if (!templateData) {
-    throw new NotFoundError("Template Data", "Failed to retrieve template data");
+    throw new NotFoundError(
+      "Template Data",
+      "Failed to retrieve template data",
+    );
   }
 
   if (!questionData) {
-    throw new NotFoundError("Question Data", "Failed to retrieve question data");
+    throw new NotFoundError(
+      "Question Data",
+      "Failed to retrieve question data",
+    );
   }
 
-  const rc_question = require("@reality.eth/reality-eth-lib/formatters/question.js");
   const populatedTemplate = rc_question.populatedJSONForTemplate(
     templateData.questionText,
-    questionData.realityQuestion
+    questionData.realityQuestion,
   );
 
   let answers: RealityAnswer[] = [];

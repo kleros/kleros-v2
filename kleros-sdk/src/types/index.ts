@@ -6,7 +6,7 @@ export type SdkConfig = {
 
 type GetDisputeParametersOptions = {
   sdkConfig?: SdkConfig;
-  additionalContext?: Record<string, any>;
+  additionalContext?: Record<string, unknown>;
 };
 
 export type GetDisputeParameters = {

@@ -15,7 +15,9 @@ import { GetDisputeParameters } from "../types";
  * @param {string} disputeParameters.dtrSubgraph - Endpoint for the Kleros dispute template registry subgraph.
  * @param {GetDisputeParametersOptions | undefined} disputeParameters.options - Optional parameters to configure the SDK and provide additional context, if not configured already.
  */
-export const getDispute = async (disputeParameters: GetDisputeParameters): Promise<DisputeDetails | undefined> => {
+export const getDispute = async (
+  disputeParameters: GetDisputeParameters,
+): Promise<DisputeDetails | undefined> => {
   if (disputeParameters.options?.sdkConfig) {
     configureSDK(disputeParameters.options.sdkConfig);
   }
@@ -24,15 +26,21 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
   const disputeDetails = await fetchDisputeDetails(coreSubgraph, disputeId);
 
   if (!disputeDetails?.dispute) {
-    throw new NotFoundError("Dispute Details", `Dispute details not found for disputeId: ${disputeId}`);
+    throw new NotFoundError(
+      "Dispute Details",
+      `Dispute details not found for disputeId: ${disputeId}`,
+    );
   }
 
-  const template = await fetchDisputeTemplateFromId(dtrSubgraph, disputeDetails.dispute.templateId);
+  const template = await fetchDisputeTemplateFromId(
+    dtrSubgraph,
+    disputeDetails.dispute.templateId,
+  );
 
   if (!template) {
     throw new NotFoundError(
       "Dispute Template",
-      `Template not found for template ID: ${disputeDetails.dispute.templateId}`
+      `Template not found for template ID: ${disputeDetails.dispute.templateId}`,
     );
   }
 
@@ -46,11 +54,10 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
 
   let data = {};
   if (templateDataMappings) {
-    try {
-      data = await executeActions(JSON.parse(templateDataMappings), initialContext);
-    } catch (err: any) {
-      throw err;
-    }
+    data = await executeActions(
+      JSON.parse(templateDataMappings),
+      initialContext,
+    );
   }
 
   const populatedTemplate = populateTemplate(templateData, data);

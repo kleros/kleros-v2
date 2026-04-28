@@ -52,6 +52,9 @@ export class InvalidFormatError extends CustomError {
 
 export class SdkNotConfiguredError extends CustomError {
   constructor() {
-    super("SdkNotConfiguredError", "SDK not configured. Please call `configureSDK` before using.");
+    super(
+      "SdkNotConfiguredError",
+      "SDK not configured. Please call `configureSDK` before using.",
+    );
   }
 }
