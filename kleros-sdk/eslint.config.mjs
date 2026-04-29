@@ -1,1 +1,1 @@
-export { default } from "@kleros/kleros-v2-eslint-config/flat.mjs";
+export { default } from "@kleros/kleros-v2-eslint-config/flat.config.mjs";

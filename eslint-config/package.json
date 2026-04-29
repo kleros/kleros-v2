@@ -6,7 +6,7 @@
   "license": "MIT",
   "exports": {
     ".": "./.eslintrc.js",
-    "./flat.mjs": "./flat.mjs"
+    "./flat.config.mjs": "./flat.config.mjs"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.2.0",
