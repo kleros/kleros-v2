@@ -1,3 +1,4 @@
+import { Address } from "viem";
 import { InvalidContextError, NotFoundError } from "../errors";
 import { executeAction } from "./executeActions";
 import { AbiEventMapping } from "./utils/actionTypes";
@@ -13,7 +14,7 @@ export type RealityAnswer = {
 
 export const retrieveRealityData = async (
   realityQuestionID: string,
-  arbitrable?: `0x${string}`,
+  arbitrable?: Address,
 ) => {
   if (!arbitrable) {
     throw new InvalidContextError("No arbitrable address provided");
