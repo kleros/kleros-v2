@@ -52,13 +52,9 @@ export const getDispute = async (
     ...options?.additionalContext,
   };
 
-  let data = {};
-  if (templateDataMappings) {
-    data = await executeActions(
-      JSON.parse(templateDataMappings),
-      initialContext,
-    );
-  }
+  const data = templateDataMappings
+    ? await executeActions(JSON.parse(templateDataMappings), initialContext)
+    : {};
 
   const populatedTemplate = populateTemplate(templateData, data);
 
