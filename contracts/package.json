@@ -127,6 +127,7 @@
     "chai": "^4.5.0",
     "dotenv": "^16.6.1",
     "eslint": "^9.15.0",
+    "eslint-plugin-chai-friendly": "^1.2.0",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^6.15.0",
     "gluegun": "^5.2.0",

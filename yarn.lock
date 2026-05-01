@@ -7051,6 +7051,7 @@ __metadata:
     chai: "npm:^4.5.0"
     dotenv: "npm:^16.6.1"
     eslint: "npm:^9.15.0"
+    eslint-plugin-chai-friendly: "npm:^1.2.0"
     ethereumjs-util: "npm:^7.1.5"
     ethers: "npm:^6.15.0"
     gluegun: "npm:^5.2.0"
@@ -20990,6 +20991,15 @@ __metadata:
     eslint:
       optional: true
   checksum: 10/dd27791147eca17366afcb83f47d6825b6ce164abb256681e5de4ec1d7e87d8605641eb869298a0dbc70665e2446dbcc2f40d3e1631a9475dd64dd23d4ca5dee
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-chai-friendly@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "eslint-plugin-chai-friendly@npm:1.2.0"
+  peerDependencies:
+    eslint: ">=3.0.0"
+  checksum: 10/e65539aa61ddb576aab60e756b134fffb8bce0d881d57dbc5608509380f37bd55f67153fd69bb95acabc03615b183215f894b1e1d4a4852462c6bf6a7f1f2a03
   languageName: node
   linkType: hard
 
