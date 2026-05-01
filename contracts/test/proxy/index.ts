@@ -144,10 +144,10 @@ describe("Upgradability", async () => {
     describe("After Test", async () => {
       // Why?
       it("Reset implementation to deployment's implementation address", async () => {
-        await proxy.upgradeToAndCall(
-          proxyDeployment.implementation ?? "",
-          "0x",
-        );
+        if (!proxyDeployment.implementation) {
+          throw new Error("No implementation address");
+        }
+        await proxy.upgradeToAndCall(proxyDeployment.implementation, "0x");
       });
     });
   });
