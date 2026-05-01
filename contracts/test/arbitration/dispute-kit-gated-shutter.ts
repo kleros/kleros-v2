@@ -20,9 +20,6 @@ import {
   ShutterTestContext,
 } from "./helpers/dispute-kit-shutter-common";
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-unused-expressions */
-
 /**
  * Test suite for DisputeKitGatedShutter - a dispute kit that requires jurors to hold
  * specific tokens (ERC20, ERC721, or ERC1155) to participate in disputes, with additional
@@ -39,7 +36,9 @@ describe("DisputeKitGatedShutter", async () => {
     let tokenContext: TokenGatedTestContext;
 
     beforeEach("Setup", async () => {
-      tokenContext = await setupTokenGatedTest({ contractName: "DisputeKitGatedShutterMock" });
+      tokenContext = await setupTokenGatedTest({
+        contractName: "DisputeKitGatedShutterMock",
+      });
     });
 
     // Run all shared token gating tests

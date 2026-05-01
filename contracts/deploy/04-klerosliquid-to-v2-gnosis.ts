@@ -11,12 +11,16 @@ const wrappedPNKByChain = new Map<ForeignChains, string>([
 
 const ONE_GWEI = BigNumber.from(parseUnits("1", "gwei"));
 
-const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployKlerosLiquid: DeployFunction = async (
+  hre: HardhatRuntimeEnvironment,
+) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
 
   // fallback to hardhat node signers on local network
-  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
+  const deployer =
+    (await getNamedAccounts()).deployer ??
+    (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
@@ -40,7 +44,9 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     });
   }
 
-  const wPnkAddress = wrappedPNKByChain.get(ForeignChains[ForeignChains[chainId]]);
+  const wPnkAddress = wrappedPNKByChain.get(
+    ForeignChains[ForeignChains[chainId]],
+  );
   const rng = ethers.ZeroAddress;
   const minStakingTime = 99999999;
   const maxFreezingTime = 0;
@@ -54,7 +60,12 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
-  console.log("using: \nwPNK at %s, \nForeignGateway at %s", wPnkAddress, foreignGateway.address, weth.address);
+  console.log(
+    "using: \nwPNK at %s, \nForeignGateway at %s",
+    wPnkAddress,
+    foreignGateway.address,
+    weth.address,
+  );
 
   const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
     from: deployer,
@@ -91,11 +102,13 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     [minStake, alpha, feeForJuror, jurorsForCourtJump], // minStake, alpha, feeForJuror, jurorsForCourtJump
     [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
     sortitionSumTreeK,
-    foreignGateway.address
+    foreignGateway.address,
   );
 
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
-  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
+  const disputeTemplateRegistry = await deployments.get(
+    "DisputeTemplateRegistry",
+  );
   await deploy("ArbitrableExample", {
     from: deployer,
     args: [

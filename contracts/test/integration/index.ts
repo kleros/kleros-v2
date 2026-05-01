@@ -7,19 +7,16 @@ import {
   ForeignGateway,
   ArbitrableExample,
   HomeGateway,
-  VeaMock,
   DisputeKitClassic,
   SortitionModule,
   ChainlinkRNG,
   ChainlinkVRFCoordinatorV2Mock,
 } from "../../typechain-types";
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
+// https://github.com/standard/standard/issues/690#issuecomment-278533482
 
 describe("Integration tests", async () => {
   const ONE_TENTH_ETH = 10n ** 17n;
-  const ONE_ETH = 10n ** 18n;
   const ONE_HUNDRED_PNK = 10n ** 20n;
   const ONE_THOUSAND_PNK = 10n ** 21n;
   const abiCoder = ethers.AbiCoder.defaultAbiCoder();
@@ -44,7 +41,6 @@ describe("Integration tests", async () => {
   let disputeKit: DisputeKitClassic;
   let pnk: PNK;
   let core: KlerosCore;
-  let vea: VeaMock;
   let foreignGateway: ForeignGateway;
   let arbitrable: ArbitrableExample;
   let homeGateway: HomeGateway;
@@ -57,15 +53,23 @@ describe("Integration tests", async () => {
       keepExistingDeployments: false,
     });
     rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
-    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
-    disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>(
+      "ChainlinkVRFCoordinator",
+    );
+    disputeKit =
+      await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
     pnk = await ethers.getContract<PNK>("PNK");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
-    vea = await ethers.getContract<VeaMock>("VeaMock");
-    foreignGateway = await ethers.getContract<ForeignGateway>("ForeignGatewayOnEthereum");
-    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
-    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
-    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
+    foreignGateway = await ethers.getContract<ForeignGateway>(
+      "ForeignGatewayOnEthereum",
+    );
+    arbitrable =
+      await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+    homeGateway = await ethers.getContract<HomeGateway>(
+      "HomeGatewayToEthereum",
+    );
+    sortitionModule =
+      await ethers.getContract<SortitionModule>("SortitionModule");
   });
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
@@ -105,19 +109,34 @@ describe("Integration tests", async () => {
       value: arbitrationCost,
     });
 
-    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`)); // get returned value from createDispute()
+    const trace = await network.provider.send("debug_traceTransaction", [
+      tx.hash,
+    ]);
+    const [disputeId] = abiCoder.decode(
+      ["uint"],
+      ethers.getBytes(`${trace.returnValue}`),
+    ); // get returned value from createDispute()
     console.log("Dispute Created with disputeId: %d", disputeId);
     await expect(tx)
       .to.emit(foreignGateway, "CrossChainDisputeOutgoing")
       .withArgs(anyValue, arbitrable.target, 1, 2, "0x00");
-    await expect(tx).to.emit(arbitrable, "DisputeRequest").withArgs(foreignGateway.target, 1, 0);
+    await expect(tx)
+      .to.emit(arbitrable, "DisputeRequest")
+      .withArgs(foreignGateway.target, 1, 0);
     if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     if (lastBlock === null) throw new Error("lastBlock is null");
     const disputeHash = ethers.solidityPackedKeccak256(
       ["bytes", "bytes32", "uint256", "address", "uint256", "uint256", "bytes"],
-      [ethers.toUtf8Bytes("createDispute"), lastBlock.hash, 31337, arbitrable.target, disputeId, 2, "0x00"]
+      [
+        ethers.toUtf8Bytes("createDispute"),
+        lastBlock.hash,
+        31337,
+        arbitrable.target,
+        disputeId,
+        2,
+        "0x00",
+      ],
     );
     console.log("dispute hash: ", disputeHash);
     if (lastBlock.hash === null) {
@@ -125,18 +144,22 @@ describe("Integration tests", async () => {
     }
     // Relayer tx
     await expect(
-      homeGateway.connect(relayer)["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"](
-        {
-          foreignBlockHash: ethers.toBeHex(lastBlock.hash),
-          foreignChainID: 31337,
-          foreignArbitrable: arbitrable.target,
-          foreignDisputeID: disputeId,
-          templateId: 0,
-          choices: 2,
-          extraData: "0x00",
-        },
-        { value: arbitrationCost }
-      )
+      homeGateway
+        .connect(relayer)
+        [
+          "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"
+        ](
+          {
+            foreignBlockHash: ethers.toBeHex(lastBlock.hash),
+            foreignChainID: 31337,
+            foreignArbitrable: arbitrable.target,
+            foreignDisputeID: disputeId,
+            templateId: 0,
+            choices: 2,
+            extraData: "0x00",
+          },
+          { value: arbitrationCost },
+        ),
     ).to.emit(homeGateway, "DisputeRequest");
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
@@ -168,37 +191,49 @@ describe("Integration tests", async () => {
 
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.vote);
-    await disputeKit.connect(await ethers.getSigner(deployer)).castVote(0, [0, 1, 2], 0, 0, "");
+    await disputeKit
+      .connect(await ethers.getSigner(deployer))
+      .castVote(0, [0, 1, 2], 0, 0, "");
     await core.passPeriod(0);
 
     await network.provider.send("evm_increaseTime", [100]); // Wait for the appeal period
     await network.provider.send("evm_mine");
 
-    await expect(core.passPeriod(0)).to.emit(core, "Ruling").withArgs(homeGateway.target, 0, 0);
+    await expect(core.passPeriod(0))
+      .to.emit(core, "Ruling")
+      .withArgs(homeGateway.target, 0, 0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     await expect(core.execute(0, 0, 1000))
       .to.emit(core, "JurorRewardPenalty")
-      .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n, ethers.ZeroAddress);
+      .withArgs(
+        deployer,
+        0,
+        0,
+        10000,
+        10000,
+        0,
+        arbitrationCost / 3n,
+        ethers.ZeroAddress,
+      );
 
-    await expect(core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }))
+    await expect(
+      core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }),
+    )
       .to.emit(core, "RulingExecuted")
       .withArgs(homeGateway.target, 0, 0)
       .and.to.emit(arbitrable, "Ruling")
       .withArgs(foreignGateway.target, 1, 0); // The ForeignGateway starts counting disputeID from 1.
     console.log("Ruling executed on KlerosCore");
   });
-
-  const mineBlocks = async (n: number) => {
-    for (let index = 0; index < n; index++) {
-      await network.provider.send("evm_mine");
-    }
-  };
 });
 
-const logJurorBalance = async (result: { totalStakedPnk: bigint; totalLocked: bigint }) => {
+const logJurorBalance = async (result: {
+  totalStakedPnk: bigint;
+  totalLocked: bigint;
+}) => {
   console.log(
     "staked=%s, locked=%s",
     ethers.formatUnits(result.totalStakedPnk),
-    ethers.formatUnits(result.totalLocked)
+    ethers.formatUnits(result.totalLocked),
   );
 };

@@ -1,4 +1,4 @@
-import hre = require("hardhat");
+import hre from "hardhat";
 import relayer from "./disputeRelayerBot";
 import { HttpNetworkConfig } from "hardhat/types";
 
@@ -7,7 +7,7 @@ async function main() {
     hre.config.networks.sepolia as HttpNetworkConfig,
     hre.companionNetworks.foreignSepolia.deployments,
     "ForeignGatewayOnEthereum",
-    "HomeGatewayToEthereum"
+    "HomeGatewayToEthereum",
   );
 }
 

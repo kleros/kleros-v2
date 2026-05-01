@@ -26,34 +26,47 @@ task("populate:policy-registry", "Populates the policy registry for each court")
   .addOptionalParam(
     "from",
     "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet (default: auto depending on the network)",
-    undefined
+    undefined,
   )
-  .addOptionalParam("start", "The starting index for the courts to populate (default: 0)", 0, types.int)
+  .addOptionalParam(
+    "start",
+    "The starting index for the courts to populate (default: 0)",
+    0,
+    types.int,
+  )
   .addOptionalParam(
     "maxNumberOfCourts",
     "The maximum number of courts to populate (default: all)",
     undefined,
-    types.int
+    types.int,
   )
   .setAction(async (taskArgs, hre) => {
     const { getNamedAccounts, getChainId, ethers, network } = hre;
 
     // fallback to hardhat node signers on local network
-    const deployer = (await getNamedAccounts()).deployer ?? (await ethers.getSigners())[0].address;
+    const deployer =
+      (await getNamedAccounts()).deployer ??
+      (await ethers.getSigners())[0].address;
 
     const chainId = Number(await getChainId());
     if (!HomeChains[chainId]) {
       console.error(`Aborting: script is not compatible with ${chainId}`);
       return;
     } else {
-      console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
+      console.log(
+        "deploying to %s with deployer %s",
+        HomeChains[chainId],
+        deployer,
+      );
     }
 
     let from: Sources | undefined;
     if (taskArgs.from) {
       from = Sources[taskArgs.from.toUpperCase() as keyof typeof Sources];
       if (from === undefined) {
-        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet");
+        console.error(
+          "Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet",
+        );
         return;
       }
     } else {
@@ -67,7 +80,10 @@ task("populate:policy-registry", "Populates the policy registry for each court")
         const policiesV1 = policiesV1Mainnet;
 
         // WARNING: skip the Forking court at id 0, so the v1 courts are shifted by 1
-        policiesV2 = policiesV1.map((policy) => ({ ...policy, court: policy.court + 1 }));
+        policiesV2 = policiesV1.map((policy) => ({
+          ...policy,
+          court: policy.court + 1,
+        }));
         break;
       }
       case Sources.V1_GNOSIS: {
@@ -77,7 +93,10 @@ task("populate:policy-registry", "Populates the policy registry for each court")
         }));
 
         // WARNING: skip the Forking court at id 0, so the v1 courts are shifted by 1
-        policiesV2 = policiesV1.map((policy) => ({ ...policy, court: policy.court + 1 }));
+        policiesV2 = policiesV1.map((policy) => ({
+          ...policy,
+          court: policy.court + 1,
+        }));
         break;
       }
       case Sources.V2_DEVNET: {
@@ -98,15 +117,27 @@ task("populate:policy-registry", "Populates the policy registry for each court")
 
     // Warning: the indices are NOT the court IDs, e.g. the forking court is not present in the config so the indices are shifted by 1
     const start = taskArgs.start;
-    const end = taskArgs.maxNumberOfCourts ? start + taskArgs.maxNumberOfCourts : policiesV2.length;
-    console.log(`Keeping only the first ${end - start} courts, starting from ${start}`);
+    const end = taskArgs.maxNumberOfCourts
+      ? start + taskArgs.maxNumberOfCourts
+      : policiesV2.length;
+    console.log(
+      `Keeping only the first ${end - start} courts, starting from ${start}`,
+    );
     policiesV2 = policiesV2.slice(start, end);
 
-    const policyRegistry = await ethers.getContract<PolicyRegistry>("PolicyRegistry");
+    const policyRegistry =
+      await ethers.getContract<PolicyRegistry>("PolicyRegistry");
 
     for await (const policy of policiesV2) {
-      console.log("Populating policy for %s Court (%d): %s", policy.name, policy.court, policy.uri);
-      await policyRegistry.setPolicy.populateTransaction(policy.court, policy.name, policy.uri).then(execute);
+      console.log(
+        "Populating policy for %s Court (%d): %s",
+        policy.name,
+        policy.court,
+        policy.uri,
+      );
+      await policyRegistry.setPolicy
+        .populateTransaction(policy.court, policy.name, policy.uri)
+        .then(execute);
     }
 
     writeTransactionBatch({ name: "populate-policy-registry" });

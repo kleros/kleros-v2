@@ -1,6 +1,6 @@
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import hre = require("hardhat");
+import hre from "hardhat";
 import {
   KlerosCore,
   ForeignGateway__factory,
@@ -31,19 +31,33 @@ export default async function main(
   foreignDeployments: DeploymentsExtension,
   foreignGatewayArtifact: string,
   homeGatewayArtifact: string,
-  feeTokenArtifact?: string
+  feeTokenArtifact?: string,
 ) {
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
-  const homeGateway = await ethers.getContract<HomeGateway>(homeGatewayArtifact);
-  const feeToken = feeTokenArtifact ? await ethers.getContract<TestERC20>(feeTokenArtifact) : undefined;
+  const homeGateway =
+    await ethers.getContract<HomeGateway>(homeGatewayArtifact);
+  const feeToken = feeTokenArtifact
+    ? await ethers.getContract<TestERC20>(feeTokenArtifact)
+    : undefined;
 
-  const foreignChainProvider = new ethers.providers.JsonRpcProvider(foreignNetwork.url);
-  const foreignGatewayDeployment = await foreignDeployments.get(foreignGatewayArtifact);
-  const foreignGateway = await ForeignGateway__factory.connect(foreignGatewayDeployment.address, foreignChainProvider);
-  const foreignChainID = await foreignChainProvider.getNetwork().then((network) => network.chainId);
+  const foreignChainProvider = new ethers.providers.JsonRpcProvider(
+    foreignNetwork.url,
+  );
+  const foreignGatewayDeployment = await foreignDeployments.get(
+    foreignGatewayArtifact,
+  );
+  const foreignGateway = await ForeignGateway__factory.connect(
+    foreignGatewayDeployment.address,
+    foreignChainProvider,
+  );
+  const foreignChainID = await foreignChainProvider
+    .getNetwork()
+    .then((network) => network.chainId);
   const arbitrableInterface = IArbitrableV2__factory.createInterface();
 
-  const logger = loggerFactory.createLogger(loggerOptions).child({ foreignChainId: foreignChainID });
+  const logger = loggerFactory
+    .createLogger(loggerOptions)
+    .child({ foreignChainId: foreignChainID });
   logger.info(`Listening for events from ${foreignGatewayArtifact}...`);
 
   if (HEARTBEAT_URL) {
@@ -58,23 +72,44 @@ export default async function main(
   // type Listener = [ eventArg1, ...eventArgN, transactionReceipt ]
   foreignGateway.on(
     "CrossChainDisputeOutgoing",
-    async (foreignBlockHash, foreignArbitrable, foreignDisputeID, choices, extraData, txReceipt) => {
+    async (
+      foreignBlockHash,
+      foreignArbitrable,
+      foreignDisputeID,
+      choices,
+      extraData,
+      txReceipt,
+    ) => {
       logger.info(
-        `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`
+        `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`,
       );
       logger.debug(`tx receipt: ${JSON.stringify(txReceipt)}`);
 
       // txReceipt is missing the full logs for this tx so we need to request it here
-      const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(txReceipt.transactionHash);
+      const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(
+        txReceipt.transactionHash,
+      );
 
       // Retrieve the DisputeRequest event
       const disputeRequests: DisputeRequestEventObject[] = fullTxReceipt.logs
-        .filter((log) => log.topics[0] === arbitrableInterface.getEventTopic("DisputeRequest"))
-        .map((log) => arbitrableInterface.parseLog(log).args as unknown as DisputeRequestEventObject);
-      logger.warn(`More than 1 DisputeRequest event: not supported yet, skipping the others events.`);
+        .filter(
+          (log) =>
+            log.topics[0] ===
+            arbitrableInterface.getEventTopic("DisputeRequest"),
+        )
+        .map(
+          (log) =>
+            arbitrableInterface.parseLog(log)
+              .args as unknown as DisputeRequestEventObject,
+        );
+      logger.warn(
+        `More than 1 DisputeRequest event: not supported yet, skipping the others events.`,
+      );
 
       const disputeRequest = disputeRequests[0];
-      logger.info(`tx events DisputeRequest: ${JSON.stringify(disputeRequest)}`);
+      logger.info(
+        `tx events DisputeRequest: ${JSON.stringify(disputeRequest)}`,
+      );
 
       const relayCreateDisputeParams = {
         foreignBlockHash,
@@ -87,18 +122,26 @@ export default async function main(
         choices,
         extraData,
       };
-      logger.info(`Relaying dispute to home chain... ${JSON.stringify(relayCreateDisputeParams)}`);
+      logger.info(
+        `Relaying dispute to home chain... ${JSON.stringify(relayCreateDisputeParams)}`,
+      );
 
       let tx;
       if (feeToken === undefined) {
         // Paying in native Arbitrum ETH
-        const cost = (await core.functions["arbitrationCost(bytes)"](extraData)).cost;
+        const cost = (await core.functions["arbitrationCost(bytes)"](extraData))
+          .cost;
         tx = await homeGateway.functions[
           "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"
         ](relayCreateDisputeParams, { value: cost });
       } else {
         // Paying in ERC20
-        const cost = (await core.functions["arbitrationCost(bytes,address)"](extraData, feeToken.address)).cost;
+        const cost = (
+          await core.functions["arbitrationCost(bytes,address)"](
+            extraData,
+            feeToken.address,
+          )
+        ).cost;
         await (await feeToken.approve(homeGateway.address, cost)).wait();
         tx = await homeGateway.functions[
           "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes),uint256)"
@@ -106,7 +149,7 @@ export default async function main(
       }
       tx = tx.wait();
       logger.info(`relayCreateDispute txId: ${tx.transactionHash}`);
-    }
+    },
   );
 
   const delay = (ms) => new Promise((x) => setTimeout(x, ms));
