@@ -102,7 +102,9 @@
     "build:all": "rm -rf ./dist && yarn build:cjs && yarn build:esm && yarn build:types",
     "build:cjs": "tsc --project tsconfig-release.json --module CommonJS --moduleResolution Node --outDir ./dist/cjs && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
     "build:esm": "tsc --project tsconfig-release.json --module NodeNext --moduleResolution NodeNext --outDir ./dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
-    "build:types": "tsc --project tsconfig-release.json --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap"
+    "build:types": "tsc --project tsconfig-release.json --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap",
+    "check-style": "eslint . --no-error-on-unmatched-pattern",
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@defi-wonderland/natspec-smells": "^1.1.6",
