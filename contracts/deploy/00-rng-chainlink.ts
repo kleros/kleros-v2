@@ -7,7 +7,7 @@ import {
   ONE_MINUTE_IN_SECONDS,
 } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
-import { RNGWithFallback } from "../typechain-types";
+import { ChainlinkRNG, RNGWithFallback } from "../typechain-types";
 
 const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { getNamedAccounts, getChainId, ethers } = hre;
@@ -91,7 +91,7 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     );
   }
 
-  const rng = await getContractOrDeploy(hre, "ChainlinkRNG", {
+  const rng = await getContractOrDeploy<ChainlinkRNG>(hre, "ChainlinkRNG", {
     from: deployer,
     args: [
       deployer,

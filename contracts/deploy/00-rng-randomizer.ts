@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HomeChains, isSkipped } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
-import { RNGWithFallback } from "../typechain-types";
+import { RandomizerRNG, RNGWithFallback } from "../typechain-types";
 
 const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { getNamedAccounts, getChainId, ethers } = hre;
@@ -26,7 +26,7 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  const rng = await getContractOrDeploy(hre, "RandomizerRNG", {
+  const rng = await getContractOrDeploy<RandomizerRNG>(hre, "RandomizerRNG", {
     from: deployer,
     args: [
       deployer,

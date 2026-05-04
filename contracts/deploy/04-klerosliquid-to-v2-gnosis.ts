@@ -22,9 +22,10 @@ const deployKlerosLiquid: DeployFunction = async (
     (await getNamedAccounts()).deployer ??
     (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
+  const foreignChain = chainId as ForeignChains;
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
-  if (!wrappedPNKByChain.get(chainId)) {
+  if (!wrappedPNKByChain.get(foreignChain)) {
     const wPnk = await deploy("WrappedPinakionV2", {
       from: deployer,
       log: true,
@@ -32,7 +33,7 @@ const deployKlerosLiquid: DeployFunction = async (
       maxPriorityFeePerGas: ONE_GWEI,
     });
 
-    wrappedPNKByChain.set(ForeignChains[ForeignChains[chainId]], wPnk.address);
+    wrappedPNKByChain.set(foreignChain, wPnk.address);
 
     await deploy("WPNKFaucet", {
       from: deployer,
@@ -44,9 +45,7 @@ const deployKlerosLiquid: DeployFunction = async (
     });
   }
 
-  const wPnkAddress = wrappedPNKByChain.get(
-    ForeignChains[ForeignChains[chainId]],
-  );
+  const wPnkAddress = wrappedPNKByChain.get(foreignChain);
   const rng = ethers.ZeroAddress;
   const minStakingTime = 99999999;
   const maxFreezingTime = 0;

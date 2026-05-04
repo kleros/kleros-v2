@@ -68,7 +68,7 @@ export default async function main() {
   await delay(2000); // Some log messages may be lost otherwise
 }
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 main()
   .then(() => process.exit(0))
