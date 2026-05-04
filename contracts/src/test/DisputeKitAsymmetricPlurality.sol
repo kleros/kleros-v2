@@ -2,15 +2,16 @@
 
 pragma solidity ^0.8.28;
 
-import {KlerosCore} from "../KlerosCore.sol";
-import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
-import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
-import {Initializable} from "../../proxy/Initializable.sol";
-import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
-import {SafeSend} from "../../libraries/SafeSend.sol";
-import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
+import {KlerosCore} from "../arbitration/KlerosCore.sol";
+import {IDisputeKit} from "../arbitration//interfaces/IDisputeKit.sol";
+import {ISortitionModule} from "../arbitration//interfaces/ISortitionModule.sol";
+import {Initializable} from "../proxy/Initializable.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {SafeSend} from "../libraries/SafeSend.sol";
+import {ONE_BASIS_POINT} from "../libraries/Constants.sol";
 
 /// @title DisputeKitAsymmetricPlurality
+/// @notice This is a test dispute kit for evaluating partial coherence handling. Not intended for production use.
 /// @notice Dispute kit implementation adapted from DisputeKitClassic
 /// - a drawing system: proportional to staked PNK,
 /// - a vote aggregation system: asymmetric plurality. The coherence differentiates between choices,
