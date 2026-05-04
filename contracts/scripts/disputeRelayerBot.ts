@@ -28,6 +28,11 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_RELAYER_BOT")
     }
   : {};
 
+const safeJson = (value: unknown) =>
+  JSON.stringify(value, (_, nestedValue) =>
+    typeof nestedValue === "bigint" ? nestedValue.toString() : nestedValue,
+  );
+
 export default async function main(
   foreignNetwork: HttpNetworkConfig,
   foreignDeployments: DeploymentsExtension,
@@ -83,7 +88,7 @@ export default async function main(
       logger.info(
         `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`,
       );
-      logger.debug(`tx receipt: ${JSON.stringify(eventLog)}`);
+      logger.debug(`tx receipt: ${safeJson(eventLog)}`);
 
       // txReceipt is missing the full logs for this tx so we need to request it here
       const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(
@@ -109,9 +114,7 @@ export default async function main(
       );
 
       const disputeRequest = disputeRequests[0];
-      logger.info(
-        `tx events DisputeRequest: ${JSON.stringify(disputeRequest)}`,
-      );
+      logger.info(`tx events DisputeRequest: ${safeJson(disputeRequest)}`);
 
       const relayCreateDisputeParams: IHomeGateway.RelayCreateDisputeParamsStruct =
         {
@@ -124,7 +127,7 @@ export default async function main(
           extraData,
         };
       logger.info(
-        `Relaying dispute to home chain... ${JSON.stringify(relayCreateDisputeParams)}`,
+        `Relaying dispute to home chain... ${safeJson(relayCreateDisputeParams)}`,
       );
 
       let tx;

@@ -22,6 +22,9 @@ const deployKlerosLiquid: DeployFunction = async (
     (await getNamedAccounts()).deployer ??
     (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
+  if (!(chainId in ForeignChains)) {
+    throw new Error(`Unsupported foreign chain id: ${chainId}`);
+  }
   const foreignChain = chainId as ForeignChains;
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
@@ -46,6 +49,10 @@ const deployKlerosLiquid: DeployFunction = async (
   }
 
   const wPnkAddress = wrappedPNKByChain.get(foreignChain);
+  if (!wPnkAddress) {
+    throw new Error(`Missing WrappedPinakionV2 address for chainId ${chainId}`);
+  }
+
   const rng = ethers.ZeroAddress;
   const minStakingTime = 99999999;
   const maxFreezingTime = 0;
