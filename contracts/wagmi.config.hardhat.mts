@@ -1,6 +1,6 @@
 import { Config, defineConfig } from "@wagmi/cli";
-import IHomeGateway from "./artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
-import { getAbi, readArtifacts, merge } from "./scripts/wagmiHelpers";
+import IHomeGateway from "./artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" with { type: "json" };
+import { getAbi, readArtifacts, merge } from "./scripts/wagmiHelpers.mjs";
 
 const getConfig = async (): Promise<Config> => {
   const artifact = await readArtifacts("localhost");

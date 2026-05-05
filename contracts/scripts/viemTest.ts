@@ -1,12 +1,6 @@
-import { createPublicClient, http, getContract } from "viem";
+import { createPublicClient, http, getContract, AbiFunction } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 import { disputeKitClassicConfig } from "../deployments/devnet.viem";
-import {
-  AbiFunction,
-  AbiParametersToPrimitiveTypes,
-  ExtractAbiFunction,
-  FormatAbiItem,
-} from "abitype";
 
 const main = async () => {
   const client = createPublicClient({
@@ -23,24 +17,6 @@ const main = async () => {
   await disputeKit.read.owner().then(console.log);
 
   // --------------------------------------------------
-
-  // Working around the "unknown tuple types" issue
-  // https://viem.sh/docs/faq.html#why-are-contract-function-args-with-fully-named-inputs-represented-as-unnamed-tuple-types-instead-of-object-types
-
-  // Not human-readable
-  type DelayedStakesFunction = ExtractAbiFunction<
-    typeof disputeKit.abi,
-    "disputes"
-  >;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  type Result = AbiParametersToPrimitiveTypes<DelayedStakesFunction["outputs"]>;
-  // -> readonly [bigint, boolean, `0x${string}`]
-  // Ideally we would get an object instead of a tuple
-
-  // Human-readable
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  type FormattedFunction = FormatAbiItem<DelayedStakesFunction>;
-  // -> "function disputes(uint256) view returns (uint256 numberOfChoices, bool jumped, bytes extraData)"
 
   const getFunctionReturnParameterNames = (
     abi: AbiFunction[],

@@ -398,8 +398,8 @@ describe("getContractsEthers", async () => {
   });
 
   it("should throw error for unsupported deployment", async () => {
-    // @ts-expect-error Testing invalid deployment
     await expect(
+      // @ts-expect-error Testing invalid deployment
       getContracts(arbitrumSepoliaProvider, "invalid"),
     ).to.be.rejectedWith(/Unsupported deployment|Cannot destructure property/);
   });

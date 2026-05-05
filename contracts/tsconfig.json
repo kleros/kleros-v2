@@ -10,7 +10,8 @@
     "./typechain-types",
     "./deploy",
     "./deployments/*.ts",
-    "./*.ts"
+    "./*.ts",
+    "./*.mts"
   ],
   "exclude": [
     "./scripts/**/console*.ts",

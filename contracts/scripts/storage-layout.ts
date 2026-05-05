@@ -1,5 +1,12 @@
 import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import {
+  CompilerOutputContract,
+  HardhatRuntimeEnvironment,
+} from "hardhat/types";
+
+type ContractOutputWithStorageLayout = CompilerOutputContract & {
+  storageLayout?: unknown;
+};
 
 task("storage-layout", "Prints the storage layout of a contract").setAction(
   async (_, hre: HardhatRuntimeEnvironment) => {
@@ -7,9 +14,14 @@ task("storage-layout", "Prints the storage layout of a contract").setAction(
     const buildInfo = await hre.artifacts.getBuildInfo(
       `src/arbitration/KlerosCore.sol:KlerosCore`,
     );
-    console.log(
-      buildInfo.output.contracts["src/arbitration/KlerosCore.sol"]["KlerosCore"]
-        .storageLayout,
-    );
+    if (!buildInfo) {
+      throw new Error(
+        "Build info not found for src/arbitration/KlerosCore.sol:KlerosCore",
+      );
+    }
+    const contractOutput = buildInfo.output.contracts[
+      "src/arbitration/KlerosCore.sol"
+    ]["KlerosCore"] as ContractOutputWithStorageLayout;
+    console.log(contractOutput.storageLayout);
   },
 );

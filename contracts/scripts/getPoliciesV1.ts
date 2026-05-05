@@ -1,5 +1,4 @@
 import hre, { ethers } from "hardhat";
-import fetch from "node-fetch";
 
 interface Policy {
   court: number;
@@ -25,7 +24,9 @@ async function main() {
   );
 
   const fetchPolicy = (url: string): Promise<Policy> => {
-    return fetch(url).then((response) => response.json());
+    return fetch(url).then(
+      (response: Response) => response.json() as Promise<Policy>,
+    );
   };
 
   const fetchPolicyUri = (court: number): Promise<string> => {
