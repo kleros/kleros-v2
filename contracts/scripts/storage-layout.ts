@@ -22,6 +22,11 @@ task("storage-layout", "Prints the storage layout of a contract").setAction(
     const contractOutput = buildInfo.output.contracts[
       "src/arbitration/KlerosCore.sol"
     ]["KlerosCore"] as ContractOutputWithStorageLayout;
+    if (!contractOutput) {
+      throw new Error(
+        "Contract output not found for src/arbitration/KlerosCore.sol:KlerosCore",
+      );
+    }
     console.log(contractOutput.storageLayout);
   },
 );
