@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-import { StyledSkeleton } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
+
+import { StyledSkeleton } from "components/StyledSkeleton";
+
 import { InternalLink } from "./InternalLink";
 
 const Container = styled.div`

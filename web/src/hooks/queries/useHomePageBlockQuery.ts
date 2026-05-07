@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { isUndefined } from "utils/index";
+
 import { graphql } from "src/graphql";
 import { HomePageBlockQuery } from "src/graphql/graphql";
 

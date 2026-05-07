@@ -1,15 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 
 import { socialmedia } from "consts/socialmedia";
 
-import LightButton from "components/LightButton";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import { ExternalLink } from "components/ExternalLink";
+import LightButton from "components/LightButton";
 
 const Container = styled.div`
   height: 114px;

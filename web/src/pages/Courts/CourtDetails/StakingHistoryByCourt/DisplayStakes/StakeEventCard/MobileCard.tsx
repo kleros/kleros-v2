@@ -1,8 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { Hash } from "viem";
 
 import { useTranslation } from "react-i18next";
+import { Hash } from "viem";
 
 import { formatDateWithTime } from "utils/date";
 import { formatPNK } from "utils/format";

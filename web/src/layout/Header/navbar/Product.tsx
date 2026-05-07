@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+
 import Skeleton from "react-loading-skeleton";
 
 import { responsiveSize } from "styles/responsiveSize";

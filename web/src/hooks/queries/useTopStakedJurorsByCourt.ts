@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { TopStakedJurorsByCourtQuery, OrderDirection } from "src/graphql/graphql";
 

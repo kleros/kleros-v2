@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { VotingHistoryQuery } from "src/graphql/graphql";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 import DisputeTimeline from "./DisputeTimeline";
 import FinalDecision from "./FinalDecision";
