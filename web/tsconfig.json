@@ -65,7 +65,7 @@
     "declaration": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "resolveJsonModule": true,
     "target": "ES2020",
     "lib": [
