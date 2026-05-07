@@ -76,6 +76,7 @@ const PersonFields: React.FC = () => {
         setDisputeData({ ...disputeData, aliasesArray: updatedAliases });
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAliasesWrite = (event: React.ChangeEvent<HTMLInputElement>) => {

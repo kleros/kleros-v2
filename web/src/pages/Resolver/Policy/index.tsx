@@ -96,7 +96,7 @@ const Policy: React.FC = () => {
         setDisputeData({ ...disputeData, policyURI: cid });
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         errorToast(t("toasts.upload_failed", { error: err?.message }));
       })
       .finally(() => setIsPolicyUploading(false));

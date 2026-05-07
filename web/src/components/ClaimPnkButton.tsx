@@ -60,7 +60,7 @@ const ClaimPnkButton: React.FC = () => {
         })
         .then(({ result, status }) => {
           setIsPopupOpen(status);
-          status && setHash(result?.transactionHash);
+          if (status) setHash(result?.transactionHash);
         });
     }
   };

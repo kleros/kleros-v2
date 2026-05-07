@@ -49,7 +49,7 @@ export const getDisputeRequestParamsFromTxn = async (hash: `0x${string}`, chainI
       _arbitrable: disputeRequestEvent.address,
     };
   } catch (e) {
-    console.log("Error getting txn :", { e });
+    console.error("Error getting txn :", { e });
 
     return undefined;
   }

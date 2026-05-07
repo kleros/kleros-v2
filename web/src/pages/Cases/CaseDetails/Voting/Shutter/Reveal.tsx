@@ -36,6 +36,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitName, commit,
   const { t } = useTranslation();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [justification, setJustification] = useState("");
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { Tooltip } from "chart.js";
+import { Tooltip, TooltipModel, ChartType, ActiveElement } from "chart.js";
 import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 
@@ -133,15 +133,14 @@ const Chart: React.FC = () => {
 };
 
 // custom positioner for tooltip, we need dynamic top positioning, which is not available by default.
-Tooltip.positioners.custom = function (elements) {
-  const tooltip = this;
-  const height = tooltip.chart.chartArea.height;
-  const width = tooltip.chart.chartArea.width;
+Tooltip.positioners.custom = function (this: TooltipModel<ChartType>, elements: readonly ActiveElement[]) {
+  const height = this.chart.chartArea.height;
+  const width = this.chart.chartArea.width;
 
   const x = elements[0]?.element.x;
   const y = elements[0]?.element.y;
-  const isAtTop = height > y + tooltip.height;
-  const isAtEnd = width < x + tooltip.width;
+  const isAtTop = height > y + this.height;
+  const isAtEnd = width < x + this.width;
 
   return {
     x: elements[0]?.element.x,

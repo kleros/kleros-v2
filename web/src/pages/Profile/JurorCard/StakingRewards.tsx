@@ -33,6 +33,7 @@ const UnclaimedContainer = styled.div`
   gap: 4px;
 `;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ClaimPNK: React.FC = () => {
   const { t } = useTranslation();
 

@@ -66,6 +66,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isValid, setDisputeData, props.checked]);
 
   const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {

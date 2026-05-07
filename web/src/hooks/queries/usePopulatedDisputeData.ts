@@ -57,6 +57,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
 
           const initialContext = {
             // Matching the variable name to DisputeRequest
+            // eslint-disable-next-line max-len
             // https://github.com/kleros/kleros-v2/blob/592243f52d57e1540206c06afdbdac0d77311106/contracts/src/arbitration/interfaces/IArbitrableV2.sol#L21
             arbitrator: klerosCoreAddress[DEFAULT_CHAIN.id],
             arbitratorDisputeID: disputeID,

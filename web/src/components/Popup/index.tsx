@@ -180,7 +180,6 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   popupType,
   setIsOpen,
   setAmount,
-  isCommit,
   automaticVoteReveal,
   ...props
 }) => {

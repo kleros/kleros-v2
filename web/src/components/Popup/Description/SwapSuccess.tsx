@@ -65,7 +65,7 @@ interface ISwapSuccess {
   isClaim?: boolean;
 }
 
-const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }) => {
+const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim }) => {
   const { t } = useTranslation();
   const baseUrl = `https://sepolia.arbiscan.io/tx/${hash}`;
   return (

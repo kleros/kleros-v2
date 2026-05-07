@@ -106,7 +106,6 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   const errMsg = isRpcError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
-  console.log({ jurorRewardsDispersed }, disputeDetails);
 
   return (
     <>

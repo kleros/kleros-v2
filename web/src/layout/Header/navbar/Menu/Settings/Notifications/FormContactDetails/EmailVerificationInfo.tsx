@@ -80,7 +80,7 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
           }
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           errorToast(t("email_verification.failed_to_send_verification_error", { error: err?.message }));
         });
     },
