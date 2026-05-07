@@ -21,7 +21,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["src/assets"],
+    ignores: ["src/assets", "src/hooks/contracts/generated.ts"],
   },
   ...fixupConfigRules(
     compat.extends(
