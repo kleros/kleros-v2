@@ -21,7 +21,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["src/assets", "src/hooks/contracts/generated.ts"],
+    ignores: ["src/assets", "src/hooks/contracts/generated.ts", "src/graphql/**/*"],
   },
   ...fixupConfigRules(
     compat.extends(
