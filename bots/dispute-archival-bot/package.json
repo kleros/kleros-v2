@@ -1,0 +1,17 @@
+{
+  "name": "dispute-archival-bot",
+  "packageManager": "yarn@4.10.3",
+  "type": "module",
+  "scripts": {
+    "start": "node index.ts"
+  },
+  "dependencies": {
+    "@kleros/kleros-sdk": "workspace:^"
+  },
+  "devDependencies": {
+    "@kleros/kleros-v2-tsconfig": "workspace:^",
+    "@types/node": "^25.6.0",
+    "dotenv": "^17.4.2",
+    "viem": "^2.24.1"
+  }
+}
