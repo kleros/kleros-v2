@@ -10,9 +10,10 @@ contract DisputeArchive {
 
     /**
      * @param id Id of the archived dispute
+     * @param courtId Id of the court in which the dispute initiated
      * @param cid Ipfs cid containing the populated dispute + dispute evidences + kleros core subgraph data
      */
-    event ArchivedDispute(uint256 indexed id, string cid);
+    event ArchivedDispute(uint256 indexed id, uint96 courtId, string cid);
 
     /**
      * @param id Id of the amended archived dispute
@@ -61,13 +62,14 @@ contract DisputeArchive {
 
     /// @notice Stores archived dispute's ipfs cid.
     /// @param id ID of dispute to be archived.
+    /// @param courtId Id of the court in which the dispute initiated
     /// @param cid Archived dispute data's ipfs cid.
-    function register(uint256 id, string calldata cid) external onlyOwner {
+    function register(uint256 id, uint96 courtId, string calldata cid) external onlyOwner {
         require(bytes(archivedDisputeToCid[id]).length == 0, DisputeAlreadyArchived());
         require(bytes(cid).length > 0, CIDCannotBeEmpty());
 
         archivedDisputeToCid[id] = cid;
-        emit ArchivedDispute(id, cid);
+        emit ArchivedDispute(id, courtId, cid);
     }
 
     /// @notice Amends archived dispute's ipfs cid.

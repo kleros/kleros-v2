@@ -35,6 +35,12 @@ export const disputeArchiveAbi = [
       },
       {
         indexed: false,
+        internalType: "uint96",
+        name: "courtId",
+        type: "uint96",
+      },
+      {
+        indexed: false,
         internalType: "string",
         name: "cid",
         type: "string",
@@ -129,6 +135,11 @@ export const disputeArchiveAbi = [
         internalType: "uint256",
         name: "id",
         type: "uint256",
+      },
+      {
+        internalType: "uint96",
+        name: "courtId",
+        type: "uint96",
       },
       {
         internalType: "string",

@@ -26,7 +26,9 @@ async function main() {
 
     const cid = await uploadToIpfs(id, snapshot);
 
-    const hash = await registerCid(id, cid);
+    const courtID = snapshot.dispute.court.id;
+
+    const hash = await registerCid(id, courtID, cid);
 
     console.log(`Dispute ${id} archived with cid: ${cid}. Transaction hash: ${hash}`);
   }

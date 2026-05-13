@@ -27,7 +27,7 @@ const getClients = () => {
   };
 };
 
-export async function registerCid(disputeId: string, cid: string) {
+export async function registerCid(disputeId: string, courtId: string, cid: string) {
   const { publicClient, walletClient, account } = getClients();
   const config = getEnvConfig();
 
@@ -36,7 +36,7 @@ export async function registerCid(disputeId: string, cid: string) {
     address: config.disputeArchiveAddress as Address,
     abi: disputeArchiveAbi,
     functionName: "register",
-    args: [BigInt(disputeId), cid],
+    args: [BigInt(disputeId), BigInt(courtId), cid],
   });
 
   const hash = await walletClient.writeContract(request);
