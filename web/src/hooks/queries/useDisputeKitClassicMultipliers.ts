@@ -8,20 +8,21 @@ import { isUndefined } from "utils/index";
 
 export const useDisputeKitClassicMultipliers = () => {
   const publicClient = usePublicClient();
-  const disputeKitClassic = getContract({
-    abi: disputeKitClassicConfig.abi,
-    address: disputeKitClassicConfig.address[DEFAULT_CHAIN.id],
-    client: {
-      public: publicClient,
-    },
-  });
-  const isEnabled = !isUndefined(disputeKitClassic);
+  const isEnabled = !isUndefined(publicClient);
+
   return useQuery({
     queryKey: [`DisputeKitClassicMultipliers`],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
-      if (!disputeKitClassic) return;
+      if (!publicClient) return;
+      const disputeKitClassic = getContract({
+        abi: disputeKitClassicConfig.abi,
+        address: disputeKitClassicConfig.address[DEFAULT_CHAIN.id as keyof typeof disputeKitClassicConfig.address],
+        client: {
+          public: publicClient,
+        },
+      });
       const winner_stake_multiplier = await disputeKitClassic.read.WINNER_STAKE_MULTIPLIER();
       const loser_stake_multiplier = await disputeKitClassic.read.LOSER_STAKE_MULTIPLIER();
       const loser_appeal_period_multiplier = await disputeKitClassic.read.LOSER_APPEAL_PERIOD_MULTIPLIER();

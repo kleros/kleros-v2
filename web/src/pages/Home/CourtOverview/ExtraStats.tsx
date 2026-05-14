@@ -34,10 +34,12 @@ const StyledLabel = styled.label`
   font-weight: 600;
 `;
 
+type HomePageExtraStatsResult = ReturnType<typeof useHomePageExtraStats>;
+
 interface IStat {
   title: string;
-  getText: (data) => string;
-  getCourtId: (data) => string;
+  getText: (data: HomePageExtraStatsResult) => string | null | undefined;
+  getCourtId: (data: HomePageExtraStatsResult) => string | undefined;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
@@ -101,7 +103,12 @@ const ExtraStats = () => {
         <StyledLabel>{t("stats.no_activity_in_this_period")}</StyledLabel>
       ) : (
         stats.map(({ title, getCourtId, getText, icon }) => (
-          <ExtraStatsDisplay key={title} courtId={getCourtId(data)} {...{ title, icon }} text={getText(data)} />
+          <ExtraStatsDisplay
+            key={title}
+            courtId={getCourtId(data)}
+            {...{ title, icon }}
+            text={getText(data) ?? undefined}
+          />
         ))
       )}
     </StyledCard>

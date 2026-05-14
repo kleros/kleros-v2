@@ -13,7 +13,7 @@ import { klerosCoreAbi, klerosCoreAddress } from "hooks/contracts/generated";
  */
 export function retrieveDisputeIdFromLogs(
   logs: readonly Log[],
-  coreAddress: Address = klerosCoreAddress[DEFAULT_CHAIN.id]
+  coreAddress: Address = klerosCoreAddress[DEFAULT_CHAIN.id as keyof typeof klerosCoreAddress]
 ) {
   const eventAbi = getAbiItem({
     abi: klerosCoreAbi,

@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { ProfileTooltip } from "ethereum-identity-kit";
 import { useNavigate } from "react-router-dom";
+import { Address } from "viem";
 import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -82,14 +83,14 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, small
       onProfileClick={handleProfileClick}
     >
       <Container>
-        <IdenticonOrAvatar address={address} />
+        <IdenticonOrAvatar address={address as Address} />
         <ReStyledArrowLink
           {...{ smallDisplay }}
           to={isInternalLink ? profileLink : addressExplorerLink}
           rel={`${isInternalLink ? "" : "noopener noreferrer"}`}
           target={`${isInternalLink ? "" : "_blank"}`}
         >
-          <AddressOrName {...{ address, smallDisplay }} />
+          <AddressOrName address={address as Address} smallDisplay={smallDisplay} />
           {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
         </ReStyledArrowLink>
       </Container>

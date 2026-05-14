@@ -16,7 +16,7 @@ export type { StakingEventItem };
 export const useStakingEventsByCourt = (courtIds: number[], skip: number, take: number, partialAddress?: string) => {
   const atlasUri = import.meta.env.REACT_APP_ATLAS_URI;
   const addressParam = partialAddress ?? "";
-  const contractAddress = sortitionModuleAddress[DEFAULT_CHAIN.id];
+  const contractAddress = sortitionModuleAddress[DEFAULT_CHAIN.id as keyof typeof sortitionModuleAddress];
 
   // Allow empty courtIds array for "all courts" query
   const isEnabled = !isUndefined(atlasUri) && !isUndefined(contractAddress) && !isLocalDeployment();

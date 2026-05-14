@@ -72,7 +72,11 @@ const Chart: React.FC = () => {
       ...accData,
       {
         x: Number(counter.id) * 1000,
-        y: Number(chartOption === "stakedPNK" ? formatUnits(BigInt(counter[chartOption]), 18) : counter[chartOption]),
+        y: Number(
+          chartOption === "stakedPNK"
+            ? formatUnits(BigInt(counter[chartOption]), 18)
+            : counter[chartOption as keyof typeof counter]
+        ),
       },
     ];
   }, []);

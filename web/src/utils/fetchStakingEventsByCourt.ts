@@ -1,9 +1,10 @@
 import { request } from "graphql-request";
+import { Hash } from "viem";
 
 export type StakingEventItem = {
   id: string;
   blockHash: string;
-  transactionHash: string;
+  transactionHash: Hash;
   blockTimestamp: string;
   network: {
     chainId: number;

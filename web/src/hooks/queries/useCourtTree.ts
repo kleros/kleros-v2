@@ -52,11 +52,11 @@ interface IItem {
   children?: IItem[];
 }
 
-export const rootCourtToItems = (
-  court: NonNullable<CourtTreeQuery["court"]>,
-  value: "id" | "path" = "path"
-): IItem => ({
+type Court = NonNullable<CourtTreeQuery["court"]>;
+
+export const rootCourtToItems = (court: Court, value: "id" | "path" = "path"): IItem => ({
   label: court.name ? court.name : "Unnamed Court",
   value: value === "id" ? court.id : `/courts/${court.id}`,
-  children: court.children.length > 0 ? court.children.map((child) => rootCourtToItems(child, value)) : undefined,
+  children:
+    court.children.length > 0 ? court.children.map((child) => rootCourtToItems(child as Court, value)) : undefined,
 });

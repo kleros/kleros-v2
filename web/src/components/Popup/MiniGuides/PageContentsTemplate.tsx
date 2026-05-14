@@ -97,7 +97,7 @@ const LeftContent: React.FC<{
   );
 };
 
-const RightContent: React.FC<{ currentPage: number; rightPageComponents: () => React.ReactNode[] }> = ({
+const RightContent: React.FC<{ currentPage: number; rightPageComponents: React.FC[] }> = ({
   currentPage,
   rightPageComponents,
 }) => {
@@ -114,7 +114,7 @@ interface IPageContentsTemplate {
     paragraphs: string[];
     links?: Array<string | { id: string; text: string }>;
   }[];
-  rightPageComponents: () => React.ReactNode[];
+  rightPageComponents: React.FC[];
   isOnboarding: boolean;
   canClose: boolean;
   isVisible: boolean;

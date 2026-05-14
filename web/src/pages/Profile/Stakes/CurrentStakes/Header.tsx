@@ -65,16 +65,14 @@ const StyledLockerIcon = styled(LockerIcon)`
 `;
 
 interface IHeader {
-  totalAvailableStake: string;
-  lockedStake: string;
+  totalAvailableStake: bigint | undefined;
+  lockedStake: bigint | undefined;
 }
 
 const Header: React.FC<IHeader> = ({ totalAvailableStake, lockedStake }) => {
   const { t } = useTranslation();
-  const formattedTotalAvailableStake = !isUndefined(totalAvailableStake)
-    ? formatUnits(BigInt(totalAvailableStake), 18)
-    : "0";
-  const formattedLockedStake = !isUndefined(lockedStake) ? formatUnits(BigInt(lockedStake), 18) : "0";
+  const formattedTotalAvailableStake = !isUndefined(totalAvailableStake) ? formatUnits(totalAvailableStake, 18) : "0";
+  const formattedLockedStake = !isUndefined(lockedStake) ? formatUnits(lockedStake, 18) : "0";
 
   return (
     <Container>

@@ -9,7 +9,7 @@ import { Card, DropdownCascader, Searchbar } from "@kleros/ui-components-library
 
 import { isUndefined } from "utils/index";
 
-import { useCourtTree, rootCourtToItems } from "queries/useCourtTree";
+import { useCourtTree, rootCourtToItems, CourtTreeQuery } from "queries/useCourtTree";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -95,12 +95,15 @@ const CourtNameSpan = styled.span`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-function flattenCourts(court, parent = null) {
-  const current = {
+type CourtNode = NonNullable<CourtTreeQuery["court"]>;
+type FlattenedCourt = CourtNode & { parentName: string | null };
+
+function flattenCourts(court: CourtNode, parent: CourtNode | null = null): FlattenedCourt[] {
+  const current: FlattenedCourt = {
     ...court,
     parentName: parent?.name ?? null,
   };
-  const children = (court.children || []).flatMap((child) => flattenCourts(child, current));
+  const children = (court.children || []).flatMap((child) => flattenCourts(child as CourtNode, current));
   return [current, ...children];
 }
 
@@ -114,7 +117,7 @@ const TopSearch: React.FC = () => {
 
   const filteredCourts = useMemo(() => {
     if (!data?.court) return [];
-    const courts = flattenCourts(data.court).filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+    const courts = flattenCourts(data.court).filter((c) => c.name?.toLowerCase().includes(search.toLowerCase()));
     const selectedCourt = courts.find((c) => c.id === currentCourtId);
     if (!selectedCourt) return courts;
 

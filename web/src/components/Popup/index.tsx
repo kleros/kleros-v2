@@ -12,7 +12,6 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { Overlay } from "components/Overlay";
-import { Token } from "pages/GetPnk/Swap/TokenSelect";
 
 import Appeal from "./Description/Appeal";
 import DisputeCreated from "./Description/DisputeCreated";
@@ -158,8 +157,6 @@ interface ISwapSuccess {
   popupType: PopupType.SWAP_SUCCESS;
   hash: string;
   amount: string;
-  from?: Token;
-  to?: Token;
   isClaim?: boolean;
 }
 interface IPopup {

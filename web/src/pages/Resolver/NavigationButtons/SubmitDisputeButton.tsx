@@ -58,7 +58,7 @@ const SubmitDisputeButton: React.FC = () => {
     args: [
       prepareArbitratorExtradata(
         disputeData.courtId ?? "1",
-        disputeData.numberOfJurors ?? "",
+        disputeData.numberOfJurors ?? 0,
         disputeData.disputeKitId ?? 1,
         disputeData.disputeKitData
       ),

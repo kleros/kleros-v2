@@ -8,7 +8,7 @@ export const useScrollTop = () => {
   const scrollTop = (smooth = false) => {
     osInstanceRef?.current
       ?.osInstance()
-      .elements()
+      ?.elements()
       .viewport.scroll({ top: 0, behavior: smooth ? "smooth" : "auto" });
   };
 

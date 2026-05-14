@@ -83,7 +83,7 @@ const Menu: React.FC<ISettings & IHelp & IMenu> = ({ toggleIsHelpOpen, toggleIsS
   return (
     <Container>
       {buttons.map(({ text, Icon, onClick }) => (
-        <ButtonContainer key={Icon}>
+        <ButtonContainer key={text}>
           <LightButton {...{ text, onClick, Icon, isMobileNavbar }} />
         </ButtonContainer>
       ))}

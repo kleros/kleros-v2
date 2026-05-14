@@ -10,7 +10,7 @@ import ETH from "svgs/icons/eth.svg";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { REFETCH_INTERVAL } from "consts/index";
 import { useNewDisputeContext } from "context/NewDisputeContext";
-import { useReadKlerosCoreArbitrationCost } from "hooks/contracts/generated";
+import { klerosCoreAddress, useReadKlerosCoreArbitrationCost } from "hooks/contracts/generated";
 import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
@@ -62,7 +62,7 @@ const Jurors: React.FC = () => {
       refetchInterval: REFETCH_INTERVAL,
     },
     args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData?.numberOfJurors ?? 0)],
-    chainId: DEFAULT_CHAIN.id,
+    chainId: DEFAULT_CHAIN.id as keyof typeof klerosCoreAddress,
   });
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 18);

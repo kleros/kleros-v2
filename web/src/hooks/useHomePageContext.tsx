@@ -6,7 +6,6 @@ export type { HomePageQuery };
 interface IContext {
   data: HomePageQuery | undefined;
   error: null | any;
-  isValidating: boolean;
 }
 
 export type HomePageQueryDataPoints = keyof HomePageQuery["counters"][number];
@@ -14,15 +13,14 @@ export type HomePageQueryDataPoints = keyof HomePageQuery["counters"][number];
 const Context = createContext<IContext>({
   data: undefined,
   error: null,
-  isValidating: false,
 });
 
 export const HomePageProvider: React.FC<{
   children: React.ReactNode;
   timeframe: number;
 }> = ({ children, timeframe }) => {
-  const { data, error, isValidating } = useHomePageQuery(timeframe);
-  return <Context.Provider value={{ data, error, isValidating }}>{children}</Context.Provider>;
+  const { data, error } = useHomePageQuery(timeframe);
+  return <Context.Provider value={{ data, error }}>{children}</Context.Provider>;
 };
 
 export const useHomePageContext: () => IContext = () => {

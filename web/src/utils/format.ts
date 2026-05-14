@@ -9,7 +9,7 @@ export const roundNumberDown = (value: number, fractionDigits = 0) => {
 
 export const formatUnitsWei = (value: bigint) => formatUnits(value, 18);
 
-export const formatValue = (value: string, fractionDigits, roundDown) => {
+export const formatValue = (value: string, fractionDigits: number, roundDown: boolean) => {
   let units = Number(value);
   if (roundDown) units = roundNumberDown(units, fractionDigits);
   return commify(units.toFixed(fractionDigits));

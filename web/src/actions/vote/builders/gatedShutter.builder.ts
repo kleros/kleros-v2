@@ -8,10 +8,11 @@ export const gatedShutterVoteBuilder = defineVoteBuilder({
   build: async (params: GatedShutterVoteParams, context) => {
     const { disputeId, voteIds, choice, salt, justification } = params;
     const { chain, account } = context;
+    const chainKey = chain.id as keyof typeof disputeKitGatedShutterAddress;
 
     return {
       account,
-      address: disputeKitGatedShutterAddress[chain.id],
+      address: disputeKitGatedShutterAddress[chainKey],
       abi: disputeKitGatedShutterAbi,
       functionName: "castVote",
       args: [disputeId, voteIds, choice, salt, justification],

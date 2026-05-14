@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Address } from "viem";
+
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -89,8 +91,8 @@ const HeaderRewardsAndRewards = styled.div`
 `;
 
 interface IMobileCard {
-  rank: number;
-  address: string;
+  rank?: number;
+  address: Address;
   totalCoherentVotes: string;
   totalResolvedVotes: string;
   coherenceScore: string;

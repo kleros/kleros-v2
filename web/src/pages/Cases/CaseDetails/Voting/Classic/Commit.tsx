@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
 
+import { ClassicCommitParams } from "~src/actions/commit/params";
+
 import { useCastCommit } from "hooks/useCastCommit";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -48,7 +50,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitN
         choice,
         voteIds: parsedVoteIDs,
         roundIndex: Number(currentRoundIndex),
-      });
+      } as ClassicCommitParams);
     },
     [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, disputeKitName]
   );

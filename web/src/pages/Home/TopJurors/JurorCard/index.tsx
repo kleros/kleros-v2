@@ -1,11 +1,13 @@
 import React from "react";
 
+import { Address } from "viem";
+
 import DesktopCard from "./DesktopCard";
 import MobileCard from "./MobileCard";
 
 interface IJurorCard {
-  rank: number;
-  address: `0x${string}`;
+  rank?: number;
+  address: Address;
   coherenceScore: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;

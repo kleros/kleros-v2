@@ -28,7 +28,7 @@ export const wagmiAdapter = new WagmiAdapter({
 configureSDK({
   client: {
     chain: DEFAULT_CHAIN,
-    transport: transports[DEFAULT_CHAIN.id],
+    transport: transports[DEFAULT_CHAIN.id as keyof typeof transports],
   },
 });
 

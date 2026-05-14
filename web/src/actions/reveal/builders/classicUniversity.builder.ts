@@ -8,10 +8,11 @@ export const classicUniversityRevealBuilder = defineRevealBuilder({
   build: async (params: ClassicUniversityRevealParams, context) => {
     const { disputeId, voteIds, choice, salt, justification } = params;
     const { chain, account } = context;
+    const chainKey = chain.id as keyof typeof disputeKitClassicUniversityAddress;
 
     return {
       account,
-      address: disputeKitClassicUniversityAddress[chain.id],
+      address: disputeKitClassicUniversityAddress[chainKey],
       abi: disputeKitClassicUniversityAbi,
       functionName: "castVote",
       args: [disputeId, voteIds, choice, salt, justification],

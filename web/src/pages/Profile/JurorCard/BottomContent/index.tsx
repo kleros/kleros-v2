@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Address } from "viem";
+
 import { ILevelCriteria } from "utils/userLevelCalculation";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -47,7 +49,7 @@ interface IBottomContent {
   userLevelData: ILevelCriteria;
   totalCoherentVotes: number;
   totalResolvedVotes: number;
-  searchParamAddress: `0x${string}`;
+  searchParamAddress: Address;
 }
 
 const BottomContent: React.FC<IBottomContent> = ({

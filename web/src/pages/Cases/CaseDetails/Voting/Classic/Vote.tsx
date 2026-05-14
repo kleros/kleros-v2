@@ -4,11 +4,14 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
 
+import { ClassicVoteParams } from "~src/actions/vote/params";
+
 import { useVote } from "hooks/useVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { DisputeKits } from "src/consts";
+import { isUndefined } from "src/utils";
 
 import OptionsContainer from "../OptionsContainer";
 
@@ -29,6 +32,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, disputeKitName 
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
+  const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
   const [justification, setJustification] = useState("");
 
   const { mutateAsync: vote } = useVote(() => {
@@ -37,16 +41,20 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, disputeKitName 
 
   const handleVote = useCallback(
     async (voteOption: bigint) => {
+      if (isUndefined(currentRoundIndex)) {
+        return;
+      }
+
       await vote({
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,
         choice: voteOption,
-        salt: BigInt(disputeData?.dispute?.currentRoundIndex),
+        salt: BigInt(currentRoundIndex),
         justification,
         type: disputeKitName ?? DisputeKits.Classic,
-      });
+      } as ClassicVoteParams);
     },
-    [disputeData?.dispute?.currentRoundIndex, justification, parsedVoteIDs, parsedDisputeID, vote, disputeKitName]
+    [currentRoundIndex, justification, parsedVoteIDs, parsedDisputeID, vote, disputeKitName]
   );
 
   return (

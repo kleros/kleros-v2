@@ -1,4 +1,4 @@
-import { keccak256, toBytes, encodeAbiParameters } from "viem";
+import { Hash, keccak256, toBytes, encodeAbiParameters } from "viem";
 
 /* eslint-disable max-len */
 /**
@@ -9,7 +9,7 @@ import { keccak256, toBytes, encodeAbiParameters } from "viem";
  * @return bytes32 The hash of the encoded justification
  */
 /* eslint-enable max-len */
-export function hashJustification(salt: bigint, justification: string): `0x${string}` {
+export function hashJustification(salt: bigint, justification: string): Hash {
   const justificationHash = keccak256(toBytes(justification));
 
   const encoded = encodeAbiParameters(

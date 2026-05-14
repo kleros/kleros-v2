@@ -15,6 +15,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledArrowLink } from "components/StyledArrowLink";
+import { GroupedDraw } from "pages/Profile/Votes";
 
 import CaseNumber from "./CaseNumber";
 import CaseStatus from "./CaseStatus";
@@ -97,7 +98,11 @@ const ReStyledArrowLink = styled(StyledArrowLink)`
   )}
 `;
 
-const VoteCard: React.FC = ({ vote: draw }) => {
+interface IVoteCard {
+  vote: GroupedDraw;
+}
+
+const VoteCard: React.FC<IVoteCard> = ({ vote: draw }) => {
   const { t } = useTranslation();
 
   // Extract dispute data from draw
@@ -153,7 +158,7 @@ const VoteCard: React.FC = ({ vote: draw }) => {
       return t("voting.pending_vote");
     }
 
-    const choiceNum = parseInt(voteData.choice.toString());
+    const choiceNum = parseInt(choice.toString());
 
     // Choice 0 is always "Refuse to Arbitrate"
     if (choiceNum === 0) return t("voting.refuse_to_arbitrate");

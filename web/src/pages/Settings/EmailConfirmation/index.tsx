@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, DefaultTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
@@ -61,7 +61,7 @@ const textCss = css`
 const Header = styled.h1<{ fontColor: string }>`
   ${textCss}
   ${({ fontColor }) => css`
-    color: ${({ theme }) => theme[fontColor]};
+    color: ${({ theme }) => theme[fontColor as keyof DefaultTheme]};
   `};
 `;
 
@@ -76,7 +76,7 @@ const HeaderIconContainer = styled.div<{ iconColor: string }>`
     height: 64px;
     ${({ iconColor }) => css`
       path {
-        fill: ${({ theme }) => theme[iconColor]};
+        fill: ${({ theme }) => theme[iconColor as keyof DefaultTheme]};
       }
     `}
   }

@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { Address } from "viem";
+
 import { VotingHistoryQuery } from "src/graphql/graphql";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -15,7 +17,7 @@ const Container = styled.div`
 `;
 
 interface IVerdict {
-  arbitrable?: `0x${string}`;
+  arbitrable?: Address;
   votingHistory: VotingHistoryQuery | undefined;
 }
 

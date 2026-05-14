@@ -35,7 +35,7 @@ type AlchemyProtocol = "https" | "wss";
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/util/const.ts#L16-L18
 function getAlchemyRpcUrl(protocol: AlchemyProtocol, chainId: number | string): string {
-  const network = alchemyToViemChain[chainId];
+  const network = alchemyToViemChain[Number(chainId)];
   if (!network) {
     throw new Error(`Unsupported chain ID: ${chainId}`);
   }

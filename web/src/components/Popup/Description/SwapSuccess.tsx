@@ -10,7 +10,6 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
 import LightButton from "components/LightButton";
-import { Token } from "pages/GetPnk/Swap/TokenSelect";
 
 const Container = styled.div`
   display: flex;
@@ -60,8 +59,6 @@ const StyledDivider = styled(Divider)`
 interface ISwapSuccess {
   hash: string;
   amount: string;
-  from?: Token;
-  to?: Token;
   isClaim?: boolean;
 }
 

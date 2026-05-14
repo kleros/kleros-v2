@@ -8,20 +8,19 @@ import { isUndefined } from "utils/index";
 
 export const useAppealCost = (disputeID?: string) => {
   const publicClient = usePublicClient();
-  const klerosCore = getContract({
-    abi: klerosCoreConfig.abi,
-    address: klerosCoreConfig.address[DEFAULT_CHAIN.id],
-    client: {
-      public: publicClient,
-    },
-  });
-  const isEnabled = !isUndefined(klerosCore) && !isUndefined(disputeID);
+  const isEnabled = !isUndefined(publicClient) && !isUndefined(disputeID);
   return useQuery({
     queryKey: [`AppealCost${disputeID}`],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
-      if (!klerosCore || typeof disputeID === "undefined") return;
+      if (!publicClient || isUndefined(disputeID)) return;
+      const chainKey = DEFAULT_CHAIN.id as keyof typeof klerosCoreConfig.address;
+      const klerosCore = getContract({
+        abi: klerosCoreConfig.abi,
+        address: klerosCoreConfig.address[chainKey],
+        client: { public: publicClient },
+      });
       return await klerosCore.read.appealCost([BigInt(disputeID)]);
     },
   });

@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Address } from "viem";
 
 import { isUndefined } from "utils/index";
 
@@ -71,7 +72,7 @@ const TopJurors: React.FC = () => {
         <ListContainer>
           <Header />
           {!isUndefined(topJurors)
-            ? topJurors.map((juror) => <JurorCard key={juror.rank} address={juror.id} {...juror} />)
+            ? topJurors.map((juror) => <JurorCard key={juror.rank} {...juror} address={juror.id as Address} />)
             : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
         </ListContainer>
       )}

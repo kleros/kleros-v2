@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Address } from "viem";
+
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -42,7 +44,7 @@ const Container = styled.div<{ renderRank?: boolean }>`
 
 interface IDesktopCard {
   rank?: number;
-  address: string;
+  address: Address;
   coherenceScore: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;

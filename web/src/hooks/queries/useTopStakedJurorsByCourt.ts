@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
 import { TopStakedJurorsByCourtQuery, OrderDirection } from "src/graphql/graphql";
@@ -34,7 +35,7 @@ const topStakedJurorsByCourtQuery = graphql(`
 `);
 
 export const useTopStakedJurorsByCourt = (
-  courtId: string,
+  courtId: string | undefined,
   skip: number,
   first: number,
   orderBy: string,
@@ -44,6 +45,7 @@ export const useTopStakedJurorsByCourt = (
   const { graphqlBatcher } = useGraphqlBatcher();
   return useQuery<TopStakedJurorsByCourtQuery>({
     queryKey: ["TopStakedJurorsByCourt", courtId, skip, first, orderBy, orderDirection, search],
+    enabled: !isUndefined(courtId),
     staleTime: 10 * 60 * 1000,
     queryFn: () =>
       graphqlBatcher.fetch({

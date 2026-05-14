@@ -146,7 +146,7 @@ const CourtDetails: React.FC = () => {
               <StyledBreadcrumb
                 items={breadcrumbItems}
                 clickable
-                callback={(courtId) => navigate(`/courts/${courtId}`)}
+                callback={(courtId: string) => navigate(`/courts/${courtId}`)}
               />
             ) : null}
           </CourtInfo>
@@ -205,7 +205,7 @@ export const getCourtsPath = (
 
   if (node.children) {
     for (const child of node.children) {
-      const pathFromChild = getCourtsPath(child, id, path.slice());
+      const pathFromChild = getCourtsPath(child as CourtTreeQuery["court"], id, path.slice());
       if (pathFromChild) {
         pathFromChild.unshift({
           name: node.name || "",

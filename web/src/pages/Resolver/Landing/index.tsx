@@ -120,7 +120,9 @@ const Landing: React.FC = () => {
       policyURI: populatedDispute.policyURI,
       question: populatedDispute.question,
       courtId: roundData.round?.court.id,
-      numberOfJurors: roundData.round?.nbVotes,
+      //changing the subgraph schema for Round.nbVotes from BigInt to Int
+      //will automattically resolve to number and we can remove this parse
+      numberOfJurors: roundData.round?.nbVotes ? parseInt(roundData.round.nbVotes) : undefined,
       disputeKitId: parseInt(roundData.round?.disputeKit.id ?? "1", 10),
       answers,
       aliasesArray: aliasesArray ?? disputeData.aliasesArray,

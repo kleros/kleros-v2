@@ -1,4 +1,4 @@
-import { GetTransactionReceiptReturnType, createPublicClient, decodeEventLog, getEventSelector, http } from "viem";
+import { Hash, createPublicClient, decodeEventLog, getEventSelector, http } from "viem";
 import * as chains from "viem/chains";
 
 import { iArbitrableV2Abi } from "hooks/contracts/generated";
@@ -22,14 +22,14 @@ const getChain = (chainId: number) => {
 };
 
 // Warning  : do not import this in any pages except DisputeTemplatePreview, this has a large bundle size.
-export const getDisputeRequestParamsFromTxn = async (hash: `0x${string}`, chainId: number) => {
+export const getDisputeRequestParamsFromTxn = async (hash: Hash, chainId: number) => {
   try {
     const publicClient = createPublicClient({
       chain: getChain(chainId),
       transport: http(),
     });
 
-    const txn: GetTransactionReceiptReturnType = await publicClient.getTransactionReceipt({
+    const txn = await publicClient.getTransactionReceipt({
       hash,
     });
 

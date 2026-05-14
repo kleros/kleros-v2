@@ -71,7 +71,7 @@ const StyledLink = styled(StyledArrowLink)`
 
 interface ICourtCard {
   name: string;
-  stake: string;
+  stake: bigint;
   id: string;
   timestamp?: number;
   transactionHash?: Hash;

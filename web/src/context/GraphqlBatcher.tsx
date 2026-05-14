@@ -22,7 +22,7 @@ interface IQuery {
 
 const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
-const fetch = async (url, document, variables) => {
+const fetch = async <TArgs,>(url: string, document: TypedDocumentNode<unknown, TArgs>, variables?: TArgs) => {
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
