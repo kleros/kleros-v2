@@ -25,10 +25,7 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
-const FileViewerSurface = styled.div`
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 3px;
-`;
+const FileViewerSurface = styled.div``;
 
 const AttachmentContainer = styled.div`
   width: 100%;
