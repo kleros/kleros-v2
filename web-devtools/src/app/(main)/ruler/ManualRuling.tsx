@@ -105,7 +105,10 @@ const ManualRuling: React.FC = () => {
     <Container>
       <Header
         text="Manual Ruling"
-        tooltipMsg="Provide Manual ruling for the arbitrator. This operation will change the ruling mode to Manual, if the ruling mode is not Manual"
+        tooltipMsg={
+          "Provide Manual ruling for the arbitrator. " +
+          "This operation will change the ruling mode to Manual, if the ruling mode is not Manual"
+        }
       />
       <SelectContainer>
         <LabeledInput
