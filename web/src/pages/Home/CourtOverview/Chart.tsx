@@ -8,6 +8,7 @@ import { formatUnits } from "viem";
 import { DropdownSelect } from "@kleros/ui-components-library";
 
 import { useHomePageContext } from "hooks/useHomePageContext";
+import type { SelectItem } from "utils/uiComponentsTypes";
 
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -35,10 +36,10 @@ const ChartOptionsDropdown: React.FC<{
   const { t } = useTranslation();
 
   const CHART_OPTIONS = [
-    { text: t("stats.staked_pnk"), value: "stakedPNK" },
-    { text: t("stats.staked_pnk_per_court"), value: "stakedPNKPerCourt" },
-    { text: t("stats.cases"), value: "cases" },
-    { text: t("stats.cases_per_court"), value: "casesPerCourt" },
+    { text: t("stats.staked_pnk"), id: "stakedPNK", itemValue: "stakedPNK" },
+    { text: t("stats.staked_pnk_per_court"), id: "stakedPNKPerCourt", itemValue: "stakedPNKPerCourt" },
+    { text: t("stats.cases"), id: "cases", itemValue: "cases" },
+    { text: t("stats.cases_per_court"), id: "casesPerCourt", itemValue: "casesPerCourt" },
   ];
 
   return (
@@ -47,9 +48,9 @@ const ChartOptionsDropdown: React.FC<{
       simpleButton
       defaultValue={"stakedPNK"}
       items={CHART_OPTIONS}
-      callback={(newValue: string | number) => {
-        if (typeof newValue === "string") {
-          setChartOption(newValue);
+      callback={(item: SelectItem) => {
+        if (typeof item.itemValue === "string") {
+          setChartOption(item.itemValue);
         }
       }}
     />

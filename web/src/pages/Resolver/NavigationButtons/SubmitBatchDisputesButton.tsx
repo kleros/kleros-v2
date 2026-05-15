@@ -93,7 +93,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
       <div>
         <StyledButton
           text={t("buttons.create_cases")}
-          disabled={isButtonDisabled}
+          isDisabled={isButtonDisabled}
           isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
           onClick={() => {
             if (batchConfig && publicClient) {

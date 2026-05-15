@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { DisplaySmall, Field } from "@kleros/ui-components-library";
+import { DisplaySmall, TextField } from "@kleros/ui-components-library";
 
 import ETH from "svgs/icons/eth.svg";
 
@@ -34,7 +34,7 @@ const Container = styled.div`
   )}
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 290px;
   margin-bottom: ${responsiveSize(20, 48)};
 `;
@@ -70,8 +70,8 @@ const Jurors: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
-  const handleJurorsWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value.replace(/\D/g, ""), 10);
+  const handleJurorsWrite = (inputValue: string) => {
+    const value = parseInt(inputValue.replace(/\D/g, ""), 10);
     if (isUndefined(value) || isNaN(value)) {
       setDisputeData({ ...disputeData, numberOfJurors: 0 });
     } else {
@@ -86,7 +86,7 @@ const Jurors: React.FC = () => {
       <Header text={t("headers.select_number_of_jurors")} />
       <StyledField
         placeholder={t("forms.placeholders.select_the_number_of_jurors")}
-        value={noOfVotes}
+        value={String(noOfVotes)}
         onChange={handleJurorsWrite}
       />
       <StyledDisplay text={arbitrationFee} Icon={ETH} label={t("forms.labels.arbitration_cost")} />

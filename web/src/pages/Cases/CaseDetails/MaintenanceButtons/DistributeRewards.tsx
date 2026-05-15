@@ -93,7 +93,7 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
       text={t("buttons.juror_rewards")}
       small
       isLoading={isLoading}
-      disabled={isDisabled}
+      isDisabled={isDisabled}
       onClick={handleClick}
     />
   );

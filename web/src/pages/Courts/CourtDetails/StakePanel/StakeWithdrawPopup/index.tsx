@@ -3,9 +3,11 @@ import styled, { css, keyframes } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { _TimelineItem1, AlertMessage, CustomTimeline } from "@kleros/ui-components-library";
+import { AlertMessage, CustomTimeline } from "@kleros/ui-components-library";
 
 import Close from "svgs/icons/close.svg";
+
+import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -98,7 +100,7 @@ interface IStakeWithdrawPopup {
   action: ActionType;
   amount: string;
   closePopup: () => void;
-  steps?: [_TimelineItem1, ..._TimelineItem1[]];
+  steps?: [CustomTimelineItem, ...CustomTimelineItem[]];
   isSuccess: boolean;
 }
 

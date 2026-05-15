@@ -148,7 +148,7 @@ const Landing: React.FC = () => {
       <Button
         text={t("buttons.next")}
         isLoading={isLoading}
-        disabled={
+        isDisabled={
           isLoading ||
           isInvalidDispute ||
           (creationMethod === CreationMethod.Duplicate && isUndefined(debouncedDisputeID))

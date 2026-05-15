@@ -6,6 +6,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
+import type { SelectItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 const Container = styled.div`
@@ -24,15 +25,15 @@ const Filters: React.FC = () => {
   const location = useRootPath();
   const [searchParams] = useSearchParams();
 
-  const handleStatusChange = (value: string | number) => {
-    const parsedValue = JSON.parse(value as string);
+  const handleStatusChange = (item: SelectItem) => {
+    const parsedValue = JSON.parse(item.itemValue as string);
     const encodedFilter = encodeURIFilter({ ...filterObject, ...parsedValue });
     navigate(`${location}/1/${order}/${encodedFilter}?${searchParams.toString()}`);
   };
 
-  const handleOrderChange = (value: string | number) => {
+  const handleOrderChange = (item: SelectItem) => {
     const encodedFilter = encodeURIFilter({ ruled, period, ...filterObject });
-    navigate(`${location}/1/${value}/${encodedFilter}?${searchParams.toString()}`);
+    navigate(`${location}/1/${item.itemValue}/${encodedFilter}?${searchParams.toString()}`);
   };
 
   return (
@@ -41,9 +42,24 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: JSON.stringify({}), text: t("profile.all_votes"), dot: theme.primaryText },
-          { value: JSON.stringify({ ruled: false }), text: t("profile.case_in_progress"), dot: theme.primaryBlue },
-          { value: JSON.stringify({ ruled: true }), text: t("filters.closed"), dot: theme.primaryPurple },
+          {
+            id: JSON.stringify({}),
+            itemValue: JSON.stringify({}),
+            text: t("profile.all_votes"),
+            dot: theme.primaryText,
+          },
+          {
+            id: JSON.stringify({ ruled: false }),
+            itemValue: JSON.stringify({ ruled: false }),
+            text: t("profile.case_in_progress"),
+            dot: theme.primaryBlue,
+          },
+          {
+            id: JSON.stringify({ ruled: true }),
+            itemValue: JSON.stringify({ ruled: true }),
+            text: t("filters.closed"),
+            dot: theme.primaryPurple,
+          },
         ]}
         defaultValue={JSON.stringify({ ruled, period })}
         callback={handleStatusChange}
@@ -52,8 +68,8 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: "desc", text: t("filters.newest") },
-          { value: "asc", text: t("filters.oldest") },
+          { id: "desc", itemValue: "desc", text: t("filters.newest") },
+          { id: "asc", itemValue: "asc", text: t("filters.oldest") },
         ]}
         defaultValue={order}
         callback={handleOrderChange}

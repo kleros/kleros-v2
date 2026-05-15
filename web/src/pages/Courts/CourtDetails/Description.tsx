@@ -106,6 +106,13 @@ const Description: React.FC = () => {
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
   const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
 
+  const tabItems = filteredTabs.map(({ text, value, path }) => ({
+    id: value,
+    text,
+    value: path,
+    content: null,
+  }));
+
   const handleTabChange = (i: number) => {
     navigate(`${TABS[i].path}${suffix}`);
   };
@@ -116,7 +123,7 @@ const Description: React.FC = () => {
   }, [policy, currentPathName, filteredTabs, navigate, suffix]);
   return policy ? (
     <Container id="description">
-      <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
+      <StyledTabs selectedKey={currentTab} items={tabItems} callback={(key) => handleTabChange(Number(key))} />
       <TextContainer>
         <Routes>
           <Route path="purpose" element={formatMarkdown(policy?.purpose)} />

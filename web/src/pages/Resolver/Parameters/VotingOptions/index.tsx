@@ -44,8 +44,8 @@ const VotingOptions: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
-  const handleQuestionWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDisputeData({ ...disputeData, question: event.target.value });
+  const handleQuestionWrite = (value: string) => {
+    setDisputeData({ ...disputeData, question: value });
   };
 
   useEffect(() => {

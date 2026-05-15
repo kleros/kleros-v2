@@ -9,6 +9,7 @@ import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
 import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
+import type { SelectItem } from "utils/uiComponentsTypes";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -77,8 +78,8 @@ const ExtraStats = () => {
   const [selectedRange, setSelectedRange] = useState(timeRanges[1].value);
   const data = useHomePageExtraStats(selectedRange);
 
-  const handleTimeRangeChange = (value: string | number) => {
-    setSelectedRange(value);
+  const handleTimeRangeChange = (item: SelectItem) => {
+    setSelectedRange(item.itemValue);
   };
 
   return (
@@ -90,7 +91,8 @@ const ExtraStats = () => {
             smallButton
             simpleButton
             items={timeRanges.map((range) => ({
-              value: range.value,
+              id: range.value,
+              itemValue: range.value,
               text: range.text,
             }))}
             defaultValue={selectedRange}

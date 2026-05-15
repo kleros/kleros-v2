@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useMeasure } from "react-use";
 import { formatEther } from "viem";
 
-import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
+import { Card, LinearProgress } from "@kleros/ui-components-library";
 
 import Gavel from "svgs/icons/gavel.svg";
 
@@ -13,6 +13,8 @@ import { isUndefined } from "utils/index";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
+
+import Radio from "components/Radio";
 
 const StyledCard = styled(Card)<{ canBeSelected: boolean }>`
   ${hoverShortTransitionTiming}
@@ -121,7 +123,7 @@ const OptionCard: React.FC<IOptionCard> = ({
       <LabelContainer>
         <label>{fundingLabel}</label>
       </LabelContainer>
-      <LinearProgress progress={progress} width={width} />
+      <LinearProgress value={progress} width={width} />
     </StyledCard>
   );
 };

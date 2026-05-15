@@ -53,14 +53,14 @@ const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch }) => {
         <StyledSearchBar
           dir="auto"
           placeholder={t("forms.placeholders.search_evidence")}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(value) => setSearch(value)}
           value={search}
         />
 
         <EnsureChain>
           <StyledButton
             text={t("buttons.submit_evidence")}
-            disabled={typeof address === "undefined" || isModalOpen}
+            isDisabled={typeof address === "undefined" || isModalOpen}
             isLoading={isModalOpen}
             onClick={() => setIsModalOpen(true)}
           />

@@ -9,6 +9,7 @@ import { useDebounce } from "react-use";
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
 
 import { isEmpty, isUndefined } from "utils/index";
+import type { CascaderItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { rootCourtToItems, useCourtTree } from "queries/useCourtTree";
@@ -76,10 +77,10 @@ const Search: React.FC = () => {
   );
 
   const { data: courtTreeData } = useCourtTree();
-  const items = useMemo(() => {
+  const items = useMemo<CascaderItem[] | undefined>(() => {
     if (!isUndefined(courtTreeData?.court)) {
       const courts = [rootCourtToItems(courtTreeData.court, "id")];
-      courts.push({ label: t("filters.all_courts"), value: "all" });
+      courts.push({ label: t("filters.all_courts"), itemValue: "all", id: "all" });
       return courts;
     }
     return undefined;
@@ -91,9 +92,10 @@ const Search: React.FC = () => {
         <DropdownCascader
           items={items}
           placeholder={t("forms.placeholders.select_court")}
-          onSelect={(value) => {
+          callback={(item) => {
             const { court: _, ...filterWithoutCourt } = decodedFilter;
-            const newFilter = value === "all" ? filterWithoutCourt : { ...decodedFilter, court: value.toString() };
+            const newFilter =
+              item.itemValue === "all" ? filterWithoutCourt : { ...decodedFilter, court: item.itemValue.toString() };
             navigate(`${location}/${page}/${order}/${encodeURIFilter(newFilter)}?${searchParams.toString()}`);
           }}
         />
@@ -106,7 +108,7 @@ const Search: React.FC = () => {
           type="text"
           placeholder={t("forms.placeholders.search_by_id")}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(value) => setSearch(value)}
         />
       </SearchBarContainer>
     </Container>

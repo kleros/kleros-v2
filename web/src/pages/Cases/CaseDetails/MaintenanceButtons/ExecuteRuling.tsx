@@ -57,7 +57,7 @@ const ExecuteRulingButton: React.FC<IExecuteRulingButton> = ({ id, setIsOpen, pe
     });
   };
   return (
-    <StyledButton text={t("buttons.rule")} small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
+    <StyledButton text={t("buttons.rule")} small isLoading={isLoading} isDisabled={isDisabled} onClick={handleClick} />
   );
 };
 

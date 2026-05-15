@@ -3,10 +3,9 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Radio } from "@kleros/ui-components-library";
-
 import { Features } from "consts/disputeFeature";
 
+import Radio from "components/Radio";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 import ArgentinaConsumerProtection from "./ArgentinaConsumerProtection";

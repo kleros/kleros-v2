@@ -13,7 +13,7 @@ import Loader from "components/Loader";
 
 import Header from "./Header";
 
-const FileViewer = lazy(() => import("components/FileViewer"));
+const FileViewer = lazy(() => import("@kleros/ui-components-library").then((m) => ({ default: m.FileViewer })));
 
 const Container = styled.div`
   width: 100%;
@@ -23,6 +23,11 @@ const Container = styled.div`
   padding-bottom: calc(76px + (96 - 76) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
+`;
+
+const FileViewerSurface = styled.div`
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 3px;
 `;
 
 const AttachmentContainer = styled.div`
@@ -74,7 +79,9 @@ const AttachmentDisplay: React.FC = () => {
                 </LoaderContainer>
               }
             >
-              <FileViewer url={url} />
+              <FileViewerSurface>
+                <FileViewer url={url} />
+              </FileViewerSurface>
             </Suspense>
           </>
         ) : null}

@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { Hash, type TransactionReceipt } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { type _TimelineItem1, Button } from "@kleros/ui-components-library";
+import { Button } from "@kleros/ui-components-library";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import {
@@ -21,6 +21,7 @@ import { usePnkData } from "hooks/usePNKData";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
 import { refetchWithRetry } from "utils/refecthWithRetry";
+import type { CustomTimelineItem } from "utils/uiComponentsTypes";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
@@ -41,7 +42,7 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-type Steps = [_TimelineItem1, ..._TimelineItem1[]];
+type Steps = [CustomTimelineItem, ...CustomTimelineItem[]];
 interface IActionButton {
   amount: string;
   parsedAmount: bigint;
@@ -317,7 +318,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           data-testId="stake-withdraw-button"
           text={isStaking ? t("buttons.stake") : t("buttons.withdraw")}
           isLoading={isPopupOpen || isSimulatingAllowance || isSimulatingSetStake}
-          disabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
+          isDisabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
           onClick={handleClick}
         />
         {isPopupOpen && <StakeWithdrawPopup {...{ action, closePopup, amount, steps: popupStepsState, isSuccess }} />}

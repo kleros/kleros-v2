@@ -53,7 +53,7 @@ const Search: React.FC = () => {
       type="text"
       placeholder={t("forms.placeholders.search_by_address")}
       value={search}
-      onChange={(e) => setSearch(e.target.value)}
+      onChange={(search) => setSearch(search)}
     />
   );
 };

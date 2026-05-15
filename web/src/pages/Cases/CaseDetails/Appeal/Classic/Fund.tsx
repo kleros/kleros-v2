@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount, useBalance } from "wagmi";
 
-import { Field, Button } from "@kleros/ui-components-library";
+import { TextField, Button } from "@kleros/ui-components-library";
 
 import { DisputeKits, REFETCH_INTERVAL } from "consts/index";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
@@ -26,7 +26,7 @@ const Container = styled.div`
   gap: 8px;
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 100%;
   & > input {
     text-align: center;
@@ -125,15 +125,15 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName })
       <StyledField
         type="number"
         value={amount}
-        onChange={(e) => {
-          setAmount(e.target.value);
+        onChange={(value) => {
+          setAmount(value);
         }}
         placeholder={t("forms.placeholders.amount_to_fund")}
       />
       <EnsureChain>
         <div>
           <StyledButton
-            disabled={isFundDisabled}
+            isDisabled={isFundDisabled}
             isLoading={isPending && !insufficientBalance}
             text={isDisconnected ? t("buttons.connect_to_fund") : t("buttons.fund")}
             onClick={handleAppeal}

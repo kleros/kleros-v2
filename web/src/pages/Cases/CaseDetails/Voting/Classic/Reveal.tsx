@@ -104,7 +104,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
             <StyledButton
               variant="secondary"
               text={t("buttons.justify_and_reveal")}
-              disabled={isPending || isUndefined(disputeDetails)}
+              isDisabled={isPending || isUndefined(disputeDetails)}
               isLoading={isPending}
               onClick={handleReveal}
             />

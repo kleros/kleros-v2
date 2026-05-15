@@ -97,7 +97,7 @@ const SubmitDisputeButton: React.FC = () => {
         <div>
           <StyledButton
             text={t("buttons.submit_the_case")}
-            disabled={isButtonDisabled}
+            isDisabled={isButtonDisabled}
             isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
             onClick={() => {
               if (submitCaseConfig && publicClient) {

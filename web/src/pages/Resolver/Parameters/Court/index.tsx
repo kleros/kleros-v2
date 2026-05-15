@@ -57,7 +57,10 @@ const Court: React.FC = () => {
   const { t } = useTranslation();
   const { disputeData, setDisputeData, setSelectedFeatures } = useNewDisputeContext();
   const { data: courtTree } = useCourtTree();
-  const items = useMemo(() => !isUndefined(courtTree?.court) && [rootCourtToItems(courtTree.court)], [courtTree]);
+  const items = useMemo(
+    () => (!isUndefined(courtTree?.court) ? [rootCourtToItems(courtTree.court)] : false),
+    [courtTree]
+  );
 
   const handleCourtChange = (courtId: string) => {
     if (disputeData.courtId !== courtId) {
@@ -72,9 +75,9 @@ const Court: React.FC = () => {
       {items ? (
         <StyledDropdownCascader
           items={items}
-          onSelect={(path: string | number) => typeof path === "string" && handleCourtChange(path.split("/").pop()!)}
+          callback={(item) => typeof item.itemValue === "string" && handleCourtChange(item.itemValue.split("/").pop()!)}
           placeholder={t("forms.placeholders.select_court")}
-          value={`/courts/${disputeData.courtId}`}
+          selectedKey={`/courts/${disputeData.courtId}`}
         />
       ) : (
         <StyledSkeleton width={240} height={42} />

@@ -143,7 +143,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       <ButtonContainer>
         <Button
           text={t("buttons.save")}
-          disabled={
+          isDisabled={
             !isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser || !isEmailUpdateable
           }
         />

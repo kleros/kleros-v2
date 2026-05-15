@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import { Features } from "consts/disputeFeature";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
@@ -20,7 +20,7 @@ const FieldContainer = styled.div`
   padding-left: 32px;
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 100%;
   margin-top: 8px;
   margin-bottom: 32px;
@@ -45,7 +45,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     enabled: validationEnabled && props.checked,
   });
 
-  const [validationMessage, variant] = useMemo(() => {
+  const [validationMessage, variant] = useMemo<[string | undefined, "info" | "error" | "success"]>(() => {
     if (isValidating) return [`Validating ERC-1155 token...`, "info"];
     else if (validationError) return [validationError, "error"];
     else if (isValid === true) return [`Valid ERC-1155 token`, "success"];
@@ -70,26 +70,26 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isValid, setDisputeData, props.checked]);
 
-  const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenAddressChange = (value: string) => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;
 
     setDisputeData({
       ...disputeData,
       disputeKitData: {
         ...currentData,
-        tokenGate: event.target.value,
+        tokenGate: value,
         isTokenGateValid: null, // Reset validation state when address changes
       },
     });
   };
 
-  const handleTokenIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenIdChange = (value: string) => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;
     // DEV: we only update the tokenGate value here, and the disputeKidID,
     // and type are still handled in Resolver/Court/FeatureSelection.tsx
     setDisputeData({
       ...disputeData,
-      disputeKitData: { ...currentData, tokenId: event.target.value },
+      disputeKitData: { ...currentData, tokenId: value },
     });
   };
 
@@ -101,7 +101,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
       {props.checked ? (
         <FieldContainer>
           <StyledField
-            dir="auto"
+            inputProps={{ dir: "auto" }}
             onChange={handleTokenAddressChange}
             value={tokenGateAddress}
             placeholder={t("forms.placeholders.token_address_example")}
@@ -109,7 +109,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
             message={validationMessage}
           />
           <StyledField
-            dir="auto"
+            inputProps={{ dir: "auto" }}
             onChange={handleTokenIdChange}
             value={(disputeData.disputeKitData as IGatedDisputeData)?.tokenId ?? "0"}
             placeholder={t("forms.placeholders.token_id_example")}

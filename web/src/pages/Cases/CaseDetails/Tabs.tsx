@@ -49,29 +49,37 @@ const Tabs: React.FC = () => {
   const TABS = useMemo(
     () => [
       {
+        id: 0,
         text: t("navigation.overview"),
         value: 0,
         Icon: EyeIcon,
         path: "overview",
+        content: null,
       },
       {
+        id: 1,
         text: t("navigation.evidence"),
         value: 1,
         Icon: DocIcon,
         path: "evidence",
+        content: null,
       },
       {
+        id: 2,
         text: t("navigation.voting"),
         value: 2,
         Icon: BalanceIcon,
         path: "voting",
+        content: null,
       },
       {
+        id: 3,
         text: t("navigation.appeal"),
         value: 3,
         Icon: BullhornIcon,
         path: "appeal",
         disabled: false,
+        content: null,
       },
     ],
     [t]
@@ -94,11 +102,11 @@ const Tabs: React.FC = () => {
 
   return (
     <StyledTabs
-      currentValue={currentTab}
+      selectedKey={currentTab}
       items={tabs}
-      callback={(n: number) => {
-        setCurrentTab(n);
-        navigate(TABS[n].path);
+      callback={(_key, value) => {
+        setCurrentTab(value);
+        navigate(TABS[value].path);
       }}
     />
   );

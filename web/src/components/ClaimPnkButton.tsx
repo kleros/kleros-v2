@@ -74,7 +74,7 @@ const ClaimPnkButton: React.FC = () => {
           text={faucetCheck ? t("buttons.claim_pnk") : t("buttons.empty_faucet")}
           onClick={handleRequest}
           isLoading={isSending}
-          disabled={isSending || claimed || !faucetCheck || isUndefined(address)}
+          isDisabled={isSending || claimed || !faucetCheck || isUndefined(address)}
           Icon={faucetCheck ? FaucetIcon : undefined}
         />
       ) : null}

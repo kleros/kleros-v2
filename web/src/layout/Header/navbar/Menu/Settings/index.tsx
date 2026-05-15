@@ -74,12 +74,16 @@ const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => 
 
   const TABS = [
     {
+      id: 0,
       text: t("menu.general"),
       value: 0,
+      content: null,
     },
     {
+      id: 1,
       text: t("menu.notifications"),
       value: 1,
+      content: null,
     },
   ];
 
@@ -87,10 +91,10 @@ const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => 
     <Container ref={containerRef}>
       <StyledSettingsText>{t("menu.settings")}</StyledSettingsText>
       <StyledTabs
-        currentValue={currentTab}
+        selectedKey={currentTab}
         items={TABS}
-        callback={(n: number) => {
-          setCurrentTab(n);
+        callback={(_key, value) => {
+          setCurrentTab(value);
         }}
       />
       {currentTab === 0 ? (

@@ -112,7 +112,7 @@ const TopSearch: React.FC = () => {
   const { data } = useCourtTree();
   const navigate = useNavigate();
   const { id: currentCourtId } = useParams();
-  const items = useMemo(() => !isUndefined(data?.court) && [rootCourtToItems(data.court)], [data]);
+  const items = useMemo(() => (!isUndefined(data?.court) ? [rootCourtToItems(data.court)] : false), [data]);
   const [search, setSearch] = useState("");
 
   const filteredCourts = useMemo(() => {
@@ -130,7 +130,7 @@ const TopSearch: React.FC = () => {
         <>
           <StyledDropdownCascader
             items={items}
-            onSelect={(path) => navigate(path.toString())}
+            callback={(item) => navigate(item.itemValue.toString())}
             placeholder={t("forms.placeholders.select_court")}
           />
           <SearchBarContainer>
@@ -139,7 +139,7 @@ const TopSearch: React.FC = () => {
               type="text"
               placeholder={t("forms.placeholders.search")}
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(value) => setSearch(value)}
             />
             {search && filteredCourts.length > 0 && (
               <SearchResultsContainer>

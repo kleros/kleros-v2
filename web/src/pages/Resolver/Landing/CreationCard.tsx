@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Card, Radio } from "@kleros/ui-components-library";
+import { Card } from "@kleros/ui-components-library";
 
 import CaseFromScratchIcon from "svgs/icons/caseFromScratch.svg";
 import DuplicateCaseIcon from "svgs/icons/duplicateCase.svg";
@@ -12,6 +12,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
 import { NumberInputField } from "components/NumberInputField";
+import Radio from "components/Radio";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 export enum CreationMethod {

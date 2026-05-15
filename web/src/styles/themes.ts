@@ -1,7 +1,4 @@
-import { lightTheme as componentsLightTheme, darkTheme as componentsDarkTheme } from "@kleros/ui-components-library";
-
 export const lightTheme = {
-  ...componentsLightTheme,
   name: "light",
   white: "#FFFFFF",
   black: "#000000",
@@ -50,7 +47,6 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  ...componentsDarkTheme,
   name: "dark",
   white: "#FFFFFF",
   black: "#000000",

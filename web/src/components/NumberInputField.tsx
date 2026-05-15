@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 const Container = styled.div`
   width: 100%;
   height: fit-content;
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 100%;
   height: fit-content;
 
@@ -28,7 +28,7 @@ const StyledField = styled(Field)`
   }
 `;
 
-interface INumberInputField extends Omit<React.ComponentProps<typeof Field>, "onChange"> {
+interface INumberInputField extends Omit<React.ComponentProps<typeof TextField>, "onChange"> {
   placeholder?: string;
   message?: string;
   value?: string;
@@ -57,14 +57,15 @@ export const NumberInputField: React.FC<INumberInputField> = ({
       {isEditing ? (
         <StyledField
           type="text"
-          onInput={(e) => {
-            const value = e.currentTarget.value.replace(/[^0-9.]/g, "");
-
-            e.currentTarget.value = formatter ? formatter(value) : value;
-            return e;
+          inputProps={{
+            onInput: (e) => {
+              const inputValue = e.currentTarget.value.replace(/[^0-9.]/g, "");
+              e.currentTarget.value = formatter ? formatter(inputValue) : inputValue;
+              return e;
+            },
           }}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            onChange?.(event.target.value);
+          onChange={(inputValue) => {
+            onChange?.(inputValue);
           }}
           onBlur={toggleEditing}
           value={formatter ? formatter(value ?? "0") : value}
@@ -76,7 +77,7 @@ export const NumberInputField: React.FC<INumberInputField> = ({
           value={formatter ? formatter(value ?? "0") : value}
           onFocus={toggleEditing}
           {...{ placeholder, message, variant }}
-          readOnly
+          isReadOnly
         />
       )}
     </Container>

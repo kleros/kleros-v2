@@ -6,6 +6,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
+import type { SelectItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -29,9 +30,9 @@ const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
   const { ...filterObject } = decodeURIFilter(filter ?? "all");
   const [searchParams] = useSearchParams();
 
-  const handleOrderChange = (value: string | number) => {
+  const handleOrderChange = (item: SelectItem) => {
     const encodedFilter = encodeURIFilter({ ...filterObject });
-    navigate(`${location}/1/${value}/${encodedFilter}?${searchParams.toString()}`);
+    navigate(`${location}/1/${item.itemValue}/${encodedFilter}?${searchParams.toString()}`);
   };
 
   return (
@@ -41,8 +42,8 @@ const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
         smallButton
         simpleButton
         items={[
-          { value: "desc", text: t("sorting.first_to_last") },
-          { value: "asc", text: t("sorting.last_to_first") },
+          { id: "desc", itemValue: "desc", text: t("sorting.first_to_last") },
+          { id: "asc", itemValue: "asc", text: t("sorting.last_to_first") },
         ]}
         defaultValue={order}
         callback={handleOrderChange}

@@ -136,7 +136,7 @@ const BatchCreationCard: React.FC = () => {
   return (
     <Container>
       <TopContent>
-        <Switch checked={isBatchCreation} onChange={() => setIsBatchCreation(!isBatchCreation)} />
+        <Switch isSelected={isBatchCreation} onChange={() => setIsBatchCreation(!isBatchCreation)} />
         <WithHelpTooltip tooltipMsg={t("case_creation.batch_cases_tooltip")}>
           <StyledP>{t("case_creation.create_multiple_cases")}</StyledP>
         </WithHelpTooltip>
