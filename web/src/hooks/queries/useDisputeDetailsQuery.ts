@@ -5,6 +5,10 @@ import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
 import { DisputeDetailsQuery } from "src/graphql/graphql";
+import { isUndefined } from "src/utils";
+
+import { useDisputeArchiveSnapshot } from "./useDisputeArchiveSnapshot";
+
 export type { DisputeDetailsQuery };
 
 const disputeDetailsQuery = graphql(`
@@ -39,12 +43,17 @@ const disputeDetailsQuery = graphql(`
       templateId
       rulingTimestamp
       rulingTransactionHash
+      isArchived
+      archiveCid
     }
   }
 `);
 
 export const useDisputeDetailsQuery = (id?: string | number) => {
-  const isEnabled = id !== undefined;
+  const disputeID = id?.toString();
+  const { data: archivedData, isLoading: isLoadingArchivedData } = useDisputeArchiveSnapshot(disputeID);
+
+  const isEnabled = !isUndefined(id) && !isLoadingArchivedData;
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<DisputeDetailsQuery>({
@@ -52,11 +61,16 @@ export const useDisputeDetailsQuery = (id?: string | number) => {
     enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     staleTime: STALE_TIME,
-    queryFn: async () =>
-      await graphqlBatcher.fetch({
+    queryFn: async () => {
+      if (!isUndefined(archivedData?.dispute)) {
+        return { dispute: { ...archivedData.dispute, isArchived: true } };
+      }
+
+      return await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: disputeDetailsQuery,
-        variables: { disputeID: id?.toString() },
-      }),
+        variables: { disputeID },
+      });
+    },
   });
 };

@@ -31,6 +31,39 @@ export function ensureArchiveStubEntities(): void {
   ensureArchiveStubArbitrable();
 }
 
+function ensureArchiveCourt(courtId: BigInt): Court {
+  const court = Court.load(courtId.toString());
+
+  if (court) {
+    return court;
+  }
+  const newCourt = new Court(courtId.toString());
+  newCourt.hiddenVotes = false;
+  newCourt.parent = null;
+  newCourt.minStake = ZERO;
+  newCourt.alpha = ZERO;
+  newCourt.feeForJuror = ZERO;
+  newCourt.jurorsForCourtJump = ZERO;
+  newCourt.timesPerPeriod = [ZERO, ZERO, ZERO, ZERO];
+  newCourt.supportedDisputeKits = [ARCHIVE_STUB_DISPUTE_KIT_ID];
+  newCourt.numberDisputes = ZERO;
+  newCourt.numberClosedDisputes = ZERO;
+  newCourt.numberVotingDisputes = ZERO;
+  newCourt.numberAppealingDisputes = ZERO;
+  newCourt.numberVotes = ZERO;
+  newCourt.numberStakedJurors = ZERO;
+  newCourt.effectiveNumberStakedJurors = ZERO;
+  newCourt.stake = ZERO;
+  newCourt.effectiveStake = ZERO;
+  newCourt.delayedStake = ZERO;
+  newCourt.paidETH = ZERO;
+  newCourt.paidPNK = ZERO;
+  newCourt.eligibility = "0x";
+  newCourt.save();
+
+  return newCourt;
+}
+
 export function createArchiveOnlyDispute(
   disputeId: BigInt,
   courtId: BigInt,
@@ -44,6 +77,12 @@ export function createArchiveOnlyDispute(
   updateCases(ONE, blockTimestamp);
   updateCasesRuled(ONE, blockTimestamp);
 
+  const court = ensureArchiveCourt(courtId);
+  court.numberDisputes = court.numberDisputes.plus(ONE);
+  // archived dispute is closed already
+  court.numberClosedDisputes = court.numberClosedDisputes.plus(ONE);
+  updateCourtCumulativeMetric(courtId.toString(), ONE, blockTimestamp, "numberDisputes");
+
   // placeholder for currentRound, actual data is fetched from ipfs
   const currentRoundId = disputeId.toString() + "-0";
   const currentRound = Round.load(currentRoundId);
@@ -51,7 +90,7 @@ export function createArchiveOnlyDispute(
   if (!currentRound) {
     const round = new Round(currentRoundId);
     round.dispute = disputeId.toString();
-    round.court = courtId.toString();
+    round.court = court.id;
     round.disputeKit = ARCHIVE_STUB_DISPUTE_KIT_ID;
     round.tokensAtStakePerJuror = ZERO;
     round.totalFeesForJurors = ZERO;
@@ -71,7 +110,7 @@ export function createArchiveOnlyDispute(
 
   const dispute = new Dispute(disputeId.toString());
   dispute.disputeID = disputeId;
-  dispute.court = courtId.toString();
+  dispute.court = court.id;
   dispute.createdAt = blockTimestamp;
   dispute.transactionHash = transactionHash.toHexString();
   dispute.arbitrated = ARCHIVE_STUB_ARBITRABLE_ID;
@@ -91,11 +130,4 @@ export function createArchiveOnlyDispute(
   dispute.isArchived = true;
   dispute.archiveCid = cid;
   dispute.save();
-
-  const court = Court.load(courtId.toString());
-  if (!court) return;
-  court.numberDisputes = court.numberDisputes.plus(ONE);
-  // archived dispute is closed already
-  court.numberClosedDisputes = court.numberClosedDisputes.plus(ONE);
-  updateCourtCumulativeMetric(courtId.toString(), ONE, blockTimestamp, "numberDisputes");
 }
