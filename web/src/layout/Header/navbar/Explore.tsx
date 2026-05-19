@@ -9,50 +9,56 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useOpenContext } from "../MobileHeader";
 
-const Container = styled.div`
+const Container = styled.div<{ $isMobileNavbar?: boolean }>`
   display: flex;
   flex-direction: column;
 
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )};
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        flex-direction: row;
+      `
+    )};
 `;
 
-const Title = styled.h1`
+const Title = styled.h1<{ $isMobileNavbar?: boolean }>`
   display: block;
   margin-bottom: 8px;
 
-  ${landscapeStyle(
-    () => css`
-      display: none;
-    `
-  )};
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        display: none;
+      `
+    )};
 `;
 
-const StyledLink = styled(Link)<{ isActive: boolean; isMobileNavbar?: boolean }>`
-  --landscape-color: ${({ isActive, theme }) => (isActive ? theme.white : `${theme.white}BA`)};
+const StyledLink = styled(Link)<{ $isActive: boolean; $isMobileNavbar?: boolean }>`
+  --landscape-color: ${({ $isActive, theme }) => ($isActive ? theme.white : `${theme.white}BA`)};
 
   display: flex;
   align-items: center;
   text-decoration: none;
   font-size: 16px;
-  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : `${theme.primaryText}BA`)};
-  font-weight: ${({ isActive, isMobileNavbar }) => (isMobileNavbar && isActive ? "600" : "normal")};
+  color: ${({ $isActive, theme }) => ($isActive ? theme.primaryText : `${theme.primaryText}BA`)};
+  font-weight: ${({ $isActive, $isMobileNavbar }) => ($isMobileNavbar && $isActive ? "600" : "normal")};
   padding: 8px 8px 8px 0;
   border-radius: 7px;
 
   &:hover {
-    color: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.primaryText : theme.white)} !important;
+    color: ${({ theme, $isMobileNavbar }) => ($isMobileNavbar ? theme.primaryText : theme.white)} !important;
   }
 
-  ${landscapeStyle(
-    () => css`
-      color: var(--landscape-color);
-      padding: 16px 8px;
-    `
-  )};
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        color: var(--landscape-color);
+        padding: 16px 8px;
+      `
+    )};
 `;
 
 interface IExplore {
@@ -93,10 +99,16 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
   };
 
   return (
-    <Container>
-      <Title>{t("navigation.overview")}</Title>
+    <Container $isMobileNavbar={isMobileNavbar}>
+      <Title $isMobileNavbar={isMobileNavbar}>{t("navigation.overview")}</Title>
       {navLinks.map(({ to, text }) => (
-        <StyledLink key={text} onClick={toggleIsOpen} isActive={getIsActive(to)} {...{ to, isMobileNavbar }}>
+        <StyledLink
+          key={text}
+          onClick={toggleIsOpen}
+          $isActive={getIsActive(to)}
+          $isMobileNavbar={isMobileNavbar}
+          to={to}
+        >
           {text}
         </StyledLink>
       ))}

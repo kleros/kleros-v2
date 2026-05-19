@@ -17,18 +17,20 @@ import LightButton from "components/LightButton";
 
 import { IHelp, ISettings } from "../index";
 
-const Container = styled.div`
+const Container = styled.div<{ $isMobileNavbar?: boolean }>`
   display: flex;
   flex-direction: column;
 
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )}
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        flex-direction: row;
+      `
+    )}
 `;
 
-const ButtonContainer = styled.div`
+const ButtonContainer = styled.div<{ $isMobileNavbar?: boolean }>`
   min-height: 32px;
   display: flex;
   align-items: center;
@@ -41,13 +43,15 @@ const ButtonContainer = styled.div`
     display: block;
   }
 
-  ${landscapeStyle(
-    () => css`
-      .button-text {
-        display: none;
-      }
-    `
-  )}
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        .button-text {
+          display: none;
+        }
+      `
+    )}
 `;
 
 interface IMenu {
@@ -81,9 +85,10 @@ const Menu: React.FC<ISettings & IHelp & IMenu> = ({ toggleIsHelpOpen, toggleIsS
   ];
 
   return (
-    <Container>
+    <Container $isMobileNavbar={isMobileNavbar}>
       {buttons.map(({ text, Icon, onClick }) => (
-        <ButtonContainer key={text}>
+        <ButtonContainer key={text} $isMobileNavbar={isMobileNavbar}>
+
           <LightButton {...{ text, onClick, Icon, isMobileNavbar }} />
         </ButtonContainer>
       ))}

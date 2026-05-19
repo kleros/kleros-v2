@@ -26,14 +26,16 @@ const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
     background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
   }
 
-  ${landscapeStyle(
-    () => css`
-      padding: 8px !important;
-      .button-svg {
-        margin-right: 0;
-      }
-    `
-  )}
+  ${({ isMobileNavbar }) =>
+    !isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        padding: 8px !important;
+        .button-svg {
+          margin-right: 0;
+        }
+      `
+    )}
 `;
 
 interface ILightButton {

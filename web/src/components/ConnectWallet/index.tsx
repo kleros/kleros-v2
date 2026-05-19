@@ -50,13 +50,13 @@ const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
-const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
+const ConnectWallet: React.FC<{ className?: string; isMobileNavbar?: boolean }> = ({ className, isMobileNavbar }) => {
   const { isConnected, chainId } = useAccount();
 
   if (isConnected) {
     if (chainId !== DEFAULT_CHAIN.id) {
       return <SwitchChainButton {...{ className }} />;
-    } else return <AccountDisplay />;
+    } else return <AccountDisplay isMobileNavbar={isMobileNavbar} />;
   } else return <ConnectButton {...{ className }} />;
 };
 

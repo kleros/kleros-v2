@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
@@ -10,7 +10,7 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { BREAKPOINT_HEADER_DESKTOP } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
@@ -38,15 +38,13 @@ const Container = styled.div`
   position: absolute;
   height: 64px;
 
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      position: relative;
-    `
-  )};
+  @media (min-width: ${BREAKPOINT_HEADER_DESKTOP}px) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+  }
 `;
 
 const LeftSide = styled.div`

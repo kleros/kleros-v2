@@ -111,7 +111,7 @@ const NavBar: React.FC = () => {
             <Explore isMobileNavbar={true} />
             <hr />
             <WalletContainer>
-              <ConnectWallet />
+              <ConnectWallet isMobileNavbar={true} />
               {isConnected && (
                 <DisconnectWalletButtonContainer>
                   <DisconnectWalletButton />

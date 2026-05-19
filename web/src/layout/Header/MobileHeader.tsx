@@ -1,11 +1,11 @@
 import React, { useContext, useMemo, useRef } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { useClickAway, useToggle } from "react-use";
 
 import HamburgerIcon from "svgs/header/hamburger.svg";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { BREAKPOINT_HEADER_DESKTOP } from "styles/landscapeStyle";
 
 import LightButton from "components/LightButton";
 
@@ -19,11 +19,9 @@ const Container = styled.div`
   width: 100%;
   height: 64px;
 
-  ${landscapeStyle(
-    () => css`
-      display: none;
-    `
-  )}
+  @media (min-width: ${BREAKPOINT_HEADER_DESKTOP}px) {
+    display: none;
+  }
 `;
 
 const StyledLightButton = styled(LightButton)`

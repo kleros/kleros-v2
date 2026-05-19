@@ -11,7 +11,7 @@ import { shortenAddress } from "utils/shortenAddress";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-const Container = styled.button`
+const Container = styled.button<{ $isMobileNavbar?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -29,23 +29,25 @@ const Container = styled.button`
     }
   }
 
-  ${landscapeStyle(
-    () => css`
-      background-color: ${({ theme }) => theme.whiteLowOpacitySubtle};
-      &:hover {
-        transition: background-color 0.1s;
-        background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
-      }
-      flex-direction: row;
-      align-content: center;
-      border-radius: 300px;
-      gap: 0px;
-      padding: 0 12px;
-    `
-  )}
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        background-color: ${({ theme }) => theme.whiteLowOpacitySubtle};
+        &:hover {
+          transition: background-color 0.1s;
+          background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
+        }
+        flex-direction: row;
+        align-content: center;
+        border-radius: 300px;
+        gap: 0px;
+        padding: 0 12px;
+      `
+    )}
 `;
 
-const AccountContainer = styled.div`
+const AccountContainer = styled.div<{ $isMobileNavbar?: boolean }>`
   min-height: 32px;
   display: flex;
   align-items: center;
@@ -57,19 +59,21 @@ const AccountContainer = styled.div`
     font-weight: 600;
   }
 
-  ${landscapeStyle(
-    () => css`
-      gap: 12px;
-      > label {
-        color: ${({ theme }) => theme.white}CC !important;
-        font-weight: 400;
-        font-size: 14px;
-      }
-    `
-  )}
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        gap: 12px;
+        > label {
+          color: ${({ theme }) => theme.white}CC !important;
+          font-weight: 400;
+          font-size: 14px;
+        }
+      `
+    )}
 `;
 
-const ChainConnectionContainer = styled.div`
+const ChainConnectionContainer = styled.div<{ $isMobileNavbar?: boolean }>`
   display: flex;
   width: fit-content;
   min-height: 32px;
@@ -91,11 +95,13 @@ const ChainConnectionContainer = styled.div`
     background-color: ${({ theme }) => theme.success};
   }
 
-  ${landscapeStyle(
-    () => css`
-      display: none;
-    `
-  )}
+  ${({ $isMobileNavbar }) =>
+    !$isMobileNavbar &&
+    landscapeStyle(
+      () => css`
+        display: none;
+      `
+    )}
 `;
 
 const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`
@@ -166,15 +172,19 @@ export const ChainDisplay: React.FC = () => {
   return <label>{chain?.name}</label>;
 };
 
-const AccountDisplay: React.FC = () => {
+interface IAccountDisplay {
+  isMobileNavbar?: boolean;
+}
+
+const AccountDisplay: React.FC<IAccountDisplay> = ({ isMobileNavbar }) => {
   const { address } = useAccount();
   return (
-    <Container aria-label={address}>
-      <AccountContainer>
+    <Container aria-label={address} $isMobileNavbar={isMobileNavbar}>
+      <AccountContainer $isMobileNavbar={isMobileNavbar}>
         <IdenticonOrAvatar size="20" />
         <AddressOrName />
       </AccountContainer>
-      <ChainConnectionContainer>
+      <ChainConnectionContainer $isMobileNavbar={isMobileNavbar}>
         <ChainDisplay />
       </ChainConnectionContainer>
     </Container>
