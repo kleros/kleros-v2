@@ -52,6 +52,7 @@ const Container = styled.div`
 const LeftSide = styled.div`
   display: flex;
   gap: 8px;
+  margin-left: -8px;
 `;
 
 const MiddleSide = styled.div`
@@ -67,6 +68,7 @@ const RightSide = styled.div`
   gap: ${responsiveSize(4, 8)};
 
   margin-left: 8px;
+  margin-right: -8px;
   canvas {
     width: 20px;
   }
