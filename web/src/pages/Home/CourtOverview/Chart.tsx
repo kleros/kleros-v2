@@ -46,7 +46,7 @@ const ChartOptionsDropdown: React.FC<{
     <StyledDropdown
       smallButton
       simpleButton
-      defaultValue={"stakedPNK"}
+      defaultSelectedKey={"stakedPNK"}
       items={CHART_OPTIONS}
       callback={(item: SelectItem) => {
         if (typeof item.itemValue === "string") {

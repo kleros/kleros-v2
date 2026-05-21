@@ -108,7 +108,7 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
-      onClick={handleClick}
+      onPress={handleClick}
     />
   );
 };

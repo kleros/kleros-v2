@@ -28,27 +28,22 @@ const Container = styled.div`
 
 const StyledAccordion = styled(CustomAccordion)`
   width: 100%;
+  /* Override the library accordion's defaults (max-width, per-item margin,
+   * trigger padding) so it fills the width and matches the sibling vote cards. */
+  max-width: none;
 
-  [class*="accordion-item"] {
-    margin: 0;
-  }
-
-  [class*="accordion-button"] {
-    padding: 16px !important;
+  > div {
     margin: 4px 0;
   }
 
-  [class*="Body"] {
-    padding: 8px;
+  [id="expand-button"] {
+    padding: 16px !important;
   }
 
   ${landscapeStyle(
     () => css`
-      [class*="accordion-button"] {
+      [id="expand-button"] {
         padding: 12px 16px !important;
-      }
-      [class*="Body"] {
-        padding: 12px 16px;
       }
     `
   )}

@@ -25,8 +25,6 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
-const FileViewerSurface = styled.div``;
-
 const AttachmentContainer = styled.div`
   width: 100%;
   display: flex;
@@ -76,9 +74,7 @@ const AttachmentDisplay: React.FC = () => {
                 </LoaderContainer>
               }
             >
-              <FileViewerSurface>
-                <FileViewer url={url} />
-              </FileViewerSurface>
+              <FileViewer url={url} />
             </Suspense>
           </>
         ) : null}

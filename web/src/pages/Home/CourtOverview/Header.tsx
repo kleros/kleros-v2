@@ -25,6 +25,7 @@ const StyledH1 = styled.h1`
 `;
 
 const StyledInternalLink = styled(InternalLink)`
+  display: flex;
   height: 34px;
 `;
 

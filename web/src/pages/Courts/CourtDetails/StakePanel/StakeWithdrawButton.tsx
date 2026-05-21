@@ -319,7 +319,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           text={isStaking ? t("buttons.stake") : t("buttons.withdraw")}
           isLoading={isPopupOpen || isSimulatingAllowance || isSimulatingSetStake}
           isDisabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
-          onClick={handleClick}
+          onPress={handleClick}
         />
         {isPopupOpen && <StakeWithdrawPopup {...{ action, closePopup, amount, steps: popupStepsState, isSuccess }} />}
       </Container>

@@ -149,7 +149,7 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
         small
         isLoading={isLoading}
         isDisabled={isDisabled}
-        onClick={handleClick}
+        onPress={handleClick}
       />
     </>
   );

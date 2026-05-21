@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -85,10 +85,7 @@ const Tabs: React.FC = () => {
     [t]
   );
 
-  const [currentTab, setCurrentTab] = useState(TABS.findIndex(({ path }) => path === currentPathName));
-  useEffect(() => {
-    setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName));
-  }, [currentPathName, TABS]);
+  const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
 
   const tabs = useMemo(() => {
     const updatedTabs = [...TABS];
@@ -102,12 +99,10 @@ const Tabs: React.FC = () => {
 
   return (
     <StyledTabs
-      selectedKey={currentTab}
+      selectedKey={currentTab < 0 ? 0 : currentTab}
+      defaultSelectedKey={currentTab < 0 ? 0 : currentTab}
       items={tabs}
-      callback={(_key, value) => {
-        setCurrentTab(value);
-        navigate(TABS[value].path);
-      }}
+      callback={(_key, value) => navigate(TABS[value].path)}
     />
   );
 };

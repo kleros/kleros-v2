@@ -128,7 +128,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName })
             isDisabled={isFundDisabled}
             isLoading={isPending && !insufficientBalance}
             text={isDisconnected ? t("buttons.connect_to_fund") : t("buttons.fund")}
-            onClick={handleAppeal}
+            onPress={handleAppeal}
           />
           {insufficientBalance && (
             <ErrorButtonMessage>

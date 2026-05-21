@@ -113,10 +113,10 @@ const SubmitEvidenceModal: React.FC<{
         variant="info"
       />
       <ButtonArea>
-        <Button variant="secondary" isDisabled={isSending} text={t("buttons.return")} onClick={close} />
+        <Button variant="secondary" isDisabled={isSending} text={t("buttons.return")} onPress={close} />
         <EnsureChain>
           <EnsureAuth>
-            <Button text={t("buttons.submit")} isLoading={isSending} isDisabled={isDisabled} onClick={submitEvidence} />
+            <Button text={t("buttons.submit")} isLoading={isSending} isDisabled={isDisabled} onPress={submitEvidence} />
           </EnsureAuth>
         </EnsureChain>
       </ButtonArea>

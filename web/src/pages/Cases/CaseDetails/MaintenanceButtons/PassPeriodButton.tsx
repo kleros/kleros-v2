@@ -75,7 +75,7 @@ const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
-      onClick={handleClick}
+      onPress={handleClick}
     />
   );
 };

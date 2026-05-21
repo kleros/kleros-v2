@@ -45,7 +45,7 @@ const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
           { id: "desc", itemValue: "desc", text: t("sorting.first_to_last") },
           { id: "asc", itemValue: "asc", text: t("sorting.last_to_first") },
         ]}
-        defaultValue={order}
+        defaultSelectedKey={order}
         callback={handleOrderChange}
       />
     </Container>

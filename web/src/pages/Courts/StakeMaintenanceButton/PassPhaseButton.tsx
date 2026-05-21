@@ -95,7 +95,7 @@ const PassPhaseButton: React.FC<IPassPhaseButton> = ({ setIsOpen }) => {
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
-      onClick={handleClick}
+      onPress={handleClick}
     />
   );
 };

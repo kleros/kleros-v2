@@ -160,8 +160,8 @@ const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({ isOpen, url, onCo
       </Message>
 
       <ButtonContainer>
-        <CancelButton text={t("buttons.cancel")} onClick={onCancel} />
-        <ConfirmButton text={t("buttons.continue_to_external_site")} onClick={onConfirm} />
+        <CancelButton text={t("buttons.cancel")} onPress={onCancel} />
+        <ConfirmButton text={t("buttons.continue_to_external_site")} onPress={onConfirm} />
       </ButtonContainer>
     </StyledModal>
   );

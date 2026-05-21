@@ -62,7 +62,7 @@ const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch }) => {
             text={t("buttons.submit_evidence")}
             isDisabled={typeof address === "undefined" || isModalOpen}
             isLoading={isModalOpen}
-            onClick={() => setIsModalOpen(true)}
+            onPress={() => setIsModalOpen(true)}
           />
         </EnsureChain>
       </SearchContainer>

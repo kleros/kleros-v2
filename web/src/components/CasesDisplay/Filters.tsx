@@ -105,7 +105,7 @@ const Filters: React.FC = () => {
             dot: theme.primaryPurple,
           },
         ]}
-        defaultValue={JSON.stringify({ ruled, period })}
+        defaultSelectedKey={JSON.stringify({ ruled, period })}
         callback={handleStatusChange}
       />
       <DropdownSelect
@@ -115,7 +115,7 @@ const Filters: React.FC = () => {
           { id: "desc", itemValue: "desc", text: t("filters.newest") },
           { id: "asc", itemValue: "asc", text: t("filters.oldest") },
         ]}
-        defaultValue={order}
+        defaultSelectedKey={order}
         callback={handleOrderChange}
       />
       {isDesktop ? (

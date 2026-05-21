@@ -49,13 +49,14 @@ const OptionsFields: React.FC = () => {
     const defaultAnswer: Answer = { title: "", id: value.toString(), description: "" };
     const answers = disputeData.answers;
 
-    if (value < answers?.length) return setDisputeData({ ...disputeData, answers: answers.splice(0, value) });
+    if (value < answers?.length) return setDisputeData({ ...disputeData, answers: answers.slice(0, value) });
     if (value > answers?.length) return setDisputeData({ ...disputeData, answers: [...answers, defaultAnswer] });
   };
 
   const handleOptionWrite = (field: "title" | "description", key: number, value: string) => {
-    const answers = disputeData.answers;
-    answers[key] = { ...answers[key], [field]: value };
+    const answers = disputeData.answers.map((answer, index) =>
+      index === key ? { ...answer, [field]: value } : answer
+    );
     setDisputeData({ ...disputeData, answers });
   };
   return (

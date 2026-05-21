@@ -96,6 +96,12 @@ const AlertContainer = styled.div`
   margin-top: 24px;
 `;
 
+const StyledTimeline = styled(CustomTimeline)`
+  h2 {
+    margin: 0;
+  }
+`;
+
 interface IStakeWithdrawPopup {
   action: ActionType;
   amount: string;
@@ -110,11 +116,11 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
   return (
     <Overlay onClick={closePopup}>
       <Container onClick={(e) => e.stopPropagation()}>
-        <StyledButton Icon={Close} text="" onClick={closePopup} />
+        <StyledButton Icon={Close} text="" onPress={closePopup} />
         <InnerContainer>
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
-          {steps && <CustomTimeline items={steps} />}
+          {steps && <StyledTimeline items={steps} />}
           {isSuccess && action === ActionType.stake ? (
             <AlertContainer>
               <AlertMessage

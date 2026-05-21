@@ -108,6 +108,7 @@ const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = (
           <TabsContainer>
             <StyledTabs
               selectedKey={currentTab}
+              defaultSelectedKey={rounds.length - 1}
               items={rounds.map((_, i) => ({
                 id: i,
                 text: t("voting.round_number", { number: i + 1 }),

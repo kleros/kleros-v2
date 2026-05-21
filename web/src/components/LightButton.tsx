@@ -39,14 +39,14 @@ const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
 interface ILightButton {
   text: string;
   Icon?: React.FC<React.SVGAttributes<SVGElement>>;
-  onClick?: React.ComponentProps<typeof Button>["onClick"];
+  onPress?: React.ComponentProps<typeof Button>["onPress"];
   disabled?: boolean;
   className?: string;
   isMobileNavbar?: boolean;
 }
 
-const LightButton: React.FC<ILightButton> = ({ text, Icon, onClick, disabled, className, isMobileNavbar }) => (
-  <StyledButton variant="primary" small isDisabled={disabled} {...{ text, Icon, onClick, className, isMobileNavbar }} />
+const LightButton: React.FC<ILightButton> = ({ text, Icon, onPress, disabled, className, isMobileNavbar }) => (
+  <StyledButton variant="primary" small isDisabled={disabled} {...{ text, Icon, onPress, className, isMobileNavbar }} />
 );
 
 export default LightButton;

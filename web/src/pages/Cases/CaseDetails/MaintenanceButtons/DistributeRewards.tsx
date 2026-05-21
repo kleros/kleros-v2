@@ -94,7 +94,7 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
-      onClick={handleClick}
+      onPress={handleClick}
     />
   );
 };

@@ -81,7 +81,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitName, commit,
     <Container>
       <Button
         text={t("buttons.reveal_your_vote")}
-        onClick={handleReveal}
+        onPress={handleReveal}
         isDisabled={isPending}
         isLoading={isPending}
       />

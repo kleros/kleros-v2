@@ -106,7 +106,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
               text={t("buttons.justify_and_reveal")}
               isDisabled={isPending || isUndefined(disputeDetails)}
               isLoading={isPending}
-              onClick={handleReveal}
+              onPress={handleReveal}
             />
           </StyledEnsureChain>
         </>

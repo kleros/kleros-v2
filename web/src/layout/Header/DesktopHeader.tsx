@@ -146,7 +146,7 @@ const DesktopHeader: React.FC = () => {
           <LightButtonContainer>
             <LightButton
               text=""
-              onClick={() => {
+              onPress={() => {
                 toggleIsDappListOpen();
               }}
               Icon={StyledKlerosSolutionsIcon}

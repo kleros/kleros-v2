@@ -99,7 +99,7 @@ const SubmitDisputeButton: React.FC = () => {
             text={t("buttons.submit_the_case")}
             isDisabled={isButtonDisabled}
             isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
-            onClick={() => {
+            onPress={() => {
               if (submitCaseConfig && publicClient) {
                 setIsSubmittingCase(true);
                 wrapWithToast(async () => await submitCase(submitCaseConfig.request), publicClient)

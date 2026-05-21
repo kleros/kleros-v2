@@ -104,18 +104,19 @@ const Description: React.FC = () => {
   ];
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
-  const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
 
-  const tabItems = filteredTabs.map(({ text, value, path }) => ({
-    id: value,
+  const tabItems = filteredTabs.map(({ text, path }) => ({
+    id: path,
     text,
     value: path,
     content: null,
   }));
 
-  const handleTabChange = (i: number) => {
-    navigate(`${TABS[i].path}${suffix}`);
-  };
+  // Pass both: `selectedKey` keeps react-aria controlled, `defaultSelectedKey`
+  // drives the library Tabs' own visible underline.
+  const activePath = filteredTabs.some(({ path }) => path === currentPathName)
+    ? currentPathName
+    : filteredTabs[0]?.path;
   useEffect(() => {
     if (currentPathName && !filteredTabs.map((t) => t.path).includes(currentPathName) && filteredTabs.length > 0) {
       navigate(`${filteredTabs[0].path}${suffix}`, { replace: true });
@@ -123,7 +124,12 @@ const Description: React.FC = () => {
   }, [policy, currentPathName, filteredTabs, navigate, suffix]);
   return policy ? (
     <Container id="description">
-      <StyledTabs selectedKey={currentTab} items={tabItems} callback={(key) => handleTabChange(Number(key))} />
+      <StyledTabs
+        selectedKey={activePath}
+        defaultSelectedKey={activePath}
+        items={tabItems}
+        callback={(key) => navigate(`${String(key)}${suffix}`)}
+      />
       <TextContainer>
         <Routes>
           <Route path="purpose" element={formatMarkdown(policy?.purpose)} />

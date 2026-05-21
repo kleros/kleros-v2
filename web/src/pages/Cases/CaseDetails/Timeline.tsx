@@ -37,10 +37,7 @@ const StyledSteps = styled(Steps)`
 
   h2 {
     font-size: ${responsiveSize(12, 14)};
-  }
-
-  [class*="horizontal-bullet__TextWrapper"] {
-    margin-top: 2px;
+    margin: 0;
   }
 
   ${landscapeStyle(

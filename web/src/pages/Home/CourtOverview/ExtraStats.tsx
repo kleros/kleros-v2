@@ -95,7 +95,7 @@ const ExtraStats = () => {
               itemValue: range.value,
               text: range.text,
             }))}
-            defaultValue={selectedRange}
+            defaultSelectedKey={selectedRange}
             callback={handleTimeRangeChange}
           />
         }

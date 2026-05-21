@@ -98,7 +98,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
                       text={answer.title}
                       isDisabled={isSending}
                       isLoading={chosenOption === BigInt(answer.id)}
-                      onClick={() => onClick(BigInt(answer.id))}
+                      onPress={() => onClick(BigInt(answer.id))}
                     />
                   </Tooltip>
                 ) : null;
@@ -115,7 +115,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
               text={updatedRTA.title}
               isDisabled={isSending}
               isLoading={chosenOption === BigInt(0)}
-              onClick={() => onClick(BigInt(0))}
+              onPress={() => onClick(BigInt(0))}
             />
           </Tooltip>
         </EnsureChain>

@@ -35,6 +35,10 @@ const Container = styled.div`
 
 const StyledTimeline = styled(CustomTimeline)`
   width: 100%;
+
+  h2 {
+    margin: 0;
+  }
 `;
 
 const StyledNewTabIcon = styled(NewTabIcon)`

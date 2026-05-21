@@ -76,6 +76,10 @@ const LabelContainer = styled.div`
   justify-content: center;
 `;
 
+const ProgressContainer = styled.div`
+  width: 100%;
+`;
+
 interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
   text: string;
   funding: bigint;
@@ -109,7 +113,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   }, [funding, required, t]);
 
   return (
-    <StyledCard hover {...props} {...{ canBeSelected, ref }}>
+    <StyledCard hover {...props} {...{ canBeSelected }}>
       <TopContainer>
         <TextContainer>
           <BlockLabel>{text}</BlockLabel>
@@ -123,7 +127,9 @@ const OptionCard: React.FC<IOptionCard> = ({
       <LabelContainer>
         <label>{fundingLabel}</label>
       </LabelContainer>
-      <LinearProgress value={progress} width={width} />
+      <ProgressContainer ref={ref}>
+        <LinearProgress value={progress} width={width} />
+      </ProgressContainer>
     </StyledCard>
   );
 };

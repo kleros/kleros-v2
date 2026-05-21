@@ -90,7 +90,7 @@ const Header: React.FC<{ title: string }> = ({ title }) => {
         <StyledPaperClip />
         <Title>{title}</Title>
       </TitleContainer>
-      <StyledButton text={t("buttons.return")} Icon={Arrow} onClick={handleReturn} />
+      <StyledButton text={t("buttons.return")} Icon={Arrow} onPress={handleReturn} />
     </Container>
   );
 };

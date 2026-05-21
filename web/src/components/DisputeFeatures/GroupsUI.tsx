@@ -59,7 +59,7 @@ const VotingGroup: React.FC<{ children: JSX.Element; clearAll: () => void }> = (
     <Container key={Group.Voting}>
       <HeaderContainer>
         <Header>
-          {t("misc.shielded_voting")} <StyledLightButton text={t("buttons.clear")} onClick={clearAll} />
+          {t("misc.shielded_voting")} <StyledLightButton text={t("buttons.clear")} onPress={clearAll} />
         </Header>
         <SubTitle>{t("tooltips.shielded_voting_description")}</SubTitle>
       </HeaderContainer>
@@ -74,7 +74,7 @@ const EligibilityGroup: React.FC<{ children: JSX.Element; clearAll: () => void }
     <Container key={Group.Eligibility}>
       <HeaderContainer>
         <Header>
-          {t("misc.jurors_eligibility")} <StyledLightButton text={t("buttons.clear")} onClick={clearAll} />
+          {t("misc.jurors_eligibility")} <StyledLightButton text={t("buttons.clear")} onPress={clearAll} />
         </Header>
         <SubTitle>{t("tooltips.jurors_eligibility_description")}</SubTitle>
       </HeaderContainer>

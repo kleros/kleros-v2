@@ -122,7 +122,7 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
         small
         isLoading={isLoading}
         isDisabled={isDisabled}
-        onClick={handleClick}
+        onPress={handleClick}
       />
     </>
   );

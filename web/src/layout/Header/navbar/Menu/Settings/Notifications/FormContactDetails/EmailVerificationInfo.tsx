@@ -95,7 +95,7 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
         <InfoSubtitle>
           {t("email_verification.verification_email_sent_text")}
           <br /> {t("email_verification.didnt_receive_email")}{" "}
-          <StyledButton text={t("buttons.resend_it")} onClick={resendVerificationEmail} />
+          <StyledButton text={t("buttons.resend_it")} onPress={resendVerificationEmail} />
         </InfoSubtitle>
       </InfoInnerContainer>
     </InfoContainer>

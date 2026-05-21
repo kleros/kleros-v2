@@ -103,6 +103,7 @@ const Profile: React.FC = () => {
           <JurorCard {...{ searchParamAddress }} />
           <StyledTabs
             selectedKey={getTabIndex(pathname)}
+            defaultSelectedKey={getTabIndex(pathname)}
             items={TABS}
             callback={(_key, value) => handleTabChange(value)}
           />

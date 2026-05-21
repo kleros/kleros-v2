@@ -75,7 +75,7 @@ const LanguageSelectorContainer = styled.div`
 export const DisconnectWalletButton: React.FC = () => {
   const { t } = useTranslation();
   const { disconnect } = useDisconnect();
-  return <Button text={t("buttons.disconnect")} onClick={() => disconnect()} />;
+  return <Button text={t("buttons.disconnect")} onPress={() => disconnect()} />;
 };
 
 const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {

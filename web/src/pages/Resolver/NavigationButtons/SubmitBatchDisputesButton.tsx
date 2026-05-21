@@ -95,7 +95,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
           text={t("buttons.create_cases")}
           isDisabled={isButtonDisabled}
           isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}
-          onClick={() => {
+          onPress={() => {
             if (batchConfig && publicClient) {
               setIsSubmittingCase(true);
               wrapWithToast(async () => await executeBatch(batchConfig), publicClient)

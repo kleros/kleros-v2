@@ -63,8 +63,8 @@ const StyledTabs = styled(Tabs)`
 
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
   const { t } = useTranslation();
-  const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
   const containerRef = useRef(null);
+  const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
   const location = useLocation();
   const navigate = useNavigate();
   useClickAway(containerRef, () => {
@@ -77,13 +77,13 @@ const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => 
       id: 0,
       text: t("menu.general"),
       value: 0,
-      content: null,
+      content: <General {...{ toggleIsSettingsOpen }} />,
     },
     {
       id: 1,
       text: t("menu.notifications"),
       value: 1,
-      content: null,
+      content: <NotificationSettings {...{ toggleIsSettingsOpen }} />,
     },
   ];
 
@@ -92,16 +92,10 @@ const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => 
       <StyledSettingsText>{t("menu.settings")}</StyledSettingsText>
       <StyledTabs
         selectedKey={currentTab}
+        defaultSelectedKey={initialTab || 0}
         items={TABS}
-        callback={(_key, value) => {
-          setCurrentTab(value);
-        }}
+        callback={(_key, value) => setCurrentTab(value)}
       />
-      {currentTab === 0 ? (
-        <General {...{ toggleIsSettingsOpen }} />
-      ) : (
-        <NotificationSettings {...{ toggleIsSettingsOpen }} />
-      )}
     </Container>
   );
 };

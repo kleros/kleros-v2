@@ -50,7 +50,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/notable-persons") && !areAliasesValidOrEmpty) ||
     (location.pathname.includes("/resolver/policy") && (isPolicyUploading || !disputeData.policyURI));
 
-  return <Button isDisabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text={t("buttons.next")} />;
+  return <Button isDisabled={isButtonDisabled} onPress={() => navigate(nextRoute)} text={t("buttons.next")} />;
 };
 
 export default NextButton;

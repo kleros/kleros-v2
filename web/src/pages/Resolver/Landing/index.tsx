@@ -153,7 +153,7 @@ const Landing: React.FC = () => {
           isInvalidDispute ||
           (creationMethod === CreationMethod.Duplicate && isUndefined(debouncedDisputeID))
         }
-        onClick={() => navigate("/resolver/title")}
+        onPress={() => navigate("/resolver/title")}
       />
     </Container>
   );
