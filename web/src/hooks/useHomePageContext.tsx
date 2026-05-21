@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 
 import { useHomePageQuery, HomePageQuery } from "queries/useHomePageQuery";
 export type { HomePageQuery };
@@ -20,7 +20,8 @@ export const HomePageProvider: React.FC<{
   timeframe: number;
 }> = ({ children, timeframe }) => {
   const { data, error } = useHomePageQuery(timeframe);
-  return <Context.Provider value={{ data, error }}>{children}</Context.Provider>;
+  const value = useMemo(() => ({ data, error }), [data, error]);
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 
 export const useHomePageContext: () => IContext = () => {
