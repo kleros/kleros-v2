@@ -25,12 +25,12 @@ const StyledLabel = styled.label`
 
 type ILabeledInput = React.ComponentProps<typeof TextField>;
 
-const LabeledInput: React.FC<ILabeledInput> = ({ label, ...props }) => {
+const LabeledInput: React.FC<ILabeledInput> = ({ label, inputProps, ...props }) => {
   const inputId = React.useId();
   return (
     <Container>
       {!isUndefined(label) ? <StyledLabel htmlFor={inputId}>{label}</StyledLabel> : null}
-      <StyledField {...props} inputProps={{ id: inputId, dir: "auto" }} />
+      <StyledField {...props} inputProps={{ dir: "auto", ...inputProps, id: inputId }} />
     </Container>
   );
 };
