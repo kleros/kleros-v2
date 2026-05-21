@@ -29,7 +29,7 @@ const Container = styled.div`
   border: 1px solid ${({ theme }) => theme.stroke};
   border-top: none;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 
   ${landscapeStyle(
     () => css`
@@ -63,7 +63,7 @@ const BottomSide = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 8px;
+  gap: 4px;
 `;
 
 const HeaderScoreAndScore = styled.div`

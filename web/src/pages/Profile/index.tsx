@@ -44,9 +44,14 @@ const StyledTabs = styled(TabsComponent)`
   > * {
     display: flex;
     flex-wrap: wrap;
-    font-size: ${responsiveSize(14, 16)};
-    > svg {
-      margin-right: 8px !important;
+  }
+  // Set on the label, not the container: the library's text-base wouldn't inherit.
+  [role="tab"] {
+    span {
+      font-size: ${responsiveSize(14, 16)};
+    }
+    svg {
+      margin-right: 8px;
     }
   }
 `;

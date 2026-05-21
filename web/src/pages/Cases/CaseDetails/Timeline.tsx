@@ -37,7 +37,7 @@ const StyledSteps = styled(Steps)`
 
   h2 {
     font-size: ${responsiveSize(12, 14)};
-    margin: 0;
+    margin: 4px 0 0;
   }
 
   ${landscapeStyle(

@@ -12,6 +12,13 @@ const Container = styled.div`
   align-items: center;
 `;
 
+const StyledTooltip = styled(Tooltip)`
+  small {
+    font-size: 14px;
+    line-height: 20px;
+  }
+`;
+
 const HelpIcon = styled(_HelpIcon)`
   display: flex;
   align-items: center;
@@ -37,9 +44,9 @@ interface IWithHelpTooltip {
 const WithHelpTooltip: React.FC<IWithHelpTooltip> = ({ tooltipMsg, children, place }) => (
   <Container>
     {children}
-    <Tooltip small text={tooltipMsg} {...{ place }}>
+    <StyledTooltip small text={tooltipMsg} {...{ place }}>
       <HelpIcon />
-    </Tooltip>
+    </StyledTooltip>
   </Container>
 );
 
