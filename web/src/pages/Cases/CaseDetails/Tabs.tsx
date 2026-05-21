@@ -84,7 +84,7 @@ const Tabs: React.FC = () => {
 
   const tabs = useMemo(() => {
     const updatedTabs = [...TABS];
-    const periodIndex = parseInt(String(currentPeriodIndex));
+    const periodIndex = Number.parseInt(String(currentPeriodIndex));
     updatedTabs[3].disabled =
       (periodIndex < 3 && rounds.length === 1) ||
       (!isUndefined(appealCost) && isLastRound(appealCost) && periodIndex === 3);
