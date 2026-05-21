@@ -20,6 +20,7 @@ const StyledCard = styled.div`
   flex-wrap: wrap;
   gap: 12px 16px;
   justify-content: center;
+  align-items: center;
   margin-top: 12px;
 
   ${landscapeStyle(
