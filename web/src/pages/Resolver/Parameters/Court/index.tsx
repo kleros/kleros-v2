@@ -51,6 +51,10 @@ const AlertMessageContainer = styled.div`
     `
   )}
   margin-top: 24px;
+
+  h2 {
+    margin: 0;
+  }
 `;
 
 const Court: React.FC = () => {

@@ -18,6 +18,7 @@ const AliasContainer = styled.div`
 const TextContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   max-width: 100%;
   > label {
     color: ${({ theme }) => theme.primaryText};

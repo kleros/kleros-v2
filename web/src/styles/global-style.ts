@@ -43,6 +43,10 @@ export const GlobalStyle = createGlobalStyle`
     font-size: 14px;
   }
 
+  input {
+    font-size: 14px;
+  }
+
   hr {
     opacity: 1;
     border: 1px solid ${({ theme }) => theme.stroke};

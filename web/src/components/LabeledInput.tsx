@@ -12,9 +12,8 @@ const Container = styled.div`
 `;
 const StyledField = styled(TextField)`
   width: 100%;
-  > small {
+  > span {
     margin-top: 16px;
-    margin-bottom: 16px;
   }
 `;
 

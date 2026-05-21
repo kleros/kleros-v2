@@ -24,7 +24,7 @@ const StyledField = styled(TextField)`
   width: 100%;
   margin-top: 8px;
   margin-bottom: 32px;
-  > small {
+  > span {
     margin-top: 16px;
   }
 `;

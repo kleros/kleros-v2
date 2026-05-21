@@ -24,7 +24,7 @@ const Container = styled.div`
 `;
 
 const QuestionField = styled(LabeledInput)`
-  margin-bottom: 78px;
+  margin-bottom: 44px;
 `;
 
 const AlertMessageContainer = styled.div`
@@ -36,6 +36,10 @@ const AlertMessageContainer = styled.div`
   )}
   > div {
     width: 100%;
+  }
+
+  h2 {
+    margin: 0;
   }
 `;
 

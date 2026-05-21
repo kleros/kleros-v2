@@ -28,7 +28,7 @@ const StyledCard = styled(Card)<{ selected?: boolean }>`
 
 const CardTopContent = styled.div`
   width: 100%;
-  padding: 8px ${responsiveSize(16, 24)};
+  padding: 12px ${responsiveSize(16, 24)};
   display: flex;
   align-items: center;
   gap: ${responsiveSize(8, 16)};

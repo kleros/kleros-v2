@@ -94,6 +94,10 @@ const StyledButton = styled(LightButton)`
 
 const AlertContainer = styled.div`
   margin-top: 24px;
+
+  h2 {
+    margin: 0;
+  }
 `;
 
 const StyledTimeline = styled(CustomTimeline)`

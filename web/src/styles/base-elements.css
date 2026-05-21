@@ -41,7 +41,9 @@
     color: var(--klerosUIComponentsPrimaryText);
   }
 
-  small {
+  /* :not(...) keeps this off the library's own <small>s (they all carry a
+     klerosUIComponents class); otherwise font-weight: 600 leaks in and bolds their text. */
+  small:not([class*="klerosUIComponents"]) {
     font-weight: 600;
     font-size: 14px;
     line-height: 18px;

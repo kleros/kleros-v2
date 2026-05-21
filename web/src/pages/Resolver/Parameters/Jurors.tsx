@@ -43,9 +43,12 @@ const StyledDisplay = styled(DisplaySmall)`
   width: 290px;
   margin-bottom: ${responsiveSize(20, 48)};
 
-  h2::after {
-    content: "ETH";
-    margin-left: 4px;
+  h2 {
+    margin: 0;
+    ::after {
+      content: "ETH";
+      margin-left: 4px;
+    }
   }
 
   path {
