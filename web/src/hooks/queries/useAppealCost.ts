@@ -15,7 +15,7 @@ export const useAppealCost = (disputeID?: string) => {
     staleTime: Infinity,
     queryFn: async () => {
       if (!publicClient || isUndefined(disputeID)) return;
-      const chainKey = DEFAULT_CHAIN.id as keyof typeof klerosCoreConfig.address;
+      const chainKey = DEFAULT_CHAIN.id;
       const klerosCore = getContract({
         abi: klerosCoreConfig.abi,
         address: klerosCoreConfig.address[chainKey],

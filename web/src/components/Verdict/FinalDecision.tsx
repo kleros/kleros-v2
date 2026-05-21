@@ -12,7 +12,7 @@ import ArrowIcon from "svgs/icons/arrow.svg";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
-import { klerosCoreAddress, useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { VotingHistoryQuery } from "hooks/queries/useVotingHistory";
 import { useVotingContext } from "hooks/useVotingContext";
@@ -97,7 +97,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
   const { data: currentRulingArray, isLoading: isLoadingCurrentRuling } = useReadKlerosCoreCurrentRuling({
     query: { refetchInterval: REFETCH_INTERVAL },
     args: [BigInt(id ?? 0)],
-    chainId: DEFAULT_CHAIN.id as keyof typeof klerosCoreAddress,
+    chainId: DEFAULT_CHAIN.id,
   });
   const currentRuling = Number(currentRulingArray?.[0] ?? 0);
 

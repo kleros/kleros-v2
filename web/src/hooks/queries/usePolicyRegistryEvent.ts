@@ -16,7 +16,7 @@ export const usePolicyRegistryEvent = (courtID?: string | number) => {
     staleTime: Infinity,
     queryFn: async () => {
       if (isUndefined(publicClient) || isUndefined(courtID)) throw new Error("publicClient or courtID is undefined");
-      const chainKey = DEFAULT_CHAIN.id as keyof typeof policyRegistryConfig.address;
+      const chainKey = DEFAULT_CHAIN.id;
       const policyRegistry = getContract({
         abi: policyRegistryConfig.abi,
         address: policyRegistryConfig.address[chainKey],
