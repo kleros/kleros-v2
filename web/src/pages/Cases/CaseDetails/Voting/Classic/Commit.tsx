@@ -8,9 +8,10 @@ import { useCastCommit } from "hooks/useCastCommit";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { ClassicCommitParams } from "src/actions/commit/params";
+import { CommitParams } from "src/actions/commit/params";
 import { DisputeKits } from "src/consts";
 import { isUndefined } from "src/utils";
+import { PartialBy } from "src/utils/types";
 
 import OptionsContainer from "../OptionsContainer";
 
@@ -49,7 +50,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitN
         choice,
         voteIds: parsedVoteIDs,
         roundIndex: Number(currentRoundIndex),
-      } as ClassicCommitParams);
+      } as PartialBy<CommitParams, "salt">);
     },
     [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, disputeKitName]
   );

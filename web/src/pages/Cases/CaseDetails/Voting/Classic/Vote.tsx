@@ -8,7 +8,7 @@ import { useVote } from "hooks/useVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { ClassicVoteParams } from "src/actions/vote/params";
+import { VoteParams } from "src/actions/vote/params";
 import { DisputeKits } from "src/consts";
 import { isUndefined } from "src/utils";
 
@@ -51,7 +51,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, disputeKitName 
         salt: BigInt(currentRoundIndex),
         justification,
         type: disputeKitName ?? DisputeKits.Classic,
-      } as ClassicVoteParams);
+      } as VoteParams);
     },
     [currentRoundIndex, justification, parsedVoteIDs, parsedDisputeID, vote, disputeKitName]
   );
