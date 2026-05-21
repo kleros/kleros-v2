@@ -104,11 +104,15 @@ export default async function main(
       const disputeRequests: DisputeRequestEvent.OutputObject[] =
         fullTxReceipt.logs
           .filter((log: Log) => log.topics[0] === disputeRequestTopic)
-          .map(
-            (log: Log) =>
-              arbitrableInterface.parseLog(log)!
-                .args as unknown as DisputeRequestEvent.OutputObject,
-          );
+          .map((log: Log) => {
+            const parsed = arbitrableInterface.parseLog(log);
+            if (!parsed) {
+              throw new Error(
+                `Failed to parse DisputeRequest log: ${log.transactionHash}`,
+              );
+            }
+            return parsed.args as unknown as DisputeRequestEvent.OutputObject;
+          });
       logger.warn(
         `More than 1 DisputeRequest event: not supported yet, skipping the others events.`,
       );
