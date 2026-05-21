@@ -3,9 +3,9 @@ import styled, { css, useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Period } from "~src/graphql/graphql";
-
 import { Periods } from "consts/periods";
+
+import { Period } from "src/graphql/graphql";
 
 import { getPeriodColors } from "components/DisputeView/PeriodBanner";
 

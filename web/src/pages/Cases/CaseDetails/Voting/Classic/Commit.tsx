@@ -4,12 +4,11 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
 
-import { ClassicCommitParams } from "~src/actions/commit/params";
-
 import { useCastCommit } from "hooks/useCastCommit";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
+import { ClassicCommitParams } from "src/actions/commit/params";
 import { DisputeKits } from "src/consts";
 import { isUndefined } from "src/utils";
 

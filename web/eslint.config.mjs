@@ -105,6 +105,18 @@ export default [
       "security/detect-object-injection": "off",
       "security/detect-non-literal-fs-filename": "off",
 
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["~*", "~/*"],
+              message: "Do not import using the '~' prefix.",
+            },
+          ],
+        },
+      ],
+
       "import/extensions": [
         "error",
         "ignorePackages",

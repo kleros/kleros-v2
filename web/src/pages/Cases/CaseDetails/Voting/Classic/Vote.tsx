@@ -4,12 +4,11 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
 
-import { ClassicVoteParams } from "~src/actions/vote/params";
-
 import { useVote } from "hooks/useVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
+import { ClassicVoteParams } from "src/actions/vote/params";
 import { DisputeKits } from "src/consts";
 import { isUndefined } from "src/utils";
 
