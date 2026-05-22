@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
+import { Address } from "viem";
 
 import { Tabs } from "@kleros/ui-components-library";
 
@@ -61,7 +62,7 @@ const TabsContainer = styled.div`
   flex-direction: column;
 `;
 
-const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
+const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
   const { t } = useTranslation();
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
@@ -75,7 +76,6 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   //set current tab to latest round
   useEffect(() => setCurrentTab((rounds?.length && rounds?.length - 1) ?? 0), [rounds]);
 
-  const answers = disputeDetails?.answers;
   const drawnJurors = useMemo(
     () => getDrawnJurorsWithCount(votingHistory?.dispute?.rounds[currentTab]?.drawnJurors ?? []),
     [votingHistory, currentTab]
@@ -121,8 +121,8 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             />
             <VotesAccordion
               drawnJurors={drawnJurors}
-              period={disputeData?.dispute?.period}
-              answers={answers}
+              period={disputeData?.dispute?.period ?? ""}
+              answers={disputeDetails.answers}
               isActiveRound={localRounds?.length - 1 === currentTab}
               hiddenVotes={isHiddenVotes}
             />

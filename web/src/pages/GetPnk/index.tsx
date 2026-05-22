@@ -1,10 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { isProductionDeployment } from "consts/index";
+
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-
-import { isProductionDeployment } from "consts/index";
 
 import ClaimPnkButton from "components/ClaimPnkButton";
 import HeroImage from "components/HeroImage";

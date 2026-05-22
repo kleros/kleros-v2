@@ -7,8 +7,6 @@ import { usePublicClient } from "wagmi";
 
 import { Button, Field } from "@kleros/ui-components-library";
 
-import AddressExplorerLink from "~src/components/AddressExplorerLink";
-
 import {
   useReadDisputeKitClassicUniversityGetJurors,
   useReadDisputeKitClassicUniversityInstructor,
@@ -17,6 +15,7 @@ import {
 } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import AddressExplorerLink from "src/components/AddressExplorerLink";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";

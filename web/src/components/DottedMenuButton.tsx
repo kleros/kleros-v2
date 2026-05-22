@@ -1,9 +1,9 @@
 import React from "react";
 import styled, { css, keyframes } from "styled-components";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import DottedMenu from "svgs/icons/dotted-menu.svg";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 const ripple = keyframes`
      0% {

@@ -47,7 +47,7 @@ const ExecuteRulingButton: React.FC<IExecuteRulingButton> = ({ id, setIsOpen, pe
     [id, isError, isLoading, period, ruled]
   );
   const handleClick = () => {
-    if (!ruleConfig) return;
+    if (!ruleConfig || !publicClient) return;
 
     setIsSending(true);
 

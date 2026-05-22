@@ -120,7 +120,7 @@ const Landing: React.FC = () => {
       policyURI: populatedDispute.policyURI,
       question: populatedDispute.question,
       courtId: roundData.round?.court.id,
-      numberOfJurors: roundData.round?.nbVotes,
+      numberOfJurors: roundData.round?.nbVotes ? parseInt(roundData.round.nbVotes) : undefined,
       disputeKitId: parseInt(roundData.round?.disputeKit.id ?? "1", 10),
       answers,
       aliasesArray: aliasesArray ?? disputeData.aliasesArray,

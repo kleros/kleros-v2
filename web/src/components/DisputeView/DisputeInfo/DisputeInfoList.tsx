@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { isUndefined } from "utils/index";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 import Field, { IField } from "components/Field";
@@ -48,7 +50,7 @@ const DisputeInfoList: React.FC<IDisputeInfoList> = ({ fieldItems, showLabels, d
     () =>
       fieldItems.map((item) =>
         item.display ? (
-          <StyledField key={item.name} {...(item as IField)} value={truncateText(item.value, 20)} displayAsList />
+          <StyledField key={item.name} {...(item as IField)} value={truncateText(item.value ?? "", 20)} displayAsList />
         ) : null
       ),
     [fieldItems]
@@ -57,7 +59,9 @@ const DisputeInfoList: React.FC<IDisputeInfoList> = ({ fieldItems, showLabels, d
   return (
     <Container isLabel={showLabels}>
       <RestOfFieldsContainer>{FieldItems}</RestOfFieldsContainer>
-      {showLabels ? <CardLabel disputeId={disputeID} round={round - 1} isList /> : null}
+      {showLabels && !isUndefined(disputeID) && !isUndefined(round) ? (
+        <CardLabel disputeId={disputeID} round={round - 1} isList />
+      ) : null}
     </Container>
   );
 };

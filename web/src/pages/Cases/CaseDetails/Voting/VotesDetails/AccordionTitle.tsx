@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled, { css, DefaultTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -34,7 +34,7 @@ const AddressContainer = styled.div`
 `;
 
 const StyledLabel = styled.label<{ variant?: string }>`
-  color: ${({ theme, variant }) => (variant ? theme[variant] : theme.primaryText)};
+  color: ${({ theme, variant }) => (variant ? theme[variant as keyof DefaultTheme] : theme.primaryText)};
   font-size: 16px;
 `;
 

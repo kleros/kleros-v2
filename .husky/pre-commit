@@ -22,4 +22,9 @@ if echo "$staged_files" | grep -q "^web-devtools/"; then
   yarn workspace @kleros/kleros-v2-web-devtools check-types
 fi
 
+#Check if any file is in the web directory and if so, check types
+if echo "$staged_files" | grep -q "^web/"; then
+  yarn workspace @kleros/kleros-v2-web check-types
+fi
+
 yarn lint-staged

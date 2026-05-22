@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
-import { isAddress } from "viem";
+import { Address, isAddress } from "viem";
 import { useEnsAddress } from "wagmi";
 
 import { AddressOrName, IdenticonOrAvatar } from "../ConnectWallet/AccountDisplay";
@@ -29,7 +29,7 @@ const TextContainer = styled.div`
 
 interface IAlias {
   name: string;
-  address: `0x${string}`;
+  address: string;
 }
 
 const AliasDisplay: React.FC<IAlias> = ({ name, address }) => {
@@ -43,7 +43,7 @@ const AliasDisplay: React.FC<IAlias> = ({ name, address }) => {
   });
 
   // try fetching ens name, else go with address
-  const resolvedAddress = addressFromENS ?? (address as `0x${string}`);
+  const resolvedAddress = addressFromENS ?? (address as Address);
 
   return (
     <AliasContainer dir="auto">

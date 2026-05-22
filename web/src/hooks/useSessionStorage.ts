@@ -6,7 +6,7 @@ export function useSessionStorage<T>(keyName: string, defaultValue: T) {
       const value = window.sessionStorage.getItem(keyName);
 
       return value ? JSON.parse(value) : defaultValue;
-    } catch (err) {
+    } catch {
       return defaultValue;
     }
   });

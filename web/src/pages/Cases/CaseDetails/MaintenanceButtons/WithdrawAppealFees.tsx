@@ -59,9 +59,10 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
   useEffect(() => {
     if (isUndefined(id) || isUndefined(roundIndex)) return;
 
+    const chainKey = (chainId ?? DEFAULT_CHAIN.id) as keyof typeof disputeKitClassicAddress;
     const baseArgs = {
       abi: disputeKitClassicAbi,
-      address: disputeKitClassicAddress[chainId ?? DEFAULT_CHAIN.id],
+      address: disputeKitClassicAddress[chainKey],
       functionName: "withdrawFeesAndRewards",
     };
 

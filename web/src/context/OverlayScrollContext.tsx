@@ -1,3 +1,5 @@
 import { createContext, MutableRefObject } from "react";
 
-export const OverlayScrollContext = createContext<MutableRefObject<HTMLElement | null> | null>(null);
+import { OverlayScrollbarsComponentRef } from "overlayscrollbars-react";
+
+export const OverlayScrollContext = createContext<MutableRefObject<OverlayScrollbarsComponentRef | null> | null>(null);

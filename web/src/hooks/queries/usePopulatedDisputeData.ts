@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { HttpRequestError, RpcError } from "viem";
+import { Address, HttpRequestError, RpcError } from "viem";
 
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
@@ -27,7 +27,7 @@ const disputeTemplateQuery = graphql(`
   }
 `);
 
-export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
+export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: Address) => {
   const { data: disputeData } = useDisputeDetailsQuery(disputeID);
   const { graphqlBatcher } = useGraphqlBatcher();
   const isEnabled =
@@ -47,7 +47,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const { disputeTemplate } = await graphqlBatcher.fetch({
             id: crypto.randomUUID(),
             document: disputeTemplateQuery,
-            variables: { id: disputeData.dispute?.templateId.toString() },
+            variables: { id: disputeData.dispute!.templateId!.toString() },
             isDisputeTemplate: true,
             chainId: DEFAULT_CHAIN.id,
           });
@@ -57,6 +57,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
 
           const initialContext = {
             // Matching the variable name to DisputeRequest
+            // eslint-disable-next-line max-len
             // https://github.com/kleros/kleros-v2/blob/592243f52d57e1540206c06afdbdac0d77311106/contracts/src/arbitration/interfaces/IArbitrableV2.sol#L21
             arbitrator: klerosCoreAddress[DEFAULT_CHAIN.id],
             arbitratorDisputeID: disputeID,

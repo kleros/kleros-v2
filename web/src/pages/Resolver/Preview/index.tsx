@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
+import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { Card } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
@@ -79,7 +80,9 @@ const Preview: React.FC = () => {
       <StyledCard>
         <Overlay />
         <PreviewContainer>
-          <DisputeContext disputeDetails={disputeTemplate} />
+          {/*IDisputeTemplate is a subset of DisputeDetails. 
+          This cast happens elsewhere, but types should be consolidated. */}
+          <DisputeContext disputeDetails={disputeTemplate as DisputeDetails} />
           <Divider />
 
           <DisputeInfo

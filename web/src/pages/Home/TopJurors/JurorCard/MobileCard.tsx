@@ -1,18 +1,21 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { Address } from "viem";
 
-import HeaderScore from "../Header/Score";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import JurorLink from "components/JurorLink";
+
 import HeaderCoherence from "../Header/Coherence";
 import HeaderRewards from "../Header/Rewards";
+import HeaderScore from "../Header/Score";
 
 import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
-import JurorLink from "components/JurorLink";
 import Score from "./Score";
 
 const Container = styled.div`
@@ -88,8 +91,8 @@ const HeaderRewardsAndRewards = styled.div`
 `;
 
 interface IMobileCard {
-  rank: number;
-  address: string;
+  rank?: number;
+  address: Address;
   totalCoherentVotes: string;
   totalResolvedVotes: string;
   coherenceScore: string;

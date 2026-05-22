@@ -93,7 +93,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   ...props
 }) => {
   const { t } = useTranslation();
-  const [ref, { width }] = useMeasure();
+  const [ref, { width }] = useMeasure<HTMLDivElement>();
   const [fundingLabel, progress] = useMemo(() => {
     if (!isUndefined(required))
       if (funding >= required) return [t("appeal.fully_funded"), 100];

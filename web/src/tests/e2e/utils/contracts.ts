@@ -15,10 +15,11 @@ import { DEFAULT_CHAIN } from ".";
 
 // Contract addresses for default chain
 // for future , if we want to add devnet facing tests , will need changes
-export const DISPUTE_RESOLVER_ADDRESS = disputeResolverAddress[DEFAULT_CHAIN.id];
-export const KLEROS_CORE_ADDRESS = klerosCoreAddress[DEFAULT_CHAIN.id];
-export const SORTITION_MODULE_ADDRESS = sortitionModuleAddress[DEFAULT_CHAIN.id];
-export const PNK_ADDRESS = pnkAddress[DEFAULT_CHAIN.id];
+const chainId = DEFAULT_CHAIN.id as keyof typeof disputeResolverAddress;
+export const DISPUTE_RESOLVER_ADDRESS = disputeResolverAddress[chainId];
+export const KLEROS_CORE_ADDRESS = klerosCoreAddress[chainId as keyof typeof klerosCoreAddress];
+export const SORTITION_MODULE_ADDRESS = sortitionModuleAddress[chainId as keyof typeof sortitionModuleAddress];
+export const PNK_ADDRESS = pnkAddress[chainId as keyof typeof pnkAddress];
 
 type ContractConfig<T extends Abi> = {
   address: Address;

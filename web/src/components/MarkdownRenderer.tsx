@@ -302,6 +302,7 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[
+            //@ts-expect-error rehype-raw and react-markdown Pluggable type seem to mismatch, but runtime is correct.
             rehypeRaw,
             [
               rehypeSanitize,

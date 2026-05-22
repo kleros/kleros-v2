@@ -71,7 +71,7 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
         ticks: {
           color: theme.secondaryText,
           stepSize: (chartData.total * tickSize) / 100,
-          callback: (value) => getPercentValue(value),
+          callback: (value) => getPercentValue(Number(value)),
         },
         max: chartData.total,
       },

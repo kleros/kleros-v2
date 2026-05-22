@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Address } from "viem";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
-
 import { sanitizeFilter } from "utils/sanitizeFilter";
+
 import { STALE_TIME } from "src/consts";
 import { graphql } from "src/graphql";
 import { UserQuery, Dispute_Filter, UserDisputeFilterQuery, UserDetailsFragment } from "src/graphql/graphql";

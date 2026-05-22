@@ -10,6 +10,8 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div<{ shortLabel: string; longLabel: string }>`
+  --label-long: "${({ longLabel }) => longLabel}";
+
   display: flex;
   color: ${({ theme }) => theme.secondaryText};
   gap: 0px;
@@ -24,7 +26,7 @@ const Container = styled.div<{ shortLabel: string; longLabel: string }>`
       font-size: 14px !important;
       justify-content: center;
       &::before {
-        content: "${({ longLabel }) => longLabel}";
+        content: var(--label-long);
       }
     `
   )}

@@ -8,29 +8,27 @@ import { isUndefined } from "utils/index";
 
 export const usePolicyRegistryEvent = (courtID?: string | number) => {
   const publicClient = usePublicClient();
-  const policyRegistry = getContract({
-    abi: policyRegistryConfig.abi,
-    address: policyRegistryConfig.address[DEFAULT_CHAIN.id],
-    client: {
-      public: publicClient,
-    },
-  });
-  const isEnabled = !isUndefined(policyRegistry) && !isUndefined(courtID);
+  const isEnabled = !isUndefined(publicClient) && !isUndefined(courtID);
 
   return useQuery({
     queryKey: [`PolicyRegistry${courtID}`],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
-      if (policyRegistry && courtID) {
-        const policyFilter = await policyRegistry.createEventFilter.PolicyUpdate({
-          _courtID: BigInt(courtID),
-        });
-        const policyUpdateEvents = await publicClient.getFilterLogs({
-          filter: policyFilter,
-        });
-        return policyUpdateEvents[0];
-      } else throw Error;
+      if (isUndefined(publicClient) || isUndefined(courtID)) throw new Error("publicClient or courtID is undefined");
+      const chainKey = DEFAULT_CHAIN.id;
+      const policyRegistry = getContract({
+        abi: policyRegistryConfig.abi,
+        address: policyRegistryConfig.address[chainKey],
+        client: { public: publicClient },
+      });
+      const policyFilter = await policyRegistry.createEventFilter.PolicyUpdate({
+        _courtID: BigInt(courtID),
+      });
+      const policyUpdateEvents = await publicClient.getFilterLogs({
+        filter: policyFilter,
+      });
+      return policyUpdateEvents[0];
     },
   });
 };

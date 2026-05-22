@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
+import { Route, Routes } from "react-router-dom";
+
 import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-
-import { Route, Routes } from "react-router-dom";
 
 import EmailConfirmation from "./EmailConfirmation";
 

@@ -39,6 +39,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
     return userBalance && userBalance.value < arbitrationCost * BigInt(batchSize ?? MIN_DISPUTE_BATCH_SIZE);
   }, [userBalance, disputeData, batchSize]);
 
+  const chainKey = (chainId ?? DEFAULT_CHAIN.id) as keyof typeof disputeResolverAddress;
   const {
     executeBatch,
     batchConfig,
@@ -48,7 +49,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
   } = useTransactionBatcher(
     Array.from({ length: batchSize }, () => ({
       abi: disputeResolverAbi,
-      address: disputeResolverAddress[chainId ?? DEFAULT_CHAIN.id],
+      address: disputeResolverAddress[chainKey],
       functionName: "createDisputeForTemplate",
       args: [
         prepareArbitratorExtradata(

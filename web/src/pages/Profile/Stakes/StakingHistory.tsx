@@ -80,7 +80,7 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
                 <CourtCard
                   key={item.id}
                   name={courtName ?? `Court #${item.args._courtID}`}
-                  stake={item.args._amount}
+                  stake={BigInt(item.args._amount)}
                   id={item.args._courtID}
                   isCurrentStakeCard={false}
                   timestamp={parseInt(item.blockTimestamp)}

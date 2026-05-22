@@ -1,9 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { getUserLevelData } from "utils/userLevelCalculation";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import PixelArt from "pages/Profile/JurorCard/BottomContent/PixelArt";
 

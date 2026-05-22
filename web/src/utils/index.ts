@@ -31,7 +31,9 @@ export const getFileUploaderMsg = (
   t?: (key: string, params?: any) => string
 ) => {
   if (!roleRestrictions) return;
-  const restrictions = roleRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
+  const restrictions = roleRestrictions.find(
+    (supportedRoles) => Roles[supportedRoles.name as keyof typeof Roles] === role
+  );
 
   if (!restrictions) return;
   const typesString = restrictions.restriction.allowedMimeTypes

@@ -6,7 +6,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { StandardPagination } from "@kleros/ui-components-library";
 
-import { useAllUserDraws } from "hooks/queries/useAllUserDraws";
+import { useAllUserDraws, UserDraw } from "hooks/queries/useAllUserDraws";
 import { useUserDrawsCount } from "hooks/queries/useUserDraws";
 import { isUndefined } from "utils/index";
 import { useRootPath, decodeURIFilter } from "utils/uri";
@@ -48,6 +48,8 @@ const NoVotesLabel = styled.label`
   font-size: ${responsiveSize(14, 16)};
 `;
 
+export type GroupedDraw = UserDraw & { voteCount: number };
+
 interface IVotes {
   searchParamAddress: `0x${string}`;
 }
@@ -87,9 +89,9 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
   // Group draws by dispute and round, then paginate
   const { votes, totalGroupedVotes } = useMemo(() => {
     const rawDraws = allDraws ?? [];
-    const groupedDrawsMap = new Map<string, { draws: any[]; mainDraw: any }>();
+    const groupedDrawsMap = new Map<string, { draws: UserDraw[]; mainDraw: UserDraw }>();
 
-    rawDraws.forEach((draw: any) => {
+    rawDraws.forEach((draw) => {
       const roundId = draw.round?.id;
 
       if (!groupedDrawsMap.has(roundId)) {
@@ -98,7 +100,7 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
       groupedDrawsMap.get(roundId)!.draws.push(draw);
     });
 
-    const allGroupedDraws = Array.from(groupedDrawsMap.values()).map((group) => ({
+    const allGroupedDraws: GroupedDraw[] = Array.from(groupedDrawsMap.values()).map((group) => ({
       ...group.mainDraw,
       voteCount: group.draws.length,
     }));
@@ -149,7 +151,7 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
       ) : votes.length > 0 ? (
         <>
           <VotesCardContainer>
-            {votes.map((vote: any) => (
+            {votes.map((vote) => (
               <VoteCard key={vote.id} vote={vote} />
             ))}
           </VotesCardContainer>

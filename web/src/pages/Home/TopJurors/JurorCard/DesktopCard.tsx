@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Address } from "viem";
+
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -28,7 +30,8 @@ const Container = styled.div<{ renderRank?: boolean }>`
       () => css`
         display: grid;
         grid-template-columns: ${renderRank
-          ? `min-content minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`
+          ? // eslint-disable-next-line max-len
+            `min-content minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`
           : `minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`};
         column-gap: ${responsiveSize(12, 24, 900)};
       `
@@ -41,7 +44,7 @@ const Container = styled.div<{ renderRank?: boolean }>`
 
 interface IDesktopCard {
   rank?: number;
-  address: string;
+  address: Address;
   coherenceScore: string;
   totalCoherentVotes: string;
   totalResolvedVotes: string;

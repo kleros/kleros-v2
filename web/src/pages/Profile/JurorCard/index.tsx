@@ -2,12 +2,15 @@ import React from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Address } from "viem";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
 import { getUserLevelData } from "utils/userLevelCalculation";
 
-import { useUserQuery } from "queries/useUser";
+import { useUserQuery, userFragment } from "queries/useUser";
+
+import { useFragment as readFragment } from "src/graphql";
 
 import { Divider } from "components/Divider";
 
@@ -29,16 +32,17 @@ const Card = styled(_Card)`
 `;
 
 interface IJurorCard {
-  searchParamAddress: `0x${string}`;
+  searchParamAddress: Address;
 }
 
 const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
   const { t } = useTranslation();
   const { data } = useUserQuery(searchParamAddress);
-  const totalCoherentVotes = data?.user ? parseInt(data.user.totalCoherentVotes) : 0;
-  const totalResolvedVotes = data?.user ? parseInt(data.user.totalResolvedVotes) : 0;
-  const totalResolvedDisputes = data?.user ? parseInt(data.user.totalResolvedDisputes) : 0;
-  const coherenceScore = data?.user ? parseInt(data.user.coherenceScore) : 0;
+  const userDetails = readFragment(userFragment, data?.user);
+  const totalCoherentVotes = userDetails ? parseInt(userDetails.totalCoherentVotes) : 0;
+  const totalResolvedVotes = userDetails ? parseInt(userDetails.totalResolvedVotes) : 0;
+  const totalResolvedDisputes = userDetails ? parseInt(userDetails.totalResolvedDisputes) : 0;
+  const coherenceScore = userDetails ? parseInt(userDetails.coherenceScore) : 0;
   const userLevelData = getUserLevelData(coherenceScore);
 
   return (

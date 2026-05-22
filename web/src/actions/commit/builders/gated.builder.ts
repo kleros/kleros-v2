@@ -17,9 +17,11 @@ export const gatedCommitBuilder = defineCommitBuilder({
     deps.storeCommitData(key, { choice, salt });
 
     const commit = hashVote(choice, salt);
+    const chainKey = chain.id as keyof typeof disputeKitGatedAddress;
+
     return {
       account,
-      address: disputeKitGatedAddress[chain.id],
+      address: disputeKitGatedAddress[chainKey],
       abi: disputeKitGatedAbi,
       functionName: "castCommit",
       args: [disputeId, voteIds, commit],

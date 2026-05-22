@@ -1,9 +1,10 @@
 import { request } from "graphql-request";
+import { Hash } from "viem";
 
 export type StakingEventItem = {
   id: string;
   blockHash: string;
-  transactionHash: string;
+  transactionHash: Hash;
   blockTimestamp: string;
   network: {
     chainId: number;
@@ -78,7 +79,7 @@ export async function fetchStakingEventsByCourt(
   try {
     return await request<StakingEventsByCourtResponse>(`${atlasUri}/graphql`, query, variables);
   } catch (errors: any) {
-    console.log("Error fetching staking events by court:", { errors });
+    console.error("Error fetching staking events by court:", { errors });
     const errorMessage = Array.isArray(errors?.response?.errors)
       ? errors.response.errors[0]?.message
       : "Error fetching staking events by court";

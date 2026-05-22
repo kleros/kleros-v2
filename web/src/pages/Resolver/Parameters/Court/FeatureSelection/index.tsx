@@ -75,6 +75,7 @@ const FeatureSelection: React.FC = () => {
         setSelected(defaultKit.featureSets[0]);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const allowedDisputeKits = useMemo(() => {
@@ -157,7 +158,7 @@ const FeatureSelection: React.FC = () => {
       <SubTitle>{t("resolver.features_in_this_court")}</SubTitle>
 
       {Object.entries(courtGroups).map(([groupName, features], index) => {
-        const GroupComponent = GroupsUI[groupName];
+        const GroupComponent = GroupsUI[groupName as Group];
         return (
           <Fragment key={groupName}>
             <GroupComponent clearAll={() => handleGroupDisable(groupName as Group)}>

@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Address } from "viem";
+
 import EthIcon from "svgs/icons/eth.svg";
 import PnkIcon from "svgs/icons/kleros.svg";
 
@@ -42,11 +44,11 @@ const StyledLabel = styled.label`
 `;
 
 interface IRewards {
-  address: string;
+  address: Address;
 }
 
 const Rewards: React.FC<IRewards> = ({ address }) => {
-  const { data: userData } = useUserQuery(address?.toLowerCase());
+  const { data: userData } = useUserQuery(address);
   const formattedRewards = getFormattedRewards(userData, {});
   const ethReward = formattedRewards.find((r) => r.token === "ETH")?.amount;
   const pnkReward = formattedRewards.find((r) => r.token === "PNK")?.amount;

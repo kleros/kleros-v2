@@ -1,14 +1,17 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { Address } from "viem";
 
 import { ILevelCriteria } from "utils/userLevelCalculation";
 
-import PixelArt from "./PixelArt";
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import StakingRewards from "../StakingRewards";
+
 import Coherence from "./Coherence";
 import JurorRewards from "./JurorRewards";
-import StakingRewards from "../StakingRewards";
+import PixelArt from "./PixelArt";
 
 const Container = styled.div`
   display: flex;
@@ -46,7 +49,7 @@ interface IBottomContent {
   userLevelData: ILevelCriteria;
   totalCoherentVotes: number;
   totalResolvedVotes: number;
-  searchParamAddress: `0x${string}`;
+  searchParamAddress: Address;
 }
 
 const BottomContent: React.FC<IBottomContent> = ({

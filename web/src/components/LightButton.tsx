@@ -1,9 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { Button } from "@kleros/ui-components-library";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
   ${hoverShortTransitionTiming}

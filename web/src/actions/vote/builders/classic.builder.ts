@@ -8,10 +8,11 @@ export const classicVoteBuilder = defineVoteBuilder({
   build: async (params: ClassicVoteParams, context) => {
     const { disputeId, voteIds, choice, salt, justification } = params;
     const { chain, account } = context;
+    const chainKey = chain.id as keyof typeof disputeKitClassicAddress;
 
     return {
       account,
-      address: disputeKitClassicAddress[chain.id],
+      address: disputeKitClassicAddress[chainKey],
       abi: disputeKitClassicAbi,
       functionName: "castVote",
       args: [disputeId, voteIds, choice, salt, justification],

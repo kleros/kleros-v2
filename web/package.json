@@ -41,7 +41,7 @@
     "build-mainnet": "scripts/runEnv.sh mainnet 'yarn generate && vite build'",
     "build-netlify": "scripts/generateBuildInfo.sh && yarn generate && vite build",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc --noEmit --declaration false",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen --require tsconfig-paths/register",
     "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"

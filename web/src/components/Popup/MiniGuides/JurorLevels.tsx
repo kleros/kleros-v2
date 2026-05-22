@@ -107,7 +107,7 @@ const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
     <LeftContentContainer>
       <Title>{title}</Title>
       <ParagraphsContainer>
-        {paragraphs.map((paragraph, index) => (
+        {paragraphs.map((paragraph) => (
           <label key={paragraph}>{paragraph}</label>
         ))}
       </ParagraphsContainer>

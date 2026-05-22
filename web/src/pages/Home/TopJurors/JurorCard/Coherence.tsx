@@ -1,6 +1,6 @@
 import React from "react";
-
 import styled from "styled-components";
+
 import { Tooltip } from "@kleros/ui-components-library";
 
 import { getCoherencePercent } from "utils/getCoherencePercent";

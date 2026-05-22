@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { isUndefined } from "utils/index";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import Field, { IField } from "components/Field";
@@ -60,7 +62,9 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({ isOverview, showLabels, f
           item.display ? <StyledField key={item.name} {...(item as IField)} {...{ isOverview }} /> : null
         )}
       </RestOfFieldsContainer>
-      {showLabels ? <CardLabel disputeId={disputeID} round={round - 1} isList={false} /> : null}
+      {showLabels && !isUndefined(disputeID) && !isUndefined(round) ? (
+        <CardLabel disputeId={disputeID} round={round - 1} isList={false} />
+      ) : null}
     </Container>
   );
 };

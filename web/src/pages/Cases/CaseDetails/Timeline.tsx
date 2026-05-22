@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Box, Steps } from "@kleros/ui-components-library";
+import { Box, StepItem, Steps } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
@@ -74,7 +74,7 @@ const Timeline: React.FC<{
 
   return (
     <TimeLineContainer>
-      <StyledSteps horizontal {...{ items, currentItemIndex, currentPeriodIndex }} />
+      <StyledSteps horizontal items={items as StepItem[]} currentItemIndex={currentItemIndex} />
       {currentPeriodIndex === Periods.appeal ? <AppealBanner /> : null}
     </TimeLineContainer>
   );
@@ -143,7 +143,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
       } else if (index === currentPeriodIndex) {
         return [secondsToDayHourMinute(countdown)];
       } else {
-        return [secondsToDayHourMinute(dispute?.currentRound.timesPerPeriod[index])];
+        return [secondsToDayHourMinute(Number(dispute?.currentRound.timesPerPeriod[index]))];
       }
     }
     return [<StyledSkeleton key={index} width={60} />];

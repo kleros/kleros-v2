@@ -3,7 +3,7 @@ import styled, { DefaultTheme, useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { type TransactionReceipt } from "viem";
+import { Hash, type TransactionReceipt } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { type _TimelineItem1, Button } from "@kleros/ui-components-library";
@@ -132,11 +132,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   };
 
   const handleStake = useCallback(
-    (signal: AbortSignal, config?: typeof setStakeConfig, approvalHash?: `0x${string}`) => {
+    (signal: AbortSignal, config?: typeof setStakeConfig, approvalHash?: Hash) => {
       if (signal.aborted) return;
       const isWithdraw = action === ActionType.withdraw;
       const requestData = config?.request ?? setStakeConfig?.request;
-      const commonArgs: [string, DefaultTheme, (key: string) => string, `0x${string}` | undefined] = [
+      const commonArgs: [string, DefaultTheme, (key: string) => string, Hash | undefined] = [
         amount,
         theme,
         t,
@@ -277,7 +277,8 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         courtDetails &&
         jurorBalance &&
         parsedAmount !== 0n &&
-        jurorBalance[2] + parsedAmount < BigInt(courtDetails?.court?.minStake))
+        (isUndefined(courtDetails.court?.minStake) ||
+          jurorBalance[2] + parsedAmount < BigInt(courtDetails.court.minStake)))
     )
       return true;
     if (isAllowance) {

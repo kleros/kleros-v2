@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+
 import { UseQueryResult } from "@tanstack/react-query";
+
 import { useHomePageBlockQuery, HomePageBlockStats } from "./useHomePageBlockQuery";
 
 type ReturnType = UseQueryResult<HomePageBlockStats, Error>;
