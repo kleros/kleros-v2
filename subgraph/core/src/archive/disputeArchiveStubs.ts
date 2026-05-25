@@ -82,7 +82,7 @@ export function createArchiveOnlyDispute(
   // archived dispute is closed already
   court.numberClosedDisputes = court.numberClosedDisputes.plus(ONE);
   updateCourtCumulativeMetric(courtId.toString(), ONE, blockTimestamp, "numberDisputes");
-
+  court.save();
   // placeholder for currentRound, actual data is fetched from ipfs
   const currentRoundId = disputeId.toString() + "-0";
   const currentRound = Round.load(currentRoundId);
