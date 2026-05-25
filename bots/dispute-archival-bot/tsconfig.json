@@ -1,13 +1,18 @@
 {
   "extends": "@kleros/kleros-v2-tsconfig/base20.json",
   "compilerOptions": {
-    "declaration": true,
-    "emitDeclarationOnly": true,
+    "noEmit": true,
     "allowImportingTsExtensions": true,
     "types": [
       "node"
     ],
     "noUnusedLocals": true,
     "noUnusedParameters": true
-  }
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
