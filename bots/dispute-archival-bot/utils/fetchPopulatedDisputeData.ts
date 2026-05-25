@@ -4,11 +4,11 @@ import { arbitrum } from "viem/chains";
 import { alchemyTransport } from "./rpc.ts";
 
 // returns undefined if the dispute is broken
-export async function fetchPopulatedDisputeData(disputeId: bigint) {
+export async function fetchPopulatedDisputeData(disputeId: string) {
   const config = getEnvConfig();
   try {
     const data = await getDispute({
-      disputeId,
+      disputeId: BigInt(disputeId),
       coreSubgraph: config.coreSubgraphUrl,
       dtrSubgraph: config.dtrSubgraphUrl,
       options: {

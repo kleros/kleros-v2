@@ -22,7 +22,7 @@ async function main() {
 
     console.log(`Archiving dispute ${id} ...`);
 
-    const snapshot = await fetchDisputeArchiveSnapshot(BigInt(id));
+    const snapshot = await fetchDisputeArchiveSnapshot(id);
 
     const cid = await uploadToIpfs(id, snapshot);
 

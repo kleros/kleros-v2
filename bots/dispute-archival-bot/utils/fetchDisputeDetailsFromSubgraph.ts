@@ -1,7 +1,6 @@
 import type { Address, Hash } from "viem";
 
-import { getEnvConfig } from "../config.ts";
-import type { GraphQLResponse } from "./types.ts";
+import { paginatedSubgraphQuery, querySubgraph } from "./query.ts";
 
 // also saving court in case it's not available later, since is a required field for Round
 export type Court = {
@@ -137,8 +136,13 @@ export type SubgraphDisputeDetails = {
   disputeKitDispute: ClassicDispute[];
 };
 
-type DisputeDetailsResponse = {
-  dispute: SubgraphDisputeDetails | null;
+// omitting the fields we need to paginate, these are ltr queried and stitched together
+type RoundBase = Omit<Round, "drawnJurors">;
+type ClassicRoundBase = Omit<ClassicRound, "answers">;
+type ClassicDisputeBase = Omit<ClassicDispute, "localRounds">;
+
+type DisputeBase = Omit<SubgraphDisputeDetails, "rounds" | "disputeKitDispute"> & {
+  disputeKitDispute: ClassicDisputeBase[];
 };
 
 const courtFields = `
@@ -153,9 +157,8 @@ const courtFields = `
   timesPerPeriod
 `;
 
-// assuming that we don't have more than 1000 items to fetch, so no need for pagination
-const query = `
-  query DisputeArchiveDetails($disputeID: ID!) {
+const disputeBaseQuery = `
+  query DisputeDetails($disputeID: ID!) {
     dispute(id: $disputeID) {
       id
       disputeID
@@ -186,77 +189,6 @@ const query = `
       currentRound {
         id
       }
-      rounds {
-        id
-        dispute {
-          id
-        }
-        tokensAtStakePerJuror
-        totalFeesForJurors
-        nbVotes
-        isCurrentRound
-        repartitions
-        penalties
-        timeline
-        jurorsDrawn
-        jurorRewardsDispersed
-        disputeKit {
-          id
-          address
-          needsFreezing
-        }
-        court {
-          ${courtFields}
-        }
-        feeToken {
-          id
-          accepted
-          rateInEth
-          rateDecimals
-          totalPaid
-          totalPaidInETH
-        }
-        drawnJurors {
-          id
-          blockNumber
-          voteIDNum
-          drawNotificationIndex
-          dispute {
-            id
-          }
-          round {
-            id
-          }
-          juror {
-            id
-          }
-          vote {
-            ... on ClassicVote {
-              id
-              juror {
-                id
-              }
-              localRound {
-                id
-              }
-              commit
-              commited
-              choice
-              voted
-              justification {
-                id
-                juror {
-                  id
-                }
-                choice
-                reference
-                transactionHash
-                timestamp
-              }
-            }
-          }
-        }
-      }
       disputeKitDispute {
         ... on ClassicDispute {
           id
@@ -267,59 +199,218 @@ const query = `
           timestamp
           numberOfChoices
           extraData
-          localRounds {
-            ... on ClassicRound {
-              id
-              winningChoice
-              tied
-              totalVoted
-              totalCommited
-              feeRewards
-              totalFeeDispersed
-              appealFeesDispersed
-              fundedChoices
-              answers {
-                id
-                answerId
-                count
-                paidFee
-                funded
-              }
-            }
-          }
         }
       }
     }
   }
 `;
 
-export async function fetchDisputeDetailsFromSubgraph(disputeID: bigint): Promise<SubgraphDisputeDetails | null> {
-  const config = getEnvConfig();
+const roundsQuery = `
+  query Rounds($disputeID: String!, $first: Int!, $skip: Int!) {
+    rounds(
+      where: { dispute: $disputeID }
+      first: $first
+      skip: $skip
+      orderBy: id
+      orderDirection: asc
+    ) {
+       id
+  dispute {
+    id
+  }
+  tokensAtStakePerJuror
+  totalFeesForJurors
+  nbVotes
+  isCurrentRound
+  repartitions
+  penalties
+  timeline
+  jurorsDrawn
+  jurorRewardsDispersed
+  disputeKit {
+    id
+    address
+    needsFreezing
+  }
+  court {
+    ${courtFields}
+  }
+  feeToken {
+    id
+    accepted
+    rateInEth
+    rateDecimals
+    totalPaid
+    totalPaidInETH
+  }
+    }
+  }
+`;
 
-  const response = await fetch(config.coreSubgraphUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-      variables: { disputeID: disputeID.toString() },
-    }),
+const drawsQuery = `
+  query Draws($disputeID: String!, $first: Int!, $skip: Int!) {
+    draws(
+      where: { dispute: $disputeID }
+      first: $first
+      skip: $skip
+      orderBy: voteIDNum
+      orderDirection: asc
+    ) {
+        id
+        blockNumber
+        voteIDNum
+        drawNotificationIndex
+        dispute {
+          id
+        }
+        round {
+          id
+        }
+        juror {
+          id
+        }
+        vote {
+          ... on ClassicVote {
+          id
+          juror {
+            id
+          }
+          localRound {
+            id
+          }
+          commit
+          commited
+          choice
+          voted
+          justification {
+            id
+            juror {
+              id
+            }
+            choice
+            reference
+            transactionHash
+            timestamp
+          }
+        } 
+      }
+    }
+  }
+`;
+
+const classicRoundsQuery = `
+  query ClassicRounds($localDisputeID: String!, $first: Int!, $skip: Int!) {
+    classicRounds(
+      where: { localDispute: $localDisputeID }
+      first: $first
+      skip: $skip
+      orderBy: id
+      orderDirection: asc
+    ) {
+      id
+      winningChoice
+      tied
+      totalVoted
+      totalCommited
+      feeRewards
+      totalFeeDispersed
+      appealFeesDispersed
+      fundedChoices
+    }
+  }
+`;
+
+const answersQuery = `
+  query Answers($localRoundID: String!, $first: Int!, $skip: Int!) {
+    answers(
+      where: { localRound: $localRoundID }
+      first: $first
+      skip: $skip
+      orderBy: answerId
+      orderDirection: asc
+    ) {
+      id
+      answerId
+      count
+      paidFee
+      funded
+    }
+  }
+`;
+
+const QUERY_NAME = "fetchDisputeDetailsFromSubgraph";
+
+function paginateRounds(disputeID: string) {
+  return paginatedSubgraphQuery<RoundBase>(QUERY_NAME, roundsQuery, "rounds", { disputeID });
+}
+
+function paginateDrawnJurors(disputeID: string) {
+  return paginatedSubgraphQuery<Draw>(QUERY_NAME, drawsQuery, "draws", { disputeID });
+}
+
+function paginateLocalRounds(classicDisputeId: string) {
+  return paginatedSubgraphQuery<ClassicRoundBase>(QUERY_NAME, classicRoundsQuery, "classicRounds", {
+    localDisputeID: classicDisputeId,
+  });
+}
+
+function paginateAnswers(localRoundID: string) {
+  return paginatedSubgraphQuery<ClassicAnswer>(QUERY_NAME, answersQuery, "answers", { localRoundID });
+}
+
+function attachDrawsToRounds(rounds: RoundBase[], draws: Draw[]) {
+  const drawsByRoundId = new Map<string, Draw[]>();
+
+  // sorting the draws to rounds, since we fetch draws by dispute id all together
+  for (const draw of draws) {
+    const roundDraws = drawsByRoundId.get(draw.round.id);
+    if (roundDraws) {
+      roundDraws.push(draw);
+    } else {
+      drawsByRoundId.set(draw.round.id, [draw]);
+    }
+  }
+
+  return rounds.map((round) => ({
+    ...round,
+    drawnJurors: drawsByRoundId.get(round.id) ?? [],
+  })) as Round[];
+}
+
+async function fetchClassicDisputesWithLocalRounds(classicDisputes: ClassicDisputeBase[]) {
+  return Promise.all(
+    classicDisputes.map(async (classicDispute) => {
+      const localRoundsBase = await paginateLocalRounds(classicDispute.id);
+      const localRounds = await Promise.all(
+        localRoundsBase.map(async (localRound) => ({
+          ...localRound,
+          answers: await paginateAnswers(localRound.id),
+        }))
+      );
+
+      return {
+        ...classicDispute,
+        localRounds,
+      };
+    })
+  );
+}
+
+export async function fetchDisputeDetailsFromSubgraph(disputeID: string): Promise<SubgraphDisputeDetails | null> {
+  const { dispute: disputeBase } = await querySubgraph<{ dispute: DisputeBase | null }>(QUERY_NAME, disputeBaseQuery, {
+    disputeID,
   });
 
-  if (!response.ok) {
-    throw new Error("fetchDisputeDetailsFromSubgraph: fetch request failed.");
+  if (!disputeBase) {
+    return null;
   }
 
-  const json = (await response.json()) as GraphQLResponse<DisputeDetailsResponse>;
+  const [roundsBase, draws] = await Promise.all([paginateRounds(disputeID), paginateDrawnJurors(disputeID)]);
+  const disputeKitDispute = await fetchClassicDisputesWithLocalRounds(disputeBase.disputeKitDispute);
 
-  if (json.errors?.length) {
-    throw new Error(json.errors[0].message);
-  }
-
-  if (!json.data) {
-    throw new Error("fetchDisputeDetailsFromSubgraph: fetch request did not return any data.");
-  }
-
-  return json.data.dispute;
+  return {
+    ...disputeBase,
+    rounds: attachDrawsToRounds(roundsBase, draws),
+    disputeKitDispute,
+  };
 }

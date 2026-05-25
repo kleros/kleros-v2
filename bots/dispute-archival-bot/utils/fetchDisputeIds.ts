@@ -1,46 +1,15 @@
-import { getEnvConfig } from "../config.ts";
-import type { GraphQLResponse } from "./types.ts";
+import { paginatedSubgraphQuery } from "./query.ts";
 
-type DisputesResponse = {
-  disputes: Array<{
-    id: string;
-  }>;
-};
-
-const query = `
-  query Disputes {
-    disputes(first: 1000) {
-        id
+const disputesQuery = `
+  query Disputes($first: Int!, $skip: Int!) {
+    disputes(first: $first, skip: $skip, orderBy: id, orderDirection: asc) {
+      id
     }
   }
 `;
 
 export async function fetchDisputeIds() {
-  const config = getEnvConfig();
+  const disputes = await paginatedSubgraphQuery<{ id: string }>("fetchDisputeIds", disputesQuery, "disputes", {});
 
-  const response = await fetch(config.coreSubgraphUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("fetchDisputeIds: fetch request failed.");
-  }
-
-  const json = (await response.json()) as GraphQLResponse<DisputesResponse>;
-
-  if (json.errors?.length) {
-    throw new Error(json.errors[0].message);
-  }
-
-  if (!json.data) {
-    throw new Error("fetchDisputeIds: fetch request did not return any data.");
-  }
-
-  return json.data.disputes.flatMap((dispute) => dispute.id);
+  return disputes.map((dispute) => dispute.id);
 }

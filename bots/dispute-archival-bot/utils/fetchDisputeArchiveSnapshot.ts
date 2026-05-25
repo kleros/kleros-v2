@@ -6,7 +6,7 @@ import { fetchPopulatedDisputeData } from "./fetchPopulatedDisputeData.ts";
 import { type DisputeTemplate, fetchDisputeTemplate } from "./fetchDisputeTemplate.ts";
 
 /**
- * - dispute : Dispute details from subgraph , required to recreate the entities in the new subgraph.
+ * - dispute : Dispute details from subgraph, required by the FE to render the dispute and related details.
  * - populated :  Populated dispute data from kleros-sdk.
  * - evidences : Evidences for the dispute.
  * - disputeTemplate : template data for dispute, helpful in case the dispute is broken
@@ -18,18 +18,18 @@ export type DisputeArchiveSnapshot = {
   disputeTemplate: DisputeTemplate;
 };
 
-export async function fetchDisputeArchiveSnapshot(disputeID: bigint): Promise<DisputeArchiveSnapshot> {
+export async function fetchDisputeArchiveSnapshot(disputeID: string): Promise<DisputeArchiveSnapshot> {
   const dispute = await fetchDisputeDetailsFromSubgraph(disputeID);
   if (!dispute) {
-    throw new Error(`Archive snapshot: subgraph dispute missing for id ${disputeID.toString()}`);
+    throw new Error(`Archive snapshot: subgraph dispute missing for id ${disputeID}`);
   }
 
   if (!dispute.templateId) {
-    throw new Error(`Archive snapshot: template Id missing for dispute ${disputeID.toString()}`);
+    throw new Error(`Archive snapshot: template Id missing for dispute ${disputeID}`);
   }
 
   if (!dispute.externalDisputeId) {
-    throw new Error(`Archive snapshot: externalDisputeId missing for dispute ${disputeID.toString()}`);
+    throw new Error(`Archive snapshot: externalDisputeId missing for dispute ${disputeID}`);
   }
 
   const [populated, evidences, disputeTemplate] = await Promise.all([
@@ -39,11 +39,11 @@ export async function fetchDisputeArchiveSnapshot(disputeID: bigint): Promise<Di
   ]);
 
   if (!populated) {
-    console.warn(`Archive snapshot: getDispute returned no data for dispute ${disputeID.toString()}`);
+    console.warn(`Archive snapshot: getDispute returned no data for dispute ${disputeID}`);
   }
 
   if (evidences.length === 0) {
-    console.log(`Archive snapshot: no evidences found for dispute ${disputeID.toString()}`);
+    console.log(`Archive snapshot: no evidences found for dispute ${disputeID}`);
   }
 
   return {
