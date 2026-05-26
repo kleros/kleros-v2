@@ -1,16 +1,27 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { HomeChains, isLocalhost, isSkipped, ONE_MINUTE_IN_SECONDS } from "./utils";
+import {
+  HomeChains,
+  isLocalhost,
+  isSkipped,
+  ONE_MINUTE_IN_SECONDS,
+} from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
-import { RNGWithFallback } from "../typechain-types";
+import { ChainlinkRNG, RNGWithFallback } from "../typechain-types";
 
 const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { getNamedAccounts, getChainId, ethers } = hre;
 
   // fallback to hardhat node signers on local network
-  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
+  const deployer =
+    (await getNamedAccounts()).deployer ??
+    (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId()) as unknown as HomeChains; // Checked at runtime by skip()
-  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
+  console.log(
+    "deploying to %s with deployer %s",
+    HomeChains[chainId],
+    deployer,
+  );
 
   const KEY_HASHES = {
     // https://docs.chain.link/vrf/v2-5/supported-networks#arbitrum-mainnet
@@ -29,28 +40,44 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   };
 
   const SUBSCRIPTION_ID = {
-    [HomeChains.ARBITRUM_ONE]: "66240499937595191069677958665918759554657443303079118766000192000140992834352",
-    [HomeChains.ARBITRUM_SEPOLIA]: "38502597312983100069991953687934627561654236680431968938019951490339399569548",
-    [HomeChains.HARDHAT]: "0x0000000000000000000000000000000000000000000000000000000000000001",
+    [HomeChains.ARBITRUM_ONE]:
+      "66240499937595191069677958665918759554657443303079118766000192000140992834352",
+    [HomeChains.ARBITRUM_SEPOLIA]:
+      "38502597312983100069991953687934627561654236680431968938019951490339399569548",
+    [HomeChains.HARDHAT]:
+      "0x0000000000000000000000000000000000000000000000000000000000000001",
   };
 
-  function getKeyHash({ gasPrice }: { gasPrice: keyof (typeof KEY_HASHES)[HomeChains.ARBITRUM_ONE] }): string {
-    const validGasPrices = Object.keys(KEY_HASHES[HomeChains.ARBITRUM_ONE]).map(Number);
+  function getKeyHash({
+    gasPrice,
+  }: {
+    gasPrice: keyof (typeof KEY_HASHES)[HomeChains.ARBITRUM_ONE];
+  }): string {
+    const validGasPrices = Object.keys(KEY_HASHES[HomeChains.ARBITRUM_ONE]).map(
+      Number,
+    );
     if (!validGasPrices.includes(gasPrice)) {
-      throw new Error(`Invalid gas price ${gasPrice}. Valid values are: ${validGasPrices.join(", ")}`);
+      throw new Error(
+        `Invalid gas price ${gasPrice}. Valid values are: ${validGasPrices.join(", ")}`,
+      );
     }
     if (chainId == HomeChains.HARDHAT) return KEY_HASHES[chainId][0];
-    if (chainId == HomeChains.ARBITRUM_ONE) return KEY_HASHES[chainId][gasPrice];
+    if (chainId == HomeChains.ARBITRUM_ONE)
+      return KEY_HASHES[chainId][gasPrice];
     if (chainId == HomeChains.ARBITRUM_SEPOLIA) return KEY_HASHES[chainId][150];
     throw new Error(`Unknown chainId ${chainId}`);
   }
 
-  const ChainlinkVRFCoordinator = await getContractOrDeploy(hre, "ChainlinkVRFCoordinator", {
-    from: deployer,
-    contract: "ChainlinkVRFCoordinatorV2Mock",
-    args: [],
-    log: true,
-  });
+  const ChainlinkVRFCoordinator = await getContractOrDeploy(
+    hre,
+    "ChainlinkVRFCoordinator",
+    {
+      from: deployer,
+      contract: "ChainlinkVRFCoordinatorV2Mock",
+      args: [],
+      log: true,
+    },
+  );
 
   const keyHash = getKeyHash({ gasPrice: 30 });
   const subscriptionId = SUBSCRIPTION_ID[chainId];
@@ -59,10 +86,12 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const oldRng = await ethers.getContractOrNull("ChainlinkRNG");
   if (!oldRng) {
-    console.log("Register this Chainlink consumer here: http://vrf.chain.link/");
+    console.log(
+      "Register this Chainlink consumer here: http://vrf.chain.link/",
+    );
   }
 
-  const rng = await getContractOrDeploy(hre, "ChainlinkRNG", {
+  const rng = await getContractOrDeploy<ChainlinkRNG>(hre, "ChainlinkRNG", {
     from: deployer,
     args: [
       deployer,
@@ -76,7 +105,9 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  const fallbackTimeoutSeconds = isLocalhost(hre.network) ? 10 : 30 * ONE_MINUTE_IN_SECONDS; // 30 minutes
+  const fallbackTimeoutSeconds = isLocalhost(hre.network)
+    ? 10
+    : 30 * ONE_MINUTE_IN_SECONDS; // 30 minutes
   await getContractOrDeploy(hre, "RNGWithFallback", {
     from: deployer,
     args: [
@@ -89,7 +120,8 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 
   // rng.changeConsumer() only if necessary
-  const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
+  const rngWithFallback =
+    await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const rngConsumer = await rng.consumer();
   if (rngConsumer !== rngWithFallback.target) {
     console.log(`rng.changeConsumer(${rngWithFallback.target})`);

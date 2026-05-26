@@ -3,10 +3,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { deployUpgradable } from "./deployUpgradable";
 import { BaseContract } from "ethers";
 
-export const getContractOrDeploy = async <C extends BaseContract = BaseContract>(
+export const getContractOrDeploy = async <
+  C extends BaseContract = BaseContract,
+>(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
-  options: DeployOptions
+  options: DeployOptions,
 ): Promise<C> => {
   let contract = await hre.ethers.getContractOrNull<C>(contractName);
   if (!contract) {
@@ -19,14 +21,18 @@ export const getContractOrDeploy = async <C extends BaseContract = BaseContract>
   return contract;
 };
 
-export const getContractOrDeployUpgradable = async <C extends BaseContract = BaseContract>(
+export const getContractOrDeployUpgradable = async <
+  C extends BaseContract = BaseContract,
+>(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
-  options: DeployOptions
+  options: DeployOptions,
 ): Promise<C> => {
   let contract = await hre.ethers.getContractOrNull<C>(contractName);
   if (!contract) {
-    console.log(`contract ${contractName} not deployed, deploying as upgradable now...`);
+    console.log(
+      `contract ${contractName} not deployed, deploying as upgradable now...`,
+    );
     await deployUpgradable(hre.deployments, contractName, options);
     contract = await hre.ethers.getContract<C>(contractName);
   } else {

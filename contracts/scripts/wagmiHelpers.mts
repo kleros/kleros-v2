@@ -1,20 +1,24 @@
 import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
-import { ContractConfig } from "@wagmi/cli";
-import { Abi } from "viem";
-import { Chain } from "@wagmi/chains";
+import type { ContractConfig } from "@wagmi/cli";
+import { Abi, Chain } from "viem";
 
 type ArtifactPartial = {
   abi: Abi;
 };
 
-export const getAbi = (artifact: any) => {
+export const getAbi = (artifact: unknown) => {
   return (artifact as ArtifactPartial).abi;
 };
 
-export const readArtifacts = async (viemChainName: string, hardhatChainName?: string) => {
+export const readArtifacts = async (
+  viemChainName: string,
+  hardhatChainName?: string,
+) => {
   const chains = await import("wagmi/chains");
-  const chain = chains[viemChainName] as Chain;
+  const chain = chains[viemChainName as keyof typeof chains] as
+    | Chain
+    | undefined;
   if (!chain) {
     throw new Error(`Viem chain ${viemChainName} not found`);
   }

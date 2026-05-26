@@ -1,0 +1,7 @@
+{
+  "*.{js,jsx,mjs,ts,tsx,mts}": [
+    "eslint --fix --no-error-on-unmatched-pattern",
+    "prettier --write --no-error-on-unmatched-pattern"
+  ],
+  "*.sol": "prettier --write --no-error-on-unmatched-pattern"
+}

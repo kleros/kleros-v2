@@ -1,5 +1,10 @@
 import { type PublicClient, type WalletClient, getContract } from "viem";
-import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
+import {
+  type ContractConfig,
+  type DeploymentName,
+  deployments,
+  getAddress,
+} from "./utils";
 import {
   klerosCoreConfig as devnetCoreConfig,
   sortitionModuleConfig as devnetSortitionConfig,
@@ -60,10 +65,16 @@ import {
 
 type ContractInstance = {
   address: `0x${string}`;
-  abi: readonly any[];
+  abi: ContractConfig["abi"];
 };
 
-function getContractConfig({ config, chainId }: { config: ContractConfig; chainId: number }): ContractInstance {
+function getContractConfig({
+  config,
+  chainId,
+}: {
+  config: ContractConfig;
+  chainId: number;
+}): ContractInstance {
   return {
     address: getAddress(config, chainId),
     abi: config.abi,
@@ -122,26 +133,57 @@ function getCommonConfigs({
   const base: ContractInstances = {
     klerosCore: getContractConfig({ config: configs.klerosCore, chainId }),
     sortition: getContractConfig({ config: configs.sortition, chainId }),
-    disputeKitClassic: getContractConfig({ config: configs.disputeKitClassic, chainId }),
-    disputeResolver: getContractConfig({ config: configs.disputeResolver, chainId }),
-    disputeTemplateRegistry: getContractConfig({ config: configs.disputeTemplateRegistry, chainId }),
+    disputeKitClassic: getContractConfig({
+      config: configs.disputeKitClassic,
+      chainId,
+    }),
+    disputeResolver: getContractConfig({
+      config: configs.disputeResolver,
+      chainId,
+    }),
+    disputeTemplateRegistry: getContractConfig({
+      config: configs.disputeTemplateRegistry,
+      chainId,
+    }),
     evidence: getContractConfig({ config: configs.evidence, chainId }),
-    policyRegistry: getContractConfig({ config: configs.policyRegistry, chainId }),
-    transactionBatcher: getContractConfig({ config: configs.transactionBatcher, chainId }),
+    policyRegistry: getContractConfig({
+      config: configs.policyRegistry,
+      chainId,
+    }),
+    transactionBatcher: getContractConfig({
+      config: configs.transactionBatcher,
+      chainId,
+    }),
     pnk: getContractConfig({ config: configs.pnk, chainId }),
-    klerosCoreSnapshotProxy: getContractConfig({ config: configs.klerosCoreSnapshotProxy, chainId }),
+    klerosCoreSnapshotProxy: getContractConfig({
+      config: configs.klerosCoreSnapshotProxy,
+      chainId,
+    }),
   };
 
   if (configs.disputeKitClassicUniversity)
-    base.disputeKitClassicUniversity = getContractConfig({ config: configs.disputeKitClassicUniversity, chainId });
+    base.disputeKitClassicUniversity = getContractConfig({
+      config: configs.disputeKitClassicUniversity,
+      chainId,
+    });
 
   if (configs.disputeKitShutter)
-    base.disputeKitShutter = getContractConfig({ config: configs.disputeKitShutter, chainId });
+    base.disputeKitShutter = getContractConfig({
+      config: configs.disputeKitShutter,
+      chainId,
+    });
 
-  if (configs.disputeKitGated) base.disputeKitGated = getContractConfig({ config: configs.disputeKitGated, chainId });
+  if (configs.disputeKitGated)
+    base.disputeKitGated = getContractConfig({
+      config: configs.disputeKitGated,
+      chainId,
+    });
 
   if (configs.disputeKitGatedShutter)
-    base.disputeKitGatedShutter = getContractConfig({ config: configs.disputeKitGatedShutter, chainId });
+    base.disputeKitGatedShutter = getContractConfig({
+      config: configs.disputeKitGatedShutter,
+      chainId,
+    });
 
   if (configs.disputeKitGatedArgentinaConsumerProtection)
     base.disputeKitGatedArgentinaConsumerProtection = getContractConfig({
@@ -149,19 +191,38 @@ function getCommonConfigs({
       chainId,
     });
 
-  if (configs.chainlinkRng) base.chainlinkRng = getContractConfig({ config: configs.chainlinkRng, chainId });
+  if (configs.chainlinkRng)
+    base.chainlinkRng = getContractConfig({
+      config: configs.chainlinkRng,
+      chainId,
+    });
 
-  if (configs.rngWithFallback) base.rngWithFallback = getContractConfig({ config: configs.rngWithFallback, chainId });
+  if (configs.rngWithFallback)
+    base.rngWithFallback = getContractConfig({
+      config: configs.rngWithFallback,
+      chainId,
+    });
 
-  if (configs.randomizerRng) base.randomizerRng = getContractConfig({ config: configs.randomizerRng, chainId });
+  if (configs.randomizerRng)
+    base.randomizerRng = getContractConfig({
+      config: configs.randomizerRng,
+      chainId,
+    });
 
   if (configs.leaderboardOffset)
-    base.leaderboardOffset = getContractConfig({ config: configs.leaderboardOffset, chainId });
+    base.leaderboardOffset = getContractConfig({
+      config: configs.leaderboardOffset,
+      chainId,
+    });
 
   return base;
 }
 
-export const getConfigs = ({ deployment }: { deployment: DeploymentName }): ContractInstances => {
+export const getConfigs = ({
+  deployment,
+}: {
+  deployment: DeploymentName;
+}): ContractInstances => {
   const { chainId } = deployments[deployment];
   switch (deployment) {
     case "devnet":
@@ -175,7 +236,8 @@ export const getConfigs = ({ deployment }: { deployment: DeploymentName }): Cont
           disputeKitShutter: devnetDkShutterConfig,
           disputeKitGated: devnetDkGatedConfig,
           disputeKitGatedShutter: devnetDkGatedShutterConfig,
-          disputeKitGatedArgentinaConsumerProtection: devnetDkGatedArgentinaConsumerProtectionConfig,
+          disputeKitGatedArgentinaConsumerProtection:
+            devnetDkGatedArgentinaConsumerProtectionConfig,
           disputeResolver: devnetDrConfig,
           disputeTemplateRegistry: devnetDtrConfig,
           evidence: devnetEvidenceConfig,
@@ -269,12 +331,13 @@ export const getContracts = ({
     ...contractConfigs.disputeKitClassic,
     ...clientConfig,
   });
-  const disputeKitClassicUniversity = contractConfigs.disputeKitClassicUniversity
-    ? getContract({
-        ...contractConfigs.disputeKitClassicUniversity,
-        ...clientConfig,
-      })
-    : undefined;
+  const disputeKitClassicUniversity =
+    contractConfigs.disputeKitClassicUniversity
+      ? getContract({
+          ...contractConfigs.disputeKitClassicUniversity,
+          ...clientConfig,
+        })
+      : undefined;
   const disputeKitShutter = contractConfigs.disputeKitShutter
     ? getContract({
         ...contractConfigs.disputeKitShutter,
@@ -293,12 +356,13 @@ export const getContracts = ({
         ...clientConfig,
       })
     : undefined;
-  const disputeKitGatedArgentinaConsumerProtection = contractConfigs.disputeKitGatedArgentinaConsumerProtection
-    ? getContract({
-        ...contractConfigs.disputeKitGatedArgentinaConsumerProtection,
-        ...clientConfig,
-      })
-    : undefined;
+  const disputeKitGatedArgentinaConsumerProtection =
+    contractConfigs.disputeKitGatedArgentinaConsumerProtection
+      ? getContract({
+          ...contractConfigs.disputeKitGatedArgentinaConsumerProtection,
+          ...clientConfig,
+        })
+      : undefined;
   const disputeResolver = getContract({
     ...contractConfigs.disputeResolver,
     ...clientConfig,

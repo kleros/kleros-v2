@@ -12,7 +12,7 @@ resolver = await ethers.getContract("DisputeResolver");
 faucet = await ethers.getContract("PNKFaucet");
 sender = await ethers.getContract("VeaOutboxArbToGnosisDevnet");
 options = { gasLimit: 10000000, gasPrice: 5000000000 };
-var disputeID = 0;
+let disputeID = 0;
 
 console.log("sortition phase: %s", await sortition.phase());
 console.log("freezingPhase timeout? %s", await core.freezingPhaseTimeout());
@@ -23,7 +23,7 @@ const relayCreateDispute = async (blockHash, foreignDisputeID) => {
   const extraData =
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003";
   const fee = await core.arbitrationCost(extraData);
-  var tx;
+  let tx;
   try {
     tx = await (
       await gateway.relayCreateDispute(
@@ -36,13 +36,17 @@ const relayCreateDispute = async (blockHash, foreignDisputeID) => {
         {
           value: fee,
           ...options,
-        }
+        },
       )
     ).wait();
     console.log("txID: %s", tx?.transactionHash);
 
     disputeID = (
-      await core.queryFilter(core.filters.DisputeCreation(), tx.blockNumber, tx.blockNumber)
+      await core.queryFilter(
+        core.filters.DisputeCreation(),
+        tx.blockNumber,
+        tx.blockNumber,
+      )
     )[0].args._disputeID.toNumber();
     console.log("Using disputeID %d from now", disputeID);
   } catch (e) {
@@ -54,7 +58,11 @@ const relayCreateDispute = async (blockHash, foreignDisputeID) => {
   } finally {
     if (tx) {
       const filter = core.filters.DisputeCreation();
-      const logs = await core.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+      const logs = await core.queryFilter(
+        filter,
+        tx.blockNumber,
+        tx.blockNumber,
+      );
       console.log("DisputeID: %s", logs[0]?.args?._disputeID);
     }
   }
@@ -64,7 +72,7 @@ const createDisputeOnResolver = async () => {
   const choices = 2;
   const nbOfJurors = 3;
   const feeForJuror = (await core.courts(1)).feeForJuror;
-  var tx;
+  let tx;
   try {
     tx = await (
       await resolver.createDispute(
@@ -74,7 +82,7 @@ const createDisputeOnResolver = async () => {
         {
           value: feeForJuror.mul(nbOfJurors),
           ...options,
-        }
+        },
       )
     ).wait();
     console.log("txID: %s", tx?.transactionHash);
@@ -87,7 +95,11 @@ const createDisputeOnResolver = async () => {
   } finally {
     if (tx) {
       const filter = core.filters.DisputeCreation();
-      const logs = await core.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+      const logs = await core.queryFilter(
+        filter,
+        tx.blockNumber,
+        tx.blockNumber,
+      );
       console.log("DisputeID: %s", logs[0]?.args?._disputeID);
     }
   }
@@ -95,7 +107,7 @@ const createDisputeOnResolver = async () => {
 
 const passPhase = async () => {
   const before = await sortition.phase();
-  var tx;
+  let tx;
   try {
     tx = await (await sortition.passPhase(options)).wait();
     console.log("txID: %s", tx?.transactionHash);
@@ -113,7 +125,7 @@ const passPhase = async () => {
 
 const passPeriod = async () => {
   const before = (await core.disputes(disputeID)).period;
-  var tx;
+  let tx;
   try {
     tx = await (await core.passPeriod(disputeID, options)).wait();
     console.log("txID: %s", tx?.transactionHash);
@@ -130,7 +142,7 @@ const passPeriod = async () => {
 };
 
 const drawJurors = async () => {
-  var info = await core.getRoundInfo(disputeID, 0);
+  let info = await core.getRoundInfo(disputeID, 0);
   console.log("Drawn jurors before: %O", info.drawnJurors);
   let tx;
   try {
@@ -183,19 +195,31 @@ const executeRuling = async () => {
     console.log("Ruled? %s", dispute.ruled);
 
     const ruling = await core.currentRuling(disputeID);
-    console.log("Ruling: %d, Tied? %s, Overridden? %s", ruling.ruling, ruling.tied, ruling.overridden);
+    console.log(
+      "Ruling: %d, Tied? %s, Overridden? %s",
+      ruling.ruling,
+      ruling.tied,
+      ruling.overridden,
+    );
 
-    var filter = sender.filters.MessageReceived();
-    var logs = await sender.queryFilter(filter, tx?.blockNumber, tx?.blockNumber);
+    const filter = sender.filters.MessageReceived();
+    const logs = await sender.queryFilter(
+      filter,
+      tx?.blockNumber,
+      tx?.blockNumber,
+    );
     console.log("MessageReceived: %O", logs[0]?.args);
   }
 };
 
 const toVoting = async () => {
   console.log("Running for disputeID %d", disputeID);
-  var ready;
+  let ready;
   try {
-    ready = await passPhaseCore().then(passPhaseDk).then(passPhaseDk).then(isRngReady);
+    ready = await passPhaseCore()
+      .then(passPhaseDk)
+      .then(passPhaseDk)
+      .then(isRngReady);
   } catch (e) {
     ready = false;
   }
@@ -211,7 +235,9 @@ const toVoting = async () => {
 const epochPeriod = await sender.epochPeriod();
 
 const epochID = async () => {
-  return Math.floor((await ethers.provider.getBlock("latest")).timestamp / epochPeriod);
+  return Math.floor(
+    (await ethers.provider.getBlock("latest")).timestamp / epochPeriod,
+  );
 };
 
 const anyBatchToSend = async () => {
@@ -220,7 +246,7 @@ const anyBatchToSend = async () => {
 
 const sendBatch = async () => {
   const before = await disputeKit.phase();
-  var tx;
+  let tx;
   try {
     tx = await (await sender.sendBatch(options)).wait();
     console.log("txID: %s", tx?.transactionHash);
@@ -232,7 +258,11 @@ const sendBatch = async () => {
     }
   } finally {
     const filter = sender.filters.BatchOutgoing();
-    const logs = await sender.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+    const logs = await sender.queryFilter(
+      filter,
+      tx.blockNumber,
+      tx.blockNumber,
+    );
     console.log("BatchOutgoing: %O", logs[0]?.args);
   }
 };

@@ -11,16 +11,24 @@ const wrappedPNKByChain = new Map<ForeignChains, string>([
 
 const ONE_GWEI = BigNumber.from(parseUnits("1", "gwei"));
 
-const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployKlerosLiquid: DeployFunction = async (
+  hre: HardhatRuntimeEnvironment,
+) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
 
   // fallback to hardhat node signers on local network
-  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
+  const deployer =
+    (await getNamedAccounts()).deployer ??
+    (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
+  if (!(chainId in ForeignChains)) {
+    throw new Error(`Unsupported foreign chain id: ${chainId}`);
+  }
+  const foreignChain = chainId as ForeignChains;
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
-  if (!wrappedPNKByChain.get(chainId)) {
+  if (!wrappedPNKByChain.get(foreignChain)) {
     const wPnk = await deploy("WrappedPinakionV2", {
       from: deployer,
       log: true,
@@ -28,7 +36,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
       maxPriorityFeePerGas: ONE_GWEI,
     });
 
-    wrappedPNKByChain.set(ForeignChains[ForeignChains[chainId]], wPnk.address);
+    wrappedPNKByChain.set(foreignChain, wPnk.address);
 
     await deploy("WPNKFaucet", {
       from: deployer,
@@ -40,7 +48,11 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     });
   }
 
-  const wPnkAddress = wrappedPNKByChain.get(ForeignChains[ForeignChains[chainId]]);
+  const wPnkAddress = wrappedPNKByChain.get(foreignChain);
+  if (!wPnkAddress) {
+    throw new Error(`Missing WrappedPinakionV2 address for chainId ${chainId}`);
+  }
+
   const rng = ethers.ZeroAddress;
   const minStakingTime = 99999999;
   const maxFreezingTime = 0;
@@ -54,7 +66,12 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
-  console.log("using: \nwPNK at %s, \nForeignGateway at %s", wPnkAddress, foreignGateway.address, weth.address);
+  console.log(
+    "using: \nwPNK at %s, \nForeignGateway at %s",
+    wPnkAddress,
+    foreignGateway.address,
+    weth.address,
+  );
 
   const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
     from: deployer,
@@ -91,11 +108,13 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     [minStake, alpha, feeForJuror, jurorsForCourtJump], // minStake, alpha, feeForJuror, jurorsForCourtJump
     [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
     sortitionSumTreeK,
-    foreignGateway.address
+    foreignGateway.address,
   );
 
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
-  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
+  const disputeTemplateRegistry = await deployments.get(
+    "DisputeTemplateRegistry",
+  );
   await deploy("ArbitrableExample", {
     from: deployer,
     args: [
