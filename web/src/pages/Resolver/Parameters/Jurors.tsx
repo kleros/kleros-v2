@@ -13,7 +13,9 @@ import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useReadKlerosCoreArbitrationCost } from "hooks/contracts/generated";
 import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
-import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
+
+import { DisputeKits } from "src/dispute-kits";
+import { prepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -61,7 +63,14 @@ const Jurors: React.FC = () => {
       enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
       refetchInterval: REFETCH_INTERVAL,
     },
-    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData?.numberOfJurors ?? 0)],
+    args: [
+      prepareArbitratorExtradata(
+        disputeData.courtId ?? "",
+        disputeData?.numberOfJurors ?? 0,
+        disputeData.disputeKitId ?? DisputeKits.Classic,
+        undefined
+      ),
+    ],
     chainId: DEFAULT_CHAIN.id,
   });
 

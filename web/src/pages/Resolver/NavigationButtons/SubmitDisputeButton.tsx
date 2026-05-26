@@ -16,11 +16,11 @@ import {
 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
-import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { retrieveDisputeIdFromLogs } from "utils/retrieveDisputeId";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { DisputeKits } from "src/dispute-kits";
+import { prepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
 
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
@@ -60,7 +60,7 @@ const SubmitDisputeButton: React.FC = () => {
     args: [
       prepareArbitratorExtradata(
         disputeData.courtId ?? "1",
-        disputeData.numberOfJurors ?? 0,
+        disputeData.numberOfJurors ?? 3,
         disputeData.disputeKitId ?? DisputeKits.Classic,
         disputeData.disputeKitData
       ),

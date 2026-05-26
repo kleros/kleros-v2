@@ -2,6 +2,8 @@ import { DisputeKits } from "src/dispute-kits";
 
 import { isProductionDeployment } from "../consts/index";
 
+import { DisputeKitDataMap, GatedDisputeKitData } from "./prepareArbitratorExtradata";
+
 export enum Group {
   Voting = "Voting",
   Eligibility = "Eligibility",
@@ -24,15 +26,13 @@ export type FeatureGroups = Record<string, Features[]>;
 
 /** Definition of a dispute kit */
 export interface DisputeKit {
-  id: number;
+  id: DisputeKits;
   /**
    * The feature sets this kit supports.
    * Each array represents a valid configuration, and has to be 1:1,
    * if either subset matches the selected feature array this dispute kit is selected
    */
   featureSets: Features[][];
-
-  type: "general" | "gated";
 }
 
 // groups
@@ -52,15 +52,14 @@ export const featureGroups: FeatureGroups = {
 
 // dispute kits
 // each array is a unique match, for multiple combinations, add more arrays.
-// TODO: move to dk cofig registry, issue: cannot figure out the correct usage of 'type' yet,
+// TODO: move to dk cofig registry
 // we need this to structure disputekit data for the dispute, not sure how to move this to config yet
 export const disputeKits: DisputeKit[] = [
   {
     id: DisputeKits.Classic,
     featureSets: [[Features.ClassicVote, Features.ClassicEligibility]],
-    type: "general",
   }, // strict
-  { id: DisputeKits.Shutter, featureSets: [[Features.ShieldedVote, Features.ClassicEligibility]], type: "general" }, // strict
+  { id: DisputeKits.Shutter, featureSets: [[Features.ShieldedVote, Features.ClassicEligibility]] }, // strict
   {
     id: DisputeKits.Gated,
     // strictly keep the common feature in front and in order.
@@ -68,7 +67,6 @@ export const disputeKits: DisputeKit[] = [
       [Features.ClassicVote, Features.GatedErc20],
       [Features.ClassicVote, Features.GatedErc1155],
     ],
-    type: "gated",
   },
   {
     id: DisputeKits.GatedShutter,
@@ -76,17 +74,14 @@ export const disputeKits: DisputeKit[] = [
       [Features.ShieldedVote, Features.GatedErc20],
       [Features.ShieldedVote, Features.GatedErc1155],
     ],
-    type: "gated",
   },
   {
     id: DisputeKits.ArgentinaConsumerProtection,
     featureSets: [[Features.ClassicVote, Features.ArgentinaConsumerProtection]],
-    type: "general",
   },
   {
     id: DisputeKits.ClassicUniversity,
     featureSets: [[Features.UniversityVote, Features.ClassicEligibility]],
-    type: "general",
   },
 ];
 
@@ -111,6 +106,31 @@ export const getFeatureGroupsForDeployment = (): FeatureGroups =>
         [Group.Voting]: featureGroups[Group.Voting].filter((f) => f !== Features.UniversityVote),
       }
     : featureGroups;
+
+export function resolveInitialFeatureSet(kit: DisputeKit, disputeKitData?: DisputeKitDataMap[DisputeKits]) {
+  switch (kit.id) {
+    case DisputeKits.Classic:
+    case DisputeKits.Shutter:
+    case DisputeKits.ArgentinaConsumerProtection:
+    case DisputeKits.ClassicUniversity:
+      return kit.featureSets[0];
+    case DisputeKits.Gated:
+    case DisputeKits.GatedShutter: {
+      const isERC1155 = (disputeKitData as GatedDisputeKitData | undefined)?.isERC1155;
+      return (
+        kit.featureSets.find((set) =>
+          isERC1155 ? set.includes(Features.GatedErc1155) : set.includes(Features.GatedErc20)
+        ) ?? kit.featureSets[0]
+      );
+    }
+    default: {
+      // this is an exhaustive type check,
+      // so we get a type error if a disputeKit is not handled in above switch
+      const _exhaustive = kit.id satisfies never;
+      return _exhaustive;
+    }
+  }
+}
 
 /** Canonical string for a feature set (order-independent) */
 function normalize(features: Features[]): string {

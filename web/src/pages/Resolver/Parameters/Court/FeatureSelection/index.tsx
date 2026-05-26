@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { Card } from "@kleros/ui-components-library";
 
-import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
+import { useNewDisputeContext } from "context/NewDisputeContext";
 
 import { useSupportedDisputeKits } from "queries/useSupportedDisputeKits";
 
@@ -18,6 +18,7 @@ import {
   getFeatureGroupsForDeployment,
   getVisibleFeaturesForCourt,
   Group,
+  resolveInitialFeatureSet,
   toggleFeature,
 } from "src/dispute-kits/disputeFeature";
 import { isUndefined } from "src/utils";
@@ -57,23 +58,14 @@ const FeatureSelection: React.FC = () => {
   const disputeKitsForDeployment = useMemo(() => getDisputeKitsForDeployment(), []);
   const featureGroupsForDeployment = useMemo(() => getFeatureGroupsForDeployment(), []);
 
-  // DEV: initial feature selection logic, included hardcoded logic
+  // DEV: initial feature selection logic
   useEffect(() => {
     if (!isUndefined(disputeData?.disputeKitId)) {
       const defaultKit = disputeKitsForDeployment.find((dk) => dk.id === disputeData.disputeKitId);
       if (!defaultKit) return;
 
-      // some kits like gated can have two feature sets, one for gatedERC20 and other for ERC1155
-      if (defaultKit?.featureSets.length > 1) {
-        if ((disputeData?.disputeKitData as IGatedDisputeData)?.isERC1155) {
-          // defaultKit.featureSets[0][0] - is either Classic or Shutter
-          setSelected([defaultKit.featureSets[0][0], Features.GatedErc1155]);
-        } else {
-          setSelected([defaultKit.featureSets[0][0], Features.GatedErc20]);
-        }
-      } else if (defaultKit.featureSets.length === 1) {
-        setSelected(defaultKit.featureSets[0]);
-      }
+      const initialFeature = resolveInitialFeatureSet(defaultKit, disputeData?.disputeKitData);
+      setSelected(initialFeature);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -138,10 +130,7 @@ const FeatureSelection: React.FC = () => {
       setDisputeData({
         ...disputeData,
         disputeKitId: selectedKit.id,
-        disputeKitData:
-          selectedKit.type === "general"
-            ? undefined
-            : ({ ...disputeData.disputeKitData, type: selectedKit.type } as IGatedDisputeData),
+        ...(disputeData?.disputeKitData ? { disputeKitData: disputeData.disputeKitData } : undefined),
       });
     } else if (matchingKits.length === 0) {
       setDisputeData({ ...disputeData, disputeKitId: undefined });

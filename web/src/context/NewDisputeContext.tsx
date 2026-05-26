@@ -10,6 +10,7 @@ import { isEmpty, isUndefined } from "utils/index";
 
 import { DisputeKits } from "src/dispute-kits";
 import { Features } from "src/dispute-kits/disputeFeature";
+import { DisputeKitDataMap } from "src/dispute-kits/prepareArbitratorExtradata";
 
 export const MIN_DISPUTE_BATCH_SIZE = 2;
 
@@ -53,24 +54,8 @@ interface IDisputeData extends IDisputeTemplate {
   numberOfJurors?: number;
   arbitrationCost?: string;
   aliasesArray?: AliasArray[];
-  disputeKitId?: number;
-  disputeKitData?: IDisputeKitData;
-}
-
-export type IDisputeKitData = IGatedDisputeData | ISomeFutureDisputeData;
-
-export interface IGatedDisputeData {
-  type: "gated";
-  isERC1155: boolean;
-  tokenGate: string;
-  tokenId: string;
-  isTokenGateValid?: boolean | null; // null = not validated, false = invalid, true = valid
-}
-
-// Placeholder
-export interface ISomeFutureDisputeData {
-  type: "future";
-  contract: string;
+  disputeKitId?: DisputeKits;
+  disputeKitData?: DisputeKitDataMap[DisputeKits];
 }
 
 interface INewDisputeContext {

@@ -126,7 +126,7 @@ const Landing: React.FC = () => {
       disputeKitId: Number.parseInt(roundData.round?.disputeKit.id ?? DisputeKits.Classic.toString(), 10),
       answers,
       aliasesArray: aliasesArray ?? disputeData.aliasesArray,
-      disputeKitData: gatedTokenInfo ? { ...gatedTokenInfo, type: "gated" } : undefined,
+      disputeKitData: gatedTokenInfo ? { ...gatedTokenInfo, isValid: true } : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [populatedDispute, roundData, isInvalidDispute]);
