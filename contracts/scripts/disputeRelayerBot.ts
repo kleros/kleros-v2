@@ -1,6 +1,7 @@
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import hre = require("hardhat");
+import hre from "hardhat";
+import { JsonRpcProvider, Log } from "ethers";
 import {
   KlerosCore,
   ForeignGateway__factory,
@@ -8,7 +9,8 @@ import {
   TestERC20,
   IArbitrableV2__factory,
 } from "../typechain-types";
-import { DisputeRequestEventObject } from "../typechain-types/src/arbitration/interfaces/IArbitrableV2";
+import type { DisputeRequestEvent } from "../typechain-types/src/arbitration/interfaces/IArbitrableV2";
+import type { IHomeGateway } from "../typechain-types/src/gateway/HomeGateway";
 import { HttpNetworkConfig } from "hardhat/types";
 import { DeploymentsExtension } from "hardhat-deploy/types";
 
@@ -26,24 +28,41 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_RELAYER_BOT")
     }
   : {};
 
+const safeJson = (value: unknown) =>
+  JSON.stringify(value, (_, nestedValue) =>
+    typeof nestedValue === "bigint" ? nestedValue.toString() : nestedValue,
+  );
+
 export default async function main(
   foreignNetwork: HttpNetworkConfig,
   foreignDeployments: DeploymentsExtension,
   foreignGatewayArtifact: string,
   homeGatewayArtifact: string,
-  feeTokenArtifact?: string
+  feeTokenArtifact?: string,
 ) {
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
-  const homeGateway = await ethers.getContract<HomeGateway>(homeGatewayArtifact);
-  const feeToken = feeTokenArtifact ? await ethers.getContract<TestERC20>(feeTokenArtifact) : undefined;
+  const homeGateway =
+    await ethers.getContract<HomeGateway>(homeGatewayArtifact);
+  const feeToken = feeTokenArtifact
+    ? await ethers.getContract<TestERC20>(feeTokenArtifact)
+    : undefined;
 
-  const foreignChainProvider = new ethers.providers.JsonRpcProvider(foreignNetwork.url);
-  const foreignGatewayDeployment = await foreignDeployments.get(foreignGatewayArtifact);
-  const foreignGateway = await ForeignGateway__factory.connect(foreignGatewayDeployment.address, foreignChainProvider);
-  const foreignChainID = await foreignChainProvider.getNetwork().then((network) => network.chainId);
+  const foreignChainProvider = new JsonRpcProvider(foreignNetwork.url);
+  const foreignGatewayDeployment = await foreignDeployments.get(
+    foreignGatewayArtifact,
+  );
+  const foreignGateway = await ForeignGateway__factory.connect(
+    foreignGatewayDeployment.address,
+    foreignChainProvider,
+  );
+  const foreignChainID = (await foreignChainProvider.getNetwork()).chainId;
   const arbitrableInterface = IArbitrableV2__factory.createInterface();
+  const disputeRequestTopic =
+    arbitrableInterface.getEvent("DisputeRequest").topicHash;
 
-  const logger = loggerFactory.createLogger(loggerOptions).child({ foreignChainId: foreignChainID });
+  const logger = loggerFactory
+    .createLogger(loggerOptions)
+    .child({ foreignChainId: foreignChainID });
   logger.info(`Listening for events from ${foreignGatewayArtifact}...`);
 
   if (HEARTBEAT_URL) {
@@ -55,60 +74,89 @@ export default async function main(
 
   // Event subscription
   // WARNING: The callback might run more than once if the script is restarted in the same block
-  // type Listener = [ eventArg1, ...eventArgN, transactionReceipt ]
+  // type Listener = [ eventArg1, ...eventArgN, eventLog ]
   foreignGateway.on(
-    "CrossChainDisputeOutgoing",
-    async (foreignBlockHash, foreignArbitrable, foreignDisputeID, choices, extraData, txReceipt) => {
+    foreignGateway.filters.CrossChainDisputeOutgoing(),
+    async (
+      foreignBlockHash,
+      foreignArbitrable,
+      foreignDisputeID,
+      choices,
+      extraData,
+      eventLog,
+    ) => {
       logger.info(
-        `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`
+        `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`,
       );
-      logger.debug(`tx receipt: ${JSON.stringify(txReceipt)}`);
+      logger.debug(`tx receipt: ${safeJson(eventLog)}`);
 
       // txReceipt is missing the full logs for this tx so we need to request it here
-      const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(txReceipt.transactionHash);
+      const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(
+        eventLog.transactionHash,
+      );
+      if (!fullTxReceipt) {
+        throw new Error(
+          `No transaction receipt for ${eventLog.transactionHash}`,
+        );
+      }
 
       // Retrieve the DisputeRequest event
-      const disputeRequests: DisputeRequestEventObject[] = fullTxReceipt.logs
-        .filter((log) => log.topics[0] === arbitrableInterface.getEventTopic("DisputeRequest"))
-        .map((log) => arbitrableInterface.parseLog(log).args as unknown as DisputeRequestEventObject);
-      logger.warn(`More than 1 DisputeRequest event: not supported yet, skipping the others events.`);
+      const disputeRequests: DisputeRequestEvent.OutputObject[] =
+        fullTxReceipt.logs
+          .filter((log: Log) => log.topics[0] === disputeRequestTopic)
+          .map((log: Log) => {
+            const parsed = arbitrableInterface.parseLog(log);
+            if (!parsed) {
+              throw new Error(
+                `Failed to parse DisputeRequest log: ${log.transactionHash}`,
+              );
+            }
+            return parsed.args as unknown as DisputeRequestEvent.OutputObject;
+          });
+      logger.warn(
+        `More than 1 DisputeRequest event: not supported yet, skipping the others events.`,
+      );
 
       const disputeRequest = disputeRequests[0];
-      logger.info(`tx events DisputeRequest: ${JSON.stringify(disputeRequest)}`);
+      logger.info(`tx events DisputeRequest: ${safeJson(disputeRequest)}`);
 
-      const relayCreateDisputeParams = {
-        foreignBlockHash,
-        foreignChainID,
-        foreignArbitrable,
-        foreignDisputeID,
-        externalDisputeID: disputeRequest._externalDisputeID,
-        templateId: disputeRequest._templateId,
-        templateUri: disputeRequest._templateUri,
-        choices,
-        extraData,
-      };
-      logger.info(`Relaying dispute to home chain... ${JSON.stringify(relayCreateDisputeParams)}`);
+      const relayCreateDisputeParams: IHomeGateway.RelayCreateDisputeParamsStruct =
+        {
+          foreignBlockHash,
+          foreignChainID,
+          foreignArbitrable,
+          foreignDisputeID,
+          templateId: disputeRequest._templateId,
+          choices,
+          extraData,
+        };
+      logger.info(
+        `Relaying dispute to home chain... ${safeJson(relayCreateDisputeParams)}`,
+      );
 
       let tx;
       if (feeToken === undefined) {
         // Paying in native Arbitrum ETH
-        const cost = (await core.functions["arbitrationCost(bytes)"](extraData)).cost;
-        tx = await homeGateway.functions[
-          "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"
+        const cost = await core["arbitrationCost(bytes)"](extraData);
+        tx = await homeGateway[
+          "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"
         ](relayCreateDisputeParams, { value: cost });
       } else {
         // Paying in ERC20
-        const cost = (await core.functions["arbitrationCost(bytes,address)"](extraData, feeToken.address)).cost;
-        await (await feeToken.approve(homeGateway.address, cost)).wait();
-        tx = await homeGateway.functions[
-          "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes),uint256)"
+        const cost = await core["arbitrationCost(bytes,address)"](
+          extraData,
+          feeToken.target,
+        );
+        await (await feeToken.approve(homeGateway.target, cost)).wait();
+        tx = await homeGateway[
+          "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes),uint256)"
         ](relayCreateDisputeParams, cost);
       }
-      tx = tx.wait();
-      logger.info(`relayCreateDispute txId: ${tx.transactionHash}`);
-    }
+      tx = await tx.wait();
+      logger.info(`relayCreateDispute txId: ${tx?.hash}`);
+    },
   );
 
-  const delay = (ms) => new Promise((x) => setTimeout(x, ms));
+  const delay = (ms: number) => new Promise((x) => setTimeout(x, ms));
   await delay(60 * 60 * 1000); // 1 hour
 }

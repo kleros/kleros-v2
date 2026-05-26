@@ -56,7 +56,7 @@ export interface IDisputeTemplate {
 
 interface IDisputeData extends IDisputeTemplate {
   courtId?: string;
-  numberOfJurors: number;
+  numberOfJurors?: number;
   arbitrationCost?: string;
   aliasesArray?: AliasArray[];
   disputeKitId?: number;

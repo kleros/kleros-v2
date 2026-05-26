@@ -1,17 +1,24 @@
 export const createResultObject = (
-  sourceData: Record<string, any>,
+  sourceData: unknown,
   seek: string[],
-  populate: string[]
-): Record<string, any> => {
-  const result: Record<string, any> = {};
+  populate: string[],
+): Record<string, unknown> => {
+  const result: Record<string, unknown> = {};
 
-  const getNestedValue = (obj: any, path: string) => {
+  const getNestedValue = (obj: unknown, path: string) => {
     return path.split(".").reduce((acc, part) => {
-      if (acc && part.includes("[")) {
+      if (!acc) return undefined;
+      const accRecord = acc as Record<string, unknown>;
+
+      if (part.includes("[")) {
         const [key, index] = part.replace(/\]/g, "").split("[");
-        return acc[key]?.[index];
+        const innerData = accRecord[key];
+        return innerData
+          ? (innerData as Record<string, unknown>)[index]
+          : undefined;
       }
-      return acc ? acc[part] : undefined;
+
+      return accRecord[part];
     }, obj);
   };
 

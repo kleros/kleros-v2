@@ -7,9 +7,6 @@ import {
   ShutterTestContext,
 } from "./helpers/dispute-kit-shutter-common";
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-unused-expressions */
-
 /**
  * Test suite for DisputeKitShutter - implements shielded voting with commit-reveal mechanism
  * using the Shutter protocol for encrypted vote storage and decryption.

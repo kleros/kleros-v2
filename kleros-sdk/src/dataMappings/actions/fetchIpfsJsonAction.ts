@@ -33,7 +33,7 @@ export const fetchIpfsJsonAction = async (mapping: FetchIpfsJsonMapping) => {
     throw new RequestError("Fetched data is not JSON", httpUri);
   }
 
-  const data = (await response.json()) as any;
+  const data = await response.json();
 
   return createResultObject(data, seek, populate);
 };

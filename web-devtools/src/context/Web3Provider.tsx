@@ -1,15 +1,16 @@
 import React from "react";
 
+import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "@reown/appkit/networks";
+import { createAppKit } from "@reown/appkit/react";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { type Chain } from "viem";
 import { fallback, http, WagmiProvider, webSocket } from "wagmi";
-import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "@reown/appkit/networks";
 
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 
 import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
-import { createAppKit } from "@reown/appkit/react";
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+
 import { theme } from "styles/Theme";
 
 const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;

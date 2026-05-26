@@ -51,6 +51,7 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({
     if (error) {
       console.error("Error fetching template:", error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateFromId, error]);
 
   return (

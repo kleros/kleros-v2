@@ -128,14 +128,13 @@ const constructEvidence = async (
   uploadFile: (file: File, role: Roles) => Promise<string | null>,
   msg: string,
   file: File | undefined,
-  t: (key: string) => string
+  t: (key: string, options?: Record<string, string>) => string
 ) => {
   let fileURI: string | null = null;
   if (file) {
     infoToast(t("notifications.uploading_to_ipfs"));
-    fileURI = await uploadFile(file, Roles.Evidence).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
+    fileURI = await uploadFile(file, Roles.Evidence).catch((err: Error) => {
+      console.error(err);
       errorToast(t("notifications.upload_failed_error", { error: err?.message }));
       return null;
     });

@@ -37,7 +37,7 @@ export type DeployUpgradableOptions = {
 export const deployUpgradable = async (
   deployments: DeploymentsExtension,
   proxy: string,
-  options: DeployUpgradableOptions
+  options: DeployUpgradableOptions,
 ): Promise<DeployResult> => {
   const { deploy } = deployments;
   const {

@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { Address } from "viem";
 
 import { useTranslation } from "react-i18next";
 import { Route, Routes, useParams, Navigate } from "react-router-dom";
+import { Address } from "viem";
 
 import { Card } from "@kleros/ui-components-library";
 

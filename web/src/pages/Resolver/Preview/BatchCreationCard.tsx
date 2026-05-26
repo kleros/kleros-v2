@@ -161,7 +161,7 @@ const BatchCreationCard: React.FC = () => {
               </Info>
               <Info>
                 <Label>{t("case_creation.total")}</Label>
-                <Value>{disputeData.numberOfJurors * localBatchSize}</Value>
+                <Value>{(disputeData.numberOfJurors ?? 0) * localBatchSize}</Value>
               </Info>
               <Info>
                 <Label>{t("case_creation.total_cost")}</Label>

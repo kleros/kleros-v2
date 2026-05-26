@@ -1,5 +1,6 @@
-import { keccak256, toBytes, encodeAbiParameters } from "viem";
+import { Hash, keccak256, toBytes, encodeAbiParameters } from "viem";
 
+/* eslint-disable max-len */
 /**
  * @description Computes the hash of a justification using ABI encoding.
  * Replicates hashJustification implementation from [ShutterDisputeKit](https://github.com/kleros/kleros-v2/blob/d944e197384d9065de2e0a4414fb8fb98b727f6e/contracts/src/arbitration/dispute-kits/DisputeKitShutter.sol#L151C1-L158C1)
@@ -7,7 +8,8 @@ import { keccak256, toBytes, encodeAbiParameters } from "viem";
  * @param justification The justification for the vote
  * @return bytes32 The hash of the encoded justification
  */
-export function hashJustification(salt: bigint, justification: string): `0x${string}` {
+/* eslint-enable max-len */
+export function hashJustification(salt: bigint, justification: string): Hash {
   const justificationHash = keccak256(toBytes(justification));
 
   const encoded = encodeAbiParameters(

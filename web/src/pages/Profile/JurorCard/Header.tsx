@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useToggle } from "react-use";
+import { Address } from "viem";
 
 import XIcon from "svgs/socialmedia/x.svg";
 
@@ -52,7 +53,7 @@ interface IHeader {
   levelNumber: number;
   totalCoherentVotes: number;
   totalResolvedVotes: number;
-  searchParamAddress: `0x${string}`;
+  searchParamAddress: Address;
 }
 
 const Header: React.FC<IHeader> = ({

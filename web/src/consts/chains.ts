@@ -10,9 +10,15 @@ import {
   hardhat,
 } from "@reown/appkit/networks";
 
+import { klerosCoreAddress } from "hooks/contracts/generated";
+
 import { isLocalDeployment, isProductionDeployment } from "./index";
 
-export const DEFAULT_CHAIN = isLocalDeployment() ? hardhat : isProductionDeployment() ? arbitrum : arbitrumSepolia;
+export type SupportedChainId = keyof typeof klerosCoreAddress;
+
+export const DEFAULT_CHAIN = (
+  isLocalDeployment() ? hardhat : isProductionDeployment() ? arbitrum : arbitrumSepolia
+) as AppKitNetwork & { id: SupportedChainId };
 
 const getSupportedChains = (): Record<number, AppKitNetwork> => {
   if (isLocalDeployment()) {

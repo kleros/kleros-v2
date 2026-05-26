@@ -8,10 +8,11 @@ export const shutterFundAppealBuilder = defineFundAppealBuilder({
   build: async (params: ShutterFundAppealParams, context) => {
     const { disputeId, choice, fundAmount } = params;
     const { chain, account } = context;
+    const chainKey = chain.id as keyof typeof disputeKitShutterAddress;
 
     return {
       account,
-      address: disputeKitShutterAddress[chain.id],
+      address: disputeKitShutterAddress[chainKey],
       abi: disputeKitShutterAbi,
       functionName: "fundAppeal",
       args: [disputeId, choice],

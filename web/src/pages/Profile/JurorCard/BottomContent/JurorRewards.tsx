@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Address } from "viem";
 
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -38,7 +39,7 @@ const TokenRewardsContainer = styled.div`
 `;
 
 interface IJurorRewards {
-  searchParamAddress: `0x${string}`;
+  searchParamAddress: Address;
 }
 
 const JurorRewards: React.FC<IJurorRewards> = ({ searchParamAddress }) => {

@@ -3,7 +3,9 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { ArbitrableExample } from "../typechain-types";
 import { EventLog } from "ethers";
 
-const deployResolver: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployResolver: DeployFunction = async (
+  hre: HardhatRuntimeEnvironment,
+) => {
   const { ethers } = hre;
 
   const template = `{
@@ -31,8 +33,14 @@ const deployResolver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
     "specification": "KIP88"
   }`;
 
-  const arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
-  let tx = await (await arbitrable.changeDisputeTemplate(template, "disputeTemplateMapping: TODO")).wait();
+  const arbitrable =
+    await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+  const tx = await (
+    await arbitrable.changeDisputeTemplate(
+      template,
+      "disputeTemplateMapping: TODO",
+    )
+  ).wait();
   tx?.logs?.forEach((event) => {
     if (event instanceof EventLog) console.log("event: %O", event.args);
   });

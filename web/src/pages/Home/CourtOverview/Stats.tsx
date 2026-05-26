@@ -39,8 +39,8 @@ const StyledCard = styled(Card)`
   )}
 `;
 
-export const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
-  src.length > 0 ? src.at(-1)?.[stat] : 0n.toString();
+export const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints): string =>
+  src.length > 0 ? (src.at(-1)?.[stat] ?? "0") : "0";
 
 interface IStat {
   title: string;
@@ -62,27 +62,27 @@ const Stats = () => {
     {
       title: t("stats.pnk_staked"),
       coinId: 0,
-      getText: (counters) => formatPNK(getLastOrZero(counters, "stakedPNK")),
+      getText: (counters) => formatPNK(BigInt(getLastOrZero(counters, "stakedPNK"))),
       getSubtext: (counters, coinPrice) =>
-        formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "stakedPNK"))) * (coinPrice ?? 0)),
+        formatUSD(Number(formatUnitsWei(BigInt(getLastOrZero(counters, "stakedPNK")))) * (coinPrice ?? 0)),
       color: "purple",
       icon: PNKIcon,
     },
     {
       title: t("stats.eth_paid"),
       coinId: 1,
-      getText: (counters) => formatETH(getLastOrZero(counters, "paidETH")),
+      getText: (counters) => formatETH(BigInt(getLastOrZero(counters, "paidETH"))),
       getSubtext: (counters, coinPrice) =>
-        formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "paidETH"))) * (coinPrice ?? 0)),
+        formatUSD(Number(formatUnitsWei(BigInt(getLastOrZero(counters, "paidETH")))) * (coinPrice ?? 0)),
       color: "blue",
       icon: EthereumIcon,
     },
     {
       title: t("stats.pnk_redistributed"),
       coinId: 0,
-      getText: (counters) => formatPNK(getLastOrZero(counters, "redistributedPNK")),
+      getText: (counters) => formatPNK(BigInt(getLastOrZero(counters, "redistributedPNK"))),
       getSubtext: (counters, coinPrice) =>
-        formatUSD(Number(formatUnitsWei(getLastOrZero(counters, "redistributedPNK"))) * (coinPrice ?? 0)),
+        formatUSD(Number(formatUnitsWei(BigInt(getLastOrZero(counters, "redistributedPNK")))) * (coinPrice ?? 0)),
       color: "purple",
       icon: PNKRedistributedIcon,
     },

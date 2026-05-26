@@ -35,10 +35,11 @@ export const shutterCommitBuilder = defineCommitBuilder({
 
     const choiceCommit = hashVote(choice, BigInt(salt));
     const justificationCommit = hashJustification(BigInt(salt), justification);
+    const chainKey = chain.id as keyof typeof disputeKitShutterAddress;
 
     return {
       account,
-      address: disputeKitShutterAddress[chain.id],
+      address: disputeKitShutterAddress[chainKey],
       abi: disputeKitShutterAbi,
       functionName: "castCommitShutter",
       args: [disputeId, voteIds, choiceCommit, justificationCommit, identity as Hex, encryptedCommitment],

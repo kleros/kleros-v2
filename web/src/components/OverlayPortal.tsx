@@ -1,6 +1,7 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import styled from "styled-components";
+
+import ReactDOM from "react-dom";
 
 const PortalContainer = styled.div`
   position: fixed;

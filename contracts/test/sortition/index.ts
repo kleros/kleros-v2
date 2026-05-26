@@ -1,10 +1,11 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SortitionTreesMock } from "../../typechain-types";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("SortitionTrees", function () {
   let sortitionTree: SortitionTreesMock;
-  let accounts: any[];
+  let accounts: HardhatEthersSigner[];
 
   beforeEach("Setup", async () => {
     const factory = await ethers.getContractFactory("SortitionTreesMock");
@@ -13,7 +14,8 @@ describe("SortitionTrees", function () {
   });
 
   // Helper function to create a test juror address
-  const getTestAddress = (index: number): string => accounts[index % accounts.length].address;
+  const getTestAddress = (index: number): string =>
+    accounts[index % accounts.length].address;
 
   describe("Stake Path ID Utilities", function () {
     it("Should convert correctly between stakePathID and account+courtID", async function () {
@@ -39,17 +41,26 @@ describe("SortitionTrees", function () {
 
       for (const testCase of testCases) {
         // Test packing
-        const stakePathID = await sortitionTree.testToStakePathID(testCase.address, testCase.courtID);
+        const stakePathID = await sortitionTree.testToStakePathID(
+          testCase.address,
+          testCase.courtID,
+        );
 
         // Test unpacking
-        const [unpackedAddress, unpackedCourtID] = await sortitionTree.testToAccountAndCourtID(stakePathID);
+        const [unpackedAddress, unpackedCourtID] =
+          await sortitionTree.testToAccountAndCourtID(stakePathID);
 
         // Verify round-trip equivalence
-        expect(unpackedAddress.toLowerCase()).to.equal(testCase.address.toLowerCase());
+        expect(unpackedAddress.toLowerCase()).to.equal(
+          testCase.address.toLowerCase(),
+        );
         expect(unpackedCourtID).to.equal(testCase.courtID);
 
         // Verify the packed format is as expected: [20 bytes address][12 bytes courtID]
-        const expectedPackedValue = ethers.solidityPacked(["address", "uint96"], [testCase.address, testCase.courtID]);
+        const expectedPackedValue = ethers.solidityPacked(
+          ["address", "uint96"],
+          [testCase.address, testCase.courtID],
+        );
         expect(stakePathID).to.equal(expectedPackedValue);
       }
     });
@@ -66,14 +77,21 @@ describe("SortitionTrees", function () {
         const treeKey = await sortitionTree.testToTreeKey(courtID);
 
         // TreeKey should be the courtID padded to 32 bytes
-        const expectedTreeKey = ethers.zeroPadValue(ethers.toBeHex(courtID), 32);
+        const expectedTreeKey = ethers.zeroPadValue(
+          ethers.toBeHex(courtID),
+          32,
+        );
         expect(treeKey).to.equal(expectedTreeKey);
 
         // Court ID 0 will result in zero key, others should not
         if (courtID === 0) {
-          expect(treeKey).to.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+          expect(treeKey).to.equal(
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+          );
         } else {
-          expect(treeKey).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+          expect(treeKey).to.not.equal(
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+          );
         }
       }
     });
@@ -93,7 +111,9 @@ describe("SortitionTrees", function () {
 
         // Verify tree was created
         expect(await sortitionTree.courtExists(testCase.courtID)).to.be.true;
-        expect(await sortitionTree.getTreeK(testCase.courtID)).to.equal(testCase.k);
+        expect(await sortitionTree.getTreeK(testCase.courtID)).to.equal(
+          testCase.k,
+        );
 
         // Verify initial state
         const nodes = await sortitionTree.getTreeNodes(testCase.courtID);
@@ -190,7 +210,6 @@ describe("SortitionTrees", function () {
 
       it("Should increase stake values correctly", async function () {
         const juror = getTestAddress(0);
-        const oldStake = await sortitionTree.stakeOf(0, juror);
         const newStake = 250;
 
         await sortitionTree.set(0, juror, newStake);
@@ -288,7 +307,12 @@ describe("SortitionTrees", function () {
 
       // Multiple draws should always return the same juror
       for (let i = 0; i < 5; i++) {
-        const [drawnAddress, courtID] = await sortitionTree.draw(0, 1, i, 12345 + i);
+        const [drawnAddress, courtID] = await sortitionTree.draw(
+          0,
+          1,
+          i,
+          12345 + i,
+        );
         expect(drawnAddress.toLowerCase()).to.equal(juror.toLowerCase());
         expect(courtID).to.equal(0);
       }
@@ -305,9 +329,24 @@ describe("SortitionTrees", function () {
       const randomNumber = 12345;
 
       // Multiple calls with same parameters should return same result
-      const [address1] = await sortitionTree.draw(0, disputeID, nonce, randomNumber);
-      const [address2] = await sortitionTree.draw(0, disputeID, nonce, randomNumber);
-      const [address3] = await sortitionTree.draw(0, disputeID, nonce, randomNumber);
+      const [address1] = await sortitionTree.draw(
+        0,
+        disputeID,
+        nonce,
+        randomNumber,
+      );
+      const [address2] = await sortitionTree.draw(
+        0,
+        disputeID,
+        nonce,
+        randomNumber,
+      );
+      const [address3] = await sortitionTree.draw(
+        0,
+        disputeID,
+        nonce,
+        randomNumber,
+      );
 
       expect(address1).to.equal(address2);
       expect(address2).to.equal(address3);
@@ -318,7 +357,10 @@ describe("SortitionTrees", function () {
       await sortitionTree.set(0, getTestAddress(0), 1); // Very low stake
       await sortitionTree.set(0, getTestAddress(1), 1000); // Very high stake
 
-      let draws = { [getTestAddress(0).toLowerCase()]: 0, [getTestAddress(1).toLowerCase()]: 0 };
+      const draws = {
+        [getTestAddress(0).toLowerCase()]: 0,
+        [getTestAddress(1).toLowerCase()]: 0,
+      };
 
       // Perform many draws with different random numbers
       const numDraws = 100;
@@ -329,8 +371,12 @@ describe("SortitionTrees", function () {
 
       // Juror with higher stake should be drawn more frequently
       // With stakes of 1:1000, we expect roughly 0.1% vs 99.9% distribution
-      expect(draws[getTestAddress(1).toLowerCase()]).to.be.greaterThan(draws[getTestAddress(0).toLowerCase()]);
-      expect(draws[getTestAddress(1).toLowerCase()]).to.be.greaterThan(numDraws * 0.8); // At least 80% for high stake
+      expect(draws[getTestAddress(1).toLowerCase()]).to.be.greaterThan(
+        draws[getTestAddress(0).toLowerCase()],
+      );
+      expect(draws[getTestAddress(1).toLowerCase()]).to.be.greaterThan(
+        numDraws * 0.8,
+      ); // At least 80% for high stake
     });
 
     it("Should handle edge case random numbers", async function () {
@@ -373,8 +419,12 @@ describe("SortitionTrees", function () {
 
         // Verify stakes are independent
         for (let courtID = 0; courtID < 3; courtID++) {
-          expect(await sortitionTree.stakeOf(courtID, juror)).to.equal(stakes[courtID]);
-          expect(await sortitionTree.getRootSum(courtID)).to.equal(stakes[courtID]);
+          expect(await sortitionTree.stakeOf(courtID, juror)).to.equal(
+            stakes[courtID],
+          );
+          expect(await sortitionTree.getRootSum(courtID)).to.equal(
+            stakes[courtID],
+          );
         }
       });
 
@@ -396,7 +446,12 @@ describe("SortitionTrees", function () {
       });
 
       it("Should handle different tree structures independently", async function () {
-        const jurors = [getTestAddress(0), getTestAddress(1), getTestAddress(2), getTestAddress(3)];
+        const jurors = [
+          getTestAddress(0),
+          getTestAddress(1),
+          getTestAddress(2),
+          getTestAddress(3),
+        ];
 
         // Add different numbers of jurors to each court
         await sortitionTree.set(0, jurors[0], 100); // 1 juror in court 0
@@ -442,7 +497,9 @@ describe("SortitionTrees", function () {
 
         // Verify all updates took effect
         for (let i = 0; i < courtIDs.length; i++) {
-          expect(await sortitionTree.stakeOf(courtIDs[i], juror)).to.equal(updatedStakes[i]);
+          expect(await sortitionTree.stakeOf(courtIDs[i], juror)).to.equal(
+            updatedStakes[i],
+          );
         }
       });
 
@@ -472,7 +529,10 @@ describe("SortitionTrees", function () {
         await sortitionTree.setStakeInHierarchy(courtIDs, juror, stake);
 
         // Verify all stakes were set
-        const stakes = await sortitionTree.getStakesAcrossCourts(juror, courtIDs);
+        const stakes = await sortitionTree.getStakesAcrossCourts(
+          juror,
+          courtIDs,
+        );
         for (const retrievedStake of stakes) {
           expect(retrievedStake).to.equal(stake);
         }
@@ -520,7 +580,10 @@ describe("SortitionTrees", function () {
 
       it("Should maintain independent probability distributions", async function () {
         // Test drawing many times from court 0 where juror 1 has 2x stake of juror 0
-        let draws = { [getTestAddress(0).toLowerCase()]: 0, [getTestAddress(1).toLowerCase()]: 0 };
+        const draws = {
+          [getTestAddress(0).toLowerCase()]: 0,
+          [getTestAddress(1).toLowerCase()]: 0,
+        };
 
         const numDraws = 50;
         for (let i = 0; i < numDraws; i++) {
@@ -529,15 +592,21 @@ describe("SortitionTrees", function () {
         }
 
         // Juror 1 (200 stake) should be drawn more than juror 0 (100 stake)
-        expect(draws[getTestAddress(1).toLowerCase()]).to.be.greaterThan(draws[getTestAddress(0).toLowerCase()]);
+        expect(draws[getTestAddress(1).toLowerCase()]).to.be.greaterThan(
+          draws[getTestAddress(0).toLowerCase()],
+        );
       });
     });
 
     describe("Complex Multi-Court Scenarios", function () {
       it("Should handle realistic court hierarchy simulation", async function () {
         // Simulate: General Court (0) ← Tech Court (1) ← Blockchain Court (2)
-        const courts = [0, 1, 2];
-        const jurors = [getTestAddress(0), getTestAddress(1), getTestAddress(2), getTestAddress(3)];
+        const jurors = [
+          getTestAddress(0),
+          getTestAddress(1),
+          getTestAddress(2),
+          getTestAddress(3),
+        ];
 
         // General lawyers (stake in General Court only)
         await sortitionTree.set(0, jurors[0], 100);
@@ -559,7 +628,9 @@ describe("SortitionTrees", function () {
 
         // Test drawing from most specialized court (should only get experts)
         const [blockchainExpert] = await sortitionTree.draw(2, 1, 1, 12345);
-        expect(blockchainExpert.toLowerCase()).to.equal(jurors[3].toLowerCase());
+        expect(blockchainExpert.toLowerCase()).to.equal(
+          jurors[3].toLowerCase(),
+        );
       });
 
       it("Should handle dynamic court operations", async function () {
@@ -609,7 +680,12 @@ describe("SortitionTrees", function () {
           expect(rootSum).to.be.greaterThan(0);
 
           // Should be able to draw from each court
-          const [drawnAddress] = await sortitionTree.draw(courtID, 1, 1, 12345 + courtID);
+          const [drawnAddress] = await sortitionTree.draw(
+            courtID,
+            1,
+            1,
+            12345 + courtID,
+          );
           expect(drawnAddress).to.not.equal(ethers.ZeroAddress);
         }
       });

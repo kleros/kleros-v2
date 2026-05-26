@@ -23,7 +23,7 @@ type ActionResult = Record<string, unknown> | null | undefined;
 // Update the function signature
 export const executeAction = async (
   mapping: ActionMapping,
-  context: Record<string, unknown> = {}
+  context: Record<string, unknown> = {},
 ): Promise<ActionResult> => {
   mapping = replacePlaceholdersWithValues(mapping, context) as ActionMapping;
 
@@ -40,15 +40,20 @@ export const executeAction = async (
       return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
       mapping = validateRealityMapping(mapping);
-      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrableAddress as Address);
+      return await retrieveRealityData(
+        mapping.realityQuestionID,
+        context.arbitrableAddress as Address,
+      );
     default:
-      throw new UnsupportedActionError(`Unsupported action type: ${JSON.stringify(mapping)}`);
+      throw new UnsupportedActionError(
+        `Unsupported action type: ${JSON.stringify(mapping)}`,
+      );
   }
 };
 
 export const executeActions = async (
   mappings: ActionMapping[],
-  initialContext: Record<string, unknown> = {}
+  initialContext: Record<string, unknown> = {},
 ): Promise<Record<string, unknown>> => {
   const context: Record<string, unknown> = { ...initialContext };
 

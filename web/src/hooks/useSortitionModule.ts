@@ -1,5 +1,4 @@
 import { REFETCH_INTERVAL } from "consts/index";
-
 import { useReadSortitionModule } from "hooks/contracts/generated";
 
 export const useSortitionModulePhase = () => {

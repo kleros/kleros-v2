@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
+import { Address } from "viem";
 
 import { StandardPagination } from "@kleros/ui-components-library";
 
@@ -21,7 +22,7 @@ import Header from "../Home/TopJurors/Header";
 import JurorCard from "../Home/TopJurors/JurorCard";
 
 interface IDisplayJurors {
-  totalLeaderboardJurors: number;
+  totalLeaderboardJurors?: number;
 }
 
 const StyledPagination = styled(StandardPagination)`
@@ -52,7 +53,7 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
       ...juror,
       rank: searchValue ? undefined : jurorSkip + index + 1,
     }));
-    if (!searchValue && order === "asc" && baseJurors) {
+    if (!searchValue && order === "asc" && baseJurors && !isUndefined(totalLeaderboardJurors)) {
       return baseJurors.map((juror) => ({
         ...juror,
         rank: totalLeaderboardJurors - (juror.rank || 0) + 1,
@@ -93,7 +94,7 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
             <>
               <Header />
               {!isUndefined(jurors)
-                ? jurors.map((juror) => <JurorCard key={juror.id} address={juror.id} {...juror} />)
+                ? jurors.map((juror) => <JurorCard key={juror.id} {...juror} address={juror.id as Address} />)
                 : [...Array(jurorsPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
               {!searchValue && (
                 <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />

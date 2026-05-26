@@ -24,8 +24,8 @@ const NoCurrentStakesLabel = styled.label`
 `;
 
 interface ICurrentStakes {
-  totalAvailableStake: string;
-  lockedStake: string;
+  totalAvailableStake: bigint | undefined;
+  lockedStake: bigint | undefined;
   currentStakeData: JurorStakeDetailsQuery | undefined;
   isCurrentStakeLoading: boolean;
 }
@@ -37,7 +37,7 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
   isCurrentStakeLoading,
 }) => {
   const { t } = useTranslation();
-  const stakedCourts = currentStakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
+  const stakedCourts = currentStakeData?.jurorTokensPerCourts?.filter(({ staked }) => BigInt(staked) > 0n);
   const isStaked = stakedCourts && stakedCourts.length > 0;
 
   return (
@@ -51,7 +51,7 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
       {isStaked && !isCurrentStakeLoading ? (
         <CourtCardsContainer>
           {stakedCourts?.map(({ court: { id, name }, staked }) => (
-            <CourtCard key={id} name={name ?? ""} stake={staked} {...{ id }} />
+            <CourtCard key={id} name={name ?? ""} stake={BigInt(staked)} {...{ id }} />
           ))}
         </CourtCardsContainer>
       ) : null}

@@ -21,7 +21,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["src/assets"],
+    ignores: ["src/assets", "src/hooks/contracts/generated.ts", "src/graphql/**/*"],
   },
   ...fixupConfigRules(
     compat.extends(
@@ -104,6 +104,18 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "security/detect-object-injection": "off",
       "security/detect-non-literal-fs-filename": "off",
+
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["~*", "~/*"],
+              message: "Do not import using the '~' prefix.",
+            },
+          ],
+        },
+      ],
 
       "import/extensions": [
         "error",

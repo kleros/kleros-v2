@@ -105,8 +105,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   const { t } = useTranslation();
   const errMsg = isRpcError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
   const rounds = votingHistory?.dispute?.rounds;
+  const aliases = disputeDetails?.aliases;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
-  console.log({ jurorRewardsDispersed }, disputeDetails);
 
   return (
     <>
@@ -126,7 +126,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
               />
             ) : null}
             {!isDisconnected ? (
-              <CardLabel {...{ disputeId }} round={rounds?.length - 1} isList={false} isOverview={true} />
+              <CardLabel {...{ disputeId }} round={(rounds?.length ?? 0) - 1} isList={false} isOverview={true} />
             ) : null}
           </RulingAndRewardsAndLabels>
         ) : null}
@@ -165,12 +165,12 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         </AnswersContainer>
       </VotingOptions>
 
-      {isUndefined(disputeDetails?.aliases) ? null : (
+      {isUndefined(aliases) ? null : (
         <>
           <Divider />
           <AliasesContainer>
-            {Object.keys(disputeDetails.aliases).map((key) => (
-              <AliasDisplay name={key} key={key} address={disputeDetails.aliases[key]} />
+            {Object.keys(aliases).map((key) => (
+              <AliasDisplay name={key} key={key} address={aliases[key]} />
             ))}
           </AliasesContainer>
         </>

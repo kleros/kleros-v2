@@ -67,6 +67,7 @@ const Jurors: React.FC = () => {
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 18);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
   const handleJurorsWrite = (event: React.ChangeEvent<HTMLInputElement>) => {

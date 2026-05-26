@@ -1,6 +1,6 @@
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import hre = require("hardhat");
+import hre from "hardhat";
 import { KlerosCore, DisputeResolver } from "../typechain-types";
 
 const { ethers } = hre;
@@ -22,7 +22,9 @@ export default async function main() {
   logger.info("Starting up");
 
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-  const resolver = (await ethers.getContract("DisputeResolver")) as DisputeResolver;
+  const resolver = (await ethers.getContract(
+    "DisputeResolver",
+  )) as DisputeResolver;
 
   if (HEARTBEAT_URL) {
     logger.debug("Sending heartbeat");
@@ -41,7 +43,8 @@ export default async function main() {
     `{"title":"Omen Question: News & Politics","description":"This reality dispute has been created by Omen, we advise you to read [the Omen Rules](https://cdn.kleros.link/ipfs/QmU1oZzsduGwtC7vCUQPw1QcBP6BDNDkg4t6zkowPucVcx) and consult the evidence provided in [the Market Comments](https://omen.eth.limo/#/0x95b2271039b020aba31b933039e042b60b063800).","question":"**Assuming that today is December 20th 2020, will Joe Biden win the 2020 United States presidential election?**","answers":[{"title":"Yes"},{"title":"No"}],"policyURI":"/ipfs/QmU1oZzsduGwtC7vCUQPw1QcBP6BDNDkg4t6zkowPucVcx","frontendUrl":"https://omen.eth.limo/#/0x95b2271039b020aba31b933039e042b60b063800","arbitratorChainID":"421614","arbitratorAddress":"0x791812B0B9f2ba260B2DA432BB02Ee23BC1bB509","category":"Oracle","specification":"KIP0X","lang":"en_US","version": "1.0"}`,
     `{"title":"Proof of Humanity Registration Request","description":"A request to register the specified entry to a list of provable humans.","question":"Should the request to register be accepted?","answers":[{"title":"Yes","description":"Accept the request to register the entry."},{"title":"No","description":"Deny the request."}],"policyURI":"/ipfs/QmYPf2fdSyr9BiSy6pJFUmB1oTUPwg6dhEuFqL1n4ZosgH","frontendUrl":"https://app.proofofhumanity.id/profile/0x00de4b13153673bcae2616b67bf822500d325fc3?network=mainnet","arbitratorChainID":"421614","arbitratorAddress":"0x791812B0B9f2ba260B2DA432BB02Ee23BC1bB509","category":"Curated List","specification":"KIP0X","lang":"en_US","version": "1.0"}`,
   ];
-  const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+  const randomTemplate =
+    templates[Math.floor(Math.random() * templates.length)];
   const nbOfChoices = 2;
   const cost = await core["arbitrationCost(bytes)"](extraData);
   const tx = await resolver.createDisputeForTemplate(
@@ -51,7 +54,7 @@ export default async function main() {
     nbOfChoices,
     {
       value: cost,
-    }
+    },
   );
 
   logger.info(`Dispute creation tx: ${tx.hash}`);
@@ -65,7 +68,7 @@ export default async function main() {
   await delay(2000); // Some log messages may be lost otherwise
 }
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 main()
   .then(() => process.exit(0))

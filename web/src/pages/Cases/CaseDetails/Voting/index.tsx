@@ -47,9 +47,9 @@ const InfoCardContainer = styled.div`
   margin-bottom: ${responsiveSize(16, 24)};
 `;
 
-const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
+const useFinalDate = (lastPeriodChange?: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
   useMemo(() => {
-    if (!isUndefined(currentPeriodIndex) && !isUndefined(timesPerPeriod))
+    if (!isUndefined(lastPeriodChange) && !isUndefined(currentPeriodIndex) && !isUndefined(timesPerPeriod))
       return getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
     else return undefined;
   }, [lastPeriodChange, currentPeriodIndex, timesPerPeriod]);

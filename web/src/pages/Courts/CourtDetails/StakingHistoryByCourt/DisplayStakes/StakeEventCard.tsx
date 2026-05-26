@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Hash } from "viem";
+
 import DesktopCard from "./StakeEventCard/DesktopCard";
 import MobileCard from "./StakeEventCard/MobileCard";
 
@@ -7,7 +9,7 @@ interface IStakeEventCard {
   address: string;
   stake: string;
   timestamp: string;
-  transactionHash: string;
+  transactionHash: Hash;
   courtName: string;
   courtId: number;
   currentCourtId?: number;

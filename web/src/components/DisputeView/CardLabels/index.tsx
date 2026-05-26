@@ -18,7 +18,7 @@ import { useLabelInfoQuery } from "hooks/queries/useLabelInfoQuery";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { isUndefined } from "utils/index";
 
-import { ClassicContribution } from "src/graphql/graphql";
+import { LabelInfoQuery } from "src/graphql/graphql";
 
 import Label, { IColors } from "./Label";
 import RewardsAndFundLabel from "./RewardsAndFundLabel";
@@ -73,7 +73,13 @@ const getLabelArgs = (
   Funded: { text: t("card_labels.you_funded_appeal"), icon: FundedIcon, color: "lightPurple" },
 });
 
-const getFundingRewards = (contributions: ClassicContribution[], closed: boolean) => {
+//ClassicContribution type has more fields than what the localRounds return, causing type errors.
+//This type is a subset of the ClassicContribution type, and what localRounds returns in the contributions array.
+type ContributionLike = NonNullable<
+  LabelInfoQuery["dispute"]
+>["disputeKitDispute"][number]["localRounds"][number]["contributions"][number];
+
+const getFundingRewards = (contributions: ContributionLike[], closed: boolean) => {
   if (isUndefined(contributions) || contributions.length === 0) return 0;
   const contribution = contributions.reduce((acc, val) => {
     if (isUndefined(val?.rewardAmount) && isUndefined(val?.amount)) return acc;
@@ -106,7 +112,7 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview
 
   const contributions = useMemo(
     () =>
-      localRounds?.reduce((acc, val) => {
+      localRounds?.reduce<ContributionLike[]>((acc, val) => {
         acc.push(...val.contributions);
         return acc;
       }, []),

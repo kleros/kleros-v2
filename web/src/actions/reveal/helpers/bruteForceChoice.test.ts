@@ -7,7 +7,7 @@ import { hashVote } from "utils/crypto/hashVote";
 import { bruteForceChoice } from "./bruteForceChoice";
 
 describe("bruteForceChoice", () => {
-  const createCommit = (choice: bigint, salt: `0x${string}`): string => hashVote(choice, BigInt(salt));
+  const createCommit = (choice: bigint, salt: `0x${string}`) => hashVote(choice, BigInt(salt));
 
   const mockAnswers: Answer[] = [
     { id: "0x0", title: "Refuse To Arbitrate", description: "RTA" },

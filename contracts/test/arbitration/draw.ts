@@ -6,42 +6,25 @@ import {
   KlerosCore,
   ArbitrableExample,
   HomeGateway,
-  DisputeKitClassic,
   SortitionModule,
   IncrementalNG,
 } from "../../typechain-types";
 import { expect } from "chai";
 import { Courts, NULL_ELIGIBILITY_REQUIREMENT } from "../../deploy/utils";
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
+// https://github.com/standard/standard/issues/690#issuecomment-278533482
 
 describe("Draw Benchmark", async () => {
   const ONE_TENTH_ETH = 10n ** 17n;
   const ONE_THOUSAND_PNK = 10n ** 21n;
-
-  const enum Period {
-    evidence, // Evidence can be submitted. This is also when drawing has to take place.
-    commit, // Jurors commit a hashed vote. This is skipped for courts without hidden votes.
-    vote, // Jurors reveal/cast their vote depending on whether the court has hidden votes or not.
-    appeal, // The dispute can be appealed.
-    execution, // Tokens are redistributed and the ruling is executed.
-  }
 
   const enum Phase {
     staking, // Stake can be updated during this phase.
     freezing, // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
   }
 
-  const enum DisputeKitPhase {
-    resolving, // No disputes that need drawing.
-    generating, // Waiting for a random number. Pass as soon as it is ready.
-    drawing, // Jurors can be drawn.
-  }
-
   let deployer: string;
   let relayer: string;
-  let disputeKit: DisputeKitClassic;
   let pnk: PNK;
   let core: KlerosCore;
   let arbitrable: ArbitrableExample;
@@ -50,7 +33,8 @@ describe("Draw Benchmark", async () => {
   let rng: IncrementalNG;
   let parentCourtMinStake: bigint;
   let childCourtMinStake: bigint;
-  const RANDOM = 61688911660239508166491237672720926005752254046266901728404745669596507231249n;
+  const RANDOM =
+    61688911660239508166491237672720926005752254046266901728404745669596507231249n;
   const PARENT_COURT = 1;
   const CHILD_COURT = 2;
   const abiCoder = ethers.AbiCoder.defaultAbiCoder();
@@ -62,14 +46,19 @@ describe("Draw Benchmark", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
     pnk = await ethers.getContract<PNK>("PNK");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
-    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
-    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
-    sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
+    homeGateway = await ethers.getContract<HomeGateway>(
+      "HomeGatewayToEthereum",
+    );
+    arbitrable =
+      await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+    sortitionModule =
+      await ethers.getContract<SortitionModule>("SortitionModule");
 
-    parentCourtMinStake = await core.courts(Courts.GENERAL).then((court) => court.minStake);
+    parentCourtMinStake = await core
+      .courts(Courts.GENERAL)
+      .then((court) => court.minStake);
 
     childCourtMinStake = 3n * 10n ** 20n; // 300 PNK
 
@@ -81,7 +70,9 @@ describe("Draw Benchmark", async () => {
     });
     rng = await ethers.getContract<IncrementalNG>("IncrementalNG");
 
-    await sortitionModule.changeRandomNumberGenerator(rng.target).then((tx) => tx.wait());
+    await sortitionModule
+      .changeRandomNumberGenerator(rng.target)
+      .then((tx) => tx.wait());
 
     // CourtId 2 = CHILD_COURT
     const minStake = 3n * 10n ** 20n; // 300 PNK
@@ -98,20 +89,22 @@ describe("Draw Benchmark", async () => {
         [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
         ethers.toBeHex(5), // Extra data for sortition module will return the default value of K)
         [1],
-        NULL_ELIGIBILITY_REQUIREMENT
+        NULL_ELIGIBILITY_REQUIREMENT,
       )
       .then((tx) => tx.wait());
   });
 
   type CountedDraws = { [address: string]: number };
   type SetStake = (wallet: HDNodeWallet) => Promise<void>;
-  type ExpectFromDraw = (drawTx: Promise<ContractTransactionResponse>) => Promise<void>;
+  type ExpectFromDraw = (
+    drawTx: Promise<ContractTransactionResponse>,
+  ) => Promise<void>;
 
   const draw = async (
     stake: SetStake,
     createDisputeCourtId: number,
     expectFromDraw: ExpectFromDraw,
-    unstake: SetStake
+    unstake: SetStake,
   ) => {
     const arbitrationCost = ONE_TENTH_ETH * 3n;
     const [bridger] = await ethers.getSigners();
@@ -128,10 +121,16 @@ describe("Draw Benchmark", async () => {
           value: ethers.parseEther("10"),
         })
         .then((tx) => tx.wait());
-      expect(await ethers.provider.getBalance(wallet)).to.equal(ethers.parseEther("10"));
+      expect(await ethers.provider.getBalance(wallet)).to.equal(
+        ethers.parseEther("10"),
+      );
 
-      await pnk.transfer(wallet.address, ONE_THOUSAND_PNK * 10n).then((tx) => tx.wait());
-      expect(await pnk.balanceOf(wallet.address)).to.equal(ONE_THOUSAND_PNK * 10n);
+      await pnk
+        .transfer(wallet.address, ONE_THOUSAND_PNK * 10n)
+        .then((tx) => tx.wait());
+      expect(await pnk.balanceOf(wallet.address)).to.equal(
+        ONE_THOUSAND_PNK * 10n,
+      );
 
       await pnk
         .connect(wallet)
@@ -147,15 +146,23 @@ describe("Draw Benchmark", async () => {
     });
     await tx.wait();
     if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
-    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
+    const trace = await network.provider.send("debug_traceTransaction", [
+      tx.hash,
+    ]);
+    const [disputeId] = abiCoder.decode(
+      ["uint"],
+      ethers.getBytes(`${trace.returnValue}`),
+    );
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
-    if (lastBlock?.hash === null || lastBlock?.hash === undefined) throw new Error("lastBlock is null || undefined");
+    if (lastBlock?.hash === null || lastBlock?.hash === undefined)
+      throw new Error("lastBlock is null || undefined");
 
     // Relayer tx
     await homeGateway
       .connect(await ethers.getSigner(relayer))
-      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"](
+      [
+        "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"
+      ](
         {
           foreignBlockHash: lastBlock?.hash,
           foreignChainID: 31337,
@@ -165,7 +172,7 @@ describe("Draw Benchmark", async () => {
           choices: 2,
           extraData: `0x000000000000000000000000000000000000000000000000000000000000000${createDisputeCourtId}0000000000000000000000000000000000000000000000000000000000000003`,
         },
-        { value: arbitrationCost }
+        { value: arbitrationCost },
       )
       .then((tx) => tx.wait());
 
@@ -187,7 +194,11 @@ describe("Draw Benchmark", async () => {
   };
 
   const countDraws = async (blockNumber: number) => {
-    const draws: Array<any> = await core.queryFilter(core.filters.Draw(), blockNumber, blockNumber);
+    const draws = await core.queryFilter(
+      core.filters.Draw(),
+      blockNumber,
+      blockNumber,
+    );
     return draws.reduce((acc: { [address: string]: number }, draw) => {
       const address = draw.args._address;
       acc[address] = acc[address] ? acc[address] + 1 : 1;
@@ -202,7 +213,9 @@ describe("Draw Benchmark", async () => {
         .setStake(PARENT_COURT, ONE_THOUSAND_PNK * 5n, { gasLimit: 5000000 })
         .then((tx) => tx.wait());
 
-      expect(await sortitionModule.getJurorBalance(wallet.address, 1)).to.deep.equal([
+      expect(
+        await sortitionModule.getJurorBalance(wallet.address, 1),
+      ).to.deep.equal([
         ONE_THOUSAND_PNK * 5n, // totalStaked
         0, // totalLocked
         ONE_THOUSAND_PNK * 5n, // stakedInCourt
@@ -210,7 +223,9 @@ describe("Draw Benchmark", async () => {
       ]);
     };
     let countedDraws: CountedDraws;
-    const expectFromDraw = async (drawTx: Promise<ContractTransactionResponse>) => {
+    const expectFromDraw = async (
+      drawTx: Promise<ContractTransactionResponse>,
+    ) => {
       const tx = await (await drawTx).wait();
       if (!tx) throw new Error("Failed to get transaction receipt");
       expect(tx)
@@ -220,23 +235,30 @@ describe("Draw Benchmark", async () => {
         .withArgs(anyValue, 0, 0, 1)
         .to.emit(core, "Draw")
         .withArgs(anyValue, 0, 0, 2);
-      if (tx?.blockNumber === undefined) throw new Error("txBlockNumber is null");
+      if (tx?.blockNumber === undefined)
+        throw new Error("txBlockNumber is null");
       countedDraws = await countDraws(tx.blockNumber);
       for (const [address, draws] of Object.entries(countedDraws)) {
-        expect(await sortitionModule.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
+        expect(
+          await sortitionModule.getJurorBalance(address, PARENT_COURT),
+        ).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           parentCourtMinStake * toBigInt(draws), // totalLocked
           ONE_THOUSAND_PNK * 5n, // stakedInCourt
           1, // nbOfCourts
         ]);
-        expect(await sortitionModule.getJurorBalance(address, CHILD_COURT)).to.deep.equal([
+        expect(
+          await sortitionModule.getJurorBalance(address, CHILD_COURT),
+        ).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           parentCourtMinStake * toBigInt(draws), // totalLocked
           0, // stakedInCourt
           1, // nbOfCourts
         ]);
       }
-      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
+      expect(
+        await core.getRoundInfo(0, 0).then((round) => round.drawIterations),
+      ).to.equal(3);
     };
 
     const unstake = async (wallet: HDNodeWallet) => {
@@ -244,10 +266,11 @@ describe("Draw Benchmark", async () => {
         .connect(wallet)
         .setStake(PARENT_COURT, 0, { gasLimit: 5000000 })
         .then((tx) => tx.wait());
-      const locked = parentCourtMinStake * toBigInt(countedDraws[wallet.address] ?? 0);
+      const locked =
+        parentCourtMinStake * toBigInt(countedDraws[wallet.address] ?? 0);
       expect(
         await sortitionModule.getJurorBalance(wallet.address, PARENT_COURT),
-        "Drawn jurors have a locked stake in the parent court"
+        "Drawn jurors have a locked stake in the parent court",
       ).to.deep.equal([
         locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
@@ -256,7 +279,7 @@ describe("Draw Benchmark", async () => {
       ]);
       expect(
         await sortitionModule.getJurorBalance(wallet.address, CHILD_COURT),
-        "No locked stake in the child court"
+        "No locked stake in the child court",
       ).to.deep.equal([
         locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
@@ -276,9 +299,13 @@ describe("Draw Benchmark", async () => {
         .then((tx) => tx.wait());
     };
 
-    const expectFromDraw = async (drawTx: Promise<ContractTransactionResponse>) => {
+    const expectFromDraw = async (
+      drawTx: Promise<ContractTransactionResponse>,
+    ) => {
       expect(await drawTx).to.not.emit(core, "Draw");
-      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(20);
+      expect(
+        await core.getRoundInfo(0, 0).then((round) => round.drawIterations),
+      ).to.equal(20);
     };
 
     const unstake = async (wallet: HDNodeWallet) => {
@@ -288,7 +315,7 @@ describe("Draw Benchmark", async () => {
         .then((tx) => tx.wait());
       expect(
         await sortitionModule.getJurorBalance(wallet.address, PARENT_COURT),
-        "No locked stake in the parent court"
+        "No locked stake in the parent court",
       ).to.deep.equal([
         0, // totalStaked
         0, // totalLocked
@@ -297,7 +324,7 @@ describe("Draw Benchmark", async () => {
       ]);
       expect(
         await sortitionModule.getJurorBalance(wallet.address, CHILD_COURT),
-        "No locked stake in the child court"
+        "No locked stake in the child court",
       ).to.deep.equal([
         0, // totalStaked
         0, // totalLocked
@@ -317,7 +344,9 @@ describe("Draw Benchmark", async () => {
         .then((tx) => tx.wait());
     };
     let countedDraws: CountedDraws;
-    const expectFromDraw = async (drawTx: Promise<ContractTransactionResponse>) => {
+    const expectFromDraw = async (
+      drawTx: Promise<ContractTransactionResponse>,
+    ) => {
       const tx = await (await drawTx).wait();
       if (!tx) throw new Error("Failed to get transaction receipt");
       expect(tx)
@@ -330,20 +359,26 @@ describe("Draw Benchmark", async () => {
 
       countedDraws = await countDraws(tx.blockNumber);
       for (const [address, draws] of Object.entries(countedDraws)) {
-        expect(await sortitionModule.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
+        expect(
+          await sortitionModule.getJurorBalance(address, PARENT_COURT),
+        ).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           parentCourtMinStake * toBigInt(draws), // totalLocked
           0, // stakedInCourt
           1, // nbOfCourts
         ]);
-        expect(await sortitionModule.getJurorBalance(address, CHILD_COURT)).to.deep.equal([
+        expect(
+          await sortitionModule.getJurorBalance(address, CHILD_COURT),
+        ).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           parentCourtMinStake * toBigInt(draws), // totalLocked
           ONE_THOUSAND_PNK * 5n, // stakedInCourt
           1, // nbOfCourts
         ]);
       }
-      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
+      expect(
+        await core.getRoundInfo(0, 0).then((round) => round.drawIterations),
+      ).to.equal(3);
     };
 
     const unstake = async (wallet: HDNodeWallet) => {
@@ -351,10 +386,11 @@ describe("Draw Benchmark", async () => {
         .connect(wallet)
         .setStake(CHILD_COURT, 0, { gasLimit: 5000000 })
         .then((tx) => tx.wait());
-      const locked = parentCourtMinStake * toBigInt(countedDraws[wallet.address] ?? 0);
+      const locked =
+        parentCourtMinStake * toBigInt(countedDraws[wallet.address] ?? 0);
       expect(
         await sortitionModule.getJurorBalance(wallet.address, PARENT_COURT),
-        "No locked stake in the parent court"
+        "No locked stake in the parent court",
       ).to.deep.equal([
         locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
@@ -363,7 +399,7 @@ describe("Draw Benchmark", async () => {
       ]);
       expect(
         await sortitionModule.getJurorBalance(wallet.address, CHILD_COURT),
-        "Drawn jurors have a locked stake in the child court"
+        "Drawn jurors have a locked stake in the child court",
       ).to.deep.equal([
         locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
@@ -383,7 +419,9 @@ describe("Draw Benchmark", async () => {
         .then((tx) => tx.wait());
     };
     let countedDraws: CountedDraws;
-    const expectFromDraw = async (drawTx: Promise<ContractTransactionResponse>) => {
+    const expectFromDraw = async (
+      drawTx: Promise<ContractTransactionResponse>,
+    ) => {
       const tx = await (await drawTx).wait();
       if (!tx) throw new Error("Failed to get transaction receipt");
       expect(tx)
@@ -396,20 +434,26 @@ describe("Draw Benchmark", async () => {
 
       countedDraws = await countDraws(tx.blockNumber);
       for (const [address, draws] of Object.entries(countedDraws)) {
-        expect(await sortitionModule.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
+        expect(
+          await sortitionModule.getJurorBalance(address, PARENT_COURT),
+        ).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           childCourtMinStake * toBigInt(draws), // totalLocked
           0, // stakedInCourt
           1, // nbOfCourts
         ]);
-        expect(await sortitionModule.getJurorBalance(address, CHILD_COURT)).to.deep.equal([
+        expect(
+          await sortitionModule.getJurorBalance(address, CHILD_COURT),
+        ).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           childCourtMinStake * toBigInt(draws), // totalLocked
           ONE_THOUSAND_PNK * 5n, // stakedInCourt
           1, // nbOfCourts
         ]);
       }
-      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
+      expect(
+        await core.getRoundInfo(0, 0).then((round) => round.drawIterations),
+      ).to.equal(3);
     };
 
     const unstake = async (wallet: HDNodeWallet) => {
@@ -417,10 +461,11 @@ describe("Draw Benchmark", async () => {
         .connect(wallet)
         .setStake(CHILD_COURT, 0, { gasLimit: 5000000 })
         .then((tx) => tx.wait());
-      const locked = childCourtMinStake * toBigInt(countedDraws[wallet.address] ?? 0);
+      const locked =
+        childCourtMinStake * toBigInt(countedDraws[wallet.address] ?? 0);
       expect(
         await sortitionModule.getJurorBalance(wallet.address, PARENT_COURT),
-        "No locked stake in the parent court"
+        "No locked stake in the parent court",
       ).to.deep.equal([
         locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked
@@ -429,7 +474,7 @@ describe("Draw Benchmark", async () => {
       ]);
       expect(
         await sortitionModule.getJurorBalance(wallet.address, CHILD_COURT),
-        "Drawn jurors have a locked stake in the child court"
+        "Drawn jurors have a locked stake in the child court",
       ).to.deep.equal([
         locked, // totalStaked won't go lower than locked amount
         locked, // totalLocked

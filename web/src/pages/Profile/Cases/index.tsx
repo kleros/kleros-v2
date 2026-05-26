@@ -8,8 +8,9 @@ import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
 
 import { useMyCasesQuery } from "queries/useCasesQuery";
-import { useUserQuery } from "queries/useUser";
+import { useUserQuery, userFragment } from "queries/useUser";
 
+import { useFragment as readFragment } from "src/graphql";
 import { DisputeDetailsFragment, OrderDirection } from "src/graphql/graphql";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -47,8 +48,9 @@ const Cases: React.FC<ICases> = ({ searchParamAddress }) => {
   );
 
   const { data: userData } = useUserQuery(searchParamAddress, decodedFilter);
+  const userDetails = readFragment(userFragment, userData?.user);
   const totalCases = userData?.user?.disputes.length;
-  const totalResolvedCases = parseInt(userData?.user?.totalResolvedDisputes);
+  const totalResolvedCases = userDetails?.totalResolvedDisputes ? parseInt(userDetails.totalResolvedDisputes) : 0;
   const totalPages = useMemo(
     () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
     [totalCases, casesPerPage]

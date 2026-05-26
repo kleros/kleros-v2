@@ -42,9 +42,15 @@ const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
     if (error instanceof CombinedError) {
       throw error;
     } else if (error instanceof Error) {
-      throw new RequestError(`Error querying Dispute Details: ${error.message}`, endpoint);
+      throw new RequestError(
+        `Error querying Dispute Details: ${error.message}`,
+        endpoint,
+      );
     }
-    throw new RequestError("An unknown error occurred while querying Dispute Details", endpoint);
+    throw new RequestError(
+      "An unknown error occurred while querying Dispute Details",
+      endpoint,
+    );
   }
 };
 

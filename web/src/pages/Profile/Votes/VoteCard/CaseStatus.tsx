@@ -5,10 +5,12 @@ import { useTranslation } from "react-i18next";
 
 import { Periods } from "consts/periods";
 
+import { Period } from "src/graphql/graphql";
+
 import { getPeriodColors } from "components/DisputeView/PeriodBanner";
 
 interface ICaseStatus {
-  period?: string;
+  period?: Period;
   ruled?: boolean;
 }
 
@@ -39,7 +41,7 @@ const CaseStatus: React.FC<ICaseStatus> = ({ period, ruled }) => {
   const theme = useTheme();
 
   // Determine the period or use execution if ruled
-  const currentPeriod = ruled ? Periods.execution : (period as Periods) || Periods.evidence;
+  const currentPeriod = ruled ? Periods.execution : period ? Periods[period] : Periods.evidence;
 
   const [frontColor] = useMemo(() => getPeriodColors(currentPeriod, theme), [theme, currentPeriod]);
 

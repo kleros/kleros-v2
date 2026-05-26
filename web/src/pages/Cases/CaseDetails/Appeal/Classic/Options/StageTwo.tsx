@@ -42,6 +42,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
   useEffect(() => {
     if (!isUndefined(choice)) setSelectedOption(choice);
     if (!isUndefined(winnerRequiredFunding)) setAmount(formatUnitsWei(winnerRequiredFunding));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [winnerRequiredFunding, choice]);
 
   return (

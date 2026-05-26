@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { /* FollowButton, FollowerTag, */ ProfileSocials, useProfileDetails } from "ethereum-identity-kit";
 import { useTranslation } from "react-i18next";
 // import { useAccount } from "wagmi";
+import { Address } from "viem";
 
 import ScoutIcon from "svgs/icons/scout.svg";
 
@@ -85,7 +86,7 @@ const KlerosAppLink = styled.a`
 `;
 
 interface ITopContent {
-  address: `0x${string}`;
+  address: Address;
   totalResolvedDisputes: number;
 }
 

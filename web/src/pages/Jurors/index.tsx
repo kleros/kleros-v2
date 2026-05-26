@@ -8,6 +8,8 @@ import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { useTotalLeaderboardJurors } from "queries/useTotalLeaderboardJurors";
 
+import { isUndefined } from "src/utils";
+
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -49,7 +51,8 @@ const StyledTitle = styled.h1`
 const Jurors: React.FC = () => {
   const { t } = useTranslation();
   const { data: queryTotalLeaderBoardJurors } = useTotalLeaderboardJurors();
-  const totalLeaderboardJurors = queryTotalLeaderBoardJurors?.counter?.totalLeaderboardJurors;
+  const rawTotalLeaderboardJurors = queryTotalLeaderBoardJurors?.counter?.totalLeaderboardJurors;
+  const totalLeaderboardJurors = isUndefined(rawTotalLeaderboardJurors) ? undefined : Number(rawTotalLeaderboardJurors);
   const { isConnected } = useAccount();
 
   return (

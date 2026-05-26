@@ -12,9 +12,6 @@ import {
   TokenGatedTestContext,
 } from "./helpers/dispute-kit-gated-common";
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-unused-expressions */
-
 /**
  * Test suite for DisputeKitGated - a dispute kit that requires jurors to hold
  * specific tokens (ERC20, ERC721, or ERC1155) to participate in disputes.
@@ -29,7 +26,9 @@ describe("DisputeKitGated", async () => {
   let context: TokenGatedTestContext;
 
   beforeEach("Setup", async () => {
-    context = await setupTokenGatedTest({ contractName: "DisputeKitGatedMock" });
+    context = await setupTokenGatedTest({
+      contractName: "DisputeKitGatedMock",
+    });
   });
 
   // Run all shared tests with the context

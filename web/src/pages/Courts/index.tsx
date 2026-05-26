@@ -1,10 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Routes, Route, Navigate } from "react-router-dom";
+
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-
-import { Routes, Route, Navigate } from "react-router-dom";
 
 import CourtDetails from "./CourtDetails";
 

@@ -1,6 +1,7 @@
 import { Answer } from "@kleros/kleros-sdk";
-import { isUndefined } from ".";
 import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
+
+import { isUndefined } from ".";
 
 export const getVoteChoice = (vote: string, answers: Answer[]) => {
   // answer.id is hexadecimal number

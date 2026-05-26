@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
+import { isUndefined } from "utils/index";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
@@ -40,7 +41,12 @@ const TitleContainer = styled.div<{ isLabel?: boolean }>`
     flex: 1;
   }
 `;
-const TruncatedTitle = ({ text, maxLength }) => {
+
+interface ITruncatedTitle {
+  text: string;
+  maxLength: number;
+}
+const TruncatedTitle = ({ text, maxLength }: ITruncatedTitle) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
   return <h3 dir="auto">{truncatedText}</h3>;
 };
@@ -63,7 +69,9 @@ const DisputeListView: React.FC<IDisputeListView> = (props) => {
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
       <StyledListItem hover>
-        <PeriodBanner isCard={false} id={parseInt(props?.disputeID ?? "0")} period={props.period} />
+        {!isUndefined(props.period) && (
+          <PeriodBanner isCard={false} id={parseInt(props?.disputeID ?? "0")} period={props.period} />
+        )}
         <ListContainer>
           <TitleContainer isLabel={!isDisconnected}>
             <TruncatedTitle text={props?.title} maxLength={50} />

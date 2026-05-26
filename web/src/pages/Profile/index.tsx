@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from "react-router-dom";
+import { isAddress } from "viem";
 import { useAccount } from "wagmi";
 
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
@@ -70,7 +71,8 @@ const Profile: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const searchParamAddress = searchParams.get("address")?.toLowerCase();
+  const rawAddress = searchParams.get("address")?.toLowerCase();
+  const searchParamAddress = rawAddress && isAddress(rawAddress) ? rawAddress : undefined;
 
   const TABS = useMemo(
     () => [

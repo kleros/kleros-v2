@@ -12,8 +12,7 @@ import AccountDisplay from "./AccountDisplay";
 
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
   const { t } = useTranslation();
-  // TODO isLoading is not documented, but exists in the type, might have changed to isPending
-  const { switchChain, isLoading } = useSwitchChain();
+  const { switchChain, isPending } = useSwitchChain();
   const handleSwitch = useCallback(() => {
     if (!switchChain) {
       console.error("Cannot switch network. Please do it manually.");
@@ -28,8 +27,8 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
   return (
     <Button
       {...{ className }}
-      isLoading={isLoading}
-      disabled={isLoading}
+      isLoading={isPending}
+      disabled={isPending}
       text={t("buttons.switch_to_chain", { chainName: DEFAULT_CHAIN.name })}
       onClick={handleSwitch}
     />

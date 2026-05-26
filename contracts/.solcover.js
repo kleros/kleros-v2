@@ -1,4 +1,4 @@
-/* eslint-disable node/no-extraneous-require */
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 const shell = require("shelljs");
 
@@ -8,15 +8,22 @@ module.exports = {
   istanbulReporter: ["lcov"],
   configureYulOptimizer: true,
   irMinimum: true,
-  onCompileComplete: async function (_config) {
+  onCompileComplete: async function (_) {
     await run("typechain");
   },
-  onIstanbulComplete: async function (_config) {
+  onIstanbulComplete: async function (_) {
     // We need to do this because solcover generates bespoke artifacts.
     shell.rm("-rf", "./artifacts");
     shell.rm("-rf", "./typechain");
   },
-  skipFiles: ["test", "token", "kleros-v1", "proxy/mock", "gateway/mock", "rng/mock"],
+  skipFiles: [
+    "test",
+    "token",
+    "kleros-v1",
+    "proxy/mock",
+    "gateway/mock",
+    "rng/mock",
+  ],
   mocha: {
     timeout: 20000,
     grep: "@skip-on-coverage", // Find everything with this tag

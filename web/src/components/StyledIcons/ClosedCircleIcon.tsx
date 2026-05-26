@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+
 import ClosedCircle from "svgs/icons/close-circle.svg";
 
 export const StyledClosedCircle = styled(ClosedCircle)`

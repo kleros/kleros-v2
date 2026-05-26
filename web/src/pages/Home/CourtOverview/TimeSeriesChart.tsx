@@ -104,9 +104,10 @@ const TimeSeriesChart: React.FC<ITimeSeriesChart> = ({ data }) => {
             {
               id: "line-draw",
               afterDatasetsDraw: (chart) => {
-                if (chart.tooltip?._active?.length) {
-                  const x = chart.tooltip._active[0].element.x;
-                  const y = chart.tooltip._active[0].element.y;
+                const activeElements = chart.tooltip?.getActiveElements();
+                if (activeElements?.length) {
+                  const x = activeElements[0].element.x;
+                  const y = activeElements[0].element.y;
                   const yAxis = chart.scales.y;
 
                   const ctx = chart.ctx;

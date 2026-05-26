@@ -1,4 +1,3 @@
-/* eslint-disable node/no-missing-require */
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-chai-matchers";
@@ -13,12 +12,12 @@ import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
-require("./scripts/populatePolicyRegistry");
-require("./scripts/populateCourts");
-require("./scripts/changeOwner");
-require("./scripts/getDisputeTemplate");
-require("./scripts/compareStorageLayout");
-require("./scripts/storage-layout");
+import "./scripts/populatePolicyRegistry";
+import "./scripts/populateCourts";
+import "./scripts/changeOwner";
+import "./scripts/getDisputeTemplate";
+import "./scripts/compareStorageLayout";
+import "./scripts/storage-layout";
 
 dotenv.config();
 
@@ -87,7 +86,10 @@ const config: HardhatUserConfig = {
       forking: {
         url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       },
-      accounts: process.env.MAINNET_PRIVATE_KEY !== undefined ? [process.env.MAINNET_PRIVATE_KEY] : [],
+      accounts:
+        process.env.MAINNET_PRIVATE_KEY !== undefined
+          ? [process.env.MAINNET_PRIVATE_KEY]
+          : [],
       live: false,
       saveDeployments: false,
       tags: ["test", "local"],
@@ -99,9 +101,12 @@ const config: HardhatUserConfig = {
       chainId: 421614,
       url: `http://127.0.0.1:8545`,
       forking: {
-        url: process.env.ARBITRUM_SEPOLIA_RPC ?? "https://sepolia-rollup.arbitrum.io/rpc",
+        url:
+          process.env.ARBITRUM_SEPOLIA_RPC ??
+          "https://sepolia-rollup.arbitrum.io/rpc",
       },
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: false,
       saveDeployments: true,
       tags: ["test", "local"],
@@ -113,8 +118,11 @@ const config: HardhatUserConfig = {
     // Home chain ---------------------------------------------------------------------------------
     arbitrumSepolia: {
       chainId: 421614,
-      url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      url:
+        process.env.ARBITRUM_SEPOLIA_RPC ??
+        `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -131,8 +139,11 @@ const config: HardhatUserConfig = {
     },
     arbitrumSepoliaDevnet: {
       chainId: 421614,
-      url: process.env.ARBITRUM_SEPOLIA_RPC ?? `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      url:
+        process.env.ARBITRUM_SEPOLIA_RPC ??
+        `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -149,8 +160,11 @@ const config: HardhatUserConfig = {
     },
     arbitrum: {
       chainId: 42161,
-      url: process.env.ARBITRUM_RPC ?? `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      url:
+        process.env.ARBITRUM_RPC ??
+        `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["production", "home", "layer2"],
@@ -168,7 +182,8 @@ const config: HardhatUserConfig = {
     sepolia: {
       chainId: 11155111,
       url: `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
@@ -185,7 +200,8 @@ const config: HardhatUserConfig = {
     sepoliaDevnet: {
       chainId: 11155111,
       url: `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
@@ -202,7 +218,10 @@ const config: HardhatUserConfig = {
     mainnet: {
       chainId: 1,
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.MAINNET_PRIVATE_KEY !== undefined ? [process.env.MAINNET_PRIVATE_KEY] : [],
+      accounts:
+        process.env.MAINNET_PRIVATE_KEY !== undefined
+          ? [process.env.MAINNET_PRIVATE_KEY]
+          : [],
       live: true,
       saveDeployments: true,
       tags: ["production", "foreign", "layer1"],
@@ -219,7 +238,8 @@ const config: HardhatUserConfig = {
     chiado: {
       chainId: 10200,
       url: "https://rpc.chiado.gnosis.gateway.fm",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
@@ -236,7 +256,8 @@ const config: HardhatUserConfig = {
     chiadoDevnet: {
       chainId: 10200,
       url: "https://rpc.chiado.gnosis.gateway.fm",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
@@ -253,7 +274,8 @@ const config: HardhatUserConfig = {
     gnosischain: {
       chainId: 100,
       url: `https://rpc.gnosis.gateway.fm`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["production", "foreign", "layer1"],
@@ -294,7 +316,10 @@ const config: HardhatUserConfig = {
     },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined ? process.env.REPORT_GAS === "true" : false,
+    enabled:
+      process.env.REPORT_GAS !== undefined
+        ? process.env.REPORT_GAS === "true"
+        : false,
     currency: "USD",
   },
   verify: {
@@ -331,20 +356,36 @@ const config: HardhatUserConfig = {
     timeout: 20000,
   },
   tenderly: {
-    project: process.env.TENDERLY_PROJECT !== undefined ? process.env.TENDERLY_PROJECT : "kleros-v2",
-    username: process.env.TENDERLY_USERNAME !== undefined ? process.env.TENDERLY_USERNAME : "",
+    project:
+      process.env.TENDERLY_PROJECT !== undefined
+        ? process.env.TENDERLY_PROJECT
+        : "kleros-v2",
+    username:
+      process.env.TENDERLY_USERNAME !== undefined
+        ? process.env.TENDERLY_USERNAME
+        : "",
   },
   external: {
     // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
     deployments: {
-      arbitrumSepolia: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia"],
-      arbitrumSepoliaDevnet: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia"],
+      arbitrumSepolia: [
+        "../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia",
+      ],
+      arbitrumSepoliaDevnet: [
+        "../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia",
+      ],
       arbitrum: ["../node_modules/@kleros/vea-contracts/deployments/arbitrum"],
       chiado: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
-      chiadoDevnet: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
-      gnosischain: ["../node_modules/@kleros/vea-contracts/deployments/gnosischain"],
+      chiadoDevnet: [
+        "../node_modules/@kleros/vea-contracts/deployments/chiado",
+      ],
+      gnosischain: [
+        "../node_modules/@kleros/vea-contracts/deployments/gnosischain",
+      ],
       sepolia: ["../node_modules/@kleros/vea-contracts/deployments/sepolia"],
-      sepoliaDevnet: ["../node_modules/@kleros/vea-contracts/deployments/sepolia"],
+      sepoliaDevnet: [
+        "../node_modules/@kleros/vea-contracts/deployments/sepolia",
+      ],
       mainnet: ["../node_modules/@kleros/vea-contracts/deployments/mainnet"],
     },
   },

@@ -93,20 +93,26 @@ describe("ChainlinkRNG", async () => {
       keepExistingDeployments: false,
     });
     rng = await ethers.getContract<ChainlinkRNG>("ChainlinkRNG");
-    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>("ChainlinkVRFCoordinator");
+    vrfCoordinator = await ethers.getContract<ChainlinkVRFCoordinatorV2Mock>(
+      "ChainlinkVRFCoordinator",
+    );
 
     await rng.changeConsumer(deployer);
   });
 
   it("Should return a non-zero random number", async () => {
     const requestId = 1;
-    const expectedRn = BigInt(ethers.keccak256(abiCoder.encode(["uint256", "uint256"], [requestId, 0])));
+    const expectedRn = BigInt(
+      ethers.keccak256(abiCoder.encode(["uint256", "uint256"], [requestId, 0])),
+    );
 
     let tx = await rng.requestRandomness();
     await expect(tx).to.emit(rng, "RequestSent").withArgs(requestId);
 
     tx = await vrfCoordinator.fulfillRandomWords(requestId, rng.target, []);
-    await expect(tx).to.emit(rng, "RequestFulfilled").withArgs(requestId, expectedRn);
+    await expect(tx)
+      .to.emit(rng, "RequestFulfilled")
+      .withArgs(requestId, expectedRn);
 
     const rn = await rng.receiveRandomness();
     expect(rn).to.equal(expectedRn);
@@ -125,17 +131,32 @@ describe("ChainlinkRNG", async () => {
     await expect(tx).to.emit(rng, "RequestSent").withArgs(requestId2);
 
     // Generate expected random numbers
-    const expectedRn1 = BigInt(ethers.keccak256(abiCoder.encode(["uint256", "uint256"], [requestId1, 0])));
-    const expectedRn2 = BigInt(ethers.keccak256(abiCoder.encode(["uint256", "uint256"], [requestId2, 0])));
-    expect(expectedRn1).to.not.equal(expectedRn2, "Random numbers should be different");
+    const expectedRn1 = BigInt(
+      ethers.keccak256(
+        abiCoder.encode(["uint256", "uint256"], [requestId1, 0]),
+      ),
+    );
+    const expectedRn2 = BigInt(
+      ethers.keccak256(
+        abiCoder.encode(["uint256", "uint256"], [requestId2, 0]),
+      ),
+    );
+    expect(expectedRn1).to.not.equal(
+      expectedRn2,
+      "Random numbers should be different",
+    );
 
     // Fulfill first request
     tx = await vrfCoordinator.fulfillRandomWords(requestId1, rng.target, []);
-    await expect(tx).to.emit(rng, "RequestFulfilled").withArgs(requestId1, expectedRn1);
+    await expect(tx)
+      .to.emit(rng, "RequestFulfilled")
+      .withArgs(requestId1, expectedRn1);
 
     // Fulfill second request
     tx = await vrfCoordinator.fulfillRandomWords(requestId2, rng.target, []);
-    await expect(tx).to.emit(rng, "RequestFulfilled").withArgs(requestId2, expectedRn2);
+    await expect(tx)
+      .to.emit(rng, "RequestFulfilled")
+      .withArgs(requestId2, expectedRn2);
 
     // Should return only the last random number
     const rn = await rng.receiveRandomness();
@@ -170,7 +191,9 @@ describe("RandomizerRNG", async () => {
     await expect(tx).to.emit(rng, "RequestSent").withArgs(requestId);
 
     tx = await randomizer.relay(rng.target, requestId, randomBytes);
-    await expect(tx).to.emit(rng, "RequestFulfilled").withArgs(requestId, expectedRn);
+    await expect(tx)
+      .to.emit(rng, "RequestFulfilled")
+      .withArgs(requestId, expectedRn);
 
     const rn = await rng.receiveRandomness();
     expect(rn).to.equal(expectedRn);
@@ -194,15 +217,22 @@ describe("RandomizerRNG", async () => {
     const expectedRn1 = BigInt(ethers.hexlify(randomBytes1));
     const expectedRn2 = BigInt(ethers.hexlify(randomBytes2));
 
-    expect(expectedRn1).to.not.equal(expectedRn2, "Random numbers should be different");
+    expect(expectedRn1).to.not.equal(
+      expectedRn2,
+      "Random numbers should be different",
+    );
 
     // Fulfill first request
     tx = await randomizer.relay(rng.target, requestId1, randomBytes1);
-    await expect(tx).to.emit(rng, "RequestFulfilled").withArgs(requestId1, expectedRn1);
+    await expect(tx)
+      .to.emit(rng, "RequestFulfilled")
+      .withArgs(requestId1, expectedRn1);
 
     // Fulfill second request
     tx = await randomizer.relay(rng.target, requestId2, randomBytes2);
-    await expect(tx).to.emit(rng, "RequestFulfilled").withArgs(requestId2, expectedRn2);
+    await expect(tx)
+      .to.emit(rng, "RequestFulfilled")
+      .withArgs(requestId2, expectedRn2);
 
     // Should return only the last random number
     const rn = await rng.receiveRandomness();

@@ -1,11 +1,13 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { RULING_MODE } from "consts";
 import { useAccount, usePublicClient } from "wagmi";
 
 import { Button, Radio } from "@kleros/ui-components-library";
 
+import { RULING_MODE } from "consts";
+
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useRulerContext } from "context/RulerContext";
 import {
   useSimulateKlerosCoreRulerChangeRulingModeToAutomaticPreset,
@@ -21,7 +23,6 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
-import { DEFAULT_CHAIN } from "consts/chains";
 
 const Container = styled.div`
   width: 100%;

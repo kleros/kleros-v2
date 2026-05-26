@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
+import { isUndefined } from "utils/index";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -44,7 +45,11 @@ const StyledCaseCardTitleSkeleton = styled(StyledSkeleton)`
   margin-bottom: 20px;
 `;
 
-const TruncatedTitle = ({ text, maxLength }) => {
+interface ITruncatedTitle {
+  text: string;
+  maxLength: number;
+}
+const TruncatedTitle = ({ text, maxLength }: ITruncatedTitle) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
   return <StyledCaseCardTitle dir="auto">{truncatedText}</StyledCaseCardTitle>;
 };
@@ -69,7 +74,7 @@ const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) =>
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
       <StyledCard hover>
-        <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
+        {!isUndefined(props?.period) && <PeriodBanner id={parseInt(props?.disputeID ?? "0")} period={props.period} />}
         <CardContainer>
           {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
           <DisputeInfo {...props} />
