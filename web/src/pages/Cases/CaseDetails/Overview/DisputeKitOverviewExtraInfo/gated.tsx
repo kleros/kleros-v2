@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
-import { Address } from "viem";
-
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { useGatedTokenInfo } from "hooks/useGatedTokenInfo";

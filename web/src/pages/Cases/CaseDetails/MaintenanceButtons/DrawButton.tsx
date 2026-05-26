@@ -34,7 +34,7 @@ const StyledLabel = styled.label``;
 interface IDrawButton extends IBaseMaintenanceButton {
   numberOfVotes?: string;
   period?: string;
-  disputeKitAddress: Address;
+  disputeKitAddress?: Address;
 }
 
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period, disputeKitAddress }) => {
