@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useMeasure } from "react-use";
 import { formatEther } from "viem";
 
-import { Card, LinearProgress } from "@kleros/ui-components-library";
+import { Card, LinearProgress, CustomRadioItem, RadioIndicator } from "@kleros/ui-components-library";
 
 import Gavel from "svgs/icons/gavel.svg";
 
@@ -14,16 +14,14 @@ import { isUndefined } from "utils/index";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Radio from "components/Radio";
+const StyledItem = styled(CustomRadioItem)`
+  width: 100%;
+`;
 
-const StyledCard = styled(Card)<{ canBeSelected: boolean }>`
+const StyledCard = styled(Card)`
   ${hoverShortTransitionTiming}
   width: 100%;
   padding: 16px;
-
-  :hover {
-    cursor: ${({ canBeSelected }) => (canBeSelected ? "pointer" : "auto")};
-  }
 
   ${landscapeStyle(
     () => css`
@@ -38,13 +36,6 @@ const WinnerLabel = styled.label<{ winner: boolean }>`
     width: 12px;
     margin-right: 8px;
     fill: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
-  }
-`;
-
-const StyledRadio = styled(Radio)`
-  padding-left: 24px;
-  > input {
-    display: none;
   }
 `;
 
@@ -80,24 +71,17 @@ const ProgressContainer = styled.div`
   width: 100%;
 `;
 
-interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
+interface IOptionCard {
+  /** The option id; used as the radio group value. */
+  value: string;
   text: string;
   funding: bigint;
   required?: bigint;
   winner?: boolean;
-  selected?: boolean;
   canBeSelected?: boolean;
 }
 
-const OptionCard: React.FC<IOptionCard> = ({
-  text,
-  funding,
-  required,
-  winner,
-  selected,
-  canBeSelected = true,
-  ...props
-}) => {
+const OptionCard: React.FC<IOptionCard> = ({ value, text, funding, required, winner, canBeSelected = true }) => {
   const { t } = useTranslation();
   const [ref, { width }] = useMeasure<HTMLDivElement>();
   const [fundingLabel, progress] = useMemo(() => {
@@ -113,24 +97,28 @@ const OptionCard: React.FC<IOptionCard> = ({
   }, [funding, required, t]);
 
   return (
-    <StyledCard hover {...props} {...{ canBeSelected }}>
-      <TopContainer>
-        <TextContainer>
-          <BlockLabel>{text}</BlockLabel>
-          <WinnerLabel winner={winner ? true : false}>
-            <Gavel />
-            {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
-          </WinnerLabel>
-        </TextContainer>
-        {canBeSelected && <StyledRadio label="" checked={selected} />}
-      </TopContainer>
-      <LabelContainer>
-        <label>{fundingLabel}</label>
-      </LabelContainer>
-      <ProgressContainer ref={ref}>
-        <LinearProgress value={progress} width={width} />
-      </ProgressContainer>
-    </StyledCard>
+    <StyledItem value={value} isDisabled={!canBeSelected}>
+      {(rp) => (
+        <StyledCard hover>
+          <TopContainer>
+            <TextContainer>
+              <BlockLabel>{text}</BlockLabel>
+              <WinnerLabel winner={winner ? true : false}>
+                <Gavel />
+                {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
+              </WinnerLabel>
+            </TextContainer>
+            {canBeSelected && <RadioIndicator {...rp} />}
+          </TopContainer>
+          <LabelContainer>
+            <label>{fundingLabel}</label>
+          </LabelContainer>
+          <ProgressContainer ref={ref}>
+            <LinearProgress value={progress} width={width} />
+          </ProgressContainer>
+        </StyledCard>
+      )}
+    </StyledItem>
   );
 };
 

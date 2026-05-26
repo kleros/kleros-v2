@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useDebounce } from "react-use";
 
-import { Button } from "@kleros/ui-components-library";
+import { Button, CustomRadio } from "@kleros/ui-components-library";
 
 import { AliasArray, Answer, useNewDisputeContext } from "context/NewDisputeContext";
 import { extraDataToTokenInfo } from "utils/extradataToTokenInfo";
@@ -38,7 +38,7 @@ const Container = styled.div`
   )}
 `;
 
-const CardContainer = styled.div`
+const CardContainer = styled(CustomRadio)`
   width: 100%;
   max-width: 720px;
   display: flex;
@@ -132,16 +132,20 @@ const Landing: React.FC = () => {
   return (
     <Container>
       <Header text={t("headers.create_a_case")} />
-      <CardContainer>
+      <CardContainer
+        aria-label={t("headers.create_a_case")}
+        value={String(creationMethod)}
+        onChange={(value) => setCreationMethod(Number(value) as CreationMethod)}
+      >
         <CreationCard
           cardMethod={CreationMethod.Scratch}
           selectedMethod={creationMethod}
-          {...{ disputeID, setDisputeID, setCreationMethod, isInvalidDispute }}
+          {...{ disputeID, setDisputeID, isInvalidDispute }}
         />
         <CreationCard
           cardMethod={CreationMethod.Duplicate}
           selectedMethod={creationMethod}
-          {...{ disputeID, setDisputeID, setCreationMethod, isInvalidDispute }}
+          {...{ disputeID, setDisputeID, isInvalidDispute }}
         />
       </CardContainer>
 

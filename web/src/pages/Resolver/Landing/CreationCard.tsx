@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Card } from "@kleros/ui-components-library";
+import { Card, CustomRadioItem, RadioIndicator } from "@kleros/ui-components-library";
 
 import CaseFromScratchIcon from "svgs/icons/caseFromScratch.svg";
 import DuplicateCaseIcon from "svgs/icons/duplicateCase.svg";
@@ -12,7 +12,6 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
 import { NumberInputField } from "components/NumberInputField";
-import Radio from "components/Radio";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 export enum CreationMethod {
@@ -24,6 +23,10 @@ const StyledCard = styled(Card)<{ selected?: boolean }>`
   height: fit-content;
   width: 100%;
   background: ${({ theme, selected }) => (selected ? theme.whiteBackground : theme.lightBackground)};
+`;
+
+const StyledItem = styled(CustomRadioItem)`
+  width: 100%;
 `;
 
 const CardTopContent = styled.div`
@@ -62,13 +65,9 @@ const StyledP = styled.p`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const StyledRadio = styled(Radio)`
+const StyledRadioIndicator = styled(RadioIndicator)`
   align-self: center;
-  padding-left: 16px;
-
-  > span {
-    transform: translateY(-50%);
-  }
+  margin-left: 16px;
 `;
 
 const Label = styled.label`
@@ -92,7 +91,6 @@ const ErrorMsg = styled.small`
 interface ICreationCard {
   cardMethod: CreationMethod;
   selectedMethod: CreationMethod;
-  setCreationMethod: (method: CreationMethod) => void;
   disputeID?: string;
   setDisputeID?: (id?: string) => void;
   isInvalidDispute?: boolean;
@@ -101,25 +99,29 @@ interface ICreationCard {
 const CreationCard: React.FC<ICreationCard> = ({
   cardMethod,
   selectedMethod,
-  setCreationMethod,
   disputeID,
   setDisputeID,
   isInvalidDispute,
 }) => {
   const { t } = useTranslation();
+  const selected = cardMethod === selectedMethod;
 
   return (
-    <StyledCard hover onClick={() => setCreationMethod(cardMethod)} selected={cardMethod === selectedMethod}>
-      <CardTopContent>
-        <Icon as={cardMethod === CreationMethod.Scratch ? CaseFromScratchIcon : DuplicateCaseIcon} />
-        <StyledP>
-          {cardMethod === CreationMethod.Scratch
-            ? t("case_creation.create_from_scratch")
-            : t("case_creation.duplicate_existing_case")}
-        </StyledP>
-        <StyledRadio label="" checked={cardMethod === selectedMethod} onChange={() => setCreationMethod(cardMethod)} />
-      </CardTopContent>
-      {cardMethod === CreationMethod.Duplicate && selectedMethod === CreationMethod.Duplicate ? (
+    <StyledCard hover selected={selected}>
+      <StyledItem value={String(cardMethod)}>
+        {(rp) => (
+          <CardTopContent>
+            <Icon as={cardMethod === CreationMethod.Scratch ? CaseFromScratchIcon : DuplicateCaseIcon} />
+            <StyledP>
+              {cardMethod === CreationMethod.Scratch
+                ? t("case_creation.create_from_scratch")
+                : t("case_creation.duplicate_existing_case")}
+            </StyledP>
+            <StyledRadioIndicator {...rp} />
+          </CardTopContent>
+        )}
+      </StyledItem>
+      {cardMethod === CreationMethod.Duplicate && selected ? (
         <>
           <Divider />
           <CardBottomContent>

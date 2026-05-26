@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Card } from "@kleros/ui-components-library";
+import { Card, CustomRadio } from "@kleros/ui-components-library";
 
 import {
   ensureValidSmart,
@@ -162,21 +162,23 @@ const FeatureSelection: React.FC = () => {
         return (
           <Fragment key={groupName}>
             <GroupComponent clearAll={() => handleGroupDisable(groupName as Group)}>
-              <Fragment>
+              <CustomRadio
+                aria-label={groupName}
+                value={features.find((feature) => selected.includes(feature)) ?? null}
+                onChange={(value) => handleToggle(value as Features)}
+              >
                 {features.map((feature) => {
                   const FeatureComponent = FeatureUIs[feature];
                   return (
                     <FeatureComponent
                       key={feature}
-                      name={groupName}
                       checked={selected.includes(feature)}
                       disabled={disabled.has(feature)}
-                      onClick={() => handleToggle(feature)}
                       value={feature}
                     />
                   );
                 })}
-              </Fragment>
+              </CustomRadio>
             </GroupComponent>
             {index !== Object.entries(courtGroups).length - 1 ? <Separator /> : null}
           </Fragment>

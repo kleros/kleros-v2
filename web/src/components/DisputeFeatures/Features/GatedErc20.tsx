@@ -13,7 +13,7 @@ import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from ".";
 
 const FieldContainer = styled.div`
   width: 100%;
@@ -86,7 +86,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.GatedErc20}>
       <WithHelpTooltip tooltipMsg={t("tooltips.token_gating_tooltip")}>
-        <StyledRadio label={t("features.jurors_owning_erc20")} small {...props} />
+        <FeatureRadio value={props.value} disabled={props.disabled} label={t("features.jurors_owning_erc20")} />
       </WithHelpTooltip>
       {props.checked ? (
         <FieldContainer>

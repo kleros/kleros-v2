@@ -15,7 +15,7 @@ import { ExternalLink } from "components/ExternalLink";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from ".";
 
 const InstructorContainer = styled.div`
   padding-left: 32px;
@@ -46,7 +46,7 @@ const UniversityVote: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.UniversityVote}>
       <WithHelpTooltip tooltipMsg={t("features.university_vote_tooltip")}>
-        <StyledRadio label={t("features.university_vote")} small {...props} />
+        <FeatureRadio value={props.value} disabled={props.disabled} label={t("features.university_vote")} />
       </WithHelpTooltip>
       {props.checked && isLoadingInstructor ? (
         <InstructorContainer>

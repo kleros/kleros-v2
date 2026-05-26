@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
+import { CustomRadio } from "@kleros/ui-components-library";
+
 import {
   useCountdownContext,
   useFundingContext,
@@ -20,7 +22,7 @@ const Container = styled.div`
   margin: 24px 0;
 `;
 
-const OptionsContainer = styled.div`
+const OptionsGroup = styled(CustomRadio)`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
@@ -52,17 +54,20 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
           {fundedChoices.length > 0 && !choice.funded ? (
             <>
               <StageExplainer stage={2} countdown={winnerSideCountdown} />
-              <OptionsContainer>
+              <OptionsGroup
+                aria-label={t("appeal.which_option_to_fund")}
+                value={selectedOption?.id ?? null}
+                onChange={() => {}}
+              >
                 <OptionCard
+                  value={choice.id}
                   text={choice.title}
-                  selected={choice.id === selectedOption?.id}
                   winner={true}
                   funding={BigInt(choice.paidFee ?? 0)}
                   required={winnerRequiredFunding!}
                   canBeSelected={false}
-                  onClick={() => setSelectedOption(choice)}
                 />
-              </OptionsContainer>
+              </OptionsGroup>
             </>
           ) : (
             <label>{t("appeal.no_losing_option_funded")}</label>

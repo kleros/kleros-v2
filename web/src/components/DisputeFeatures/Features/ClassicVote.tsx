@@ -9,9 +9,9 @@ import { useCourtDetails } from "queries/useCourtDetails";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from ".";
 
-const ClassicVote: React.FC<RadioInput> = (props) => {
+const ClassicVote: React.FC<RadioInput> = ({ value, disabled }) => {
   const { t } = useTranslation();
   const { disputeData } = useNewDisputeContext();
   const { data: courtData } = useCourtDetails(disputeData.courtId);
@@ -21,7 +21,11 @@ const ClassicVote: React.FC<RadioInput> = (props) => {
       tooltipMsg={isCommitEnabled ? t("features.hidden_votes_tooltip") : t("features.non_hidden_votes_tooltip")}
       key={Features.ClassicVote}
     >
-      <StyledRadio label={isCommitEnabled ? t("features.two_step_commit") : t("features.disabled")} small {...props} />
+      <FeatureRadio
+        value={value}
+        disabled={disabled}
+        label={isCommitEnabled ? t("features.two_step_commit") : t("features.disabled")}
+      />
     </WithHelpTooltip>
   );
 };

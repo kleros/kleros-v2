@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount, useBalance } from "wagmi";
 
-import { TextField, Button } from "@kleros/ui-components-library";
+import { Button } from "@kleros/ui-components-library";
 
 import { DisputeKits, REFETCH_INTERVAL } from "consts/index";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
@@ -19,26 +19,13 @@ import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 
+import EthAmountField from "../EthAmountField";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-`;
-
-const StyledField = styled(TextField)`
-  width: 100%;
-  & > input {
-    text-align: center;
-  }
-  &:before {
-    position: absolute;
-    content: "ETH";
-    right: 32px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: ${({ theme }) => theme.primaryText};
-  }
 `;
 
 const StyledButton = styled(Button)`
@@ -122,7 +109,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName })
   return needFund ? (
     <Container>
       <StyledLabel>{t("appeal.how_much_eth_contribute")}</StyledLabel>
-      <StyledField
+      <EthAmountField
         type="number"
         value={amount}
         onChange={(value) => {
