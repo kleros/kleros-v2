@@ -38,8 +38,8 @@ interface IAtlasProvider {
   user: User | undefined;
   userExists: boolean;
   authoriseUser: () => Promise<void>;
-  addUser: (userSettings: AddUserData) => Promise<boolean>;
-  updateEmail: (userSettings: UpdateEmailData) => Promise<boolean>;
+  addUser: (userSettings: Omit<AddUserData, "product">, overrideProduct?: Products) => Promise<boolean>;
+  updateEmail: (userSettings: Omit<UpdateEmailData, "product">, overrideProduct?: Products) => Promise<boolean>;
   uploadFile: (file: File, role: Roles) => Promise<string | null>;
   confirmEmail: (userSettings: ConfirmEmailData) => Promise<
     ConfirmEmailResponse & {
