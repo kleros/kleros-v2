@@ -67,25 +67,21 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
   const { userExists, user, updateEmail } = useAtlasProvider();
   const { t } = useTranslation();
 
-  const resendVerificationEmail = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      if (!user) return;
-      infoToast(t("email_verification.sending_verification_email"));
-      updateEmail({ newEmail: user.email })
-        .then(async (res) => {
-          if (res) {
-            successToast(t("notifications.verification_email_sent"));
-            toggleIsSettingsOpen();
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          errorToast(t("email_verification.failed_to_send_verification_error", { error: err?.message }));
-        });
-    },
-    [user, updateEmail, toggleIsSettingsOpen, t]
-  );
+  const resendVerificationEmail = useCallback(() => {
+    if (!user) return;
+    infoToast(t("email_verification.sending_verification_email"));
+    updateEmail({ newEmail: user.email })
+      .then(async (res) => {
+        if (res) {
+          successToast(t("notifications.verification_email_sent"));
+          toggleIsSettingsOpen();
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        errorToast(t("email_verification.failed_to_send_verification_error", { error: err?.message }));
+      });
+  }, [user, updateEmail, toggleIsSettingsOpen, t]);
 
   return userExists && !user?.isEmailVerified ? (
     <InfoContainer>

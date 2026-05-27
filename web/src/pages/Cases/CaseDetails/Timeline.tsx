@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Box, StepItem, Steps } from "@kleros/ui-components-library";
+import { Box, Steps } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
@@ -16,6 +16,7 @@ import { secondsToDayHourMinute } from "utils/date";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { isUndefined } from "src/utils";
+import type { StepItem } from "src/utils/uiComponentsTypes";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";

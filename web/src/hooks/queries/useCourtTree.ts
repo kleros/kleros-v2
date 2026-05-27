@@ -62,6 +62,9 @@ export const rootCourtToItems = (
     label: court.name ? court.name : "Unnamed Court",
     itemValue,
     id: itemValue,
-    children: court.children.length > 0 ? court.children.map((child) => rootCourtToItems(child, value)) : undefined,
+    children:
+      court.children.length > 0
+        ? court.children.map((child) => rootCourtToItems(child as NonNullable<CourtTreeQuery["court"]>, value))
+        : undefined,
   };
 };
