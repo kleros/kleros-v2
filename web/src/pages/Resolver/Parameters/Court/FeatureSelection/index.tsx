@@ -11,16 +11,15 @@ import { useSupportedDisputeKits } from "queries/useSupportedDisputeKits";
 
 import {
   ensureValidSmart,
-  Features,
   findMatchingKits,
   getDisabledOptions,
   getDisputeKitsForDeployment,
   getFeatureGroupsForDeployment,
   getVisibleFeaturesForCourt,
-  Group,
   resolveInitialFeatureSet,
   toggleFeature,
 } from "src/dispute-kits/disputeFeature";
+import { Features, Group } from "src/dispute-kits/types";
 import { isUndefined } from "src/utils";
 
 import { FeatureUIs } from "components/DisputeFeatures/Features";

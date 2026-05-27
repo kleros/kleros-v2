@@ -9,8 +9,8 @@ import { Field } from "@kleros/ui-components-library";
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC20ERC721Validation } from "hooks/useTokenAddressValidation";
 
-import { Features } from "src/dispute-kits/disputeFeature";
 import { GatedDisputeKitData } from "src/dispute-kits/prepareArbitratorExtradata";
+import { Features } from "src/dispute-kits/types";
 import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";

@@ -2,7 +2,7 @@ import React from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { Features } from "src/dispute-kits/disputeFeature";
+import { Features } from "src/dispute-kits/types";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 

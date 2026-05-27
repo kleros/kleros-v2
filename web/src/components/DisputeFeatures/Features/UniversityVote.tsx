@@ -8,7 +8,7 @@ import NewTabIcon from "svgs/icons/new-tab.svg";
 import { useReadDisputeKitClassicUniversityInstructor } from "hooks/contracts/generated";
 import { shortenAddress } from "utils/shortenAddress";
 
-import { Features } from "src/dispute-kits/disputeFeature";
+import { Features } from "src/dispute-kits/types";
 import { getAddressExplorerLink } from "src/utils";
 
 import { ExternalLink } from "components/ExternalLink";

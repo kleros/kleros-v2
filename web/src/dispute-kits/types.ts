@@ -30,6 +30,26 @@ export interface DisputeKitAppealProps {
   disputeKitId: DisputeKits;
 }
 
+export enum Group {
+  Voting = "Voting",
+  Eligibility = "Eligibility",
+}
+
+/** A single feature, grouped into categories. has to be atomic.
+ * For gated, we split them into atomic erc20 and erc1155 */
+export enum Features {
+  ShieldedVote = "shieldedVote",
+  ClassicVote = "classicVote",
+  UniversityVote = "universityVote",
+  ClassicEligibility = "classicEligibility",
+  GatedErc20 = "gatedErc20",
+  GatedErc1155 = "gatedErc1155",
+  ArgentinaConsumerProtection = "argentinaConsumerProtection",
+}
+
+/** Group of features (like radio buttons per category) */
+export type FeatureGroups = Record<string, Features[]>;
+
 export interface DisputeKitConfig {
   id: DisputeKits;
   displayName: string;
@@ -41,4 +61,11 @@ export interface DisputeKitConfig {
   AppealComponent: React.FC<DisputeKitAppealProps>;
   disputeKitAbi: Abi;
   hasAutomaticVoteReveal: boolean;
+  /**
+   * The feature sets this kit supports.
+   * Each array represents a valid configuration, and has to be 1:1,
+   * if either subset matches the selected feature array this dispute kit is selected.
+   * each array is a unique match, for multiple combinations, add more arrays.
+   */
+  featureSets: Features[][];
 }

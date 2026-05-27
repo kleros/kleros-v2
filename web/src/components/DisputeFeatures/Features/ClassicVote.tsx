@@ -6,7 +6,7 @@ import { useNewDisputeContext } from "context/NewDisputeContext";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
-import { Features } from "src/dispute-kits/disputeFeature";
+import { Features } from "src/dispute-kits/types";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 

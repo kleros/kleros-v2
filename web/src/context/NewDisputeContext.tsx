@@ -9,8 +9,8 @@ import { useLocalStorage } from "hooks/useLocalStorage";
 import { isEmpty, isUndefined } from "utils/index";
 
 import { DisputeKits } from "src/dispute-kits";
-import { Features } from "src/dispute-kits/disputeFeature";
 import { DisputeKitDataMap } from "src/dispute-kits/prepareArbitratorExtradata";
+import { Features } from "src/dispute-kits/types";
 
 export const MIN_DISPUTE_BATCH_SIZE = 2;
 

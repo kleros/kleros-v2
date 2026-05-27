@@ -22,13 +22,13 @@ import ClassicVotingComponent from "pages/Cases/CaseDetails/Voting/Classic";
 import ShutterVotingComponent from "pages/Cases/CaseDetails/Voting/Shutter";
 
 import { DisputeKits } from "./disputeKits";
-import type { DisputeKitConfig } from "./types";
+import { Features, type DisputeKitConfig } from "./types";
 
 const chainId = DEFAULT_CHAIN.id;
 
 /** VotingComponent and AppealComponent are wired through this registry,
  * while their implementation stays near their usage */
-const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
+export const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
   [DisputeKits.Classic]: {
     id: DisputeKits.Classic,
     displayName: "Classic",
@@ -38,6 +38,7 @@ const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitClassicAbi,
     hasAutomaticVoteReveal: false,
+    featureSets: [[Features.ClassicVote, Features.ClassicEligibility]],
   },
   [DisputeKits.Shutter]: {
     id: DisputeKits.Shutter,
@@ -48,6 +49,7 @@ const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitShutterAbi,
     hasAutomaticVoteReveal: true,
+    featureSets: [[Features.ShieldedVote, Features.ClassicEligibility]],
   },
   [DisputeKits.Gated]: {
     id: DisputeKits.Gated,
@@ -58,6 +60,11 @@ const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitGatedAbi,
     hasAutomaticVoteReveal: false,
+    // strictly keep the common feature in front and in order.
+    featureSets: [
+      [Features.ClassicVote, Features.GatedErc20],
+      [Features.ClassicVote, Features.GatedErc1155],
+    ],
   },
   [DisputeKits.GatedShutter]: {
     id: DisputeKits.GatedShutter,
@@ -68,6 +75,10 @@ const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitGatedShutterAbi,
     hasAutomaticVoteReveal: true,
+    featureSets: [
+      [Features.ShieldedVote, Features.GatedErc20],
+      [Features.ShieldedVote, Features.GatedErc1155],
+    ],
   },
   [DisputeKits.ArgentinaConsumerProtection]: {
     id: DisputeKits.ArgentinaConsumerProtection,
@@ -78,6 +89,7 @@ const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitGatedArgentinaConsumerProtectionAbi,
     hasAutomaticVoteReveal: false,
+    featureSets: [[Features.ClassicVote, Features.ArgentinaConsumerProtection]],
   },
   [DisputeKits.ClassicUniversity]: {
     id: DisputeKits.ClassicUniversity,
@@ -88,6 +100,7 @@ const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitClassicUniversityAbi,
     hasAutomaticVoteReveal: false,
+    featureSets: [[Features.UniversityVote, Features.ClassicEligibility]],
   },
 };
 
