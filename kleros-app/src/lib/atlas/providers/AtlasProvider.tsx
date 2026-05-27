@@ -220,15 +220,19 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   /**
    * @description adds a new user to atlas
    * @param {AddUserData} userSettings - object containing data to be added
+   * @param {Products} overrideProduct - optional override to specify a different product,
+   * defaults to Config.Product provided in AtlasProvider
    * @returns {Promise<boolean>} A promise that resolves to true if the user was added successfully
    */
   const addUser = useCallback(
-    async (userSettings: AddUserData) => {
+    async (userSettings: Omit<AddUserData, "product">, overrideProduct?: Products) => {
       try {
         if (!address || !isVerified) return false;
         setIsAddingUser(true);
 
-        const userAdded = await fetchWithAuthErrorHandling(() => addUserToAtlas(atlasGqlClient, userSettings));
+        const userAdded = await fetchWithAuthErrorHandling(() =>
+          addUserToAtlas(atlasGqlClient, { ...userSettings, product: overrideProduct ?? config.product })
+        );
         refetchUser();
 
         return userAdded;
@@ -238,21 +242,25 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsAddingUser(false);
       }
     },
-    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser]
+    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser, config.product]
   );
 
   /**
    * @description updates user email in atlas
    * @param {UpdateEmailData} userSettings - object containing data to be updated
+   * @param {Products} overrideProduct - optional override to specify a different product,
+   * defaults to Config.Product provided in AtlasProvider
    * @returns {Promise<boolean>} A promise that resolves to true if email was updated successfully
    */
   const updateEmail = useCallback(
-    async (userSettings: UpdateEmailData) => {
+    async (userSettings: Omit<UpdateEmailData, "product">, overrideProduct?: Products) => {
       try {
         if (!address || !isVerified) return false;
         setIsUpdatingUser(true);
 
-        const emailUpdated = await fetchWithAuthErrorHandling(() => updateEmailInAtlas(atlasGqlClient, userSettings));
+        const emailUpdated = await fetchWithAuthErrorHandling(() =>
+          updateEmailInAtlas(atlasGqlClient, { ...userSettings, product: overrideProduct ?? config.product })
+        );
         refetchUser();
 
         return emailUpdated;
@@ -262,7 +270,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsUpdatingUser(false);
       }
     },
-    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser]
+    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.product]
   );
 
   /**
