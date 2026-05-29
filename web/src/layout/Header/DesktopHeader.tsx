@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
@@ -101,10 +101,13 @@ const DesktopHeader: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { isConnected, chainId } = useAccount();
   const isDefaultChain = chainId === DEFAULT_CHAIN.id;
+  // Notifications opens via `?notifications=true` (not a hash) so HashRouter doesn't swallow it.
+  const hasNotificationsPath = searchParams.get("notifications") === "true";
   const initializeFragmentURL = useCallback(() => {
-    const hashIncludes = (hash: MiniguideHashesType | "#notifications") => location.hash.includes(hash);
+    const hashIncludes = (hash: MiniguideHashesType) => location.hash.includes(hash);
     const hasJurorLevelsMiniGuidePath = hashIncludes("#jurorlevels-miniguide");
     const hasAppealMiniGuidePath = hashIncludes("#appeal-miniguide");
     const hasBinaryVotingMiniGuidePath = hashIncludes("#binaryvoting-miniguide");
@@ -112,7 +115,6 @@ const DesktopHeader: React.FC = () => {
     const hasRankedVotingMiniGuidePath = hashIncludes("#rankedvoting-miniguide");
     const hasStakingMiniGuidePath = hashIncludes("#staking-miniguide");
     const hasOnboardingMiniGuidePath = hashIncludes("#onboarding-miniguide");
-    const hasNotificationsPath = hashIncludes("#notifications");
     toggleIsJurorLevelsMiniGuideOpen(hasJurorLevelsMiniGuidePath);
     toggleIsAppealMiniGuideOpen(hasAppealMiniGuidePath);
     toggleIsBinaryVotingMiniGuideOpen(hasBinaryVotingMiniGuidePath);
@@ -133,6 +135,7 @@ const DesktopHeader: React.FC = () => {
     toggleIsOnboardingMiniGuidesOpen,
     toggleIsSettingsOpen,
     location.hash,
+    hasNotificationsPath,
   ]);
 
   useEffect(initializeFragmentURL, [initializeFragmentURL]);

@@ -1,32 +1,42 @@
+import React from "react";
 import styled from "styled-components";
 
-import { TextField } from "@kleros/ui-components-library";
+import { BigNumberField } from "@kleros/ui-components-library";
 
-/** Centered amount input with a static "ETH" suffix, shared by the Classic and Shutter appeal funding fields.
- *  position: relative anchors the :before to the field (the ui-components-library TextField root is not positioned);
- *  the appearance rules hide the native type="number" spinners (the library does not style them). */
-const EthAmountField = styled(TextField)`
+const StyledBigNumberField = styled(BigNumberField)`
   width: 100%;
-  position: relative;
-  & input {
+
+  input {
     text-align: center;
   }
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
+
+  /* Hover-revealed stepper arrows don't suit an ETH amount picker. */
+  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
+    display: none;
   }
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
-  &:before {
-    position: absolute;
+
+  & .input-wrapper::after {
     content: "ETH";
-    right: 32px;
+    position: absolute;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
     color: ${({ theme }) => theme.primaryText};
+    pointer-events: none;
   }
 `;
+
+type Props = Omit<React.ComponentProps<typeof BigNumberField>, "onChange"> & {
+  onChange?: (value: string) => void;
+};
+
+const EthAmountField: React.FC<Props> = ({ value, onChange, ...props }) => (
+  <StyledBigNumberField
+    {...props}
+    // Empty string would render as "NaN" via BigNumber.toFormat.
+    value={value === "" ? undefined : value}
+    onChange={onChange && ((v) => onChange(v.toString()))}
+  />
+);
 
 export default EthAmountField;

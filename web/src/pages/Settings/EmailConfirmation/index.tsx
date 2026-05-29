@@ -148,7 +148,7 @@ const EmailConfirmation: React.FC = () => {
         headerMsg: t("email_verification.verification_link_expired"),
         subtitleMsg: t("email_verification.verification_expired_subtitle"),
         buttonMsg: t("email_verification.open_settings"),
-        buttonTo: "/#notifications",
+        buttonTo: "/?notifications=true",
         Icon: WarningIcon,
         color: "warning",
       },

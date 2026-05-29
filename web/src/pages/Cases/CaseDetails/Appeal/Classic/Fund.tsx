@@ -109,14 +109,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName })
   return needFund ? (
     <Container>
       <StyledLabel>{t("appeal.how_much_eth_contribute")}</StyledLabel>
-      <EthAmountField
-        type="number"
-        value={amount}
-        onChange={(value) => {
-          setAmount(value);
-        }}
-        placeholder={t("forms.placeholders.amount_to_fund")}
-      />
+      <EthAmountField value={amount} onChange={setAmount} placeholder={t("forms.placeholders.amount_to_fund")} />
       <EnsureChain>
         <div>
           <StyledButton

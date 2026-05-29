@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { TextField } from "@kleros/ui-components-library";
+import { BigNumberField, TextField } from "@kleros/ui-components-library";
 
 import { Features } from "consts/disputeFeature";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
@@ -26,6 +26,17 @@ const StyledField = styled(TextField)`
   margin-bottom: 32px;
   > span {
     margin-top: 16px;
+  }
+`;
+
+const StyledTokenIdField = styled(BigNumberField)`
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 32px;
+
+  /* Hover-revealed stepper arrows don't suit a token ID picker. */
+  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
+    display: none;
   }
 `;
 
@@ -108,11 +119,11 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
             variant={variant}
             message={validationMessage}
           />
-          <StyledField
-            inputProps={{ dir: "auto" }}
-            onChange={handleTokenIdChange}
+          <StyledTokenIdField
+            onChange={(tokenId) => handleTokenIdChange(tokenId.toString())}
             value={(disputeData.disputeKitData as IGatedDisputeData)?.tokenId ?? "0"}
             placeholder={t("forms.placeholders.token_id_example")}
+            formatOptions={{ groupSeparator: "" }}
           />
         </FieldContainer>
       ) : null}

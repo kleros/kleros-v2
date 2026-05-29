@@ -51,9 +51,10 @@ const Search: React.FC = () => {
     <StyledSearchbar
       dir="auto"
       type="text"
+      aria-label={t("forms.placeholders.search_by_address")}
       placeholder={t("forms.placeholders.search_by_address")}
       value={search}
-      onChange={(search) => setSearch(search)}
+      onChange={setSearch}
     />
   );
 };

@@ -65,14 +65,12 @@ const OptionsFields: React.FC = () => {
         {disputeData.answers.map((answer, index) => (
           <InputContainer key={answer.id}>
             <LabeledInput
-              name="title"
               label={t("forms.labels.voting_option_number", { number: index + 1 })}
               placeholder={t("forms.placeholders.pay_dai_example")}
               value={answer.title ?? ""}
               onChange={(value) => handleOptionWrite("title", index, value)}
             />
             <LabeledInput
-              name="description"
               label={t("forms.labels.option_description")}
               placeholder={t("forms.placeholders.description_for_option_number", { number: index + 1 })}
               value={answer.description ?? ""}

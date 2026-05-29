@@ -141,7 +141,7 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
 
       <TextField
         placeholder={t("forms.placeholders.juror_addresses_comma_separated")}
-        onChange={(value) => setJurorsInput(value)}
+        onChange={setJurorsInput}
         value={jurorsInput}
       />
       <StyledButton

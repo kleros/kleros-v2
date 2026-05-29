@@ -72,16 +72,59 @@ const ProgressContainer = styled.div`
 `;
 
 interface IOptionCard {
-  /** The option id; used as the radio group value. */
+  /** The option id; used as the radio group value when `selectable` is true. */
   value: string;
   text: string;
   funding: bigint;
   required?: bigint;
   winner?: boolean;
+  /** When true, the card is wrapped in a `CustomRadioItem` (must live inside a `CustomRadio`)
+   *  and renders a radio indicator. When false, the card is plain and can be rendered anywhere. */
+  selectable?: boolean;
+  /** Only meaningful when `selectable` is true; gates the radio item. */
   canBeSelected?: boolean;
 }
 
-const OptionCard: React.FC<IOptionCard> = ({ value, text, funding, required, winner, canBeSelected = true }) => {
+const CardBody: React.FC<{
+  text: string;
+  fundingLabel: string;
+  progress: number;
+  width: number;
+  winner: boolean;
+  innerRef: (el: HTMLDivElement) => void;
+  rightSlot?: React.ReactNode;
+  role?: string;
+  t: (key: string) => string;
+}> = ({ text, fundingLabel, progress, width, winner, innerRef, rightSlot, role, t }) => (
+  <StyledCard hover role={role}>
+    <TopContainer>
+      <TextContainer>
+        <BlockLabel>{text}</BlockLabel>
+        <WinnerLabel winner={winner}>
+          <Gavel />
+          {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
+        </WinnerLabel>
+      </TextContainer>
+      {rightSlot}
+    </TopContainer>
+    <LabelContainer>
+      <label>{fundingLabel}</label>
+    </LabelContainer>
+    <ProgressContainer ref={innerRef}>
+      <LinearProgress value={progress} width={width} />
+    </ProgressContainer>
+  </StyledCard>
+);
+
+const OptionCard: React.FC<IOptionCard> = ({
+  value,
+  text,
+  funding,
+  required,
+  winner,
+  selectable = true,
+  canBeSelected = true,
+}) => {
   const { t } = useTranslation();
   const [ref, { width }] = useMeasure<HTMLDivElement>();
   const [fundingLabel, progress] = useMemo(() => {
@@ -96,27 +139,34 @@ const OptionCard: React.FC<IOptionCard> = ({ value, text, funding, required, win
     else return [t("appeal.no_contributions"), 0];
   }, [funding, required, t]);
 
+  if (!selectable) {
+    return (
+      <CardBody
+        text={text}
+        fundingLabel={fundingLabel}
+        progress={progress}
+        width={width}
+        winner={!!winner}
+        innerRef={ref}
+        role="listitem"
+        t={t}
+      />
+    );
+  }
+
   return (
     <StyledItem value={value} isDisabled={!canBeSelected}>
       {(rp) => (
-        <StyledCard hover>
-          <TopContainer>
-            <TextContainer>
-              <BlockLabel>{text}</BlockLabel>
-              <WinnerLabel winner={winner ? true : false}>
-                <Gavel />
-                {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
-              </WinnerLabel>
-            </TextContainer>
-            {canBeSelected && <RadioIndicator {...rp} />}
-          </TopContainer>
-          <LabelContainer>
-            <label>{fundingLabel}</label>
-          </LabelContainer>
-          <ProgressContainer ref={ref}>
-            <LinearProgress value={progress} width={width} />
-          </ProgressContainer>
-        </StyledCard>
+        <CardBody
+          text={text}
+          fundingLabel={fundingLabel}
+          progress={progress}
+          width={width}
+          winner={!!winner}
+          innerRef={ref}
+          rightSlot={canBeSelected ? <RadioIndicator {...rp} /> : null}
+          t={t}
+        />
       )}
     </StyledItem>
   );

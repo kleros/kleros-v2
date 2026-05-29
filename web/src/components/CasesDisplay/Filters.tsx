@@ -4,8 +4,6 @@ import styled, { css, useTheme } from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import { DropdownSelect } from "@kleros/ui-components-library";
-
 import GridIcon from "svgs/icons/grid.svg";
 import ListIcon from "svgs/icons/list.svg";
 
@@ -15,6 +13,8 @@ import type { SelectItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
+
+import { LabeledDropdownSelect } from "components/LabeledDropdown";
 
 const Container = styled.div`
   display: flex;
@@ -76,7 +76,8 @@ const Filters: React.FC = () => {
 
   return (
     <Container>
-      <DropdownSelect
+      <LabeledDropdownSelect
+        ariaLabel={t("aria_labels.filter_by_status")}
         smallButton
         simpleButton
         items={[
@@ -108,7 +109,8 @@ const Filters: React.FC = () => {
         defaultSelectedKey={JSON.stringify({ ruled, period })}
         callback={handleStatusChange}
       />
-      <DropdownSelect
+      <LabeledDropdownSelect
+        ariaLabel={t("aria_labels.sort_order")}
         smallButton
         simpleButton
         items={[

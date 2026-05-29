@@ -244,6 +244,13 @@
     "oldest": "Oldest",
     "all_courts": "All Courts"
   },
+  "aria_labels": {
+    "filter_by_status": "Filter by status",
+    "sort_order": "Sort order",
+    "time_range": "Time range",
+    "chart_metric": "Chart metric",
+    "select_court": "Select court"
+  },
   "juror_levels": {
     "diogenes": "Diogenes",
     "pythagoras": "Pythagoras",

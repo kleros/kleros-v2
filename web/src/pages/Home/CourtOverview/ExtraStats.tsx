@@ -3,8 +3,6 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { DropdownSelect } from "@kleros/ui-components-library";
-
 import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
@@ -14,6 +12,7 @@ import type { SelectItem } from "utils/uiComponentsTypes";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
+import { LabeledDropdownSelect } from "components/LabeledDropdown";
 
 const StyledCard = styled.div`
   display: flex;
@@ -88,7 +87,8 @@ const ExtraStats = () => {
       <ExtraStatsDisplay
         title={t("stats.activity")}
         content={
-          <DropdownSelect
+          <LabeledDropdownSelect
+            ariaLabel={t("aria_labels.time_range")}
             smallButton
             simpleButton
             items={timeRanges.map((range) => ({

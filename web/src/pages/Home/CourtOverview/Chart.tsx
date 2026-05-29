@@ -5,13 +5,12 @@ import { Tooltip, TooltipModel, ChartType, ActiveElement } from "chart.js";
 import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 
-import { DropdownSelect } from "@kleros/ui-components-library";
-
 import { useHomePageContext } from "hooks/useHomePageContext";
 import type { SelectItem } from "utils/uiComponentsTypes";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { LabeledDropdownSelect } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import CasesByCourtsChart, { CasesByCourtsChartData } from "./CasesByCourtsChart";
@@ -25,7 +24,7 @@ const Container = styled.div`
   gap: 16px;
 `;
 
-const StyledDropdown = styled(DropdownSelect)`
+const StyledDropdown = styled(LabeledDropdownSelect)`
   width: fit-content;
   align-self: start;
 `;
@@ -44,6 +43,7 @@ const ChartOptionsDropdown: React.FC<{
 
   return (
     <StyledDropdown
+      ariaLabel={t("aria_labels.chart_metric")}
       smallButton
       simpleButton
       defaultSelectedKey={"stakedPNK"}

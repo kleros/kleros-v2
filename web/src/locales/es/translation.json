@@ -244,6 +244,13 @@
     "oldest": "Más antiguo",
     "all_courts": "Todas las cortes"
   },
+  "aria_labels": {
+    "filter_by_status": "Filtrar por estado",
+    "sort_order": "Orden",
+    "time_range": "Rango de tiempo",
+    "chart_metric": "Métrica del gráfico",
+    "select_court": "Seleccionar corte"
+  },
   "juror_levels": {
     "diogenes": "Diógenes",
     "pythagoras": "Pitágoras",

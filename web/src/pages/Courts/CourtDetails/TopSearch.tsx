@@ -5,7 +5,7 @@ import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Card, DropdownCascader, Searchbar } from "@kleros/ui-components-library";
+import { Card, Searchbar } from "@kleros/ui-components-library";
 
 import { isUndefined } from "utils/index";
 
@@ -15,6 +15,7 @@ import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import { LabeledDropdownCascader } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import StakeMaintenanceButtons from "../StakeMaintenanceButton";
@@ -28,7 +29,7 @@ const Container = styled.div`
   flex-wrap: wrap;
 `;
 
-const StyledDropdownCascader = styled(DropdownCascader)`
+const StyledDropdownCascader = styled(LabeledDropdownCascader)`
   width: ${responsiveSize(200, 240)};
   > button {
     width: 100%;
@@ -129,6 +130,7 @@ const TopSearch: React.FC = () => {
       {items ? (
         <>
           <StyledDropdownCascader
+            ariaLabel={t("aria_labels.select_court")}
             items={items}
             callback={(item) => navigate(item.itemValue.toString())}
             placeholder={t("forms.placeholders.select_court")}
@@ -137,9 +139,10 @@ const TopSearch: React.FC = () => {
             <StyledSearchbar
               dir="auto"
               type="text"
+              aria-label={t("forms.placeholders.search")}
               placeholder={t("forms.placeholders.search")}
               value={search}
-              onChange={(value) => setSearch(value)}
+              onChange={setSearch}
             />
             {search && filteredCourts.length > 0 && (
               <SearchResultsContainer>

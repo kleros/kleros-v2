@@ -52,8 +52,9 @@ const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch }) => {
       <SearchContainer>
         <StyledSearchBar
           dir="auto"
+          aria-label={t("forms.placeholders.search_evidence")}
           placeholder={t("forms.placeholders.search_evidence")}
-          onChange={(value) => setSearch(value)}
+          onChange={setSearch}
           value={search}
         />
 

@@ -90,7 +90,10 @@ const Tabs: React.FC = () => {
     [t]
   );
 
-  const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
+  const currentTab = Math.max(
+    TABS.findIndex(({ path }) => path === currentPathName),
+    0
+  );
 
   const tabs = useMemo(() => {
     const updatedTabs = [...TABS];
@@ -102,10 +105,12 @@ const Tabs: React.FC = () => {
     return updatedTabs;
   }, [currentPeriodIndex, rounds.length, appealCost, TABS]);
 
+  // Both props: `selectedKey` keeps the URL the source of truth; `defaultSelectedKey`
+  // primes the library Tabs' internal underline state (which doesn't track `selectedKey`).
   return (
     <StyledTabs
-      selectedKey={currentTab < 0 ? 0 : currentTab}
-      defaultSelectedKey={currentTab < 0 ? 0 : currentTab}
+      selectedKey={currentTab}
+      defaultSelectedKey={currentTab}
       items={tabs}
       callback={(_key, value) => navigate(TABS[value].path)}
     />

@@ -99,14 +99,12 @@ const PersonFields: React.FC = () => {
       {disputeData.aliasesArray?.map((alias, index) => (
         <AliasContainer key={alias?.id}>
           <LabeledInput
-            name="name"
             label={t("forms.labels.person_number", { number: index + 1 })}
             placeholder={t("forms.placeholders.alice_developer_example")}
             value={alias.name}
             onChange={(value) => handleAliasesWrite(index, "name", value)}
           />
           <LabeledInput
-            name="address"
             label={t("forms.labels.person_address", { index: index + 1 })}
             variant={showError(alias) ? "error" : undefined}
             message={showError(alias) ? t("forms.messages.invalid_address_or_ens") : ""}

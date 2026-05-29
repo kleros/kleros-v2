@@ -4,12 +4,12 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import { DropdownSelect } from "@kleros/ui-components-library";
-
 import type { SelectItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { responsiveSize } from "styles/responsiveSize";
+
+import { LabeledDropdownSelect } from "components/LabeledDropdown";
 
 import Stats, { IStats } from "./Stats";
 
@@ -38,7 +38,8 @@ const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
   return (
     <Container>
       <Stats {...{ totalJurors }} />
-      <DropdownSelect
+      <LabeledDropdownSelect
+        ariaLabel={t("aria_labels.sort_order")}
         smallButton
         simpleButton
         items={[

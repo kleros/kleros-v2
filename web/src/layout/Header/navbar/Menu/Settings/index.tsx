@@ -1,8 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useClickAway } from "react-use";
 
 import { Tabs } from "@kleros/ui-components-library";
@@ -56,7 +56,7 @@ const StyledTabs = styled(Tabs)`
   align-self: center;
   ${landscapeStyle(
     () => css`
-      width: ${responsiveSize(300, 424, 300)};
+      width: ${responsiveSize(300, 500, 300)};
     `
   )}
 `;
@@ -64,35 +64,38 @@ const StyledTabs = styled(Tabs)`
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
   const { t } = useTranslation();
   const containerRef = useRef(null);
-  const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [currentTab, setCurrentTab] = useState<number>(initialTab ?? 0);
+  const [searchParams, setSearchParams] = useSearchParams();
   useClickAway(containerRef, () => {
     toggleIsSettingsOpen();
-    if (location.hash.includes("#notifications")) navigate("#", { replace: true });
+    if (searchParams.get("notifications") === "true") {
+      const next = new URLSearchParams(searchParams);
+      next.delete("notifications");
+      setSearchParams(next, { replace: true });
+    }
   });
 
-  const TABS = [
-    {
-      id: 0,
-      text: t("menu.general"),
-      value: 0,
-      content: <General {...{ toggleIsSettingsOpen }} />,
-    },
-    {
-      id: 1,
-      text: t("menu.notifications"),
-      value: 1,
-      content: <NotificationSettings {...{ toggleIsSettingsOpen }} />,
-    },
-  ];
+  const TABS = useMemo(
+    () => [
+      { id: 0, text: t("menu.general"), value: 0, content: <General {...{ toggleIsSettingsOpen }} /> },
+      {
+        id: 1,
+        text: t("menu.notifications"),
+        value: 1,
+        content: <NotificationSettings {...{ toggleIsSettingsOpen }} />,
+      },
+    ],
+    [t, toggleIsSettingsOpen]
+  );
 
+  // Pass both: `selectedKey` controls react-aria Tabs (panel selection),
+  // `defaultSelectedKey` primes the library wrapper's internal underline state.
   return (
     <Container ref={containerRef}>
       <StyledSettingsText>{t("menu.settings")}</StyledSettingsText>
       <StyledTabs
         selectedKey={currentTab}
-        defaultSelectedKey={initialTab || 0}
+        defaultSelectedKey={initialTab ?? 0}
         items={TABS}
         callback={(_key, value) => setCurrentTab(value)}
       />

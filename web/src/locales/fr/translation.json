@@ -244,6 +244,13 @@
     "oldest": "Plus anciens",
     "all_courts": "Toutes les cours"
   },
+  "aria_labels": {
+    "filter_by_status": "Filtrer par statut",
+    "sort_order": "Ordre de tri",
+    "time_range": "Plage de temps",
+    "chart_metric": "Métrique du graphique",
+    "select_court": "Sélectionner la cour"
+  },
   "juror_levels": {
     "diogenes": "Diogène",
     "pythagoras": "Pythagore",

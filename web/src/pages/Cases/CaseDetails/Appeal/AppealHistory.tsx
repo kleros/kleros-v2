@@ -4,8 +4,6 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
-import { CustomRadio } from "@kleros/ui-components-library";
-
 import { useOptionsContext, useFundingContext } from "hooks/useClassicAppealContext";
 
 import HowItWorks from "components/HowItWorks";
@@ -15,7 +13,7 @@ import OptionCard from "./OptionCard";
 
 import { AppealHeader, StyledTitle } from "./index";
 
-const OptionsGroup = styled(CustomRadio)`
+const OptionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
@@ -42,7 +40,7 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
           MiniGuideComponent={Appeal}
         />
       </AppealHeader>
-      <OptionsGroup aria-label={t("appeal.appeal_results_last_round")}>
+      <OptionsGrid role="list" aria-label={t("appeal.appeal_results_last_round")}>
         {options?.map((option) => (
           <OptionCard
             key={option.id}
@@ -51,10 +49,10 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
             winner={option.id === winningChoice}
             funding={BigInt(option.paidFee ?? 0)}
             required={fundedChoices?.includes(option.id) ? BigInt(option.paidFee ?? 0) : undefined}
-            canBeSelected={false}
+            selectable={false}
           />
         ))}
-      </OptionsGroup>
+      </OptionsGrid>
     </div>
   ) : (
     <Skeleton />
