@@ -12,7 +12,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import JurorLink from "components/JurorLink";
 
-const getScoutProfileUrl = (address: string) => `https://scout-app.kleros.io/#/profile/pending?address=${address}`;
+const getScoutProfileUrl = (address: string) => `https://scout-app.kleros.io/profile/pending?address=${address}`;
 
 const HIDE_ALL_EXCEPT_TWITTER = [
   "etherscan",
