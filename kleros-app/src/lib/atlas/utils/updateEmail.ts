@@ -3,7 +3,7 @@ import { gql, type GraphQLClient } from "graphql-request";
 import { Products } from ".";
 
 const query = gql`
-  mutation UpdateEmail($newEmail: String!, $product: Product!) {
+  mutation UpdateEmail($newEmail: String!, $product: SignupProduct!) {
     updateEmail(newEmail: $newEmail, product: $product)
   }
 `;
