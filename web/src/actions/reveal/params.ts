@@ -4,7 +4,7 @@ import { Answer } from "@kleros/kleros-sdk";
 
 import { DistributiveOmit, PartialBy } from "utils/types";
 
-import { DisputeKits } from "src/dispute-kits";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 
 interface BaseRevealParams {
   disputeId: bigint;

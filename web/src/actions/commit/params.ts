@@ -1,4 +1,4 @@
-import { DisputeKits } from "src/dispute-kits";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 
 interface BaseCommitParams {
   disputeId: bigint;
