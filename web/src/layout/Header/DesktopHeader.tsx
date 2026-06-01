@@ -90,18 +90,28 @@ const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain
   }
 `;
 
-// Mirrors HeaderContainer so popups anchor to the header's content box, not the viewport.
-// Two elements: the popups' absolute left/right: 0 resolve against the padding box, so the
-// padding here can't inset them — the inner relative div marks the content edge they align to.
+// Landscape-only: mirrors HeaderContainer so popups anchor to the header's content box, not
+// the viewport. Two elements: the popups' absolute left/right: 0 resolve against the padding
+// box, so the padding here can't inset them — the inner relative div marks the content edge.
+// Below landscape only the hash-driven popups (e.g. #notifications) reach here, and they
+// center themselves; staying inert lets their top/left percentages resolve against the Overlay.
 const PopupAnchor = styled.div`
-  width: 100%;
-  max-width: ${MAX_WIDTH_LANDSCAPE};
-  margin: 0 auto;
-  padding: 0 ${responsiveSize(0, 132)};
+  ${landscapeStyle(
+    () => css`
+      width: 100%;
+      max-width: ${MAX_WIDTH_LANDSCAPE};
+      margin: 0 auto;
+      padding: 0 ${responsiveSize(0, 132)};
+    `
+  )}
 `;
 
 const PopupAnchorInner = styled.div`
-  position: relative;
+  ${landscapeStyle(
+    () => css`
+      position: relative;
+    `
+  )}
 `;
 
 const DesktopHeader: React.FC = () => {
