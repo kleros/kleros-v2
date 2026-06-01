@@ -28,7 +28,7 @@ const chainId = DEFAULT_CHAIN.id;
 
 /** VotingComponent and AppealComponent are wired through this registry,
  * while their implementation stays near their usage */
-export const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
+export const DISPUTE_KIT_REGISTRY = {
   [DisputeKits.Classic]: {
     id: DisputeKits.Classic,
     displayName: "Classic",
@@ -102,7 +102,7 @@ export const DISPUTE_KIT_REGISTRY: Record<DisputeKits, DisputeKitConfig> = {
     hasAutomaticVoteReveal: false,
     featureSets: [[Features.UniversityVote, Features.ClassicEligibility]],
   },
-};
+} satisfies Record<DisputeKits, DisputeKitConfig>;
 
 /** Lookup by enum key, will be defined */
 export function getDisputeKitConfig(id: DisputeKits) {

@@ -50,7 +50,7 @@ export enum Features {
 /** Group of features (like radio buttons per category) */
 export type FeatureGroups = Record<string, Features[]>;
 
-export interface DisputeKitConfig {
+export interface DisputeKitConfig<TAbi extends Abi = Abi> {
   id: DisputeKits;
   displayName: string;
   address: Address;
@@ -59,7 +59,7 @@ export interface DisputeKitConfig {
   // DisputeKit Voting component handle the separate flows of Vote, Reveal, Commit.
   VotingComponent: React.FC<DisputeKitVotingProps>;
   AppealComponent: React.FC<DisputeKitAppealProps>;
-  disputeKitAbi: Abi;
+  disputeKitAbi: TAbi;
   hasAutomaticVoteReveal: boolean;
   /**
    * The feature sets this kit supports.
