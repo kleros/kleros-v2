@@ -150,7 +150,7 @@ export function useGatedTokenInfo(disputeId: string, currentRoundIndex: number) 
         // which is optional
         const metadata = await response.json();
         const imageUri = metadata.image ? resolveUri(metadata.image) : null;
-        const nftName = metadata.name || null;
+        const nftName = (metadata.name as string) || null;
 
         return { isERC721, tokenName, tokenSymbol, imageUri, nftName };
       } catch {

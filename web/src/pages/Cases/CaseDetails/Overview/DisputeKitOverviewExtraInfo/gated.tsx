@@ -135,9 +135,30 @@ const SkeletonImage = styled(StyledSkeleton)`
   border-radius: 12px;
 `;
 
-const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({ disputeId, currentRoundIndex }) => {
+const TokenImg: React.FC<{ isERC721: boolean; imageUri: string | null; displayName: string }> = ({
+  isERC721,
+  imageUri,
+  displayName,
+}) => {
   const [imgError, setImgError] = useState(false);
 
+  if (isERC721 && imageUri && !imgError) {
+    return (
+      <ImageContainer>
+        <NFTImage src={imageUri} alt={displayName} onError={() => setImgError(true)} loading="lazy" />
+      </ImageContainer>
+    );
+  } else if (isERC721) {
+    return (
+      <ImageContainer>
+        <PlaceholderText>🖼️</PlaceholderText>
+      </ImageContainer>
+    );
+  }
+  return null;
+};
+
+const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({ disputeId, currentRoundIndex }) => {
   const { isERC721, tokenGateInfo, tokenName, tokenSymbol, imageUri, nftName, isLoading } = useGatedTokenInfo(
     disputeId,
     currentRoundIndex
@@ -167,23 +188,6 @@ const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({ disputeId, c
   const displayName = nftName || tokenName || "Unknown Token";
   const truncatedAddress = shortenAddress(tokenAddress);
 
-  const TokenImg: React.FC = () => {
-    if (isERC721 && imageUri && !imgError) {
-      return (
-        <ImageContainer>
-          <NFTImage src={imageUri} alt={nftName || displayName} onError={() => setImgError(true)} loading="lazy" />
-        </ImageContainer>
-      );
-    } else if (isERC721) {
-      return (
-        <ImageContainer>
-          <PlaceholderText>🖼️</PlaceholderText>
-        </ImageContainer>
-      );
-    }
-    return null;
-  };
-
   return (
     <>
       <Divider />
@@ -194,7 +198,7 @@ const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({ disputeId, c
           <Badge>Token Gated</Badge>
         </WithHelpTooltip>
         <CardContainer>
-          <TokenImg />
+          <TokenImg {...{ imageUri, isERC721, displayName }} />
           <InfoSection>
             <TokenName>{displayName}</TokenName>
             {tokenSymbol ? <TokenSymbolLabel>${tokenSymbol}</TokenSymbolLabel> : null}
