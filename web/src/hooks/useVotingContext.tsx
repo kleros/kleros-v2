@@ -44,18 +44,25 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
   const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
 
+  const canReadVoteStatus =
+    !isUndefined(disputeKitInfo) &&
+    !isUndefined(disputeKitAddress) &&
+    !isUndefined(roundId) &&
+    !isUndefined(voteId) &&
+    !isUndefined(id);
+
   const voteResult = useReadContract({
     address: disputeKitAddress as Address | undefined,
     abi: disputeKitInfo?.disputeKitAbi ?? disputeKitClassicAbi,
     functionName: "isVoteActive",
     args: [BigInt(id ?? 0), BigInt(roundId ?? 0), BigInt(voteId ?? 0)],
     query: {
-      enabled: !isUndefined(disputeKitAddress) && !isUndefined(roundId) && !isUndefined(voteId) && !isUndefined(id),
+      enabled: canReadVoteStatus,
       refetchInterval: REFETCH_INTERVAL,
     },
   });
 
-  const hasVoted = voteResult.data as boolean | undefined;
+  const hasVoted = voteResult.data;
 
   const wasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
   const isHiddenVotes = useMemo(() => disputeData?.dispute?.currentRound.hiddenVotes ?? false, [disputeData]);
