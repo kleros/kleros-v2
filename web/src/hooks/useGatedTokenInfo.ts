@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { Address, Hex, erc721Abi } from "viem";
+import { Hex, erc721Abi } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { extraDataToTokenInfo, GatedTokenInfo } from "utils/extradataToTokenInfo";
@@ -48,12 +48,11 @@ export type GatedTokenResult = {
  * and many contracts are partially compliant.
  *
  * @param disputeId - Dispute ID used to fetch round data.
- * @param disputeKitAddress - Dispute kit address to determine gating.
  * @param currentRoundIndex - Round index for extraData lookup.
  * @returns Resolved gated and NFT metadata state.
  * @dev Assumes the DisputeKit is Gated, since it will only be called through gated kit routes
  */
-export function useGatedTokenInfo(disputeId: string, disputeKitAddress: Address, currentRoundIndex: number) {
+export function useGatedTokenInfo(disputeId: string, currentRoundIndex: number) {
   const publicClient = usePublicClient();
 
   // Get the extraData from the subgraph via the existing RoundDetails query

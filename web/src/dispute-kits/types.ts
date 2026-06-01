@@ -11,7 +11,6 @@ import type { DisputeKits } from "./disputeKits";
 /** Props for Overview extra info (ex. token gate display) */
 export interface OverviewExtraInfoProps {
   disputeId: string;
-  disputeKitAddress: Address;
   currentRoundIndex: number;
 }
 

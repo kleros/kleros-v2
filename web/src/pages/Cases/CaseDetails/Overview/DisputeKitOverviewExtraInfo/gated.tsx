@@ -135,16 +135,11 @@ const SkeletonImage = styled(StyledSkeleton)`
   border-radius: 12px;
 `;
 
-const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({
-  disputeId,
-  disputeKitAddress,
-  currentRoundIndex,
-}) => {
+const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({ disputeId, currentRoundIndex }) => {
   const [imgError, setImgError] = useState(false);
 
   const { isERC721, tokenGateInfo, tokenName, tokenSymbol, imageUri, nftName, isLoading } = useGatedTokenInfo(
     disputeId,
-    disputeKitAddress,
     currentRoundIndex
   );
 
