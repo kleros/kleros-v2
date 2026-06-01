@@ -104,11 +104,6 @@ export const DISPUTE_KIT_REGISTRY = {
   },
 } satisfies Record<DisputeKits, DisputeKitConfig>;
 
-/** Lookup by enum key, will be defined */
-export function getDisputeKitConfig(id: DisputeKits) {
-  return DISPUTE_KIT_REGISTRY[id];
-}
-
 /** Lookup by dispute kit contract address */
 export function getDisputeKitConfigByAddress(address: Address) {
   const addr = address.toLowerCase();
@@ -117,5 +112,9 @@ export function getDisputeKitConfigByAddress(address: Address) {
 
 /** Lookup by numeric kit id */
 export function getDisputeKitConfigByKitId(disputeKitId: number | string | bigint) {
-  return Object.values(DISPUTE_KIT_REGISTRY).find((kit) => BigInt(kit.id) === BigInt(disputeKitId));
+  try {
+    return Object.values(DISPUTE_KIT_REGISTRY).find((kit) => BigInt(kit.id) === BigInt(disputeKitId));
+  } catch {
+    return undefined;
+  }
 }
