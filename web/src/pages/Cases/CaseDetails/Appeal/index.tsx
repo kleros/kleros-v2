@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
@@ -13,6 +15,8 @@ import { isUndefined } from "src/utils";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import InfoCard from "components/InfoCard";
 
 import AppealHistory from "./AppealHistory";
 
@@ -47,25 +51,33 @@ export const StyledTitle = styled.h1`
 `;
 
 const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }) => {
+  const { t } = useTranslation();
   const [isAppealMiniGuideOpen, toggleAppealMiniGuide] = useToggle(false);
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
   const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
-  // TODO: return a proper message
-  if (isUndefined(disputeKitInfo)) return <>Unable to load dispute kit</>;
 
-  const AppealComponent = disputeKitInfo.AppealComponent;
+  if (isUndefined(disputeKitInfo)) {
+    return (
+      <Container>
+        {isUndefined(disputeKitAddress) ? (
+          <Skeleton height={200} />
+        ) : (
+          <InfoCard msg={t("alerts.unsupported_dispute_kit")} />
+        )}
+      </Container>
+    );
+  }
+
   return (
     <Container>
       {Periods.appeal === currentPeriodIndex ? (
-        <>
-          <AppealComponent
-            isAppealMiniGuideOpen={isAppealMiniGuideOpen}
-            toggleAppealMiniGuide={toggleAppealMiniGuide}
-            disputeKitId={disputeKitInfo.id}
-          />
-        </>
+        <disputeKitInfo.AppealComponent
+          isAppealMiniGuideOpen={isAppealMiniGuideOpen}
+          toggleAppealMiniGuide={toggleAppealMiniGuide}
+          disputeKitId={disputeKitInfo.id}
+        />
       ) : (
         <AppealHistory isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
       )}

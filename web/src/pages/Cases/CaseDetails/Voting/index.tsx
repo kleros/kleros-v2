@@ -78,8 +78,17 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
   const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
 
-  // TODO: provide better return
-  if (!disputeKitInfo) return <></>;
+  if (isUndefined(disputeKitInfo)) {
+    return (
+      <Container>
+        {isUndefined(disputeKitAddress) ? (
+          <Skeleton height={200} />
+        ) : (
+          <InfoCard msg={t("alerts.unsupported_dispute_kit")} />
+        )}
+      </Container>
+    );
+  }
 
   const VotingComponent = disputeKitInfo.VotingComponent;
   return (

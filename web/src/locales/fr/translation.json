@@ -328,7 +328,8 @@
     "subscribe_to_notifications": "Assurez-vous de vous abonner aux notifications dans Paramètres > Notifications",
     "dispute_last_round": "Ce litige est à son dernier tour. Votez judicieusement, il ne peut plus faire l'objet d'un appel.",
     "not_drawn_current_round": "Vous n'avez pas été tiré au sort pour ce tour.",
-    "jurors_not_drawn_yet": "Les jurés n'ont pas encore été tirés au sort."
+    "jurors_not_drawn_yet": "Les jurés n'ont pas encore été tirés au sort.",
+    "unsupported_dispute_kit": "Ce litige utilise un kit de litige non pris en charge."
   },
   "popups": {
     "thanks_for_voting": "Merci d'avoir voté",

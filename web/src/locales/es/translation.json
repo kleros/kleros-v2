@@ -328,7 +328,8 @@
     "subscribe_to_notifications": "Asegúrate de suscribirte a las notificaciones en Configuración > Notificaciones",
     "dispute_last_round": "Esta disputa está en su última ronda. Vota sabiamente, no puede ser apelada más.",
     "not_drawn_current_round": "No fuiste sorteado en la ronda actual.",
-    "jurors_not_drawn_yet": "Los jurados aún no han sido sorteados."
+    "jurors_not_drawn_yet": "Los jurados aún no han sido sorteados.",
+    "unsupported_dispute_kit": "Esta disputa utiliza un kit de disputa no compatible."
   },
   "popups": {
     "thanks_for_voting": "Gracias por votar",
