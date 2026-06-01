@@ -25,7 +25,8 @@ export const useDisputeKitInfo = (props: UseDisputeKitInfoProps) => {
     }
 
     return undefined;
-  }, [props, disputeKitAddress, disputeKitId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disputeKitAddress, disputeKitId]);
 
   return disputeKit;
 };
