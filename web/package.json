@@ -41,7 +41,7 @@
     "build-mainnet": "scripts/runEnv.sh mainnet 'yarn generate && vite build'",
     "build-netlify": "scripts/generateBuildInfo.sh && yarn generate && vite build",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc --noEmit --declaration false",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen --require tsconfig-paths/register",
     "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"
@@ -118,6 +118,7 @@
     "chartjs-adapter-moment": "^1.0.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "core-js": "^3.39.0",
+    "ethereum-identity-kit": "^0.2.74",
     "ethers": "^5.8.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",

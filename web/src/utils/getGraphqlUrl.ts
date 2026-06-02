@@ -14,5 +14,7 @@ export const getGraphqlUrl = (isDisputeTemplate = false, chainId: number = DEFAU
       import.meta.env.REACT_APP_DRT_LOCAL_SUBGRAPH ?? "Environment variable REACT_APP_DRT_LOCAL_SUBGRAPH not set.",
   };
   const coreUrl = import.meta.env.REACT_APP_CORE_SUBGRAPH ?? "Environment variables REACT_APP_CORE_SUBGRAPH not set.";
-  return isDisputeTemplate ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId] : coreUrl;
+  return isDisputeTemplate
+    ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId as keyof typeof CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH]
+    : coreUrl;
 };

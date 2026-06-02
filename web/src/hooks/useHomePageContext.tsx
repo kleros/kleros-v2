@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 
 import { useHomePageQuery, HomePageQuery } from "queries/useHomePageQuery";
 export type { HomePageQuery };
@@ -6,7 +6,6 @@ export type { HomePageQuery };
 interface IContext {
   data: HomePageQuery | undefined;
   error: null | any;
-  isValidating: boolean;
 }
 
 export type HomePageQueryDataPoints = keyof HomePageQuery["counters"][number];
@@ -14,15 +13,15 @@ export type HomePageQueryDataPoints = keyof HomePageQuery["counters"][number];
 const Context = createContext<IContext>({
   data: undefined,
   error: null,
-  isValidating: false,
 });
 
 export const HomePageProvider: React.FC<{
   children: React.ReactNode;
   timeframe: number;
 }> = ({ children, timeframe }) => {
-  const { data, error, isValidating } = useHomePageQuery(timeframe);
-  return <Context.Provider value={{ data, error, isValidating }}>{children}</Context.Provider>;
+  const { data, error } = useHomePageQuery(timeframe);
+  const value = useMemo(() => ({ data, error }), [data, error]);
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 
 export const useHomePageContext: () => IContext = () => {

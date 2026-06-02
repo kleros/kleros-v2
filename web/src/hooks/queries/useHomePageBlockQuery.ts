@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { isUndefined } from "utils/index";
+
 import { graphql } from "src/graphql";
 import { HomePageBlockQuery } from "src/graphql/graphql";
 
@@ -36,7 +38,7 @@ const homePageBlockQuery = graphql(`
 
 type Court = HomePageBlockQuery["presentCourts"][number];
 type CourtCounter = HomePageBlockQuery["pastCourts"][number];
-type CourtWithTree = Court & {
+type CourtWithTree = Omit<Court, "numberDisputes" | "numberVotes" | "feeForJuror" | "effectiveStake"> & {
   numberDisputes: number;
   numberVotes: number;
   feeForJuror: bigint;

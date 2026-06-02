@@ -80,10 +80,10 @@
     "simulate": "hardhat simulate:all",
     "simulate-local": "hardhat simulate:all --network localhost",
     "populate:local": "yarn hardhat populate:courts --from v2_devnet --network localhost && yarn hardhat populate:policy-registry --from v2_devnet --network localhost",
-    "viem:generate-devnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.devnet.ts",
-    "viem:generate-testnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.testnet.ts",
-    "viem:generate-mainnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.mainnet.ts",
-    "viem:generate-hardhat": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.hardhat.ts",
+    "viem:generate-devnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.devnet.mts",
+    "viem:generate-testnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.testnet.mts",
+    "viem:generate-mainnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.mainnet.mts",
+    "viem:generate-hardhat": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.hardhat.mts",
     "export:devnet": "yarn hardhat export --export deployments/arbitrumSepoliaDevnet.ts --network arbitrumSepoliaDevnet",
     "export:testnet": "yarn hardhat export --export deployments/arbitrumSepolia.ts --network arbitrumSepolia",
     "export:mainnet": "yarn hardhat export --export deployments/arbitrum.ts --network arbitrum",
@@ -114,7 +114,9 @@
     "build:all": "rm -rf ./dist && yarn build:cjs && yarn build:esm && yarn build:types",
     "build:cjs": "tsc --project tsconfig-release.json --module CommonJS --moduleResolution Node --outDir ./dist/cjs && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
     "build:esm": "tsc --project tsconfig-release.json --module NodeNext --moduleResolution NodeNext --outDir ./dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
-    "build:types": "tsc --project tsconfig-release.json --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap"
+    "build:types": "tsc --project tsconfig-release.json --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap",
+    "check-style": "eslint . --no-error-on-unmatched-pattern",
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@defi-wonderland/natspec-smells": "^1.1.6",
@@ -137,6 +139,7 @@
     "chai": "^4.5.0",
     "dotenv": "^16.6.1",
     "eslint": "^9.15.0",
+    "eslint-plugin-chai-friendly": "^1.2.0",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^6.15.0",
     "gluegun": "^5.2.0",

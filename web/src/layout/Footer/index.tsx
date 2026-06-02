@@ -1,15 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 
 import { socialmedia } from "consts/socialmedia";
 
-import LightButton from "components/LightButton";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import { ExternalLink } from "components/ExternalLink";
+import LightButton from "components/LightButton";
 
 const Container = styled.div`
   height: 114px;
@@ -61,7 +61,7 @@ const SecuredByKleros: React.FC = () => (
 
 const SocialMedia = () => (
   <StyledSocialMedia>
-    {Object.values(socialmedia).map((site, i) => (
+    {Object.values(socialmedia).map((site) => (
       <ExternalLink key={site.url} to={site.url} target="_blank" rel="noreferrer">
         <LightButton Icon={site.icon} text="" />
       </ExternalLink>

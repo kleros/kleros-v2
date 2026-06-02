@@ -66,7 +66,12 @@ const CustomContextInputs: React.FC<ICustomContextInputs> = ({ dataMapping, setC
 
   return requiredVariables.length ? (
     <Container>
-      <WithHelpTooltip tooltipMsg="These are additional variables required by the data mapping to be passed as initial context. Please ignore the variables that will come from the result of the preceeding data mappings">
+      <WithHelpTooltip
+        tooltipMsg={
+          "These are additional variables required by the data mapping to be passed as initial context. " +
+          "Please ignore the variables that will come from the result of the preceeding data mappings"
+        }
+      >
         <Header>Additional Context</Header>
       </WithHelpTooltip>
       {requiredVariables.map((variable, index) =>

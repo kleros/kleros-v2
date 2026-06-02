@@ -1,6 +1,12 @@
 import { type Address, type BlockNumber, type BlockTag } from "viem";
 
-type MappingType = "graphql" | "abi/call" | "abi/event" | "json" | "fetch/ipfs/json" | "reality";
+type MappingType =
+  | "graphql"
+  | "abi/call"
+  | "abi/event"
+  | "json"
+  | "fetch/ipfs/json"
+  | "reality";
 
 type AbstractMapping<T extends MappingType> = {
   type: T;
@@ -22,7 +28,7 @@ export type AbiCallMapping = AbstractMapping<"abi/call"> & {
   abi: string;
   address: Address;
   functionName: string;
-  args: any[];
+  args: unknown[];
 };
 
 export type AbiEventMapping = AbstractMapping<"abi/event"> & {
@@ -31,7 +37,7 @@ export type AbiEventMapping = AbstractMapping<"abi/event"> & {
   eventFilter: {
     fromBlock: BlockNumber | BlockTag;
     toBlock: BlockNumber | BlockTag;
-    args: any;
+    args: Record<string, unknown> | readonly unknown[];
   };
 };
 

@@ -3,10 +3,6 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import TelegramLogo from "svgs/socialmedia/telegram.svg";
-
-import { HERMES_TELEGRAM_BOT_URL } from "consts/index";
-
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
 import { ISettings } from "layout/Header/navbar/index";
@@ -43,35 +39,11 @@ const EnsureChainContainer = styled.div`
   padding-bottom: 20px;
 `;
 
-const StyledSvg = styled.svg`
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledA = styled.a`
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 90px;
-  margin-bottom: 110px;
-  font-size: 16px;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 const NotificationSettings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   return (
     <EnsureChainContainer>
       <EnsureChain>
         <Container>
-          {/* <StyledA href={HERMES_TELEGRAM_BOT_URL} target="_blank" rel="noreferrer">
-            Subscribe to the Hermes Messenger Bot
-            <StyledSvg as={TelegramLogo} />
-          </StyledA> */}
           <EnsureAuth>
             <>
               <HeaderNotifs />

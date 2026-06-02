@@ -42,19 +42,31 @@ task("change-owner", "Changes the owner for all the contracts")
       evidence,
     } = await getContracts(hre);
 
-    const updateOwner = async (contractName: string, contractInstance: any) => {
+    const updateOwner = async (
+      contractName: string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      contractInstance: any,
+    ) => {
       print.info(`Changing owner for ${contractName}`);
 
-      const spinner = print.spin(`Executing transaction for ${contractName}...`);
+      const spinner = print.spin(
+        `Executing transaction for ${contractName}...`,
+      );
       try {
         const tx = await contractInstance.changeOwner(newOwner);
         await tx.wait();
-        spinner.succeed(`Owner changed for ${contractName}, tx hash: ${tx.hash}`);
+        spinner.succeed(
+          `Owner changed for ${contractName}, tx hash: ${tx.hash}`,
+        );
       } catch (error) {
         if (error instanceof Error) {
-          spinner.fail(`Failed to change owner for ${contractName}: ${error.message}`);
+          spinner.fail(
+            `Failed to change owner for ${contractName}: ${error.message}`,
+          );
         } else {
-          spinner.fail(`Failed to change owner for ${contractName}: ${String(error)}`);
+          spinner.fail(
+            `Failed to change owner for ${contractName}: ${String(error)}`,
+          );
         }
       }
     };
@@ -67,10 +79,16 @@ task("change-owner", "Changes the owner for all the contracts")
     await updateOwner("KlerosCoreSnapshotProxy", snapshotProxy);
     await updateOwner("SortitionModule", sortition);
     await updateOwner("EvidenceModule", evidence);
-    if (disputeKitClassicUniversity) await updateOwner("DisputeKitClassicUniversity", disputeKitClassicUniversity);
-    if (disputeKitShutter) await updateOwner("DisputeKitShutter", disputeKitShutter);
+    if (disputeKitClassicUniversity)
+      await updateOwner(
+        "DisputeKitClassicUniversity",
+        disputeKitClassicUniversity,
+      );
+    if (disputeKitShutter)
+      await updateOwner("DisputeKitShutter", disputeKitShutter);
     if (disputeKitGated) await updateOwner("DisputeKitGated", disputeKitGated);
-    if (disputeKitGatedShutter) await updateOwner("DisputeKitGatedShutter", disputeKitGatedShutter);
+    if (disputeKitGatedShutter)
+      await updateOwner("DisputeKitGatedShutter", disputeKitGatedShutter);
     if (chainlinkRng) await updateOwner("ChainlinkRNG", chainlinkRng);
     if (rngWithFallback) await updateOwner("RNGWithFallback", rngWithFallback);
     if (randomizerRng) await updateOwner("RandomizerRNG", randomizerRng);

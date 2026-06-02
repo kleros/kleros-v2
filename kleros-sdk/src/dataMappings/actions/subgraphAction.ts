@@ -13,7 +13,7 @@ export const subgraphAction = async (mapping: SubgraphMapping) => {
     body: JSON.stringify({ query, variables }),
   });
 
-  const { data } = (await response.json()) as any;
+  const { data } = (await response.json()) as { data: unknown };
 
   return createResultObject(data, seek, populate);
 };

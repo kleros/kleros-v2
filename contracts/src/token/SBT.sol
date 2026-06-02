@@ -116,6 +116,17 @@ contract SBT is ERC721, ERC721Pausable, ERC721Burnable, IERC4906, Ownable {
         return tokenId;
     }
 
+    /// @dev The contract owner is authorized to operate on any token, enabling admin burn.
+    /// Note: this also technically authorizes the owner for transfers, but this has no practical
+    /// effect since transferFrom and safeTransferFrom revert with TransfersNotPermitted regardless.
+    function _isAuthorized(
+        address _tokenOwner,
+        address _spender,
+        uint256 _tokenId
+    ) internal view override returns (bool) {
+        return _spender == owner() || super._isAuthorized(_tokenOwner, _spender, _tokenId);
+    }
+
     function transferFrom(address, address, uint256) public pure override(ERC721, IERC721) {
         revert TransfersNotPermitted();
     }

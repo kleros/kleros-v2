@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useScrollTop } from "hooks/useScrollTop";
@@ -25,6 +26,7 @@ const ScrollTop: React.FC = () => {
     }
 
     scrollTop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;

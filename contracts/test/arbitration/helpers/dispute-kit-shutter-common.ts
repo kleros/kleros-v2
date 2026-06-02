@@ -15,11 +15,10 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployUpgradable } from "../../../deploy/utils/deployUpgradable";
 import { encodeExtraData as encodeGatedExtraData } from "./dispute-kit-gated-common";
 
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-unused-expressions */
-
 // Type for the dispute kit (either DisputeKitShutter or DisputeKitGatedShutter)
-export type DisputeKitShutterType = DisputeKitShutter | DisputeKitGatedShutterMock;
+export type DisputeKitShutterType =
+  | DisputeKitShutter
+  | DisputeKitGatedShutterMock;
 
 // Test context interface that holds all the test state
 export interface ShutterTestContext {
@@ -65,23 +64,41 @@ export const enum Period {
 }
 
 const ONE_THOUSAND_PNK = 10n ** 21n;
-const thousandPNK = (amount: BigNumberish) => toBigInt(amount) * ONE_THOUSAND_PNK;
+const thousandPNK = (amount: BigNumberish) =>
+  toBigInt(amount) * ONE_THOUSAND_PNK;
 
 // Helper function to encode extra data for dispute creation
-export const encodeExtraData = (courtId: BigNumberish, minJurors: BigNumberish, disputeKitId: number) =>
-  ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256", "uint256"], [courtId, minJurors, disputeKitId]);
+export const encodeExtraData = (
+  courtId: BigNumberish,
+  minJurors: BigNumberish,
+  disputeKitId: number,
+) =>
+  ethers.AbiCoder.defaultAbiCoder().encode(
+    ["uint256", "uint256", "uint256"],
+    [courtId, minJurors, disputeKitId],
+  );
 
 // Helper function to generate choice and justification commitments
-export const generateCommitments = (choice: bigint, salt: bigint, justification: string) => {
+export const generateCommitments = (
+  choice: bigint,
+  salt: bigint,
+  justification: string,
+) => {
   // Choice commitment: hash(choice, salt)
   const justificationHash = ethers.keccak256(ethers.toUtf8Bytes(justification));
   // Justification commitment: hash(salt, justificationHash)
   const justificationCommit = ethers.keccak256(
-    ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "bytes32"], [salt, justificationHash])
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["uint256", "bytes32"],
+      [salt, justificationHash],
+    ),
   );
 
   const choiceCommit = ethers.keccak256(
-    ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [choice, salt])
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["uint256", "uint256"],
+      [choice, salt],
+    ),
   );
 
   return { choiceCommit, justificationCommit };
@@ -92,24 +109,37 @@ export const createDisputeAndDraw = async (
   context: ShutterTestContext,
   courtId: BigNumberish,
   minJurors: BigNumberish,
-  disputeKitId: number
+  disputeKitId: number,
 ) => {
   // Stake jurors
   for (const juror of [context.juror1, context.juror2]) {
-    await context.pnk.transfer(juror.address, context.thousandPNK(10)).then((tx) => tx.wait());
-    expect(await context.pnk.balanceOf(juror.address)).to.equal(context.thousandPNK(10));
+    await context.pnk
+      .transfer(juror.address, context.thousandPNK(10))
+      .then((tx) => tx.wait());
+    expect(await context.pnk.balanceOf(juror.address)).to.equal(
+      context.thousandPNK(10),
+    );
 
     await context.pnk
       .connect(juror)
-      .approve(context.core.target, context.thousandPNK(10), { gasLimit: 300000 })
+      .approve(context.core.target, context.thousandPNK(10), {
+        gasLimit: 300000,
+      })
       .then((tx) => tx.wait());
 
     await context.core
       .connect(juror)
-      .setStake(context.shutterCourtID, context.thousandPNK(10), { gasLimit: 500000 })
+      .setStake(context.shutterCourtID, context.thousandPNK(10), {
+        gasLimit: 500000,
+      })
       .then((tx) => tx.wait());
 
-    expect(await context.sortitionModule.getJurorBalance(juror.address, context.shutterCourtID)).to.deep.equal([
+    expect(
+      await context.sortitionModule.getJurorBalance(
+        juror.address,
+        context.shutterCourtID,
+      ),
+    ).to.deep.equal([
       context.thousandPNK(10), // totalStaked
       0, // totalLocked
       context.thousandPNK(10), // stakedInCourt
@@ -125,15 +155,25 @@ export const createDisputeAndDraw = async (
   // Use gated extra data if this is a gated dispute kit with DAI token
   let extraData: string;
   if (context.isGated && context.dai) {
-    extraData = encodeGatedExtraData(courtId, minJurors, disputeKitId, context.dai.target, false, 0);
+    extraData = encodeGatedExtraData(
+      courtId,
+      minJurors,
+      disputeKitId,
+      context.dai.target,
+      false,
+      0,
+    );
   } else {
     extraData = encodeExtraData(courtId, minJurors, disputeKitId);
   }
 
-  const arbitrationCost = await context.core["arbitrationCost(bytes)"](extraData);
+  const arbitrationCost =
+    await context.core["arbitrationCost(bytes)"](extraData);
 
   // Create dispute via core contract
-  await context.core["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost }).then((tx) => tx.wait());
+  await context.core["createDispute(uint256,bytes)"](2, extraData, {
+    value: arbitrationCost,
+  }).then((tx) => tx.wait());
   const disputeId = 0;
 
   await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
@@ -147,7 +187,10 @@ export const createDisputeAndDraw = async (
 };
 
 // Helper to advance to commit period
-export const advanceToCommitPeriod = async (context: ShutterTestContext, disputeId: number) => {
+export const advanceToCommitPeriod = async (
+  context: ShutterTestContext,
+  disputeId: number,
+) => {
   // Advance from evidence to commit period
   await context.core.passPeriod(disputeId).then((tx) => tx.wait());
 
@@ -157,7 +200,10 @@ export const advanceToCommitPeriod = async (context: ShutterTestContext, dispute
 };
 
 // Helper to advance to vote period
-export const advanceToVotePeriod = async (context: ShutterTestContext, disputeId: number) => {
+export const advanceToVotePeriod = async (
+  context: ShutterTestContext,
+  disputeId: number,
+) => {
   // Advance from commit to vote period
   const timesPerPeriod = [300, 300, 300, 300]; // Default times from deployment
   const commitPeriod = timesPerPeriod[Period.commit];
@@ -176,9 +222,10 @@ export const advanceToVotePeriod = async (context: ShutterTestContext, disputeId
 export const getVoteIDsForJuror = async (
   context: ShutterTestContext,
   disputeId: number,
-  juror: HardhatEthersSigner
+  juror: HardhatEthersSigner,
 ) => {
-  const localDisputeId = await context.disputeKit.coreDisputeIDToLocal(disputeId);
+  const localDisputeId =
+    await context.disputeKit.coreDisputeIDToLocal(disputeId);
   const nbRounds = await context.disputeKit.getNumberOfRounds(localDisputeId);
   const roundIndex = Number(nbRounds) - 1;
 
@@ -188,7 +235,11 @@ export const getVoteIDsForJuror = async (
 
   for (let i = 0; i < maxVotes; i++) {
     try {
-      const voteInfo = await context.disputeKit.getVoteInfo(disputeId, roundIndex, i);
+      const voteInfo = await context.disputeKit.getVoteInfo(
+        disputeId,
+        roundIndex,
+        i,
+      );
       if (voteInfo[0] === juror.address) {
         // account is at index 0
         voteIDs.push(BigInt(i));
@@ -203,7 +254,9 @@ export const getVoteIDsForJuror = async (
 };
 
 // Setup function that creates the test context
-export async function setupShutterTest(config: ShutterTestConfig): Promise<ShutterTestContext> {
+export async function setupShutterTest(
+  config: ShutterTestConfig,
+): Promise<ShutterTestContext> {
   const { deployer } = await getNamedAccounts();
   const [, juror1, juror2, bot, attacker] = await ethers.getSigners();
 
@@ -214,7 +267,8 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
 
   const pnk = await ethers.getContract<PNK>("PNK");
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
-  const sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
+  const sortitionModule =
+    await ethers.getContract<SortitionModule>("SortitionModule");
 
   let disputeKit: DisputeKitShutterType;
   let shutterDKID: number;
@@ -222,7 +276,8 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
   let dai: TestERC20 | undefined;
 
   if (config.contractName === "DisputeKitShutter") {
-    disputeKit = await ethers.getContract<DisputeKitShutter>("DisputeKitShutter");
+    disputeKit =
+      await ethers.getContract<DisputeKitShutter>("DisputeKitShutter");
     shutterDKID = 2;
     shutterCourtID = 2; // Court with hidden votes
 
@@ -237,19 +292,23 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       [300, 300, 300, 300], // timesPerPeriod for evidence, commit, vote, appeal
       ethers.toBeHex(5), // sortitionExtraData
       [1, shutterDKID], // supportedDisputeKits - must include Classic (1) and Shutter (2)
-      NULL_ELIGIBILITY_REQUIREMENT
+      NULL_ELIGIBILITY_REQUIREMENT,
     );
   } else if (config.contractName === "DisputeKitGatedShutter") {
     // For gated shutter, we need to deploy it if not already deployed
     const weth = await ethers.getContract<TestERC20>("WETH");
     dai = await ethers.getContract<TestERC20>("DAI");
 
-    const deploymentResult = await deployUpgradable(deployments, "DisputeKitGatedShutterMock", {
-      from: deployer,
-      proxyAlias: "UUPSProxy",
-      args: [deployer, core.target, weth.target],
-      log: true,
-    });
+    const deploymentResult = await deployUpgradable(
+      deployments,
+      "DisputeKitGatedShutterMock",
+      {
+        from: deployer,
+        proxyAlias: "UUPSProxy",
+        args: [deployer, core.target, weth.target],
+        log: true,
+      },
+    );
     await core.addNewDisputeKit(deploymentResult.address);
     shutterDKID = Number((await core.getDisputeKitsLength()) - 1n);
 
@@ -265,17 +324,23 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       ethers.parseEther("0.1"), // feeForJuror
       16, // jurorsForCourtJump
       [300, 300, 300, 300], // timesPerPeriod
-      NULL_ELIGIBILITY_REQUIREMENT
+      NULL_ELIGIBILITY_REQUIREMENT,
     );
 
     await core.enableDisputeKits(Courts.GENERAL, [shutterDKID], true);
 
-    disputeKit = await ethers.getContract<DisputeKitGatedShutterMock>("DisputeKitGatedShutterMock");
+    disputeKit = await ethers.getContract<DisputeKitGatedShutterMock>(
+      "DisputeKitGatedShutterMock",
+    );
 
     // If gated, whitelist DAI token
     if (config.isGated) {
       const gatedKit = disputeKit as DisputeKitGatedShutterMock;
-      await gatedKit.changeSupportedErc721Tokens(Courts.GENERAL, [dai.target], true);
+      await gatedKit.changeSupportedErc721Tokens(
+        Courts.GENERAL,
+        [dai.target],
+        true,
+      );
     }
   } else {
     throw new Error(`Unknown contract name: ${config.contractName}`);
@@ -289,7 +354,9 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
     log: true,
   });
   const rng = await ethers.getContract<IncrementalNG>("IncrementalNG");
-  await sortitionModule.changeRandomNumberGenerator(rng.target).then((tx) => tx.wait());
+  await sortitionModule
+    .changeRandomNumberGenerator(rng.target)
+    .then((tx) => tx.wait());
 
   // Test data
   const choice = 1n;
@@ -333,58 +400,106 @@ export function testCommitPhase(context: () => ShutterTestContext) {
     describe("Successful commits", () => {
       it("Should allow juror to commit vote with justification commitment", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
         expect(voteIDs.length).to.be.greaterThan(0);
 
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await expect(
           ctx.disputeKit
             .connect(ctx.juror1)
-            .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote)
+            .castCommitShutter(
+              disputeId,
+              voteIDs,
+              choiceCommit,
+              justificationCommit,
+              ctx.identity,
+              ctx.encryptedVote,
+            ),
         )
           .to.emit(ctx.disputeKit, "CommitCastShutter")
-          .withArgs(disputeId, ctx.juror1.address, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .withArgs(
+            disputeId,
+            ctx.juror1.address,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         // Verify recovery commitment was stored
-        const localDisputeId = await ctx.disputeKit.coreDisputeIDToLocal(disputeId);
-        const storedRecoveryCommit = await ctx.disputeKit.justificationCommitments(localDisputeId, 0, voteIDs[0]);
+        const localDisputeId =
+          await ctx.disputeKit.coreDisputeIDToLocal(disputeId);
+        const storedRecoveryCommit =
+          await ctx.disputeKit.justificationCommitments(
+            localDisputeId,
+            0,
+            voteIDs[0],
+          );
         expect(storedRecoveryCommit).to.equal(justificationCommit);
       });
 
       it("Should allow juror to update commitment multiple times", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
 
         // First commitment
-        const { choiceCommit: commit1, justificationCommit: justification1 } = generateCommitments(
-          1n,
-          111n,
-          "First justification"
-        );
+        const { choiceCommit: commit1, justificationCommit: justification1 } =
+          generateCommitments(1n, 111n, "First justification");
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, commit1, justification1, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            commit1,
+            justification1,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         // Second commitment (overwrites first)
-        const { choiceCommit: commit2, justificationCommit: justification2 } = generateCommitments(
-          2n,
-          222n,
-          "Second justification"
-        );
+        const { choiceCommit: commit2, justificationCommit: justification2 } =
+          generateCommitments(2n, 222n, "Second justification");
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, commit2, justification2, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            commit2,
+            justification2,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         // Verify only the second commitment is stored
-        const localDisputeId = await ctx.disputeKit.coreDisputeIDToLocal(disputeId);
-        const storedRecoveryCommit = await ctx.disputeKit.justificationCommitments(localDisputeId, 0, voteIDs[0]);
+        const localDisputeId =
+          await ctx.disputeKit.coreDisputeIDToLocal(disputeId);
+        const storedRecoveryCommit =
+          await ctx.disputeKit.justificationCommitments(
+            localDisputeId,
+            0,
+            voteIDs[0],
+          );
         expect(storedRecoveryCommit).to.equal(justification2);
       });
     });
@@ -392,11 +507,20 @@ export function testCommitPhase(context: () => ShutterTestContext) {
     describe("Failed commits", () => {
       it("Should revert if justification commitment is empty", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await expect(
           ctx.disputeKit.connect(ctx.juror1).castCommitShutter(
@@ -405,33 +529,61 @@ export function testCommitPhase(context: () => ShutterTestContext) {
             choiceCommit,
             ethers.ZeroHash, // Empty justification commit
             ctx.identity,
-            ctx.encryptedVote
-          )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "EmptyJustificationCommit");
+            ctx.encryptedVote,
+          ),
+        ).to.be.revertedWithCustomError(
+          ctx.disputeKit,
+          "EmptyJustificationCommit",
+        );
       });
 
       it("Should revert if not in commit period", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         // Still in evidence period
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await expect(
           ctx.disputeKit
             .connect(ctx.juror1)
-            .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote)
+            .castCommitShutter(
+              disputeId,
+              voteIDs,
+              choiceCommit,
+              justificationCommit,
+              ctx.identity,
+              ctx.encryptedVote,
+            ),
         ).to.be.revertedWithCustomError(ctx.disputeKit, "NotCommitPeriod");
       });
 
       it("Should revert if juror doesn't own the vote", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await expect(
           ctx.disputeKit.connect(ctx.juror2).castCommitShutter(
@@ -440,8 +592,8 @@ export function testCommitPhase(context: () => ShutterTestContext) {
             choiceCommit,
             justificationCommit,
             ctx.identity,
-            ctx.encryptedVote
-          )
+            ctx.encryptedVote,
+          ),
         ).to.be.revertedWithCustomError(ctx.disputeKit, "JurorHasToOwnTheVote");
       });
     });
@@ -453,28 +605,62 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
     describe("Successful reveals", () => {
       it("Should allow bot to reveal vote with full justification", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         // Juror commits
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
         // Bot reveals vote
         await expect(
-          ctx.disputeKit.connect(ctx.bot).castVoteShutter(disputeId, voteIDs, ctx.choice, ctx.salt, ctx.justification)
+          ctx.disputeKit
+            .connect(ctx.bot)
+            .castVoteShutter(
+              disputeId,
+              voteIDs,
+              ctx.choice,
+              ctx.salt,
+              ctx.justification,
+            ),
         )
           .to.emit(ctx.disputeKit, "VoteCast")
-          .withArgs(disputeId, ctx.juror1.address, voteIDs, ctx.choice, ctx.justification);
+          .withArgs(
+            disputeId,
+            ctx.juror1.address,
+            voteIDs,
+            ctx.choice,
+            ctx.justification,
+          );
 
         // Verify vote was counted
-        const voteInfo = await ctx.disputeKit.getVoteInfo(disputeId, 0, Number(voteIDs[0]));
+        const voteInfo = await ctx.disputeKit.getVoteInfo(
+          disputeId,
+          0,
+          Number(voteIDs[0]),
+        );
         expect(voteInfo[3]).to.be.true; // voted is at index 3
         expect(voteInfo[2]).to.equal(ctx.choice); // choice is at index 2
       });
@@ -483,15 +669,31 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
     describe("Failed reveals", () => {
       it("Should revert if wrong choice provided", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
@@ -502,22 +704,41 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
             voteIDs,
             wrongChoice, // Wrong choice
             ctx.salt,
-            ctx.justification
-          )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
+            ctx.justification,
+          ),
+        ).to.be.revertedWithCustomError(
+          ctx.disputeKit,
+          "ChoiceCommitmentMismatch",
+        );
       });
 
       it("Should revert if wrong salt provided", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
@@ -528,22 +749,41 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
             voteIDs,
             ctx.choice,
             wrongSalt, // Wrong salt
-            ctx.justification
-          )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
+            ctx.justification,
+          ),
+        ).to.be.revertedWithCustomError(
+          ctx.disputeKit,
+          "ChoiceCommitmentMismatch",
+        );
       });
 
       it("Should revert if wrong justification provided", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
@@ -554,54 +794,105 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
             voteIDs,
             ctx.choice,
             ctx.salt,
-            wrongJustification // Wrong justification
-          )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "JustificationCommitmentMismatch");
+            wrongJustification, // Wrong justification
+          ),
+        ).to.be.revertedWithCustomError(
+          ctx.disputeKit,
+          "JustificationCommitmentMismatch",
+        );
       });
 
       it("Should revert if vote already cast", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
         // First vote succeeds
         await ctx.disputeKit
           .connect(ctx.bot)
-          .castVoteShutter(disputeId, voteIDs, ctx.choice, ctx.salt, ctx.justification);
+          .castVoteShutter(
+            disputeId,
+            voteIDs,
+            ctx.choice,
+            ctx.salt,
+            ctx.justification,
+          );
 
         // Second vote fails
         await expect(
-          ctx.disputeKit.connect(ctx.bot).castVoteShutter(disputeId, voteIDs, ctx.choice, ctx.salt, ctx.justification)
+          ctx.disputeKit
+            .connect(ctx.bot)
+            .castVoteShutter(
+              disputeId,
+              voteIDs,
+              ctx.choice,
+              ctx.salt,
+              ctx.justification,
+            ),
         ).to.be.revertedWithCustomError(ctx.disputeKit, "VoteAlreadyCast");
       });
     });
   });
 }
 
-export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) {
+export function testRecoveryFlowJurorReveals(
+  context: () => ShutterTestContext,
+) {
   describe("Recovery Flow - Juror Reveals", () => {
     describe("Successful justification reveals", () => {
       it("Should allow juror to recover vote without justification", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         // Juror commits
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
@@ -613,42 +904,63 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
             voteIDs,
             ctx.choice,
             ctx.salt,
-            "" // Empty justification is fine for recovery
-          )
+            "", // Empty justification is fine for recovery
+          ),
         )
           .to.emit(ctx.disputeKit, "VoteCast")
           .withArgs(disputeId, ctx.juror1.address, voteIDs, ctx.choice, "");
 
         // Verify vote was counted
-        const voteInfo = await ctx.disputeKit.getVoteInfo(disputeId, 0, Number(voteIDs[0]));
+        const voteInfo = await ctx.disputeKit.getVoteInfo(
+          disputeId,
+          0,
+          Number(voteIDs[0]),
+        );
         expect(voteInfo[3]).to.be.true; // voted is at index 3
         expect(voteInfo[2]).to.equal(ctx.choice); // choice is at index 2
       });
 
       it("Should validate against justification commitment when juror reveals", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
         // Juror can provide any justification - it won't be validated
-        const differentJustification = "This is a different justification that won't be checked";
+        const differentJustification =
+          "This is a different justification that won't be checked";
         await expect(
           ctx.disputeKit.connect(ctx.juror1).castVoteShutter(
             disputeId,
             voteIDs,
             ctx.choice,
             ctx.salt,
-            differentJustification // Different justification is OK for recovery
-          )
+            differentJustification, // Different justification is OK for recovery
+          ),
         ).to.not.be.reverted;
       });
     });
@@ -656,15 +968,31 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
     describe("Failed recovery reveals", () => {
       it("Should revert if wrong choice in recovery", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
@@ -675,22 +1003,41 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
             voteIDs,
             wrongChoice, // Wrong choice
             ctx.salt,
-            ""
-          )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
+            "",
+          ),
+        ).to.be.revertedWithCustomError(
+          ctx.disputeKit,
+          "ChoiceCommitmentMismatch",
+        );
       });
 
       it("Should revert if wrong salt in recovery", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
@@ -701,22 +1048,41 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
             voteIDs,
             ctx.choice,
             wrongSalt, // Wrong salt
-            ""
-          )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
+            "",
+          ),
+        ).to.be.revertedWithCustomError(
+          ctx.disputeKit,
+          "ChoiceCommitmentMismatch",
+        );
       });
 
       it("Should revert if non-juror tries to reveal without correct full commitment", async () => {
         const ctx = context();
-        const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+        const disputeId = await createDisputeAndDraw(
+          ctx,
+          ctx.shutterCourtID,
+          3,
+          ctx.shutterDKID,
+        );
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.salt,
+          ctx.justification,
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
-          .castCommitShutter(disputeId, voteIDs, choiceCommit, justificationCommit, ctx.identity, ctx.encryptedVote);
+          .castCommitShutter(
+            disputeId,
+            voteIDs,
+            choiceCommit,
+            justificationCommit,
+            ctx.identity,
+            ctx.encryptedVote,
+          );
 
         await advanceToVotePeriod(ctx, disputeId);
 
@@ -727,9 +1093,12 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
             voteIDs,
             ctx.choice,
             ctx.salt,
-            "" // No justification - would work for juror but not for others
-          )
-        ).to.be.revertedWithCustomError(ctx.disputeKit, "JustificationCommitmentMismatch");
+            "", // No justification - would work for juror but not for others
+          ),
+        ).to.be.revertedWithCustomError(
+          ctx.disputeKit,
+          "JustificationCommitmentMismatch",
+        );
       });
     });
   });
@@ -739,31 +1108,52 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
   describe("Edge Cases and Security", () => {
     it("Should handle mixed normal and recovery reveals in same dispute", async () => {
       const ctx = context();
-      const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+      const disputeId = await createDisputeAndDraw(
+        ctx,
+        ctx.shutterCourtID,
+        3,
+        ctx.shutterDKID,
+      );
       await advanceToCommitPeriod(ctx, disputeId);
 
-      const voteIDsJuror1 = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-      const voteIDsJuror2 = await getVoteIDsForJuror(ctx, disputeId, ctx.juror2);
+      const voteIDsJuror1 = await getVoteIDsForJuror(
+        ctx,
+        disputeId,
+        ctx.juror1,
+      );
+      const voteIDsJuror2 = await getVoteIDsForJuror(
+        ctx,
+        disputeId,
+        ctx.juror2,
+      );
 
-      const { choiceCommit: commit1, justificationCommit: justification1 } = generateCommitments(
-        1n,
-        111n,
-        "Juror 1 justification"
-      );
-      const { choiceCommit: commit2, justificationCommit: justification2 } = generateCommitments(
-        2n,
-        222n,
-        "Juror 2 justification"
-      );
+      const { choiceCommit: commit1, justificationCommit: justification1 } =
+        generateCommitments(1n, 111n, "Juror 1 justification");
+      const { choiceCommit: commit2, justificationCommit: justification2 } =
+        generateCommitments(2n, 222n, "Juror 2 justification");
 
       // Both jurors commit
       await ctx.disputeKit
         .connect(ctx.juror1)
-        .castCommitShutter(disputeId, voteIDsJuror1, commit1, justification1, ctx.identity, ctx.encryptedVote);
+        .castCommitShutter(
+          disputeId,
+          voteIDsJuror1,
+          commit1,
+          justification1,
+          ctx.identity,
+          ctx.encryptedVote,
+        );
 
       await ctx.disputeKit
         .connect(ctx.juror2)
-        .castCommitShutter(disputeId, voteIDsJuror2, commit2, justification2, ctx.identity, ctx.encryptedVote);
+        .castCommitShutter(
+          disputeId,
+          voteIDsJuror2,
+          commit2,
+          justification2,
+          ctx.identity,
+          ctx.encryptedVote,
+        );
 
       await advanceToVotePeriod(ctx, disputeId);
 
@@ -773,7 +1163,7 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
         voteIDsJuror1,
         1n,
         111n,
-        "Different justification" // Recovery doesn't check this
+        "Different justification", // Recovery doesn't check this
       );
 
       // Bot reveals juror2's vote normally
@@ -782,12 +1172,20 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
         voteIDsJuror2,
         2n,
         222n,
-        "Juror 2 justification" // Must match exactly
+        "Juror 2 justification", // Must match exactly
       );
 
       // Verify both votes were counted
-      const vote1Info = await ctx.disputeKit.getVoteInfo(disputeId, 0, Number(voteIDsJuror1[0]));
-      const vote2Info = await ctx.disputeKit.getVoteInfo(disputeId, 0, Number(voteIDsJuror2[0]));
+      const vote1Info = await ctx.disputeKit.getVoteInfo(
+        disputeId,
+        0,
+        Number(voteIDsJuror1[0]),
+      );
+      const vote2Info = await ctx.disputeKit.getVoteInfo(
+        disputeId,
+        0,
+        Number(voteIDsJuror2[0]),
+      );
 
       expect(vote1Info[3]).to.be.true; // voted is at index 3
       expect(vote1Info[2]).to.equal(1n); // choice is at index 2
@@ -797,11 +1195,24 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
 
     it("Should allow anyone to reveal vote with correct data only", async () => {
       const ctx = context();
-      const disputeId = await createDisputeAndDraw(ctx, ctx.shutterCourtID, 3, ctx.shutterDKID);
+      const disputeId = await createDisputeAndDraw(
+        ctx,
+        ctx.shutterCourtID,
+        3,
+        ctx.shutterDKID,
+      );
       await advanceToCommitPeriod(ctx, disputeId);
 
-      const voteIDsJuror1 = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-      const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+      const voteIDsJuror1 = await getVoteIDsForJuror(
+        ctx,
+        disputeId,
+        ctx.juror1,
+      );
+      const { choiceCommit, justificationCommit } = generateCommitments(
+        ctx.choice,
+        ctx.salt,
+        ctx.justification,
+      );
 
       await ctx.disputeKit
         .connect(ctx.juror1)
@@ -811,21 +1222,29 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
           choiceCommit,
           justificationCommit,
           ctx.identity,
-          ctx.encryptedVote
+          ctx.encryptedVote,
         );
 
       // Juror2 commits with a different choice
       const differentChoice = 2n;
-      const voteIDsJuror2 = await getVoteIDsForJuror(ctx, disputeId, ctx.juror2);
-      const { choiceCommit: commit2, justificationCommit: justification2 } = generateCommitments(
-        differentChoice,
-        ctx.salt,
-        ctx.justification
+      const voteIDsJuror2 = await getVoteIDsForJuror(
+        ctx,
+        disputeId,
+        ctx.juror2,
       );
+      const { choiceCommit: commit2, justificationCommit: justification2 } =
+        generateCommitments(differentChoice, ctx.salt, ctx.justification);
 
       await ctx.disputeKit
         .connect(ctx.juror2)
-        .castCommitShutter(disputeId, voteIDsJuror2, commit2, justification2, ctx.identity, ctx.encryptedVote);
+        .castCommitShutter(
+          disputeId,
+          voteIDsJuror2,
+          commit2,
+          justification2,
+          ctx.identity,
+          ctx.encryptedVote,
+        );
 
       await advanceToVotePeriod(ctx, disputeId);
 
@@ -834,10 +1253,22 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
       await expect(
         ctx.disputeKit
           .connect(ctx.attacker)
-          .castVoteShutter(disputeId, voteIDsJuror1, ctx.choice, ctx.salt, ctx.justification)
+          .castVoteShutter(
+            disputeId,
+            voteIDsJuror1,
+            ctx.choice,
+            ctx.salt,
+            ctx.justification,
+          ),
       )
         .to.emit(ctx.disputeKit, "VoteCast")
-        .withArgs(disputeId, ctx.juror1.address, voteIDsJuror1, ctx.choice, ctx.justification);
+        .withArgs(
+          disputeId,
+          ctx.juror1.address,
+          voteIDsJuror1,
+          ctx.choice,
+          ctx.justification,
+        );
 
       // Attacker cannot change juror2's vote to a different choice
       await expect(
@@ -846,9 +1277,12 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
           voteIDsJuror2,
           1n, // Wrong choice
           ctx.salt,
-          ctx.justification
-        )
-      ).to.be.revertedWithCustomError(ctx.disputeKit, "ChoiceCommitmentMismatch");
+          ctx.justification,
+        ),
+      ).to.be.revertedWithCustomError(
+        ctx.disputeKit,
+        "ChoiceCommitmentMismatch",
+      );
     });
   });
 }

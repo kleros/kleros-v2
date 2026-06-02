@@ -1,4 +1,4 @@
-const { BN, Address, toChecksumAddress } = require("ethereumjs-util");
+import { BN, Address, toChecksumAddress } from "ethereumjs-util";
 
 /**
  * Gets the address of a soon to be deployed contract.
@@ -6,7 +6,13 @@ const { BN, Address, toChecksumAddress } = require("ethereumjs-util");
  * @param {number|BN} nonce The current nonce for the deployer account.
  * @return {string} The address of a contract if it is deployed in the next transaction sent by the deployer account.
  */
-export const getContractAddress = (deployer, nonce) => {
-  const deployAddress = Address.generate(Address.fromString(deployer), new BN(String(nonce)));
+export const getContractAddress = (
+  deployer: string,
+  nonce: number | BN,
+): string => {
+  const deployAddress = Address.generate(
+    Address.fromString(deployer),
+    new BN(String(nonce)),
+  );
   return toChecksumAddress(deployAddress.toString());
 };

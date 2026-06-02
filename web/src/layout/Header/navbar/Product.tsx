@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+
 import Skeleton from "react-loading-skeleton";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -27,6 +28,7 @@ const Container = styled.a`
 const StyledIcon = styled.svg`
   width: 48px;
   height: 48px;
+  color: ${({ theme }) => theme.primaryText};
 `;
 
 const StyledImg = styled.img<{ isLoaded: boolean }>`

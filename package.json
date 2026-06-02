@@ -82,7 +82,8 @@
     "@zksync/contracts": "npm:empty-npm-package@1.0.0",
     "@graphprotocol/graph-cli/glob": "^11.1.0",
     "@graphprotocol/graph-cli/immutable": "^5.1.5",
-    "@graphprotocol/graph-cli/undici": "^7.24.0"
+    "@graphprotocol/graph-cli/undici": "^7.24.0",
+    "picomatch": "^4.0.4"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
@@ -93,7 +94,8 @@
     "build:web:ci": "yarn workspaces focus @kleros/kleros-v2-web && yarn workspaces foreach -Ap --include kleros-app --include contracts run build && yarn workspace @kleros/kleros-v2-web build-netlify",
     "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-web-devtools build-netlify",
     "build:contract-docs": "forge doc --build --out contracts/dist",
-    "start:contract-docs": "forge doc --serve"
+    "start:contract-docs": "forge doc --serve",
+    "check-types": "yarn workspaces foreach -A -v run check-types"
   },
   "alias": {
     "process": "process/browser.js",

@@ -1,10 +1,11 @@
-import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
-import svgr from "vite-plugin-svgr";
-import tsconfigPaths from "vite-tsconfig-paths";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+
+import { defineConfig } from "vite";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+import svgr from "vite-plugin-svgr";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -22,6 +23,9 @@ export default defineConfig({
     },
   },
   envPrefix: ["REACT_APP", "ALCHEMY", "WALLETCONNECT_PROJECT_ID"],
+  ssr: {
+    noExternal: ["ethereum-identity-kit"],
+  },
   plugins: [
     viteStaticCopy({
       targets: [

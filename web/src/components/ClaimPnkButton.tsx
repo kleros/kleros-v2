@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { useTranslation } from "react-i18next";
-import { formatEther } from "viem";
+import { formatEther, Hash } from "viem";
 import { useAccount, useChainId, usePublicClient, useWalletClient, useConfig } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -27,7 +27,7 @@ const ClaimPnkButton: React.FC = () => {
   const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [hash, setHash] = useState<`0x${string}` | undefined>();
+  const [hash, setHash] = useState<Hash | undefined>();
 
   const chainId = useChainId();
   const { address } = useAccount();
@@ -39,7 +39,8 @@ const ClaimPnkButton: React.FC = () => {
     args: [address ?? "0x00"],
   });
 
-  const faucetAddress = pnkFaucetAddress[chainId];
+  const chainKey = chainId as keyof typeof pnkFaucetAddress;
+  const faucetAddress = pnkFaucetAddress[chainKey];
   const { data: balance } = useReadPnkBalanceOf({
     args: [faucetAddress],
   });
@@ -60,7 +61,7 @@ const ClaimPnkButton: React.FC = () => {
         })
         .then(({ result, status }) => {
           setIsPopupOpen(status);
-          status && setHash(result?.transactionHash);
+          if (status) setHash(result?.transactionHash);
         });
     }
   };
@@ -77,7 +78,7 @@ const ClaimPnkButton: React.FC = () => {
           Icon={faucetCheck ? FaucetIcon : undefined}
         />
       ) : null}
-      {isPopupOpen && (
+      {isPopupOpen && hash && (
         <Popup
           title={t("popups.success")}
           popupType={PopupType.SWAP_SUCCESS}

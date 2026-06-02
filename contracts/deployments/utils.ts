@@ -1,4 +1,5 @@
 import { arbitrum, arbitrumSepolia } from "viem/chains";
+import type { Abi } from "viem";
 
 export const deployments = {
   devnet: {
@@ -19,10 +20,13 @@ export type DeploymentName = keyof typeof deployments;
 
 export type ContractConfig = {
   address: Record<number, `0x${string}`>;
-  abi: readonly any[];
+  abi: Abi;
 };
 
-export function getAddress(config: ContractConfig, chainId: number): `0x${string}` {
+export function getAddress(
+  config: ContractConfig,
+  chainId: number,
+): `0x${string}` {
   const address = config.address[chainId];
   if (!address) throw new Error(`No address found for chainId ${chainId}`);
   return address;

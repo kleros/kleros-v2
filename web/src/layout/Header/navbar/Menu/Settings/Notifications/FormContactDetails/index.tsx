@@ -89,7 +89,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           }
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           errorToast(t("notifications.updating_email_failed_error", { error: err?.message }));
         });
     } else {
@@ -105,7 +105,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           }
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           errorToast(t("notifications.adding_user_failed_error", { error: err?.message }));
         });
     }
@@ -137,10 +137,8 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           isEditing={isEditingEmail}
         />
       </FormContactContainer>
-      {!isEmailUpdateable ? (
-        <StyledInfoCard
-          msg={t("notifications.update_email_again", { time: timeLeftUntil(user?.emailUpdateableAt!) })}
-        />
+      {!isEmailUpdateable && user?.emailUpdateableAt ? (
+        <StyledInfoCard msg={t("notifications.update_email_again", { time: timeLeftUntil(user.emailUpdateableAt) })} />
       ) : null}
       <ButtonContainer>
         <Button

@@ -12,9 +12,7 @@ export const ToggleThemeProvider: React.FC<{
   theme: string;
   toggleTheme: () => void;
 }> = ({ theme, toggleTheme, children }) => {
-  return (
-    <Context.Provider value={[theme, toggleTheme]}>{children}</Context.Provider>
-  );
+  return <Context.Provider value={[theme, toggleTheme]}>{children}</Context.Provider>;
 };
 
 export const useToggleTheme: () => [string, () => void] = () => {

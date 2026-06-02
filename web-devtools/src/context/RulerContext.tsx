@@ -64,6 +64,7 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
 
     setKnownArbitrables([...knownArbitrables, arbitrable?.toLowerCase()]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [arbitrable, knownArbitrables]);
 
   const refetchData = useCallback(() => {

@@ -1,4 +1,5 @@
 import React from "react";
+
 import BarChart, { IBarChartData } from "./BarChart";
 
 export type StakedPNKByCourtsChartData = { labels: string[]; stakes: number[]; totalStake: number };

@@ -1,0 +1,13 @@
+/*
+* This file simple extends the default config, but adds the src directory and any ts/tsx files in root to the include list.
+* This way check-types can look at both the src and lib folders, but vite can still use the original config
+* and only look at the lib directory when building the package.
+*/
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*",
+    "**/*.ts",
+    "**/*.tsx",
+  ]
+}

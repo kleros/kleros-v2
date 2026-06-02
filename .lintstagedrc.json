@@ -1,5 +1,8 @@
 {
-  "*.{js,jsx,ts,tsx}": "prettier --write --no-error-on-unmatched-pattern --config prettier-config/.prettierrc.js",
+  "*.{js,jsx,ts,tsx}": [
+    "eslint --fix --no-error-on-unmatched-pattern",
+    "prettier --write --no-error-on-unmatched-pattern --config prettier-config/.prettierrc.js"
+  ],
   "*.{md,html,json}": "prettier --write --config prettier-config/.prettierrc.js",
   "*.sol": "prettier --write --config prettier-config/.prettierrc.js"
 }

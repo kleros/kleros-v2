@@ -54,7 +54,6 @@
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
@@ -66,18 +65,18 @@
     "declaration": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "resolveJsonModule": true,
     "target": "ES2020",
-    "lib": [
-      "ESNext.Array",
-      "dom"
-    ],
     "types": [
       "vite/client",
       "vite-plugin-svgr/client"
     ]
   },
+  "include": [
+    "src/**/*",
+    "global.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "build",

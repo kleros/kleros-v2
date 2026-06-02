@@ -101,7 +101,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
       const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
       const roundTimeline = rounds?.[index].timeline;
       const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : undefined;
-      const answers = disputeData?.answers;
+      const answers = disputeData?.answers ?? [];
 
       acc.push({
         title: t("dispute_info.jury_decision_round", { round: index + 1 }),

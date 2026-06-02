@@ -68,7 +68,7 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
   const { t } = useTranslation();
 
   const resendVerificationEmail = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (!user) return;
       infoToast(t("email_verification.sending_verification_email"));
@@ -80,7 +80,7 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
           }
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           errorToast(t("email_verification.failed_to_send_verification_error", { error: err?.message }));
         });
     },

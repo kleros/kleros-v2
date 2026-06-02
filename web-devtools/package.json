@@ -20,7 +20,9 @@
     "lint": "next lint",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen",
-    "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"
+    "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate",
+    "check-style": "eslint 'src/**/*.{ts,tsx}'",
+    "check-types": "tsc --noEmit"
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {

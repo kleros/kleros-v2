@@ -1,11 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
+
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import HeroImage from "components/HeroImage";
 import LatestCases from "components/LatestCases";

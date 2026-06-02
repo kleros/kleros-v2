@@ -1,4 +1,4 @@
-import hre = require("hardhat");
+import hre from "hardhat";
 import relayer from "./disputeRelayerBot";
 import { HttpNetworkConfig } from "hardhat/types";
 
@@ -8,7 +8,7 @@ async function main() {
     hre.companionNetworks.foreignChiado.deployments,
     "ForeignGatewayOnGnosis",
     "HomeGatewayToGnosis",
-    "DAI"
+    "DAI",
   );
 }
 

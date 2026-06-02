@@ -6,7 +6,8 @@
  * @param maxScreen the max screen width at which the property will be at maxSize
  *
  */
-export const responsiveSize = (minSize: number, maxSize: number, minScreen = 375, maxScreen = 1250) =>
-  `calc(${minSize}px + (${maxSize} - ${minSize}) * (min(max(100vw, ${minScreen}px), ${maxScreen}px) - ${minScreen}px) / (${
-    maxScreen - minScreen
-  }))`;
+export const responsiveSize = (minSize: number, maxSize: number, minScreen = 375, maxScreen = 1250) => {
+  const range = maxScreen - minScreen;
+  const clamped = `min(max(100vw, ${minScreen}px), ${maxScreen}px)`;
+  return `calc(${minSize}px + (${maxSize} - ${minSize}) * (${clamped} - ${minScreen}px) / (${range}))`;
+};

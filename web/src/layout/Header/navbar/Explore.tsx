@@ -32,6 +32,8 @@ const Title = styled.h1`
 `;
 
 const StyledLink = styled(Link)<{ isActive: boolean; isMobileNavbar?: boolean }>`
+  --landscape-color: ${({ isActive, theme }) => (isActive ? theme.white : `${theme.white}BA`)};
+
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -47,7 +49,7 @@ const StyledLink = styled(Link)<{ isActive: boolean; isMobileNavbar?: boolean }>
 
   ${landscapeStyle(
     () => css`
-      color: ${({ isActive, theme }) => (isActive ? theme.white : `${theme.white}BA`)};
+      color: var(--landscape-color);
       padding: 16px 8px;
     `
   )};

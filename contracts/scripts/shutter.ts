@@ -1,4 +1,7 @@
-import { encryptData, decrypt as shutterDecrypt } from "@shutter-network/shutter-sdk";
+import {
+  encryptData,
+  decrypt as shutterDecrypt,
+} from "@shutter-network/shutter-sdk";
 import { Hex, stringToHex, hexToString } from "viem";
 import crypto from "crypto";
 import "isomorphic-fetch";
@@ -12,7 +15,10 @@ const SHUTTER_API_URL = {
   testnet: "https://shutter-api.chiado.staging.shutter.network",
 };
 
-const SHUTTER_API = env.optional("SHUTTER_API", "mainnet") as keyof typeof SHUTTER_API_URL;
+const SHUTTER_API = env.optional(
+  "SHUTTER_API",
+  "mainnet",
+) as keyof typeof SHUTTER_API_URL;
 const SHUTTER_API_KEY = env.optionalNoDefault("SHUTTER_API_KEY");
 
 interface ShutterApiMessageData {
@@ -44,7 +50,11 @@ function getApiHeaders(): Record<string, string> {
   };
 
   // Add bearer token for mainnet if available
-  if (SHUTTER_API === "mainnet" && SHUTTER_API_KEY && SHUTTER_API_KEY?.trim() !== "") {
+  if (
+    SHUTTER_API === "mainnet" &&
+    SHUTTER_API_KEY &&
+    SHUTTER_API_KEY?.trim() !== ""
+  ) {
     headers.Authorization = `Bearer ${SHUTTER_API_KEY}`;
   }
 
@@ -56,25 +66,32 @@ function getApiHeaders(): Record<string, string> {
  * @param decryptionTimestamp Unix timestamp when decryption should be possible
  * @returns Promise with the eon key and identity
  */
-async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApiMessageData> {
+async function fetchShutterData(
+  decryptionTimestamp: number,
+): Promise<ShutterApiMessageData> {
   try {
-    console.log(`Sending request to Shutter API with decryption timestamp: ${decryptionTimestamp}`);
+    console.log(
+      `Sending request to Shutter API with decryption timestamp: ${decryptionTimestamp}`,
+    );
 
     // Generate a random identity prefix
     const identityPrefix = generateRandomBytes32();
     console.log(`Generated identity prefix: ${identityPrefix}`);
 
-    const response = await fetch(`${SHUTTER_API_URL[SHUTTER_API]}/api/register_identity`, {
-      method: "POST",
-      headers: {
-        ...getApiHeaders(),
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${SHUTTER_API_URL[SHUTTER_API]}/api/register_identity`,
+      {
+        method: "POST",
+        headers: {
+          ...getApiHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          decryptionTimestamp,
+          identityPrefix,
+        }),
       },
-      body: JSON.stringify({
-        decryptionTimestamp,
-        identityPrefix,
-      }),
-    });
+    );
 
     // Log the response status
     console.log(`API response status: ${response.status}`);
@@ -83,20 +100,24 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
     const responseText = await response.text();
 
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}: ${responseText}`);
+      throw new Error(
+        `API request failed with status ${response.status}: ${responseText}`,
+      );
     }
 
     // Parse the JSON response
     let jsonResponse: ShutterApiResponse;
     try {
       jsonResponse = JSON.parse(responseText);
-    } catch (error) {
+    } catch {
       throw new Error(`Failed to parse API response as JSON: ${responseText}`);
     }
 
     // Check if we have the message data
     if (!jsonResponse.message) {
-      throw new Error(`API response missing message data: ${JSON.stringify(jsonResponse)}`);
+      throw new Error(
+        `API response missing message data: ${JSON.stringify(jsonResponse)}`,
+      );
     }
 
     return jsonResponse.message;
@@ -111,13 +132,18 @@ async function fetchShutterData(decryptionTimestamp: number): Promise<ShutterApi
  * @param identity The identity used for encryption
  * @returns Promise with the decryption key data
  */
-async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKeyData> {
+async function fetchDecryptionKey(
+  identity: string,
+): Promise<ShutterDecryptionKeyData> {
   console.log(`Fetching decryption key for identity: ${identity}`);
 
-  const response = await fetch(`${SHUTTER_API_URL[SHUTTER_API]}/api/get_decryption_key?identity=${identity}`, {
-    method: "GET",
-    headers: getApiHeaders(),
-  });
+  const response = await fetch(
+    `${SHUTTER_API_URL[SHUTTER_API]}/api/get_decryption_key?identity=${identity}`,
+    {
+      method: "GET",
+      headers: getApiHeaders(),
+    },
+  );
 
   // Get the response text
   const responseText = await response.text();
@@ -126,7 +152,7 @@ async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKe
   let jsonResponse;
   try {
     jsonResponse = JSON.parse(responseText);
-  } catch (error) {
+  } catch {
     throw new Error(`Failed to parse API response as JSON: ${responseText}`);
   }
 
@@ -136,15 +162,19 @@ async function fetchDecryptionKey(identity: string): Promise<ShutterDecryptionKe
       throw new Error(
         `Cannot decrypt yet: The decryption timestamp has not been reached.\n` +
           `Please wait at least ${DECRYPTION_DELAY} seconds after encryption before attempting to decrypt.\n` +
-          `Error details: ${jsonResponse.description}`
+          `Error details: ${jsonResponse.description}`,
       );
     }
-    throw new Error(`API request failed with status ${response.status}: ${responseText}`);
+    throw new Error(
+      `API request failed with status ${response.status}: ${responseText}`,
+    );
   }
 
   // Check if we have the message data
   if (!jsonResponse.message) {
-    throw new Error(`API response missing message data: ${JSON.stringify(jsonResponse)}`);
+    throw new Error(
+      `API response missing message data: ${JSON.stringify(jsonResponse)}`,
+    );
   }
 
   return jsonResponse.message;
@@ -173,7 +203,10 @@ function generateRandomBytes32(): `0x${string}` {
   return ("0x" +
     crypto
       .getRandomValues(new Uint8Array(32))
-      .reduce((acc, byte) => acc + byte.toString(16).padStart(2, "0"), "")) as Hex;
+      .reduce(
+        (acc, byte) => acc + byte.toString(16).padStart(2, "0"),
+        "",
+      )) as Hex;
 }
 
 /**
@@ -181,12 +214,16 @@ function generateRandomBytes32(): `0x${string}` {
  * @param message The message to encrypt
  * @returns Promise with the encrypted commitment and identity
  */
-export async function encrypt(message: string): Promise<{ encryptedCommitment: string; identity: string }> {
+export async function encrypt(
+  message: string,
+): Promise<{ encryptedCommitment: string; identity: string }> {
   // Set decryption timestamp
   const decryptionTimestamp = Math.floor(Date.now() / 1000) + DECRYPTION_DELAY;
 
   // Fetch encryption data from Shutter API
-  console.log(`Fetching encryption data for decryption at timestamp ${decryptionTimestamp}...`);
+  console.log(
+    `Fetching encryption data for decryption at timestamp ${decryptionTimestamp}...`,
+  );
   const shutterData = await fetchShutterData(decryptionTimestamp);
 
   // Extract the eon key and identity from the response and ensure they have the correct format
@@ -204,7 +241,12 @@ export async function encrypt(message: string): Promise<{ encryptedCommitment: s
   console.log("Sigma:", sigmaHex);
 
   // Encrypt the message
-  const encryptedCommitment = await encryptData(msgHex, identityHex, eonKeyHex, sigmaHex);
+  const encryptedCommitment = await encryptData(
+    msgHex,
+    identityHex,
+    eonKeyHex,
+    sigmaHex,
+  );
 
   return { encryptedCommitment, identity: identityHex };
 }
@@ -215,7 +257,10 @@ export async function encrypt(message: string): Promise<{ encryptedCommitment: s
  * @param identity The identity used for encryption
  * @returns Promise with the decrypted message
  */
-export async function decrypt(encryptedMessage: string, identity: string): Promise<string> {
+export async function decrypt(
+  encryptedMessage: string,
+  identity: string,
+): Promise<string> {
   // Fetch the decryption key
   const decryptionKeyData = await fetchDecryptionKey(identity);
   console.log("Decryption key:", decryptionKeyData.decryption_key);
@@ -224,7 +269,10 @@ export async function decrypt(encryptedMessage: string, identity: string): Promi
   const decryptionKey = ensureHexString(decryptionKeyData.decryption_key);
 
   // Decrypt the message
-  const decryptedHexMessage = await shutterDecrypt(encryptedMessage, decryptionKey);
+  const decryptedHexMessage = await shutterDecrypt(
+    encryptedMessage,
+    decryptionKey,
+  );
 
   // Convert the decrypted hex message back to a string
   return hexToString(decryptedHexMessage as `0x${string}`);
@@ -266,8 +314,12 @@ Examples:
         const [encryptedMessage, identity] = [process.argv[3], process.argv[4]];
         if (!encryptedMessage || !identity) {
           console.error("Error: Missing required arguments for decrypt");
-          console.error("Usage: yarn ts-node shutter.ts decrypt <encrypted-message> <identity>");
-          console.error("Note: The identity is the one returned during encryption");
+          console.error(
+            "Usage: yarn ts-node shutter.ts decrypt <encrypted-message> <identity>",
+          );
+          console.error(
+            "Note: The identity is the one returned during encryption",
+          );
           process.exit(1);
         }
         console.log(`Using Shutter API ${SHUTTER_API_URL[SHUTTER_API]}...`);

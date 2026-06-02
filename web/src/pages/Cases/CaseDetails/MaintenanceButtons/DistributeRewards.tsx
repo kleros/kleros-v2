@@ -45,9 +45,10 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
     const rounds = maintenanceData?.dispute?.rounds;
     if (isUndefined(id) || isUndefined(roundIndex) || isUndefined(rounds)) return;
 
+    const chainKey = (chainId ?? DEFAULT_CHAIN.id) as keyof typeof klerosCoreAddress;
     const baseArgs = {
       abi: klerosCoreAbi,
-      address: klerosCoreAddress[chainId ?? DEFAULT_CHAIN.id],
+      address: klerosCoreAddress[chainKey],
       functionName: "execute",
     };
 

@@ -52,6 +52,7 @@ const getWidgetConfig = (theme: Theme): WidgetConfig => ({
         primary: theme.primaryText,
         secondary: theme.secondaryText,
       },
+      //@ts-expect-error LiFi widget uses these keys at runtime, but their public PaletteOptions Pick omits them
       common: {
         white: theme.primaryText,
       },

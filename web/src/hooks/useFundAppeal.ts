@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWalletClient, usePublicClient, useAccount } from "wagmi";
+
 import { executeFundAppeal } from "actions/fundAppeal/execute";
 import type { FundAppealParams } from "actions/fundAppeal/params";
-import { useWalletClient, usePublicClient, useAccount } from "wagmi";
 
 import { errorToast, wrapWithToast } from "utils/wrapWithToast";
 

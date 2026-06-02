@@ -2,6 +2,8 @@ import {
   mainnet,
   arbitrumSepolia,
   arbitrum,
+  base,
+  optimism,
   gnosisChiado,
   sepolia,
   gnosis,
@@ -33,7 +35,7 @@ type AlchemyProtocol = "https" | "wss";
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/util/const.ts#L16-L18
 function getAlchemyRpcUrl(protocol: AlchemyProtocol, chainId: number | string): string {
-  const network = alchemyToViemChain[chainId];
+  const network = alchemyToViemChain[Number(chainId)];
   if (!network) {
     throw new Error(`Unsupported chain ID: ${chainId}`);
   }
@@ -62,6 +64,8 @@ const getTransports = () => {
       ? defaultTransport(gnosis)
       : defaultTransport(gnosisChiado),
     [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
+    [base.id]: http(), // Required for EFP follow transactions
+    [optimism.id]: http(), // Required for EFP follow transactions
   };
 
   if (isLocalhost)

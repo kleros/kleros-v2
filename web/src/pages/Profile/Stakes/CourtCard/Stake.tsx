@@ -15,7 +15,7 @@ const StyledLabel = styled.label`
 `;
 
 interface IStake {
-  stake: string;
+  stake: bigint;
 }
 
 const Stake: React.FC<IStake> = ({ stake }) => {

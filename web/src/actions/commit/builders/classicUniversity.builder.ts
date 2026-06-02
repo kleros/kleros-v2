@@ -17,9 +17,11 @@ export const classicUniversityCommitBuilder = defineCommitBuilder({
     deps.storeCommitData(key, { choice, salt });
 
     const commit = hashVote(choice, salt);
+    const chainKey = chain.id as keyof typeof disputeKitClassicUniversityAddress;
+
     return {
       account,
-      address: disputeKitClassicUniversityAddress[chain.id],
+      address: disputeKitClassicUniversityAddress[chainKey],
       abi: disputeKitClassicUniversityAbi,
       functionName: "castCommit",
       args: [disputeId, voteIds, commit],

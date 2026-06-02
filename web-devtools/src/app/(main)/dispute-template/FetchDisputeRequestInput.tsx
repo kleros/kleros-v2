@@ -89,6 +89,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
       }
     };
     if (debouncedTxnHash && chainId) fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedTxnHash, chainId]);
 
   return (

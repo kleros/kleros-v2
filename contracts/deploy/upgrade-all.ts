@@ -7,13 +7,21 @@ import { getContractNamesFromNetwork } from "../scripts/utils/contracts";
 
 const { bold } = print.colors;
 
-const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployUpgradeAll: DeployFunction = async (
+  hre: HardhatRuntimeEnvironment,
+) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
 
   // fallback to hardhat node signers on local network
-  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
+  const deployer =
+    (await getNamedAccounts()).deployer ??
+    (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("upgrading on %s with deployer %s", HomeChains[chainId], deployer);
+  console.log(
+    "upgrading on %s with deployer %s",
+    HomeChains[chainId],
+    deployer,
+  );
 
   const {
     disputeKitClassic,
@@ -33,11 +41,15 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   console.log("disputeKitGated", disputeKitGated);
   console.log("disputeKitGatedShutter", disputeKitGatedShutter);
 
-  const upgrade = async (contractName: string, initializer: string, args: any[]) => {
+  const upgrade = async (
+    contractName: string,
+    initializer: string,
+    args: unknown[],
+  ) => {
     try {
       print.highlight(`🔍 Validating upgrade of ${bold(contractName)}`);
 
-      let compareStorageOptions = { contract: contractName } as any;
+      const compareStorageOptions = { contract: contractName };
       await hre.run("compare-storage", compareStorageOptions);
       print.newline();
       print.highlight(`💣 Upgrading ${bold(contractName)}`);
@@ -59,7 +71,9 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
         args, // Warning: do not reinitialize existing state variables, only the new ones
       });
       print.info(`Verifying ${contractName} on Etherscan...`);
-      await hre.run("etherscan-verify", { contractName: `${contractName}_Implementation` });
+      await hre.run("etherscan-verify", {
+        contractName: `${contractName}_Implementation`,
+      });
     } catch (err) {
       console.error(err);
       throw err;
@@ -72,7 +86,9 @@ const deployUpgradeAll: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   await upgrade(disputeKitShutter, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGated, "reinitialize", [wETH.address]);
   await upgrade(disputeKitGatedShutter, "reinitialize", [wETH.address]);
-  await upgrade(disputeKitGatedArgentinaConsumerProtection, "reinitialize", [wETH.address]);
+  await upgrade(disputeKitGatedArgentinaConsumerProtection, "reinitialize", [
+    wETH.address,
+  ]);
   await upgrade(disputeTemplateRegistry, "reinitialize", []);
   await upgrade(evidence, "reinitialize", []);
   await upgrade(core, "reinitialize", [wETH.address]);

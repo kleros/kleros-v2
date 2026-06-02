@@ -61,7 +61,7 @@ const allUserDrawsQuery = graphql(`
   }
 `);
 
-type Draw = NonNullable<UserDrawsQuery["user"]>["draws"][number];
+export type UserDraw = NonNullable<UserDrawsQuery["user"]>["draws"][number];
 
 /**
  * Hook to fetch ALL user draws by fetching in batches of 1000 until complete.
@@ -72,11 +72,11 @@ export const useAllUserDraws = (jurorAddress?: Address, where?: Draw_Filter, sor
   const sanitizedWhere = sanitizeFilter(where);
   const isEnabled = !isUndefined(jurorAddress);
 
-  return useQuery<Draw[]>({
+  return useQuery<UserDraw[]>({
     queryKey: ["useAllUserDraws", jurorAddress?.toLowerCase(), sanitizedWhere, sortOrder],
     enabled: isEnabled,
     queryFn: async () => {
-      const allDraws: Draw[] = [];
+      const allDraws: UserDraw[] = [];
       let skip = 0;
       let hasMore = true;
 

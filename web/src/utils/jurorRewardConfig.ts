@@ -3,7 +3,9 @@ import { formatUnits, formatEther } from "viem";
 import { CoinIds } from "consts/coingecko";
 import { isUndefined } from "utils/index";
 
-import { UserQuery } from "queries/useUser";
+import { userFragment, UserQuery } from "queries/useUser";
+
+import { useFragment as readFragment } from "src/graphql";
 
 export interface IReward {
   token: "ETH" | "PNK";
@@ -28,7 +30,8 @@ export const rewards: IReward[] = [
 ];
 
 export const calculateTotalJurorReward = (coinId: number, data: UserQuery): bigint => {
-  const total = data.user?.shifts
+  const userDetails = readFragment(userFragment, data.user);
+  const total = userDetails?.shifts
     .map((shift) => parseInt(coinId === 0 ? shift.pnkAmount : shift.ethAmount))
     .reduce((acc, curr) => acc + curr, 0);
 

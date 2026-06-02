@@ -8,10 +8,11 @@ export const gatedShutterFundAppealBuilder = defineFundAppealBuilder({
   build: async (params: GatedShutterFundAppealParams, context) => {
     const { disputeId, choice, fundAmount } = params;
     const { chain, account } = context;
+    const chainKey = chain.id as keyof typeof disputeKitGatedShutterAddress;
 
     return {
       account,
-      address: disputeKitGatedShutterAddress[chain.id],
+      address: disputeKitGatedShutterAddress[chainKey],
       abi: disputeKitGatedShutterAbi,
       functionName: "fundAppeal",
       args: [disputeId, choice],

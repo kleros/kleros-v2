@@ -9,12 +9,14 @@
     "./test",
     "./typechain-types",
     "./deploy",
-    "./deployments"
+    "./deployments/*.ts",
+    "./*.ts",
+    "./*.mts"
   ],
   "exclude": [
-    "./scripts/**/console*.ts"
-  ],
-  "files": [
-    "./hardhat.config.ts"
+    "./scripts/**/console*.ts",
+    //Exclude unnecessary generated files
+    "./deployments/*.viem.ts",
+    "./deployments/arbitrum*.ts"
   ]
 }

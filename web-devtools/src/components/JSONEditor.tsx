@@ -54,6 +54,7 @@ const JSONEditor = (props: any) => {
         refEditor.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // update props

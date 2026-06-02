@@ -44,7 +44,6 @@ interface IStageExplainer {
 }
 
 const StageOneExplanation: React.FC = () => {
-  const { t } = useTranslation();
   return (
     <div>
       <p>
@@ -58,7 +57,6 @@ const StageOneExplanation: React.FC = () => {
 };
 
 const StageTwoExplanation: React.FC = () => {
-  const { t } = useTranslation();
   const options = useOptionsContext();
   const fundedOptions = options?.filter((option) => option?.funded).map((option) => option.title);
   return (

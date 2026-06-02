@@ -15,7 +15,8 @@ export const EnsureChain: React.FC<IEnsureChain> = ({ children, className }) => 
   const { chainId } = useAccount();
   const [isClient, setIsClient] = useState(false);
 
-  // hydration error workaround, in server pre-render chainId is undefined so it mismatches with the client's initial render
+  // hydration error workaround, in server pre-render chainId is undefined,
+  // so it mismatches with the client's initial render
   useEffect(() => setIsClient(true), []);
 
   if (!isClient) return children;

@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
+import { Hash } from "viem";
 
 import { useStakingEventsByCourt } from "hooks/useStakingEventsByCourt";
 import { findCourtNameById } from "utils/findCourtNameById";
@@ -45,20 +46,22 @@ const getAllChildCourtIds = (court: CourtTreeQuery["court"], courtId: string): n
   const ids: number[] = [];
 
   const collectAllDescendants = (node: CourtTreeQuery["court"]) => {
+    if (!node) return;
     ids.push(parseInt(node.id));
     if (node.children) {
-      node.children.forEach((child) => collectAllDescendants(child));
+      node.children.forEach((child) => collectAllDescendants(child as CourtTreeQuery["court"]));
     }
   };
 
   const findAndCollect = (node: CourtTreeQuery["court"]): boolean => {
+    if (!node) return false;
     if (node.id === courtId) {
       collectAllDescendants(node);
       return true;
     }
     if (node.children) {
       for (const child of node.children) {
-        if (findAndCollect(child)) return true;
+        if (findAndCollect(child as CourtTreeQuery["court"])) return true;
       }
     }
     return false;
@@ -91,7 +94,7 @@ const DisplayStakes: React.FC = () => {
       address: string;
       stake: string;
       timestamp: string;
-      transactionHash: string;
+      transactionHash: Hash;
       courtId: number;
       courtName: string;
     }>
@@ -103,6 +106,8 @@ const DisplayStakes: React.FC = () => {
   }, [searchValue, courtId]);
 
   useEffect(() => {
+    if (!courtTree) return;
+
     const allItems = data?.userStakingEventsV2?.items ?? [];
 
     const chunk = allItems.map((item) => {

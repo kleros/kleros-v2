@@ -3,9 +3,9 @@ import React from "react";
 import DiscordLogo from "svgs/socialmedia/discord.svg";
 import GithubLogo from "svgs/socialmedia/github.svg";
 import LinkedinLogo from "svgs/socialmedia/linkedin.svg";
-import YouTubeLogo from "svgs/socialmedia/youtube.svg";
 import TelegramLogo from "svgs/socialmedia/telegram.svg";
 import XLogo from "svgs/socialmedia/x.svg";
+import YouTubeLogo from "svgs/socialmedia/youtube.svg";
 
 export const socialmedia = {
   telegram: {
