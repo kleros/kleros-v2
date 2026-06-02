@@ -1,7 +1,6 @@
 import React, { useContext, createContext, useMemo } from "react";
 
 import { useParams } from "react-router-dom";
-import type { Address } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 
 import { REFETCH_INTERVAL } from "consts/index";
@@ -52,7 +51,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
     !isUndefined(id);
 
   const voteResult = useReadContract({
-    address: disputeKitAddress as Address | undefined,
+    address: disputeKitAddress,
     abi: disputeKitInfo?.disputeKitAbi ?? disputeKitClassicAbi,
     functionName: "isVoteActive",
     args: [BigInt(id ?? 0), BigInt(roundId ?? 0), BigInt(voteId ?? 0)],
