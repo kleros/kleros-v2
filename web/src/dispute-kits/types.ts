@@ -47,7 +47,7 @@ export enum Features {
 }
 
 /** Group of features (like radio buttons per category) */
-export type FeatureGroups = Record<string, Features[]>;
+export type FeatureGroups = Record<Group, Features[]>;
 
 export interface DisputeKitConfig<TAbi extends Abi = Abi> {
   id: DisputeKits;

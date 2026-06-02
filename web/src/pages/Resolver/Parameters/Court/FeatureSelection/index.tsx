@@ -78,7 +78,9 @@ const FeatureSelection: React.FC = () => {
   // Court specific groups
   const courtGroups = useMemo(() => {
     const courtKits = supportedDisputeKits?.court?.supportedDisputeKits.map((dk) => Number(dk.id));
-    if (isUndefined(courtKits) || allowedDisputeKits.length === 0) return {};
+    if (isUndefined(courtKits) || allowedDisputeKits.length === 0) {
+      return { [Group.Voting]: [], [Group.Eligibility]: [] };
+    }
     return getVisibleFeaturesForCourt(courtKits, allowedDisputeKits, featureGroupsForDeployment);
   }, [supportedDisputeKits, allowedDisputeKits, featureGroupsForDeployment]);
 

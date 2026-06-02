@@ -218,13 +218,11 @@ export function getVisibleFeaturesForCourt(
   }
 
   // Filter groups => only keep features that are visible
-  const filteredGroups: FeatureGroups = {};
-  for (const [groupName, features] of Object.entries(groups)) {
-    const visibleFeatures = features.filter((f) => visible.has(f));
-    if (visibleFeatures.length > 0) {
-      filteredGroups[groupName] = visibleFeatures;
-    }
-  }
-
+  // This is assuming that each kit supports at least one Feature from each Group,
+  // and a court has at least one matching kit. which holds true for current kits.
+  const filteredGroups: FeatureGroups = {
+    [Group.Voting]: groups[Group.Voting].filter((f) => visible.has(f)),
+    [Group.Eligibility]: groups[Group.Eligibility].filter((f) => visible.has(f)),
+  };
   return filteredGroups;
 }
