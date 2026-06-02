@@ -66,7 +66,7 @@ const Jurors: React.FC = () => {
     args: [
       prepareArbitratorExtradata(
         disputeData.courtId ?? "",
-        disputeData?.numberOfJurors ?? 0,
+        disputeData?.numberOfJurors ?? 3,
         disputeData.disputeKitId ?? DisputeKits.Classic,
         undefined
       ),

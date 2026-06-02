@@ -2,7 +2,7 @@ import { DisputeKitConfig, DisputeKits } from "src/dispute-kits";
 
 import { isProductionDeployment } from "../consts/index";
 
-import { DisputeKitDataMap, GatedDisputeKitData } from "./prepareArbitratorExtradata";
+import { DisputeKitDataMap } from "./prepareArbitratorExtradata";
 import { DISPUTE_KIT_REGISTRY } from "./registry";
 import { FeatureGroups, Features, Group } from "./types";
 
@@ -53,7 +53,7 @@ export function resolveInitialFeatureSet(kit: DisputeKitConfig, disputeKitData?:
       return kit.featureSets[0];
     case DisputeKits.Gated:
     case DisputeKits.GatedShutter: {
-      const isERC1155 = (disputeKitData as GatedDisputeKitData | undefined)?.isERC1155;
+      const isERC1155 = disputeKitData?.isERC1155;
       return (
         kit.featureSets.find((set) =>
           isERC1155 ? set.includes(Features.GatedErc1155) : set.includes(Features.GatedErc20)

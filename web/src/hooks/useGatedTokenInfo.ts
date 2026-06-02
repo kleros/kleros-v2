@@ -56,8 +56,7 @@ export function useGatedTokenInfo(disputeId: string, currentRoundIndex: number) 
   const publicClient = usePublicClient();
 
   // Get the extraData from the subgraph via the existing RoundDetails query
-  const roundIndex = currentRoundIndex !== undefined ? Number(currentRoundIndex) : undefined;
-  const { data: roundData, isLoading: isLoadingRound } = useRoundDetailsQuery(disputeId, roundIndex);
+  const { data: roundData, isLoading: isLoadingRound } = useRoundDetailsQuery(disputeId, currentRoundIndex);
 
   const tokenGateInfo = useMemo(() => {
     const extradata = roundData?.round?.dispute.disputeKitDispute?.[0].extraData;

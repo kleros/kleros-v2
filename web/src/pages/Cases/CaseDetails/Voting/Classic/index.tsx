@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
+import { Bytes32Hash } from "utils/crypto/hashVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -13,7 +14,6 @@ import { DisputeKitVotingProps } from "src/dispute-kits";
 import Commit from "./Commit";
 import Reveal from "./Reveal";
 import Vote from "./Vote";
-import { Bytes32Hash } from "utils/crypto/hashVote";
 
 const Classic: React.FC<DisputeKitVotingProps> = ({ arbitrable, setIsOpen, disputeKitId }) => {
   const { id } = useParams();
