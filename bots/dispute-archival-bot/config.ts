@@ -12,7 +12,11 @@ type VariableKey = keyof typeof variableKeysMap;
 
 type EnvConfig = Record<VariableKey, string>;
 
+let cachedConfig: EnvConfig | undefined;
+
 export const getEnvConfig = (): EnvConfig => {
+  if (cachedConfig) return cachedConfig;
+
   const config: EnvConfig = {
     coreSubgraphUrl: "",
     dtrSubgraphUrl: "",
@@ -32,6 +36,7 @@ export const getEnvConfig = (): EnvConfig => {
     config[key] = value;
   }
 
+  cachedConfig = config;
   return config;
 };
 
