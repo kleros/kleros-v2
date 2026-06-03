@@ -1,5 +1,6 @@
 import { GraphQLError } from "graphql";
 import { gql, type GraphQLClient } from "graphql-request";
+import { Products } from ".";
 
 const query = gql`
   mutation AddUser($settings: AddUserSettingsDto!) {
@@ -9,6 +10,7 @@ const query = gql`
 
 export type AddUserData = {
   email: string;
+  product: Products;
 };
 
 type AddUserResponse = {

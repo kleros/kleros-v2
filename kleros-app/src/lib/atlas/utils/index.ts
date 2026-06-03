@@ -6,6 +6,7 @@ export enum Products {
   Governor = "Governor",
   ProofOfHumanity = "ProofOfHumanity",
   Reality = "Reality",
+  Foresight = "Foresight",
   Test = "Test",
 }
 
