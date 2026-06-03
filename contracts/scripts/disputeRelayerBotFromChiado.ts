@@ -8,7 +8,7 @@ async function main() {
     hre.companionNetworks.foreignChiado.deployments,
     "ForeignGatewayOnGnosis",
     "HomeGatewayToGnosis",
-    "DAI",
+    "DAI"
   );
 }
 

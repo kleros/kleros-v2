@@ -7,7 +7,7 @@ async function main() {
     hre.config.networks.localhost as HttpNetworkConfig,
     hre.companionNetworks.foreign.deployments,
     "ForeignGatewayOnEthereum",
-    "HomeGatewayToEthereum",
+    "HomeGatewayToEthereum"
   );
 }
 

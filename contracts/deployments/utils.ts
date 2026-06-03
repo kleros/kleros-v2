@@ -23,10 +23,7 @@ export type ContractConfig = {
   abi: Abi;
 };
 
-export function getAddress(
-  config: ContractConfig,
-  chainId: number,
-): `0x${string}` {
+export function getAddress(config: ContractConfig, chainId: number): `0x${string}` {
   const address = config.address[chainId];
   if (!address) throw new Error(`No address found for chainId ${chainId}`);
   return address;
