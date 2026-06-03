@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, type Address } from "viem";
+import { createPublicClient, createWalletClient, type Hex, type Address } from "viem";
 import { getEnvConfig } from "../config";
 import { privateKeyToAccount } from "viem/accounts";
 import { alchemyTransport } from "./rpc";
@@ -11,7 +11,7 @@ export const CHAIN = arbitrumSepolia;
 const getClients = () => {
   const config = getEnvConfig();
 
-  const account = privateKeyToAccount(`0x${config.privateKey}`);
+  const account = privateKeyToAccount(config.privateKey as Hex);
 
   return {
     publicClient: createPublicClient({

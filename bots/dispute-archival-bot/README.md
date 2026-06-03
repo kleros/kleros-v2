@@ -9,7 +9,7 @@ DisputeArchive Contract : [arbitrum sepolia](https://sepolia.arbiscan.io/address
 1. Populated dispute data from `kleros-sdk`
 2. Evidences for the disputes (Un-filtered)
 3. Dispute details from Subgraph. Subgraph here is the one that indexed the archived KlerosCore
-4. Templates for the dispute. These are saved in case the dispute is broken, in which case populated dispute data will be never. Acts as a recovery.
+4. Templates for the dispute. These are saved in case the dispute is broken, in which case populated dispute data will be `null`. Acts as a recovery.
 
 ### Notes:
 

@@ -51,7 +51,7 @@ export async function fetchDisputeTemplate(templateId: string) {
     throw new Error(json.errors[0].message);
   }
 
-  if (!json.data) {
+  if (!json.data || !json.data.disputeTemplate) {
     throw new Error("fetchDisputeTemplate: fetch request did not return any data.");
   }
 
