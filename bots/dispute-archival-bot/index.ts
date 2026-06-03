@@ -1,8 +1,8 @@
 import "dotenv/config";
-import { uploadToIpfs } from "./utils/uploadToIpfs.ts";
-import { fetchDisputeArchiveSnapshot } from "./utils/fetchDisputeArchiveSnapshot.ts";
-import { fetchDisputeIds } from "./utils/fetchDisputeIds.ts";
-import { isDisputeArchived, registerCid } from "./utils/contract.ts";
+import { uploadToIpfs } from "./utils/uploadToIpfs";
+import { fetchDisputeArchiveSnapshot } from "./utils/fetchDisputeArchiveSnapshot";
+import { fetchDisputeIds } from "./utils/fetchDisputeIds";
+import { isDisputeArchived, registerCid } from "./utils/contract";
 
 async function main() {
   console.log("Fetching dispute IDs...");

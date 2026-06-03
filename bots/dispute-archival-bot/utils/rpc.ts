@@ -1,5 +1,5 @@
 import { fallback, http, webSocket } from "viem";
-import { getEnvConfig } from "../config.ts";
+import { getEnvConfig } from "../config";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/types/types.ts#L98-L153

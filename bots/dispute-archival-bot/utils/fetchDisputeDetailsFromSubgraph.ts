@@ -1,6 +1,6 @@
 import type { Address, Hash } from "viem";
 
-import { paginatedSubgraphQuery, querySubgraph } from "./query.ts";
+import { paginatedSubgraphQuery, querySubgraph } from "./query";
 
 // also saving court in case it's not available later, since is a required field for Round
 export type Court = {

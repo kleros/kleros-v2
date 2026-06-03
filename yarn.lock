@@ -19738,9 +19738,13 @@ __metadata:
   resolution: "dispute-archival-bot@workspace:bots/dispute-archival-bot"
   dependencies:
     "@kleros/kleros-sdk": "workspace:^"
+    "@kleros/kleros-v2-eslint-config": "workspace:^"
+    "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
     "@types/node": "npm:^25.6.0"
     dotenv: "npm:^17.4.2"
+    eslint: "npm:^9.15.0"
+    prettier: "npm:^3.3.3"
     tsx: "npm:^4.19.4"
     typescript: "npm:^5.6.3"
     viem: "npm:^2.24.1"

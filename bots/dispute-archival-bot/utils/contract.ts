@@ -1,9 +1,9 @@
 import { createPublicClient, createWalletClient, type Address } from "viem";
-import { getEnvConfig } from "../config.ts";
+import { getEnvConfig } from "../config";
 import { privateKeyToAccount } from "viem/accounts";
-import { alchemyTransport } from "./rpc.ts";
+import { alchemyTransport } from "./rpc";
 import { arbitrumSepolia } from "viem/chains";
-import { disputeArchiveAbi } from "../abi/DisputeArchive.ts";
+import { disputeArchiveAbi } from "../abi/DisputeArchive";
 
 // WARNING: temporary
 export const CHAIN = arbitrumSepolia;

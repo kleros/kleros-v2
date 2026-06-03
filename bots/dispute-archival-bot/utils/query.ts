@@ -1,5 +1,5 @@
-import { getEnvConfig } from "../config.ts";
-import type { GraphQLResponse } from "./types.ts";
+import { getEnvConfig } from "../config";
+import type { GraphQLResponse } from "./types";
 
 const SUBGRAPH_PAGE_SIZE = 1000;
 

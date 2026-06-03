@@ -1,5 +1,5 @@
-import { getEnvConfig } from "../config.ts";
-import type { DisputeArchiveSnapshot } from "./fetchDisputeArchiveSnapshot.ts";
+import { getEnvConfig } from "../config";
+import type { DisputeArchiveSnapshot } from "./fetchDisputeArchiveSnapshot";
 
 type UploadResponse = {
   cids: string[];

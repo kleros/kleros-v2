@@ -1,7 +1,7 @@
 import { getDispute } from "@kleros/kleros-sdk";
-import { getEnvConfig } from "../config.ts";
+import { getEnvConfig } from "../config";
 import { arbitrum } from "viem/chains";
-import { alchemyTransport } from "./rpc.ts";
+import { alchemyTransport } from "./rpc";
 
 // returns undefined if the dispute is broken
 export async function fetchPopulatedDisputeData(disputeId: string) {

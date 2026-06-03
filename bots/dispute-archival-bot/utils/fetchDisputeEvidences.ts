@@ -1,6 +1,6 @@
 import type { Address, Hash } from "viem";
 
-import { paginatedSubgraphQuery } from "./query.ts";
+import { paginatedSubgraphQuery } from "./query";
 
 export type Evidence = {
   id: string;

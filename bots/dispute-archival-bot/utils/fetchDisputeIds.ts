@@ -1,4 +1,4 @@
-import { paginatedSubgraphQuery } from "./query.ts";
+import { paginatedSubgraphQuery } from "./query";
 
 const disputesQuery = `
   query Disputes($first: Int!, $skip: Int!) {

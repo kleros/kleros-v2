@@ -1,9 +1,9 @@
 import type { DisputeDetails } from "@kleros/kleros-sdk";
 
-import { fetchDisputeDetailsFromSubgraph, type SubgraphDisputeDetails } from "./fetchDisputeDetailsFromSubgraph.ts";
-import { fetchDisputeEvidences, type Evidence } from "./fetchDisputeEvidences.ts";
-import { fetchPopulatedDisputeData } from "./fetchPopulatedDisputeData.ts";
-import { type DisputeTemplate, fetchDisputeTemplate } from "./fetchDisputeTemplate.ts";
+import { fetchDisputeDetailsFromSubgraph, type SubgraphDisputeDetails } from "./fetchDisputeDetailsFromSubgraph";
+import { fetchDisputeEvidences, type Evidence } from "./fetchDisputeEvidences";
+import { fetchPopulatedDisputeData } from "./fetchPopulatedDisputeData";
+import { type DisputeTemplate, fetchDisputeTemplate } from "./fetchDisputeTemplate";
 
 /**
  * - dispute : Dispute details from subgraph, required by the FE to render the dispute and related details.

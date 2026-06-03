@@ -2,7 +2,8 @@
   "extends": "@kleros/kleros-v2-tsconfig/base20.json",
   "compilerOptions": {
     "noEmit": true,
-    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "types": [
       "node"
     ],
