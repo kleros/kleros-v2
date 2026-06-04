@@ -110,12 +110,14 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
     infoToast(t("notifications.unsubscribing"));
     deleteUser()
       .then((res) => {
-        if (res) {
-          setEmailInput("");
-          setIsConfirmingUnsubscribe(false);
-          successToast(t("notifications.unsubscribed_successfully"));
-          toggleIsSettingsOpen();
+        if (!res) {
+          errorToast(t("notifications.unsubscribe_failed_error", { error: t("errors.something_went_wrong") }));
+          return;
         }
+        setEmailInput("");
+        setIsConfirmingUnsubscribe(false);
+        successToast(t("notifications.unsubscribed_successfully"));
+        toggleIsSettingsOpen();
       })
       .catch((err) => {
         console.error(err);
