@@ -21,6 +21,8 @@
     "close": "Close",
     "connect": "Connect",
     "disconnect": "Disconnect",
+    "unsubscribe": "Unsubscribe",
+    "confirm_unsubscribe": "Confirm unsubscribe",
     "stake": "Stake",
     "withdraw": "Withdraw",
     "claim": "Claim",
@@ -317,7 +319,12 @@
     "adding_user": "Adding user...",
     "user_added_successfully": "User added successfully!",
     "adding_user_failed_error": "Adding user failed: {{error}}",
-    "update_email_again": "You can update email again {{time}}"
+    "update_email_again": "You can update email again {{time}}",
+    "unsubscribe_warning_title": "Unsubscribe from all notifications?",
+    "unsubscribe_warning_msg": "You will stop receiving notifications from all Kleros Products until you subscribe again.",
+    "unsubscribing": "Unsubscribing from notifications...",
+    "unsubscribed_successfully": "You have been unsubscribed from notifications.",
+    "unsubscribe_failed_error": "Unsubscribe failed: {{error}}"
   },
   "alerts": {
     "check_courts_beforehand": "Check the courts available beforehand",
