@@ -8,6 +8,7 @@ import {
   getNonce,
   loginUser,
   addUser as addUserToAtlas,
+  deleteUser as deleteUserFromAtlas,
   fetchUser,
   updateEmail as updateEmailInAtlas,
   confirmEmail as confirmEmailInAtlas,
@@ -33,6 +34,7 @@ export interface IAtlasProvider {
   isVerified: boolean;
   isSigningIn: boolean;
   isAddingUser: boolean;
+  isDeletingUser: boolean;
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
   isUploadingFile: boolean;
@@ -53,6 +55,12 @@ export interface IAtlasProvider {
    * @returns Resolves to true if email was updated successfully.
    */
   updateEmail(userSettings: Omit<UpdateEmailData, "product">): Promise<boolean>;
+  /**
+   * Deletes the user and unsubscribes them from notification emails
+   * across all Kleros products (not only `signupProduct`). Irreversible until they register again.
+   * @returns Resolves to true if the user was deleted successfully.
+   */
+  deleteUser(): Promise<boolean>;
   /**
    * Upload file to IPFS via Atlas. Requires `ipfsProduct` in config.
    * @param file - File to upload.
@@ -95,6 +103,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [isConfirmingEmail, setIsConfirmingEmail] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
@@ -286,6 +295,20 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.signupProduct]
   );
 
+  const deleteUser = useCallback(async () => {
+    try {
+      if (!address || !isVerified) return false;
+      setIsDeletingUser(true);
+
+      const userDeleted = await fetchWithAuthErrorHandling(() => deleteUserFromAtlas(atlasGqlClient));
+      refetchUser();
+
+      return userDeleted;
+    } finally {
+      setIsDeletingUser(false);
+    }
+  }, [address, isVerified, setIsDeletingUser, atlasGqlClient, refetchUser]);
+
   const uploadFile = useCallback(
     async (file: File, role: Roles) => {
       const product = config.ipfsProduct;
@@ -373,8 +396,10 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           isVerified,
           isSigningIn,
           isAddingUser,
+          isDeletingUser,
           authoriseUser,
           addUser,
+          deleteUser,
           user,
           isFetchingUser,
           updateEmail,
@@ -390,8 +415,10 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           isVerified,
           isSigningIn,
           isAddingUser,
+          isDeletingUser,
           authoriseUser,
           addUser,
+          deleteUser,
           user,
           isFetchingUser,
           updateEmail,
