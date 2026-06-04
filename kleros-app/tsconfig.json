@@ -14,7 +14,7 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "removeComments": true,
+    "removeComments": false,
     "isolatedModules": true,
     "module": "esnext",
     "moduleResolution": "bundler",

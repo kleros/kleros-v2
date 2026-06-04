@@ -29,7 +29,7 @@ import { isUndefined } from "../../../utils";
 import { useSessionStorage } from "../hooks/useSessionStorage";
 import { fetchRestrictions, Role } from "../utils/fetchRestrictions";
 
-interface IAtlasProvider {
+export interface IAtlasProvider {
   isVerified: boolean;
   isSigningIn: boolean;
   isAddingUser: boolean;
@@ -39,15 +39,38 @@ interface IAtlasProvider {
   isConfirmingEmail: boolean;
   user: User | undefined;
   userExists: boolean;
-  authoriseUser: () => Promise<void>;
-  addUser: (userSettings: Omit<AddUserData, "product">) => Promise<boolean>;
-  updateEmail: (userSettings: Omit<UpdateEmailData, "product">) => Promise<boolean>;
-  uploadFile: (file: File, role: Roles) => Promise<string | null>;
-  confirmEmail: (userSettings: ConfirmEmailData) => Promise<
+  /** Authorise user and enable authorised calls. */
+  authoriseUser(): Promise<void>;
+  /**
+   * Adds a new user to Atlas.
+   * @param userSettings - Email to register. `product` is taken from `signupProduct` config.
+   * @returns Resolves to true if the user was added successfully.
+   */
+  addUser(userSettings: Omit<AddUserData, "product">): Promise<boolean>;
+  /**
+   * Updates user email in Atlas.
+   * @param userSettings - New email. `product` is taken from `signupProduct` config.
+   * @returns Resolves to true if email was updated successfully.
+   */
+  updateEmail(userSettings: Omit<UpdateEmailData, "product">): Promise<boolean>;
+  /**
+   * Upload file to IPFS via Atlas. Requires `ipfsProduct` in config.
+   * @param file - File to upload.
+   * @param role - Role for which the file is being uploaded.
+   * @returns IPFS path (e.g. `/ipfs/...`) if uploaded successfully, else null when unauthenticated.
+   */
+  uploadFile(file: File, role: Roles): Promise<string | null>;
+  /**
+   * Confirms user email in Atlas.
+   * @param userSettings - Confirmation payload from the verification link.
+   * @returns Confirmation result and `isError` when the request failed.
+   */
+  confirmEmail(userSettings: ConfirmEmailData): Promise<
     ConfirmEmailResponse & {
       isError: boolean;
     }
   >;
+  /** Role upload limits for `ipfsProduct`, when configured. */
   roleRestrictions: Role[] | undefined;
 }
 
@@ -200,9 +223,6 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     }
   }
 
-  /**
-   * @description authorise user and enable authorised calls
-   */
   const authoriseUser = useCallback(
     async (statement?: string) => {
       try {
@@ -224,11 +244,6 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     [address, chainId, setAuthToken, signMessageAsync, atlasGqlClient]
   );
 
-  /**
-   * @description adds a new user to atlas
-   * @param {AddUserData} userSettings - object containing data to be added
-   * @returns {Promise<boolean>} A promise that resolves to true if the user was added successfully
-   */
   const addUser = useCallback(
     async (userSettings: Omit<AddUserData, "product">) => {
       try {
@@ -250,11 +265,6 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser, config.signupProduct]
   );
 
-  /**
-   * @description updates user email in atlas
-   * @param {UpdateEmailData} userSettings - object containing data to be updated
-   * @returns {Promise<boolean>} A promise that resolves to true if email was updated successfully
-   */
   const updateEmail = useCallback(
     async (userSettings: Omit<UpdateEmailData, "product">) => {
       try {
@@ -276,13 +286,6 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.signupProduct]
   );
 
-  /**
-   * @description upload file to ipfs
-   * @param {File} file - file to be uploaded
-   * @param {Roles} role - role for which file is being uploaded
-   * @returns {Promise<string | null>} A promise that resolves to the ipfs cid if file was uploaded successfully else
-   *                                   null
-   */
   const uploadFile = useCallback(
     async (file: File, role: Roles) => {
       const product = config.ipfsProduct;
@@ -344,11 +347,6 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     ]
   );
 
-  /**
-   * @description confirms user email in atlas
-   * @param {ConfirmEmailData} userSettings - object containing data to be sent
-   * @returns {Promise<boolean>} A promise that resolves to true if email was confirmed successfully
-   */
   const confirmEmail = useCallback(
     async (userSettings: ConfirmEmailData): Promise<ConfirmEmailResponse & { isError: boolean }> => {
       try {
@@ -371,7 +369,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   return (
     <Context.Provider
       value={useMemo(
-        () => ({
+        (): IAtlasProvider => ({
           isVerified,
           isSigningIn,
           isAddingUser,
@@ -412,7 +410,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   );
 };
 
-export const useAtlasProvider = () => {
+/** Atlas context. Must be used within {@link AtlasProvider}. */
+export const useAtlasProvider = (): IAtlasProvider => {
   const context = useContext(Context);
   if (!context) {
     throw new Error("Context Provider not found.");
