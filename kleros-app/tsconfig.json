@@ -16,7 +16,8 @@
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
     "isolatedModules": true,
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "strict": true,
     "esModuleInterop": true,
     "declaration": true,
@@ -26,7 +27,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/lib/**/*"
+    "src/lib/**/*",
+    "global.d.ts"
   ],
   "exclude": [
     "node_modules",
