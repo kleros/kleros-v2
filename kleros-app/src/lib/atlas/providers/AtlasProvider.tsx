@@ -18,8 +18,10 @@ import {
   type ConfirmEmailData,
   type ConfirmEmailResponse,
   Roles,
-  Products,
   AuthorizationError,
+  IpfsProduct,
+  SignupProduct,
+  IpfsProductNotConfigured,
 } from "../utils";
 
 import { GraphQLError } from "graphql";
@@ -38,8 +40,8 @@ interface IAtlasProvider {
   user: User | undefined;
   userExists: boolean;
   authoriseUser: () => Promise<void>;
-  addUser: (userSettings: Omit<AddUserData, "product">, overrideProduct?: Products) => Promise<boolean>;
-  updateEmail: (userSettings: Omit<UpdateEmailData, "product">, overrideProduct?: Products) => Promise<boolean>;
+  addUser: (userSettings: Omit<AddUserData, "product">) => Promise<boolean>;
+  updateEmail: (userSettings: Omit<UpdateEmailData, "product">) => Promise<boolean>;
   uploadFile: (file: File, role: Roles) => Promise<string | null>;
   confirmEmail: (userSettings: ConfirmEmailData) => Promise<
     ConfirmEmailResponse & {
@@ -53,7 +55,11 @@ const Context = createContext<IAtlasProvider | undefined>(undefined);
 
 interface AtlasConfig {
   uri: string;
-  product: Products;
+  // Product used for signup and email update (e.g. Court V2, Foresight).
+  // If no specific product, use CourtV2.
+  signupProduct: SignupProduct;
+  // Product for IPFS uploads. Omit if this app does not upload files via Atlas.
+  ipfsProduct?: IpfsProduct;
   wagmiConfig: Config;
 }
 
@@ -150,11 +156,12 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const { data: roleRestrictions } = useQuery(
     {
       queryKey: [`RoleRestrictions`],
-      enabled: Boolean(config.product),
+      enabled: Boolean(config.ipfsProduct),
       staleTime: Infinity,
       queryFn: async () => {
+        if (isUndefined(config.ipfsProduct)) return;
         try {
-          return await fetchRestrictions(atlasGqlClient, config.product);
+          return await fetchRestrictions(atlasGqlClient, config.ipfsProduct);
         } catch {
           return undefined;
         }
@@ -220,18 +227,16 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   /**
    * @description adds a new user to atlas
    * @param {AddUserData} userSettings - object containing data to be added
-   * @param {Products} overrideProduct - optional override to specify a different product,
-   * defaults to Config.Product provided in AtlasProvider
    * @returns {Promise<boolean>} A promise that resolves to true if the user was added successfully
    */
   const addUser = useCallback(
-    async (userSettings: Omit<AddUserData, "product">, overrideProduct?: Products) => {
+    async (userSettings: Omit<AddUserData, "product">) => {
       try {
         if (!address || !isVerified) return false;
         setIsAddingUser(true);
 
         const userAdded = await fetchWithAuthErrorHandling(() =>
-          addUserToAtlas(atlasGqlClient, { ...userSettings, product: overrideProduct ?? config.product })
+          addUserToAtlas(atlasGqlClient, { ...userSettings, product: config.signupProduct })
         );
         refetchUser();
 
@@ -242,24 +247,22 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsAddingUser(false);
       }
     },
-    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser, config.product]
+    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser, config.signupProduct]
   );
 
   /**
    * @description updates user email in atlas
    * @param {UpdateEmailData} userSettings - object containing data to be updated
-   * @param {Products} overrideProduct - optional override to specify a different product,
-   * defaults to Config.Product provided in AtlasProvider
    * @returns {Promise<boolean>} A promise that resolves to true if email was updated successfully
    */
   const updateEmail = useCallback(
-    async (userSettings: Omit<UpdateEmailData, "product">, overrideProduct?: Products) => {
+    async (userSettings: Omit<UpdateEmailData, "product">) => {
       try {
         if (!address || !isVerified) return false;
         setIsUpdatingUser(true);
 
         const emailUpdated = await fetchWithAuthErrorHandling(() =>
-          updateEmailInAtlas(atlasGqlClient, { ...userSettings, product: overrideProduct ?? config.product })
+          updateEmailInAtlas(atlasGqlClient, { ...userSettings, product: config.signupProduct })
         );
         refetchUser();
 
@@ -270,7 +273,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsUpdatingUser(false);
       }
     },
-    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.product]
+    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.signupProduct]
   );
 
   /**
@@ -282,41 +285,63 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
    */
   const uploadFile = useCallback(
     async (file: File, role: Roles) => {
+      const product = config.ipfsProduct;
+
+      if (isUndefined(product)) {
+        throw new IpfsProductNotConfigured();
+      }
+
       try {
         if (!address || !isVerified || !config.uri || !authToken) return null;
+        let resolvedRestrictions = roleRestrictions;
 
-        if (roleRestrictions) {
-          const restrictions = roleRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
-
-          if (!restrictions) throw new Error("Unsupported role.");
-
-          const isValidMimeType = restrictions.restriction.allowedMimeTypes.some((allowedType) => {
-            if (allowedType.endsWith("/*")) {
-              const prefix = allowedType.replace("/*", "/");
-              return file.type.startsWith(prefix);
-            }
-            return allowedType === file.type;
-          });
-
-          if (!isValidMimeType) throw new Error("Unsupported file type.");
-          if (file.size > restrictions.restriction.maxSize)
-            throw new Error(
-              `File too big. Max allowed size : ${(restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2)} mb.`
-            );
+        // Try to fetch restrictions again if first background try failed
+        if (isUndefined(resolvedRestrictions)) {
+          resolvedRestrictions = await fetchRestrictions(atlasGqlClient, product);
         }
+
+        if (isUndefined(resolvedRestrictions)) {
+          throw new Error(`uploadFile: Unable to fetch role restrictions for ${product}`);
+        }
+
+        const restrictions = resolvedRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
+
+        if (!restrictions) throw new Error("Unsupported role.");
+
+        const isValidMimeType = restrictions.restriction.allowedMimeTypes.some((allowedType) => {
+          if (allowedType.endsWith("/*")) {
+            const prefix = allowedType.replace("/*", "/");
+            return file.type.startsWith(prefix);
+          }
+          return allowedType === file.type;
+        });
+
+        if (!isValidMimeType) throw new Error("Unsupported file type.");
+        if (file.size > restrictions.restriction.maxSize)
+          throw new Error(
+            `File too big. Max allowed size : ${(restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2)} mb.`
+          );
+
         setIsUploadingFile(true);
 
         const hash = await fetchWithAuthErrorHandling(() =>
-          uploadToIpfs({ baseUrl: config.uri, authToken }, { file, name: file.name, role, product: config.product })
+          uploadToIpfs({ baseUrl: config.uri, authToken }, { file, name: file.name, role, product: product })
         );
         return hash ? `/ipfs/${hash}` : null;
-      } catch (err: unknown) {
-        throw err;
       } finally {
         setIsUploadingFile(false);
       }
     },
-    [address, isVerified, setIsUploadingFile, authToken, config.uri, config.product, roleRestrictions]
+    [
+      address,
+      isVerified,
+      setIsUploadingFile,
+      authToken,
+      config.uri,
+      config.ipfsProduct,
+      roleRestrictions,
+      atlasGqlClient,
+    ]
   );
 
   /**
