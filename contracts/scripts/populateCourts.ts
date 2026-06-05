@@ -43,6 +43,7 @@ const TEN_THOUSAND_GWEI = 10n ** 13n;
 task("populate:courts", "Populates the courts and their parameters")
   .addOptionalParam(
     "from",
+    // eslint-disable-next-line max-len
     "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet (default: auto depending on the network)",
     undefined
   )
@@ -133,7 +134,8 @@ task("populate:courts", "Populates the courts and their parameters")
         throw new Error("Unknown source");
     }
 
-    // Warning: the indices are NOT the court IDs, e.g. the forking court is not present in the config so the indices are shifted by 1
+    // Warning: the indices are NOT the court IDs, e.g. the forking court is not
+    // present in the config so the indices are shifted by 1
     const start = taskArgs.start;
     const end = taskArgs.maxNumberOfCourts ? start + taskArgs.maxNumberOfCourts : courtsV2.length;
     console.log(`Keeping only the first ${end - start} courts, starting from ${start}`);
@@ -158,8 +160,10 @@ task("populate:courts", "Populates the courts and their parameters")
         let change = false;
 
         // @ts-expect-error populateCourts additionalCourtParams types
-        // Currently, there seems to be a misalignment between the expected way to access additional court params and the actual way to access them.
-        // This comment allows the check-types script to pass, but the script needs updating to deal with current `courts()` return type.
+        // Currently, there seems to be a misalignment between the expected way to access
+        // additional court params and the actual way to access them.
+        // This comment allows the check-types script to pass, but the script needs updating
+        // to deal with current `courts()` return type.
         if (courtPresent.hiddenVotes !== court.hiddenVotes) {
           change = true;
           console.log(

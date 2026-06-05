@@ -41,13 +41,19 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     `wrong dispute kit id ${newDisputeKitId}`
   );
 
-  await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 1, [newDisputeKitId], true); // enable the new dispute kit in court 1
-  await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 2, [newDisputeKitId], true); // enable the new dispute kit in court 2
-  await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 3, [newDisputeKitId], true); // enable the new dispute kit in court 3
+  // enable the new dispute kit in court 1
+  await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 1, [newDisputeKitId], true);
+  // enable the new dispute kit in court 2
+  await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 2, [newDisputeKitId], true);
+  // enable the new dispute kit in court 3
+  await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 3, [newDisputeKitId], true);
 
-  // Cannot disable the old DK because of https://github.com/kleros/kleros-v2/blob/d9adb8f54e8164eb01880296b4dd62b74cad3a0e/contracts/src/arbitration/KlerosCore.sol#L452
+  /* eslint-disable max-len */
+  // Cannot disable the old DK because of
+  // https://github.com/kleros/kleros-v2/blob/d9adb8f54e8164eb01880296b4dd62b74cad3a0e/contracts/src/arbitration/KlerosCore.sol#L452
   // Does not seem correct
   // await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 1, [oldDisputeKitId], false); // disable the old dispute kit
+  /* eslint-enable max-len */
 };
 
 deployArbitration.tags = ["Fix1148"];

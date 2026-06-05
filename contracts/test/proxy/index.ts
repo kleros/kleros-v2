@@ -4,8 +4,10 @@ import { DeployResult } from "hardhat-deploy/types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployUpgradable } from "../../deploy/utils/deployUpgradable";
 import { UpgradedByInheritanceV1, UpgradedByInheritanceV2, UUPSUpgradeableMock } from "../../typechain-types";
+/* eslint-disable max-len */
 import { UpgradedByRewrite as UpgradedByRewriteV1 } from "../../typechain-types/src/proxy/mock/by-rewrite/UpgradedByRewrite.sol";
 import { UpgradedByRewrite as UpgradedByRewriteV2 } from "../../typechain-types/src/proxy/mock/by-rewrite/UpgradedByRewriteV2.sol";
+/* eslint-enable max-len */
 
 let deployer: HardhatEthersSigner;
 let user1: HardhatEthersSigner;
@@ -85,7 +87,8 @@ describe("Upgradability", async () => {
             .withArgs(nonUpgradeableMock.target);
         });
         it("Should revert if upgrade is performed directly through the implementation", async () => {
-          // In the implementation, the `owner` storage slot is not initialized so `owner === address(0)`, which fails _authorizeUpgrade()
+          // In the implementation, the `owner` storage slot is not initialized so `owner === address(0)`,
+          // which fails _authorizeUpgrade()
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
           const newImplementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
           await expect(

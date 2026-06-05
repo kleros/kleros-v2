@@ -25,8 +25,11 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const homeNetwork = config.networks[network.companionNetworks.home] as HttpNetworkConfig;
   const homeChainProvider = new ethers.JsonRpcProvider(homeNetwork.url);
   let nonce = await homeChainProvider.getTransactionCount(deployer);
-  nonce += 1; // HomeGatewayToEthereum Proxy deploy tx will be the 2nd tx after this on its home network, so we add 1 to the current nonce.
-  const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
+  // HomeGatewayToEthereum Proxy deploy tx will be the 2nd tx after this on its
+  // home network, so we add 1 to the current nonce.
+  nonce += 1;
+  // HomeGateway deploy tx will be the next tx home network
+  const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const veaOutbox = await deployments.get("VeaOutboxArbToGnosisDevnet");
@@ -43,7 +46,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     log: true,
   });
 
-  // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
+  // TODO: disable the gateway until fully initialized with the correct fees
+  // OR allow disputeCreators to add funds again if necessary.
   const coreDeployment = await hre.companionNetworks.home.deployments.get("KlerosCore");
   const core = await KlerosCore__factory.connect(coreDeployment.address, homeChainProvider);
   // TODO: set up the correct fees for the FORKING_COURT

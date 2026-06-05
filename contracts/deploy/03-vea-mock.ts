@@ -25,7 +25,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 
   let nonce = await ethers.provider.getTransactionCount(deployer);
-  nonce += 3; // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+  // deployed on the 4th tx (nonce+3):
+  // SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+  nonce += 3;
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
@@ -55,7 +57,8 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
-  // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
+  // TODO: disable the gateway until fully initialized with the correct fees
+  // OR allow disputeCreators to add funds again if necessary.
   const signer = (await hre.ethers.getSigners())[0];
   const core = KlerosCore__factory.connect(klerosCore.address, signer);
   // TODO: set up the correct fees for the FORKING_COURT
@@ -77,6 +80,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // TODO: debug why this extraData fails but "0x00" works
   // const extraData =
+  // eslint-disable-next-line max-len
   //   "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const extraData = "0x00";
   await deploy("ArbitrableExample", {

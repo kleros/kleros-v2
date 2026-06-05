@@ -25,6 +25,7 @@ enum Sources {
 task("populate:policy-registry", "Populates the policy registry for each court")
   .addOptionalParam(
     "from",
+    // eslint-disable-next-line max-len
     "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet (default: auto depending on the network)",
     undefined
   )
@@ -102,7 +103,8 @@ task("populate:policy-registry", "Populates the policy registry for each court")
         return;
     }
 
-    // Warning: the indices are NOT the court IDs, e.g. the forking court is not present in the config so the indices are shifted by 1
+    // Warning: the indices are NOT the court IDs, e.g. the forking court is not
+    // present in the config so the indices are shifted by 1
     const start = taskArgs.start;
     const end = taskArgs.maxNumberOfCourts ? start + taskArgs.maxNumberOfCourts : policiesV2.length;
     console.log(`Keeping only the first ${end - start} courts, starting from ${start}`);

@@ -13,7 +13,8 @@ describe("Draw Benchmark", async () => {
 
   const enum Phase {
     staking, // Stake can be updated during this phase.
-    freezing, // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
+    // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
+    freezing,
   }
 
   let deployer: string;
@@ -138,6 +139,7 @@ describe("Draw Benchmark", async () => {
           foreignDisputeID: disputeId,
           templateId: 0,
           choices: 2,
+          // eslint-disable-next-line max-len
           extraData: `0x000000000000000000000000000000000000000000000000000000000000000${createDisputeCourtId}0000000000000000000000000000000000000000000000000000000000000003`,
         },
         { value: arbitrationCost }

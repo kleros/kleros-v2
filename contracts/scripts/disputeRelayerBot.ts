@@ -66,7 +66,12 @@ export default async function main(
     foreignGateway.filters.CrossChainDisputeOutgoing(),
     async (foreignBlockHash, foreignArbitrable, foreignDisputeID, choices, extraData, eventLog) => {
       logger.info(
-        `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`
+        `CrossChainDisputeOutgoing: `,
+        foreignBlockHash,
+        foreignArbitrable,
+        foreignDisputeID,
+        choices,
+        extraData
       );
       logger.debug(`tx receipt: ${safeJson(eventLog)}`);
 

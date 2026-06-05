@@ -55,7 +55,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   let klerosCoreAddress = await deployments.getOrNull("KlerosCore").then((deployment) => deployment?.address);
   if (!klerosCoreAddress) {
     const nonce = await ethers.provider.getTransactionCount(deployer);
-    klerosCoreAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+    // deployed on the 4th tx (nonce+3):
+    // SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+    klerosCoreAddress = getContractAddress(deployer, nonce + 3);
     console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
   const devnet = isDevnet(hre.network);

@@ -764,6 +764,7 @@ export function testCourtEligibilityMisconfiguration(context: () => TokenGatedTe
         .then((tx) => tx.wait());
     }
 
+    // eslint-disable-next-line max-len
     it("Should revert NotEligibleForStaking when eligibility is set but no supported tokens are configured", async () => {
       const ctx = context();
       const courtId = await createCourtWithEligibility(ctx);

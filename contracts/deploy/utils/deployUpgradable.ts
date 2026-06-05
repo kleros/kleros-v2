@@ -28,7 +28,8 @@ export type DeployUpgradableOptions = {
 
 /**
  * Deploy a contract with an upgradable proxy
- * NOTE: This function assumes the existence of a proxy contract with the name `${proxy}Proxy`, if there is none add the option `proxyAlias: "UUPSProxy"`
+ * NOTE: This function assumes the existence of a proxy contract with the name `${proxy}Proxy`,
+ * if there is none add the option `proxyAlias: "UUPSProxy"`
  * @param deployments - The deployments extension
  * @param proxy - The name of the proxy contract
  * @param options - The options for the deployment
