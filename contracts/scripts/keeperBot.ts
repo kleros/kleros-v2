@@ -426,7 +426,7 @@ const withdrawLeftoverPNK = async (juror: string) => {
   } catch (e) {
     const error = e as CustomError;
     const errorDescription = sortition.interface.parseError(error.data)?.signature;
-    logger.info(`WithdrawLeftoverPNK: failed for juror ${juror} because of ${errorDescription}, skipping`);
+    logger.error(`WithdrawLeftoverPNK: failed for juror ${juror} because of ${errorDescription}, skipping`);
     return success;
   }
   try {
@@ -717,7 +717,7 @@ async function main() {
             `Drawing ${drawIterations} out of ${numberOfMissingJurors} jurors needed for dispute #${dispute.id}`
           );
           if (!(await drawJurors(dispute, drawIterations))) {
-            logger.info(`Failed to draw jurors for dispute #${dispute.id}, skipping it`);
+            logger.error(`Failed to draw jurors for dispute #${dispute.id}, skipping it`);
             break;
           }
           await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
@@ -787,7 +787,7 @@ async function main() {
         `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
       );
       if (!(await executeRepartitions(dispute, executeIterations))) {
-        logger.info(`Failed to execute repartitions for dispute #${dispute.id}, skipping it`);
+        logger.error(`Failed to execute repartitions for dispute #${dispute.id}, skipping it`);
         break;
       }
       numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
