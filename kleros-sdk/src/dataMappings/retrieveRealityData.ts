@@ -12,15 +12,13 @@ export type RealityAnswer = {
   last?: boolean;
 };
 
-export const retrieveRealityData = async (
-  realityQuestionID: string,
-  arbitrable?: Address,
-) => {
+export const retrieveRealityData = async (realityQuestionID: string, arbitrable?: Address) => {
   if (!arbitrable) {
     throw new InvalidContextError("No arbitrable address provided");
   }
   const questionMapping: AbiEventMapping = {
     type: "abi/event",
+    // eslint-disable-next-line max-len
     abi: "event LogNewQuestion(bytes32 indexed question_id, address indexed user, uint256 template_id, string question, bytes32 indexed content_hash, address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce, uint256 created)",
     address: arbitrable,
     eventFilter: {
@@ -72,22 +70,16 @@ export const retrieveRealityData = async (
   const templateData = await executeAction(templateMapping);
 
   if (!templateData) {
-    throw new NotFoundError(
-      "Template Data",
-      "Failed to retrieve template data",
-    );
+    throw new NotFoundError("Template Data", "Failed to retrieve template data");
   }
 
   if (!questionData) {
-    throw new NotFoundError(
-      "Question Data",
-      "Failed to retrieve question data",
-    );
+    throw new NotFoundError("Question Data", "Failed to retrieve question data");
   }
 
   const populatedTemplate = rc_question.populatedJSONForTemplate(
     templateData.questionText,
-    questionData.realityQuestion,
+    questionData.realityQuestion
   );
 
   let answers: RealityAnswer[] = [];

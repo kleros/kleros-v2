@@ -35,15 +35,9 @@ const fetchDisputeTemplateFromId = async (endpoint: string, id: number) => {
     if (error instanceof CombinedError) {
       throw error;
     } else if (error instanceof Error) {
-      throw new RequestError(
-        `Error querying Dispute Template: ${error.message}`,
-        endpoint,
-      );
+      throw new RequestError(`Error querying Dispute Template: ${error.message}`, endpoint);
     }
-    throw new RequestError(
-      "An unknown error occurred while querying Dispute Template",
-      endpoint,
-    );
+    throw new RequestError("An unknown error occurred while querying Dispute Template", endpoint);
   }
 };
 

@@ -29,26 +29,16 @@ export const validateFetchIpfsJsonMapping = (mapping: ActionMapping) => {
 };
 
 export const validateRealityMapping = (mapping: ActionMapping) => {
-  if (
-    mapping.type !== "reality" ||
-    typeof mapping.realityQuestionID !== "string"
-  ) {
-    throw new InvalidMappingError(
-      "Expected field 'realityQuestionID' to be a string.",
-    );
+  if (mapping.type !== "reality" || typeof mapping.realityQuestionID !== "string") {
+    throw new InvalidMappingError("Expected field 'realityQuestionID' to be a string.");
   }
   return mapping;
 };
 
-const validateMapping = <T extends ActionMapping>(
-  mapping: T,
-  requiredFields: (keyof T)[],
-) => {
+const validateMapping = <T extends ActionMapping>(mapping: T, requiredFields: (keyof T)[]) => {
   for (const field of requiredFields) {
     if (mapping[field] === undefined) {
-      throw new InvalidMappingError(
-        `${field.toString()} is required for ${mapping.type}`,
-      );
+      throw new InvalidMappingError(`${field.toString()} is required for ${mapping.type}`);
     }
   }
   return mapping;

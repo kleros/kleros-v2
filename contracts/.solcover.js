@@ -16,14 +16,7 @@ module.exports = {
     shell.rm("-rf", "./artifacts");
     shell.rm("-rf", "./typechain");
   },
-  skipFiles: [
-    "test",
-    "token",
-    "kleros-v1",
-    "proxy/mock",
-    "gateway/mock",
-    "rng/mock",
-  ],
+  skipFiles: ["test", "token", "kleros-v1", "proxy/mock", "gateway/mock", "rng/mock"],
   mocha: {
     timeout: 20000,
     grep: "@skip-on-coverage", // Find everything with this tag

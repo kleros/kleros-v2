@@ -23,24 +23,15 @@ const config = {
   },
 };
 
-const deployArbitration: DeployFunction = async (
-  hre: HardhatRuntimeEnvironment,
-) => {
+const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, getNamedAccounts, getChainId } = hre;
 
   // fallback to hardhat node signers on local network
-  const deployer =
-    (await getNamedAccounts()).deployer ??
-    (await hre.ethers.getSigners())[0].address;
+  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log(
-    "deploying to %s with deployer %s",
-    HomeChains[chainId],
-    deployer,
-  );
+  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const { consumerProtectionCourtID, disputeKitGatedID, courtUrl } =
-    config[hre.network.name as keyof typeof config];
+  const { consumerProtectionCourtID, disputeKitGatedID, courtUrl } = config[hre.network.name as keyof typeof config];
 
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
 
@@ -51,7 +42,7 @@ const deployArbitration: DeployFunction = async (
     "SBTACPLawyer",
     "Abogado de Protección al Consumidor en Argentina, Certificado por Kleros",
     "ipfs://QmTwgaKoTPnywJ5To73ei9WVXeWG7rbdCVJM1BM7a2eDzD",
-    courtUrl,
+    courtUrl
   );
 
   // Check that the Gated Dispute Kit ID is correct
@@ -59,20 +50,13 @@ const deployArbitration: DeployFunction = async (
   if (!disputeKitGated) {
     throw new Error("DisputeKitGated not found in network contracts");
   }
-  const actualDisputeKitGatedAddress =
-    await core.disputeKits(disputeKitGatedID);
+  const actualDisputeKitGatedAddress = await core.disputeKits(disputeKitGatedID);
   if (actualDisputeKitGatedAddress !== disputeKitGated.target) {
     throw new Error("DisputeKitGated address mismatch");
   }
 
-  console.log(
-    `core.enableDisputeKits(${consumerProtectionCourtID}, ${[disputeKitGatedID]}, true)`,
-  );
-  await core.enableDisputeKits(
-    consumerProtectionCourtID,
-    [disputeKitGatedID],
-    true,
-  );
+  console.log(`core.enableDisputeKits(${consumerProtectionCourtID}, ${[disputeKitGatedID]}, true)`);
+  await core.enableDisputeKits(consumerProtectionCourtID, [disputeKitGatedID], true);
 };
 
 deployArbitration.tags = ["Junin"];

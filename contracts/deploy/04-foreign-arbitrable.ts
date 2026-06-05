@@ -14,21 +14,16 @@ const foreignGatewayArtifactByChain = new Map<ForeignChains, string>([
 
 const ONE_GWEI = BigNumber.from(parseUnits("1", "gwei"));
 
-const deployForeignGateway: DeployFunction = async (
-  hre: HardhatRuntimeEnvironment,
-) => {
+const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy } = deployments;
 
   // fallback to hardhat node signers on local network
-  const deployer =
-    (await getNamedAccounts()).deployer ??
-    (await hre.ethers.getSigners())[0].address;
+  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
-  const foreignGatewayArtifact =
-    foreignGatewayArtifactByChain.get(chainId) ?? ethers.ZeroAddress;
+  const foreignGatewayArtifact = foreignGatewayArtifactByChain.get(chainId) ?? ethers.ZeroAddress;
   const foreignGateway = await deployments.get(foreignGatewayArtifact);
   console.log("using foreign gateway: %s", foreignGatewayArtifact);
 

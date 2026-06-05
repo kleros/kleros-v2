@@ -53,9 +53,7 @@ const decode = (message: string) => {
  * @returns An object with disputeKitID, localDisputeID, localRoundID, and voteID as numbers.
  */
 const parseGraphVoteId = (graphVoteId: string) => {
-  const [disputeKitID, localDisputeID, localRoundID, voteID] = graphVoteId
-    .split("-")
-    .map(Number);
+  const [disputeKitID, localDisputeID, localRoundID, voteID] = graphVoteId.split("-").map(Number);
   return { disputeKitID, localDisputeID, localRoundID, voteID };
 };
 
@@ -76,14 +74,12 @@ type DisputeVotes = {
 };
 
 const getShutterDisputesToReveal = async (
-  disputeKitShutter: DisputeKitShutter | DisputeKitGatedShutter,
+  disputeKitShutter: DisputeKitShutter | DisputeKitGatedShutter
 ): Promise<DisputeVotes[]> => {
   const { gql, request } = await import("graphql-request"); // workaround for ESM import
   const query = gql`
     query DisputeToAutoReveal($shutterDisputeKit: Bytes) {
-      disputeKits(
-        where: { address: $shutterDisputeKit, courts_: { hiddenVotes: true } }
-      ) {
+      disputeKits(where: { address: $shutterDisputeKit, courts_: { hiddenVotes: true } }) {
         id
         rounds(where: { isCurrentRound: true, dispute_: { period: vote } }) {
           id
@@ -160,24 +156,16 @@ const getShutterDisputesToReveal = async (
 
   logger.debug(`Using Shutter dispute kit: ${disputeKitShutter.target}`);
   const variables = { shutterDisputeKit: disputeKitShutter.target };
-  const { disputeKits } = await request<ShutterDisputes>(
-    SUBGRAPH_URL,
-    query,
-    variables,
-  );
+  const { disputeKits } = await request<ShutterDisputes>(SUBGRAPH_URL, query, variables);
   if (disputeKits.length === 0) {
     logger.debug("No Shutter dispute kit found, skipping auto-reveal");
     return [];
   }
   // For each round, if dispute.disputeKitDispute.length !== 1, filter out the round
-  let filteredRounds = disputeKits[0].rounds.filter(
-    (round) => round.dispute.disputeKitDispute.length === 1,
-  );
+  let filteredRounds = disputeKits[0].rounds.filter((round) => round.dispute.disputeKitDispute.length === 1);
 
   // Remove the rounds which are not the current ones
-  filteredRounds = filteredRounds.filter(
-    (round) => round.id === round.dispute.currentRound.id,
-  );
+  filteredRounds = filteredRounds.filter((round) => round.id === round.dispute.currentRound.id);
 
   // For each filteredRound, in dispute.disputeKitDispute[0], keep only localRounds[currentLocalRoundIndex]
   const disputeVotes = filteredRounds.map((round) => {
@@ -203,7 +191,7 @@ const getShutterDisputesToReveal = async (
 
 export const shutterAutoReveal = async (
   disputeKitShutter: DisputeKitShutter | DisputeKitGatedShutter | null,
-  disputesToSkip: string[],
+  disputesToSkip: string[]
 ) => {
   if (!disputeKitShutter) {
     logger.debug("No Shutter dispute kit found, skipping auto-reveal");
@@ -213,9 +201,7 @@ export const shutterAutoReveal = async (
   logger.info(`Using Shutter API: ${process.env.SHUTTER_API ?? "mainnet"}`);
 
   const shutterDisputes = await getShutterDisputesToReveal(disputeKitShutter);
-  logger.info(
-    `Votes to auto-reveal: ${JSON.stringify(shutterDisputes, null, 2)}`,
-  );
+  logger.info(`Votes to auto-reveal: ${JSON.stringify(shutterDisputes, null, 2)}`);
 
   for (const dispute of shutterDisputes) {
     const { coreDispute, votes } = dispute;
@@ -225,37 +211,26 @@ export const shutterAutoReveal = async (
     }
     const decryptCache = new Map<string, string>(); // Cache for decrypted messages: key is `${_encryptedVote}-${_identity}`
     const decryptedToVoteIDs = new Map<string, number[]>(); // Map from decryptedMessage string to array of voteIDs
-    const decryptedToSample = new Map<
-      string,
-      { _encryptedVote: unknown; _identity: unknown }
-    >(); // Map from decryptedMessage string to a sample { _encryptedVote, _identity } (for logging/debug)
+    const decryptedToSample = new Map<string, { _encryptedVote: unknown; _identity: unknown }>(); // Map from decryptedMessage string to a sample { _encryptedVote, _identity } (for logging/debug)
 
     // For each vote, decrypt the message and group voteIDs by decryptedMessage
     for (const vote of votes) {
       const { voteID } = parseGraphVoteId(vote.id);
 
       // Retrieve the CommitCastShutter events
-      const filter = disputeKitShutter.filters.CommitCastShutter(
-        coreDispute.id,
-        vote.juror.id,
-        getBytes(vote.commit),
-      );
+      const filter = disputeKitShutter.filters.CommitCastShutter(coreDispute.id, vote.juror.id, getBytes(vote.commit));
       const events = await disputeKitShutter.queryFilter(filter);
       if (events.length === 0) {
-        logger.error(
-          `No CommitCastShutter event found for disputeID: ${coreDispute.id}, voteID: ${vote.id}`,
-        );
+        logger.error(`No CommitCastShutter event found for disputeID: ${coreDispute.id}, voteID: ${vote.id}`);
         continue;
       }
       if (events.length > 1) {
         logger.warn(
-          `Multiple CommitCastShutter events found for disputeID: ${coreDispute.id}, voteID: ${vote.id}, using the first one only`,
+          `Multiple CommitCastShutter events found for disputeID: ${coreDispute.id}, voteID: ${vote.id}, using the first one only`
         );
       }
       const { _encryptedVote, _identity } = events[0].args;
-      logger.debug(
-        `CommitCastShutter event: ${JSON.stringify({ _encryptedVote, _identity }, null, 2)}`,
-      );
+      logger.debug(`CommitCastShutter event: ${JSON.stringify({ _encryptedVote, _identity }, null, 2)}`);
 
       // Decrypt the message
       const cacheKey = `${_encryptedVote.toString()}-${_identity.toString()}`;
@@ -287,7 +262,7 @@ export const shutterAutoReveal = async (
     for (const [decryptedMessage, voteIDs] of decryptedToVoteIDs.entries()) {
       const decodedMessage = decode(decryptedMessage);
       logger.info(
-        `Decoded message for voteIDs [${voteIDs.join(", ")}]: ${JSON.stringify({ choice: decodedMessage.choice.toString(), salt: decodedMessage.salt, justification: decodedMessage.justification }, null, 2)}`,
+        `Decoded message for voteIDs [${voteIDs.join(", ")}]: ${JSON.stringify({ choice: decodedMessage.choice.toString(), salt: decodedMessage.salt, justification: decodedMessage.justification }, null, 2)}`
       );
       // Simulate
       try {
@@ -296,11 +271,11 @@ export const shutterAutoReveal = async (
           voteIDs,
           decodedMessage.choice,
           decodedMessage.salt,
-          decodedMessage.justification,
+          decodedMessage.justification
         );
       } catch {
         logger.error(
-          `CastVoteShutter: will fail for disputeID: ${coreDispute.id} and voteIDs [${voteIDs.join(", ")}], skipping`,
+          `CastVoteShutter: will fail for disputeID: ${coreDispute.id} and voteIDs [${voteIDs.join(", ")}], skipping`
         );
         continue;
       }
@@ -312,7 +287,7 @@ export const shutterAutoReveal = async (
             voteIDs,
             decodedMessage.choice,
             decodedMessage.salt,
-            decodedMessage.justification,
+            decodedMessage.justification
           )) *
             150n) /
           100n; // 50% extra gas
@@ -322,7 +297,7 @@ export const shutterAutoReveal = async (
           decodedMessage.choice,
           decodedMessage.salt,
           decodedMessage.justification,
-          { gasLimit: gas },
+          { gasLimit: gas }
         );
         logger.info(`Cast vote transaction: ${tx.hash}`);
       } catch (e) {

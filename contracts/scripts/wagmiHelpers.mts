@@ -11,14 +11,9 @@ export const getAbi = (artifact: unknown) => {
   return (artifact as ArtifactPartial).abi;
 };
 
-export const readArtifacts = async (
-  viemChainName: string,
-  hardhatChainName?: string,
-) => {
+export const readArtifacts = async (viemChainName: string, hardhatChainName?: string) => {
   const chains = await import("wagmi/chains");
-  const chain = chains[viemChainName as keyof typeof chains] as
-    | Chain
-    | undefined;
+  const chain = chains[viemChainName as keyof typeof chains] as Chain | undefined;
   if (!chain) {
     throw new Error(`Viem chain ${viemChainName} not found`);
   }

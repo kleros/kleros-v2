@@ -44,55 +44,36 @@ task("populate:courts", "Populates the courts and their parameters")
   .addOptionalParam(
     "from",
     "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet (default: auto depending on the network)",
-    undefined,
+    undefined
   )
-  .addOptionalParam(
-    "start",
-    "The starting index for the courts to populate (default: 0)",
-    0,
-    types.int,
-  )
+  .addOptionalParam("start", "The starting index for the courts to populate (default: 0)", 0, types.int)
   .addOptionalParam(
     "maxNumberOfCourts",
     "The maximum number of courts to populate (default: all)",
     undefined,
-    types.int,
+    types.int
   )
-  .addFlag(
-    "reverse",
-    "Iterates the courts in reverse order, useful to increase minStake in the child courts first",
-  )
-  .addFlag(
-    "forceV1ParametersToDev",
-    "Use development values for the v1 courts parameters",
-  )
+  .addFlag("reverse", "Iterates the courts in reverse order, useful to increase minStake in the child courts first")
+  .addFlag("forceV1ParametersToDev", "Use development values for the v1 courts parameters")
   .setAction(async (taskArgs, hre) => {
     const { getNamedAccounts, getChainId, ethers, network } = hre;
 
     // fallback to hardhat node signers on local network
-    const deployer =
-      (await getNamedAccounts()).deployer ??
-      (await ethers.getSigners())[0].address;
+    const deployer = (await getNamedAccounts()).deployer ?? (await ethers.getSigners())[0].address;
 
     const chainId = Number(await getChainId());
     if (!HomeChains[chainId]) {
       console.error(`Aborting: script is not compatible with ${chainId}`);
       return;
     } else {
-      console.log(
-        "deploying to %s with deployer %s",
-        HomeChains[chainId],
-        deployer,
-      );
+      console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
     }
 
     let from: Sources | undefined;
     if (taskArgs.from) {
       from = Sources[taskArgs.from.toUpperCase() as keyof typeof Sources];
       if (from === undefined) {
-        console.error(
-          "Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet",
-        );
+        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet");
         return;
       }
     } else {
@@ -100,8 +81,7 @@ task("populate:courts", "Populates the courts and their parameters")
     }
     console.log("Populating from source %s", Sources[from]);
 
-    const truncateWei = (x: bigint) =>
-      (x / TEN_THOUSAND_GWEI) * TEN_THOUSAND_GWEI;
+    const truncateWei = (x: bigint) => (x / TEN_THOUSAND_GWEI) * TEN_THOUSAND_GWEI;
 
     const parametersUsdToEth = (court: Court): Court => ({
       ...court,
@@ -127,17 +107,13 @@ task("populate:courts", "Populates the courts and their parameters")
     switch (+from) {
       case Sources.V1_MAINNET: {
         let courtsV1: Court[] = courtsV1Mainnet;
-        courtsV1 = taskArgs.forceV1ParametersToDev
-          ? courtsV1.map(parametersProductionToDev)
-          : courtsV1;
+        courtsV1 = taskArgs.forceV1ParametersToDev ? courtsV1.map(parametersProductionToDev) : courtsV1;
         courtsV2 = courtsV1.map(parametersV1ToV2);
         break;
       }
       case Sources.V1_GNOSIS: {
         let courtsV1: Court[] = courtsV1GnosisChain.map(parametersUsdToEth);
-        courtsV1 = taskArgs.forceV1ParametersToDev
-          ? courtsV1.map(parametersProductionToDev)
-          : courtsV1;
+        courtsV1 = taskArgs.forceV1ParametersToDev ? courtsV1.map(parametersProductionToDev) : courtsV1;
         courtsV2 = courtsV1.map(parametersV1ToV2);
         break;
       }
@@ -159,12 +135,8 @@ task("populate:courts", "Populates the courts and their parameters")
 
     // Warning: the indices are NOT the court IDs, e.g. the forking court is not present in the config so the indices are shifted by 1
     const start = taskArgs.start;
-    const end = taskArgs.maxNumberOfCourts
-      ? start + taskArgs.maxNumberOfCourts
-      : courtsV2.length;
-    console.log(
-      `Keeping only the first ${end - start} courts, starting from ${start}`,
-    );
+    const end = taskArgs.maxNumberOfCourts ? start + taskArgs.maxNumberOfCourts : courtsV2.length;
+    console.log(`Keeping only the first ${end - start} courts, starting from ${start}`);
     courtsV2 = courtsV2.slice(start, end);
 
     if (taskArgs.reverse) {
@@ -195,28 +167,18 @@ task("populate:courts", "Populates the courts and their parameters")
             court.id,
             // @ts-expect-error populateCourts additionalCourtParams types
             courtPresent.hiddenVotes,
-            court.hiddenVotes,
+            court.hiddenVotes
           );
         }
 
         if (courtPresent.minStake !== toBigInt(court.minStake)) {
           change = true;
-          console.log(
-            "Court %d: changing minStake from %d to %d",
-            court.id,
-            courtPresent.minStake,
-            court.minStake,
-          );
+          console.log("Court %d: changing minStake from %d to %d", court.id, courtPresent.minStake, court.minStake);
         }
 
         if (courtPresent.alpha !== toBigInt(court.alpha)) {
           change = true;
-          console.log(
-            "Court %d: changing alpha from %d to %d",
-            court.id,
-            courtPresent.alpha,
-            court.alpha,
-          );
+          console.log("Court %d: changing alpha from %d to %d", court.id, courtPresent.alpha, court.alpha);
         }
 
         if (courtPresent.feeForJuror !== toBigInt(court.feeForJuror)) {
@@ -225,7 +187,7 @@ task("populate:courts", "Populates the courts and their parameters")
             "Court %d: changing feeForJuror from %d to %d",
             court.id,
             courtPresent.feeForJuror,
-            court.feeForJuror,
+            court.feeForJuror
           );
         }
 
@@ -239,24 +201,18 @@ task("populate:courts", "Populates the courts and their parameters")
             court.id,
             // @ts-expect-error populateCourts additionalCourtParams types
             courtPresent.jurorsForCourtJump,
-            court.jurorsForCourtJump,
+            court.jurorsForCourtJump
           );
         }
 
-        const timesPerPeriodPresent = (
-          await core.getTimesPerPeriod(court.id)
-        ).map((bn) => toNumber(bn));
-        if (
-          !timesPerPeriodPresent.every(
-            (val, index) => val === court.timesPerPeriod[index],
-          )
-        ) {
+        const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => toNumber(bn));
+        if (!timesPerPeriodPresent.every((val, index) => val === court.timesPerPeriod[index])) {
           change = true;
           console.log(
             "Court %d: changing timesPerPeriod from %O to %O",
             court.id,
             timesPerPeriodPresent,
-            court.timesPerPeriod,
+            court.timesPerPeriod
           );
         }
 
@@ -273,13 +229,8 @@ task("populate:courts", "Populates the courts and their parameters")
               court.alpha,
               court.feeForJuror,
               court.jurorsForCourtJump,
-              [
-                court.timesPerPeriod[0],
-                court.timesPerPeriod[1],
-                court.timesPerPeriod[2],
-                court.timesPerPeriod[3],
-              ],
-              ZeroAddress,
+              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+              ZeroAddress
             )
             .then(execute);
         } catch (error) {
@@ -296,15 +247,10 @@ task("populate:courts", "Populates the courts and their parameters")
               court.alpha,
               court.feeForJuror,
               court.jurorsForCourtJump,
-              [
-                court.timesPerPeriod[0],
-                court.timesPerPeriod[1],
-                court.timesPerPeriod[2],
-                court.timesPerPeriod[3],
-              ],
+              [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
               ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
               [DISPUTE_KIT_CLASSIC],
-              ZeroAddress,
+              ZeroAddress
             )
             .then(execute);
         } catch (error) {

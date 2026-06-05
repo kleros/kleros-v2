@@ -27,7 +27,7 @@ const logger = {
         level: options?.level ?? "info",
         timestamp: pino.stdTimeFunctions.isoTime,
       },
-      pino.transport({ targets: targets }),
+      pino.transport({ targets: targets })
     );
   },
 };

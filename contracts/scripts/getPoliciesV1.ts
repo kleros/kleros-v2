@@ -16,17 +16,11 @@ const policyRegistryByChain = new Map<number, string>([
 
 async function main() {
   const chainId = Number(await hre.getChainId());
-  const policyRegistryAddress =
-    policyRegistryByChain.get(chainId) ?? hre.ethers.ZeroAddress;
-  const policyRegistryV1 = await ethers.getContractAt(
-    "PolicyRegistry",
-    policyRegistryAddress,
-  );
+  const policyRegistryAddress = policyRegistryByChain.get(chainId) ?? hre.ethers.ZeroAddress;
+  const policyRegistryV1 = await ethers.getContractAt("PolicyRegistry", policyRegistryAddress);
 
   const fetchPolicy = (url: string): Promise<Policy> => {
-    return fetch(url).then(
-      (response: Response) => response.json() as Promise<Policy>,
-    );
+    return fetch(url).then((response: Response) => response.json() as Promise<Policy>);
   };
 
   const fetchPolicyUri = (court: number): Promise<string> => {
