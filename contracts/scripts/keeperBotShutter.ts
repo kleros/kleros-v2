@@ -209,9 +209,12 @@ export const shutterAutoReveal = async (
       logger.info(`Skipping disputeID: ${coreDispute.id}`);
       continue;
     }
-    const decryptCache = new Map<string, string>(); // Cache for decrypted messages: key is `${_encryptedVote}-${_identity}`
-    const decryptedToVoteIDs = new Map<string, number[]>(); // Map from decryptedMessage string to array of voteIDs
-    const decryptedToSample = new Map<string, { _encryptedVote: unknown; _identity: unknown }>(); // Map from decryptedMessage string to a sample { _encryptedVote, _identity } (for logging/debug)
+    // Cache for decrypted messages: key is `${_encryptedVote}-${_identity}`
+    const decryptCache = new Map<string, string>();
+    // Map from decryptedMessage string to array of voteIDs
+    const decryptedToVoteIDs = new Map<string, number[]>();
+    // Map from decryptedMessage string to a sample { _encryptedVote, _identity } (for logging/debug)
+    const decryptedToSample = new Map<string, { _encryptedVote: unknown; _identity: unknown }>();
 
     // For each vote, decrypt the message and group voteIDs by decryptedMessage
     for (const vote of votes) {
@@ -226,7 +229,8 @@ export const shutterAutoReveal = async (
       }
       if (events.length > 1) {
         logger.warn(
-          `Multiple CommitCastShutter events found for disputeID: ${coreDispute.id}, voteID: ${vote.id}, using the first one only`
+          `Multiple CommitCastShutter events found for disputeID: ${coreDispute.id}, ` +
+            `voteID: ${vote.id}, using the first one only`
         );
       }
       const { _encryptedVote, _identity } = events[0].args;
@@ -261,9 +265,16 @@ export const shutterAutoReveal = async (
     // For each unique decryptedMessage, decode and castVote once with all voteIDs
     for (const [decryptedMessage, voteIDs] of decryptedToVoteIDs.entries()) {
       const decodedMessage = decode(decryptedMessage);
-      logger.info(
-        `Decoded message for voteIDs [${voteIDs.join(", ")}]: ${JSON.stringify({ choice: decodedMessage.choice.toString(), salt: decodedMessage.salt, justification: decodedMessage.justification }, null, 2)}`
+      const decodedMessageLog = JSON.stringify(
+        {
+          choice: decodedMessage.choice.toString(),
+          salt: decodedMessage.salt,
+          justification: decodedMessage.justification,
+        },
+        null,
+        2
       );
+      logger.info(`Decoded message for voteIDs [${voteIDs.join(", ")}]: ${decodedMessageLog}`);
       // Simulate
       try {
         await disputeKitShutter.castVoteShutter.staticCall(

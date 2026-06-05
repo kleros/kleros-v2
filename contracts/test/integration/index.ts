@@ -101,7 +101,8 @@ describe("Integration tests", async () => {
     });
 
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`)); // get returned value from createDispute()
+    // get returned value from createDispute()
+    const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     console.log("Dispute Created with disputeId: %d", disputeId);
     await expect(tx)
       .to.emit(foreignGateway, "CrossChainDisputeOutgoing")

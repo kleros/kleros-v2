@@ -7,7 +7,8 @@ const getConfig = async (): Promise<Config> => {
   artifact.forEach((c) => console.log("✔ Found localhost artifact: %s", c.name));
   let contracts = artifact;
 
-  const chiadoContracts = await readArtifacts("gnosisChiado", "chiadoDevnet"); // renaming the Hardhat network improves this but breaks many other scripts
+  // renaming the Hardhat network improves this but breaks many other scripts
+  const chiadoContracts = await readArtifacts("gnosisChiado", "chiadoDevnet");
   chiadoContracts.forEach((c) => console.log("✔ Found chiado artifact: %s", c.name));
   contracts = merge(contracts, chiadoContracts);
 

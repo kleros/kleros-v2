@@ -60,7 +60,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   let klerosCoreAddress = await deployments.getOrNull("KlerosCore").then((deployment) => deployment?.address);
   if (!klerosCoreAddress) {
     const nonce = await ethers.provider.getTransactionCount(deployer);
-    klerosCoreAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+    // deployed on the 4th tx (nonce+3):
+    // SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+    klerosCoreAddress = getContractAddress(deployer, nonce + 3);
     console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
   const devnetOrLocalhost = isDevnet(hre.network) || isLocalhost(hre.network);
@@ -137,7 +139,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
   const disputeKitShutterID = (await core.getDisputeKitsLength()) - 1n;
-  await core.enableDisputeKits(Courts.GENERAL, [disputeKitShutterID], true); // enable disputeKitShutter on the General Court
+  // enable disputeKitShutter on the General Court
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitShutterID], true);
 
   const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
     from: deployer,
@@ -146,7 +149,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
   await core.addNewDisputeKit(disputeKitGated.address);
   const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
-  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true); // enable disputeKitGated on the General Court
+  // enable disputeKitGated on the General Court
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true);
 
   const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
     from: deployer,
@@ -155,7 +159,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
   await core.addNewDisputeKit(disputeKitGatedShutter.address);
   const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
-  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true); // enable disputeKitGatedShutter on the General Court
+  // enable disputeKitGatedShutter on the General Court
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true);
 
   const disputeKitClassicUniversity = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
@@ -164,7 +169,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
   await core.addNewDisputeKit(disputeKitClassicUniversity.address);
   const disputeKitClassicUniversityID = (await core.getDisputeKitsLength()) - 1n;
-  await core.enableDisputeKits(Courts.GENERAL, [disputeKitClassicUniversityID], true); // enable disputeKitClassicUniversity on the General Court
+  // enable disputeKitClassicUniversity on the General Court
+  await core.enableDisputeKits(Courts.GENERAL, [disputeKitClassicUniversityID], true);
 
   // Snapshot proxy
   await getContractOrDeploy(hre, "KlerosCoreSnapshotProxy", {

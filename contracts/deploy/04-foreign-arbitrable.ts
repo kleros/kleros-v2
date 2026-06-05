@@ -27,8 +27,10 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const foreignGateway = await deployments.get(foreignGatewayArtifact);
   console.log("using foreign gateway: %s", foreignGatewayArtifact);
 
+  // General court, 3 jurors
   const extraData =
-    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
+    // eslint-disable-next-line max-len
+    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003";
   const weth = await deployments.get("WETH");
 
   const disputeTemplateRegistry = await deploy("DisputeTemplateRegistry", {

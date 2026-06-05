@@ -332,7 +332,9 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
   const { core } = await getContracts();
   let success = false;
   try {
-    const simulatedIterations = iterations * MAX_DRAW_CALLS_WITHOUT_JURORS; // Drawing will be skipped as long as no juror is available in the next MAX_DRAW_CALLS_WITHOUT_JURORS calls to draw() given this nb of iterations.
+    // Drawing will be skipped as long as no juror is available in the next
+    // MAX_DRAW_CALLS_WITHOUT_JURORS calls to draw() given this nb of iterations.
+    const simulatedIterations = iterations * MAX_DRAW_CALLS_WITHOUT_JURORS;
     const { drawnJurors: drawnJurorsBefore } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
     const nbDrawnJurors = (await core.draw.staticCall(dispute.id, simulatedIterations, HIGH_GAS_LIMIT)) as bigint;
     const extraJurors = nbDrawnJurors - BigInt(drawnJurorsBefore.length);
@@ -440,19 +442,22 @@ const withdrawAppealContribution = async (
     );
   } catch {
     logger.warn(
-      `WithdrawFeesAndRewards: will fail for core dispute #${coreDisputeId}, round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
+      `WithdrawFeesAndRewards: will fail for core dispute #${coreDisputeId}, round #${coreRoundId}, ` +
+        `choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
     return success;
   }
   if (amountWithdrawn === 0n) {
     logger.debug(
-      `WithdrawFeesAndRewards: no fees or rewards to withdraw for core dispute #${coreDisputeId}, round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
+      `WithdrawFeesAndRewards: no fees or rewards to withdraw for core dispute #${coreDisputeId}, ` +
+        `round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
     return success;
   }
   try {
     logger.info(
-      `WithdrawFeesAndRewards: appeal contribution for core dispute #${coreDisputeId}, round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}`
+      `WithdrawFeesAndRewards: appeal contribution for core dispute #${coreDisputeId}, ` +
+        `round #${coreRoundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}`
     );
     const gas =
       ((await disputeKit.withdrawFeesAndRewards.estimateGas(
@@ -644,7 +649,8 @@ async function main() {
   //                  AUTO-REVEAL                    //
   // ----------------------------------------------- //
   logger.info("Auto-revealing disputes");
-  // Ensure that the disputes ready to be auto-revealed are passed to the voting period otherwise they won't be picked up.
+  // Ensure that the disputes ready to be auto-revealed are passed to the voting period
+  // otherwise they won't be picked up.
   for (const dispute of filterDisputesByPeriod(filterDisputesToSkip(disputes), Period.COMMIT)) {
     await passPeriod(dispute);
   }
@@ -759,7 +765,8 @@ async function main() {
         break;
       }
       logger.info(
-        `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
+        `Executing ${executeIterations} out of ${numberOfMissingRepartitions} ` +
+          `repartitions needed for dispute #${dispute.id}`
       );
       if (!(await executeRepartitions(dispute, executeIterations))) {
         logger.info(`Failed to execute repartitions for dispute #${dispute.id}, skipping it`);
