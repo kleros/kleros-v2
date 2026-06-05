@@ -104,17 +104,19 @@ interface IAtlasProvider {
   isVerified: boolean;
   isSigningIn: boolean;
   isAddingUser: boolean;
+  isDeletingUser: boolean;
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
   isUploadingFile: boolean;
   isConfirmingEmail: boolean;
   user: User | undefined;
   userExists: boolean;
-  authoriseUser: () => Promise<void>;
-  addUser: (userSettings: Omit<AddUserData, "product">) => Promise<boolean>;
-  updateEmail: (userSettings: Omit<UpdateEmailData, "product">) => Promise<boolean>;
-  uploadFile: (file: File, role: Roles) => Promise<string | null>;
-  confirmEmail: (userSettings: ConfirmEmailData) => Promise<
+  authoriseUser(): Promise<void>;
+  addUser(userSettings: Omit<AddUserData, "product">): Promise<boolean>;
+  updateEmail(userSettings: Omit<UpdateEmailData, "product">): Promise<boolean>;
+  deleteUser(): Promise<boolean>;
+  uploadFile(file: File, role: Roles): Promise<string | null>;
+  confirmEmail(userSettings: ConfirmEmailData): Promise<
     ConfirmEmailResponse & {
       isError: boolean;
     }
