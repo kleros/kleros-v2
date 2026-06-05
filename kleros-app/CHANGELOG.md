@@ -6,7 +6,15 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-06-05
+
+### Fixed
+
+- Republished with built `dist` artifacts; the `3.0.0` npm tarball was published without `dist` after the release script failed at `yarn npm login` and removed the build output on exit.
+
 ## [3.0.0] - 2026-06-05
+
+> **Note:** The npm tarball for `3.0.0` was broken; use `3.0.1` or later.
 
 ### Added
 
