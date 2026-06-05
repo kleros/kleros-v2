@@ -320,7 +320,7 @@
     "user_added_successfully": "Utilisateur ajouté avec succès !",
     "adding_user_failed_error": "Échec de l'ajout de l'utilisateur : {{error}}",
     "update_email_again": "Vous pouvez mettre à jour l'e-mail à nouveau {{time}}",
-    "unsubscribe_warning_title": "Se désabonner de toutes les notifications ?",
+    "unsubscribe_warning_title": "Se désabonner de toutes les notifications?",
     "unsubscribe_warning_msg": "Vous ne recevrez plus de notifications de tous les produits Kleros tant que vous ne vous réabonnerez pas.",
     "unsubscribing": "Désabonnement des notifications...",
     "unsubscribed_successfully": "Vous êtes désabonné des notifications.",
