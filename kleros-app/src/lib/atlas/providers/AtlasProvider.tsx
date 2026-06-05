@@ -8,6 +8,7 @@ import {
   getNonce,
   loginUser,
   addUser as addUserToAtlas,
+  deleteUser as deleteUserFromAtlas,
   fetchUser,
   updateEmail as updateEmailInAtlas,
   confirmEmail as confirmEmailInAtlas,
@@ -18,8 +19,10 @@ import {
   type ConfirmEmailData,
   type ConfirmEmailResponse,
   Roles,
-  Products,
   AuthorizationError,
+  IpfsProduct,
+  SignupProduct,
+  IpfsProductNotConfigured,
 } from "../utils";
 
 import { GraphQLError } from "graphql";
@@ -27,25 +30,55 @@ import { isUndefined } from "../../../utils";
 import { useSessionStorage } from "../hooks/useSessionStorage";
 import { fetchRestrictions, Role } from "../utils/fetchRestrictions";
 
-interface IAtlasProvider {
+export interface IAtlasProvider {
   isVerified: boolean;
   isSigningIn: boolean;
   isAddingUser: boolean;
+  isDeletingUser: boolean;
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
   isUploadingFile: boolean;
   isConfirmingEmail: boolean;
   user: User | undefined;
   userExists: boolean;
-  authoriseUser: () => Promise<void>;
-  addUser: (userSettings: Omit<AddUserData, "product">, overrideProduct?: Products) => Promise<boolean>;
-  updateEmail: (userSettings: Omit<UpdateEmailData, "product">, overrideProduct?: Products) => Promise<boolean>;
-  uploadFile: (file: File, role: Roles) => Promise<string | null>;
-  confirmEmail: (userSettings: ConfirmEmailData) => Promise<
+  /** Authorise user and enable authorised calls. */
+  authoriseUser(): Promise<void>;
+  /**
+   * Adds a new user to Atlas.
+   * @param userSettings - Email to register. `product` is taken from `signupProduct` config.
+   * @returns Resolves to true if the user was added successfully.
+   */
+  addUser(userSettings: Omit<AddUserData, "product">): Promise<boolean>;
+  /**
+   * Updates user email in Atlas.
+   * @param userSettings - New email. `product` is taken from `signupProduct` config.
+   * @returns Resolves to true if email was updated successfully.
+   */
+  updateEmail(userSettings: Omit<UpdateEmailData, "product">): Promise<boolean>;
+  /**
+   * Deletes the user and unsubscribes them from notification emails
+   * across all Kleros products (not only `signupProduct`). Irreversible until they register again.
+   * @returns Resolves to true if the user was deleted successfully.
+   */
+  deleteUser(): Promise<boolean>;
+  /**
+   * Upload file to IPFS via Atlas. Requires `ipfsProduct` in config.
+   * @param file - File to upload.
+   * @param role - Role for which the file is being uploaded.
+   * @returns IPFS path (e.g. `/ipfs/...`) if uploaded successfully, else null when unauthenticated.
+   */
+  uploadFile(file: File, role: Roles): Promise<string | null>;
+  /**
+   * Confirms user email in Atlas.
+   * @param userSettings - Confirmation payload from the verification link.
+   * @returns Confirmation result and `isError` when the request failed.
+   */
+  confirmEmail(userSettings: ConfirmEmailData): Promise<
     ConfirmEmailResponse & {
       isError: boolean;
     }
   >;
+  /** Role upload limits for `ipfsProduct`, when configured. */
   roleRestrictions: Role[] | undefined;
 }
 
@@ -53,7 +86,11 @@ const Context = createContext<IAtlasProvider | undefined>(undefined);
 
 interface AtlasConfig {
   uri: string;
-  product: Products;
+  // Product used for signup and email update (e.g. Court V2, Foresight).
+  // If no specific product, use CourtV2.
+  signupProduct: SignupProduct;
+  // Product for IPFS uploads. Omit if this app does not upload files via Atlas.
+  ipfsProduct?: IpfsProduct;
   wagmiConfig: Config;
 }
 
@@ -66,6 +103,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [isConfirmingEmail, setIsConfirmingEmail] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
@@ -150,11 +188,12 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const { data: roleRestrictions } = useQuery(
     {
       queryKey: [`RoleRestrictions`],
-      enabled: Boolean(config.product),
+      enabled: Boolean(config.ipfsProduct),
       staleTime: Infinity,
       queryFn: async () => {
+        if (isUndefined(config.ipfsProduct)) return;
         try {
-          return await fetchRestrictions(atlasGqlClient, config.product);
+          return await fetchRestrictions(atlasGqlClient, config.ipfsProduct);
         } catch {
           return undefined;
         }
@@ -193,9 +232,6 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     }
   }
 
-  /**
-   * @description authorise user and enable authorised calls
-   */
   const authoriseUser = useCallback(
     async (statement?: string) => {
       try {
@@ -217,21 +253,14 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     [address, chainId, setAuthToken, signMessageAsync, atlasGqlClient]
   );
 
-  /**
-   * @description adds a new user to atlas
-   * @param {AddUserData} userSettings - object containing data to be added
-   * @param {Products} overrideProduct - optional override to specify a different product,
-   * defaults to Config.Product provided in AtlasProvider
-   * @returns {Promise<boolean>} A promise that resolves to true if the user was added successfully
-   */
   const addUser = useCallback(
-    async (userSettings: Omit<AddUserData, "product">, overrideProduct?: Products) => {
+    async (userSettings: Omit<AddUserData, "product">) => {
       try {
         if (!address || !isVerified) return false;
         setIsAddingUser(true);
 
         const userAdded = await fetchWithAuthErrorHandling(() =>
-          addUserToAtlas(atlasGqlClient, { ...userSettings, product: overrideProduct ?? config.product })
+          addUserToAtlas(atlasGqlClient, { ...userSettings, product: config.signupProduct })
         );
         refetchUser();
 
@@ -242,24 +271,17 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsAddingUser(false);
       }
     },
-    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser, config.product]
+    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser, config.signupProduct]
   );
 
-  /**
-   * @description updates user email in atlas
-   * @param {UpdateEmailData} userSettings - object containing data to be updated
-   * @param {Products} overrideProduct - optional override to specify a different product,
-   * defaults to Config.Product provided in AtlasProvider
-   * @returns {Promise<boolean>} A promise that resolves to true if email was updated successfully
-   */
   const updateEmail = useCallback(
-    async (userSettings: Omit<UpdateEmailData, "product">, overrideProduct?: Products) => {
+    async (userSettings: Omit<UpdateEmailData, "product">) => {
       try {
         if (!address || !isVerified) return false;
         setIsUpdatingUser(true);
 
         const emailUpdated = await fetchWithAuthErrorHandling(() =>
-          updateEmailInAtlas(atlasGqlClient, { ...userSettings, product: overrideProduct ?? config.product })
+          updateEmailInAtlas(atlasGqlClient, { ...userSettings, product: config.signupProduct })
         );
         refetchUser();
 
@@ -270,60 +292,84 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsUpdatingUser(false);
       }
     },
-    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.product]
+    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.signupProduct]
   );
 
-  /**
-   * @description upload file to ipfs
-   * @param {File} file - file to be uploaded
-   * @param {Roles} role - role for which file is being uploaded
-   * @returns {Promise<string | null>} A promise that resolves to the ipfs cid if file was uploaded successfully else
-   *                                   null
-   */
+  const deleteUser = useCallback(async () => {
+    try {
+      if (!address || !isVerified) return false;
+      setIsDeletingUser(true);
+
+      const userDeleted = await fetchWithAuthErrorHandling(() => deleteUserFromAtlas(atlasGqlClient));
+      refetchUser();
+
+      return userDeleted;
+    } finally {
+      setIsDeletingUser(false);
+    }
+  }, [address, isVerified, setIsDeletingUser, atlasGqlClient, refetchUser]);
+
   const uploadFile = useCallback(
     async (file: File, role: Roles) => {
+      const product = config.ipfsProduct;
+
+      if (isUndefined(product)) {
+        throw new IpfsProductNotConfigured();
+      }
+
       try {
         if (!address || !isVerified || !config.uri || !authToken) return null;
+        let resolvedRestrictions = roleRestrictions;
 
-        if (roleRestrictions) {
-          const restrictions = roleRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
-
-          if (!restrictions) throw new Error("Unsupported role.");
-
-          const isValidMimeType = restrictions.restriction.allowedMimeTypes.some((allowedType) => {
-            if (allowedType.endsWith("/*")) {
-              const prefix = allowedType.replace("/*", "/");
-              return file.type.startsWith(prefix);
-            }
-            return allowedType === file.type;
-          });
-
-          if (!isValidMimeType) throw new Error("Unsupported file type.");
-          if (file.size > restrictions.restriction.maxSize)
-            throw new Error(
-              `File too big. Max allowed size : ${(restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2)} mb.`
-            );
+        // Try to fetch restrictions again if first background try failed
+        if (isUndefined(resolvedRestrictions)) {
+          resolvedRestrictions = await fetchRestrictions(atlasGqlClient, product);
         }
+
+        if (isUndefined(resolvedRestrictions)) {
+          throw new Error(`uploadFile: Unable to fetch role restrictions for ${product}`);
+        }
+
+        const restrictions = resolvedRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
+
+        if (!restrictions) throw new Error("Unsupported role.");
+
+        const isValidMimeType = restrictions.restriction.allowedMimeTypes.some((allowedType) => {
+          if (allowedType.endsWith("/*")) {
+            const prefix = allowedType.replace("/*", "/");
+            return file.type.startsWith(prefix);
+          }
+          return allowedType === file.type;
+        });
+
+        if (!isValidMimeType) throw new Error("Unsupported file type.");
+        if (file.size > restrictions.restriction.maxSize)
+          throw new Error(
+            `File too big. Max allowed size : ${(restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2)} mb.`
+          );
+
         setIsUploadingFile(true);
 
         const hash = await fetchWithAuthErrorHandling(() =>
-          uploadToIpfs({ baseUrl: config.uri, authToken }, { file, name: file.name, role, product: config.product })
+          uploadToIpfs({ baseUrl: config.uri, authToken }, { file, name: file.name, role, product: product })
         );
         return hash ? `/ipfs/${hash}` : null;
-      } catch (err: unknown) {
-        throw err;
       } finally {
         setIsUploadingFile(false);
       }
     },
-    [address, isVerified, setIsUploadingFile, authToken, config.uri, config.product, roleRestrictions]
+    [
+      address,
+      isVerified,
+      setIsUploadingFile,
+      authToken,
+      config.uri,
+      config.ipfsProduct,
+      roleRestrictions,
+      atlasGqlClient,
+    ]
   );
 
-  /**
-   * @description confirms user email in atlas
-   * @param {ConfirmEmailData} userSettings - object containing data to be sent
-   * @returns {Promise<boolean>} A promise that resolves to true if email was confirmed successfully
-   */
   const confirmEmail = useCallback(
     async (userSettings: ConfirmEmailData): Promise<ConfirmEmailResponse & { isError: boolean }> => {
       try {
@@ -346,12 +392,14 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   return (
     <Context.Provider
       value={useMemo(
-        () => ({
+        (): IAtlasProvider => ({
           isVerified,
           isSigningIn,
           isAddingUser,
+          isDeletingUser,
           authoriseUser,
           addUser,
+          deleteUser,
           user,
           isFetchingUser,
           updateEmail,
@@ -367,8 +415,10 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           isVerified,
           isSigningIn,
           isAddingUser,
+          isDeletingUser,
           authoriseUser,
           addUser,
+          deleteUser,
           user,
           isFetchingUser,
           updateEmail,
@@ -387,7 +437,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   );
 };
 
-export const useAtlasProvider = () => {
+/** Atlas context. Must be used within {@link AtlasProvider}. */
+export const useAtlasProvider = (): IAtlasProvider => {
   const context = useContext(Context);
   if (!context) {
     throw new Error("Context Provider not found.");

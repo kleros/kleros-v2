@@ -1,9 +1,9 @@
-import { Products, Roles } from ".";
+import { IpfsProduct, Roles } from ".";
 
 export type IpfsUploadPayload = {
   file: File;
   name: string;
-  product: Products;
+  product: IpfsProduct;
   role: Roles;
 };
 
@@ -36,7 +36,16 @@ export async function uploadToIpfs(config: Config, payload: IpfsUploadPayload): 
     return await response.text();
   });
 }
+export class IpfsProductNotConfigured extends Error {
+  readonly name = "IpfsProductNotConfigured" as const;
+  constructor() {
+    super(`Please configure 'ipfsProduct' in AtlasProvider`);
 
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+}
 export class AuthorizationError extends Error {
   readonly name = "AuthorizationError" as const;
   constructor(message: string) {
