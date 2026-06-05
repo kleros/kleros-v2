@@ -6,6 +6,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-06-05
+
 ### Added
 
 - `deleteUser()` on `IAtlasProvider` and `deleteUser` GraphQL util: deletes the authenticated Atlas user and unsubscribes notification emails across all Kleros products (not only `signupProduct`).
