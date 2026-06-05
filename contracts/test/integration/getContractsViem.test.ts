@@ -119,9 +119,7 @@ describe("getContractsViem", () => {
     expect(contract).to.have.property("address");
     expect(contract).to.have.property("abi");
     expect(contract?.address).to.match(/^0x[a-fA-F0-9]{40}$/);
-    expect(contract?.address).to.not.equal(
-      "0x0000000000000000000000000000000000000000",
-    );
+    expect(contract?.address).to.not.equal("0x0000000000000000000000000000000000000000");
   }
 
   // Helper to verify all contract instances
@@ -142,9 +140,7 @@ describe("getContractsViem", () => {
       verifyContractInstance(contracts.disputeKitGatedShutter);
     }
     if (contracts.disputeKitGatedArgentinaConsumerProtection) {
-      verifyContractInstance(
-        contracts.disputeKitGatedArgentinaConsumerProtection,
-      );
+      verifyContractInstance(contracts.disputeKitGatedArgentinaConsumerProtection);
     }
     verifyContractInstance(contracts.disputeResolver);
     verifyContractInstance(contracts.disputeTemplateRegistry);
@@ -168,11 +164,7 @@ describe("getContractsViem", () => {
   }
 
   // Helper to verify deployed addresses
-  async function verifyDeployedAddresses(
-    contracts: Contracts,
-    network: NetworkType,
-    contractMapping: ContractMapping,
-  ) {
+  async function verifyDeployedAddresses(contracts: Contracts, network: NetworkType, contractMapping: ContractMapping) {
     for (const [key, { name, optional }] of Object.entries(contractMapping)) {
       const contract = contracts[key as keyof typeof contracts];
       if (!contract) {
@@ -202,19 +194,14 @@ describe("getContractsViem", () => {
     expect(contracts.disputeKitShutter).to.not.be.undefined;
     expect(contracts.disputeKitGated).to.not.be.undefined;
     expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
-    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.not.be
-      .undefined;
+    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.not.be.undefined;
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
     expect(contracts.randomizerRng).to.be.undefined;
 
     // Verify deployed addresses
-    await verifyDeployedAddresses(
-      contracts,
-      NETWORKS.DEVNET,
-      devnetContractMapping,
-    );
+    await verifyDeployedAddresses(contracts, NETWORKS.DEVNET, devnetContractMapping);
   });
 
   it("should return correct contract instances for testnet", async () => {
@@ -234,19 +221,14 @@ describe("getContractsViem", () => {
     expect(contracts.disputeKitShutter).to.not.be.undefined;
     expect(contracts.disputeKitGated).to.not.be.undefined;
     expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
-    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be
-      .undefined; // Not deployed yet
+    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be.undefined; // Not deployed yet
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
     expect(contracts.randomizerRng).to.be.undefined;
 
     // Verify deployed addresses
-    await verifyDeployedAddresses(
-      contracts,
-      NETWORKS.TESTNET,
-      testnetContractMapping,
-    );
+    await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
   it("should return correct contract instances for mainnet", async () => {
@@ -266,19 +248,14 @@ describe("getContractsViem", () => {
     expect(contracts.disputeKitShutter).to.not.be.undefined;
     expect(contracts.disputeKitGated).to.not.be.undefined;
     expect(contracts.disputeKitGatedShutter).to.not.be.undefined;
-    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be
-      .undefined; // Not deployed yet
+    expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be.undefined; // Not deployed yet
 
     // Verify specific RNG instances
     expect(contracts.chainlinkRng).to.not.be.undefined;
     expect(contracts.randomizerRng).to.not.be.undefined;
 
     // Verify deployed addresses
-    await verifyDeployedAddresses(
-      contracts,
-      NETWORKS.MAINNET,
-      mainnetContractMapping,
-    );
+    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, mainnetContractMapping);
   });
 
   it("should throw error for unsupported deployment", () => {
@@ -287,7 +264,7 @@ describe("getContractsViem", () => {
         publicClient: arbitrumSepoliaClient,
         // @ts-expect-error Testing invalid deployment
         deployment: "invalid",
-      }),
+      })
     ).to.throw(/Cannot destructure property 'chainId'/);
   });
 });

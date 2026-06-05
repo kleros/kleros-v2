@@ -2,42 +2,31 @@ import { z } from "zod";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 
-export const isHexAddress = (str: string): boolean =>
-  /^0x[a-fA-F0-9]{40}$/.test(str);
-export const isHexId = (str: string): boolean =>
-  /^0x[a-fA-F0-9]{1,64}$/.test(str);
+export const isHexAddress = (str: string): boolean => /^0x[a-fA-F0-9]{40}$/.test(str);
+export const isHexId = (str: string): boolean => /^0x[a-fA-F0-9]{1,64}$/.test(str);
 export const isMultiaddr = (str: string): boolean =>
+  // eslint-disable-next-line max-len
   /^\/(?:ip4|ip6|dns4|dns6|dnsaddr|tcp|udp|utp|tls|ws|wss|p2p-circuit|p2p-webrtc-star|p2p-webrtc-direct|p2p-websocket-star|onion|ipfs)(\/[^\s/]+)+$|^ipfs:\/\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?$/.test(
-    str,
+    str
   );
 
-export const ethAddressSchema = z
-  .string()
-  .refine((value) => isAddress(value, { strict: false }), {
-    message: "Provided address is invalid.",
-  });
+export const ethAddressSchema = z.string().refine((value) => isAddress(value, { strict: false }), {
+  message: "Provided address is invalid.",
+});
 
 export const ensNameSchema = z
   .string()
-  .refine(
-    (value) => typeof normalize(value) === "string" && value.endsWith(".eth"),
-    {
-      message: "Provided ENS name is invalid.",
-    },
-  );
-
-export const ethAddressOrEnsNameSchema = z.union(
-  [ethAddressSchema, ensNameSchema],
-  {
-    errorMap: () => ({ message: "Provided address or ENS name is invalid." }),
-  },
-);
-
-export const TxHashSchema = z
-  .string()
-  .refine((value) => isHexId(value) && value.length === 66, {
-    message: "Provided transaction hash is invalid.",
+  .refine((value) => typeof normalize(value) === "string" && value.endsWith(".eth"), {
+    message: "Provided ENS name is invalid.",
   });
+
+export const ethAddressOrEnsNameSchema = z.union([ethAddressSchema, ensNameSchema], {
+  errorMap: () => ({ message: "Provided address or ENS name is invalid." }),
+});
+
+export const TxHashSchema = z.string().refine((value) => isHexId(value) && value.length === 66, {
+  message: "Provided transaction hash is invalid.",
+});
 
 export enum QuestionType {
   Bool = "bool",

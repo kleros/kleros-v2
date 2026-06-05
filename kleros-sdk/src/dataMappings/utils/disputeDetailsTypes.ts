@@ -1,9 +1,5 @@
 import { z } from "zod";
-import DisputeDetailsSchema, {
-  AliasSchema,
-  AnswerSchema,
-  AttachmentSchema,
-} from "./disputeDetailsSchema";
+import DisputeDetailsSchema, { AliasSchema, AnswerSchema, AttachmentSchema } from "./disputeDetailsSchema";
 
 export { QuestionType, RefuseToArbitrateAnswer } from "./disputeDetailsSchema";
 export type DisputeDetails = z.infer<typeof DisputeDetailsSchema>;

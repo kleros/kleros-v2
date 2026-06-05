@@ -11,16 +11,12 @@ const wrappedPNKByChain = new Map<ForeignChains, string>([
 
 const ONE_GWEI = BigNumber.from(parseUnits("1", "gwei"));
 
-const deployKlerosLiquid: DeployFunction = async (
-  hre: HardhatRuntimeEnvironment,
-) => {
+const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
 
   // fallback to hardhat node signers on local network
-  const deployer =
-    (await getNamedAccounts()).deployer ??
-    (await hre.ethers.getSigners())[0].address;
+  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
   if (!(chainId in ForeignChains)) {
     throw new Error(`Unsupported foreign chain id: ${chainId}`);
@@ -66,12 +62,7 @@ const deployKlerosLiquid: DeployFunction = async (
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
-  console.log(
-    "using: \nwPNK at %s, \nForeignGateway at %s",
-    wPnkAddress,
-    foreignGateway.address,
-    weth.address,
-  );
+  console.log("using: \nwPNK at %s, \nForeignGateway at %s", wPnkAddress, foreignGateway.address, weth.address);
 
   const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
     from: deployer,
@@ -108,13 +99,11 @@ const deployKlerosLiquid: DeployFunction = async (
     [minStake, alpha, feeForJuror, jurorsForCourtJump], // minStake, alpha, feeForJuror, jurorsForCourtJump
     [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
     sortitionSumTreeK,
-    foreignGateway.address,
+    foreignGateway.address
   );
 
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
-  const disputeTemplateRegistry = await deployments.get(
-    "DisputeTemplateRegistry",
-  );
+  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
   await deploy("ArbitrableExample", {
     from: deployer,
     args: [

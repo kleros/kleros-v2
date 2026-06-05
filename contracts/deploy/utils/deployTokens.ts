@@ -7,7 +7,7 @@ export const deployERC20AndFaucet = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
   ticker: string,
-  faucetFundingAmount: bigint = hre.ethers.parseUnits("100000"),
+  faucetFundingAmount: bigint = hre.ethers.parseUnits("100000")
 ): Promise<Contract> => {
   const erc20 = await deployERC20(hre, deployer, ticker);
   if (!isMainnet(hre.network)) {
@@ -19,14 +19,12 @@ export const deployERC20AndFaucet = async (
 export const deployERC20 = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
-  ticker: string,
+  ticker: string
 ): Promise<Contract> => {
   // locally the ERC20 contract lacks `increaseAllowance` function,
   // so we swap it with an updated contract to allow local development
-  const contractName =
-    ticker === "PNK" && isLocalhost(hre.network) ? "PinakionV2" : "TestERC20";
-  const args =
-    ticker === "PNK" && isLocalhost(hre.network) ? [] : [ticker, ticker];
+  const contractName = ticker === "PNK" && isLocalhost(hre.network) ? "PinakionV2" : "TestERC20";
+  const args = ticker === "PNK" && isLocalhost(hre.network) ? [] : [ticker, ticker];
   return await getContractOrDeploy(hre, ticker, {
     from: deployer,
     contract: contractName,
@@ -40,7 +38,7 @@ export const deployFaucet = async (
   deployer: string,
   ticker: string,
   erc20: Contract,
-  faucetFundingAmount: bigint,
+  faucetFundingAmount: bigint
 ): Promise<void> => {
   const faucet = await getContractOrDeploy(hre, `${ticker}Faucet`, {
     from: deployer,
@@ -51,10 +49,7 @@ export const deployFaucet = async (
 
   const faucetBalance = await erc20.balanceOf(faucet.target);
   const deployerBalance = await erc20.balanceOf(deployer);
-  if (
-    deployerBalance >= faucetFundingAmount &&
-    faucetBalance < faucetFundingAmount / 5n
-  ) {
+  if (deployerBalance >= faucetFundingAmount && faucetBalance < faucetFundingAmount / 5n) {
     // Fund the faucet if deployer has enough tokens and if the faucet has less than 20% of the faucetFundingAmount
     console.log(`funding ${ticker}Faucet with ${faucetFundingAmount}`);
     await erc20.transfer(faucet.target, faucetFundingAmount);
@@ -65,7 +60,7 @@ export const deployERC721 = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
   name: string,
-  ticker: string,
+  ticker: string
 ): Promise<Contract> => {
   return getContractOrDeploy(hre, ticker, {
     from: deployer,
@@ -79,7 +74,7 @@ export const deployERC1155 = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
   name: string,
-  ticker: string,
+  ticker: string
 ): Promise<Contract> => {
   return getContractOrDeploy(hre, ticker, {
     from: deployer,
@@ -96,7 +91,7 @@ export const deploySBT = async (
   ticker: string,
   description: string,
   imageUri: string,
-  externalUrl: string,
+  externalUrl: string
 ): Promise<Contract> => {
   return getContractOrDeploy(hre, ticker, {
     from: deployer,

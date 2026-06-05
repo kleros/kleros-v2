@@ -6,7 +6,7 @@ import { isUndefined } from ".";
 
 export function replacePlaceholdersWithValues(
   mapping: ActionMapping,
-  context: Record<string, unknown>,
+  context: Record<string, unknown>
 ): ActionMapping | ActionMapping[] {
   function replace(obj: ActionMapping): ActionMapping | ActionMapping[] {
     if (typeof obj === "string") {
@@ -16,7 +16,7 @@ export function replacePlaceholdersWithValues(
       return obj.map(replace) as unknown as ActionMapping[];
     } else if (typeof obj === "object" && obj !== null) {
       return Object.fromEntries(
-        Object.entries(obj).map(([key, value]) => [key, replace(value)]),
+        Object.entries(obj).map(([key, value]) => [key, replace(value)])
       ) as unknown as ActionMapping[];
     } else {
       return obj;
@@ -32,17 +32,12 @@ export function replacePlaceholdersWithValues(
  * @param context
  * @description retrieves all variables from a template and validates if they are provided in the context
  */
-const validateContext = (
-  template: string,
-  context: Record<string, unknown>,
-) => {
+const validateContext = (template: string, context: Record<string, unknown>) => {
   const variables = retrieveVariables(template);
 
   variables.forEach((variable) => {
     if (isUndefined(context[variable]))
-      throw new InvalidContextError(
-        `Expected key "${variable}" to be provided in context.`,
-      );
+      throw new InvalidContextError(`Expected key "${variable}" to be provided in context.`);
   });
   return true;
 };

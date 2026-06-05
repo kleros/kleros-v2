@@ -1,12 +1,6 @@
 import { type Address, type BlockNumber, type BlockTag } from "viem";
 
-type MappingType =
-  | "graphql"
-  | "abi/call"
-  | "abi/event"
-  | "json"
-  | "fetch/ipfs/json"
-  | "reality";
+type MappingType = "graphql" | "abi/call" | "abi/event" | "json" | "fetch/ipfs/json" | "reality";
 
 type AbstractMapping<T extends MappingType> = {
   type: T;
