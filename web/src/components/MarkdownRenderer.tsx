@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
-import rehypeSanitize from "rehype-sanitize";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 
 import { isExternalLink } from "utils/linkUtils";
@@ -307,6 +307,7 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
             [
               rehypeSanitize,
               {
+                ...defaultSchema,
                 tagNames: [
                   "p",
                   "br",
@@ -320,7 +321,6 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
                   "ul",
                   "ol",
                   "li",
-                  "input",
                   "strong",
                   "b",
                   "em",
@@ -366,10 +366,8 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
                   "address",
                 ],
                 attributes: {
-                  "*": ["className", "id", "style"],
                   a: ["href", "title", "target", "rel"],
                   img: ["src", "alt", "title", "width", "height"],
-                  input: ["type", "checked", "disabled"],
                   th: ["scope", "colspan", "rowspan"],
                   td: ["colspan", "rowspan"],
                   details: ["open"],
