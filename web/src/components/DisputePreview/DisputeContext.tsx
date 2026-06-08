@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -8,17 +8,18 @@ import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disput
 
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
+import { isSafeNavigationUrl } from "utils/urlValidation";
 
 import { DisputeDetailsQuery, VotingHistoryQuery } from "src/graphql/graphql";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import ExternalLinkWarning from "components/ExternalLinkWarning";
 import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import CardLabel from "../DisputeView/CardLabels";
 import { Divider } from "../Divider";
-import { ExternalLink } from "../ExternalLink";
 import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
 
 import AliasDisplay from "./Alias";
@@ -85,6 +86,16 @@ const RulingAndRewardsAndLabels = styled.div`
   gap: 8px;
 `;
 
+const FrontendUrlLink = styled.a`
+  color: ${({ theme }) => theme.primaryBlue};
+  cursor: pointer;
+
+  :hover {
+    text-decoration: underline;
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
+`;
+
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
   isRpcError?: boolean;
@@ -103,10 +114,27 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
 }) => {
   const { isDisconnected } = useAccount();
   const { t } = useTranslation();
+  const [isWarningOpen, setIsWarningOpen] = useState(false);
   const errMsg = isRpcError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
   const rounds = votingHistory?.dispute?.rounds;
   const aliases = disputeDetails?.aliases;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
+
+  const safeFrontendUrl = useMemo(() => {
+    const url = disputeDetails?.frontendUrl;
+    return url && isSafeNavigationUrl(url) ? url : undefined;
+  }, [disputeDetails?.frontendUrl]);
+
+  const handleConfirmNavigation = useCallback(() => {
+    if (safeFrontendUrl) {
+      window.open(safeFrontendUrl, "_blank", "noopener,noreferrer");
+    }
+    setIsWarningOpen(false);
+  }, [safeFrontendUrl]);
+
+  const handleCancelNavigation = useCallback(() => {
+    setIsWarningOpen(false);
+  }, []);
 
   return (
     <>
@@ -147,11 +175,25 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         </div>
       ) : null}
 
-      {isUndefined(disputeDetails?.frontendUrl) ? null : (
-        <ExternalLink to={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
-          {t("misc.go_to_arbitrable")}
-        </ExternalLink>
-      )}
+      {safeFrontendUrl ? (
+        <>
+          <FrontendUrlLink
+            href={safeFrontendUrl}
+            onClick={(event) => {
+              event.preventDefault();
+              setIsWarningOpen(true);
+            }}
+          >
+            {t("misc.go_to_arbitrable")}
+          </FrontendUrlLink>
+          <ExternalLinkWarning
+            isOpen={isWarningOpen}
+            url={safeFrontendUrl}
+            onConfirm={handleConfirmNavigation}
+            onCancel={handleCancelNavigation}
+          />
+        </>
+      ) : null}
       <VotingOptions>
         {isUndefined(disputeDetails) ? null : <AnswersHeader>{t("headers.voting_options")}</AnswersHeader>}
         <AnswersContainer>
