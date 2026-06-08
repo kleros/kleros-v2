@@ -1,45 +1,47 @@
-const DANGEROUS_PROTOCOLS = ["javascript:", "vbscript:", "file:", "about:", "blob:", "filesystem:"];
+import { sanitizeUrl } from "@braintree/sanitize-url";
 
-const ALLOWED_PROTOCOLS = ["http:", "https:", "mailto:", "tel:", "ftp:"];
+import { IPFS_GATEWAY } from "consts/index";
 
-const ALLOWED_DATA_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
+const BLANK_URL = "about:blank";
 
-const isValidDataUri = (url: string): boolean => {
-  const dataUriRegex = /^data:([^;,]+)(;base64)?,/i;
-  const match = url.match(dataUriRegex);
+const getGatewayOrigin = (): string => new URL(IPFS_GATEWAY).origin;
 
-  if (!match) {
-    return false;
+export const sanitizeHref = (url: string): string => {
+  if (!url || typeof url !== "string") {
+    return "";
   }
 
-  const mimeType = match[1].toLowerCase();
-  return ALLOWED_DATA_TYPES.includes(mimeType);
+  const sanitized = sanitizeUrl(url.trim());
+  return sanitized === BLANK_URL ? "" : sanitized;
 };
 
 export const isValidUrl = (url: string): boolean => {
-  if (!url || typeof url !== "string") {
+  return sanitizeHref(url) !== "";
+};
+
+export const isSafeNavigationUrl = (url: string): boolean => {
+  const safe = sanitizeHref(url);
+  if (!safe) {
     return false;
-  }
-
-  const trimmedUrl = url.trim().toLowerCase();
-
-  if (trimmedUrl.length === 0) {
-    return false;
-  }
-
-  if (trimmedUrl.startsWith("data:")) {
-    return isValidDataUri(trimmedUrl);
-  }
-
-  for (const protocol of DANGEROUS_PROTOCOLS) {
-    if (trimmedUrl.startsWith(protocol)) {
-      return false;
-    }
   }
 
   try {
-    const urlObj = new URL(url);
-    return ALLOWED_PROTOCOLS.includes(urlObj.protocol);
+    const parsed = new URL(safe.startsWith("//") ? `https:${safe}` : safe);
+    return parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+export const isAllowedAttachmentUrl = (url: string): boolean => {
+  const safe = sanitizeHref(url);
+  if (!safe) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(safe);
+    return parsed.protocol === "https:" && parsed.origin === getGatewayOrigin() && parsed.pathname.startsWith("/ipfs/");
   } catch {
     return false;
   }

@@ -91,6 +91,7 @@
   },
   "dependencies": {
     "@bigmi/react": "^0.1.0",
+    "@braintree/sanitize-url": "^7.1.2",
     "@coinbase/wallet-sdk": "^4.3.2",
     "@cyntler/react-doc-viewer": "^1.17.0",
     "@graphql-tools/batch-execute": "^9.0.11",
