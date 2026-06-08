@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { isAllowedAttachmentUrl, isSafeNavigationUrl, isValidUrl, sanitizeHref } from "./urlValidation";
+import {
+  isAllowedAttachmentUrl,
+  isAllowedImageDataUri,
+  isSafeNavigationUrl,
+  isValidUrl,
+  sanitizeHref,
+} from "./urlValidation";
 
 const GATEWAY_ORIGIN = "https://cdn.kleros.link";
 const SAMPLE_IPFS_URL = `${GATEWAY_ORIGIN}/ipfs/QmTestHash/file.pdf`;
@@ -44,5 +50,17 @@ describe("isValidUrl", () => {
   it("matches sanitizeHref", () => {
     expect(isValidUrl("https://example.com")).toBe(true);
     expect(isValidUrl("javascript:alert(1)")).toBe(false);
+  });
+});
+
+describe("isAllowedImageDataUri", () => {
+  it("allows image data URIs", () => {
+    expect(isAllowedImageDataUri("data:image/png;base64,abc")).toBe(true);
+    expect(isAllowedImageDataUri("data:image/svg+xml,<svg></svg>")).toBe(true);
+  });
+
+  it("blocks non-image data URIs", () => {
+    expect(isAllowedImageDataUri("data:text/html,<script>alert(1)</script>")).toBe(false);
+    expect(isAllowedImageDataUri("https://example.com/image.png")).toBe(false);
   });
 });

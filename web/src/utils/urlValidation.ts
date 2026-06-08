@@ -46,3 +46,22 @@ export const isAllowedAttachmentUrl = (url: string): boolean => {
     return false;
   }
 };
+
+const ALLOWED_IMAGE_DATA_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/svg+xml",
+]);
+
+/** Allowed image MIME types for untrusted data: URIs used as `<img src>`. */
+export const isAllowedImageDataUri = (uri: string): boolean => {
+  const match = uri.trim().match(/^data:([^;,]+)(;base64)?,/i);
+  if (!match) {
+    return false;
+  }
+
+  return ALLOWED_IMAGE_DATA_TYPES.has(match[1].toLowerCase());
+};
