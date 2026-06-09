@@ -23,7 +23,7 @@ export const getSafeNavigationUrl = (url: string) => {
 
   try {
     const parsed = new URL(safe.startsWith("//") ? `https:${safe}` : safe);
-    return parsed.protocol === "https:" ? safe : undefined;
+    return parsed.protocol === "https:" ? parsed.href : undefined;
   } catch {
     return undefined;
   }
