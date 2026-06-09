@@ -8,7 +8,7 @@ import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disput
 
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
-import { isSafeNavigationUrl } from "utils/urlValidation";
+import { getSafeNavigationUrl } from "utils/urlValidation";
 
 import { DisputeDetailsQuery, VotingHistoryQuery } from "src/graphql/graphql";
 
@@ -122,7 +122,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
 
   const safeFrontendUrl = useMemo(() => {
     const url = disputeDetails?.frontendUrl;
-    return url && isSafeNavigationUrl(url) ? url : undefined;
+    return url ? getSafeNavigationUrl(url) : undefined;
   }, [disputeDetails?.frontendUrl]);
 
   const handleConfirmNavigation = useCallback(() => {
@@ -175,7 +175,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         </div>
       ) : null}
 
-      {safeFrontendUrl ? (
+      {!isUndefined(disputeDetails?.frontendUrl) && !isUndefined(safeFrontendUrl) ? (
         <>
           <FrontendUrlLink
             href={safeFrontendUrl}
@@ -188,7 +188,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
           </FrontendUrlLink>
           <ExternalLinkWarning
             isOpen={isWarningOpen}
-            url={safeFrontendUrl}
+            sanitizedUrl={safeFrontendUrl}
+            originalUrl={disputeDetails?.frontendUrl}
             onConfirm={handleConfirmNavigation}
             onCancel={handleCancelNavigation}
           />

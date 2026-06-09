@@ -19,18 +19,22 @@ export const isValidUrl = (url: string): boolean => {
   return sanitizeHref(url) !== "";
 };
 
-export const isSafeNavigationUrl = (url: string): boolean => {
+export const getSafeNavigationUrl = (url: string) => {
   const safe = sanitizeHref(url);
   if (!safe) {
-    return false;
+    return undefined;
   }
 
   try {
     const parsed = new URL(safe.startsWith("//") ? `https:${safe}` : safe);
-    return parsed.protocol === "https:";
+    return parsed.protocol === "https:" ? safe : undefined;
   } catch {
-    return false;
+    return undefined;
   }
+};
+
+export const isSafeNavigationUrl = (url: string) => {
+  return getSafeNavigationUrl(url) !== undefined;
 };
 
 export const isAllowedAttachmentUrl = (url: string): boolean => {

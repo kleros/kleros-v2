@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getSafeNavigationUrl,
   isAllowedAttachmentUrl,
   isAllowedImageDataUri,
   isSafeNavigationUrl,
@@ -22,6 +23,19 @@ describe("sanitizeHref", () => {
     expect(sanitizeHref("javascript:alert(1)")).toBe("");
     expect(sanitizeHref("data:text/html,<script>alert(1)</script>")).toBe("");
     expect(sanitizeHref("")).toBe("");
+  });
+});
+
+describe("getSafeNavigationUrl", () => {
+  it("returns sanitized https URLs", () => {
+    expect(getSafeNavigationUrl("https://curate.kleros.io")).toBe("https://curate.kleros.io/");
+    expect(getSafeNavigationUrl("https://EXAMPLE.COM/path")).toBe("https://example.com/path");
+  });
+
+  it("rejects non-https and invalid URLs", () => {
+    expect(getSafeNavigationUrl("http://example.com")).toBeUndefined();
+    expect(getSafeNavigationUrl("mailto:test@example.com")).toBeUndefined();
+    expect(getSafeNavigationUrl("/cases/1")).toBeUndefined();
   });
 });
 

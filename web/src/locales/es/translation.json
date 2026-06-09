@@ -345,6 +345,8 @@
     "dispute_created_full_message": "El caso se resolverá aproximadamente el <date></date>.",
     "external_link_warning": "Advertencia de enlace externo",
     "external_link_message": "Estás a punto de navegar a un sitio web externo. Por favor verifica la URL antes de continuar para asegurar que sea segura y legítima.",
+    "original_url": "URL original",
+    "destination_url_sanitized": "URL de destino (sanitizada)",
     "safety_tips": "Consejos de Seguridad:",
     "verify_domain": "• Verifica que el nombre de dominio sea correcto",
     "check_suspicious": "• Busca caracteres sospechosos o errores tipográficos",

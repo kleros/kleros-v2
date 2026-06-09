@@ -345,6 +345,8 @@
     "dispute_created_full_message": "The case will be resolved by approximately <date></date>.",
     "external_link_warning": "External Link Warning",
     "external_link_message": "You are about to navigate to an external website. Please verify the URL before proceeding to ensure it's safe and legitimate.",
+    "original_url": "Original URL",
+    "destination_url_sanitized": "Destination URL (sanitized)",
     "safety_tips": "Safety Tips:",
     "verify_domain": "• Verify the domain name is correct",
     "check_suspicious": "• Check for suspicious characters or typos",

@@ -7,7 +7,7 @@ import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 
 import { isExternalLink } from "utils/linkUtils";
-import { isValidUrl } from "utils/urlValidation";
+import { sanitizeHref } from "utils/urlValidation";
 
 import ExternalLinkWarning from "components/ExternalLinkWarning";
 
@@ -241,25 +241,29 @@ interface IMarkdownRenderer {
 
 const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) => {
   const [isWarningOpen, setIsWarningOpen] = useState(false);
-  const [pendingUrl, setPendingUrl] = useState("");
+  const [pendingOriginalUrl, setPendingOriginalUrl] = useState("");
+  const [pendingSanitizedUrl, setPendingSanitizedUrl] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleExternalLink = useCallback((url: string) => {
-    setPendingUrl(url);
+  const handleExternalLink = useCallback((originalUrl: string, sanitizedUrl: string) => {
+    setPendingOriginalUrl(originalUrl);
+    setPendingSanitizedUrl(sanitizedUrl);
     setIsWarningOpen(true);
   }, []);
 
   const handleConfirmNavigation = useCallback(() => {
-    if (pendingUrl) {
-      window.open(pendingUrl, "_blank", "noopener,noreferrer");
+    if (pendingSanitizedUrl) {
+      window.open(pendingSanitizedUrl, "_blank", "noopener,noreferrer");
     }
     setIsWarningOpen(false);
-    setPendingUrl("");
-  }, [pendingUrl]);
+    setPendingOriginalUrl("");
+    setPendingSanitizedUrl("");
+  }, [pendingSanitizedUrl]);
 
   const handleCancelNavigation = useCallback(() => {
     setIsWarningOpen(false);
-    setPendingUrl("");
+    setPendingOriginalUrl("");
+    setPendingSanitizedUrl("");
   }, []);
 
   useEffect(() => {
@@ -276,11 +280,12 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
       const linkElement = target.closest("a") as HTMLAnchorElement | null;
 
       if (linkElement) {
-        const href = linkElement.getAttribute("href") || linkElement.href;
-        if (href && isValidUrl(href) && isExternalLink(href)) {
+        const originalUrl = linkElement.getAttribute("href") || linkElement.href;
+        const sanitizedUrl = originalUrl ? sanitizeHref(originalUrl) : "";
+        if (sanitizedUrl && isExternalLink(originalUrl)) {
           event.preventDefault();
           event.stopImmediatePropagation();
-          handleExternalLink(href);
+          handleExternalLink(originalUrl, sanitizedUrl);
         }
       }
     };
@@ -392,7 +397,8 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
       </MarkdownContainer>
       <ExternalLinkWarning
         isOpen={isWarningOpen}
-        url={pendingUrl}
+        sanitizedUrl={pendingSanitizedUrl}
+        originalUrl={pendingOriginalUrl}
         onConfirm={handleConfirmNavigation}
         onCancel={handleCancelNavigation}
       />
