@@ -37,17 +37,21 @@ export const isSafeNavigationUrl = (url: string) => {
   return getSafeNavigationUrl(url) !== undefined;
 };
 
-export const isAllowedAttachmentUrl = (url: string): boolean => {
+export const getAllowedAttachmentUrl = (url: string): string | undefined => {
   const safe = sanitizeHref(url);
   if (!safe) {
-    return false;
+    return undefined;
   }
 
   try {
     const parsed = new URL(safe);
-    return parsed.protocol === "https:" && parsed.origin === getGatewayOrigin() && parsed.pathname.startsWith("/ipfs/");
+    if (parsed.protocol !== "https:" || parsed.origin !== getGatewayOrigin() || !parsed.pathname.startsWith("/ipfs/")) {
+      return undefined;
+    }
+
+    return parsed.href;
   } catch {
-    return false;
+    return undefined;
   }
 };
 

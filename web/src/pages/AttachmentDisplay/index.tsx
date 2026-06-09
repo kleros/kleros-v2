@@ -6,7 +6,7 @@ import { useSearchParams } from "react-router-dom";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
-import { isAllowedAttachmentUrl } from "utils/urlValidation";
+import { getAllowedAttachmentUrl } from "utils/urlValidation";
 
 import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 
@@ -65,7 +65,7 @@ const AttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const url = searchParams.get("url");
-  const safeUrl = url && isAllowedAttachmentUrl(url) ? url : null;
+  const safeUrl = url ? getAllowedAttachmentUrl(url) : null;
   const titleKey = searchParams.get("title");
   const title = titleKey ? t(titleKey) : t("misc.attachment");
   return (

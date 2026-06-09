@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getAllowedAttachmentUrl,
   getSafeNavigationUrl,
-  isAllowedAttachmentUrl,
   isAllowedImageDataUri,
   isSafeNavigationUrl,
   isValidUrl,
@@ -48,15 +48,16 @@ describe("isSafeNavigationUrl", () => {
   });
 });
 
-describe("isAllowedAttachmentUrl", () => {
-  it("allows Kleros CDN IPFS URLs", () => {
-    expect(isAllowedAttachmentUrl(SAMPLE_IPFS_URL)).toBe(true);
+describe("getAllowedAttachmentUrl", () => {
+  it("returns Kleros CDN IPFS URLs", () => {
+    expect(getAllowedAttachmentUrl(SAMPLE_IPFS_URL)).toBe(SAMPLE_IPFS_URL);
+    expect(getAllowedAttachmentUrl(`https://CDN.KLEROS.LINK/ipfs/QmTestHash/file.pdf`)).toBe(SAMPLE_IPFS_URL);
   });
 
   it("blocks other origins and paths", () => {
-    expect(isAllowedAttachmentUrl("https://example.com/ipfs/QmHash")).toBe(false);
-    expect(isAllowedAttachmentUrl(`${GATEWAY_ORIGIN}/not-ipfs/QmHash`)).toBe(false);
-    expect(isAllowedAttachmentUrl("javascript:alert(1)")).toBe(false);
+    expect(getAllowedAttachmentUrl("https://example.com/ipfs/QmHash")).toBeUndefined();
+    expect(getAllowedAttachmentUrl(`${GATEWAY_ORIGIN}/not-ipfs/QmHash`)).toBeUndefined();
+    expect(getAllowedAttachmentUrl("javascript:alert(1)")).toBeUndefined();
   });
 });
 
