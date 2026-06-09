@@ -5,6 +5,8 @@ import { useSearchParams } from "react-router-dom";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
+import { isAllowedAttachmentUrl } from "utils/urlValidation";
+
 import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
@@ -54,14 +56,15 @@ const AttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const url = searchParams.get("url");
+  const safeUrl = url && isAllowedAttachmentUrl(url) ? url : null;
   const title = searchParams.get("title") ?? "Attachment";
   return (
     <Container>
       <AttachmentContainer>
         <Header {...{ title }} />
-        {url ? (
+        {safeUrl ? (
           <>
-            <StyledExternalLink to={url} rel="noreferrer" target="_blank">
+            <StyledExternalLink to={safeUrl} rel="noreferrer" target="_blank">
               Open in new tab <StyledNewTabIcon />
             </StyledExternalLink>
             <Suspense
@@ -71,7 +74,7 @@ const AttachmentDisplay: React.FC = () => {
                 </LoaderContainer>
               }
             >
-              <FileViewer url={url} />
+              <FileViewer url={safeUrl} />
             </Suspense>
           </>
         ) : null}

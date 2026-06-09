@@ -1,26 +1,28 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { useAccount } from "wagmi";
+
+import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
-
-import { responsiveSize } from "styles/responsiveSize";
+import { getSafeNavigationUrl } from "utils/urlValidation";
 
 import { DisputeDetailsQuery, VotingHistoryQuery } from "src/graphql/graphql";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 import ReactMarkdown from "components/ReactMarkdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
+import CardLabel from "../DisputeView/CardLabels";
 import { Divider } from "../Divider";
 import { ExternalLink } from "../ExternalLink";
+import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
 
 import AliasDisplay from "./Alias";
-import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
-import CardLabel from "../DisputeView/CardLabels";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -104,7 +106,11 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
-  console.log({ jurorRewardsDispersed }, disputeDetails);
+
+  const safeFrontendUrl = useMemo(() => {
+    const url = disputeDetails?.frontendUrl;
+    return url ? getSafeNavigationUrl(url) : undefined;
+  }, [disputeDetails?.frontendUrl]);
 
   return (
     <>
@@ -145,11 +151,11 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         </div>
       ) : null}
 
-      {isUndefined(disputeDetails?.frontendUrl) ? null : (
-        <ExternalLink to={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
+      {safeFrontendUrl ? (
+        <ExternalLink to={safeFrontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
         </ExternalLink>
-      )}
+      ) : null}
       <VotingOptions>
         {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
         <AnswersContainer>
