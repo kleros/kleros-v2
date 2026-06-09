@@ -29,16 +29,20 @@ export const getSafeNavigationUrl = (url: string) => {
   }
 };
 
-export const isAllowedAttachmentUrl = (url: string) => {
+export const getAllowedAttachmentUrl = (url: string) => {
   const safe = sanitizeHref(url);
   if (!safe) {
-    return false;
+    return undefined;
   }
 
   try {
     const parsed = new URL(safe);
-    return parsed.protocol === "https:" && parsed.origin === getGatewayOrigin() && parsed.pathname.startsWith("/ipfs/");
+    if (parsed.protocol !== "https:" || parsed.origin !== getGatewayOrigin() || !parsed.pathname.startsWith("/ipfs/")) {
+      return undefined;
+    }
+
+    return parsed.href;
   } catch {
-    return false;
+    return undefined;
   }
 };
