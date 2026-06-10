@@ -141,7 +141,9 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   const rounds = votingHistory?.dispute?.rounds;
   const aliases = disputeDetails?.aliases;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
-  const frontendUrl = disputeDetails?.frontendUrl;
+
+  const frontendUrl = disputeDetails?.frontendUrl?.trim() || undefined;
+
   const safeFrontendUrl = useMemo(() => {
     return frontendUrl ? getSafeNavigationUrl(frontendUrl) : undefined;
   }, [frontendUrl]);
