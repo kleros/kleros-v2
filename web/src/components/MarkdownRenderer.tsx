@@ -371,6 +371,7 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
                   "address",
                 ],
                 attributes: {
+                  ...(defaultSchema?.attributes ?? {}),
                   a: ["href", "title", "target", "rel"],
                   img: ["src", "alt", "title", "width", "height"],
                   th: ["scope", "colspan", "rowspan"],
