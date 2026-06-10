@@ -53,11 +53,29 @@ const StyledNewTabIcon = styled(NewTabIcon)`
   }
 `;
 
-const ErrorMessage = styled.p`
-  width: 100%;
-  text-align: center;
-  margin: 0;
+const UrlBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const UrlLabel = styled.small`
   color: ${({ theme }) => theme.secondaryText};
+  font-weight: 600;
+`;
+
+const UrlContainer = styled.div`
+  background-color: ${({ theme }) => theme.lightGrey};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 4px;
+  padding: 12px;
+  word-break: break-all;
+`;
+
+const Url = styled.code`
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 13px;
+  font-family: monospace;
 `;
 
 const AttachmentDisplay: React.FC = () => {
@@ -87,8 +105,15 @@ const AttachmentDisplay: React.FC = () => {
               <FileViewer url={safeUrl} />
             </Suspense>
           </>
-        ) : url ? (
-          <ErrorMessage>{t("errors.invalid_link")}</ErrorMessage>
+        ) : null}
+
+        {url && !safeUrl ? (
+          <UrlBlock>
+            <UrlLabel>{t("errors.invalid_link")}</UrlLabel>
+            <UrlContainer>
+              <Url>{url}</Url>
+            </UrlContainer>
+          </UrlBlock>
         ) : null}
       </AttachmentContainer>
     </Container>

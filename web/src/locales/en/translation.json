@@ -424,6 +424,7 @@
     "court_policy": "Court Policy",
     "dispute_policy": "Dispute Policy",
     "go_to_arbitrable": "Go to arbitrable",
+    "arbitrable_url": "Arbitrable URL",
     "policy_documents": "Policy documents:",
     "no_cases_found": "No cases found",
     "no_jurors_found": "No jurors found",
@@ -536,7 +537,8 @@
     "shielded_voting_tooltip": "The jurors votes are hidden. Nobody can see them before the voting period completes. It takes place in a single step via Shutter Network",
     "shielded_voting_description": "This feature hides the jurors votes until the end of the voting period.",
     "jurors_eligibility_description": "This feature determines who can be selected as a juror.",
-    "token_gating_tooltip": "Only the jurors who possess the specified token or NFT can be selected as jurors for this case. Please input the token details below."
+    "token_gating_tooltip": "Only the jurors who possess the specified token or NFT can be selected as jurors for this case. Please input the token details below.",
+    "unsafe_frontend_url": "This URL did not pass security validation and cannot be opened from here. It is shown for your review only. Verify it carefully before visiting it elsewhere."
   },
   "errors": {
     "something_went_wrong": "Ooops, something went wrong in Athens!",

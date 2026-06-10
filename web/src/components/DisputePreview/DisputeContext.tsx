@@ -17,6 +17,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import ExternalLinkWarning from "components/ExternalLinkWarning";
 import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 import CardLabel from "../DisputeView/CardLabels";
 import { Divider } from "../Divider";
@@ -86,6 +87,18 @@ const RulingAndRewardsAndLabels = styled.div`
   gap: 8px;
 `;
 
+const FrontendUrlSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+`;
+
+const FrontendUrlLabel = styled.small`
+  color: ${({ theme }) => theme.primaryText};
+  font-weight: 600;
+`;
+
 const FrontendUrlLink = styled.a`
   color: ${({ theme }) => theme.primaryBlue};
   cursor: pointer;
@@ -94,6 +107,15 @@ const FrontendUrlLink = styled.a`
     text-decoration: underline;
     color: ${({ theme }) => theme.secondaryBlue};
   }
+`;
+
+const FlaggedFrontendUrl = styled.span`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 14px;
 `;
 
 interface IDisputeContext {
@@ -119,11 +141,10 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   const rounds = votingHistory?.dispute?.rounds;
   const aliases = disputeDetails?.aliases;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
-
+  const frontendUrl = disputeDetails?.frontendUrl;
   const safeFrontendUrl = useMemo(() => {
-    const url = disputeDetails?.frontendUrl;
-    return url ? getSafeNavigationUrl(url) : undefined;
-  }, [disputeDetails?.frontendUrl]);
+    return frontendUrl ? getSafeNavigationUrl(frontendUrl) : undefined;
+  }, [frontendUrl]);
 
   const handleConfirmNavigation = useCallback(() => {
     if (safeFrontendUrl) {
@@ -175,7 +196,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         </div>
       ) : null}
 
-      {!isUndefined(disputeDetails?.frontendUrl) && !isUndefined(safeFrontendUrl) ? (
+      {!isUndefined(frontendUrl) && !isUndefined(safeFrontendUrl) ? (
         <>
           <FrontendUrlLink
             href={safeFrontendUrl}
@@ -189,11 +210,20 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
           <ExternalLinkWarning
             isOpen={isWarningOpen}
             sanitizedUrl={safeFrontendUrl}
-            originalUrl={disputeDetails?.frontendUrl}
+            originalUrl={frontendUrl}
             onConfirm={handleConfirmNavigation}
             onCancel={handleCancelNavigation}
           />
         </>
+      ) : null}
+
+      {!isUndefined(frontendUrl) && isUndefined(safeFrontendUrl) ? (
+        <FrontendUrlSection>
+          <FrontendUrlLabel>{t("misc.arbitrable_url")}:</FrontendUrlLabel>
+          <WithHelpTooltip tooltipMsg={t("tooltips.unsafe_frontend_url")}>
+            <FlaggedFrontendUrl title={frontendUrl}>{frontendUrl}</FlaggedFrontendUrl>
+          </WithHelpTooltip>
+        </FrontendUrlSection>
       ) : null}
       <VotingOptions>
         {isUndefined(disputeDetails) ? null : <AnswersHeader>{t("headers.voting_options")}</AnswersHeader>}

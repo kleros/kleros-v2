@@ -424,6 +424,7 @@
     "court_policy": "Règlement de la cour",
     "dispute_policy": "Règlement du litige",
     "go_to_arbitrable": "Aller à l'arbitrable",
+    "arbitrable_url": "URL de l'arbitrable",
     "policy_documents": "Documents de règlement :",
     "no_cases_found": "Aucun litige trouvé",
     "no_jurors_found": "Aucun juré trouvé",
@@ -536,7 +537,8 @@
     "shielded_voting_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en une seule étape via Shutter Network",
     "shielded_voting_description": "Cette fonctionnalité cache les votes des jurés jusqu'à la fin de la période de vote.",
     "jurors_eligibility_description": "Cette fonctionnalité détermine qui peut être sélectionné comme juré.",
-    "token_gating_tooltip": "Seuls les jurés qui possèdent le token ou NFT spécifié peuvent être sélectionnés comme jurés pour ce litige. Veuillez saisir les détails du token ci-dessous."
+    "token_gating_tooltip": "Seuls les jurés qui possèdent le token ou NFT spécifié peuvent être sélectionnés comme jurés pour ce litige. Veuillez saisir les détails du token ci-dessous.",
+    "unsafe_frontend_url": "Cette URL n'a pas passé la validation de sécurité et ne peut pas être ouverte depuis ici. Elle est affichée pour votre examen uniquement. Vérifiez-la attentivement avant de la consulter ailleurs."
   },
   "errors": {
     "something_went_wrong": "Oups, Quelque chose s'est mal passé à Athènes !",
