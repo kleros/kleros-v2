@@ -16,6 +16,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import ReactMarkdown from "components/ReactMarkdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 import CardLabel from "../DisputeView/CardLabels";
 import { Divider } from "../Divider";
@@ -86,6 +87,27 @@ const RulingAndRewardsAndLabels = styled.div`
   gap: 8px;
 `;
 
+const FrontendUrlSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 100%;
+`;
+
+const FrontendUrlLabel = styled.small`
+  color: ${({ theme }) => theme.primaryText};
+  font-weight: 600;
+`;
+
+const FlaggedFrontendUrl = styled.small`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 14px;
+`;
+
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
   isRpcError?: boolean;
@@ -107,10 +129,10 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
   const rounds = votingHistory?.dispute?.rounds;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
 
+  const frontendUrl = disputeDetails?.frontendUrl;
   const safeFrontendUrl = useMemo(() => {
-    const url = disputeDetails?.frontendUrl;
-    return url ? getSafeNavigationUrl(url) : undefined;
-  }, [disputeDetails?.frontendUrl]);
+    return frontendUrl ? getSafeNavigationUrl(frontendUrl) : undefined;
+  }, [frontendUrl]);
 
   return (
     <>
@@ -155,6 +177,18 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         <ExternalLink to={safeFrontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
         </ExternalLink>
+      ) : null}
+
+      {!isUndefined(frontendUrl) && isUndefined(safeFrontendUrl) ? (
+        <FrontendUrlSection>
+          <FrontendUrlLabel>Arbitrable URL:</FrontendUrlLabel>
+          <WithHelpTooltip
+            tooltipMsg={`This URL did not pass security validation and cannot be opened from here. 
+                         It is shown for your review only.`}
+          >
+            <FlaggedFrontendUrl title={frontendUrl}>{frontendUrl}</FlaggedFrontendUrl>
+          </WithHelpTooltip>
+        </FrontendUrlSection>
       ) : null}
       <VotingOptions>
         {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
