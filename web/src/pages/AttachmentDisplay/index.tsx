@@ -5,6 +5,8 @@ import { useSearchParams } from "react-router-dom";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
+import { getAllowedAttachmentUrl } from "utils/urlValidation";
+
 import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
@@ -50,18 +52,44 @@ const StyledNewTabIcon = styled(NewTabIcon)`
   }
 `;
 
+const UrlBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const UrlLabel = styled.small`
+  color: ${({ theme }) => theme.secondaryText};
+  font-weight: 600;
+`;
+
+const UrlContainer = styled.div`
+  background-color: ${({ theme }) => theme.lightGrey};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 4px;
+  padding: 12px;
+  word-break: break-all;
+`;
+
+const Url = styled.code`
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 13px;
+  font-family: monospace;
+`;
+
 const AttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const url = searchParams.get("url");
+  const safeUrl = url ? getAllowedAttachmentUrl(url) : null;
   const title = searchParams.get("title") ?? "Attachment";
   return (
     <Container>
       <AttachmentContainer>
         <Header {...{ title }} />
-        {url ? (
+        {safeUrl ? (
           <>
-            <StyledExternalLink to={url} rel="noreferrer" target="_blank">
+            <StyledExternalLink to={safeUrl} rel="noreferrer" target="_blank">
               Open in new tab <StyledNewTabIcon />
             </StyledExternalLink>
             <Suspense
@@ -71,9 +99,18 @@ const AttachmentDisplay: React.FC = () => {
                 </LoaderContainer>
               }
             >
-              <FileViewer url={url} />
+              <FileViewer url={safeUrl} />
             </Suspense>
           </>
+        ) : null}
+
+        {url && !safeUrl ? (
+          <UrlBlock>
+            <UrlLabel>Invalid link</UrlLabel>
+            <UrlContainer>
+              <Url>{url}</Url>
+            </UrlContainer>
+          </UrlBlock>
         ) : null}
       </AttachmentContainer>
     </Container>
