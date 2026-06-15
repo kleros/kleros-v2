@@ -140,6 +140,20 @@ interface ISortitionModule {
     /// @param _courtID The ID of the court.
     function forcedUnstake(address _account, uint96 _courtID) external;
 
+    /// @notice Freezes all staked-balance mutations for the duration of a forking round (G-2).
+    /// @param _disputeID The forking dispute triggering the freeze.
+    function freeze(uint256 _disputeID) external;
+
+    /// @notice Releases the stake freeze once a forking round has settled.
+    function unfreeze() external;
+
+    /// @notice Surrenders a fork joiner's entire staked PNK to the main fork without refunding them.
+    /// @dev Zeroes the juror's stake and decrements totals but performs no token transfer; the PNK stays
+    ///      in `KlerosCore`'s balance as the main-fork redistribution mass.
+    /// @param _account The joiner to capture.
+    /// @return captured The amount of PNK surrendered (the joiner's former staked balance).
+    function captureUnstakeAllCourts(address _account) external returns (uint256 captured);
+
     /// @notice Locks the tokens of the drawn juror.
     /// @param _account The address of the juror.
     /// @param _relativeAmount The amount to lock.

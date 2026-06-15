@@ -118,6 +118,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     bool public arbitrableWhitelistEnabled; // Whether the arbitrable whitelist is enabled.
     IERC721 public jurorNft; // Eligible jurors NFT.
     IRatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
+    address public forkSettlement; // The forking settlement contract authorized to capture/redistribute stakes. Appended last for upgrade-safety.
 
     // ************************************* //
     // *              Events               * //
@@ -271,6 +272,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _gracePeriodEnd Timestamp after which period transitions can resume.
     event ArbitrationUnpaused(uint256 _gracePeriodEnd);
 
+    /// @notice Emitted when a dispute jumps into the forking court and the terminal forking round opens.
+    /// @param _disputeID The dispute entering the forking court.
+    /// @param _roundID The forking round ID.
+    event ForkingRoundStarted(uint256 indexed _disputeID, uint256 _roundID);
+
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
@@ -292,6 +298,11 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
 
     modifier whenNotPaused() {
         require(!paused, WhenNotPausedOnly());
+        _;
+    }
+
+    modifier onlyByForkSettlement() {
+        require(forkSettlement != address(0) && msg.sender == forkSettlement, ForkSettlementOnly());
         _;
     }
 
@@ -466,6 +477,12 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _ratesConverter The new value for the `ratesConverter` storage variable.
     function changeRatesConverter(IRatesConverter _ratesConverter) external onlyByOwner {
         ratesConverter = _ratesConverter;
+    }
+
+    /// @notice Sets the forking settlement contract authorized to capture and redistribute stakes.
+    /// @param _forkSettlement The new value for the `forkSettlement` storage variable.
+    function setForkSettlement(address _forkSettlement) external onlyByOwner {
+        forkSettlement = _forkSettlement;
     }
 
     /// @notice Changes the `_sortitionModule` storage variable.
@@ -685,6 +702,30 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         require(msg.sender == address(sortitionModule), SortitionModuleOnly());
         // Note eligibility is checked in SortitionModule.
         require(pinakion.safeTransfer(_account, _amount), TransferFailed());
+    }
+
+    /// @notice Captures a fork joiner's entire staked PNK for the main fork (G-7), surrendering it without
+    ///         refund. The PNK stays in this contract as the redistribution mass. Only callable by the
+    ///         forking settlement contract.
+    /// @dev TDD skeleton — reverts `NotImplemented()`. Implementation calls
+    ///      `sortitionModule.captureUnstakeAllCourts` and accumulates the captured pool.
+    /// @param _joiner The joiner whose stake to capture.
+    /// @return captured The amount of PNK captured.
+    function captureStakeForForking(address _joiner) external onlyByForkSettlement returns (uint256 captured) {
+        _joiner;
+        revert NotImplemented();
+    }
+
+    /// @notice Credits a main-fork stayer their supply-equalized share of the captured pool (G-5/G-7).
+    ///         No token transfer occurs (the PNK is already held here); the stayer's stake is scaled up.
+    ///         Only callable by the forking settlement contract; freeze-exempt (settlement-internal).
+    /// @dev TDD skeleton — reverts `NotImplemented()`.
+    /// @param _stayer The main-fork participant to credit.
+    /// @param _amount The PNK amount to credit to their main-fork stake.
+    function distributeForking(address _stayer, uint256 _amount) external onlyByForkSettlement {
+        _stayer;
+        _amount;
+        revert NotImplemented();
     }
 
     /// @notice Create a dispute and pay for the fees in the native currency, typically ETH.
@@ -1540,6 +1581,10 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     error GuardianOrOwnerOnly();
     error DisputeKitOnly();
     error SortitionModuleOnly();
+    error ForkSettlementOnly();
+    error AppealNotAllowed();
+    error NotForkingCourt();
+    error NotImplemented();
     error UnsuccessfulCall();
     error InvalidDisputeKitParent();
     error MinStakeLowerThanParentCourt();

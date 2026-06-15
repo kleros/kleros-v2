@@ -35,6 +35,10 @@ contract DisputeKitGatedArgentinaConsumerProtectionProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
+contract DisputeKitForkingProxy is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
+
 contract DisputeTemplateRegistryProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }

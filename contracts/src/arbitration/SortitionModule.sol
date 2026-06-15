@@ -56,6 +56,7 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     uint256 public maxStakePerJuror; // The maximum amount of PNK that a juror can stake across the courts. Accrued rewards do not count toward this limit.
     uint256 public maxTotalStaked; // The maximum amount of PNK that all the jurors can stake across the courts.
     uint256 public totalStaked; // The amount of PNK that is currently staked across the courts.
+    bool public stakingFrozen; // True while a forking round is live; blocks all staked-balance mutations (G-2). Appended last for upgrade-safety.
 
     // ************************************* //
     // *              Events               * //
@@ -95,6 +96,13 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     /// @param _account The account of the juror withdrawing PNK.
     /// @param _amount The amount of PNK withdrawn.
     event LeftoverPNKWithdrawn(address indexed _account, uint256 _amount);
+
+    /// @notice Emitted when staking is frozen for a forking round.
+    /// @param _disputeID The forking dispute that triggered the freeze.
+    event StakingFreezeEngaged(uint256 indexed _disputeID);
+
+    /// @notice Emitted when staking is unfrozen after a forking round settles.
+    event StakingFreezeReleased();
 
     // ************************************* //
     // *            Constructor            * //
@@ -527,6 +535,39 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
         core.setStakeBySortitionModule(_account, _courtID, 0);
     }
 
+    // ************************************* //
+    // *         Forking (G-2 / G-7)       * //
+    // ************************************* //
+
+    /// @notice Freezes all staked-balance mutations for the duration of a forking round (G-2). Makes the
+    ///         live `stakedPnk` the vote snapshot. Stake locking/unlocking and drawing remain allowed.
+    /// @dev TDD skeleton — reverts `NotImplemented()`. Implementation sets `stakingFrozen = true`,
+    ///      records `_disputeID`, and emits `StakingFreezeEngaged`. The guard itself is added to
+    ///      `_setStake` / `executeDelayedStakes` / `validateStake` in the implementation pass.
+    /// @param _disputeID The forking dispute triggering the freeze.
+    function freeze(uint256 _disputeID) external override onlyByCore {
+        _disputeID;
+        revert NotImplemented();
+    }
+
+    /// @notice Releases the stake freeze once a forking round has settled.
+    /// @dev TDD skeleton — reverts `NotImplemented()`.
+    function unfreeze() external override onlyByCore {
+        revert NotImplemented();
+    }
+
+    /// @notice Surrenders a fork joiner's entire staked PNK to the main fork WITHOUT refunding them:
+    ///         zeroes their sortition-tree slots, `courtIDs` and `stakedPnk`, decrements `totalStaked`,
+    ///         and performs NO token transfer (the PNK stays in `KlerosCore`'s balance as the
+    ///         redistribution mass). Contrast `forcedUnstakeAllCourts`, which refunds the juror.
+    /// @dev TDD skeleton — reverts `NotImplemented()`.
+    /// @param _account The joiner to capture.
+    /// @return captured The amount of PNK surrendered (the joiner's former `stakedPnk`).
+    function captureUnstakeAllCourts(address _account) external override onlyByCore returns (uint256 captured) {
+        _account;
+        revert NotImplemented();
+    }
+
     /// @notice Gives back the locked PNKs in case the juror fully unstaked earlier.
     ///
     /// @dev that since locked and staked PNK are async it is possible for the juror to have positive staked PNK balance
@@ -662,4 +703,8 @@ contract SortitionModule is ISortitionModule, Initializable, UUPSProxiable {
     error NoDelayedStakeToExecute();
     error NotEligibleForWithdrawal();
     error NotDrawingPhase();
+    error NotImplemented();
+    error StakingFrozen();
+    error AlreadyFrozen();
+    error NotFrozen();
 }
