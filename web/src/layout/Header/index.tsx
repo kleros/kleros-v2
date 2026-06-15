@@ -1,9 +1,12 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 
 import { StatusBanner } from "subgraph-status";
 
 import { getGraphqlUrl } from "utils/getGraphqlUrl";
+
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import DesktopHeader from "./DesktopHeader";
 import MobileHeader from "./MobileHeader";
@@ -22,7 +25,15 @@ const Container = styled.div`
 
 const HeaderContainer = styled.div`
   width: 100%;
-  padding: 0px 24px;
+  max-width: ${MAX_WIDTH_LANDSCAPE};
+  margin: 0 auto;
+  padding: 0 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 0 ${responsiveSize(0, 132)};
+    `
+  )}
 `;
 
 const StyledBanner = styled(StatusBanner)`

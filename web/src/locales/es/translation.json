@@ -21,6 +21,8 @@
     "close": "Cerrar",
     "connect": "Conectarse",
     "disconnect": "Desconectarse",
+    "unsubscribe": "Cancelar suscripción",
+    "confirm_unsubscribe": "Confirmar cancelación",
     "stake": "Depositar",
     "withdraw": "Retirar",
     "claim": "Reclamar",
@@ -324,7 +326,12 @@
     "adding_user": "Agregando usuario...",
     "user_added_successfully": "¡Usuario agregado exitosamente!",
     "adding_user_failed_error": "Falló al agregar usuario: {{error}}",
-    "update_email_again": "Puedes actualizar el correo electrónico nuevamente {{time}}"
+    "update_email_again": "Puedes actualizar el correo electrónico nuevamente {{time}}",
+    "unsubscribe_warning_title": "¿Cancelar todas las notificaciones?",
+    "unsubscribe_warning_msg": "Dejarás de recibir notificaciones de todos los productos de Kleros hasta que te suscribas de nuevo.",
+    "unsubscribing": "Cancelando suscripción a notificaciones...",
+    "unsubscribed_successfully": "Has cancelado la suscripción a las notificaciones.",
+    "unsubscribe_failed_error": "Error al cancelar la suscripción: {{error}}"
   },
   "alerts": {
     "check_courts_beforehand": "Verifica las cortes disponibles de antemano",

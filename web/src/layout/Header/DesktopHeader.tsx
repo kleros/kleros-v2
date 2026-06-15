@@ -10,7 +10,7 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
@@ -52,6 +52,7 @@ const Container = styled.div`
 const LeftSide = styled.div`
   display: flex;
   gap: 8px;
+  margin-left: -8px;
 `;
 
 const MiddleSide = styled.div`
@@ -67,6 +68,7 @@ const RightSide = styled.div`
   gap: ${responsiveSize(4, 8)};
 
   margin-left: 8px;
+  margin-right: -8px;
   canvas {
     width: 20px;
   }
@@ -86,6 +88,30 @@ const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain
     color: ${({ theme }) => theme.white};
     cursor: pointer;
   }
+`;
+
+// Landscape-only: mirrors HeaderContainer so popups anchor to the header's content box, not
+// the viewport. Two elements: the popups' absolute left/right: 0 resolve against the padding
+// box, so the padding here can't inset them — the inner relative div marks the content edge.
+// Below landscape only the hash-driven popups (e.g. #notifications) reach here, and they
+// center themselves; staying inert lets their top/left percentages resolve against the Overlay.
+const PopupAnchor = styled.div`
+  ${landscapeStyle(
+    () => css`
+      width: 100%;
+      max-width: ${MAX_WIDTH_LANDSCAPE};
+      margin: 0 auto;
+      padding: 0 ${responsiveSize(0, 132)};
+    `
+  )}
+`;
+
+const PopupAnchorInner = styled.div`
+  ${landscapeStyle(
+    () => css`
+      position: relative;
+    `
+  )}
 `;
 
 const DesktopHeader: React.FC = () => {
@@ -175,9 +201,13 @@ const DesktopHeader: React.FC = () => {
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <OverlayPortal>
           <Overlay>
-            {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
-            {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-            {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
+            <PopupAnchor>
+              <PopupAnchorInner>
+                {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
+                {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
+                {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
+              </PopupAnchorInner>
+            </PopupAnchor>
           </Overlay>
         </OverlayPortal>
       )}

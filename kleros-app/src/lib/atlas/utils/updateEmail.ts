@@ -1,14 +1,16 @@
 import { GraphQLError } from "graphql";
 import { gql, type GraphQLClient } from "graphql-request";
+import { SignupProduct } from ".";
 
 const query = gql`
-  mutation UpdateEmail($newEmail: String!) {
-    updateEmail(newEmail: $newEmail)
+  mutation UpdateEmail($newEmail: String!, $product: SignupProduct!) {
+    updateEmail(newEmail: $newEmail, product: $product)
   }
 `;
 
 export type UpdateEmailData = {
   newEmail: string;
+  product: SignupProduct;
 };
 
 type UpdateEmailResponse = {

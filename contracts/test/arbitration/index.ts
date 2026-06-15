@@ -21,14 +21,8 @@ describe("DisputeKitClassic", async () => {
 
   before("Deploying", async () => {
     [deployer] = await ethers.getSigners();
-    [
-      core,
-      disputeKit,
-      disputeKitShutter,
-      disputeKitGated,
-      disputeKitGatedShutter,
-      disputeKitClassicUniversity,
-    ] = await deployContracts();
+    [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter, disputeKitClassicUniversity] =
+      await deployContracts();
   });
 
   it("Kleros Core initialization", async () => {
@@ -37,19 +31,13 @@ describe("DisputeKitClassic", async () => {
     expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._disputeKitAddress).to.equal(disputeKit.target);
     expect(events[1].args._disputeKitID).to.equal(2);
-    expect(events[1].args._disputeKitAddress).to.equal(
-      disputeKitShutter.target,
-    );
+    expect(events[1].args._disputeKitAddress).to.equal(disputeKitShutter.target);
     expect(events[2].args._disputeKitID).to.equal(3);
     expect(events[2].args._disputeKitAddress).to.equal(disputeKitGated.target);
     expect(events[3].args._disputeKitID).to.equal(4);
-    expect(events[3].args._disputeKitAddress).to.equal(
-      disputeKitGatedShutter.target,
-    );
+    expect(events[3].args._disputeKitAddress).to.equal(disputeKitGatedShutter.target);
     expect(events[4].args._disputeKitID).to.equal(5);
-    expect(events[4].args._disputeKitAddress).to.equal(
-      disputeKitClassicUniversity.target,
-    );
+    expect(events[4].args._disputeKitAddress).to.equal(disputeKitClassicUniversity.target);
 
     // Reminder: the Forking court will be added which will break these expectations.
     const events2 = await core.queryFilter(core.filters.CourtCreated());
@@ -95,16 +83,12 @@ describe("DisputeKitClassic", async () => {
 
   it("Should create a dispute", async () => {
     await expect(
-      disputeKit
-        .connect(deployer)
-        .createDispute(0, 0, 0, ethers.toBeHex(3), "0x00"),
+      disputeKit.connect(deployer).createDispute(0, 0, 0, ethers.toBeHex(3), "0x00")
     ).to.be.revertedWithCustomError(disputeKit, "KlerosCoreOnly");
 
     const tx = await core
       .connect(deployer)
-      [
-        "createDispute(uint256,bytes)"
-      ](2, "0x00", { value: ethers.parseEther("0.3") });
+      ["createDispute(uint256,bytes)"](2, "0x00", { value: ethers.parseEther("0.3") });
     expect(tx).to.emit(core, "DisputeCreation").withArgs(0, deployer.address);
     expect(tx).to.emit(disputeKit, "DisputeCreation").withArgs(0, 2, "0x00");
 
@@ -132,25 +116,12 @@ async function deployContracts(): Promise<
     fallbackToGlobal: true,
     keepExistingDeployments: false,
   });
-  const disputeKit =
-    await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
-  const disputeKitShutter =
-    await ethers.getContract<DisputeKitShutter>("DisputeKitShutter");
-  const disputeKitGated =
-    await ethers.getContract<DisputeKitGated>("DisputeKitGated");
-  const disputeKitGatedShutter =
-    await ethers.getContract<DisputeKitGatedShutter>("DisputeKitGatedShutter");
+  const disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
+  const disputeKitShutter = await ethers.getContract<DisputeKitShutter>("DisputeKitShutter");
+  const disputeKitGated = await ethers.getContract<DisputeKitGated>("DisputeKitGated");
+  const disputeKitGatedShutter = await ethers.getContract<DisputeKitGatedShutter>("DisputeKitGatedShutter");
   const disputeKitClassicUniversity =
-    await ethers.getContract<DisputeKitClassicUniversity>(
-      "DisputeKitClassicUniversity",
-    );
+    await ethers.getContract<DisputeKitClassicUniversity>("DisputeKitClassicUniversity");
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
-  return [
-    core,
-    disputeKit,
-    disputeKitShutter,
-    disputeKitGated,
-    disputeKitGatedShutter,
-    disputeKitClassicUniversity,
-  ];
+  return [core, disputeKit, disputeKitShutter, disputeKitGated, disputeKitGatedShutter, disputeKitClassicUniversity];
 }

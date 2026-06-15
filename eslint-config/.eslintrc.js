@@ -40,6 +40,12 @@ module.exports = {
       },
     ],
     "n/no-missing-import": "off",
+    "max-len": [
+      "warn",
+      {
+        code: 120,
+      },
+    ],
   },
   settings: {
     "import/resolver": {
