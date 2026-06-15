@@ -4,8 +4,8 @@ slug: _meta/open-questions
 layer: null
 category: reference
 status: draft
-version: 0.2.0
-last_updated: 2026-04-17
+version: 0.3.0
+last_updated: 2026-06-15
 authors:
   - jaybuidl
 depends_on: []
@@ -47,3 +47,4 @@ Every `[OPEN QUESTION Q-<NNN>]` tag in a specification document has a matching e
 | Q-013 | [layer-1-core/07-forking](../layer-1-core/07-forking.md) | Arbitrables that cannot switch arbitrator will not follow a minority fork. Integration limitation; mitigation? | 2026-06-14 | open | jaybuidl | | |
 | Q-014 | [layer-1-core/07-forking](../layer-1-core/07-forking.md) | Unstaked PNK held by liquidity providers, market makers, or treasuries — may a minority fork mint to such entities 1:1? Per-fork policy. | 2026-06-14 | open | jaybuidl | | |
 | Q-015 | [layer-1-core/07-forking](../layer-1-core/07-forking.md) | Forked-arbitrator genesis state — should a minority fork's parallel arbitrator recreate the triggering dispute pre-resolved to the fork's winning option? Future work; cross-references Q-011, Q-012. | 2026-06-14 | open | jaybuidl | | |
+| Q-016 | [layer-1-core/07-forking](../layer-1-core/07-forking.md) | Locked-PNK fork joiner: how to settle a joiner whose stake is partly locked in a concurrent dispute at capture time. Baseline captures the full frozen `stakedPnk`; after unfreeze the concurrent dispute releases the lock, its penalty caps at the now-zero stake, and any reward falls back to a direct transfer (minor reward leakage). Confirm or refine the interaction. Raised during implementation planning. | 2026-06-15 | open | jaybuidl | | |
