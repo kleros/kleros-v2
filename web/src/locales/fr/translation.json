@@ -345,6 +345,8 @@
     "dispute_created_full_message": "Le litige sera résolu aux alentours du <date></date>.",
     "external_link_warning": "Avertissement de lien externe",
     "external_link_message": "Vous êtes sur le point de naviguer vers un site web externe. Veuillez vérifier l'URL avant de continuer pour vous assurer qu'elle est sûre et légitime.",
+    "original_url": "URL d'origine",
+    "destination_url_sanitized": "URL de destination (sanitisée)",
     "safety_tips": "Conseils de sécurité :",
     "verify_domain": "• Vérifiez que le nom de domaine est correct",
     "check_suspicious": "• Vérifiez les caractères suspects ou les fautes de frappe",
@@ -422,6 +424,7 @@
     "court_policy": "Règlement de la cour",
     "dispute_policy": "Règlement du litige",
     "go_to_arbitrable": "Aller à l'arbitrable",
+    "arbitrable_url": "URL de l'arbitrable",
     "policy_documents": "Documents de règlement :",
     "no_cases_found": "Aucun litige trouvé",
     "no_jurors_found": "Aucun juré trouvé",
@@ -534,13 +537,15 @@
     "shielded_voting_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en une seule étape via Shutter Network",
     "shielded_voting_description": "Cette fonctionnalité cache les votes des jurés jusqu'à la fin de la période de vote.",
     "jurors_eligibility_description": "Cette fonctionnalité détermine qui peut être sélectionné comme juré.",
-    "token_gating_tooltip": "Seuls les jurés qui possèdent le token ou NFT spécifié peuvent être sélectionnés comme jurés pour ce litige. Veuillez saisir les détails du token ci-dessous."
+    "token_gating_tooltip": "Seuls les jurés qui possèdent le token ou NFT spécifié peuvent être sélectionnés comme jurés pour ce litige. Veuillez saisir les détails du token ci-dessous.",
+    "unsafe_frontend_url": "Cette URL n'a pas passé la validation de sécurité et ne peut pas être ouverte depuis ici. Elle est affichée pour votre examen uniquement. Vérifiez-la attentivement avant de la consulter ailleurs."
   },
   "errors": {
     "something_went_wrong": "Oups, Quelque chose s'est mal passé à Athènes !",
     "reload_or_contact": "Veuillez recharger la page ou nous contacter si le problème n'est pas résolu.",
     "invalid_dispute_data": "Les données du litige ne sont pas valides, veuillez voter \"Refuser d'arbitrer\"",
-    "rpc_error": "Erreur RPC : Impossible de récupérer les données du litige. Veuillez éviter de voter."
+    "rpc_error": "Erreur RPC : Impossible de récupérer les données du litige. Veuillez éviter de voter.",
+    "invalid_link": "Ce lien de fichier n'est pas autorisé."
   },
   "community": {
     "kleros_forum": "Forum de Kleros",

@@ -345,6 +345,8 @@
     "dispute_created_full_message": "The case will be resolved by approximately <date></date>.",
     "external_link_warning": "External Link Warning",
     "external_link_message": "You are about to navigate to an external website. Please verify the URL before proceeding to ensure it's safe and legitimate.",
+    "original_url": "Original URL",
+    "destination_url_sanitized": "Destination URL (sanitized)",
     "safety_tips": "Safety Tips:",
     "verify_domain": "• Verify the domain name is correct",
     "check_suspicious": "• Check for suspicious characters or typos",
@@ -422,6 +424,7 @@
     "court_policy": "Court Policy",
     "dispute_policy": "Dispute Policy",
     "go_to_arbitrable": "Go to arbitrable",
+    "arbitrable_url": "Arbitrable URL",
     "policy_documents": "Policy documents:",
     "no_cases_found": "No cases found",
     "no_jurors_found": "No jurors found",
@@ -534,13 +537,15 @@
     "shielded_voting_tooltip": "The jurors votes are hidden. Nobody can see them before the voting period completes. It takes place in a single step via Shutter Network",
     "shielded_voting_description": "This feature hides the jurors votes until the end of the voting period.",
     "jurors_eligibility_description": "This feature determines who can be selected as a juror.",
-    "token_gating_tooltip": "Only the jurors who possess the specified token or NFT can be selected as jurors for this case. Please input the token details below."
+    "token_gating_tooltip": "Only the jurors who possess the specified token or NFT can be selected as jurors for this case. Please input the token details below.",
+    "unsafe_frontend_url": "This URL did not pass security validation and cannot be opened from here. It is shown for your review only. Verify it carefully before visiting it elsewhere."
   },
   "errors": {
     "something_went_wrong": "Ooops, something went wrong in Athens!",
     "reload_or_contact": "Please reload the page or contact us if the issue is not resolved.",
     "invalid_dispute_data": "The dispute data is not valid, please vote \"Refuse to arbitrate\"",
-    "rpc_error": "RPC Error: Unable to fetch dispute data. Please avoid voting."
+    "rpc_error": "RPC Error: Unable to fetch dispute data. Please avoid voting.",
+    "invalid_link": "This file link is not allowed."
   },
   "community": {
     "kleros_forum": "Kleros Forum",
