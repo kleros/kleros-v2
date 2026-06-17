@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
@@ -127,6 +127,7 @@ const DesktopHeader: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
+  const navigate = useNavigate();
   const { isConnected, chainId } = useAccount();
   const isDefaultChain = chainId === DEFAULT_CHAIN.id;
   const initializeFragmentURL = useCallback(() => {
@@ -188,7 +189,7 @@ const DesktopHeader: React.FC = () => {
         <RightSide>
           <ConnectWalletContainer
             {...{ isConnected, isDefaultChain }}
-            onClick={isConnected && isDefaultChain ? toggleIsSettingsOpen : undefined}
+            onClick={isConnected && isDefaultChain ? () => navigate("/profile/stakes/1") : undefined}
           >
             <ConnectWallet />
           </ConnectWalletContainer>
