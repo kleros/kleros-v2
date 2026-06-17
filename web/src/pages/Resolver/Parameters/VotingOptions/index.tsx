@@ -24,7 +24,7 @@ const Container = styled.div`
 `;
 
 const QuestionField = styled(LabeledInput)`
-  margin-bottom: 78px;
+  margin-bottom: 44px;
 `;
 
 const AlertMessageContainer = styled.div`
@@ -37,6 +37,10 @@ const AlertMessageContainer = styled.div`
   > div {
     width: 100%;
   }
+
+  h2 {
+    margin: 0;
+  }
 `;
 
 const VotingOptions: React.FC = () => {
@@ -44,8 +48,8 @@ const VotingOptions: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
-  const handleQuestionWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDisputeData({ ...disputeData, question: event.target.value });
+  const handleQuestionWrite = (value: string) => {
+    setDisputeData({ ...disputeData, question: value });
   };
 
   useEffect(() => {

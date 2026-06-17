@@ -122,7 +122,7 @@ const ITEMS = [
   {
     text: "Kleros Scout",
     Icon: Scout,
-    url: "https://klerosscout.eth.limo",
+    url: "https://scout.kleros.io",
   },
   {
     text: "POH V2",

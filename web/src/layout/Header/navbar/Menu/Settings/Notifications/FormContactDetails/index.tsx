@@ -203,7 +203,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
                 event.preventDefault();
                 setIsConfirmingUnsubscribe(false);
               }}
-              disabled={isDeletingUser}
+              isDisabled={isDeletingUser}
             />
             <ConfirmUnsubscribeButton
               text={t("buttons.confirm_unsubscribe")}
@@ -211,15 +211,16 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
                 event.preventDefault();
                 handleConfirmUnsubscribe();
               }}
-              disabled={isFetchingUser || isDeletingUser}
+              isDisabled={isFetchingUser || isDeletingUser}
               isLoading={isDeletingUser}
             />
           </>
         ) : (
           <>
             <Button
+              type="submit"
               text={t("buttons.save")}
-              disabled={
+              isDisabled={
                 !isEditingEmail ||
                 !emailIsValid ||
                 isAddingUser ||
@@ -237,7 +238,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
                   event.preventDefault();
                   setIsConfirmingUnsubscribe(true);
                 }}
-                disabled={isFetchingUser || isDeletingUser}
+                isDisabled={isFetchingUser || isDeletingUser}
               />
             ) : null}
           </>

@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Radio } from "@kleros/ui-components-library";
+import { CustomRadioItem, RadioIndicator } from "@kleros/ui-components-library";
 
 import { Features } from "consts/disputeFeature";
 
@@ -16,33 +16,59 @@ import GatedErc20 from "./GatedErc20";
 import UniversityVote from "./UniversityVote";
 
 export type RadioInput = {
-  name: string;
   value: Features;
   checked: boolean;
   disabled: boolean;
-  onClick: () => void;
 };
 
 export type FeatureUI = React.FC<RadioInput>;
 
-export const StyledRadio = styled(Radio)`
+/** The label content of a feature radio: the indicator + text, with the disabled styling. */
+export const FeatureLabel = styled.span<{ $disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
-  color: ${({ theme, disabled }) => (disabled ? theme.secondaryText : theme.primaryText)};
-  opacity: ${({ disabled }) => (disabled ? "0.7" : 1)};
+  color: ${({ theme, $disabled }) => ($disabled ? theme.secondaryText : theme.primaryText)};
+  opacity: ${({ $disabled }) => ($disabled ? 0.7 : 1)};
 `;
 
-const ShieldedVoteComponent: React.FC<RadioInput> = (props) => {
+/** A feature row's radio: a single `CustomRadioItem` rendering the indicator + label.
+ *  Selection is driven by the parent `CustomRadio` group, so it takes no `checked`/`onClick`. */
+export const FeatureRadio: React.FC<{ value: Features; disabled: boolean; label: string }> = ({
+  value,
+  disabled,
+  label,
+}) => (
+  <CustomRadioItem value={value} isDisabled={disabled}>
+    {(rp) => (
+      <FeatureLabel $disabled={disabled}>
+        <RadioIndicator {...rp} small />
+        {label}
+      </FeatureLabel>
+    )}
+  </CustomRadioItem>
+);
+
+const ShieldedVoteComponent: React.FC<RadioInput> = ({ value, disabled }) => {
   const { t } = useTranslation();
   return (
     <WithHelpTooltip tooltipMsg={t("tooltips.shielded_voting_tooltip")} key={Features.ShieldedVote}>
-      <StyledRadio label={t("features.single_step_shutter")} small {...props} />
+      <FeatureRadio value={value} disabled={disabled} label={t("features.single_step_shutter")} />
     </WithHelpTooltip>
   );
 };
 
-const ClassicEligibilityComponent: React.FC<RadioInput> = (props) => {
+const ClassicEligibilityComponent: React.FC<RadioInput> = ({ value, disabled }) => {
   const { t } = useTranslation();
-  return <StyledRadio key={Features.ClassicEligibility} label={t("features.all_jurors_in_court")} small {...props} />;
+  return (
+    <FeatureRadio
+      key={Features.ClassicEligibility}
+      value={value}
+      disabled={disabled}
+      label={t("features.all_jurors_in_court")}
+    />
+  );
 };
 
 export const FeatureUIs: Record<Features, FeatureUI> = {

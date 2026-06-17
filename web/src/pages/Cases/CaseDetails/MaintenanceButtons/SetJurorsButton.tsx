@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Address, isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { Button, Field } from "@kleros/ui-components-library";
+import { Button, TextField } from "@kleros/ui-components-library";
 
 import {
   useReadDisputeKitClassicUniversityGetJurors,
@@ -139,17 +139,17 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
         </JurorsQueueContainer>
       ) : null}
 
-      <Field
+      <TextField
         placeholder={t("forms.placeholders.juror_addresses_comma_separated")}
-        onChange={(e) => setJurorsInput(e.target.value)}
+        onChange={setJurorsInput}
         value={jurorsInput}
       />
       <StyledButton
         text={t("buttons.set_jurors")}
         small
         isLoading={isLoading}
-        disabled={isDisabled}
-        onClick={handleClick}
+        isDisabled={isDisabled}
+        onPress={handleClick}
       />
     </>
   );

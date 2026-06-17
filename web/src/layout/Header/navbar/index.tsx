@@ -102,7 +102,7 @@ const NavBar: React.FC = () => {
             <LightButton
               isMobileNavbar={true}
               text={t("navigation.kleros_solutions")}
-              onClick={() => {
+              onPress={() => {
                 toggleIsDappListOpen();
               }}
               Icon={KlerosSolutionsIcon}

@@ -79,7 +79,12 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitName, commit,
 
   return (
     <Container>
-      <Button text={t("buttons.reveal_your_vote")} onClick={handleReveal} disabled={isPending} isLoading={isPending} />
+      <Button
+        text={t("buttons.reveal_your_vote")}
+        onPress={handleReveal}
+        isDisabled={isPending}
+        isLoading={isPending}
+      />
       {/* TODO: if justification is not stored, show input for it */}
     </Container>
   );

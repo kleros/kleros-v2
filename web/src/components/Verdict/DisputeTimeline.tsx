@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Address, Hash } from "viem";
 
-import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
+import { CustomTimeline } from "@kleros/ui-components-library";
 
 import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
 import GavelExecutedIcon from "svgs/icons/gavel-executed.svg";
@@ -21,6 +21,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 
 import { ClassicRound } from "src/graphql/graphql";
 import { getTxnExplorerLink, isUndefined } from "src/utils";
+import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
 import { StyledClosedCircle } from "components/StyledIcons/ClosedCircleIcon";
 
@@ -34,6 +35,10 @@ const Container = styled.div`
 
 const StyledTimeline = styled(CustomTimeline)`
   width: 100%;
+
+  h2 {
+    margin: 0;
+  }
 `;
 
 const StyledNewTabIcon = styled(NewTabIcon)`
@@ -48,7 +53,7 @@ const StyledNewTabIcon = styled(NewTabIcon)`
   }
 `;
 
-type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
+type TimelineItems = [CustomTimelineItem, ...CustomTimelineItem[]];
 
 const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) => {
   const { t, i18n } = useTranslation();
@@ -92,12 +97,11 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
           ""
         ),
         subtitle: formatDate(votingHistory?.dispute?.createdAt),
-        rightSided: true,
         variant: theme.secondaryPurple,
       },
     ];
 
-    const items = localRounds?.reduce<_TimelineItem1[]>((acc, { winningChoice }, index) => {
+    const items = localRounds?.reduce<CustomTimelineItem[]>((acc, { winningChoice }, index) => {
       const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
       const roundTimeline = rounds?.[index].timeline;
       const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : undefined;
@@ -107,7 +111,6 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
         title: t("dispute_info.jury_decision_round", { round: index + 1 }),
         party: isOngoing ? t("voting.voting_is_ongoing") : getVoteChoice(winningChoice, answers),
         subtitle: isOngoing ? "" : `${formatDate(roundTimeline?.[Periods.vote])} / ${rounds?.[index]?.court.name}`,
-        rightSided: true,
         variant: theme.secondaryPurple,
         Icon: icon,
       });
@@ -117,7 +120,6 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
           title: t("dispute_info.appealed"),
           party: "",
           subtitle: formatDate(roundTimeline?.[Periods.appeal]),
-          rightSided: true,
           Icon: StyledClosedCircle,
         });
       } else if (rulingOverride && dispute.currentRuling !== winningChoice) {
@@ -125,7 +127,6 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
           title: t("dispute_info.won_by_appeal"),
           party: getVoteChoice(dispute.currentRuling, answers),
           subtitle: formatDate(roundTimeline?.[Periods.appeal]),
-          rightSided: true,
           Icon: ClosedCaseIcon,
         });
       }
@@ -144,7 +145,6 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
           ""
         ),
         subtitle: `${formatDate(dispute.rulingTimestamp)} / ${rounds?.at(-1)?.court.name}`,
-        rightSided: true,
         Icon: GavelExecutedIcon,
       });
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -27,9 +27,14 @@ const StyledTabs = styled(TabsComponent)`
   > * {
     display: flex;
     flex-wrap: wrap;
-    font-size: ${responsiveSize(12, 16)};
-    > svg {
-      margin-right: 8px !important;
+  }
+  // Set on the label, not the container: the library's text-base wouldn't inherit.
+  [role="tab"] {
+    span {
+      font-size: ${responsiveSize(12, 16)};
+    }
+    svg {
+      margin-right: 8px;
     }
   }
 `;
@@ -49,38 +54,46 @@ const Tabs: React.FC = () => {
   const TABS = useMemo(
     () => [
       {
+        id: 0,
         text: t("navigation.overview"),
         value: 0,
         Icon: EyeIcon,
         path: "overview",
+        content: null,
       },
       {
+        id: 1,
         text: t("navigation.evidence"),
         value: 1,
         Icon: DocIcon,
         path: "evidence",
+        content: null,
       },
       {
+        id: 2,
         text: t("navigation.voting"),
         value: 2,
         Icon: BalanceIcon,
         path: "voting",
+        content: null,
       },
       {
+        id: 3,
         text: t("navigation.appeal"),
         value: 3,
         Icon: BullhornIcon,
         path: "appeal",
         disabled: false,
+        content: null,
       },
     ],
     [t]
   );
 
-  const [currentTab, setCurrentTab] = useState(TABS.findIndex(({ path }) => path === currentPathName));
-  useEffect(() => {
-    setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName));
-  }, [currentPathName, TABS]);
+  const currentTab = Math.max(
+    TABS.findIndex(({ path }) => path === currentPathName),
+    0
+  );
 
   const tabs = useMemo(() => {
     const updatedTabs = [...TABS];
@@ -92,14 +105,14 @@ const Tabs: React.FC = () => {
     return updatedTabs;
   }, [currentPeriodIndex, rounds.length, appealCost, TABS]);
 
+  // Both props: `selectedKey` keeps the URL the source of truth; `defaultSelectedKey`
+  // primes the library Tabs' internal underline state (which doesn't track `selectedKey`).
   return (
     <StyledTabs
-      currentValue={currentTab}
+      selectedKey={currentTab}
+      defaultSelectedKey={currentTab}
       items={tabs}
-      callback={(n: number) => {
-        setCurrentTab(n);
-        navigate(TABS[n].path);
-      }}
+      callback={(_key, value) => navigate(TABS[value].path)}
     />
   );
 };

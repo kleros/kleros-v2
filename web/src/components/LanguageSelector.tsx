@@ -19,8 +19,10 @@ const Label = styled.label`
 `;
 
 const LanguageOptions = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  // minmax(0, 1fr) so columns can shrink below their content's intrinsic width
+  // (grid items default to min-width: auto, which would push the row to overflow).
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 `;
 
@@ -30,6 +32,7 @@ const LanguageButton = styled.button<{ $isActive: boolean }>`
   border: 2px solid ${({ theme, $isActive }) => ($isActive ? theme.primaryBlue : theme.stroke)};
   background-color: ${({ theme, $isActive }) => ($isActive ? theme.mediumBlue : theme.whiteBackground)};
   color: ${({ theme, $isActive }) => ($isActive ? theme.primaryBlue : theme.secondaryText)};
+  font-size: 14px;
   font-weight: ${({ $isActive }) => ($isActive ? "600" : "400")};
   cursor: pointer;
   transition: all 0.2s ease;

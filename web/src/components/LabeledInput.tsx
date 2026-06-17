@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Field, FieldProps } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import { isUndefined } from "utils/index";
 
@@ -10,11 +10,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
 `;
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 100%;
-  > small {
+  > span {
     margin-top: 16px;
-    margin-bottom: 16px;
   }
 `;
 
@@ -23,14 +22,14 @@ const StyledLabel = styled.label`
   margin-bottom: 12px;
 `;
 
-interface ILabeledInput extends FieldProps {
-  label?: string;
-}
-const LabeledInput: React.FC<ILabeledInput> = (props) => {
+type ILabeledInput = React.ComponentProps<typeof TextField>;
+
+const LabeledInput: React.FC<ILabeledInput> = ({ label, inputProps, ...props }) => {
+  const inputId = React.useId();
   return (
     <Container>
-      {!isUndefined(props.label) ? <StyledLabel id={props.label}>{props.label}</StyledLabel> : null}
-      <StyledField dir="auto" {...props} id={props?.label} />
+      {!isUndefined(label) ? <StyledLabel htmlFor={inputId}>{label}</StyledLabel> : null}
+      <StyledField {...props} inputProps={{ dir: "auto", ...inputProps, id: inputId }} />
     </Container>
   );
 };

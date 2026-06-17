@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Field } from "@kleros/ui-components-library";
+import { BigNumberField, TextField } from "@kleros/ui-components-library";
 
 import { Features } from "consts/disputeFeature";
 import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
@@ -13,19 +13,30 @@ import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from ".";
 
 const FieldContainer = styled.div`
   width: 100%;
   padding-left: 32px;
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 100%;
   margin-top: 8px;
   margin-bottom: 32px;
-  > small {
+  > span {
     margin-top: 16px;
+  }
+`;
+
+const StyledTokenIdField = styled(BigNumberField)`
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 32px;
+
+  /* Hover-revealed stepper arrows don't suit a token ID picker. */
+  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
+    display: none;
   }
 `;
 
@@ -45,7 +56,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     enabled: validationEnabled && props.checked,
   });
 
-  const [validationMessage, variant] = useMemo(() => {
+  const [validationMessage, variant] = useMemo<[string | undefined, "info" | "error" | "success"]>(() => {
     if (isValidating) return [`Validating ERC-1155 token...`, "info"];
     else if (validationError) return [validationError, "error"];
     else if (isValid === true) return [`Valid ERC-1155 token`, "success"];
@@ -70,49 +81,49 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isValid, setDisputeData, props.checked]);
 
-  const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenAddressChange = (value: string) => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;
 
     setDisputeData({
       ...disputeData,
       disputeKitData: {
         ...currentData,
-        tokenGate: event.target.value,
+        tokenGate: value,
         isTokenGateValid: null, // Reset validation state when address changes
       },
     });
   };
 
-  const handleTokenIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenIdChange = (value: string) => {
     const currentData = disputeData.disputeKitData as IGatedDisputeData;
     // DEV: we only update the tokenGate value here, and the disputeKidID,
     // and type are still handled in Resolver/Court/FeatureSelection.tsx
     setDisputeData({
       ...disputeData,
-      disputeKitData: { ...currentData, tokenId: event.target.value },
+      disputeKitData: { ...currentData, tokenId: value },
     });
   };
 
   return (
     <Fragment key={Features.GatedErc1155}>
       <WithHelpTooltip tooltipMsg={t("tooltips.token_gating_tooltip")}>
-        <StyledRadio label={t("features.jurors_owning_erc1155")} small {...props} />
+        <FeatureRadio value={props.value} disabled={props.disabled} label={t("features.jurors_owning_erc1155")} />
       </WithHelpTooltip>
       {props.checked ? (
         <FieldContainer>
           <StyledField
-            dir="auto"
+            inputProps={{ dir: "auto" }}
             onChange={handleTokenAddressChange}
             value={tokenGateAddress}
             placeholder={t("forms.placeholders.token_address_example")}
             variant={variant}
             message={validationMessage}
           />
-          <StyledField
-            dir="auto"
-            onChange={handleTokenIdChange}
+          <StyledTokenIdField
+            onChange={(tokenId) => handleTokenIdChange(tokenId.toString())}
             value={(disputeData.disputeKitData as IGatedDisputeData)?.tokenId ?? "0"}
             placeholder={t("forms.placeholders.token_id_example")}
+            formatOptions={{ groupSeparator: "" }}
           />
         </FieldContainer>
       ) : null}

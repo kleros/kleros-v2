@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount, useBalance } from "wagmi";
 
-import { Field, Button } from "@kleros/ui-components-library";
+import { Button } from "@kleros/ui-components-library";
 
 import { DisputeKits, REFETCH_INTERVAL } from "consts/index";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
@@ -19,26 +19,13 @@ import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 
+import EthAmountField from "../EthAmountField";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-`;
-
-const StyledField = styled(Field)`
-  width: 100%;
-  & > input {
-    text-align: center;
-  }
-  &:before {
-    position: absolute;
-    content: "ETH";
-    right: 32px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: ${({ theme }) => theme.primaryText};
-  }
 `;
 
 const StyledButton = styled(Button)`
@@ -116,19 +103,14 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName })
   return needFund ? (
     <Container>
       <StyledLabel>{t("appeal.how_much_eth_contribute")}</StyledLabel>
-      <StyledField
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder={t("forms.placeholders.amount_to_fund")}
-      />
+      <EthAmountField value={amount} onChange={setAmount} placeholder={t("forms.placeholders.amount_to_fund")} />
       <EnsureChain>
         <div>
           <StyledButton
-            disabled={isFundDisabled}
+            isDisabled={isFundDisabled}
             isLoading={isPending && !insufficientBalance}
             text={isDisconnected ? t("buttons.connect_to_fund") : t("buttons.fund")}
-            onClick={handleAppeal}
+            onPress={handleAppeal}
           />
           {insufficientBalance && (
             <ErrorButtonMessage>

@@ -55,7 +55,7 @@ const MobileHeader = () => {
       <OpenContext.Provider value={memoizedContext}>
         <Logo />
         <NavBar />
-        <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
+        <StyledLightButton text="" Icon={HamburgerIcon} onPress={toggleIsOpen} />
       </OpenContext.Provider>
     </Container>
   );

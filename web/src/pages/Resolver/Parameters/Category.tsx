@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
@@ -26,7 +26,7 @@ const Container = styled.div`
   )}
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 84vw;
   margin-bottom: 74px;
   ${landscapeStyle(
@@ -35,7 +35,7 @@ const StyledField = styled(Field)`
       margin-bottom: 64px;
     `
   )}
-  > small {
+  > span {
     margin-top: 16px;
   }
 `;
@@ -45,8 +45,8 @@ const Category: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDisputeData({ ...disputeData, category: event.target.value });
+  const handleWrite = (value: string) => {
+    setDisputeData({ ...disputeData, category: value });
   };
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const Category: React.FC = () => {
     <Container ref={containerRef}>
       <Header text={t("headers.choose_a_category")} />
       <StyledField
-        dir="auto"
+        inputProps={{ dir: "auto" }}
         onChange={handleWrite}
         value={disputeData.category}
         placeholder={t("forms.placeholders.freelance_example")}

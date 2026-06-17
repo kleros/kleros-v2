@@ -124,9 +124,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
         <InputFieldAndButton>
           <StyledField
             value={uncommify(amount)}
-            onChange={(e) => {
-              setAmount(e);
-            }}
+            onChange={setAmount}
             placeholder={
               isStaking ? t("forms.placeholders.amount_to_stake") : t("forms.placeholders.amount_to_withdraw")
             }

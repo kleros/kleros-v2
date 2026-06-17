@@ -113,7 +113,7 @@ const ErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) =
             <Header>{t("errors.something_went_wrong")}</Header>
             <Subtitle>{t("errors.reload_or_contact")}</Subtitle>
             <ButtonsContainer>
-              <Button text={t("buttons.reload")} onClick={resetErrorBoundary} />
+              <Button text={t("buttons.reload")} onPress={resetErrorBoundary} />
               <a href={"https://t.me/kleros"} target="_blank" rel="noreferrer">
                 <Button text={t("buttons.contact_us")} />
               </a>

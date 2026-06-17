@@ -44,9 +44,14 @@ const StyledTabs = styled(TabsComponent)`
   > * {
     display: flex;
     flex-wrap: wrap;
-    font-size: ${responsiveSize(14, 16)};
-    > svg {
-      margin-right: 8px !important;
+  }
+  // Set on the label, not the container: the library's text-base wouldn't inherit.
+  [role="tab"] {
+    span {
+      font-size: ${responsiveSize(14, 16)};
+    }
+    svg {
+      margin-right: 8px;
     }
   }
 `;
@@ -76,9 +81,9 @@ const Profile: React.FC = () => {
 
   const TABS = useMemo(
     () => [
-      { text: t("navigation.stakes"), value: 0, Icon: PnkIcon, path: TAB_PATHS[0] },
-      { text: t("navigation.cases"), value: 1, Icon: DocIcon, path: TAB_PATHS[1] },
-      { text: t("stats.votes"), value: 2, Icon: VotedIcon, path: TAB_PATHS[2] },
+      { id: 0, text: t("navigation.stakes"), value: 0, Icon: PnkIcon, path: TAB_PATHS[0], content: null },
+      { id: 1, text: t("navigation.cases"), value: 1, Icon: DocIcon, path: TAB_PATHS[1], content: null },
+      { id: 2, text: t("stats.votes"), value: 2, Icon: VotedIcon, path: TAB_PATHS[2], content: null },
     ],
     [t]
   );
@@ -102,9 +107,10 @@ const Profile: React.FC = () => {
         <>
           <JurorCard {...{ searchParamAddress }} />
           <StyledTabs
-            currentValue={getTabIndex(pathname)}
+            selectedKey={getTabIndex(pathname)}
+            defaultSelectedKey={getTabIndex(pathname)}
             items={TABS}
-            callback={(tabIndex: number) => handleTabChange(tabIndex)}
+            callback={(_key, value) => handleTabChange(value)}
           />
           <Routes>
             <Route path="stakes/:page" element={<Stakes {...{ searchParamAddress }} />} />

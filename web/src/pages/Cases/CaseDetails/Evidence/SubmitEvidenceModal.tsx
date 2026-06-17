@@ -49,6 +49,21 @@ const EditorContainer = styled.div`
 const StyledFileUploader = styled(FileUploader)`
   width: 100%;
   margin-bottom: 50px;
+
+  small {
+    font-size: 14px;
+  }
+  /* The library colors the info icon primary blue; match it to the message text. */
+  svg:has(+ [id="dropzone-label"]) {
+    fill: ${({ theme }) => theme.secondaryText};
+    path {
+      fill: ${({ theme }) => theme.secondaryText};
+    }
+  }
+  /* Align the icon to the first line of the message, not its vertical center. */
+  div:has(> [id="dropzone-label"]) {
+    align-items: flex-start;
+  }
 `;
 
 const ButtonArea = styled.div`
@@ -113,10 +128,10 @@ const SubmitEvidenceModal: React.FC<{
         variant="info"
       />
       <ButtonArea>
-        <Button variant="secondary" disabled={isSending} text={t("buttons.return")} onClick={close} />
+        <Button variant="secondary" isDisabled={isSending} text={t("buttons.return")} onPress={close} />
         <EnsureChain>
           <EnsureAuth>
-            <Button text={t("buttons.submit")} isLoading={isSending} disabled={isDisabled} onClick={submitEvidence} />
+            <Button text={t("buttons.submit")} isLoading={isSending} isDisabled={isDisabled} onPress={submitEvidence} />
           </EnsureAuth>
         </EnsureChain>
       </ButtonArea>

@@ -65,6 +65,7 @@ const LinkContainer = styled.div`
 `;
 
 const StyledInternalLink = styled(InternalLink)`
+  display: flex;
   text-wrap: auto;
   justify-content: end;
   line-height: 1.25;

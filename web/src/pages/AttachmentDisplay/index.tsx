@@ -15,13 +15,13 @@ import Loader from "components/Loader";
 
 import Header from "./Header";
 
-const FileViewer = lazy(() => import("components/FileViewer"));
+const FileViewer = lazy(() => import("@kleros/ui-components-library").then((m) => ({ default: m.FileViewer })));
 
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: calc(24px + (136 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-top: calc(32px + (80 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-top: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   padding-bottom: calc(76px + (96 - 76) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;

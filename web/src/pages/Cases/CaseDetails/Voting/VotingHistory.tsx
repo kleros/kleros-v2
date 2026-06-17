@@ -107,12 +107,15 @@ const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = (
           )}
           <TabsContainer>
             <StyledTabs
-              currentValue={currentTab}
+              selectedKey={currentTab}
+              defaultSelectedKey={rounds.length - 1}
               items={rounds.map((_, i) => ({
+                id: i,
                 text: t("voting.round_number", { number: i + 1 }),
                 value: i,
+                content: null,
               }))}
-              callback={(i: number) => setCurrentTab(i)}
+              callback={(_key, value) => setCurrentTab(value)}
             />
             <PendingVotesBox
               current={Number(localRounds?.[currentTab]?.totalVoted)}
