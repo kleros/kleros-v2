@@ -7,6 +7,7 @@ import { usePublicClient } from "wagmi";
 import { DisputeKits } from "consts/index";
 import { extraDataToTokenInfo, GatedTokenInfo } from "utils/extradataToTokenInfo";
 import { getIpfsUrl } from "utils/getIpfsUrl";
+import { isAllowedImageDataUri } from "utils/urlValidation";
 
 import { useRoundDetailsQuery } from "./queries/useRoundDetailsQuery";
 import { useDisputeKitAddresses } from "./useDisputeKitAddresses";
@@ -33,6 +34,7 @@ export type GatedTokenResult = {
   tokenGateInfo: GatedTokenInfo | null;
   tokenName: string | null;
   tokenSymbol: string | null;
+  /** Untrusted URI from NFT metadata; only use as `<img src>`. */
   imageUri: string | null;
   nftName: string | null;
   isLoading: boolean;
@@ -156,11 +158,14 @@ export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: Addres
       const resolvedUri = resolveUri(tokenUri);
 
       try {
-        const response = await fetch(resolvedUri);
+        const response = await fetch(resolvedUri, { credentials: "omit" });
         // See https://github.com/ethereum/ercs/blob/master/ERCS/erc-721.md for ERC721 Metadata standard
         // which is optional
         const metadata = await response.json();
-        const imageUri = metadata.image ? resolveUri(metadata.image) : null;
+        let imageUri = metadata.image ? resolveUri(metadata.image) : null;
+        if (imageUri?.toLowerCase().startsWith("data:") && !isAllowedImageDataUri(imageUri)) {
+          imageUri = null;
+        }
         const nftName = metadata.name || null;
 
         return { isERC721, tokenName, tokenSymbol, imageUri, nftName };

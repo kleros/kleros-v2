@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -8,17 +8,19 @@ import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disput
 
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
+import { getSafeNavigationUrl } from "utils/urlValidation";
 
 import { DisputeDetailsQuery, VotingHistoryQuery } from "src/graphql/graphql";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import ExternalLinkWarning from "components/ExternalLinkWarning";
 import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 import CardLabel from "../DisputeView/CardLabels";
 import { Divider } from "../Divider";
-import { ExternalLink } from "../ExternalLink";
 import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
 
 import AliasDisplay from "./Alias";
@@ -85,6 +87,37 @@ const RulingAndRewardsAndLabels = styled.div`
   gap: 8px;
 `;
 
+const FrontendUrlSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+`;
+
+const FrontendUrlLabel = styled.small`
+  color: ${({ theme }) => theme.primaryText};
+  font-weight: 600;
+`;
+
+const FrontendUrlLink = styled.a`
+  color: ${({ theme }) => theme.primaryBlue};
+  cursor: pointer;
+
+  :hover {
+    text-decoration: underline;
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
+`;
+
+const FlaggedFrontendUrl = styled.span`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 14px;
+`;
+
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
   isRpcError?: boolean;
@@ -103,10 +136,28 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
 }) => {
   const { isDisconnected } = useAccount();
   const { t } = useTranslation();
+  const [isWarningOpen, setIsWarningOpen] = useState(false);
   const errMsg = isRpcError ? t("errors.rpc_error") : t("errors.invalid_dispute_data");
   const rounds = votingHistory?.dispute?.rounds;
   const aliases = disputeDetails?.aliases;
   const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
+
+  const frontendUrl = disputeDetails?.frontendUrl?.trim() || undefined;
+
+  const safeFrontendUrl = useMemo(() => {
+    return frontendUrl ? getSafeNavigationUrl(frontendUrl) : undefined;
+  }, [frontendUrl]);
+
+  const handleConfirmNavigation = useCallback(() => {
+    if (safeFrontendUrl) {
+      window.open(safeFrontendUrl, "_blank", "noopener,noreferrer");
+    }
+    setIsWarningOpen(false);
+  }, [safeFrontendUrl]);
+
+  const handleCancelNavigation = useCallback(() => {
+    setIsWarningOpen(false);
+  }, []);
 
   return (
     <>
@@ -147,11 +198,35 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         </div>
       ) : null}
 
-      {isUndefined(disputeDetails?.frontendUrl) ? null : (
-        <ExternalLink to={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
-          {t("misc.go_to_arbitrable")}
-        </ExternalLink>
-      )}
+      {!isUndefined(frontendUrl) && !isUndefined(safeFrontendUrl) ? (
+        <>
+          <FrontendUrlLink
+            href={safeFrontendUrl}
+            onClick={(event) => {
+              event.preventDefault();
+              setIsWarningOpen(true);
+            }}
+          >
+            {t("misc.go_to_arbitrable")}
+          </FrontendUrlLink>
+          <ExternalLinkWarning
+            isOpen={isWarningOpen}
+            sanitizedUrl={safeFrontendUrl}
+            originalUrl={frontendUrl}
+            onConfirm={handleConfirmNavigation}
+            onCancel={handleCancelNavigation}
+          />
+        </>
+      ) : null}
+
+      {!isUndefined(frontendUrl) && isUndefined(safeFrontendUrl) ? (
+        <FrontendUrlSection>
+          <FrontendUrlLabel>{t("misc.arbitrable_url")}:</FrontendUrlLabel>
+          <WithHelpTooltip tooltipMsg={t("tooltips.unsafe_frontend_url")}>
+            <FlaggedFrontendUrl title={frontendUrl}>{frontendUrl}</FlaggedFrontendUrl>
+          </WithHelpTooltip>
+        </FrontendUrlSection>
+      ) : null}
       <VotingOptions>
         {isUndefined(disputeDetails) ? null : <AnswersHeader>{t("headers.voting_options")}</AnswersHeader>}
         <AnswersContainer>
