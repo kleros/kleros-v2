@@ -50,7 +50,7 @@ jobs:
         cache: yarn
   
     - name: Cache node modules
-      uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       env:
         cache-name: cache-node-modules
       with:
