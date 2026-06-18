@@ -16,11 +16,13 @@ const Label = styled.label`
   font-size: 14px;
   font-weight: 600;
   color: ${({ theme }) => theme.primaryText};
+  text-align: center;
 `;
 
 const LanguageOptions = styled.div`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
 `;
 
