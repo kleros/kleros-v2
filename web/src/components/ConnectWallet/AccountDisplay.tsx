@@ -13,34 +13,31 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.button`
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
   height: auto;
   gap: 8px;
-  align-items: center;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  padding: 0px;
+  background-color: ${({ theme }) => theme.lightGrey};
+  border-radius: 300px;
+  padding: 0 12px;
   cursor: pointer;
   border: none;
+  transition: background-color 0.1s;
   &:hover {
-    label {
-      color: ${({ theme }) => theme.white} !important;
-      transition: color 0.2s;
-    }
+    background-color: ${({ theme }) => theme.stroke};
   }
 
   ${landscapeStyle(
     () => css`
+      gap: 0px;
       background-color: ${({ theme }) => theme.whiteLowOpacitySubtle};
       &:hover {
-        transition: background-color 0.1s;
         background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
+        label {
+          color: ${({ theme }) => theme.white} !important;
+          transition: color 0.2s;
+        }
       }
-      flex-direction: row;
-      align-content: center;
-      border-radius: 300px;
-      gap: 0px;
-      padding: 0 12px;
     `
   )}
 `;
@@ -50,50 +47,18 @@ const AccountContainer = styled.div`
   display: flex;
   align-items: center;
   width: fit-content;
-  gap: 8px;
+  gap: 12px;
 
   > label {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   ${landscapeStyle(
     () => css`
-      gap: 12px;
       > label {
         color: ${({ theme }) => theme.white}CC !important;
-        font-weight: 400;
-        font-size: 14px;
       }
-    `
-  )}
-`;
-
-const ChainConnectionContainer = styled.div`
-  display: flex;
-  width: fit-content;
-  min-height: 32px;
-  align-items: center;
-  padding-left: 0px;
-  > label {
-    color: ${({ theme }) => theme.success};
-    font-size: 16px;
-
-    font-weight: 500;
-  }
-
-  :before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    margin: 0px 13px 0px 3px;
-    border-radius: 50%;
-    background-color: ${({ theme }) => theme.success};
-  }
-
-  ${landscapeStyle(
-    () => css`
-      display: none;
     `
   )}
 `;
@@ -174,9 +139,6 @@ const AccountDisplay: React.FC = () => {
         <IdenticonOrAvatar size="20" />
         <AddressOrName />
       </AccountContainer>
-      <ChainConnectionContainer>
-        <ChainDisplay />
-      </ChainConnectionContainer>
     </Container>
   );
 };
