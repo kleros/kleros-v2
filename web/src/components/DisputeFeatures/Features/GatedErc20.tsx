@@ -49,9 +49,9 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
   });
 
   const [validationMessage, variant] = useMemo(() => {
-    if (isValidating) return [`Validating ERC-20 or ERC-721 token...`, "info"];
+    if (isValidating) return [`Validating NFT contract...`, "info"];
     else if (validationError) return [validationError, "error"];
-    else if (isValid === true) return [`Valid ERC-20 or ERC-721 token`, "success"];
+    else if (isValid === true) return [`Valid NFT contract`, "success"];
     else return [undefined, "info"];
   }, [isValidating, validationError, isValid]);
 

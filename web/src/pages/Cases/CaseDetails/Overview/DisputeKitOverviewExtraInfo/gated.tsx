@@ -185,16 +185,14 @@ const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({ disputeId, c
 
   if (!tokenAddress) return null;
 
-  const displayName = nftName || tokenName || "Unknown Token";
+  const displayName = nftName || tokenName || "Unknown NFT";
   const truncatedAddress = shortenAddress(tokenAddress);
 
   return (
     <>
       <Divider />
       <Wrapper>
-        <WithHelpTooltip
-          tooltipMsg={`Jurors must hold the required ${isERC721 ? "NFT" : "token"} to be eligible for this case.`}
-        >
+        <WithHelpTooltip tooltipMsg="Jurors must hold the required NFT to be eligible for this case.">
           <Badge>Token Gated</Badge>
         </WithHelpTooltip>
         <CardContainer>

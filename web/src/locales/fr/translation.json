@@ -528,7 +528,7 @@
     "shielded_voting_tooltip": "Les votes des jurés sont cachés. Personne ne peut les voir avant la fin de la période de vote. Cela se déroule en une seule étape via Shutter Network",
     "shielded_voting_description": "Cette fonctionnalité cache les votes des jurés jusqu'à la fin de la période de vote.",
     "jurors_eligibility_description": "Cette fonctionnalité détermine qui peut être sélectionné comme juré.",
-    "token_gating_tooltip": "Seuls les jurés qui possèdent le token ou NFT spécifié peuvent être sélectionnés comme jurés pour ce litige. Veuillez saisir les détails du token ci-dessous."
+    "token_gating_tooltip": "Seuls les jurés qui possèdent le NFT spécifié peuvent être sélectionnés comme jurés pour ce litige. Veuillez saisir l'adresse du contrat NFT ci-dessous."
   },
   "errors": {
     "something_went_wrong": "Oups, Quelque chose s'est mal passé à Athènes !",
@@ -632,7 +632,7 @@
   "features": {
     "single_step_shutter": "Étape unique via Shutter Network",
     "all_jurors_in_court": "Tous les jurés dans cette cour",
-    "jurors_owning_erc20": "Jurés possédant au moins 1 token ERC-20 ou ERC-721",
+    "jurors_owning_erc20": "Jurés possédant un NFT spécifique",
     "jurors_owning_erc1155": "Jurés possédant au moins 1 token ERC-1155",
     "two_step_commit": "Engagement-révélation en deux étapes",
     "disabled": "Désactivé",

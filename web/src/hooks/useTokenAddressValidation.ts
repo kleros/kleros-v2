@@ -82,7 +82,7 @@ export const useERC20ERC721Validation = ({
     enabled,
     abi: ERC20_ERC721_ABI,
     contractCall: (contract) => contract.read.balanceOf(["0x0000000000000000000000000000000000001234"]),
-    tokenType: "ERC-20 or ERC-721",
+    tokenType: "NFT",
   });
 };
 

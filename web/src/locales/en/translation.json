@@ -528,7 +528,7 @@
     "shielded_voting_tooltip": "The jurors votes are hidden. Nobody can see them before the voting period completes. It takes place in a single step via Shutter Network",
     "shielded_voting_description": "This feature hides the jurors votes until the end of the voting period.",
     "jurors_eligibility_description": "This feature determines who can be selected as a juror.",
-    "token_gating_tooltip": "Only the jurors who possess the specified token or NFT can be selected as jurors for this case. Please input the token details below."
+    "token_gating_tooltip": "Only jurors who possess the specified NFT can be selected as jurors for this case. Please input the NFT contract address below."
   },
   "errors": {
     "something_went_wrong": "Ooops, something went wrong in Athens!",
@@ -632,7 +632,7 @@
   "features": {
     "single_step_shutter": "Single-step via Shutter Network",
     "all_jurors_in_court": "All the jurors in this court",
-    "jurors_owning_erc20": "Jurors owning at least 1 token ERC-20 or ERC-721",
+    "jurors_owning_erc20": "Jurors possessing a specific NFT",
     "jurors_owning_erc1155": "Jurors owning at least 1 token ERC-1155",
     "two_step_commit": "Two-step commit-reveal",
     "disabled": "Disabled",
