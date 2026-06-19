@@ -19,14 +19,15 @@ yarn install @kleros/kleros-app
 #### Usage
 
 1. At the root of your app, setup AtlasProvider.
-   **uri** : Atlas backend uri
-   **product** : The product / Kleros DApp interacting with Atlas (CourtV2, Curate, etc.)
+   - **uri**: Atlas backend URI
+   - **signupProduct**: The product / Kleros DApp interacting with Atlas(`SignupProduct`, eg: `CourtV2`, `Curate`, etc.)
+   - **ipfsProduct**: Product for IPFS uploads (`IpfsProduct`, e.g. `CourtV2`). Omit if the app does not upload via Atlas.
 
 ```typescript
 import { WagmiProvider } from 'wagmi'
 import { config } from './config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AtlasProvider, Products } from "@kleros/kleros-app";
+import { AtlasProvider, SignupProduct, IpfsProduct } from "@kleros/kleros-app";
 import { useConfig } from 'wagmi'
 
 const queryClient = new QueryClient()
@@ -34,14 +35,20 @@ const queryClient = new QueryClient()
 function App() {
   const wagmiConfig = useConfig()
 
-  return
+  return (
     <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-            <AtlasProvider config={{ uri: import.meta.env.REACT_APP_ATLAS_URI, product: Products.CourtV2, wagmiConfig: wagmiConfig }}>
+            <AtlasProvider config={{
+              uri: import.meta.env.REACT_APP_ATLAS_URI,
+              signupProduct: SignupProduct.CourtV2,
+              ipfsProduct: IpfsProduct.CourtV2,
+              wagmiConfig,
+            }}>
             ...
             </AtlasProvider>
         </QueryClientProvider>
     </WagmiProvider>
+  )
 }
 ```
 
@@ -97,19 +104,23 @@ interface IAtlasProvider {
   isVerified: boolean;
   isSigningIn: boolean;
   isAddingUser: boolean;
+  isDeletingUser: boolean;
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
   isUploadingFile: boolean;
+  isConfirmingEmail: boolean;
   user: User | undefined;
   userExists: boolean;
-  authoriseUser: () => Promise<void>;
-  addUser: (userSettings: AddUserData) => Promise<boolean>;
-  updateEmail: (userSettings: UpdateEmailData) => Promise<boolean>;
-  uploadFile: (file: File, role: Roles) => Promise<string | null>;
-  confirmEmail: (userSettings: ConfirmEmailData) => Promise<
+  authoriseUser(): Promise<void>;
+  addUser(userSettings: Omit<AddUserData, "product">): Promise<boolean>;
+  updateEmail(userSettings: Omit<UpdateEmailData, "product">): Promise<boolean>;
+  deleteUser(): Promise<boolean>;
+  uploadFile(file: File, role: Roles): Promise<string | null>;
+  confirmEmail(userSettings: ConfirmEmailData): Promise<
     ConfirmEmailResponse & {
       isError: boolean;
     }
   >;
+  roleRestrictions: Role[] | undefined;
 }
 ```

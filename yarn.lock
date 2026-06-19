@@ -2077,6 +2077,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@braintree/sanitize-url@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "@braintree/sanitize-url@npm:7.1.2"
+  checksum: 10/d9626ff8f8eb5e192cd055e6e743449c21102c76bb59e405b7028fe56230fa080bfcc80dfb1e21850a6876e75adda9f7b3c888cf0685942bb74da4d2866d6ec3
+  languageName: node
+  linkType: hard
+
 "@bytecodealliance/preview2-shim@npm:0.17.0":
   version: 0.17.0
   resolution: "@bytecodealliance/preview2-shim@npm:0.17.0"
@@ -7207,6 +7214,7 @@ __metadata:
   resolution: "@kleros/kleros-v2-web@workspace:web"
   dependencies:
     "@bigmi/react": "npm:^0.1.0"
+    "@braintree/sanitize-url": "npm:^7.1.2"
     "@coinbase/wallet-sdk": "npm:^4.3.2"
     "@cyntler/react-doc-viewer": "npm:^1.17.0"
     "@eslint/compat": "npm:^1.2.3"

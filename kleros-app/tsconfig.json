@@ -14,9 +14,10 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "removeComments": true,
+    "removeComments": false,
     "isolatedModules": true,
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "strict": true,
     "esModuleInterop": true,
     "declaration": true,
@@ -26,7 +27,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/lib/**/*"
+    "src/lib/**/*",
+    "global.d.ts"
   ],
   "exclude": [
     "node_modules",

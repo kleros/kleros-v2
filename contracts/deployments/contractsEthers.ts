@@ -96,12 +96,7 @@ import {
   LeaderboardOffset,
   LeaderboardOffset__factory,
 } from "../typechain-types";
-import {
-  type ContractConfig,
-  type DeploymentName,
-  deployments,
-  getAddress,
-} from "./utils";
+import { type ContractConfig, type DeploymentName, deployments, getAddress } from "./utils";
 
 type CommonFactoriesConfigs = {
   dkClassicConfig: ContractConfig;
@@ -146,103 +141,54 @@ type CommonFactories = {
 function getCommonFactories(
   configs: CommonFactoriesConfigs,
   provider: ethers.Provider,
-  chainId: number,
+  chainId: number
 ): CommonFactories {
   return {
-    disputeKitClassic: DisputeKitClassic__factory.connect(
-      getAddress(configs.dkClassicConfig, chainId),
-      provider,
-    ),
+    disputeKitClassic: DisputeKitClassic__factory.connect(getAddress(configs.dkClassicConfig, chainId), provider),
     disputeKitClassicUniversity: configs.dkClassicUniversityConfig
-      ? DisputeKitClassicUniversity__factory.connect(
-          getAddress(configs.dkClassicUniversityConfig, chainId),
-          provider,
-        )
+      ? DisputeKitClassicUniversity__factory.connect(getAddress(configs.dkClassicUniversityConfig, chainId), provider)
       : null,
     disputeKitShutter: configs.dkShutterConfig
-      ? DisputeKitShutter__factory.connect(
-          getAddress(configs.dkShutterConfig, chainId),
-          provider,
-        )
+      ? DisputeKitShutter__factory.connect(getAddress(configs.dkShutterConfig, chainId), provider)
       : null,
     disputeKitGated: configs.dkGatedConfig
-      ? DisputeKitGated__factory.connect(
-          getAddress(configs.dkGatedConfig, chainId),
-          provider,
-        )
+      ? DisputeKitGated__factory.connect(getAddress(configs.dkGatedConfig, chainId), provider)
       : null,
     disputeKitGatedShutter: configs.dkGatedShutterConfig
-      ? DisputeKitGatedShutter__factory.connect(
-          getAddress(configs.dkGatedShutterConfig, chainId),
-          provider,
+      ? DisputeKitGatedShutter__factory.connect(getAddress(configs.dkGatedShutterConfig, chainId), provider)
+      : null,
+    disputeKitGatedArgentinaConsumerProtection: configs.dkGatedArgentinaConsumerProtectionConfig
+      ? DisputeKitGatedArgentinaConsumerProtection__factory.connect(
+          getAddress(configs.dkGatedArgentinaConsumerProtectionConfig, chainId),
+          provider
         )
       : null,
-    disputeKitGatedArgentinaConsumerProtection:
-      configs.dkGatedArgentinaConsumerProtectionConfig
-        ? DisputeKitGatedArgentinaConsumerProtection__factory.connect(
-            getAddress(
-              configs.dkGatedArgentinaConsumerProtectionConfig,
-              chainId,
-            ),
-            provider,
-          )
-        : null,
-    disputeResolver: DisputeResolver__factory.connect(
-      getAddress(configs.drConfig, chainId),
-      provider,
-    ),
-    disputeTemplateRegistry: DisputeTemplateRegistry__factory.connect(
-      getAddress(configs.dtrConfig, chainId),
-      provider,
-    ),
-    evidence: EvidenceModule__factory.connect(
-      getAddress(configs.evidenceConfig, chainId),
-      provider,
-    ),
-    policyRegistry: PolicyRegistry__factory.connect(
-      getAddress(configs.policyRegistryConfig, chainId),
-      provider,
-    ),
-    transactionBatcher: TransactionBatcher__factory.connect(
-      getAddress(configs.batcherConfig, chainId),
-      provider,
-    ),
+    disputeResolver: DisputeResolver__factory.connect(getAddress(configs.drConfig, chainId), provider),
+    disputeTemplateRegistry: DisputeTemplateRegistry__factory.connect(getAddress(configs.dtrConfig, chainId), provider),
+    evidence: EvidenceModule__factory.connect(getAddress(configs.evidenceConfig, chainId), provider),
+    policyRegistry: PolicyRegistry__factory.connect(getAddress(configs.policyRegistryConfig, chainId), provider),
+    transactionBatcher: TransactionBatcher__factory.connect(getAddress(configs.batcherConfig, chainId), provider),
     chainlinkRng: configs.chainlinkRngConfig
-      ? ChainlinkRNG__factory.connect(
-          getAddress(configs.chainlinkRngConfig, chainId),
-          provider,
-        )
+      ? ChainlinkRNG__factory.connect(getAddress(configs.chainlinkRngConfig, chainId), provider)
       : null,
     randomizerRng: configs.randomizerRngConfig
-      ? RandomizerRNG__factory.connect(
-          getAddress(configs.randomizerRngConfig, chainId),
-          provider,
-        )
+      ? RandomizerRNG__factory.connect(getAddress(configs.randomizerRngConfig, chainId), provider)
       : null,
     rngWithFallback: configs.rngWithFallbackConfig
-      ? RNGWithFallback__factory.connect(
-          getAddress(configs.rngWithFallbackConfig, chainId),
-          provider,
-        )
+      ? RNGWithFallback__factory.connect(getAddress(configs.rngWithFallbackConfig, chainId), provider)
       : null,
     pnk: PNK__factory.connect(getAddress(configs.pnkConfig, chainId), provider),
     klerosCoreSnapshotProxy: KlerosCoreSnapshotProxy__factory.connect(
       getAddress(configs.snapshotProxyConfig, chainId),
-      provider,
+      provider
     ),
     leaderboardOffset: configs.leaderboardOffsetConfig
-      ? LeaderboardOffset__factory.connect(
-          getAddress(configs.leaderboardOffsetConfig, chainId),
-          provider,
-        )
+      ? LeaderboardOffset__factory.connect(getAddress(configs.leaderboardOffsetConfig, chainId), provider)
       : null,
   };
 }
 
-export const getContracts = async (
-  provider: ethers.Provider,
-  deployment: DeploymentName,
-) => {
+export const getContracts = async (provider: ethers.Provider, deployment: DeploymentName) => {
   const { chainId } = deployments[deployment];
   let klerosCore: KlerosCore;
   let sortition: SortitionModule;
@@ -250,14 +196,8 @@ export const getContracts = async (
 
   switch (deployment) {
     case "devnet": {
-      klerosCore = KlerosCore__factory.connect(
-        getAddress(devnetCoreConfig, chainId),
-        provider,
-      );
-      sortition = SortitionModule__factory.connect(
-        getAddress(devnetSortitionConfig, chainId),
-        provider,
-      );
+      klerosCore = KlerosCore__factory.connect(getAddress(devnetCoreConfig, chainId), provider);
+      sortition = SortitionModule__factory.connect(getAddress(devnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: devnetDkClassicConfig,
@@ -265,8 +205,7 @@ export const getContracts = async (
           dkShutterConfig: devnetDkShutterConfig,
           dkGatedConfig: devnetDkGatedConfig,
           dkGatedShutterConfig: devnetDkGatedShutterConfig,
-          dkGatedArgentinaConsumerProtectionConfig:
-            devnetDkGatedArgentinaConsumerProtectionConfig,
+          dkGatedArgentinaConsumerProtectionConfig: devnetDkGatedArgentinaConsumerProtectionConfig,
           drConfig: devnetDrConfig,
           dtrConfig: devnetDtrConfig,
           evidenceConfig: devnetEvidenceConfig,
@@ -279,19 +218,13 @@ export const getContracts = async (
           leaderboardOffsetConfig: devnetLeaderboardOffsetConfig,
         },
         provider,
-        chainId,
+        chainId
       );
       break;
     }
     case "testnet":
-      klerosCore = KlerosCore__factory.connect(
-        getAddress(testnetCoreConfig, chainId),
-        provider,
-      );
-      sortition = SortitionModule__factory.connect(
-        getAddress(testnetSortitionConfig, chainId),
-        provider,
-      );
+      klerosCore = KlerosCore__factory.connect(getAddress(testnetCoreConfig, chainId), provider);
+      sortition = SortitionModule__factory.connect(getAddress(testnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: testnetDkcConfig,
@@ -310,18 +243,12 @@ export const getContracts = async (
           // leaderboardOffsetConfig: testnetLeaderboardOffsetConfig,
         },
         provider,
-        chainId,
+        chainId
       );
       break;
     case "mainnet":
-      klerosCore = KlerosCore__factory.connect(
-        getAddress(mainnetCoreConfig, chainId),
-        provider,
-      );
-      sortition = SortitionModule__factory.connect(
-        getAddress(mainnetSortitionConfig, chainId),
-        provider,
-      );
+      klerosCore = KlerosCore__factory.connect(getAddress(mainnetCoreConfig, chainId), provider);
+      sortition = SortitionModule__factory.connect(getAddress(mainnetSortitionConfig, chainId), provider);
       commonFactories = getCommonFactories(
         {
           dkClassicConfig: mainnetDkcConfig,
@@ -341,7 +268,7 @@ export const getContracts = async (
           // leaderboardOffsetConfig: mainnetLeaderboardOffsetConfig,
         },
         provider,
-        chainId,
+        chainId
       );
       break;
     default:

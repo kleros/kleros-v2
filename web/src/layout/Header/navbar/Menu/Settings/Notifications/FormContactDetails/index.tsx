@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
 
 import { useAtlasProvider } from "@kleros/kleros-app";
-import { Button } from "@kleros/ui-components-library";
+import { AlertMessage, Button } from "@kleros/ui-components-library";
 
 import { EMAIL_REGEX } from "consts/index";
 import { timeLeftUntil } from "utils/date";
@@ -13,6 +13,7 @@ import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 import InfoCard from "components/InfoCard";
@@ -34,7 +35,9 @@ const FormContainer = styled.form`
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: end;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  gap: 8px;
 `;
 
 const FormContactContainer = styled.div`
@@ -49,12 +52,46 @@ const StyledInfoCard = styled(InfoCard)`
   word-wrap: break-word;
 `;
 
+const UnsubscribeButton = styled(Button)`
+  ${hoverShortTransitionTiming}
+  background-color: ${({ theme }) => theme.error};
+  border: 1px solid ${({ theme }) => theme.error};
+
+  .button-text,
+  p {
+    color: ${({ theme }) => theme.white} !important;
+  }
+
+  &:hover {
+    opacity: 75%;
+    background: ${({ theme }) => theme.error} !important;
+  }
+`;
+
+const ConfirmUnsubscribeButton = styled(UnsubscribeButton)`
+  .button-text,
+  p {
+    color: ${({ theme }) => theme.white} !important;
+  }
+`;
+
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { t } = useTranslation();
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
+  const [isConfirmingUnsubscribe, setIsConfirmingUnsubscribe] = useState(false);
   const { address } = useAccount();
-  const { user, isAddingUser, isFetchingUser, addUser, updateEmail, isUpdatingUser, userExists } = useAtlasProvider();
+  const {
+    user,
+    isAddingUser,
+    isFetchingUser,
+    addUser,
+    updateEmail,
+    isUpdatingUser,
+    userExists,
+    deleteUser,
+    isDeletingUser,
+  } = useAtlasProvider();
 
   const isEditingEmail = user?.email !== emailInput;
 
@@ -67,6 +104,26 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
     setEmailInput(user.email);
   }, [user, userExists]);
+
+  const handleConfirmUnsubscribe = useCallback(async () => {
+    if (isUndefined(address)) return;
+    infoToast(t("notifications.unsubscribing"));
+    deleteUser()
+      .then((res) => {
+        if (!res) {
+          errorToast(t("notifications.unsubscribe_failed_error", { error: t("errors.something_went_wrong") }));
+          return;
+        }
+        setEmailInput("");
+        setIsConfirmingUnsubscribe(false);
+        successToast(t("notifications.unsubscribed_successfully"));
+        toggleIsSettingsOpen();
+      })
+      .catch((err) => {
+        console.error(err);
+        errorToast(t("notifications.unsubscribe_failed_error", { error: err?.message }));
+      });
+  }, [address, deleteUser, t, toggleIsSettingsOpen]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -113,18 +170,6 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
   return (
     <FormContainer onSubmit={handleSubmit}>
-      {/* <FormContactContainer>
-        <FormContact
-          contactLabel="Telegram"
-          contactPlaceholder="@my_handle"
-          contactInput={telegramInput}
-          contactIsValid={telegramIsValid}
-          setContactInput={setTelegramInput}
-          setContactIsValid={setTelegramIsValid}
-          validator={TELEGRAM_REGEX}
-          isEditing={isEditingTelegram}
-        />
-      </FormContactContainer> */}
       <FormContactContainer>
         <FormContact
           contactLabel={t("forms.labels.email")}
@@ -135,18 +180,68 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           setContactIsValid={setEmailIsValid}
           validator={EMAIL_REGEX}
           isEditing={isEditingEmail}
+          isDisabled={!isEmailUpdateable}
         />
       </FormContactContainer>
       {!isEmailUpdateable && user?.emailUpdateableAt ? (
         <StyledInfoCard msg={t("notifications.update_email_again", { time: timeLeftUntil(user.emailUpdateableAt) })} />
       ) : null}
-      <ButtonContainer>
-        <Button
-          text={t("buttons.save")}
-          disabled={
-            !isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser || !isEmailUpdateable
-          }
+      {isConfirmingUnsubscribe ? (
+        <AlertMessage
+          title={t("notifications.unsubscribe_warning_title")}
+          msg={t("notifications.unsubscribe_warning_msg")}
+          variant="warning"
         />
+      ) : null}
+      <ButtonContainer>
+        {isConfirmingUnsubscribe ? (
+          <>
+            <Button
+              text={t("buttons.cancel")}
+              variant="secondary"
+              onClick={(event) => {
+                event.preventDefault();
+                setIsConfirmingUnsubscribe(false);
+              }}
+              disabled={isDeletingUser}
+            />
+            <ConfirmUnsubscribeButton
+              text={t("buttons.confirm_unsubscribe")}
+              onClick={(event) => {
+                event.preventDefault();
+                handleConfirmUnsubscribe();
+              }}
+              disabled={isFetchingUser || isDeletingUser}
+              isLoading={isDeletingUser}
+            />
+          </>
+        ) : (
+          <>
+            <Button
+              text={t("buttons.save")}
+              disabled={
+                !isEditingEmail ||
+                !emailIsValid ||
+                isAddingUser ||
+                isFetchingUser ||
+                isUpdatingUser ||
+                isDeletingUser ||
+                !isEmailUpdateable
+              }
+            />
+            {userExists ? (
+              <UnsubscribeButton
+                variant="secondary"
+                text={t("buttons.unsubscribe")}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setIsConfirmingUnsubscribe(true);
+                }}
+                disabled={isFetchingUser || isDeletingUser}
+              />
+            ) : null}
+          </>
+        )}
       </ButtonContainer>
       <EmailVerificationInfo toggleIsSettingsOpen={toggleIsSettingsOpen} />
     </FormContainer>

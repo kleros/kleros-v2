@@ -123,97 +123,64 @@ const mainnetContractMapping: ContractMapping = {
 
 describe("getContractsEthers", async () => {
   // Use real providers for each network
-  const arbitrumSepoliaProvider = new ethers.JsonRpcProvider(
-    "https://sepolia-rollup.arbitrum.io/rpc",
-  );
-  const arbitrumProvider = new ethers.JsonRpcProvider(
-    "https://arb1.arbitrum.io/rpc",
-  );
+  const arbitrumSepoliaProvider = new ethers.JsonRpcProvider("https://sepolia-rollup.arbitrum.io/rpc");
+  const arbitrumProvider = new ethers.JsonRpcProvider("https://arb1.arbitrum.io/rpc");
 
   function getConstructor<T extends { constructor: unknown }>(
     factory: { connect: (address: string, provider: ethers.Provider) => T },
-    provider: ethers.Provider,
+    provider: ethers.Provider
   ) {
     return factory.connect("0x0", provider).constructor;
   }
 
   function verifyCommonContractInstances(
     contracts: Awaited<ReturnType<typeof getContracts>>,
-    provider: ethers.Provider,
+    provider: ethers.Provider
   ) {
-    expect(contracts.disputeKitClassic).to.be.instanceOf(
-      getConstructor(DisputeKitClassic__factory, provider),
-    );
+    expect(contracts.disputeKitClassic).to.be.instanceOf(getConstructor(DisputeKitClassic__factory, provider));
     if (contracts.disputeKitClassicUniversity) {
       expect(contracts.disputeKitClassicUniversity).to.be.instanceOf(
-        getConstructor(DisputeKitClassicUniversity__factory, provider),
+        getConstructor(DisputeKitClassicUniversity__factory, provider)
       );
     }
     if (contracts.disputeKitShutter) {
-      expect(contracts.disputeKitShutter).to.be.instanceOf(
-        getConstructor(DisputeKitShutter__factory, provider),
-      );
+      expect(contracts.disputeKitShutter).to.be.instanceOf(getConstructor(DisputeKitShutter__factory, provider));
     }
     if (contracts.disputeKitGated) {
-      expect(contracts.disputeKitGated).to.be.instanceOf(
-        getConstructor(DisputeKitGated__factory, provider),
-      );
+      expect(contracts.disputeKitGated).to.be.instanceOf(getConstructor(DisputeKitGated__factory, provider));
     }
     if (contracts.disputeKitGatedShutter) {
       expect(contracts.disputeKitGatedShutter).to.be.instanceOf(
-        getConstructor(DisputeKitGatedShutter__factory, provider),
+        getConstructor(DisputeKitGatedShutter__factory, provider)
       );
     }
     if (contracts.disputeKitGatedArgentinaConsumerProtection) {
-      expect(
-        contracts.disputeKitGatedArgentinaConsumerProtection,
-      ).to.be.instanceOf(
-        getConstructor(
-          DisputeKitGatedArgentinaConsumerProtection__factory,
-          provider,
-        ),
+      expect(contracts.disputeKitGatedArgentinaConsumerProtection).to.be.instanceOf(
+        getConstructor(DisputeKitGatedArgentinaConsumerProtection__factory, provider)
       );
     }
-    expect(contracts.disputeResolver).to.be.instanceOf(
-      getConstructor(DisputeResolver__factory, provider),
-    );
+    expect(contracts.disputeResolver).to.be.instanceOf(getConstructor(DisputeResolver__factory, provider));
     expect(contracts.disputeTemplateRegistry).to.be.instanceOf(
-      getConstructor(DisputeTemplateRegistry__factory, provider),
+      getConstructor(DisputeTemplateRegistry__factory, provider)
     );
-    expect(contracts.evidence).to.be.instanceOf(
-      getConstructor(EvidenceModule__factory, provider),
-    );
-    expect(contracts.policyRegistry).to.be.instanceOf(
-      getConstructor(PolicyRegistry__factory, provider),
-    );
-    expect(contracts.transactionBatcher).to.be.instanceOf(
-      getConstructor(TransactionBatcher__factory, provider),
-    );
-    expect(contracts.pnk).to.be.instanceOf(
-      getConstructor(PNK__factory, provider),
-    );
+    expect(contracts.evidence).to.be.instanceOf(getConstructor(EvidenceModule__factory, provider));
+    expect(contracts.policyRegistry).to.be.instanceOf(getConstructor(PolicyRegistry__factory, provider));
+    expect(contracts.transactionBatcher).to.be.instanceOf(getConstructor(TransactionBatcher__factory, provider));
+    expect(contracts.pnk).to.be.instanceOf(getConstructor(PNK__factory, provider));
     expect(contracts.klerosCoreSnapshotProxy).to.be.instanceOf(
-      getConstructor(KlerosCoreSnapshotProxy__factory, provider),
+      getConstructor(KlerosCoreSnapshotProxy__factory, provider)
     );
     if (contracts.leaderboardOffset) {
-      expect(contracts.leaderboardOffset).to.be.instanceOf(
-        getConstructor(LeaderboardOffset__factory, provider),
-      );
+      expect(contracts.leaderboardOffset).to.be.instanceOf(getConstructor(LeaderboardOffset__factory, provider));
     }
     if (contracts.chainlinkRng) {
-      expect(contracts.chainlinkRng).to.be.instanceOf(
-        getConstructor(ChainlinkRNG__factory, provider),
-      );
+      expect(contracts.chainlinkRng).to.be.instanceOf(getConstructor(ChainlinkRNG__factory, provider));
     }
     if (contracts.rngWithFallback) {
-      expect(contracts.rngWithFallback).to.be.instanceOf(
-        getConstructor(RNGWithFallback__factory, provider),
-      );
+      expect(contracts.rngWithFallback).to.be.instanceOf(getConstructor(RNGWithFallback__factory, provider));
     }
     if (contracts.randomizerRng) {
-      expect(contracts.randomizerRng).to.be.instanceOf(
-        getConstructor(RandomizerRNG__factory, provider),
-      );
+      expect(contracts.randomizerRng).to.be.instanceOf(getConstructor(RandomizerRNG__factory, provider));
     }
   }
 
@@ -221,22 +188,16 @@ describe("getContractsEthers", async () => {
   async function verifyContractAddress(address: Promise<string>) {
     const resolvedAddress = await address;
     expect(resolvedAddress).to.match(/^0x[a-fA-F0-9]{40}$/);
-    expect(resolvedAddress).to.not.equal(
-      "0x0000000000000000000000000000000000000000",
-    );
+    expect(resolvedAddress).to.not.equal("0x0000000000000000000000000000000000000000");
   }
 
   // Helper to verify all contract addresses
-  async function verifyAllContractAddresses(
-    contracts: Awaited<ReturnType<typeof getContracts>>,
-  ) {
+  async function verifyAllContractAddresses(contracts: Awaited<ReturnType<typeof getContracts>>) {
     await verifyContractAddress(contracts.klerosCore.getAddress());
     await verifyContractAddress(contracts.sortition.getAddress());
     await verifyContractAddress(contracts.disputeKitClassic.getAddress());
     if (contracts.disputeKitClassicUniversity) {
-      await verifyContractAddress(
-        contracts.disputeKitClassicUniversity.getAddress(),
-      );
+      await verifyContractAddress(contracts.disputeKitClassicUniversity.getAddress());
     }
     if (contracts.disputeKitShutter) {
       await verifyContractAddress(contracts.disputeKitShutter.getAddress());
@@ -245,14 +206,10 @@ describe("getContractsEthers", async () => {
       await verifyContractAddress(contracts.disputeKitGated.getAddress());
     }
     if (contracts.disputeKitGatedShutter) {
-      await verifyContractAddress(
-        contracts.disputeKitGatedShutter.getAddress(),
-      );
+      await verifyContractAddress(contracts.disputeKitGatedShutter.getAddress());
     }
     if (contracts.disputeKitGatedArgentinaConsumerProtection) {
-      await verifyContractAddress(
-        contracts.disputeKitGatedArgentinaConsumerProtection.getAddress(),
-      );
+      await verifyContractAddress(contracts.disputeKitGatedArgentinaConsumerProtection.getAddress());
     }
     await verifyContractAddress(contracts.disputeResolver.getAddress());
     await verifyContractAddress(contracts.disputeTemplateRegistry.getAddress());
@@ -279,7 +236,7 @@ describe("getContractsEthers", async () => {
   async function verifyDeployedAddresses(
     contracts: Awaited<ReturnType<typeof getContracts>>,
     network: NetworkType,
-    contractMapping: ContractMapping,
+    contractMapping: ContractMapping
   ) {
     for (const [key, { name, optional }] of Object.entries(contractMapping)) {
       const contract = contracts[key as keyof typeof contracts];
@@ -289,9 +246,7 @@ describe("getContractsEthers", async () => {
         }
         continue;
       }
-      expect(await contract.getAddress()).to.equal(
-        await getActualAddress(network, name),
-      );
+      expect(await contract.getAddress()).to.equal(await getActualAddress(network, name));
     }
   }
 
@@ -303,12 +258,8 @@ describe("getContractsEthers", async () => {
     expect(network.chainId).to.equal(arbitrumSepolia.id);
 
     // Verify contract instances
-    expect(contracts.klerosCore).to.be.instanceOf(
-      getConstructor(KlerosCore__factory, arbitrumSepoliaProvider),
-    );
-    expect(contracts.sortition).to.be.instanceOf(
-      getConstructor(SortitionModule__factory, arbitrumSepoliaProvider),
-    );
+    expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumSepoliaProvider));
+    expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumSepoliaProvider));
     verifyCommonContractInstances(contracts, arbitrumSepoliaProvider);
     expect(contracts.disputeKitClassicUniversity).to.not.be.null;
     expect(contracts.disputeKitShutter).to.not.be.null;
@@ -322,11 +273,7 @@ describe("getContractsEthers", async () => {
 
     // Verify all contract addresses
     await verifyAllContractAddresses(contracts);
-    await verifyDeployedAddresses(
-      contracts,
-      NETWORKS.DEVNET,
-      devnetContractMapping,
-    );
+    await verifyDeployedAddresses(contracts, NETWORKS.DEVNET, devnetContractMapping);
   });
 
   it("should return correct contract instances for testnet", async () => {
@@ -337,12 +284,8 @@ describe("getContractsEthers", async () => {
     expect(network.chainId).to.equal(arbitrumSepolia.id);
 
     // Verify contract instances
-    expect(contracts.klerosCore).to.be.instanceOf(
-      getConstructor(KlerosCore__factory, arbitrumSepoliaProvider),
-    );
-    expect(contracts.sortition).to.be.instanceOf(
-      getConstructor(SortitionModule__factory, arbitrumSepoliaProvider),
-    );
+    expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumSepoliaProvider));
+    expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumSepoliaProvider));
     verifyCommonContractInstances(contracts, arbitrumSepoliaProvider);
     expect(contracts.disputeKitClassicUniversity).to.be.null;
     expect(contracts.disputeKitShutter).to.not.be.null;
@@ -356,11 +299,7 @@ describe("getContractsEthers", async () => {
 
     // Verify all contract addresses
     await verifyAllContractAddresses(contracts);
-    await verifyDeployedAddresses(
-      contracts,
-      NETWORKS.TESTNET,
-      testnetContractMapping,
-    );
+    await verifyDeployedAddresses(contracts, NETWORKS.TESTNET, testnetContractMapping);
   });
 
   it("should return correct contract instances for mainnet", async () => {
@@ -371,12 +310,8 @@ describe("getContractsEthers", async () => {
     expect(network.chainId).to.equal(arbitrum.id);
 
     // Verify contract instances
-    expect(contracts.klerosCore).to.be.instanceOf(
-      getConstructor(KlerosCore__factory, arbitrumProvider),
-    );
-    expect(contracts.sortition).to.be.instanceOf(
-      getConstructor(SortitionModule__factory, arbitrumProvider),
-    );
+    expect(contracts.klerosCore).to.be.instanceOf(getConstructor(KlerosCore__factory, arbitrumProvider));
+    expect(contracts.sortition).to.be.instanceOf(getConstructor(SortitionModule__factory, arbitrumProvider));
     verifyCommonContractInstances(contracts, arbitrumProvider);
     expect(contracts.disputeKitClassicUniversity).to.be.null;
     expect(contracts.disputeKitShutter).to.not.be.null;
@@ -390,17 +325,13 @@ describe("getContractsEthers", async () => {
 
     // Verify all contract addresses
     await verifyAllContractAddresses(contracts);
-    await verifyDeployedAddresses(
-      contracts,
-      NETWORKS.MAINNET,
-      mainnetContractMapping,
-    );
+    await verifyDeployedAddresses(contracts, NETWORKS.MAINNET, mainnetContractMapping);
   });
 
   it("should throw error for unsupported deployment", async () => {
     await expect(
       // @ts-expect-error Testing invalid deployment
-      getContracts(arbitrumSepoliaProvider, "invalid"),
+      getContracts(arbitrumSepoliaProvider, "invalid")
     ).to.be.rejectedWith(/Unsupported deployment|Cannot destructure property/);
   });
 });

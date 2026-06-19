@@ -27,6 +27,7 @@ interface IForm {
   setContactIsValid: Dispatch<SetStateAction<boolean>>;
   validator: RegExp;
   isEditing?: boolean;
+  isDisabled?: boolean;
 }
 
 const FormContact: React.FC<IForm> = ({
@@ -38,6 +39,7 @@ const FormContact: React.FC<IForm> = ({
   setContactIsValid,
   validator,
   isEditing,
+  isDisabled,
 }) => {
   useEffect(() => {
     setContactIsValid(validator.test(contactInput));
@@ -64,6 +66,7 @@ const FormContact: React.FC<IForm> = ({
         value={contactInput}
         onChange={handleInputChange}
         placeholder={contactPlaceholder}
+        disabled={isDisabled}
       />
     </>
   );
