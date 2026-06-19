@@ -34,7 +34,7 @@ describe("prepareArbitratorExtradata", () => {
     expect(result).toBe(encodeExpectedClassicExtraData(COURT_ID, NB_VOTES, DisputeKits.Classic));
   });
 
-  it("encodes gated NFT dispute kit data", () => {
+  it("encodes gated ERC20 dispute kit data", () => {
     const gatedData: GatedDisputeKitData = {
       tokenGate: "0x1234567890123456789012345678901234567890",
       isERC1155: false,

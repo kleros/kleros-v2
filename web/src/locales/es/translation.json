@@ -537,7 +537,7 @@
     "shielded_voting_tooltip": "Los votos de los jurados están ocultos. Nadie puede verlos antes de que se complete el período de votación. Se lleva a cabo en un solo paso a través de Shutter Network.",
     "shielded_voting_description": "Esta función oculta los votos de los jurados hasta el final del período de votación.",
     "jurors_eligibility_description": "Esta función determina quién puede ser seleccionado como jurado.",
-    "token_gating_tooltip": "Solo los jurados que posean el NFT especificado pueden ser seleccionados como jurados para este caso. Por favor, ingrese la dirección del contrato NFT a continuación.",
+    "token_gating_tooltip": "Solo los jurados que posean el token o NFT especificado pueden ser seleccionados como jurados para este caso. Por favor, ingrese los detalles del token a continuación.",
     "unsafe_frontend_url": "Esta URL no superó la validación de seguridad y no puede abrirse desde aquí. Se muestra solo para su revisión; verifíquela cuidadosamente antes de visitarla por otros medios."
   },
   "errors": {
@@ -643,7 +643,7 @@
   "features": {
     "single_step_shutter": "Un solo paso vía Shutter Network.",
     "all_jurors_in_court": "Todos los jurados en esta corte",
-    "jurors_owning_erc20": "Jurados que posean un NFT específico",
+    "jurors_owning_erc20": "Jurados que posean al menos 1 token ERC-20 o ERC-721",
     "jurors_owning_erc1155": "Jurados que posean al menos 1 token ERC-1155",
     "two_step_commit": "Dos pasos: comprometer y revelar",
     "disabled": "Deshabilitado",
