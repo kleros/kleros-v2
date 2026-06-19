@@ -43,6 +43,10 @@ export type DisputeKitDataMap = AssertAllKits<{
   [DisputeKits.ClassicUniversity]: undefined;
 }>;
 
+type EncoderMap = {
+  [K in DisputeKits]: DisputeKitDataMap[K] extends undefined ? undefined : (data: DisputeKitDataMap[K]) => Hex;
+};
+
 // DEV: DO NOT LEAVE `undefined` IF DK USES ADDITIONAL EXTRADATA
 export const DisputeKitDataEncoder = {
   [DisputeKits.Classic]: undefined,
@@ -51,7 +55,7 @@ export const DisputeKitDataEncoder = {
   [DisputeKits.GatedShutter]: encodeGatedDisputeData,
   [DisputeKits.ArgentinaConsumerProtection]: undefined,
   [DisputeKits.ClassicUniversity]: undefined,
-} satisfies Record<DisputeKits, unknown>;
+} satisfies EncoderMap;
 
 /**
  * @param subcourtID ID  of the court the dispute will take place in
