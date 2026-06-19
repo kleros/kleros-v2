@@ -1,11 +1,6 @@
 import { type ContractTransaction } from "ethers";
 import fs from "fs";
-import {
-  type BuilderTransaction,
-  template,
-  transaction,
-  transactionBuilderUrl,
-} from "./tx-builder";
+import { type BuilderTransaction, template, transaction, transactionBuilderUrl } from "./tx-builder";
 
 const ownableAbi = [
   {
@@ -44,13 +39,7 @@ export const execute = async (tx: ContractTransaction) => {
   }
 };
 
-export function writeTransactionBatch({
-  name,
-  outputPath = "tx-batch.json",
-}: {
-  name: string;
-  outputPath?: string;
-}) {
+export function writeTransactionBatch({ name, outputPath = "tx-batch.json" }: { name: string; outputPath?: string }) {
   if (!name?.trim()) throw new Error("Batch name is required");
 
   if (!transactions?.length) {
@@ -63,12 +52,8 @@ export function writeTransactionBatch({
     fs.writeFileSync(outputPath, JSON.stringify(templateObject, null, 2));
     transactions.length = 0;
     console.log(`Transaction batch written to ${outputPath}`);
-    console.log(
-      `The batch can be submitted to the Safe app at: ${transactionBuilderUrl}`,
-    );
+    console.log(`The batch can be submitted to the Safe app at: ${transactionBuilderUrl}`);
   } catch (error) {
-    throw new Error(
-      `Failed to write transaction batch: ${(error as Error).message}`,
-    );
+    throw new Error(`Failed to write transaction batch: ${(error as Error).message}`);
   }
 }

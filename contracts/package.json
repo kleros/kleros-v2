@@ -118,6 +118,7 @@
     "check-style": "eslint . --no-error-on-unmatched-pattern",
     "check-types": "tsc --noEmit"
   },
+  "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
     "@defi-wonderland/natspec-smells": "^1.1.6",
     "@kleros/kleros-v2-eslint-config": "workspace:^",

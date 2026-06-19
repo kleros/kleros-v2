@@ -24,21 +24,13 @@ const config = {
   },
 };
 
-const deployArbitration: DeployFunction = async (
-  hre: HardhatRuntimeEnvironment,
-) => {
+const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
 
   // fallback to hardhat node signers on local network
-  const deployer =
-    (await getNamedAccounts()).deployer ??
-    (await hre.ethers.getSigners())[0].address;
+  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log(
-    "deploying to %s with deployer %s",
-    HomeChains[chainId],
-    deployer,
-  );
+  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const { courtUrl } = config[hre.network.name as keyof typeof config];
 
@@ -52,7 +44,7 @@ const deployArbitration: DeployFunction = async (
     "SBTACPExperience",
     "Practicante de Resolución de Conflictos en Argentina, Certificado por Kleros",
     "ipfs://QmdZYU6TWTxx22zLKRRfBJqNAWxC2XT6VXkTpHh71CnpZn",
-    courtUrl,
+    courtUrl
   );
 
   const lawyerToken = await deploySBT(
@@ -62,24 +54,14 @@ const deployArbitration: DeployFunction = async (
     "SBTACPLawyer",
     "Abogado de Protección al Consumidor en Argentina, Certificado por Kleros",
     "ipfs://QmTwgaKoTPnywJ5To73ei9WVXeWG7rbdCVJM1BM7a2eDzD",
-    courtUrl,
+    courtUrl
   );
 
-  const disputeKit = await deployUpgradable(
-    deployments,
-    "DisputeKitGatedArgentinaConsumerProtection",
-    {
-      from: deployer,
-      args: [
-        deployer,
-        core.target,
-        weth.target,
-        practitionerToken.target,
-        lawyerToken.target,
-      ],
-      log: true,
-    },
-  );
+  const disputeKit = await deployUpgradable(deployments, "DisputeKitGatedArgentinaConsumerProtection", {
+    from: deployer,
+    args: [deployer, core.target, weth.target, practitionerToken.target, lawyerToken.target],
+    log: true,
+  });
   await core.addNewDisputeKit(disputeKit.address);
   // const disputeKitID = (await core.getDisputeKitsLength()) - 1n;
   // console.log(`core.enableDisputeKits(${consumerProtectionCourtID}, ${[disputeKitID]}, true)`);

@@ -1,8 +1,4 @@
-import {
-  KlerosCore,
-  KlerosCoreRuler,
-  RatesConverter,
-} from "../../typechain-types";
+import { KlerosCore, KlerosCoreRuler, RatesConverter } from "../../typechain-types";
 import { BigNumberish, toBigInt } from "ethers";
 
 export const changeCurrencyRate = async (
@@ -11,7 +7,7 @@ export const changeCurrencyRate = async (
   erc20: string,
   accepted: boolean,
   rateInEth: BigNumberish,
-  rateDecimals: BigNumberish,
+  rateDecimals: BigNumberish
 ) => {
   const acceptedCurrent = await core.acceptedFeeTokens(erc20);
   if (acceptedCurrent !== accepted) {
@@ -20,18 +16,9 @@ export const changeCurrencyRate = async (
     await tx.wait();
   }
   const rate = await ratesConverter.currencyRates(erc20);
-  if (
-    rate.rateInEth !== toBigInt(rateInEth) ||
-    rate.rateDecimals !== toBigInt(rateDecimals)
-  ) {
-    console.log(
-      `ratesConverter.changeCurrencyRates(${erc20}, ${rateInEth}, ${rateDecimals})`,
-    );
-    const tx = await ratesConverter.changeCurrencyRates(
-      erc20,
-      rateInEth,
-      rateDecimals,
-    );
+  if (rate.rateInEth !== toBigInt(rateInEth) || rate.rateDecimals !== toBigInt(rateDecimals)) {
+    console.log(`ratesConverter.changeCurrencyRates(${erc20}, ${rateInEth}, ${rateDecimals})`);
+    const tx = await ratesConverter.changeCurrencyRates(erc20, rateInEth, rateDecimals);
     await tx.wait();
   }
 };

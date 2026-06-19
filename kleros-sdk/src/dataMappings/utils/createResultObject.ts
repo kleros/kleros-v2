@@ -1,7 +1,7 @@
 export const createResultObject = (
   sourceData: unknown,
   seek: string[],
-  populate: string[],
+  populate: string[]
 ): Record<string, unknown> => {
   const result: Record<string, unknown> = {};
 
@@ -13,9 +13,7 @@ export const createResultObject = (
       if (part.includes("[")) {
         const [key, index] = part.replace(/\]/g, "").split("[");
         const innerData = accRecord[key];
-        return innerData
-          ? (innerData as Record<string, unknown>)[index]
-          : undefined;
+        return innerData ? (innerData as Record<string, unknown>)[index] : undefined;
       }
 
       return accRecord[part];

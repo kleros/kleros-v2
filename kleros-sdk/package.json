@@ -33,6 +33,7 @@
     "release:minor": "scripts/publish.sh minor",
     "release:major": "scripts/publish.sh major"
   },
+  "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@types/mustache": "^4.2.5",

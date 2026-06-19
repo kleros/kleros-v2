@@ -8,15 +8,9 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { getNamedAccounts, getChainId, ethers } = hre;
 
   // fallback to hardhat node signers on local network
-  const deployer =
-    (await getNamedAccounts()).deployer ??
-    (await hre.ethers.getSigners())[0].address;
+  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId()) as unknown as HomeChains; // Checked at runtime by skip()
-  console.log(
-    "deploying to %s with deployer %s",
-    HomeChains[chainId],
-    deployer,
-  );
+  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   // Randomizer.ai: https://randomizer.ai/docs#addresses
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
@@ -49,8 +43,7 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 
   // rng.changeConsumer() only if necessary
-  const rngWithFallback =
-    await ethers.getContract<RNGWithFallback>("RNGWithFallback");
+  const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const rngConsumer = await rng.consumer();
   if (rngConsumer !== rngWithFallback.target) {
     console.log(`rng.changeConsumer(${rngWithFallback.target})`);

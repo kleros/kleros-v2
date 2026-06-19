@@ -1,5 +1,5 @@
 import { gql, type GraphQLClient } from "graphql-request";
-import { Products } from ".";
+import { IpfsProduct } from ".";
 
 export type Role = {
   name: string;
@@ -25,7 +25,7 @@ const query = gql`
   }
 `;
 
-export async function fetchRestrictions(client: GraphQLClient, product: Products): Promise<Role[]> {
+export async function fetchRestrictions(client: GraphQLClient, product: IpfsProduct): Promise<Role[]> {
   return client
     .request<FetchRolesResponse>(query, { product })
     .then((response) => response.roles)

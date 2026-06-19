@@ -1,6 +1,5 @@
 {
   "navigation": {
-    "home": "Inicio",
     "cases": "Casos",
     "courts": "Cortes",
     "jurors": "Jurados",
@@ -21,6 +20,8 @@
     "close": "Cerrar",
     "connect": "Conectarse",
     "disconnect": "Desconectarse",
+    "unsubscribe": "Cancelar suscripción",
+    "confirm_unsubscribe": "Confirmar cancelación",
     "stake": "Depositar",
     "withdraw": "Retirar",
     "claim": "Reclamar",
@@ -317,7 +318,12 @@
     "adding_user": "Agregando usuario...",
     "user_added_successfully": "¡Usuario agregado exitosamente!",
     "adding_user_failed_error": "Falló al agregar usuario: {{error}}",
-    "update_email_again": "Puedes actualizar el correo electrónico nuevamente {{time}}"
+    "update_email_again": "Puedes actualizar el correo electrónico nuevamente {{time}}",
+    "unsubscribe_warning_title": "¿Cancelar todas las notificaciones?",
+    "unsubscribe_warning_msg": "Dejarás de recibir notificaciones de todos los productos de Kleros hasta que te suscribas de nuevo.",
+    "unsubscribing": "Cancelando suscripción a notificaciones...",
+    "unsubscribed_successfully": "Has cancelado la suscripción a las notificaciones.",
+    "unsubscribe_failed_error": "Error al cancelar la suscripción: {{error}}"
   },
   "alerts": {
     "check_courts_beforehand": "Verifica las cortes disponibles de antemano",
@@ -338,6 +344,8 @@
     "dispute_created_full_message": "El caso se resolverá aproximadamente el <date></date>.",
     "external_link_warning": "Advertencia de enlace externo",
     "external_link_message": "Estás a punto de navegar a un sitio web externo. Por favor verifica la URL antes de continuar para asegurar que sea segura y legítima.",
+    "original_url": "URL original",
+    "destination_url_sanitized": "URL de destino (sanitizada)",
     "safety_tips": "Consejos de Seguridad:",
     "verify_domain": "• Verifica que el nombre de dominio sea correcto",
     "check_suspicious": "• Busca caracteres sospechosos o errores tipográficos",
@@ -415,6 +423,7 @@
     "court_policy": "Reglamento de la corte",
     "dispute_policy": "Reglamento de disputa",
     "go_to_arbitrable": "Ir al arbitrable",
+    "arbitrable_url": "URL del arbitrable",
     "policy_documents": "Documentos de reglamento:",
     "no_cases_found": "No se encontraron casos",
     "no_jurors_found": "No se encontraron jurados",
@@ -527,13 +536,15 @@
     "shielded_voting_tooltip": "Los votos de los jurados están ocultos. Nadie puede verlos antes de que se complete el período de votación. Se lleva a cabo en un solo paso a través de Shutter Network.",
     "shielded_voting_description": "Esta función oculta los votos de los jurados hasta el final del período de votación.",
     "jurors_eligibility_description": "Esta función determina quién puede ser seleccionado como jurado.",
-    "token_gating_tooltip": "Solo los jurados que posean el token o NFT especificado pueden ser seleccionados como jurados para este caso. Por favor, ingrese los detalles del token a continuación."
+    "token_gating_tooltip": "Solo los jurados que posean el token o NFT especificado pueden ser seleccionados como jurados para este caso. Por favor, ingrese los detalles del token a continuación.",
+    "unsafe_frontend_url": "Esta URL no superó la validación de seguridad y no puede abrirse desde aquí. Se muestra solo para su revisión; verifíquela cuidadosamente antes de visitarla por otros medios."
   },
   "errors": {
     "something_went_wrong": "¡Ups, algo salió mal en Atenas!",
     "reload_or_contact": "Por favor recarga la página o contáctanos si el problema no se resuelve.",
     "invalid_dispute_data": "Los datos de la disputa no son válidos, por favor vota \"Rechazar arbitrar\"",
-    "rpc_error": "Error RPC: No se pueden obtener los datos de la disputa. Por favor evita votar."
+    "rpc_error": "Error RPC: No se pueden obtener los datos de la disputa. Por favor evita votar.",
+    "invalid_link": "Este enlace de archivo no está permitido."
   },
   "community": {
     "kleros_forum": "Foro de Kleros",

@@ -17,11 +17,7 @@ export type DisputeKitInfos = {
 };
 export type DisputeKitByIds = Record<string, DisputeKitInfos>;
 
-const fetchDisputeKits = async (
-  client: PublicClient,
-  klerosCoreAddress: `0x${string}`,
-  klerosCoreAbi: Abi,
-) => {
+const fetchDisputeKits = async (client: PublicClient, klerosCoreAddress: `0x${string}`, klerosCoreAbi: Abi) => {
   const DisputeKitCreated = getAbiItem({
     abi: klerosCoreAbi,
     name: "DisputeKitCreated",
@@ -48,76 +44,42 @@ const fetchDisputeKits = async (
           disputeKitAddress: _disputeKitAddress,
         };
       })
-      .map(({ disputeKitID, disputeKitAddress }) => [
-        disputeKitID!.toString(),
-        disputeKitAddress as `0x${string}`,
-      ]),
+      .map(({ disputeKitID, disputeKitAddress }) => [disputeKitID!.toString(), disputeKitAddress as `0x${string}`])
   );
 };
 
-export const getDisputeKits = async (
-  client: PublicClient,
-  deployment: DeploymentName,
-): Promise<DisputeKitByIds> => {
-  const {
-    klerosCore,
-    disputeKitClassic,
-    disputeKitShutter,
-    disputeKitGated,
-    disputeKitGatedShutter,
-  } = getContracts({
+export const getDisputeKits = async (client: PublicClient, deployment: DeploymentName): Promise<DisputeKitByIds> => {
+  const { klerosCore, disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter } = getContracts({
     publicClient: client,
     deployment: deployment,
   });
 
   const isDefined = <T>(kit: T): kit is NonNullable<T> => kit != null;
-  const disputeKitContracts = [
-    disputeKitClassic,
-    disputeKitShutter,
-    disputeKitGated,
-    disputeKitGatedShutter,
-  ].filter(isDefined);
-  const shutterEnabled = [disputeKitShutter, disputeKitGatedShutter].filter(
-    isDefined,
+  const disputeKitContracts = [disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter].filter(
+    isDefined
   );
-  const gatedEnabled = [disputeKitGated, disputeKitGatedShutter].filter(
-    isDefined,
-  );
+  const shutterEnabled = [disputeKitShutter, disputeKitGatedShutter].filter(isDefined);
+  const gatedEnabled = [disputeKitGated, disputeKitGatedShutter].filter(isDefined);
 
-  const disputeKitMap = await fetchDisputeKits(
-    client,
-    klerosCore.address,
-    klerosCore.abi,
-  );
+  const disputeKitMap = await fetchDisputeKits(client, klerosCore.address, klerosCore.abi);
 
   return Object.fromEntries(
     Object.entries(disputeKitMap).map(([disputeKitID, address]) => {
       const contract =
-        disputeKitContracts.find(
-          (contract) =>
-            contract.address.toLowerCase() === address.toLowerCase(),
-        ) ?? null;
+        disputeKitContracts.find((contract) => contract.address.toLowerCase() === address.toLowerCase()) ?? null;
       return [
         disputeKitID,
         {
           address,
           contract: contract satisfies DisputeKit,
           isGated: contract
-            ? gatedEnabled.some(
-                (gated) =>
-                  contract.address.toLowerCase() ===
-                  gated.address.toLowerCase(),
-              )
+            ? gatedEnabled.some((gated) => contract.address.toLowerCase() === gated.address.toLowerCase())
             : false,
           isShutter: contract
-            ? shutterEnabled.some(
-                (shutter) =>
-                  contract.address.toLowerCase() ===
-                  shutter.address.toLowerCase(),
-              )
+            ? shutterEnabled.some((shutter) => contract.address.toLowerCase() === shutter.address.toLowerCase())
             : false,
         },
       ];
-    }),
+    })
   );
 };
