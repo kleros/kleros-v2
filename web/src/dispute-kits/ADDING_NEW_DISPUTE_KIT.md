@@ -1,5 +1,7 @@
 # Adding a New Dispute Kit
 
+> NOTE: Also use this file as a checklist for new DK addition PRs
+
 ## File Structure
 
 ```
@@ -57,7 +59,8 @@ Add a case in `resolveInitialFeatureSet()`. The exhaustive switch will error if 
 ### 5. Creation data (if any) — `prepareArbitratorExtradata.ts`
 
 - Add type to `DisputeKitDataMap` (`AssertAllKits` errors if missing)
-- Add encoder to `DisputeKitDataEncoder` (or `undefined` if no extra data)
+- Add encoder to `DisputeKitDataEncoder` (or `undefined` if no additional extra data)
+- **MAKE SURE TO NOT LEAVE IT `undefined` IN CASE THE KIT REQUIRES ADDITIONAL EXTRADATA.** Define the Encoder accordingly in ./prepareArbitratorExtradata, along with an appropriate test for it.
 
 ### 6. Builders — `actions/{commit,reveal,vote,fundAppeal}/builders/`
 
@@ -89,3 +92,4 @@ Fix all of these and the kit is integrated.
 - **`featureSets[0]` is the default.** For multi-set kits, add selection logic in `resolveInitialFeatureSet`.
 - **Builders are intentionally separate** from the registry. They own their own ABI + address for testability.
 - **Subgraph queries use `ClassicRound` fragments.** If your kit has a different round structure, you'll need new queries.
+- **Dispute Kit Encoder** These are required by the DK to handle the encoding of extradata on top of the classic arbitrator extradata. MAKE SURE TO NOT LEAVE IT `undefined` IN CASE THE KIT REQUIRES ADDITIONAL EXTRADATA. Define the Encoder accordingly in ./prepareArbitratorExtradata, along with an appropriate test for it.

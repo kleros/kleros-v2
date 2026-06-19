@@ -60,7 +60,7 @@ describe("prepareArbitratorExtradata", () => {
     expect(result).toBe(encodeExpectedGatedExtraData(COURT_ID, NB_VOTES, DisputeKits.GatedShutter, gatedData));
   });
 
-  it("throws when dispute kit data is provided for a kit without an encoder", () => {
+  it("ignores dispute kit data when the kit has no encoder", () => {
     const gatedData: GatedDisputeKitData = {
       tokenGate: "0x1234567890123456789012345678901234567890",
       isERC1155: false,
@@ -68,8 +68,8 @@ describe("prepareArbitratorExtradata", () => {
       isValid: true,
     };
 
-    expect(() => prepareArbitratorExtradata("1", 3, DisputeKits.Classic, gatedData)).toThrow(
-      `No encoder defined for Dispute Kit: ${DisputeKits.Classic}`
-    );
+    const result = prepareArbitratorExtradata(COURT_ID, NB_VOTES, DisputeKits.Classic, gatedData);
+
+    expect(result).toBe(encodeExpectedClassicExtraData(COURT_ID, NB_VOTES, DisputeKits.Classic));
   });
 });

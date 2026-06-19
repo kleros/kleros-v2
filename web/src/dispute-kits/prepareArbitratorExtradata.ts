@@ -43,6 +43,7 @@ export type DisputeKitDataMap = AssertAllKits<{
   [DisputeKits.ClassicUniversity]: undefined;
 }>;
 
+// DEV: DO NOT LEAVE `undefined` IF DK USES ADDITIONAL EXTRADATA
 export const DisputeKitDataEncoder = {
   [DisputeKits.Classic]: undefined,
   [DisputeKits.Shutter]: undefined,
@@ -76,9 +77,10 @@ export const prepareArbitratorExtradata = (
 
   const encoder = DisputeKitDataEncoder[disputeKit];
 
-  // if dispute kit data is provided, but dispute kit has no defined encoder, throw
+  // encoders are explicitly defined/undefined, if it is undefined we just return extradata.
+  // It is responsibility of the dev adding the new DK to assign it a proper encoder.
   if (encoder === undefined) {
-    throw new Error(`No encoder defined for Dispute Kit: ${disputeKit}`);
+    return extraData;
   }
 
   const encodedDisputeKitData = encoder(disputeKitData);
