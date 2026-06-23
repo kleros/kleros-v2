@@ -15,6 +15,10 @@ deployments/localhost
 deployments/hardhat
 deployments/*/solcInputs/
 
+# Build output (build:all)
+dist/
+contracts/
+
 # POA solidity flattener output
 out/
 

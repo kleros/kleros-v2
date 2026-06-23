@@ -2,54 +2,74 @@
   "name": "@kleros/kleros-v2-contracts",
   "version": "2.0.0-rc.2",
   "description": "Smart contracts for Kleros version 2",
-  "main": "./cjs/deployments/index.js",
-  "module": "./esm/deployments/index.js",
-  "types": "./types/deployments/index.d.ts",
+  "main": "./dist/cjs/deployments/index.js",
+  "module": "./dist/esm/deployments/index.js",
+  "types": "./dist/types/deployments/index.d.ts",
   "exports": {
     ".": {
-      "types": "./types/deployments/index.d.ts",
-      "import": "./esm/deployments/index.js",
-      "require": "./cjs/deployments/index.js",
-      "default": "./esm/deployments/index.js"
+      "types": "./dist/types/deployments/index.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/index.js",
+        "require": "./dist/cjs/deployments/index.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/index.js",
+        "require": "./dist/cjs/deployments/index.js"
+      }
     },
     "./cjs/deployments": {
-      "types": "./types/deployments/index.d.ts",
-      "require": "./cjs/deployments/index.js",
-      "default": "./cjs/deployments/index.js"
+      "types": "./dist/types/deployments/index.d.ts",
+      "import": "./dist/cjs/deployments/index.js",
+      "require": "./dist/cjs/deployments/index.js",
+      "default": "./dist/cjs/deployments/index.js"
     },
     "./esm/deployments": {
-      "types": "./types/deployments/index.d.ts",
-      "import": "./esm/deployments/index.js",
-      "default": "./esm/deployments/index.js"
+      "types": "./dist/types/deployments/index.d.ts",
+      "import": "./dist/esm/deployments/index.js",
+      "default": "./dist/esm/deployments/index.js"
+    },
+    "./utils": {
+      "types": "./dist/types/deployments/utils.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/utils.js",
+        "require": "./dist/cjs/deployments/utils.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/utils.js",
+        "require": "./dist/cjs/deployments/utils.js"
+      }
     },
     "./viem": {
-      "types": "./types/deployments/viem.d.ts",
-      "import": "./esm/deployments/viem.js",
-      "require": "./cjs/deployments/viem.js",
-      "default": "./esm/deployments/viem.js"
+      "types": "./dist/types/deployments/viem.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/viem.js",
+        "require": "./dist/cjs/deployments/viem.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/viem.js",
+        "require": "./dist/cjs/deployments/viem.js"
+      }
     },
     "./ethers": {
-      "types": "./types/deployments/ethers.d.ts",
-      "import": "./esm/deployments/ethers.js",
-      "require": "./cjs/deployments/ethers.js",
-      "default": "./esm/deployments/ethers.js"
-    }
+      "types": "./dist/types/deployments/ethers.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/ethers.js",
+        "require": "./dist/cjs/deployments/ethers.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/ethers.js",
+        "require": "./dist/cjs/deployments/ethers.js"
+      }
+    },
+    "./deployments/*": "./deployments/*",
+    "./contracts/*": "./contracts/*"
   },
   "files": [
-    "types",
-    "esm",
-    "cjs",
-    "arbitration",
-    "gateway",
-    "kleros-v1",
-    "libraries",
-    "proxy",
-    "rng",
-    "token",
-    "utils",
+    "dist",
+    "contracts",
     "typechain-types",
     "deployments",
-    "index.ts"
+    "README.md"
   ],
   "repository": "git@github.com:kleros/kleros-v2.git",
   "homepage": "https://github.com/kleros/kleros-v2/tree/master/contracts#readme",
@@ -111,9 +131,10 @@
     "release:minor": "scripts/publish.sh minor",
     "release:major": "scripts/publish.sh major",
     "tenderly-verify": "hardhat tenderly:verify",
-    "build:all": "rm -rf ./dist && yarn build:cjs && yarn build:esm && yarn build:types",
+    "build:all": "rm -rf dist contracts && mkdir -p dist && yarn build:cjs && yarn build:esm && yarn build:types && yarn build:contracts",
+    "build:contracts": "scripts/build-contracts.sh",
     "build:cjs": "tsc --project tsconfig-release.json --module CommonJS --moduleResolution Node --outDir ./dist/cjs && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
-    "build:esm": "tsc --project tsconfig-release.json --module NodeNext --moduleResolution NodeNext --outDir ./dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
+    "build:esm": "mkdir -p dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json && tsc --project tsconfig-release.json --module ES2022 --moduleResolution Node --outDir ./dist/esm",
     "build:types": "tsc --project tsconfig-release.json --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap",
     "check-style": "eslint . --no-error-on-unmatched-pattern",
     "check-types": "tsc --noEmit"

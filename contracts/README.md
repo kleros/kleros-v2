@@ -2,6 +2,8 @@
 
 Smart contracts for Kleros v2
 
+See [Deployment artifacts guide](./docs/artifacts.md) for which format to use (JSON, viem, typechain, etc.).
+
 ## Deployments
 
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh` or `./scripts/populateReadme.sh`.

@@ -7086,10 +7086,13 @@ __metadata:
     typechain: "npm:^8.3.2"
     typescript: "npm:^5.6.3"
   peerDependencies:
+    ethers: ^6.15.0
     viem: ^2.24.1
   peerDependenciesMeta:
+    ethers:
+      optional: true
     viem:
-      optional: false
+      optional: true
   languageName: unknown
   linkType: soft
 
