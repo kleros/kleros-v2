@@ -1,16 +1,14 @@
 import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { Address, Hex, erc721Abi } from "viem";
+import { Hex, erc721Abi } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { DisputeKits } from "consts/index";
 import { extraDataToTokenInfo, GatedTokenInfo } from "utils/extradataToTokenInfo";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { isAllowedImageDataUri } from "utils/urlValidation";
 
 import { useRoundDetailsQuery } from "./queries/useRoundDetailsQuery";
-import { useDisputeKitAddresses } from "./useDisputeKitAddresses";
 
 // See https://eips.ethereum.org/EIPS/eip-165
 // viem doesn't export this, so hardcoding
@@ -29,7 +27,6 @@ const ERC165_ABI = [
 const ERC721_INTERFACE_ID: Hex = "0x80ac58cd";
 
 export type GatedTokenResult = {
-  isGated: boolean;
   isERC721: boolean;
   tokenGateInfo: GatedTokenInfo | null;
   tokenName: string | null;
@@ -53,36 +50,27 @@ export type GatedTokenResult = {
  * and many contracts are partially compliant.
  *
  * @param disputeId - Dispute ID used to fetch round data.
- * @param disputeKitAddress - Dispute kit address to determine gating.
  * @param currentRoundIndex - Round index for extraData lookup.
  * @returns Resolved gated and NFT metadata state.
+ * @dev Assumes the DisputeKit is Gated, since it will only be called through gated kit routes
  */
-export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: Address, currentRoundIndex?: number) {
+export function useGatedTokenInfo(disputeId: string, currentRoundIndex: number) {
   const publicClient = usePublicClient();
-  const { disputeKitName, isLoading: isLoadingKit } = useDisputeKitAddresses({
-    disputeKitAddress,
-  });
-
-  const isGated = disputeKitName === DisputeKits.Gated || disputeKitName === DisputeKits.GatedShutter;
 
   // Get the extraData from the subgraph via the existing RoundDetails query
-  const roundIndex = currentRoundIndex !== undefined ? Number(currentRoundIndex) : undefined;
-  const { data: roundData, isLoading: isLoadingRound } = useRoundDetailsQuery(
-    isGated ? disputeId : undefined,
-    isGated ? roundIndex : undefined
-  );
+  const { data: roundData, isLoading: isLoadingRound } = useRoundDetailsQuery(disputeId, currentRoundIndex);
 
   const tokenGateInfo = useMemo(() => {
     const extradata = roundData?.round?.dispute.disputeKitDispute?.[0].extraData;
-    if (!isGated || !extradata) return null;
+    if (!extradata) return null;
 
     const info = extraDataToTokenInfo(extradata);
     if (info) return info;
 
     return null;
-  }, [isGated, roundData]);
+  }, [roundData]);
 
-  const shouldFetchNft = Boolean(isGated && tokenGateInfo && !tokenGateInfo.isERC1155 && publicClient);
+  const shouldFetchNft = Boolean(tokenGateInfo && !tokenGateInfo.isERC1155 && publicClient);
 
   const { data: nftData, isLoading: isLoadingNft } = useQuery({
     queryKey: ["gatedTokenNftInfo", tokenGateInfo?.tokenGate, tokenGateInfo?.tokenId?.toString()],
@@ -176,14 +164,13 @@ export function useGatedTokenInfo(disputeId?: string, disputeKitAddress?: Addres
   });
 
   return {
-    isGated,
     isERC721: nftData?.isERC721 ?? false,
     tokenGateInfo,
     tokenName: nftData?.tokenName ?? null,
     tokenSymbol: nftData?.tokenSymbol ?? null,
     imageUri: nftData?.imageUri ?? null,
     nftName: nftData?.nftName ?? null,
-    isLoading: isLoadingKit || (isGated && isLoadingRound) || (shouldFetchNft && isLoadingNft),
+    isLoading: isLoadingRound || (shouldFetchNft && isLoadingNft),
   };
 }
 

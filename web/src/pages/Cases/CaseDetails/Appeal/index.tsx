@@ -1,21 +1,24 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { useTranslation } from "react-i18next";
+import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
 
-import { isClassicLikeDisputeKit, isShutterLikeDisputeKit } from "consts/index";
 import { Periods } from "consts/periods";
-import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
+import { useDisputeKitInfo } from "hooks/useDisputeKitInfo";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { isUndefined } from "src/utils";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import InfoCard from "components/InfoCard";
+
 import AppealHistory from "./AppealHistory";
-import Classic from "./Classic";
-import Shutter from "./Shutter";
 
 const Container = styled.div`
   padding: 16px;
@@ -48,32 +51,33 @@ export const StyledTitle = styled.h1`
 `;
 
 const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }) => {
+  const { t } = useTranslation();
   const [isAppealMiniGuideOpen, toggleAppealMiniGuide] = useToggle(false);
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
-  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit = isClassicLikeDisputeKit(disputeKitName);
-  const isShutterDisputeKit = isShutterLikeDisputeKit(disputeKitName);
+  const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
+
+  if (isUndefined(disputeKitInfo)) {
+    return (
+      <Container>
+        {isUndefined(disputeKitAddress) ? (
+          <Skeleton height={200} />
+        ) : (
+          <InfoCard msg={t("alerts.unsupported_dispute_kit")} />
+        )}
+      </Container>
+    );
+  }
+
   return (
     <Container>
       {Periods.appeal === currentPeriodIndex ? (
-        <>
-          {isClassicDisputeKit && (
-            <Classic
-              isAppealMiniGuideOpen={isAppealMiniGuideOpen}
-              toggleAppealMiniGuide={toggleAppealMiniGuide}
-              {...{ disputeKitName }}
-            />
-          )}
-          {isShutterDisputeKit && (
-            <Shutter
-              isAppealMiniGuideOpen={isAppealMiniGuideOpen}
-              toggleAppealMiniGuide={toggleAppealMiniGuide}
-              {...{ disputeKitName }}
-            />
-          )}
-        </>
+        <disputeKitInfo.AppealComponent
+          isAppealMiniGuideOpen={isAppealMiniGuideOpen}
+          toggleAppealMiniGuide={toggleAppealMiniGuide}
+          disputeKitId={disputeKitInfo.id}
+        />
       ) : (
         <AppealHistory isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
       )}

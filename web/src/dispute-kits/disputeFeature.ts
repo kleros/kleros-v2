@@ -1,39 +1,10 @@
-import { isProductionDeployment } from "./index";
+import { DisputeKitConfig, DisputeKits } from "src/dispute-kits";
 
-export enum Group {
-  Voting = "Voting",
-  Eligibility = "Eligibility",
-}
+import { isProductionDeployment } from "../consts/index";
 
-/** A single feature, grouped into categories. has to be atomic.
- * For gated, we split them into atomic erc20 and erc1155 */
-export enum Features {
-  ShieldedVote = "shieldedVote",
-  ClassicVote = "classicVote",
-  UniversityVote = "universityVote",
-  ClassicEligibility = "classicEligibility",
-  GatedErc20 = "gatedErc20",
-  GatedErc1155 = "gatedErc1155",
-  ArgentinaConsumerProtection = "argentinaConsumerProtection",
-}
-
-/** Group of features (like radio buttons per category) */
-export type FeatureGroups = Record<string, Features[]>;
-
-/** Definition of a dispute kit */
-export interface DisputeKit {
-  id: number;
-  /**
-   * The feature sets this kit supports.
-   * Each array represents a valid configuration, and has to be 1:1,
-   * if either subset matches the selected feature array this dispute kit is selected
-   */
-  featureSets: Features[][];
-
-  type: "general" | "gated";
-}
-
-export type DisputeKits = DisputeKit[];
+import { DisputeKitDataMap } from "./prepareArbitratorExtradata";
+import { DISPUTE_KIT_REGISTRY } from "./registry";
+import { FeatureGroups, Features, Group } from "./types";
 
 // groups
 // withing a group only one feature can be selected, we deselect the other one when a new one is selected
@@ -50,52 +21,15 @@ export const featureGroups: FeatureGroups = {
   ],
 };
 
-// dispute kits
-// each array is a unique match, for multiple combinations, add more arrays.
-export const disputeKits: DisputeKits = [
-  {
-    id: 1,
-    featureSets: [[Features.ClassicVote, Features.ClassicEligibility]],
-    type: "general",
-  }, // strict
-  { id: 2, featureSets: [[Features.ShieldedVote, Features.ClassicEligibility]], type: "general" }, // strict
-  {
-    id: 3,
-    // strictly keep the common feature in front and in order.
-    featureSets: [
-      [Features.ClassicVote, Features.GatedErc20],
-      [Features.ClassicVote, Features.GatedErc1155],
-    ],
-    type: "gated",
-  },
-  {
-    id: 4,
-    featureSets: [
-      [Features.ShieldedVote, Features.GatedErc20],
-      [Features.ShieldedVote, Features.GatedErc1155],
-    ],
-    type: "gated",
-  },
-  {
-    id: 5,
-    featureSets: [[Features.ClassicVote, Features.ArgentinaConsumerProtection]],
-    type: "general",
-  },
-  {
-    id: 6,
-    featureSets: [[Features.UniversityVote, Features.ClassicEligibility]],
-    type: "general",
-  },
-];
-
 // excluded on mainnet, we can later update it to an array if we want to have more deployment specific kits
-const UNIVERSITY_DISPUTE_KIT_ID = 6;
+const UNIVERSITY_DISPUTE_KIT_ID = DisputeKits.ClassicUniversity;
 
+const disputeKits = Object.values(DISPUTE_KIT_REGISTRY);
 /**
  * Dispute kits available for the current deployment.
  * University DK is excluded on mainnet.
  */
-export const getDisputeKitsForDeployment = (): DisputeKits =>
+export const getDisputeKitsForDeployment = (): DisputeKitConfig[] =>
   isProductionDeployment() ? disputeKits.filter((kit) => kit.id !== UNIVERSITY_DISPUTE_KIT_ID) : disputeKits;
 
 /**
@@ -109,6 +43,31 @@ export const getFeatureGroupsForDeployment = (): FeatureGroups =>
         [Group.Voting]: featureGroups[Group.Voting].filter((f) => f !== Features.UniversityVote),
       }
     : featureGroups;
+
+export function resolveInitialFeatureSet(kit: DisputeKitConfig, disputeKitData?: DisputeKitDataMap[DisputeKits]) {
+  switch (kit.id) {
+    case DisputeKits.Classic:
+    case DisputeKits.Shutter:
+    case DisputeKits.ArgentinaConsumerProtection:
+    case DisputeKits.ClassicUniversity:
+      return kit.featureSets[0];
+    case DisputeKits.Gated:
+    case DisputeKits.GatedShutter: {
+      const isERC1155 = disputeKitData?.isERC1155;
+      return (
+        kit.featureSets.find((set) =>
+          isERC1155 ? set.includes(Features.GatedErc1155) : set.includes(Features.GatedErc20)
+        ) ?? kit.featureSets[0]
+      );
+    }
+    default: {
+      // this is an exhaustive type check,
+      // so we get a type error if a disputeKit is not handled in above switch
+      const _exhaustive = kit.id satisfies never;
+      return _exhaustive;
+    }
+  }
+}
 
 /** Canonical string for a feature set (order-independent) */
 function normalize(features: Features[]): string {
@@ -144,7 +103,7 @@ export function toggleFeature(selected: Features[], feature: Features, groups: F
 /**
  * Find dispute kits that match the given selection
  */
-export function findMatchingKits(selected: Features[], kits: DisputeKits): DisputeKit[] {
+export function findMatchingKits(selected: Features[], kits: DisputeKitConfig[]): DisputeKitConfig[] {
   return kits.filter((kit) =>
     kit.featureSets.some(
       (set) => arraysEqual(set, selected) // strict exact match
@@ -166,7 +125,7 @@ export function findMatchingKits(selected: Features[], kits: DisputeKits): Dispu
  *
  * @returns  A corrected selection that is guaranteed to be valid.
  */
-export function ensureValidSmart(selected: Features[], groups: FeatureGroups, kits: DisputeKits): Features[] {
+export function ensureValidSmart(selected: Features[], groups: FeatureGroups, kits: DisputeKitConfig[]): Features[] {
   // --- Helper: checks if a candidate is valid or could still become valid ---
   function isValidOrPrefix(candidate: Features[]): boolean {
     return (
@@ -197,7 +156,7 @@ export function ensureValidSmart(selected: Features[], groups: FeatureGroups, ki
 }
 
 // Checks if the candidate if selected, can still lead to a match
-function canStillLeadToMatch(candidate: Features[], kits: DisputeKits): boolean {
+function canStillLeadToMatch(candidate: Features[], kits: DisputeKitConfig[]): boolean {
   return kits.some((kit) =>
     kit.featureSets.some((set) =>
       // candidate must be subset of this set
@@ -210,7 +169,11 @@ function canStillLeadToMatch(candidate: Features[], kits: DisputeKits): boolean 
  * Compute which features should be disabled,
  * given the current selection.
  */
-export function getDisabledOptions(selected: Features[], groups: FeatureGroups, kits: DisputeKits): Set<Features> {
+export function getDisabledOptions(
+  selected: Features[],
+  groups: FeatureGroups,
+  kits: DisputeKitConfig[]
+): Set<Features> {
   const disabled = new Set<Features>();
 
   // If nothing is selected => allow all
@@ -240,7 +203,7 @@ export function getDisabledOptions(selected: Features[], groups: FeatureGroups, 
  */
 export function getVisibleFeaturesForCourt(
   supportedKits: number[],
-  allKits: DisputeKits,
+  allKits: DisputeKitConfig[],
   groups: FeatureGroups
 ): FeatureGroups {
   // Get supported kits for this court
@@ -255,13 +218,11 @@ export function getVisibleFeaturesForCourt(
   }
 
   // Filter groups => only keep features that are visible
-  const filteredGroups: FeatureGroups = {};
-  for (const [groupName, features] of Object.entries(groups)) {
-    const visibleFeatures = features.filter((f) => visible.has(f));
-    if (visibleFeatures.length > 0) {
-      filteredGroups[groupName] = visibleFeatures;
-    }
-  }
-
+  // This is assuming that each kit supports at least one Feature from each Group,
+  // and a court has at least one matching kit. which holds true for current kits.
+  const filteredGroups: FeatureGroups = {
+    [Group.Voting]: groups[Group.Voting].filter((f) => visible.has(f)),
+    [Group.Eligibility]: groups[Group.Eligibility].filter((f) => visible.has(f)),
+  };
   return filteredGroups;
 }

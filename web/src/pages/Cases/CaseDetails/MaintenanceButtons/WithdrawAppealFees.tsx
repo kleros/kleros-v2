@@ -2,12 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
-import { useAccount, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { DEFAULT_CHAIN } from "consts/chains";
-import { disputeKitClassicAbi, disputeKitClassicAddress } from "hooks/contracts/generated";
 import useTransactionBatcher, { type TransactionBatcherConfig } from "hooks/useTransactionBatcher";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -15,6 +13,7 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import { useClassicAppealQuery } from "queries/useClassicAppealQuery";
 import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
 
+import { getDisputeKitConfigByKitId } from "src/dispute-kits";
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
@@ -35,7 +34,6 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
   const [isSending, setIsSending] = useState(false);
   const [contractConfigs, setContractConfigs] = useState<TransactionBatcherConfig>();
   const publicClient = usePublicClient();
-  const { chainId } = useAccount();
 
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
   const { data: appealData } = useClassicAppealQuery(id);
@@ -59,24 +57,26 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
   useEffect(() => {
     if (isUndefined(id) || isUndefined(roundIndex)) return;
 
-    const chainKey = (chainId ?? DEFAULT_CHAIN.id) as keyof typeof disputeKitClassicAddress;
-    const baseArgs = {
-      abi: disputeKitClassicAbi,
-      address: disputeKitClassicAddress[chainKey],
-      functionName: "withdrawFeesAndRewards",
-    };
-
     const argsArr: TransactionBatcherConfig = [];
 
     for (const contribution of filteredContributions) {
+      // localDispute.id format: "disputeKitID-coreDisputeID"
+      const disputeKitID = contribution.localRound?.localDispute?.id?.split("-")[0];
+      if (isUndefined(disputeKitID)) continue;
+
+      const config = getDisputeKitConfigByKitId(disputeKitID);
+      if (isUndefined(config)) continue;
+
       argsArr.push({
-        ...baseArgs,
+        abi: config.disputeKitAbi,
+        address: config.address,
+        functionName: "withdrawFeesAndRewards",
         args: [BigInt(id), contribution.contributor.id, BigInt(contribution.choice)],
       });
     }
 
     setContractConfigs(argsArr);
-  }, [id, roundIndex, chainId, filteredContributions]);
+  }, [id, roundIndex, filteredContributions]);
 
   const {
     executeBatch,

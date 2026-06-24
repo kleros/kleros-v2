@@ -1,7 +1,7 @@
 import { getContract } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
-import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
+import { prepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
 
 import type { HardhatClient } from "../fixtures/hardhat";
 
@@ -59,7 +59,7 @@ export async function setupCase(
   const privateKey = ACCOUNT_PKEYS[accountKey];
   const account = privateKeyToAccount(privateKey);
 
-  const extraData = prepareArbitratorExtradata(courtId, numberOfJurors, disputeKitId);
+  const extraData = prepareArbitratorExtradata(courtId, numberOfJurors, disputeKitId, undefined);
 
   // Create dispute template
   const disputeTemplate = createDisputeTemplate(disputeData);
