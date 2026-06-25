@@ -87,7 +87,9 @@
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
-    "local-stack": "scripts/tmux-local-stack.sh",
+    "local-stack": "scripts/run-local-stack.sh start",
+    "stop-local-stack": "scripts/run-local-stack.sh stop",
+    "rebuild-local-stack": "scripts/run-local-stack.sh rebuild",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
     "postinstall": "yarn check-prerequisites; husky install",
     "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable",

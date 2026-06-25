@@ -15,7 +15,7 @@ yarn start-local               # deploy-local, populate:local use the pin as wel
 yarn unpin
 ```
 
-From repo root: `yarn local-stack --pin <ref>`.
+From repo root: `yarn local-stack` (or `yarn local-stack --pin <ref>`). See [root README](../README.md#shortcut-using-tmux).
 
 While pinned, `deploy` and `populate:*` only run on `hardhat` / `localhost`; use `yarn unpin` for other networks.
 
