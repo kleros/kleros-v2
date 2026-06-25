@@ -4,6 +4,21 @@ Smart contracts for Kleros v2
 
 See [Deployment artifacts guide](./docs/artifacts.md) for which format to use (JSON, viem, typechain, etc.).
 
+### Pinning a past release
+
+Run an old contract tree without checking out that commit. Web/subgraph stay on HEAD.
+
+```bash
+yarn pin <tag|commit|branch>   # npm version works too, e.g. 0.10.0
+yarn build
+yarn start-local               # deploy-local, populate:local use the pin as well
+yarn unpin
+```
+
+From repo root: `yarn local-stack --pin <ref>`.
+
+While pinned, `deploy` and `populate:*` only run on `hardhat` / `localhost`; use `yarn unpin` for other networks.
+
 ## Deployments
 
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh` or `./scripts/populateReadme.sh`.

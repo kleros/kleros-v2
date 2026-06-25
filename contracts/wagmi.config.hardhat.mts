@@ -1,6 +1,5 @@
 import { Config, defineConfig } from "@wagmi/cli";
-import IHomeGateway from "./artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" with { type: "json" };
-import { getAbi, readArtifacts, merge } from "./scripts/wagmiHelpers.mjs";
+import { getAbi, readArtifacts, merge, readArtifactJson } from "./scripts/wagmiHelpers.mjs";
 
 const getConfig = async (): Promise<Config> => {
   const artifact = await readArtifacts("localhost");
@@ -15,6 +14,8 @@ const getConfig = async (): Promise<Config> => {
   const sepoliaContracts = await readArtifacts("sepolia", "sepoliaDevnet");
   sepoliaContracts.forEach((c) => console.log("✔ Found sepolia artifact: %s", c.name));
   contracts = merge(contracts, sepoliaContracts);
+
+  const IHomeGateway = await readArtifactJson("gateway/interfaces/IHomeGateway.sol/IHomeGateway.json");
 
   return {
     out: "deployments/hardhat.viem.ts",

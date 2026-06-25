@@ -19,6 +19,9 @@ deployments/*/solcInputs/
 dist/
 contracts/
 
+# archived contract tree from pin.sh
+pin/
+
 # POA solidity flattener output
 out/
 

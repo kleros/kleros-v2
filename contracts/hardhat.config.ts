@@ -1,5 +1,7 @@
 import * as dotenv from "dotenv";
+import { readFileSync } from "fs";
 import { HardhatUserConfig } from "hardhat/config";
+import { deployDir, pinActive, sourcesDir } from "./scripts/contractPaths";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomiclabs/hardhat-solhint";
 import "@typechain/hardhat";
@@ -12,39 +14,47 @@ import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
-import "./scripts/populatePolicyRegistry";
-import "./scripts/populateCourts";
-import "./scripts/changeOwner";
-import "./scripts/getDisputeTemplate";
-import "./scripts/compareStorageLayout";
-import "./scripts/storage-layout";
+import "./scripts/loadHardhatTasks";
+import "./scripts/pinLocalhostGuard";
 
 dotenv.config();
 
-const config: HardhatUserConfig = {
-  solidity: {
-    compilers: [
-      {
-        version: "0.8.30",
-        settings: {
-          evmVersion: "cancun",
-          viaIR: process.env.VIA_IR !== "false", // Defaults to true
-          optimizer: {
-            enabled: true,
-            runs: 700, // Constrained by the size of the KlerosCore contract
-          },
-          outputSelection: {
-            "*": {
-              "*": ["storageLayout"],
-            },
+const defaultSolidity: HardhatUserConfig["solidity"] = {
+  compilers: [
+    {
+      version: "0.8.30",
+      settings: {
+        evmVersion: "cancun",
+        viaIR: process.env.VIA_IR !== "false", // Defaults to true
+        optimizer: {
+          enabled: true,
+          runs: 700, // Constrained by the size of the KlerosCore contract
+        },
+        outputSelection: {
+          "*": {
+            "*": ["storageLayout"],
           },
         },
       },
-    ],
-  },
+    },
+  ],
+};
+
+const solidity: HardhatUserConfig["solidity"] = pinActive
+  ? (
+      JSON.parse(readFileSync("pin/solidity.json", "utf8")) as {
+        solidity: HardhatUserConfig["solidity"];
+      }
+    ).solidity
+  : defaultSolidity;
+
+const config: HardhatUserConfig = {
+  solidity,
   paths: {
-    sources: "./src",
-    cache: "./cache_hardhat",
+    sources: sourcesDir,
+    cache: pinActive ? "./pin/cache" : "./cache_hardhat",
+    artifacts: pinActive ? "./pin/artifacts" : "./artifacts",
+    deploy: deployDir,
   },
   networks: {
     hardhat: {
@@ -318,7 +328,7 @@ const config: HardhatUserConfig = {
           },
         },
       ],
-      files: ["./test/**/*", "./src/**/*"],
+      files: ["./test/**/*", `${sourcesDir}/**/*`],
     },
   },
   docgen: {
