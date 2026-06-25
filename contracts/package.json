@@ -5,6 +5,7 @@
   "main": "./dist/cjs/deployments/index.js",
   "module": "./dist/esm/deployments/index.js",
   "types": "./dist/types/deployments/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/types/deployments/index.d.ts",
