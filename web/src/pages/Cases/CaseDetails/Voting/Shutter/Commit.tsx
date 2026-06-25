@@ -9,7 +9,7 @@ import { useCountdown } from "hooks/useCountdown";
 
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 
 import { getDeadline } from "../../Timeline";
@@ -26,10 +26,10 @@ interface ICommit {
   setIsOpen: (val: boolean) => void;
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
-  disputeKitName?: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, currentPeriodIndex, disputeKitName }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, currentPeriodIndex, disputeKitId }) => {
   const [justification, setJustification] = useState("");
 
   const { id } = useParams();
@@ -60,7 +60,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
       const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
 
       await castCommit({
-        type: disputeKitName ?? DisputeKits.Shutter,
+        disputeKitId,
         disputeId: parsedDisputeID,
         choice,
         voteIds: parsedVoteIDs,
@@ -74,7 +74,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
       parsedVoteIDs,
       parsedDisputeID,
       countdownToVotingPeriod,
-      disputeKitName,
+      disputeKitId,
       castCommit,
       currentRoundIndex,
     ]

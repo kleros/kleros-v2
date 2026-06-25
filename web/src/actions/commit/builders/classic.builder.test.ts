@@ -6,7 +6,7 @@ import { getVoteKey } from "actions/helpers/storage/getVoteKey";
 
 import { hashVote } from "utils/crypto/hashVote";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 import { MOCK_CLASSIC_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { CommitContext } from "../context";
@@ -30,7 +30,7 @@ describe("classicCommitBuilder", () => {
     choice: 1n,
     salt: 123456789n,
     roundIndex: 0,
-    type: DisputeKits.Classic,
+    disputeKitId: DisputeKits.Classic,
     ...overrides,
   });
 

@@ -26,6 +26,11 @@ const disputeMaintenance = graphql(`
       ... on ClassicContribution {
         choice
         rewardWithdrawn
+        localRound {
+          localDispute {
+            id
+          }
+        }
       }
       coreDispute {
         currentRoundIndex

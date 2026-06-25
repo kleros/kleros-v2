@@ -334,7 +334,8 @@
     "subscribe_to_notifications": "Make sure to subscribe to notifications on Settings > Notifications",
     "dispute_last_round": "This dispute is on its last round. Vote wisely, It cannot be appealed any further.",
     "not_drawn_current_round": "You were not drawn in current round.",
-    "jurors_not_drawn_yet": "Jurors have not been drawn yet."
+    "jurors_not_drawn_yet": "Jurors have not been drawn yet.",
+    "unsupported_dispute_kit": "This dispute uses an unsupported dispute kit."
   },
   "popups": {
     "thanks_for_voting": "Thanks for voting",

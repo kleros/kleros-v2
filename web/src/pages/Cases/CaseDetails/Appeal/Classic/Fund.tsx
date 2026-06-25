@@ -8,12 +8,14 @@ import { useAccount, useBalance } from "wagmi";
 
 import { Field, Button } from "@kleros/ui-components-library";
 
-import { DisputeKits, REFETCH_INTERVAL } from "consts/index";
+import { REFETCH_INTERVAL } from "consts/index";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useFundAppeal } from "hooks/useFundAppeal";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { isUndefined } from "utils/index";
 import { NumberString } from "utils/types";
+
+import { DisputeKits } from "src/dispute-kits";
 
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
@@ -64,13 +66,13 @@ const useNeedFund = () => {
 };
 
 interface IFund {
-  amount: `${number}`;
+  amount: NumberString;
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
-  disputeKitName?: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
-const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName }) => {
+const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) => {
   const { id: disputeId } = useParams();
   const { address, isDisconnected } = useAccount();
   const { t } = useTranslation();
@@ -115,9 +117,9 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitName })
       disputeId: BigInt(disputeId),
       choice: BigInt(selectedOption.id),
       fundAmount: parsedAmount,
-      type: disputeKitName ?? DisputeKits.Classic,
+      disputeKitId,
     });
-  }, [fundAppeal, disputeId, selectedOption, parsedAmount, disputeKitName]);
+  }, [fundAppeal, disputeId, selectedOption, parsedAmount, disputeKitId]);
 
   return needFund ? (
     <Container>

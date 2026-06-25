@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useDebounce } from "react-use";
+import type { Address } from "viem";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -14,6 +15,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 import { useRoundDetailsQuery } from "queries/useRoundDetailsQuery";
 
+import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -62,7 +64,7 @@ const Landing: React.FC = () => {
     data: populatedDispute,
     isError: isErrorPopulatedDisputeQuery,
     isLoading: isPopulatingDispute,
-  } = usePopulatedDisputeData(debouncedDisputeID, dispute?.dispute?.arbitrated.id as `0x${string}`);
+  } = usePopulatedDisputeData(debouncedDisputeID, dispute?.dispute?.arbitrated.id as Address);
 
   // we want the genesis round's court and numberOfJurors
   const {
@@ -120,11 +122,11 @@ const Landing: React.FC = () => {
       policyURI: populatedDispute.policyURI,
       question: populatedDispute.question,
       courtId: roundData.round?.court.id,
-      numberOfJurors: roundData.round?.nbVotes ? parseInt(roundData.round.nbVotes) : undefined,
-      disputeKitId: parseInt(roundData.round?.disputeKit.id ?? "1", 10),
+      numberOfJurors: roundData.round?.nbVotes ? Number.parseInt(roundData.round.nbVotes, 10) : undefined,
+      disputeKitId: Number.parseInt(roundData.round?.disputeKit.id ?? DisputeKits.Classic.toString(), 10),
       answers,
       aliasesArray: aliasesArray ?? disputeData.aliasesArray,
-      disputeKitData: gatedTokenInfo ? { ...gatedTokenInfo, type: "gated" } : undefined,
+      disputeKitData: gatedTokenInfo ? { ...gatedTokenInfo, isValid: true } : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [populatedDispute, roundData, isInvalidDispute]);

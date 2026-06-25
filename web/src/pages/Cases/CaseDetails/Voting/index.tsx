@@ -4,14 +4,13 @@ import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
-import { Address } from "viem";
+import type { Address } from "viem";
 import { useAccount } from "wagmi";
 
 import VoteIcon from "svgs/icons/voted.svg";
 
-import { isClassicLikeDisputeKit, isShutterLikeDisputeKit } from "consts/index";
 import { Periods } from "consts/periods";
-import { useDisputeKitAddresses } from "hooks/useDisputeKitAddresses";
+import { useDisputeKitInfo } from "hooks/useDisputeKitInfo";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { useVotingContext } from "hooks/useVotingContext";
 import { formatDate } from "utils/date";
@@ -28,8 +27,6 @@ import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
 import Popup, { PopupType } from "components/Popup";
 
-import Classic from "./Classic";
-import Shutter from "./Shutter";
 import VotingHistory from "./VotingHistory";
 
 const Container = styled.div`
@@ -73,15 +70,27 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
   const timesPerPeriod = disputeData?.dispute?.currentRound.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
 
-  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
-  const { disputeKitName } = useDisputeKitAddresses({ disputeKitAddress });
-  const isClassicDisputeKit = isClassicLikeDisputeKit(disputeKitName);
-  const isShutterDisputeKit = isShutterLikeDisputeKit(disputeKitName);
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
     [currentPeriodIndex]
   );
 
+  const disputeKitAddress = disputeData?.dispute?.currentRound?.disputeKit?.address ?? undefined;
+  const disputeKitInfo = useDisputeKitInfo({ disputeKitAddress });
+
+  if (isUndefined(disputeKitInfo)) {
+    return (
+      <Container>
+        {isUndefined(disputeKitAddress) ? (
+          <Skeleton height={200} />
+        ) : (
+          <InfoCard msg={t("alerts.unsupported_dispute_kit")} />
+        )}
+      </Container>
+    );
+  }
+
+  const VotingComponent = disputeKitInfo.VotingComponent;
   return (
     <Container>
       {isLastRound(appealCost) && (
@@ -113,22 +122,18 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
           date={finalDate ? formatDate(finalDate, false, i18n.language) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
-          automaticVoteReveal={isShutterDisputeKit}
+          automaticVoteReveal={disputeKitInfo.hasAutomaticVoteReveal}
         />
       )}
-      {userWasDrawn && isCommitOrVotePeriod && !voted ? (
+      {userWasDrawn && isCommitOrVotePeriod && !voted && !isUndefined(arbitrable) ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          {isClassicDisputeKit ? (
-            <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} {...{ disputeKitName }} />
-          ) : null}
-          {isShutterDisputeKit ? (
-            <Shutter
-              arbitrable={arbitrable ?? "0x0"}
-              setIsOpen={setIsPopupOpen}
-              {...{ dispute, currentPeriodIndex, disputeKitName }}
-            />
-          ) : null}
+          <VotingComponent
+            arbitrable={arbitrable}
+            setIsOpen={setIsPopupOpen}
+            disputeKitId={disputeKitInfo.id}
+            {...{ dispute, currentPeriodIndex }}
+          />
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />

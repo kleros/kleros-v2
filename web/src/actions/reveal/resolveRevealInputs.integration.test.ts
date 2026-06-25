@@ -6,7 +6,7 @@ import type { Answer } from "@kleros/kleros-sdk";
 import { generateSalt } from "utils/crypto/generateSalt";
 import { hashVote } from "utils/crypto/hashVote";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 
 import { getVoteKey } from "../helpers/storage/getVoteKey";
 
@@ -18,7 +18,7 @@ describe("resolveRevealInputs (integration)", () => {
     disputeId: 1n,
     roundIndex: 0,
     voteIds: [0n],
-    type: DisputeKits.Classic,
+    disputeKitId: DisputeKits.Classic,
   };
   it("reconstructs choice and salt end-to-end using real crypto", async () => {
     const account = privateKeyToAccount("0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");

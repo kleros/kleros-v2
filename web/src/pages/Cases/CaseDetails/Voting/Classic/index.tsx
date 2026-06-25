@@ -1,26 +1,21 @@
 import React, { useMemo } from "react";
 
 import { useParams } from "react-router-dom";
-import type { Address } from "viem";
 import { useAccount } from "wagmi";
 
-import { DisputeKits } from "consts/index";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
+import { Bytes32Hash } from "utils/crypto/hashVote";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { DisputeKitVotingProps } from "src/dispute-kits";
 
 import Commit from "./Commit";
 import Reveal from "./Reveal";
 import Vote from "./Vote";
 
-interface IClassic {
-  arbitrable: Address;
-  setIsOpen: (val: boolean) => void;
-  disputeKitName?: DisputeKits;
-}
-
-const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, disputeKitName }) => {
+const Classic: React.FC<DisputeKitVotingProps> = ({ arbitrable, setIsOpen, disputeKitId }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -30,7 +25,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, disputeKitName }) 
 
   return id && isHiddenVotes ? (
     isCommitPeriod && !commited ? (
-      <Commit {...{ arbitrable, setIsOpen, voteIDs, disputeKitName }} />
+      <Commit {...{ arbitrable, setIsOpen, voteIDs, disputeKitId }} />
     ) : (
       <Reveal
         {...{
@@ -38,13 +33,13 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen, disputeKitName }) 
           setIsOpen,
           voteIDs,
           isRevealPeriod: !isCommitPeriod,
-          disputeKitName,
-          commit,
+          disputeKitId,
+          commit: commit as Bytes32Hash,
         }}
       />
     )
   ) : (
-    <Vote {...{ arbitrable, setIsOpen, voteIDs, disputeKitName }} />
+    <Vote {...{ arbitrable, setIsOpen, voteIDs, disputeKitId }} />
   );
 };
 

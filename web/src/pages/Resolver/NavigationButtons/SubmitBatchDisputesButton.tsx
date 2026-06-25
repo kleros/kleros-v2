@@ -13,8 +13,10 @@ import { disputeResolverAbi, disputeResolverAddress } from "hooks/contracts/gene
 import useTransactionBatcher from "hooks/useTransactionBatcher";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
-import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { wrapWithToast } from "utils/wrapWithToast";
+
+import { DisputeKits } from "src/dispute-kits";
+import { prepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
 
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
@@ -55,7 +57,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
         prepareArbitratorExtradata(
           disputeData.courtId ?? "1",
           disputeData.numberOfJurors ?? 3,
-          disputeData.disputeKitId ?? 1,
+          disputeData.disputeKitId ?? DisputeKits.Classic,
           disputeData.disputeKitData
         ),
         JSON.stringify(disputeTemplate),
