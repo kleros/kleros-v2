@@ -15,6 +15,7 @@ import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
+// ANY NEW TASK SHOULD BE LOADED FROM 'loadHardhatTasks' , NOT IMPORTED HERE DIRECTLY
 import "./scripts/loadHardhatTasks";
 import "./scripts/pinLocalhostGuard";
 
