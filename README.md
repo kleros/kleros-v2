@@ -89,7 +89,7 @@ Run the commands below from the top-level folder. Alternatively, it is possible 
 
 #### Shortcut using tmux
 
-Requires **[tmux](https://github.com/tmux/tmux/wiki)**, **Docker**, **jq**, and **lsof**.
+Requires **[tmux](https://github.com/tmux/tmux/wiki)**, **Docker**, **curl**, **jq**, and **lsof**.
 
 `scripts/run-local-stack.sh` orchestrates the full stack: preflight clean -> contract build -> Hardhat node (deploy) -> graph-node (tmux panes) -> populate -> viem generate -> subgraph deploy -> web. Logs go to a temp dir printed at start.
 

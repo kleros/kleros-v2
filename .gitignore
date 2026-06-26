@@ -203,6 +203,9 @@ subgraph/*/contracts/*
 # Local Netlify folder
 .netlify
 
+# Local stack orchestration state (port :8545 listener info)
+.local-stack/
+
 .env*
 .flaskenv*
 !.env.project

@@ -5,6 +5,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SESSION="local-stack"
+STATE_DIR="$ROOT/.local-stack"
+PORT_8545_PID_FILE="$STATE_DIR/port-8545.pid"
 COMPOSE_FILE="$ROOT/services/graph-node/docker-compose.yml"
 GRAPH_DATA_DIR="$ROOT/services/graph-node/data"
 GRAPH_INDEX_URL="http://127.0.0.1:8030/graphql"
@@ -171,14 +173,42 @@ wait_for_subgraph() {
   done
 }
 
-stop_rpc_listeners() {
-  local pids
-  pids="$(lsof -tiTCP:8545 -sTCP:LISTEN 2>/dev/null || true)"
+rpc_listener_pids() {
+  lsof -tiTCP:8545 -sTCP:LISTEN 2>/dev/null || true
+}
+
+write_port_8545_pids() {
+  mkdir -p "$STATE_DIR"
+  printf '%s\n' "$1" >"$PORT_8545_PID_FILE"
+}
+
+require_rpc_port_free() {
+  local pids pid
+  pids="$(rpc_listener_pids)"
   [[ -z "$pids" ]] && return 0
-  log "stopping process(es) on :8545 ($pids)"
-  # shellcheck disable=SC2086
-  kill $pids 2>/dev/null || true
-  wait_for "port :8545 to close" 30 bash -c '! lsof -tiTCP:8545 -sTCP:LISTEN >/dev/null 2>&1'
+  write_port_8545_pids "$pids"
+  pid="$(printf '%s\n' "$pids" | head -1)"
+  die ":8545 is in use (pid $pid, see $PORT_8545_PID_FILE). Stop it manually, then retry."
+}
+
+record_rpc_listener() {
+  local pid
+  pid="$(rpc_listener_pids | head -1)"
+  [[ -n "$pid" ]] || return 0
+  write_port_8545_pids "$pid"
+}
+
+stop_recorded_hardhat() {
+  local pid
+  [[ -f "$PORT_8545_PID_FILE" ]] || return 0
+  pid="$(head -1 "$PORT_8545_PID_FILE")"
+  [[ -n "$pid" ]] || return 0
+  if lsof -tiTCP:8545 -sTCP:LISTEN 2>/dev/null | grep -qw "$pid"; then
+    log "stopping Hardhat on :8545 (pid $pid)"
+    kill "$pid" 2>/dev/null || true
+    wait_for "port :8545 to close" 30 bash -c '! lsof -tiTCP:8545 -sTCP:LISTEN >/dev/null 2>&1' || true
+  fi
+  rm -f "$PORT_8545_PID_FILE"
 }
 
 clean_contracts_state() {
@@ -200,7 +230,7 @@ reset_graph_node() {
 
 preflight_clean() {
   log "preflight clean"
-  stop_rpc_listeners
+  require_rpc_port_free
   clean_contracts_state
   reset_graph_node
 }
@@ -225,10 +255,16 @@ setup_tmux() {
 }
 
 cmd_stop() {
+  local pids
   log "stopping local stack"
   tmux kill-session -t "$SESSION" 2>/dev/null || true
   docker compose -f "$COMPOSE_FILE" down --remove-orphans 2>/dev/null || true
-  stop_rpc_listeners || true
+  stop_recorded_hardhat
+  pids="$(rpc_listener_pids)"
+  if [[ -n "$pids" ]]; then
+    write_port_8545_pids "$pids"
+    log ":8545 still in use — stop manually (pids in $PORT_8545_PID_FILE)"
+  fi
   log "stopped"
 }
 
@@ -242,7 +278,7 @@ cmd_start() {
     preflight_clean
   else
     log "skipping preflight clean (LOCAL_STACK_SKIP_CLEAN=1)"
-    stop_rpc_listeners || true
+    require_rpc_port_free
   fi
 
   if [[ -f "$ROOT/contracts/pin/version" ]]; then
@@ -255,6 +291,7 @@ cmd_start() {
   setup_tmux
 
   wait_for "Hardhat RPC" "$WAIT_TIMEOUT" rpc_ready
+  record_rpc_listener
   wait_for "localhost deployments" "$WAIT_TIMEOUT" deploy_marker_ready
 
   run_logged "$LOG_DIR/populate.log" yarn workspace "$contracts_ws" populate:local
