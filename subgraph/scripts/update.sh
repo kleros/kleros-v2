@@ -3,6 +3,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $(basename "$0") <hardhatNetwork> ..." >&2
+  exit 1
+fi
+
 "$SCRIPT_DIR/sync-abis.sh" "$1"
 
 function isContractDeployed() { #hardhatNetwork #graphNetwork #subgraphConfig #dataSourceIndex #contract
