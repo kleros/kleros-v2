@@ -1,0 +1,20 @@
+{
+  "compilers": [
+    {
+      "version": "0.8.30",
+      "settings": {
+        "evmVersion": "cancun",
+        "viaIR": true,
+        "optimizer": {
+          "enabled": true,
+          "runs": 700
+        },
+        "outputSelection": {
+          "*": {
+            "*": ["storageLayout"]
+          }
+        }
+      }
+    }
+  ]
+}

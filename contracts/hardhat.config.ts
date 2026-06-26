@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 import { readFileSync } from "fs";
 import { HardhatUserConfig } from "hardhat/config";
 import { deployDir, pinActive, sourcesDir } from "./scripts/contractPaths";
+import solidityConfig from "./solidity.config.json";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomiclabs/hardhat-solhint";
 import "@typechain/hardhat";
@@ -20,24 +21,13 @@ import "./scripts/pinLocalhostGuard";
 dotenv.config();
 
 const defaultSolidity: HardhatUserConfig["solidity"] = {
-  compilers: [
-    {
-      version: "0.8.30",
-      settings: {
-        evmVersion: "cancun",
-        viaIR: process.env.VIA_IR !== "false", // Defaults to true
-        optimizer: {
-          enabled: true,
-          runs: 700, // Constrained by the size of the KlerosCore contract
-        },
-        outputSelection: {
-          "*": {
-            "*": ["storageLayout"],
-          },
-        },
-      },
+  compilers: solidityConfig.compilers.map((compiler) => ({
+    ...compiler,
+    settings: {
+      ...compiler.settings,
+      viaIR: process.env.VIA_IR !== "false",
     },
-  ],
+  })),
 };
 
 const solidity: HardhatUserConfig["solidity"] = pinActive

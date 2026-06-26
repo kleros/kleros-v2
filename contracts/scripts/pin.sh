@@ -40,6 +40,9 @@ git -C "$REPO" archive "$ref" \
   contracts/config \
   contracts/scripts \
   | tar -x -C "$staging"
+if git -C "$REPO" cat-file -e "$ref:contracts/solidity.config.json" 2>/dev/null; then
+  git -C "$REPO" archive "$ref" contracts/solidity.config.json | tar -x -C "$staging"
+fi
 rm -rf "$PIN"
 rsync -a "$staging/contracts/" "$PIN/"
 

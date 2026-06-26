@@ -1,7 +1,9 @@
 import { existsSync } from "fs";
 import { join } from "path";
 
-export const pinActive = existsSync("pin/version");
+const PIN_FOLDERS = ["pin/version", "pin/package.json", "pin/solidity.json", "pin/src", "pin/deploy", "pin/scripts"];
+export const pinActive = PIN_FOLDERS.every(existsSync);
+
 export const sourcesDir = pinActive ? "./pin/src" : "./src";
 export const artifactsDir = pinActive ? "./pin/artifacts" : "./artifacts";
 export const deployDir = pinActive ? "./pin/deploy" : "./deploy";
