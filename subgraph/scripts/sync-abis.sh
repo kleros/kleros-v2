@@ -37,6 +37,10 @@ resolve_deployments_dir() {
 
 sync_network() {
   local network="$1"
+  if [[ ! "$network" =~ ^[A-Za-z0-9_-]+$ ]]; then
+    echo "Invalid network name: $network" >&2
+    exit 1
+  fi
   local source_dir
   source_dir="$(resolve_deployments_dir "$network")"
   local target_dir="$SUBGRAPH_DIR/abis/$network"
