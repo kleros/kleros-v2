@@ -50,7 +50,7 @@ flowchart TB
 | ----------------------- | --------------------------- | ------------------------------------------------------------------- |
 | Subgraph                | JSON                        | `@kleros/kleros-v2-contracts/deployments/<network>/KlerosCore.json` |
 | React + viem / wagmi    | viem configs                | `@kleros/kleros-v2-contracts/viem`                                  |
-| React + ethers          | typechain factory + address | `@kleros/kleros-v2-contracts/ethers` (or import factory directly)   |
+| React + ethers          | typechain factory + address | `@kleros/kleros-v2-contracts/ethers` (or import factory directly, do note that factory does not include address, those have to be provided separately to the factory)    |
 | Single ABI in a bundler | JSON                        | `@kleros/kleros-v2-contracts/deployments/.../Foo.json`              |
 | Solidity project        | `.sol` sources              | `@kleros/kleros-v2-contracts/contracts/.../Foo.sol`                 |
 
@@ -98,6 +98,7 @@ await contracts.klerosCore.read.disputeCount();
 import { KlerosCore__factory } from "@kleros/kleros-v2-contracts/ethers";
 import { devnetViem } from "@kleros/kleros-v2-contracts/viem";
 
+// Since factory does not ship with addresses, the consumer has to provide the address themselves. Here we use the viem artifact as an example.
 const address = devnetViem.klerosCoreConfig.address[421614];
 const core = KlerosCore__factory.connect(address, signer);
 
