@@ -3,13 +3,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
-if [[ $# -lt 1 ]]; then
-  echo "Usage: $(basename "$0") <hardhatNetwork> ..." >&2
-  exit 1
-fi
-
-"$SCRIPT_DIR/sync-abis.sh" "$1"
-
 function isContractDeployed() { #hardhatNetwork #graphNetwork #subgraphConfig #dataSourceIndex #contract
     local hardhatNetwork="$1"
     local graphNetwork="$2"
@@ -68,7 +61,10 @@ hardhatNetwork=${1:-arbitrumSepolia}
 graphNetwork=${2:-arbitrum\-sepolia}
 
 subgraphConfig="$SCRIPT_DIR/../${3:-core/subgraph.yaml}"
+
 echo "Updating $subgraphConfig"
+
+"$SCRIPT_DIR/sync-abis.sh" "$hardhatNetwork"
 
 # backup
 cp "$subgraphConfig" "$subgraphConfig.bak.$(date +%s)"
