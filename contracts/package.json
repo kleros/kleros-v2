@@ -67,9 +67,15 @@
   },
   "files": [
     "dist",
+    "!dist/**/deployments/localhost",
+    "!dist/**/deployments/hardhat",
+    "!dist/**/deployments/hardhat.viem.*",
     "contracts",
-    "typechain-types",
     "deployments",
+    "!deployments/localhost",
+    "!deployments/hardhat",
+    "!deployments/hardhat.viem.ts",
+    "!deployments/*/solcInputs",
     "README.md"
   ],
   "repository": "git@github.com:kleros/kleros-v2.git",

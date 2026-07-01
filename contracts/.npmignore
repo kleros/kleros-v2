@@ -5,7 +5,3 @@
 .flaskenv*
 !.env.project
 !.env.vault
-deployments/localhost/
-deployments/hardhat/
-deployments/*/solcInputs/
-deployments/hardhat.viem.ts
