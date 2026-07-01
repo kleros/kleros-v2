@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import { readFileSync } from "fs";
 import { HardhatUserConfig } from "hardhat/config";
-import { deployDir, pinActive, sourcesDir } from "./scripts/contractPaths";
+import { artifactsDir, deployDir, hardhatCacheDir, pinActive, sourcesDir } from "./scripts/contractPaths";
 import solidityConfig from "./solidity.config.json";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomiclabs/hardhat-solhint";
@@ -43,8 +43,8 @@ const config: HardhatUserConfig = {
   solidity,
   paths: {
     sources: sourcesDir,
-    cache: pinActive ? "./pin/cache" : "./cache_hardhat",
-    artifacts: pinActive ? "./pin/artifacts" : "./artifacts",
+    cache: hardhatCacheDir,
+    artifacts: artifactsDir,
     deploy: deployDir,
   },
   networks: {

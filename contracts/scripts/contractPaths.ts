@@ -7,6 +7,7 @@ export const pinActive = PIN_FOLDERS.every(existsSync);
 export const sourcesDir = pinActive ? "./pin/src" : "./src";
 export const artifactsDir = pinActive ? "./pin/artifacts" : "./artifacts";
 export const deployDir = pinActive ? "./pin/deploy" : "./deploy";
+export const hardhatCacheDir = pinActive ? "./pin/cache" : "./cache_hardhat";
 
 // Hardhat mirrors the sources path under artifacts/ (pin/src -> pin/artifacts/pin/src)
 const stripDotSlash = (p: string) => p.replace(/^\.\//, "");
