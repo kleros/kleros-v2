@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { createResultObject } from "../src/dataMappings/utils/createResultObject";
-import { executeActions, populateTemplate } from "../src";
+import { executeActions, populateTemplate, RefuseToArbitrateAnswer } from "../src";
 import {
   AbiCallMapping,
   AbiEventMapping,
@@ -84,18 +84,14 @@ vi.mock("src/dataMappings/actions/subgraphAction", () => ({
         ],
       },
       mapping.seek,
-      mapping.populate,
+      mapping.populate
     );
   }),
 }));
 
 vi.mock("src/dataMappings/actions/callAction", () => ({
   callAction: vi.fn(async (mapping) => {
-    return createResultObject(
-      [BigInt(1), false, false],
-      mapping.seek,
-      mapping.populate,
-    );
+    return createResultObject([BigInt(1), false, false], mapping.seek, mapping.populate);
   }),
 }));
 
@@ -117,11 +113,10 @@ vi.mock("../src/dataMappings/actions/fetchIpfsJsonAction", () => ({
         name: "Mezozoic",
         firstName: "Rafael",
         lastName: "Camargo",
-        anotherFile:
-          "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+        anotherFile: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       },
       mapping.seek,
-      mapping.populate,
+      mapping.populate
     );
   }),
 }));
@@ -186,8 +181,7 @@ describe("full flow test", () => {
         { title: "Yes", description: "User is responsible", id: "0x01" },
         { title: "No", description: "User is not responsible", id: "0x02" },
       ],
-      policyURI:
-        "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       details: {
         ruling: "{{ruling}}",
         tied: "{{tied}}",
@@ -203,10 +197,7 @@ describe("full flow test", () => {
 
     const initialContext = { alchemyApiKey: "mocked_api_key" };
 
-    const data = await executeActions(
-      JSON.parse(dataMappingsInput),
-      initialContext,
-    );
+    const data = await executeActions(JSON.parse(dataMappingsInput), initialContext);
     const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
 
     expect(finalDisputeDetails).to.deep.equal({
@@ -216,11 +207,11 @@ describe("full flow test", () => {
       category: "General",
       type: "single-select",
       answers: [
+        RefuseToArbitrateAnswer,
         { title: "Yes", description: "User is responsible", id: "0x01" },
         { title: "No", description: "User is not responsible", id: "0x02" },
       ],
-      policyURI:
-        "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       details: {
         ruling: "1",
         tied: "false",
@@ -280,9 +271,7 @@ describe("subgraphAction with variables", () => {
       populate: ["escrowsData"],
     };
 
-    const result = (await subgraphAction(
-      mapping,
-    )) as unknown as SubgraphActionResult;
+    const result = (await subgraphAction(mapping)) as unknown as SubgraphActionResult;
 
     expect(result).to.have.property("escrowsData");
     expect(result.escrowsData).to.be.an("array");
@@ -334,14 +323,8 @@ describe("eventAction", () => {
 
     const result = (await eventAction(mapping)) as unknown as EventActionResult;
 
-    expect(result).to.have.property(
-      "fromAddress",
-      "0x1234567890123456789012345678901234567890",
-    );
-    expect(result).to.have.property(
-      "toAddress",
-      "0x0987654321098765432109876543210987654321",
-    );
+    expect(result).to.have.property("fromAddress", "0x1234567890123456789012345678901234567890");
+    expect(result).to.have.property("toAddress", "0x0987654321098765432109876543210987654321");
     expect(result).to.have.property("transferValue", BigInt(100));
   });
 });
@@ -355,17 +338,12 @@ describe("fetchIpfsJsonAction", () => {
       populate: ["name", "firstName", "lastName", "anotherFile"],
     };
 
-    const result = (await fetchIpfsJsonAction(
-      mapping,
-    )) as unknown as FetchIpfsJsonActionResult;
+    const result = (await fetchIpfsJsonAction(mapping)) as unknown as FetchIpfsJsonActionResult;
 
     expect(result).to.have.property("name", "Mezozoic");
     expect(result).to.have.property("firstName", "Rafael");
     expect(result).to.have.property("lastName", "Camargo");
-    expect(result).to.have.property(
-      "anotherFile",
-      "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
-    );
+    expect(result).to.have.property("anotherFile", "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json");
   });
 });
 
@@ -384,8 +362,7 @@ describe("populateTemplate", () => {
           reserved: false,
         },
       ],
-      policyURI:
-        "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
@@ -406,6 +383,7 @@ describe("populateTemplate", () => {
       question: "Did the user break the rules?",
       type: "single-select",
       answers: [
+        RefuseToArbitrateAnswer,
         {
           title: "Yes",
           description: "Affirmative",
@@ -413,8 +391,7 @@ describe("populateTemplate", () => {
           reserved: false,
         },
       ],
-      policyURI:
-        "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
@@ -438,8 +415,7 @@ describe("populateTemplate", () => {
           reserved: false,
         },
       ],
-      policyURI:
-        "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
@@ -460,6 +436,7 @@ describe("populateTemplate", () => {
       question: "",
       type: "single-select",
       answers: [
+        RefuseToArbitrateAnswer,
         {
           title: "Yes",
           description: "Affirmative",
@@ -467,8 +444,7 @@ describe("populateTemplate", () => {
           reserved: false,
         },
       ],
-      policyURI:
-        "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
