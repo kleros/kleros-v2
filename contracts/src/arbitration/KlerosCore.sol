@@ -883,7 +883,13 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         extraRound.disputeKitID = newDisputeKitID;
         extraRound.courtParamsIndex = court.additionalCourtParamsChanges.length - 1;
 
-        sortitionModule.createDisputeHook(_disputeID, extraRoundID);
+        if (newCourtID == FORKING_COURT) {
+            // Set nbVotes to 0 since FC has no drawing.
+            extraRound.nbVotes = 0;
+        } else {
+            // Only increase `disputesWithoutJurors` if nbVotes is non-zero.
+            sortitionModule.createDisputeHook(_disputeID, extraRoundID);
+        }
 
         // Dispute kit was changed, so create a dispute in the new DK contract.
         if (extraRound.disputeKitID != round.disputeKitID) {
@@ -994,6 +1000,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         }
 
         // Unlock all the PNKs for this draw.
+        // Note: if drawnJurors is 0 it will revert (eg. in centralized kit).
         address account = round.drawnJurors[_params.repartition];
         sortitionModule.unlockStake(account, round.pnkAtStakePerJuror);
 
@@ -1179,6 +1186,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
     /// @param _disputeID The ID of the dispute.
     /// @return The appeal cost.
     function appealCost(uint256 _disputeID) public view returns (uint256) {
+        // TODO: make it compatible with Forking Court jump.
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.courtID];
