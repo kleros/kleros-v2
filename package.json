@@ -83,7 +83,8 @@
     "@graphprotocol/graph-cli/glob": "^11.1.0",
     "@graphprotocol/graph-cli/immutable": "^5.1.5",
     "@graphprotocol/graph-cli/undici": "^7.24.0",
-    "picomatch": "^4.0.4"
+    "picomatch": "^4.0.4",
+    "react-pdf": "npm:9.2.1"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
