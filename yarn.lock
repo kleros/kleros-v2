@@ -7086,10 +7086,13 @@ __metadata:
     typechain: "npm:^8.3.2"
     typescript: "npm:^5.6.3"
   peerDependencies:
+    ethers: ^6.15.0
     viem: ^2.24.1
   peerDependenciesMeta:
+    ethers:
+      optional: true
     viem:
-      optional: false
+      optional: true
   languageName: unknown
   linkType: soft
 
@@ -7136,6 +7139,7 @@ __metadata:
     "@goldskycom/cli": "npm:^13.1.1"
     "@graphprotocol/graph-cli": "npm:^0.98.1"
     "@graphprotocol/graph-ts": "npm:^0.38.0"
+    "@kleros/kleros-v2-contracts": "workspace:^"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     eslint: "npm:^9.15.0"

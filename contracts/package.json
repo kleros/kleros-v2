@@ -2,42 +2,81 @@
   "name": "@kleros/kleros-v2-contracts",
   "version": "2.0.0-rc.2",
   "description": "Smart contracts for Kleros version 2",
-  "main": "./cjs/deployments/index.js",
-  "module": "./esm/deployments/index.js",
-  "types": "./types/deployments/index.d.ts",
+  "main": "./dist/cjs/deployments/index.js",
+  "module": "./dist/esm/deployments/index.js",
+  "types": "./dist/types/deployments/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./types/deployments/index.d.ts",
-      "import": "./esm/deployments/index.js",
-      "require": "./cjs/deployments/index.js",
-      "default": "./esm/deployments/index.js"
+      "types": "./dist/types/deployments/index.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/index.js",
+        "require": "./dist/cjs/deployments/index.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/index.js",
+        "require": "./dist/cjs/deployments/index.js"
+      }
     },
     "./cjs/deployments": {
-      "types": "./types/deployments/index.d.ts",
-      "require": "./cjs/deployments/index.js",
-      "default": "./cjs/deployments/index.js"
+      "types": "./dist/types/deployments/index.d.ts",
+      "import": "./dist/cjs/deployments/index.js",
+      "require": "./dist/cjs/deployments/index.js",
+      "default": "./dist/cjs/deployments/index.js"
     },
     "./esm/deployments": {
-      "types": "./types/deployments/index.d.ts",
-      "import": "./esm/deployments/index.js",
-      "default": "./esm/deployments/index.js"
-    }
+      "types": "./dist/types/deployments/index.d.ts",
+      "import": "./dist/esm/deployments/index.js",
+      "default": "./dist/esm/deployments/index.js"
+    },
+    "./utils": {
+      "types": "./dist/types/deployments/utils.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/utils.js",
+        "require": "./dist/cjs/deployments/utils.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/utils.js",
+        "require": "./dist/cjs/deployments/utils.js"
+      }
+    },
+    "./viem": {
+      "types": "./dist/types/deployments/viem.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/viem.js",
+        "require": "./dist/cjs/deployments/viem.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/viem.js",
+        "require": "./dist/cjs/deployments/viem.js"
+      }
+    },
+    "./ethers": {
+      "types": "./dist/types/deployments/ethers.d.ts",
+      "node": {
+        "import": "./dist/cjs/deployments/ethers.js",
+        "require": "./dist/cjs/deployments/ethers.js"
+      },
+      "default": {
+        "import": "./dist/esm/deployments/ethers.js",
+        "require": "./dist/cjs/deployments/ethers.js"
+      }
+    },
+    "./deployments/*": "./deployments/*",
+    "./contracts/*": "./contracts/*"
   },
   "files": [
-    "types",
-    "esm",
-    "cjs",
-    "arbitration",
-    "gateway",
-    "kleros-v1",
-    "libraries",
-    "proxy",
-    "rng",
-    "token",
-    "utils",
-    "typechain-types",
+    "dist",
+    "!dist/**/deployments/localhost",
+    "!dist/**/deployments/hardhat",
+    "!dist/**/deployments/hardhat.viem.*",
+    "contracts",
     "deployments",
-    "index.ts"
+    "!deployments/localhost",
+    "!deployments/hardhat",
+    "!deployments/hardhat.viem.ts",
+    "!deployments/*/solcInputs",
+    "README.md"
   ],
   "repository": "git@github.com:kleros/kleros-v2.git",
   "homepage": "https://github.com/kleros/kleros-v2/tree/master/contracts#readme",
@@ -60,14 +99,17 @@
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
     "coverage": "scripts/coverage.sh",
     "start": "hardhat node --tags nop",
-    "start-local": "hardhat node --tags Arbitration,HomeArbitrable,Resolver,ArgentinaConsumerProtectionDK --hostname 0.0.0.0",
+    "start-local": "scripts/run-pinned-script.sh start-local",
+    "local:start-local": "hardhat node --tags Arbitration,HomeArbitrable,Resolver,ArgentinaConsumerProtectionDK --hostname 0.0.0.0",
     "deploy": "hardhat deploy",
-    "deploy-local": "hardhat deploy --tags Arbitration,HomeArbitrable,Resolver --network localhost",
+    "deploy-local": "scripts/run-pinned-script.sh deploy-local",
+    "local:deploy-local": "hardhat deploy --tags Arbitration,HomeArbitrable,Resolver --network localhost",
     "validate-upgrades": "openzeppelin-upgrades-core validate --exclude 'src/proxy/mock/**/*.sol' --exclude 'src/test/**/*.sol' artifacts/build-info",
     "validate-upgrades-against-deployed": "hardhat compare-storage",
     "simulate": "hardhat simulate:all",
     "simulate-local": "hardhat simulate:all --network localhost",
-    "populate:local": "yarn hardhat populate:courts --from v2_devnet --network localhost && yarn hardhat populate:policy-registry --from v2_devnet --network localhost",
+    "populate:local": "scripts/run-pinned-script.sh populate:local",
+    "local:populate:local": "yarn hardhat populate:courts --from v2_devnet --network localhost && yarn hardhat populate:policy-registry --from v2_devnet --network localhost",
     "viem:generate-devnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.devnet.mts",
     "viem:generate-testnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.testnet.mts",
     "viem:generate-mainnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.mainnet.mts",
@@ -99,9 +141,12 @@
     "release:minor": "scripts/publish.sh minor",
     "release:major": "scripts/publish.sh major",
     "tenderly-verify": "hardhat tenderly:verify",
-    "build:all": "rm -rf ./dist && yarn build:cjs && yarn build:esm && yarn build:types",
+    "build:all": "rm -rf dist contracts && mkdir -p dist && yarn build:cjs && yarn build:esm && yarn build:types && yarn build:contracts",
+    "build:contracts": "scripts/build-contracts.sh",
+    "pin": "scripts/pin.sh",
+    "unpin": "scripts/pin.sh --unpin",
     "build:cjs": "tsc --project tsconfig-release.json --module CommonJS --moduleResolution Node --outDir ./dist/cjs && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
-    "build:esm": "tsc --project tsconfig-release.json --module NodeNext --moduleResolution NodeNext --outDir ./dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
+    "build:esm": "mkdir -p dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json && tsc --project tsconfig-release.json --module ES2022 --moduleResolution Node --outDir ./dist/esm",
     "build:types": "tsc --project tsconfig-release.json --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap",
     "check-style": "eslint . --no-error-on-unmatched-pattern",
     "check-types": "tsc --noEmit"
@@ -163,11 +208,15 @@
     "isomorphic-fetch": "^3.0.0"
   },
   "peerDependencies": {
+    "ethers": "^6.15.0",
     "viem": "^2.24.1"
   },
   "peerDependenciesMeta": {
+    "ethers": {
+      "optional": true
+    },
     "viem": {
-      "optional": false
+      "optional": true
     }
   },
   "stableVersion": "0.12.0"

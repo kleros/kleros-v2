@@ -7,11 +7,10 @@ import dotenv from "dotenv";
 import { Address, zeroAddress, type Abi, type Chain } from "viem";
 import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia, hardhat } from "viem/chains";
 
-import IArbitrableV2 from "../contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
-import * as devnetViem from "../contracts/deployments/devnet.viem";
+import { IArbitrableV2__factory } from "@kleros/kleros-v2-contracts/ethers";
+import { devnetViem, mainnetViem, testnetViem } from "@kleros/kleros-v2-contracts/viem";
+
 import * as hardhatViem from "../contracts/deployments/hardhat.viem";
-import * as mainnetViem from "../contracts/deployments/mainnet.viem";
-import * as testnetViem from "../contracts/deployments/testnet.viem";
 
 dotenv.config();
 
@@ -115,7 +114,7 @@ const getConfig = async (): Promise<Config> => {
       },
       {
         name: "IArbitrableV2",
-        abi: IArbitrableV2.abi,
+        abi: IArbitrableV2__factory.abi,
       },
     ],
     plugins: [react(), actions()],

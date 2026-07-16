@@ -88,12 +88,14 @@
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
-    "local-stack": "scripts/tmux-local-stack.sh",
+    "local-stack": "scripts/run-local-stack.sh start",
+    "stop-local-stack": "scripts/run-local-stack.sh stop",
+    "rebuild-local-stack": "scripts/run-local-stack.sh rebuild",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
     "postinstall": "yarn check-prerequisites; husky install",
     "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable",
-    "build:web:ci": "yarn workspaces focus @kleros/kleros-v2-web && yarn workspaces foreach -Ap --include kleros-app --include contracts run build && yarn workspace @kleros/kleros-v2-web build-netlify",
-    "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-web-devtools build-netlify",
+    "build:web:ci": "yarn workspaces focus @kleros/kleros-v2-web && yarn workspaces foreach -Ap --include kleros-app --include contracts run build && yarn workspace @kleros/kleros-v2-contracts run build:all && yarn workspace @kleros/kleros-v2-web build-netlify",
+    "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-contracts run build:all && yarn workspace @kleros/kleros-v2-web-devtools build-netlify",
     "build:contract-docs": "forge doc --build --out contracts/dist",
     "start:contract-docs": "forge doc --serve",
     "check-types": "yarn workspaces foreach -A -v run check-types"

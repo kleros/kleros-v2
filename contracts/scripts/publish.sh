@@ -15,7 +15,7 @@ function _catch {
 }
 function _finally {
     # TODO: rollback version bump
-    rm -rf $SCRIPT_DIR/../dist
+    rm -rf $SCRIPT_DIR/../dist $SCRIPT_DIR/../contracts
 }
 trap _catch ERR
 trap _finally EXIT
@@ -50,29 +50,8 @@ yarn export:devnet
 yarn export:testnet
 yarn export:mainnet
 
-# Build the dist
-rm -rf dist
-mkdir dist
+# Build the library
 yarn build:all
 
-# Copy the README and contracts
-cp -pr README.md src/ dist/
-
-# Remove unwanted files
-rm -rf dist/config
-rm -rf dist/deploy
-rm -rf dist/scripts
-rm -rf dist/test
-rm -rf dist/**/mock
-rm -rf dist/**/*Mock*
-rm -rf dist/hardhat.config*
-rm -rf dist/deployments/**/solcInputs
-rm -rf dist/deployments/localhost
-rm -rf dist/deployments/hardhat
-rm -rf dist/deployments/hardhat.viem.ts
-jq 'del(.scripts.prepare)' package.json >dist/package.json
-
 # Publish the package
-cd dist
 npm publish
-cd -

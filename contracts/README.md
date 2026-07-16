@@ -2,12 +2,28 @@
 
 Smart contracts for Kleros v2
 
+See [Deployment artifacts guide](./docs/artifacts.md) for which format to use (JSON, viem, typechain, etc.).
+
+## Pinning a past release
+
+Run an old contract tree without checking out that commit. Web/subgraph stay on HEAD.
+
+```bash
+yarn pin <tag|commit|branch>   # npm version works too, e.g. 0.10.0
+yarn build
+yarn start-local               # deploy-local, populate:local use the pin as well
+yarn unpin
+```
+
+From repo root: `yarn local-stack` (or `yarn local-stack --pin <ref>`). See [root README](../README.md#shortcut-using-tmux).
+
+While pinned, `deploy` and `populate:*` only run on `hardhat` / `localhost`; use `yarn unpin` for other networks.
+
 ## Deployments
 
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh` or `./scripts/populateReadme.sh`.
 
 ### V2 Mainnet
-
 #### Arbitrum One
 
 - [BlockHashRNG](https://arbiscan.io/address/0x39D123fc4cFD24EA5bB76195f9ecFE1f0DF35b0B)
@@ -33,7 +49,6 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [TransactionBatcher](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
 
 ### V2 Testnet
-
 #### Arbitrum Sepolia
 
 - [BlockHashRNG](https://sepolia.arbiscan.io/address/0x0298a3EFa6Faf90865725E2b48Cf0F66e5d52754)
@@ -49,8 +64,8 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [EvidenceModule: proxy](https://sepolia.arbiscan.io/address/0xA88A9a25cE7f1d8b3941dA3b322Ba91D009E1397), [implementation](https://sepolia.arbiscan.io/address/0xC4e64e6E949936a18269937FC1e18cb11E3db14D)
 - [KlerosCore: proxy](https://sepolia.arbiscan.io/address/0xE8442307d36e9bf6aB27F1A009F95CE8E11C3479), [implementation](https://sepolia.arbiscan.io/address/0x02F607722749CECd32db07AA0b0755281FE9D13c)
 - [KlerosCoreSnapshotProxy](https://sepolia.arbiscan.io/address/0xd74e61A4dB9C6c3F2C97b62a319aE194f616858C)
-- [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
 - [PNKFaucet](https://sepolia.arbiscan.io/address/0x9f6ffc13B685A68ae359fCA128dfE776458Df464)
+- [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0x2668c46A14af8997417138B064ca1bEB70769585), [implementation](https://sepolia.arbiscan.io/address/0x7CC8E0787e381aE159C4d3e137f20f9203313D41)
 - [RandomizerRNG: proxy](https://sepolia.arbiscan.io/address/0x51a97ad9F0aA818e75819da3cA20CAc319580627), [implementation](https://sepolia.arbiscan.io/address/0x1237F02bBeFDAEA20cE3A66aCAe458C4106Ae203)
 - [SBTACPLawyer](https://sepolia.arbiscan.io/address/0xF83e3F4042D21a3Fa9bc1BCF7C4Cb4C46f893929)
@@ -78,7 +93,6 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [xKlerosLiquidV2](https://gnosis-chiado.blockscout.com/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
 
 ### V2 Devnet (unstable)
-
 #### Arbitrum Sepolia
 
 - [ChainlinkRNG](https://sepolia.arbiscan.io/address/0x579ec660B26Fa388674D8900C92aCFE01C1383cB)
@@ -97,11 +111,11 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [KlerosCoreSnapshotProxy](https://sepolia.arbiscan.io/address/0x171Ea9B37F3c36E8d07e7c5b30F561ad4595AD28)
 - [KlerosV2NeoEarlyUser](https://sepolia.arbiscan.io/address/0x0d60Ff8bbCF49Bc5352328E7E28e141834d7750F)
 - [LeaderboardOffset](https://sepolia.arbiscan.io/address/0x9D2FafF0977143D2225EDA14A3b73a8B49558969)
-- [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
 - [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
+- [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0xe9FB76E8E9ED979E9448113c9358cab3ecD5A4eE), [implementation](https://sepolia.arbiscan.io/address/0xE29228c99F893cb226C0432daa9d1F189F6C709f)
-- [RatesConverter](https://sepolia.arbiscan.io/address/0x95D68c863075DB3B22560554761D3c318d8052F8)
 - [RNGWithFallback](https://sepolia.arbiscan.io/address/0xaa20C44ACd0a5DA4c782375155800201fbC8eA19)
+- [RatesConverter](https://sepolia.arbiscan.io/address/0x95D68c863075DB3B22560554761D3c318d8052F8)
 - [SBTACPExperience](https://sepolia.arbiscan.io/address/0xB4683e9a6e0Ea4F0f9e844b80A47cbF9A9541ab1)
 - [SBTACPLawyer](https://sepolia.arbiscan.io/address/0xc375753247BEA64dd615196e444a2647fd50cd00)
 - [SortitionModule: proxy](https://sepolia.arbiscan.io/address/0xEA3D4a542c7b627f0f8644aE52C179E8908739b7), [implementation](https://sepolia.arbiscan.io/address/0xF5E9D7cB1969E3c06402C2882E17E9f5d055227E)
