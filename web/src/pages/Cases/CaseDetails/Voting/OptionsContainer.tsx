@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
+import type { Address } from "viem";
 
 import { Answer } from "@kleros/kleros-sdk";
 import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
@@ -13,6 +14,8 @@ import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
 import MarkdownEditor from "components/MarkdownEditor";
 import MarkdownRenderer from "components/MarkdownRenderer";
+
+import ConfirmVoteModal from "./ConfirmVoteModal";
 
 const MainContainer = styled.div`
   width: 100%;
@@ -47,7 +50,7 @@ const StyledEnsureChain = styled(EnsureChain)`
 `;
 
 interface IOptions {
-  arbitrable: `0x${string}`;
+  arbitrable: Address;
   handleSelection: (arg0: bigint) => Promise<void>;
   justification?: string;
   setJustification?: (arg0: string) => void;
@@ -58,6 +61,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(BigInt(-1));
   const [isSending, setIsSending] = useState(false);
+  const [pendingOption, setPendingOption] = useState<bigint | undefined>(undefined);
 
   const updatedRTA = useMemo(() => {
     const RTAFromTemplate = disputeDetails?.answers?.find((answer) => BigInt(answer.id) === BigInt(0));
@@ -65,21 +69,31 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
     return RTAFromTemplate;
   }, [disputeDetails]);
 
-  const onClick = useCallback(
-    async (id: bigint) => {
-      setIsSending(true);
-      setChosenOption(id);
-      try {
-        await handleSelection(id);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setChosenOption(BigInt(-1));
-        setIsSending(false);
-      }
-    },
-    [handleSelection]
-  );
+  const pendingChoice = useMemo(() => {
+    if (isUndefined(pendingOption)) return "";
+    if (pendingOption === BigInt(0)) return updatedRTA.title;
+    return disputeDetails?.answers?.find((answer) => BigInt(answer.id) === pendingOption)?.title ?? "";
+  }, [pendingOption, disputeDetails, updatedRTA]);
+
+  const onClick = useCallback((id: bigint) => setPendingOption(id), []);
+
+  const onCancel = useCallback(() => setPendingOption(undefined), []);
+
+  const onConfirm = useCallback(async () => {
+    if (isUndefined(pendingOption)) return;
+
+    setPendingOption(undefined);
+    setIsSending(true);
+    setChosenOption(pendingOption);
+    try {
+      await handleSelection(pendingOption);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setChosenOption(BigInt(-1));
+      setIsSending(false);
+    }
+  }, [handleSelection, pendingOption]);
 
   return id ? (
     <>
@@ -120,6 +134,11 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
           </Tooltip>
         </EnsureChain>
       </RefuseToArbitrateContainer>
+      <ConfirmVoteModal
+        isOpen={!isUndefined(pendingOption)}
+        choice={pendingChoice}
+        {...{ justification, onConfirm, onCancel }}
+      />
     </>
   ) : null;
 };
