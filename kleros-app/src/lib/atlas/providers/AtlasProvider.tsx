@@ -23,12 +23,14 @@ import {
   IpfsProduct,
   SignupProduct,
   IpfsProductNotConfigured,
+  fetchIsSubscribed,
 } from "../utils";
 
 import { GraphQLError } from "graphql";
 import { isUndefined } from "../../../utils";
 import { useSessionStorage } from "../hooks/useSessionStorage";
 import { fetchRestrictions, Role } from "../utils/fetchRestrictions";
+import { Address } from "viem";
 
 export interface IAtlasProvider {
   isVerified: boolean;
@@ -78,6 +80,12 @@ export interface IAtlasProvider {
       isError: boolean;
     }
   >;
+  /**
+   * Checks if a user is subscribed to notifications.
+   * @param address - Address to check
+   * @returns Boolean representing subscription status.
+   */
+  checkIsSubscribed(address: Address): Promise<boolean>;
   /** Role upload limits for `ipfsProduct`, when configured. */
   roleRestrictions: Role[] | undefined;
 }
@@ -389,6 +397,11 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     [atlasGqlClient]
   );
 
+  const checkIsSubscribed = useCallback(
+    async (address: Address): Promise<boolean> => fetchIsSubscribed(atlasGqlClient, address),
+    [atlasGqlClient]
+  );
+
   return (
     <Context.Provider
       value={useMemo(
@@ -410,6 +423,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           confirmEmail,
           roleRestrictions,
           isConfirmingEmail,
+          checkIsSubscribed,
         }),
         [
           isVerified,
@@ -429,6 +443,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           confirmEmail,
           roleRestrictions,
           isConfirmingEmail,
+          checkIsSubscribed,
         ]
       )}
     >
