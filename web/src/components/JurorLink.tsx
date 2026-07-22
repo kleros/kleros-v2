@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { Address } from "viem";
-import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 import NewTabIcon from "svgs/icons/new-tab.svg";
@@ -57,11 +56,7 @@ interface IJurorLink {
 }
 
 const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, smallDisplay }) => {
-  const { isConnected, address: connectedAddress } = useAccount();
-  const profileLink =
-    isConnected && connectedAddress?.toLowerCase() === address.toLowerCase()
-      ? "/profile"
-      : `/profile/stakes/1?address=${address}`;
+  const profileLink = `/profile/stakes/1?address=${address}`;
   const addressExplorerLink = useMemo(() => {
     return `${DEFAULT_CHAIN?.blockExplorers?.default.url}/address/${address}`;
   }, [address]);
