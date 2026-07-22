@@ -84,7 +84,6 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({ isOpen, choice, justifi
       shouldCloseOnEsc
       shouldCloseOnOverlayClick
       onRequestClose={onCancel}
-      ariaHideApp={false}
       role="dialog"
       aria={{ labelledby: "confirm-vote-title", describedby: "confirm-vote-description" }}
     >
