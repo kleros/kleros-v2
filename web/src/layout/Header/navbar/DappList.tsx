@@ -13,6 +13,8 @@ import POH from "svgs/icons/poh-image.png";
 import Scout from "svgs/icons/scout.svg";
 import Vea from "svgs/icons/vea.svg";
 
+import { KLEROS_SCOUT_URL } from "consts/index";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -122,7 +124,7 @@ const ITEMS = [
   {
     text: "Kleros Scout",
     Icon: Scout,
-    url: "https://klerosscout.eth.limo",
+    url: KLEROS_SCOUT_URL,
   },
   {
     text: "POH V2",
