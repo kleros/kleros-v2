@@ -1,30 +1,18 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { /* FollowButton, FollowerTag, */ ProfileSocials, useProfileDetails } from "ethereum-identity-kit";
 import { useTranslation } from "react-i18next";
-// import { useAccount } from "wagmi";
 import { Address } from "viem";
 
 import ScoutIcon from "svgs/icons/scout.svg";
+
+import { KLEROS_SCOUT_URL } from "consts/index";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import JurorLink from "components/JurorLink";
 
-const getScoutProfileUrl = (address: string) => `https://scout-app.kleros.io/#/profile/pending?address=${address}`;
-
-const HIDE_ALL_EXCEPT_TWITTER = [
-  "etherscan",
-  "ens",
-  "grails",
-  "opensea",
-  "vision",
-  "com.github",
-  "org.telegram",
-  "com.discord",
-  "email",
-] as const;
+const getScoutProfileUrl = (address: string) => `${KLEROS_SCOUT_URL}/profile/pending?address=${address}`;
 
 const Container = styled.div`
   display: flex;
@@ -92,9 +80,6 @@ interface ITopContent {
 
 const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) => {
   const { t } = useTranslation();
-  // const { address: connectedAddress } = useAccount();
-  const { ens } = useProfileDetails({ addressOrName: address });
-  // const isOwnProfile = connectedAddress?.toLowerCase() === address.toLowerCase();
 
   return (
     <Container>
@@ -103,11 +88,6 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
         {totalResolvedDisputes > 0 ? (
           <StyledLabel>{t("profile.juror_in_cases", { count: totalResolvedDisputes })}</StyledLabel>
         ) : null}
-        {/* TODO: Re-enable when there's a use case for EFP follow in the app
-        {connectedAddress ? <FollowerTag lookupAddressOrName={address} connectedAddress={connectedAddress} /> : null}
-        {!isOwnProfile && connectedAddress ? (
-          <FollowButton lookupAddress={address} connectedAddress={connectedAddress} />
-        ) : null} */}
       </LeftGroup>
       <KlerosAppsWrapper>
         <KlerosAppLink
@@ -118,13 +98,6 @@ const TopContent: React.FC<ITopContent> = ({ address, totalResolvedDisputes }) =
         >
           <ScoutIcon />
         </KlerosAppLink>
-        <ProfileSocials
-          userAddress={address}
-          name={ens?.name}
-          records={ens?.records ?? {}}
-          hideSocials={[...HIDE_ALL_EXCEPT_TWITTER]}
-          iconSize={28}
-        />
       </KlerosAppsWrapper>
     </Container>
   );
