@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { REFETCH_INTERVAL, STALE_TIME } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -33,5 +34,7 @@ export const useDrawQuery = (address?: string | null, disputeID?: string, roundI
         document: drawQuery,
         variables: { address, disputeID, roundID },
       }),
+    refetchInterval: REFETCH_INTERVAL,
+    staleTime: STALE_TIME,
   });
 };
