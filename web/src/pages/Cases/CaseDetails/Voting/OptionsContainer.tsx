@@ -54,9 +54,11 @@ interface IOptions {
   handleSelection: (arg0: bigint) => Promise<void>;
   justification?: string;
   setJustification?: (arg0: string) => void;
+  /** Note shown in the confirmation modal when this step does not collect a justification. */
+  confirmHint?: React.ReactNode;
 }
 
-const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justification, setJustification }) => {
+const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justification, setJustification, confirmHint }) => {
   const { id } = useParams();
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(BigInt(-1));
@@ -137,6 +139,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
       <ConfirmVoteModal
         isOpen={!isUndefined(pendingOption)}
         choice={pendingChoice}
+        hint={confirmHint}
         {...{ justification, onConfirm, onCancel }}
       />
     </>
