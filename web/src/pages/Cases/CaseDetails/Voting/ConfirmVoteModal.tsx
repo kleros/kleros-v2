@@ -67,13 +67,25 @@ interface IConfirmVoteModal {
   isOpen: boolean;
   /** Title of the answer the juror picked. */
   choice: string;
-  /** Justification text. Undefined for commit flows, where it is only provided at reveal. */
+  /** Justification text. Omit when this step does not collect one. */
   justification?: string;
+  /**
+   * Optional note shown in place of the justification section when no justification is collected here.
+   * The modal makes no assumption about why a justification is absent.
+   */
+  hint?: React.ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({ isOpen, choice, justification, onConfirm, onCancel }) => (
+const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({
+  isOpen,
+  choice,
+  justification,
+  hint,
+  onConfirm,
+  onCancel,
+}) => (
   <StyledModal
     {...{ isOpen }}
     shouldCloseOnEsc
@@ -95,9 +107,7 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({ isOpen, choice, justifi
       </ChoiceDisplay>
     </Section>
 
-    {isUndefined(justification) ? (
-      <Description>You will provide your justification when revealing your vote.</Description>
-    ) : (
+    {isUndefined(justification) ? null : (
       <Section>
         <Label>Your justification</Label>
         <ChoiceDisplay dir="auto">
@@ -105,6 +115,8 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({ isOpen, choice, justifi
         </ChoiceDisplay>
       </Section>
     )}
+
+    {isUndefined(justification) && hint ? <Description>{hint}</Description> : null}
 
     <ButtonArea>
       <Button variant="secondary" text="Cancel" onClick={onCancel} />
