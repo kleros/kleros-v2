@@ -23,9 +23,6 @@ export default defineConfig({
     },
   },
   envPrefix: ["REACT_APP", "ALCHEMY", "WALLETCONNECT_PROJECT_ID"],
-  ssr: {
-    noExternal: ["ethereum-identity-kit"],
-  },
   plugins: [
     viteStaticCopy({
       targets: [

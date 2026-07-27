@@ -12,6 +12,7 @@ export const STALE_TIME = 1000;
 export const IPFS_GATEWAY = import.meta.env.REACT_APP_IPFS_GATEWAY || "https://cdn.kleros.link";
 export const HERMES_TELEGRAM_BOT_URL =
   import.meta.env.REACT_APP_HERMES_TELEGRAM_BOT_URL || "https://t.me/HermesTheKlerosV2MessengerBot";
+export const KLEROS_SCOUT_URL = import.meta.env.REACT_APP_KLEROS_SCOUT_URL || "https://scout-app.kleros.io";
 
 export const GIT_BRANCH = gitBranch;
 export const GIT_TAGS = gitTags;
