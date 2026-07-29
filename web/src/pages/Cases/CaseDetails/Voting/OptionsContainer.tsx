@@ -14,6 +14,7 @@ import { isVoteJustificationSufficient } from "utils/voteJustification";
 
 import { EnsureChain } from "components/EnsureChain";
 
+import ConfirmVoteModal from "./ConfirmVoteModal";
 import JustificationArea from "./JustificationArea";
 
 const MainContainer = styled.div`
@@ -53,13 +54,16 @@ interface IOptions {
   handleSelection: (arg0: bigint) => Promise<void>;
   justification?: string;
   setJustification?: (arg0: string) => void;
+  /** Note shown in the confirmation modal when this step does not collect a justification. */
+  confirmHint?: React.ReactNode;
 }
 
-const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justification, setJustification }) => {
+const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justification, setJustification, confirmHint }) => {
   const { id } = useParams();
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(BigInt(-1));
   const [isSending, setIsSending] = useState(false);
+  const [pendingOption, setPendingOption] = useState<bigint | undefined>(undefined);
   const requiresJustification = !isUndefined(justification) && !isUndefined(setJustification);
   const hasValidJustification = !requiresJustification || isVoteJustificationSufficient(justification ?? "");
 
@@ -69,24 +73,41 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
     return RTAFromTemplate;
   }, [disputeDetails]);
 
+  const pendingChoice = useMemo(() => {
+    if (isUndefined(pendingOption)) return "";
+    if (pendingOption === BigInt(0)) return updatedRTA.title;
+    return disputeDetails?.answers?.find((answer) => BigInt(answer.id) === pendingOption)?.title ?? "";
+  }, [pendingOption, disputeDetails, updatedRTA]);
+
   const onClick = useCallback(
-    async (id: bigint) => {
+    (id: bigint) => {
       if (!hasValidJustification) {
         return;
       }
-      setIsSending(true);
-      setChosenOption(id);
-      try {
-        await handleSelection(id);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setChosenOption(BigInt(-1));
-        setIsSending(false);
-      }
+      setPendingOption(id);
     },
-    [handleSelection, hasValidJustification]
+    [hasValidJustification]
   );
+
+  const onCancel = useCallback(() => setPendingOption(undefined), []);
+
+  const onConfirm = useCallback(async () => {
+    if (isUndefined(pendingOption) || !hasValidJustification) {
+      return;
+    }
+
+    setPendingOption(undefined);
+    setIsSending(true);
+    setChosenOption(pendingOption);
+    try {
+      await handleSelection(pendingOption);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setChosenOption(BigInt(-1));
+      setIsSending(false);
+    }
+  }, [handleSelection, hasValidJustification, pendingOption]);
 
   return id ? (
     <>
@@ -127,6 +148,12 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
           </Tooltip>
         </EnsureChain>
       </RefuseToArbitrateContainer>
+      <ConfirmVoteModal
+        isOpen={!isUndefined(pendingOption)}
+        choice={pendingChoice}
+        hint={confirmHint}
+        {...{ justification, onConfirm, onCancel }}
+      />
     </>
   ) : null;
 };
