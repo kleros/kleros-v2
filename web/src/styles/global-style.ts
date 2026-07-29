@@ -34,6 +34,7 @@ export const GlobalStyle = createGlobalStyle`
 
   .ReactModal__Overlay {
     background-color: #1b003fcc !important;
+    z-index: 10000;
   }
 
   h1 {

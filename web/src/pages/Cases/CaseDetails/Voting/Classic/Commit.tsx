@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
 
@@ -28,6 +29,7 @@ interface ICommit {
 }
 
 const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitId }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -57,7 +59,9 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitI
 
   return id ? (
     <Container>
-      <OptionsContainer {...{ arbitrable, handleSelection: handleCommit }} />
+      <OptionsContainer
+        {...{ arbitrable, handleSelection: handleCommit, confirmHint: t("voting.justification_at_reveal") }}
+      />
     </Container>
   ) : null;
 };
