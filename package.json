@@ -48,8 +48,8 @@
   },
   "resolutions": {
     "async@npm^2.4.0": "npm:2.6.4",
-    "ejs@npm^2.6.1": "npm:3.1.7",
-    "ejs@npm:3.1.6": "npm:3.1.8",
+    "ejs@npm^2.6.1": "npm:ejs@3.1.10",
+    "ejs@npm:3.1.6": "npm:ejs@3.1.10",
     "loader-utils@npm:^1.0.2": "npm:1.4.2",
     "loader-utils@npm:^1.1.0": "npm:1.4.2",
     "lodash@npm^4.17.4": "npm:4.17.21",
