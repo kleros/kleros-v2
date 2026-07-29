@@ -6,6 +6,12 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-07-27
+
+### Added
+
+- `checkIsSubscribed(address)` on `IAtlasProvider` and `fetchIsSubscribed` GraphQL util: reports whether an address is subscribed to notification emails. Needs no authentication, so it works before the user signs in. Throws on failure.
+
 ## [3.0.1] - 2026-06-05
 
 ### Fixed

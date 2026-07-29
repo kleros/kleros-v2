@@ -121,6 +121,27 @@ interface IAtlasProvider {
       isError: boolean;
     }
   >;
+  checkIsSubscribed(address: Address): Promise<boolean>;
   roleRestrictions: Role[] | undefined;
 }
+```
+
+`checkIsSubscribed` needs no authentication, so it can be called before the user signs in. It throws if the request fails, wrap it in a query so caching and refetching stay under your control:
+
+```typescript
+import { useQuery } from "@tanstack/react-query";
+import { useAccount } from "wagmi";
+import { useAtlasProvider } from "@kleros/kleros-app";
+
+const useIsSubscribed = () => {
+  const { address } = useAccount();
+  const { checkIsSubscribed } = useAtlasProvider();
+
+  return useQuery({
+    queryKey: ["isSubscribed", address],
+    enabled: Boolean(address),
+    staleTime: 5 * 60 * 1000,
+    queryFn: () => checkIsSubscribed(address!),
+  });
+};
 ```
