@@ -352,7 +352,8 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
     return success;
   }
   try {
-    const tx = await (await core.draw(dispute.id, iterations, HIGH_GAS_LIMIT)).wait();
+    const drawGas = ((await core.draw.estimateGas(dispute.id, iterations)) * 150n) / 100n; // 50% extra gas
+    const tx = await (await core.draw(dispute.id, iterations, { gasLimit: drawGas })).wait();
     logger.info(`Draw txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
@@ -374,7 +375,8 @@ const executeRepartitions = async (dispute: { id: string; currentRoundIndex: str
     return success;
   }
   try {
-    const tx = await (await core.execute(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT)).wait();
+    const execGas = ((await core.execute.estimateGas(dispute.id, dispute.currentRoundIndex, iterations)) * 150n) / 100n; // 50% extra gas
+    const tx = await (await core.execute(dispute.id, dispute.currentRoundIndex, iterations, { gasLimit: execGas })).wait();
     logger.info(`Execute txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
