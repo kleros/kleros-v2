@@ -21,7 +21,9 @@ const MAX_EXECUTE_ITERATIONS = 20;
 const MAX_DELAYED_STAKES_ITERATIONS = 50;
 const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
 const ITERATIONS_COOLDOWN_PERIOD = 10 * 1000; // 10 seconds
-const HIGH_GAS_LIMIT = { gasLimit: 50_000_000 }; // 50M gas
+// Local eth_call budget for the 300-iteration juror-availability probe
+const DRAW_PROBE_GAS_LIMIT = { gasLimit: 50_000_000 };
+const MAX_TX_GAS_LIMIT = 25_000_000n; // Max gas per tx enforced by the provider
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
 const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
 const MAX_JURORS_PER_DISPUTE = 1000; // Skip disputes with more than this number of jurors
@@ -351,7 +353,7 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
   try {
     const simulatedIterations = iterations * MAX_DRAW_CALLS_WITHOUT_JURORS; // Drawing will be skipped as long as no juror is available in the next MAX_DRAW_CALLS_WITHOUT_JURORS calls to draw() given this nb of iterations.
     const { drawnJurors: drawnJurorsBefore } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
-    const nbDrawnJurors = (await core.draw.staticCall(dispute.id, simulatedIterations, HIGH_GAS_LIMIT)) as bigint;
+    const nbDrawnJurors = (await core.draw.staticCall(dispute.id, simulatedIterations, DRAW_PROBE_GAS_LIMIT)) as bigint;
     const extraJurors = nbDrawnJurors - BigInt(drawnJurorsBefore.length);
     logger.debug(
       `Draw: ${extraJurors} jurors available in the next ${simulatedIterations} iterations for dispute ${dispute.id}`
@@ -366,8 +368,26 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
     logger.error(`Draw: will fail for ${dispute.id}, skipping`);
     return success;
   }
+  let batchIterations = iterations;
   try {
-    const tx = await (await core.draw(dispute.id, iterations, HIGH_GAS_LIMIT)).wait();
+    // If the estimate exceeds MAX_TX_GAS_LIMIT, halve the batch and retry so a single
+    // dispute never gets stuck skipping forever on the same over-cap iteration count.
+    let drawGas = ((await core.draw.estimateGas(dispute.id, batchIterations)) * 150n) / 100n; // 50% extra gas
+    while (drawGas > MAX_TX_GAS_LIMIT && batchIterations > 1) {
+      batchIterations = Math.ceil(batchIterations / 2);
+      logger.warn(
+        `Draw: estimated gas ${drawGas} exceeds MAX_TX_GAS_LIMIT for dispute ${dispute.id}, ` +
+          `retrying with ${batchIterations} iterations`
+      );
+      drawGas = ((await core.draw.estimateGas(dispute.id, batchIterations)) * 150n) / 100n;
+    }
+    if (drawGas > MAX_TX_GAS_LIMIT) {
+      logger.error(
+        `Draw: gas ${drawGas} still exceeds MAX_TX_GAS_LIMIT for dispute ${dispute.id} at 1 iteration, skipping`
+      );
+      return success;
+    }
+    const tx = await (await core.draw(dispute.id, batchIterations, { gasLimit: drawGas })).wait();
     logger.info(`Draw txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
@@ -383,13 +403,38 @@ const executeRepartitions = async (dispute: { id: string; currentRoundIndex: str
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.execute.staticCall(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT);
-  } catch (e) {
+    await core.execute.staticCall(dispute.id, dispute.currentRoundIndex, iterations, { gasLimit: MAX_TX_GAS_LIMIT });
+  } catch {
     logger.error(`Execute: will fail for ${dispute.id}, skipping`);
     return success;
   }
+  let batchIterations = iterations;
   try {
-    const tx = await (await core.execute(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT)).wait();
+    // If the estimate exceeds MAX_TX_GAS_LIMIT, halve the batch and retry so a single
+    // dispute never gets stuck skipping forever on the same over-cap iteration count.
+    // 50% extra gas
+    const estimateExecGas = async () => {
+      const gas = await core.execute.estimateGas(dispute.id, dispute.currentRoundIndex, batchIterations);
+      return (gas * 150n) / 100n;
+    };
+    let execGas = await estimateExecGas();
+    while (execGas > MAX_TX_GAS_LIMIT && batchIterations > 1) {
+      batchIterations = Math.ceil(batchIterations / 2);
+      logger.warn(
+        `Execute: estimated gas ${execGas} exceeds MAX_TX_GAS_LIMIT for dispute ${dispute.id}, ` +
+          `retrying with ${batchIterations} iterations`
+      );
+      execGas = await estimateExecGas();
+    }
+    if (execGas > MAX_TX_GAS_LIMIT) {
+      logger.error(
+        `Execute: gas ${execGas} still exceeds MAX_TX_GAS_LIMIT for dispute ${dispute.id} at 1 iteration, skipping`
+      );
+      return success;
+    }
+    const tx = await (
+      await core.execute(dispute.id, dispute.currentRoundIndex, batchIterations, { gasLimit: execGas })
+    ).wait();
     logger.info(`Execute txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
