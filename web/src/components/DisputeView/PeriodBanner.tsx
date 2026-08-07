@@ -35,7 +35,7 @@ const Container = styled.div<IContainer>`
 
   ${landscapeStyle(
     () => css`
-      padding: 0 ${responsiveSize(16, 24)};
+      padding: 0 ${responsiveSize(16, 24, 900)};
     `
   )}
 `;
