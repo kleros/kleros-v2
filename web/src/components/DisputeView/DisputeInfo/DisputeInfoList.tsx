@@ -35,7 +35,6 @@ const RestOfFieldsContainer = styled.div`
 
 const StyledField = styled(Field)<{ style?: string }>`
   .value {
-    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -45,7 +44,6 @@ const StyledField = styled(Field)<{ style?: string }>`
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    overflow-wrap: anywhere;
   }
 
   ${({ style }) => style ?? ""}
@@ -64,12 +62,7 @@ const DisputeInfoList: React.FC<IDisputeInfoList> = ({ fieldItems, showLabels, d
     () =>
       fieldItems.map((item) =>
         item.display ? (
-          <StyledField
-            key={item.name}
-            {...(item as IField)}
-            value={item.link ? (item.value ?? "") : truncateText(item.value ?? "", 20)}
-            displayAsList
-          />
+          <StyledField key={item.name} {...(item as IField)} value={truncateText(item.value ?? "", 20)} displayAsList />
         ) : null
       ),
     [fieldItems]
