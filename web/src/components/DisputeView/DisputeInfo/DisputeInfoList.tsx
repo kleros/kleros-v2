@@ -20,7 +20,7 @@ const Container = styled.div<{ isLabel?: boolean }>`
   flex: 0 1 ${responsiveSize(400, 450, 900)};
   align-items: center;
   padding-right: ${responsiveSize(12, 24, 900)};
-  gap: 8px;
+  gap: ${responsiveSize(16, 24, 900)};
 `;
 
 const RestOfFieldsContainer = styled.div`
@@ -34,6 +34,20 @@ const RestOfFieldsContainer = styled.div`
 `;
 
 const StyledField = styled(Field)<{ style?: string }>`
+  .value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  a {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
   ${({ style }) => style ?? ""}
 `;
 
@@ -50,7 +64,12 @@ const DisputeInfoList: React.FC<IDisputeInfoList> = ({ fieldItems, showLabels, d
     () =>
       fieldItems.map((item) =>
         item.display ? (
-          <StyledField key={item.name} {...(item as IField)} value={truncateText(item.value ?? "", 20)} displayAsList />
+          <StyledField
+            key={item.name}
+            {...(item as IField)}
+            value={item.link ? (item.value ?? "") : truncateText(item.value ?? "", 20)}
+            displayAsList
+          />
         ) : null
       ),
     [fieldItems]

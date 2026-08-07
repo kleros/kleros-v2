@@ -16,7 +16,8 @@ interface IContainer {
 
 const Container = styled.div<IContainer>`
   height: ${({ isCard }) => (isCard ? "45px" : "100%")};
-  width: ${({ isCard }) => (isCard ? "auto" : responsiveSize(140, 200, 900))};
+  width: ${({ isCard }) => (isCard ? "auto" : responsiveSize(180, 200, 900))};
+  min-width: ${({ isCard }) => (isCard ? "auto" : "min-content")};
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   display: flex;
@@ -34,7 +35,7 @@ const Container = styled.div<IContainer>`
 
   ${landscapeStyle(
     () => css`
-      padding: 0 24px;
+      padding: 0 ${responsiveSize(16, 24)};
     `
   )}
 `;

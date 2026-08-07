@@ -28,6 +28,8 @@ const ListContainer = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   flex-grow: 1;
+  min-width: 0;
+  gap: ${responsiveSize(16, 24, 900)};
 `;
 
 const TitleContainer = styled.div<{ isLabel?: boolean }>`
@@ -39,6 +41,10 @@ const TitleContainer = styled.div<{ isLabel?: boolean }>`
   h3 {
     margin: 0;
     flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 `;
 

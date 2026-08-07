@@ -14,6 +14,8 @@ import { useIsList } from "context/IsListProvider";
 import { formatDate } from "utils/date";
 import { isUndefined } from "utils/index";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 import DisputeInfoCard from "./DisputeInfoCard";
 import DisputeInfoList from "./DisputeInfoList";
 
@@ -91,7 +93,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
         name: t("dispute_info.category"),
         value: category ?? t("dispute_info.general"),
         display: true,
-        style: "justify-self: end;",
+        style: `justify-self: end; max-width: ${responsiveSize(110, 160, 900)};`,
       },
       { icon: PileCoinsIcon, name: t("dispute_info.juror_rewards"), value: rewards, display: !isUndefined(rewards) },
       {
