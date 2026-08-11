@@ -635,7 +635,7 @@ async function main() {
     const minStakingTime = await sortition.minStakingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange > minStakingTime;
+      return toBigInt(blockTime) - lastPhaseChange >= minStakingTime;
     });
   };
 
@@ -643,7 +643,7 @@ async function main() {
     const maxDrawingTime = await sortition.maxDrawingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange > maxDrawingTime;
+      return toBigInt(blockTime) - lastPhaseChange >= maxDrawingTime;
     });
   };
 
@@ -708,7 +708,17 @@ async function main() {
   }
 
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
-  if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
+
+  // Phase-aware dispatch:
+  //  - If already in drawing phase (e.g. advanced by an external actor or resumed after a keeper
+  //    restart mid-draw), enter the drawing loop directly — no minStakingTime gate required.
+  //  - Otherwise, require minStakingTime to have elapsed (>= to match contract semantics) before
+  //    advancing from staking through generating into drawing.
+  const enterDrawingBlock =
+    (disputesWithoutJurors.length > 0 && (await isPhaseDrawing())) ||
+    ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0);
+
+  if (enterDrawingBlock) {
     // ----------------------------------------------- //
     //                DRAWING ATTEMPT                  //
     // ----------------------------------------------- //
@@ -726,6 +736,7 @@ async function main() {
       await passPhase();
     }
     if (await isPhaseDrawing()) {
+      let drawIterationsTotal = 0;
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       for (const dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
@@ -746,10 +757,20 @@ async function main() {
             logger.error(`Failed to draw jurors for dispute #${dispute.id}, skipping it`);
             break;
           }
+          drawIterationsTotal += drawIterations;
           await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
           maxDrawingTimePassed = await hasMaxDrawingTimePassed();
           numberOfMissingJurors = await getMissingJurors(dispute);
         } while (!(numberOfMissingJurors === 0n) && !maxDrawingTimePassed);
+      }
+      // Warn if the drawing run completed with zero draws but disputes still need jurors.
+      // This indicates a stall (no eligible jurors staked, RNG issue, or all draws failing).
+      if (drawIterationsTotal === 0 && disputesWithoutJurors.length > 0) {
+        const pendingIds = disputesWithoutJurors.map((d) => d.id).join(", ");
+        logger.warn(
+          `Drawing phase run completed with zero draws for ${disputesWithoutJurors.length} ` +
+            `dispute(s) still needing jurors: [${pendingIds}]`
+        );
       }
       // At this point, either all disputes are fully drawn or max drawing time has passed
     }
