@@ -510,5 +510,37 @@
       216000,
       216000
     ]
+  },
+  {
+    "name": "Commerce Court",
+    "id": 33,
+    "parent": 1,
+    "hiddenVotes": true,
+    "minStake": "11000000000000000000000",
+    "alpha": "5000",
+    "feeForJuror": "18000000000000000",
+    "jurorsForCourtJump": "31",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "name": "Agentic Commerce Court",
+    "id": 34,
+    "parent": 33,
+    "hiddenVotes": true,
+    "minStake": "11000000000000000000000",
+    "alpha": "170",
+    "feeForJuror": "270000000000000",
+    "jurorsForCourtJump": "7",
+    "timesPerPeriod": [
+      43200,
+      28800,
+      28800,
+      129600
+    ]
   }
 ]
