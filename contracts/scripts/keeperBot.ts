@@ -710,12 +710,14 @@ async function main() {
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
 
   // Phase-aware dispatch:
-  //  - If already in drawing phase (e.g. advanced by an external actor or resumed after a keeper
-  //    restart mid-draw), enter the drawing loop directly — no minStakingTime gate required.
-  //  - Otherwise, require minStakingTime to have elapsed (>= to match contract semantics) before
-  //    advancing from staking through generating into drawing.
+  //  - If already in generating or drawing phase (e.g. advanced by an external actor or resumed
+  //    after a keeper restart mid-cycle), enter the block directly — no minStakingTime gate
+  //    required. minStakingTime only governs the staking -> generating transition
+  //    (SortitionModule.sol); generating -> drawing only requires RNG readiness.
+  //  - Otherwise (phase is staking), require minStakingTime to have elapsed (>= to match contract
+  //    semantics) before advancing from staking through generating into drawing.
   const enterDrawingBlock =
-    (disputesWithoutJurors.length > 0 && (await isPhaseDrawing())) ||
+    (disputesWithoutJurors.length > 0 && ((await isPhaseGenerating()) || (await isPhaseDrawing()))) ||
     ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0);
 
   if (enterDrawingBlock) {
