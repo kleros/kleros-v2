@@ -758,6 +758,13 @@ async function main() {
         }
         do {
           const drawIterations = Math.min(MAX_DRAW_ITERATIONS, getNumber(numberOfMissingJurors));
+          if (drawIterations === 0) {
+            // Dispute was fully drawn externally (e.g. another keeper instance) between the
+            // pre-loop snapshot and this iteration. Nothing left to draw; avoid a wasted
+            // drawJurors(dispute, 0) call and the misleading "Failed to draw jurors" log it
+            // would otherwise produce.
+            break;
+          }
           logger.info(
             `Drawing ${drawIterations} out of ${numberOfMissingJurors} jurors needed for dispute #${dispute.id}`
           );
