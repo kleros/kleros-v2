@@ -10,14 +10,11 @@ import PileCoinsIcon from "svgs/icons/pile-coins.svg";
 import RoundIcon from "svgs/icons/round.svg";
 
 import { Periods } from "consts/periods";
-import { useIsList } from "context/IsListProvider";
-import { formatDate } from "utils/date";
 import { isUndefined } from "utils/index";
 
 import DisputeInfoCard from "./DisputeInfoCard";
-import DisputeInfoList from "./DisputeInfoList";
 
-const getPeriodPhrase = (period: Periods, t: (key: string) => string): string => {
+export const getPeriodPhrase = (period: Periods, t: (key: string) => string): string => {
   switch (period) {
     case Periods.evidence:
       return t("dispute_info.voting_starts");
@@ -48,7 +45,6 @@ export interface IDisputeInfo {
   period?: Periods;
   date?: number;
   round?: number;
-  overrideIsList?: boolean;
   isOverview?: boolean;
   showLabels?: boolean;
 }
@@ -62,14 +58,11 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   period,
   date,
   round,
-  overrideIsList,
   isOverview,
   showLabels = false,
 }) => {
   const { t, i18n } = useTranslation();
-  const { isList } = useIsList();
   const { isDisconnected } = useAccount();
-  const displayAsList = isList && !overrideIsList;
 
   const fieldItems: FieldItem[] = useMemo(
     () => [
@@ -97,20 +90,14 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
       {
         icon: CalendarIcon,
         name: getPeriodPhrase(period ?? 0, t),
-        value: date
-          ? !displayAsList
-            ? new Date(date * 1000).toLocaleString(i18n.language)
-            : formatDate(date, false, i18n.language)
-          : "",
+        value: date ? new Date(date * 1000).toLocaleString(i18n.language) : "",
         display: !isUndefined(period) && !isUndefined(date),
         style: "grid-column: 2 / 4;",
       },
     ],
-    [category, court, courtId, date, displayAsList, period, rewards, round, t, i18n.language]
+    [category, court, courtId, date, period, rewards, round, t, i18n.language]
   );
-  return displayAsList ? (
-    <DisputeInfoList showLabels={showLabels && !isDisconnected} {...{ disputeID, round, fieldItems }} />
-  ) : (
+  return (
     <DisputeInfoCard
       showLabels={showLabels && !isDisconnected}
       {...{ disputeID, round, fieldItems, court, courtId, isOverview }}

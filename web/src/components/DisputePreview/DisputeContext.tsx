@@ -177,7 +177,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
               />
             ) : null}
             {!isDisconnected ? (
-              <CardLabel {...{ disputeId }} round={(rounds?.length ?? 0) - 1} isList={false} isOverview={true} />
+              <CardLabel {...{ disputeId }} round={(rounds?.length ?? 0) - 1} isOverview={true} />
             ) : null}
           </RulingAndRewardsAndLabels>
         ) : null}

@@ -72,8 +72,8 @@ const DisputeView: React.FC<IDisputeView> = ({
       court={courtName}
       period={currentPeriodIndex}
       round={parseInt(currentRoundIndex) + 1}
-      showLabels
       {...{ category, rewards, date }}
+      isLoading={isUndefined(populatedDisputeDetails)}
     />
   );
 };

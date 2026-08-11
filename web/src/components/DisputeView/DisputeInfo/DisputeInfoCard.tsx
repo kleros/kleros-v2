@@ -63,7 +63,7 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({ isOverview, showLabels, f
         )}
       </RestOfFieldsContainer>
       {showLabels && !isUndefined(disputeID) && !isUndefined(round) ? (
-        <CardLabel disputeId={disputeID} round={round - 1} isList={false} />
+        <CardLabel disputeId={disputeID} round={round - 1} />
       ) : null}
     </Container>
   );
