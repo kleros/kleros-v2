@@ -64,8 +64,8 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [EvidenceModule: proxy](https://sepolia.arbiscan.io/address/0xA88A9a25cE7f1d8b3941dA3b322Ba91D009E1397), [implementation](https://sepolia.arbiscan.io/address/0xC4e64e6E949936a18269937FC1e18cb11E3db14D)
 - [KlerosCore: proxy](https://sepolia.arbiscan.io/address/0xE8442307d36e9bf6aB27F1A009F95CE8E11C3479), [implementation](https://sepolia.arbiscan.io/address/0x02F607722749CECd32db07AA0b0755281FE9D13c)
 - [KlerosCoreSnapshotProxy](https://sepolia.arbiscan.io/address/0xd74e61A4dB9C6c3F2C97b62a319aE194f616858C)
-- [PNKFaucet](https://sepolia.arbiscan.io/address/0x9f6ffc13B685A68ae359fCA128dfE776458Df464)
 - [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
+- [PNKFaucet](https://sepolia.arbiscan.io/address/0x9f6ffc13B685A68ae359fCA128dfE776458Df464)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0x2668c46A14af8997417138B064ca1bEB70769585), [implementation](https://sepolia.arbiscan.io/address/0x7CC8E0787e381aE159C4d3e137f20f9203313D41)
 - [RandomizerRNG: proxy](https://sepolia.arbiscan.io/address/0x51a97ad9F0aA818e75819da3cA20CAc319580627), [implementation](https://sepolia.arbiscan.io/address/0x1237F02bBeFDAEA20cE3A66aCAe458C4106Ae203)
 - [SBTACPLawyer](https://sepolia.arbiscan.io/address/0xF83e3F4042D21a3Fa9bc1BCF7C4Cb4C46f893929)
@@ -111,11 +111,11 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [KlerosCoreSnapshotProxy](https://sepolia.arbiscan.io/address/0x171Ea9B37F3c36E8d07e7c5b30F561ad4595AD28)
 - [KlerosV2NeoEarlyUser](https://sepolia.arbiscan.io/address/0x0d60Ff8bbCF49Bc5352328E7E28e141834d7750F)
 - [LeaderboardOffset](https://sepolia.arbiscan.io/address/0x9D2FafF0977143D2225EDA14A3b73a8B49558969)
-- [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
 - [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
+- [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0xe9FB76E8E9ED979E9448113c9358cab3ecD5A4eE), [implementation](https://sepolia.arbiscan.io/address/0xE29228c99F893cb226C0432daa9d1F189F6C709f)
-- [RNGWithFallback](https://sepolia.arbiscan.io/address/0xaa20C44ACd0a5DA4c782375155800201fbC8eA19)
 - [RatesConverter](https://sepolia.arbiscan.io/address/0x95D68c863075DB3B22560554761D3c318d8052F8)
+- [RNGWithFallback](https://sepolia.arbiscan.io/address/0xaa20C44ACd0a5DA4c782375155800201fbC8eA19)
 - [SBTACPExperience](https://sepolia.arbiscan.io/address/0xB4683e9a6e0Ea4F0f9e844b80A47cbF9A9541ab1)
 - [SBTACPLawyer](https://sepolia.arbiscan.io/address/0xc375753247BEA64dd615196e444a2647fd50cd00)
 - [SortitionModule: proxy](https://sepolia.arbiscan.io/address/0xEA3D4a542c7b627f0f8644aE52C179E8908739b7), [implementation](https://sepolia.arbiscan.io/address/0xF5E9D7cB1969E3c06402C2882E17E9f5d055227E)
@@ -237,6 +237,19 @@ The deployed addresses should be displayed to the screen after the deployment is
 
 Same steps as above but append `Devnet` to the `--network` parameter.
 
+#### 5. Verify the Source Code
+
+This must be done for each network separately.
+
+```bash
+# explorer
+yarn etherscan-verify --network <arbitrumSepolia|arbitrum|chiado|gnosischain|sepolia|mainnet>
+yarn etherscan-verify-proxies
+
+# sourcify
+yarn sourcify --network <arbitrumSepolia|arbitrum|chiado|gnosischain|sepolia|mainnet>
+```
+
 #### Running Test Fixtures
 
 **Shell 1: the node**
@@ -251,42 +264,167 @@ yarn hardhat node --tags Arbitration,VeaMock
 yarn test --network localhost
 ```
 
-#### 4. Verify the Source Code
-
-This must be done for each network separately.
-
-```bash
-# explorer
-yarn etherscan-verify --network <arbitrumSepolia|arbitrum|chiado|gnosischain|sepolia|mainnet>
-yarn etherscan-verify-proxies
-
-# sourcify
-yarn sourcify --network <arbitrumSepolia|arbitrum|chiado|gnosischain|sepolia|mainnet>
-
-```
-
 ## Ad-hoc procedures
 
-### Populating the policy registry and courts
+### Creating a new court and its policy
 
-The policy registry and courts configuration can be found in `config/policies.*.json` and `config/courts.*.json`.
+Maintainer runbook for adding a court and its policy to Kleros v2. Run all commands from the `contracts/` directory.
 
-#### 1/ Export the registry data from V1
+#### Overview
 
-```bash
-for network in mainnet gnosischain
-do
-  yarn hardhat run scripts/getPoliciesV1.ts  --network $network | tee config/policies.v1.$network.json
-  yarn hardhat run scripts/getCourtsV1.ts --network $network | tee config/courts.v1.$network.json
-done
+Each environment (devnet, testnet, mainnet) has its own court and policy config files. The workflow is: 1) author the configs → 2) generate the policy files and their IPFS URIs → 3) create the court and register its policy on-chain.
+
+```mermaid
+flowchart LR
+  subgraph author ["1 - Author configs (per env)"]
+    courts["courts.v2.{env}.json<br/>(court parameters)"]
+    policies["policies.v2.{env}.json<br/>(policy content, no uri yet)"]
+  end
+  subgraph ipfs ["2 - Policy files and CIDs"]
+    setURIs["setPoliciesURIs.sh"]
+    files["policies.v2.{env}/*-Policy.json<br/>(generated, committed, pinned to IPFS)"]
+  end
+  subgraph onchain ["3 - On-chain (per env)"]
+    createCourt["populate:courts<br/>KlerosCore.createCourt()"]
+    setPolicy["populate:policy-registry<br/>PolicyRegistry.setPolicy()"]
+  end
+  courts --> createCourt
+  policies --> setURIs
+  setURIs --> files
+  setURIs -->|"writes uri back"| policies
+  policies -->|"court + name + uri"| setPolicy
+  createCourt -->|"court must exist first,<br/>else the subgraph drops PolicyUpdate"| setPolicy
 ```
 
-#### 2/ Import the data to V2 - Public Testnet
+Key points:
+
+- **Config files are source of truth.** Individual policy files under `config/policies.v2.{env}/` are **generated** by [`setPoliciesURIs.sh`](./scripts/setPoliciesURIs.sh), not authored manually.
+- **CIDs are per environment** because the `court` field (and thus the CID) differs across envs.
+- **On-chain order is strict:** create the court before registering its policy. `PolicyRegistry.setPolicy` itself does not check that the court exists — the transaction succeeds either way — but the subgraph handler silently drops the `PolicyUpdate` event when the court entity is missing. Recovery: re-run `populate:policy-registry` for that court after `populate:courts`.
+
+#### Config files
+
+| Environment | Courts config | Policies manifest |
+|---|---|---|
+| Devnet | `config/courts.v2.devnet.json` | `config/policies.v2.devnet.json` |
+| Testnet | `config/courts.v2.testnet.json` | `config/policies.v2.testnet.json` |
+| Mainnet | `config/courts.v2.mainnet.json` | `config/policies.v2.mainnet.json` |
+
+Format specifications:
+
+- Court fields: [`specifications/courts.md`](./specifications/courts.md)
+- Policy fields: [`specifications/policy-format.md`](./specifications/policy-format.md)
+
+#### Court ID rules
+
+- Court **ID 0** is the Forking court on-chain; it is **omitted** from config files. Config array index 0 corresponds to court ID 1.
+- On-chain IDs are assigned sequentially by `KlerosCore.createCourt` (`courtID = courts.length`). Config `id` must equal the next available slot when creating courts in order.
+- **Court IDs differ per environment** (e.g. Commerce Court is ID 8 on devnet, 7 on testnet, 33 on mainnet). Always edit the target env file; do not copy IDs across envs.
+- Because each policy JSON embeds its environment-specific `court` ID, **policy files are not identical across devnet, testnet, and mainnet**, even when `name`, `purpose`, and `rules` match. IPFS CIDs (and therefore `uri` values) **differ per environment**. Do not reuse a `/ipfs/...` URI from one env in another; run `setPoliciesURIs.sh` separately for each env manifest.
+- `name` in the courts config is purely informational for the human maintainer; no script reads it. The on-chain court name comes solely from `PolicyRegistry.setPolicy` (i.e. the `name` in the policies manifest). By convention keep both in sync.
+- `parent` is immutable after creation; `minStake` must be >= parent court min stake.
+
+#### Step-by-step workflow
+
+**Step 1 — Add court parameters**
+
+Append an entry to `config/courts.v2.{env}.json` with the next sequential `id`, correct `parent`, stakes, `alpha`, `jurorsForCourtJump`, and `timesPerPeriod`.
+
+**Step 2 — Add policy content**
+
+Append a matching entry to `config/policies.v2.{env}.json`:
+
+```json
+{
+  "name": "Commerce Court",
+  "purpose": "...",
+  "rules": "",
+  "requiredSkills": "",
+  "court": 8
+}
+```
+
+Omit `uri`; it is filled in Step 3. Required: `name`, `purpose`, `rules`, `court`. Optional: `requiredSkills`.
+
+**Step 3 — Generate policy files and URIs (per environment)**
+
+Prerequisites: `jq`, `ipfs` CLI, local IPFS node.
+
+The local `ipfs add` only **predicts the CID**; it does not publish to the public network. The generated `*-Policy.json` files must separately be pinned to public IPFS infrastructure (usual Kleros pinning flow) for the `/ipfs/...` URIs to resolve.
+
+Run once **per environment** after editing that env's manifest (court IDs differ, so CIDs differ):
 
 ```bash
-yarn hardhat populate:courts --from v2_testnet --max-number-of-courts 3 --network arbitrumSepolia
-yarn hardhat populate:policy-registry --from v2_testnet --network arbitrumSepolia
+./scripts/setPoliciesURIs.sh config/policies.v2.devnet.json
+./scripts/setPoliciesURIs.sh config/policies.v2.testnet.json
+./scripts/setPoliciesURIs.sh config/policies.v2.mainnet.json
+# or all three at once:
+yarn populate:policiesUris
 ```
+
+The script:
+
+- Creates/overwrites `config/policies.v2.{env}/{Name-With-Hyphens}-Policy.json`
+- Strips `uri` before hashing (the CID reflects content only, including the env-specific `court` field)
+- Writes `"/ipfs/Qm..."` back into that env's manifest
+
+**Per-environment CIDs:** Even identical policy prose yields different IPFS hashes when `court` differs. Each env gets its own CID and `uri`. The generated files under `config/policies.v2.devnet/`, `config/policies.v2.testnet/`, and `config/policies.v2.mainnet/` are env-specific artifacts and must all be pinned and committed separately.
+
+Filename rule: `{name with spaces replaced by hyphens}-Policy.json` (e.g. `"Agentic Commerce Court"` → `Agentic-Commerce-Court-Policy.json`).
+
+Individual file schema: same as manifest entry **without** `uri`.
+
+**Step 4 — Create court on-chain**
+
+```bash
+yarn populate:courts:devnet    # or :testnet / :mainnet
+```
+
+Uses [`populateCourts.ts`](./scripts/populateCourts.ts): creates court if missing, updates mutable params if present. Note: `sortitionExtraData` (tree K) is hardcoded to `5` in the script, not configurable.
+
+**Step 5 — Register policy on-chain**
+
+```bash
+yarn populate:policies:devnet   # or :testnet / :mainnet
+```
+
+Uses [`populatePolicyRegistry.ts`](./scripts/populatePolicyRegistry.ts): calls `PolicyRegistry.setPolicy(courtID, name, uri)`.
+
+**Warning — always pass `--from` when invoking the Hardhat tasks directly.** Without it, the source config auto-detects to `v2_devnet` on devnet networks and `v2_testnet` everywhere else — **never `v2_mainnet`**. A bare `yarn hardhat populate:courts --network arbitrum` would push the testnet config to mainnet. The `yarn populate:*:{env}` shortcuts are safe because they hardcode `--from`.
+
+**Order (required):** Step 4 before Step 5. The new court **must** be created on-chain (`populate:courts`) **before** registering its policy (`populate:policy-registry`), otherwise the **subgraph indexer will not pick up the new policy** (see Key points above for why, and how to recover).
+
+#### Targeting a single new court
+
+Both Hardhat tasks accept `--start` and `--max-number-of-courts`. **Important:** these slice the config **array index**, not the court ID.
+
+Example: if the new court is the last entry (index 8, court ID 9):
+
+```bash
+yarn hardhat populate:courts --from v2_devnet --start 8 --max-number-of-courts 1 --network arbitrumSepoliaDevnet
+yarn hardhat populate:policy-registry --from v2_devnet --start 8 --max-number-of-courts 1 --network arbitrumSepoliaDevnet
+```
+
+#### Mainnet / multisig behavior
+
+When contract `owner` is a Safe/multisig, populate scripts **do not broadcast**; they write batched txs to `tx-batch.json` for Safe Transaction Builder (see [`utils/execution.ts`](./scripts/utils/execution.ts)). Submit manually after review.
+
+#### Rollout and commit checklist
+
+- Roll out env-by-env: **devnet → testnet → mainnet**
+- For each env, complete the full sequence before moving on: config → policy files + CIDs → `populate:courts` → `populate:policy-registry`
+- Commit together (per env, all with env-specific URIs/CIDs):
+  - Updated `courts.v2.{env}.json`
+  - Updated `policies.v2.{env}.json` (with env-specific `uri` fields)
+  - Generated `config/policies.v2.{env}/*-Policy.json` files
+- Re-running `setPoliciesURIs.sh` regenerates **all** policy files in that manifest and updates all URIs; prefer running on a single env file when adding one court
+
+#### Related yarn shortcuts
+
+- `populate:policiesUris` — IPFS upload for all three env manifests
+- `populate:courts:{devnet,testnet,mainnet}`
+- `populate:policies:{devnet,testnet,mainnet}`
+- `local:populate:local` — courts + policies on localhost
 
 ### Generate deployment artifacts for existing contracts
 
