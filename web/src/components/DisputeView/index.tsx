@@ -64,7 +64,7 @@ const DisputeView: React.FC<IDisputeView> = ({
       period={currentPeriodIndex}
       round={parseInt(currentRoundIndex) + 1}
       showLabels
-      {...{ category, rewards, date, overrideIsList, isLoading }}
+      {...{ category, rewards, date, isLoading }}
     />
   ) : (
     <DisputeListView

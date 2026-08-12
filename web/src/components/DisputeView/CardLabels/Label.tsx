@@ -85,7 +85,7 @@ const Label: React.FC<ILabelProps> = ({ text, icon: Icon, color, asPill = false,
         </IconContainer>
       )}
       <StyledText {...{ contentColor }}>{text}</StyledText>
-      {children}
+      {asPill ? children : null}
     </LabelContainer>
   );
 };

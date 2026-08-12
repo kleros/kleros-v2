@@ -197,7 +197,7 @@
   "dispute_info": {
     "court": "Cour",
     "round": "Tour",
-    "round_number": "Tour {{number}}",
+    "round_number": "Tour {{round}}",
     "category": "Catégorie",
     "general": "Général",
     "juror_rewards": "Récompenses des jurés",

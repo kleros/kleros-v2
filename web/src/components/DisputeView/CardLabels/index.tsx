@@ -157,8 +157,10 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isOverview = false
   const rewardItems: IRewardsAndFundLabel[] = useMemo(() => {
     const items: IRewardsAndFundLabel[] = [];
     if (!isUndefined(rewardsData) && period === "execution") {
-      items.push({ value: rewardsData.ethShift.toString(), unit: "ETH" });
-      items.push({ value: rewardsData.pnkShift.toString(), unit: "PNK" });
+      items.push(
+        { value: rewardsData.ethShift.toString(), unit: "ETH" },
+        { value: rewardsData.pnkShift.toString(), unit: "PNK" }
+      );
     }
     if (!isUndefined(currentRoundFund) && period === "appeal") {
       items.push({ value: currentRoundFund.toString(), unit: "ETH", isFund: true });
