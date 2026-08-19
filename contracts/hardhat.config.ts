@@ -228,8 +228,8 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiUrl: "https://gnosis-chiado.blockscout.com",
-          apiKey: "",
+          apiUrl: "https://api.blockscout.com/10200/api",
+          apiKey: process.env.BLOCKSCOUT_API_KEY ?? "",
         },
       },
     },
@@ -245,8 +245,8 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiUrl: "https://gnosis-chiado.blockscout.com",
-          apiKey: "",
+          apiUrl: "https://api.blockscout.com/10200/api",
+          apiKey: process.env.BLOCKSCOUT_API_KEY ?? "",
         },
       },
     },
@@ -259,7 +259,8 @@ const config: HardhatUserConfig = {
       tags: ["production", "foreign", "layer1"],
       verify: {
         etherscan: {
-          apiKey: process.env.GNOSISSCAN_API_KEY,
+          apiUrl: "https://api.blockscout.com/100/api",
+          apiKey: process.env.BLOCKSCOUT_API_KEY ?? "",
         },
       },
     },
