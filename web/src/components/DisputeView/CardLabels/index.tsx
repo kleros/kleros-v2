@@ -21,30 +21,22 @@ import { isUndefined } from "utils/index";
 import { LabelInfoQuery } from "src/graphql/graphql";
 
 import Label, { IColors } from "./Label";
-import RewardsAndFundLabel from "./RewardsAndFundLabel";
+import RewardsAndFundLabel, { IRewardsAndFundLabel } from "./RewardsAndFundLabel";
 
-const Container = styled.div<{ isList: boolean; isOverview: boolean }>`
+const Container = styled.div<{ isOverview: boolean }>`
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  flex-direction: column;
-  align-items: end;
-
-  ${({ isList }) =>
-    !isList &&
-    css`
-      margin-top: 24px;
-      width: 100%;
-      flex-wrap: wrap;
-      flex-direction: row;
-      align-items: center;
-    `}
+  width: 100%;
+  margin-top: 24px;
 
   ${({ isOverview }) =>
     isOverview &&
     css`
-      margin-top: 0;
-      flex-direction: row;
       width: auto;
+      margin-top: 0;
     `}
 `;
 
@@ -57,8 +49,8 @@ const RewardsContainer = styled.div`
 interface ICardLabels {
   disputeId: string;
   round: number;
-  isList: boolean;
   isOverview?: boolean;
+  asPill?: boolean;
 }
 
 const getLabelArgs = (
@@ -93,7 +85,7 @@ const getFundingRewards = (contributions: ContributionLike[], closed: boolean) =
   return Number(formatUnits(BigInt(contribution), 18));
 };
 
-const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview = false }) => {
+const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isOverview = false, asPill = false }) => {
   const { t } = useTranslation();
   const { address } = useAccount();
   const { data: labelInfo, isLoading } = useLabelInfoQuery(address?.toLowerCase(), disputeId);
@@ -162,25 +154,41 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList, isOverview
     return shift;
   }, [contributionRewards, shifts]);
 
+  const rewardItems: IRewardsAndFundLabel[] = useMemo(() => {
+    const items: IRewardsAndFundLabel[] = [];
+    if (!isUndefined(rewardsData) && period === "execution") {
+      items.push(
+        { value: rewardsData.ethShift.toString(), unit: "ETH" },
+        { value: rewardsData.pnkShift.toString(), unit: "PNK" }
+      );
+    }
+    if (!isUndefined(currentRoundFund) && period === "appeal") {
+      items.push({ value: currentRoundFund.toString(), unit: "ETH", isFund: true });
+    }
+
+    return items.filter(({ value }) => Number(value) !== 0);
+  }, [rewardsData, currentRoundFund, period]);
+
+  const rewards = rewardItems.map((item) => <RewardsAndFundLabel key={`${item.unit}-${item.isFund}`} {...item} />);
+
+  if (asPill) {
+    return isLoading ? (
+      <Skeleton width={140} height={24} borderRadius={300} />
+    ) : (
+      <Label {...labelData} asPill>
+        {rewards}
+      </Label>
+    );
+  }
+
   return (
-    <Container {...{ isList, isOverview }}>
+    <Container {...{ isOverview }}>
       {isLoading ? (
         <Skeleton width={130} height={14} />
       ) : (
         <>
           <Label {...labelData} />
-          <RewardsContainer>
-            {" "}
-            {!isUndefined(rewardsData) && period === "execution" ? (
-              <>
-                <RewardsAndFundLabel value={rewardsData.ethShift.toString()} unit="ETH" />
-                <RewardsAndFundLabel value={rewardsData.pnkShift.toString()} unit="PNK" />
-              </>
-            ) : null}
-            {!isUndefined(currentRoundFund) && period === "appeal" ? (
-              <RewardsAndFundLabel value={currentRoundFund.toString()} unit="ETH" isFund />
-            ) : null}
-          </RewardsContainer>
+          <RewardsContainer>{rewards}</RewardsContainer>
         </>
       )}
     </Container>

@@ -14,7 +14,7 @@ import { DisputeDetailsFragment } from "queries/useCasesQuery";
 
 import DisputeView from "components/DisputeView";
 
-import { SkeletonDisputeCard, SkeletonDisputeListItem } from "../StyledSkeleton";
+import { SkeletonDisputeCard, SkeletonDisputeListRow } from "../StyledSkeleton";
 
 const GridContainer = styled.div`
   --gap: 16px;
@@ -58,7 +58,7 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
       {isList && isDesktop ? (
         <ListContainer>
           {isUndefined(disputes)
-            ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)
+            ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeListRow key={i} />)
             : disputes.map((dispute) => {
                 return <DisputeView key={dispute.id} {...dispute} />;
               })}

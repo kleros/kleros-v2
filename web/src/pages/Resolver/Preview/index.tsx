@@ -87,7 +87,6 @@ const Preview: React.FC = () => {
 
           <DisputeInfo
             isOverview={true}
-            overrideIsList={true}
             courtId={disputeData.courtId}
             court={courtName}
             round={1}

@@ -21,6 +21,10 @@ const StyledSkeletonDisputeListItem = styled(Skeleton)`
   height: 62px;
 `;
 
+const StyledSkeletonDisputeListRow = styled(Skeleton)`
+  height: 86px;
+`;
+
 const StyledSkeletonVoteCard = styled(Skeleton)`
   height: 64px;
 `;
@@ -41,6 +45,8 @@ export const SkeletonDisputeCard = () => (
 );
 
 export const SkeletonDisputeListItem = () => <StyledSkeletonDisputeListItem />;
+
+export const SkeletonDisputeListRow = () => <StyledSkeletonDisputeListRow />;
 
 export const SkeletonVoteCard = () => <StyledSkeletonVoteCard />;
 
