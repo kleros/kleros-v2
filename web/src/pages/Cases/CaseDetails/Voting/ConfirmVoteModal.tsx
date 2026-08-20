@@ -9,6 +9,8 @@ import { isUndefined } from "utils/index";
 
 import { customScrollbar } from "styles/customScrollbar";
 
+import MarkdownRenderer from "components/MarkdownRenderer";
+
 const StyledModal = styled(Modal)`
   position: absolute;
   top: 50%;
@@ -52,7 +54,6 @@ const ChoiceDisplay = styled.div`
   max-height: 240px;
   overflow-y: auto;
   overflow-wrap: break-word;
-  white-space: pre-wrap;
   ${customScrollbar}
 `;
 
@@ -67,7 +68,7 @@ interface IConfirmVoteModal {
   isOpen: boolean;
   /** Title of the answer the juror picked. */
   choice: string;
-  /** Justification text. Omit when this step does not collect one. */
+  /** Justification markdown. Omit when this step does not collect one. */
   justification?: string;
   /**
    * Optional note shown in place of the justification section when no justification is collected here.
@@ -111,7 +112,8 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({
       <Section>
         <Label>Your justification</Label>
         <ChoiceDisplay dir="auto">
-          {justification.trim() === "" ? <em>No justification provided</em> : justification}
+          {justification.trim() === "" ? <em>No justification provided</em> : null}
+          <MarkdownRenderer content={justification} />
         </ChoiceDisplay>
       </Section>
     )}

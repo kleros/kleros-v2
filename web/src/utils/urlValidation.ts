@@ -15,6 +15,10 @@ export const sanitizeHref = (url: string) => {
   return sanitized === BLANK_URL ? "" : sanitized;
 };
 
+export const isValidUrl = (url: string): boolean => {
+  return sanitizeHref(url) !== "";
+};
+
 export const getSafeNavigationUrl = (url: string) => {
   const safe = sanitizeHref(url);
   if (!safe) {

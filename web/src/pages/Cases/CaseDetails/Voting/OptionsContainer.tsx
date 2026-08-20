@@ -13,9 +13,9 @@ import { isUndefined } from "utils/index";
 import { isVoteJustificationSufficient } from "utils/voteJustification";
 
 import { EnsureChain } from "components/EnsureChain";
+import MarkdownEditor from "components/MarkdownEditor";
 
 import ConfirmVoteModal from "./ConfirmVoteModal";
-import JustificationArea from "./JustificationArea";
 
 const MainContainer = styled.div`
   width: 100%;
@@ -114,7 +114,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
       <MainContainer dir="auto">
         <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
-          <JustificationArea {...{ justification, setJustification }} />
+          <MarkdownEditor value={justification} onChange={setJustification} />
         ) : null}
         {isUndefined(disputeDetails?.answers) ? null : (
           <StyledEnsureChain>
