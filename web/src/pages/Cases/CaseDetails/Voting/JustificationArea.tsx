@@ -1,20 +1,40 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Textarea } from "@kleros/ui-components-library";
+import InfoIcon from "svgs/icons/info-circle.svg";
 
 import { MIN_VOTE_JUSTIFICATION_LENGTH } from "src/utils/voteJustification";
 
-const StyledTextarea = styled(Textarea)`
-  width: 100%;
-  height: auto;
-  textarea {
-    height: 200px;
-    border-color: ${({ theme }) => theme.stroke};
+import MarkdownEditor from "components/MarkdownEditor";
+
+const MessageContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+const MessageText = styled.small`
+  font-size: 14px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.secondaryText};
+  hyphens: auto;
+  line-height: 1.4;
+`;
+
+const StyledInfoIcon = styled(InfoIcon)`
+  width: 16px;
+  height: 16px;
+  fill: ${({ theme }) => theme.secondaryText} !important;
+  flex-shrink: 0;
+  margin-top: 2px;
+
+  path {
+    fill: ${({ theme }) => theme.secondaryText} !important;
   }
-  small {
-    font-weight: 400;
-    hyphens: auto;
+
+  * {
+    fill: ${({ theme }) => theme.secondaryText} !important;
   }
 `;
 
@@ -24,17 +44,16 @@ interface IJustificationArea {
 }
 
 const JustificationArea: React.FC<IJustificationArea> = ({ justification, setJustification }) => (
-  <StyledTextarea
-    dir="auto"
-    value={justification}
-    onChange={(e) => setJustification(e.target.value)}
-    placeholder="Justify your vote..."
-    message={
-      `A good justification contributes to case comprehension. ` +
-      `Low quality justifications can be challenged. Minimum ${MIN_VOTE_JUSTIFICATION_LENGTH} characters.`
-    }
-    variant="info"
-  />
+  <>
+    <MarkdownEditor value={justification} onChange={setJustification} placeholder="Justify your vote..." />
+    <MessageContainer>
+      <StyledInfoIcon />
+      <MessageText>
+        {`A good justification contributes to case comprehension. ` +
+          `Low quality justifications can be challenged. Minimum ${MIN_VOTE_JUSTIFICATION_LENGTH} characters.`}
+      </MessageText>
+    </MessageContainer>
+  </>
 );
 
 export default JustificationArea;

@@ -14,6 +14,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
 import InfoCard from "components/InfoCard";
+import MarkdownRenderer from "components/MarkdownRenderer";
 
 import AccordionTitle from "./AccordionTitle";
 
@@ -78,17 +79,21 @@ const AccordionContentContainer = styled.div`
 const VotedText = styled.label`
   color: ${({ theme }) => theme.secondaryText};
   font-size: 16px;
-  ::before {
-    content: "Voted: ";
-    color: ${({ theme }) => theme.primaryText};
-  }
 `;
 
-const JustificationText = styled(VotedText)`
+const VotedLabel = styled.span`
+  color: ${({ theme }) => theme.primaryText};
+  margin-right: 4px;
+`;
+
+const JustificationContainer = styled.div`
   line-height: 1.25;
-  ::before {
-    content: "Justification: ";
-  }
+`;
+
+const JustificationLabel = styled.span`
+  color: ${({ theme }) => theme.primaryText};
+  font-size: 16px;
+  margin-right: 4px;
 `;
 
 const SecondaryTextLabel = styled.label`
@@ -114,10 +119,18 @@ const AccordionContent: React.FC<{
 
   return (
     <AccordionContentContainer>
-      {!isUndefined(choice) && <VotedText dir="auto">{getVoteChoice(choice, answers)}</VotedText>}
+      {!isUndefined(choice) && (
+        <VotedText dir="auto">
+          <VotedLabel>Voted:</VotedLabel>
+          {getVoteChoice(choice, answers)}
+        </VotedText>
+      )}
 
       {justification ? (
-        <JustificationText dir="auto">{justification}</JustificationText>
+        <JustificationContainer dir="auto">
+          <JustificationLabel>Justification:</JustificationLabel>
+          <MarkdownRenderer content={justification} />
+        </JustificationContainer>
       ) : (
         <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
       )}
