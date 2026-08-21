@@ -21,7 +21,8 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
-import MarkdownEditor from "components/MarkdownEditor";
+
+import JustificationArea from "../JustificationArea";
 
 const Container = styled.div`
   width: 100%;
@@ -115,7 +116,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
           <ReactMarkdownWrapper dir="auto">
             <ReactMarkdown>{disputeDetails?.question ?? ""}</ReactMarkdown>
           </ReactMarkdownWrapper>
-          <MarkdownEditor value={justification} onChange={setJustification} />
+          <JustificationArea {...{ justification, setJustification }} />
           <StyledEnsureChain>
             <StyledButton
               variant="secondary"

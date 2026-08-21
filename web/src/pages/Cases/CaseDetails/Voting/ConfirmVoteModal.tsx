@@ -112,8 +112,11 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({
       <Section>
         <Label>Your justification</Label>
         <ChoiceDisplay dir="auto">
-          {justification.trim() === "" ? <em>No justification provided</em> : null}
-          <MarkdownRenderer content={justification} />
+          {justification.trim() === "" ? (
+            <em>No justification provided</em>
+          ) : (
+            <MarkdownRenderer content={justification} />
+          )}
         </ChoiceDisplay>
       </Section>
     )}
