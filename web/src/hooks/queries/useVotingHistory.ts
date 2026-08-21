@@ -7,6 +7,10 @@ import { graphql } from "src/graphql";
 import { VotingHistoryQuery } from "src/graphql/graphql";
 export type { VotingHistoryQuery };
 
+import { isUndefined } from "src/utils";
+
+import { useDisputeArchiveSnapshot } from "./useDisputeArchiveSnapshot";
+
 const votingHistoryQuery = graphql(`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
@@ -53,15 +57,26 @@ const votingHistoryQuery = graphql(`
 `);
 
 export const useVotingHistory = (disputeID?: string) => {
-  const isEnabled = disputeID !== undefined;
+  const { data: archivedData, isLoading: isLoadingArchivedData } = useDisputeArchiveSnapshot(disputeID);
+
+  const isEnabled = !isUndefined(disputeID) && !isLoadingArchivedData;
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<VotingHistoryQuery>({
-    queryKey: [`VotingHistory${disputeID}`],
+    queryKey: ["VotingHistory", disputeID],
     enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     staleTime: STALE_TIME,
-    queryFn: async () =>
-      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: votingHistoryQuery, variables: { disputeID } }),
+    queryFn: async () => {
+      if (!isUndefined(archivedData?.dispute)) {
+        return { dispute: archivedData.dispute };
+      }
+
+      return await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: votingHistoryQuery,
+        variables: { disputeID },
+      });
+    },
   });
 };

@@ -185,6 +185,8 @@ type Dispute @entity(immutable: false) {
   # required to keep evidence unique
   evidenceCount: BigInt!
   evidences: [ClassicEvidence!]! @derivedFrom(field: "dispute")
+  isArchived: Boolean!
+  archiveCid: String
 }
 
 type PeriodIndexCounter @entity(immutable: false) {

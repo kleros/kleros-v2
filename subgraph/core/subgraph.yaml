@@ -391,3 +391,29 @@ dataSources:
         - event: NewCurrencyRate(indexed address,uint64,uint8)
           handler: handleNewCurrencyRate
       file: ./src/RatesConverter.ts
+  - kind: ethereum
+    name: DisputeArchive
+    network: arbitrum-sepolia
+    source:
+      address: "0xdE713DE39AebBd693a9c788791F8a37eE569adb8"
+      abi: DisputeArchive
+      startBlock: 267639551
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Arbitrable
+        - Court
+        - DisputeKit
+        - Dispute
+        - Round
+      abis:
+        - name: DisputeArchive
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeArchive.json
+      eventHandlers:
+        - event: ArchivedDispute(indexed uint256,uint96,string)
+          handler: handleDisputeArchived
+        - event: ArchivedDisputeAmended(indexed uint256,string,string)
+          handler: handleDisputeAmended
+      file: ./src/DisputeArchive.ts

@@ -390,3 +390,29 @@ dataSources:
         - event: NewCurrencyRate(indexed address,uint64,uint8)
           handler: handleNewCurrencyRate
       file: ./src/RatesConverter.ts
+  - kind: ethereum
+    name: DisputeArchive
+    network: _PLACEHOLDER_
+    source:
+      address: "_PLACEHOLDER_"
+      abi: DisputeArchive
+      startBlock: _PLACEHOLDER_
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Arbitrable
+        - Court
+        - DisputeKit
+        - Dispute
+        - Round
+      abis:
+        - name: DisputeArchive
+          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeArchive.json
+      eventHandlers:
+        - event: ArchivedDispute(indexed uint256,uint96,string)
+          handler: handleDisputeArchived
+        - event: ArchivedDisputeAmended(indexed uint256,string,string)
+          handler: handleDisputeAmended
+      file: ./src/DisputeArchive.ts

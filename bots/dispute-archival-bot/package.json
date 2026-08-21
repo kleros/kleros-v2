@@ -1,0 +1,26 @@
+{
+  "name": "dispute-archival-bot",
+  "packageManager": "yarn@4.10.3",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-style": "eslint . --no-error-on-unmatched-pattern",
+    "check-types": "tsc --noEmit"
+  },
+  "prettier": "@kleros/kleros-v2-prettier-config",
+  "dependencies": {
+    "@kleros/kleros-sdk": "workspace:^",
+    "dotenv": "^17.4.2",
+    "viem": "^2.24.1"
+  },
+  "devDependencies": {
+    "@kleros/kleros-v2-eslint-config": "workspace:^",
+    "@kleros/kleros-v2-prettier-config": "workspace:^",
+    "@kleros/kleros-v2-tsconfig": "workspace:^",
+    "@types/node": "^25.6.0",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.6.3"
+  }
+}
