@@ -635,7 +635,7 @@ async function main() {
     const minStakingTime = await sortition.minStakingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange > minStakingTime;
+      return toBigInt(blockTime) - lastPhaseChange >= minStakingTime;
     });
   };
 
@@ -643,7 +643,7 @@ async function main() {
     const maxDrawingTime = await sortition.maxDrawingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange > maxDrawingTime;
+      return toBigInt(blockTime) - lastPhaseChange >= maxDrawingTime;
     });
   };
 
@@ -708,7 +708,19 @@ async function main() {
   }
 
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
-  if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
+
+  // Phase-aware dispatch:
+  //  - If already in generating or drawing phase (e.g. advanced by an external actor or resumed
+  //    after a keeper restart mid-cycle), enter the block directly — no minStakingTime gate
+  //    required. minStakingTime only governs the staking -> generating transition
+  //    (SortitionModule.sol); generating -> drawing only requires RNG readiness.
+  //  - Otherwise (phase is staking), require minStakingTime to have elapsed (>= to match contract
+  //    semantics) before advancing from staking through generating into drawing.
+  const enterDrawingBlock =
+    (disputesWithoutJurors.length > 0 && ((await isPhaseGenerating()) || (await isPhaseDrawing()))) ||
+    ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0);
+
+  if (enterDrawingBlock) {
     // ----------------------------------------------- //
     //                DRAWING ATTEMPT                  //
     // ----------------------------------------------- //
@@ -726,6 +738,13 @@ async function main() {
       await passPhase();
     }
     if (await isPhaseDrawing()) {
+      // Actual jurors newly drawn across the run, measured via getMissingJurors() deltas —
+      // NOT the requested `drawIterations` count. drawJurors() returns true once its transaction
+      // confirms, regardless of how many jurors it actually drew (its pre-flight probe checks a
+      // much larger simulated horizon than the real batch it submits), so counting requested
+      // iterations would let a fully-stalled run (transactions confirm, nobody gets drawn)
+      // silently suppress the stall warning below.
+      let actualJurorsDrawn = 0;
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       for (const dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
@@ -739,6 +758,13 @@ async function main() {
         }
         do {
           const drawIterations = Math.min(MAX_DRAW_ITERATIONS, getNumber(numberOfMissingJurors));
+          if (drawIterations === 0) {
+            // Dispute was fully drawn externally (e.g. another keeper instance) between the
+            // pre-loop snapshot and this iteration. Nothing left to draw; avoid a wasted
+            // drawJurors(dispute, 0) call and the misleading "Failed to draw jurors" log it
+            // would otherwise produce.
+            break;
+          }
           logger.info(
             `Drawing ${drawIterations} out of ${numberOfMissingJurors} jurors needed for dispute #${dispute.id}`
           );
@@ -748,8 +774,25 @@ async function main() {
           }
           await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
           maxDrawingTimePassed = await hasMaxDrawingTimePassed();
+          const missingBefore = numberOfMissingJurors;
           numberOfMissingJurors = await getMissingJurors(dispute);
+          actualJurorsDrawn += getNumber(missingBefore) - getNumber(numberOfMissingJurors);
         } while (!(numberOfMissingJurors === 0n) && !maxDrawingTimePassed);
+      }
+      // Warn if the drawing run completed with zero actual draws but disputes still need jurors.
+      // This indicates a stall (no eligible jurors staked, RNG issue, or all draws failing).
+      // Re-query which disputes are still unresolved rather than trusting the pre-loop snapshot.
+      if (actualJurorsDrawn === 0 && disputesWithoutJurors.length > 0) {
+        const stillPending = await filterAsync(disputesWithoutJurors, async (dispute) => {
+          return !(await isDisputeFullyDrawn(dispute));
+        });
+        if (stillPending.length > 0) {
+          const pendingIds = stillPending.map((d) => d.id).join(", ");
+          logger.warn(
+            `Drawing phase run completed with zero draws for ${stillPending.length} ` +
+              `dispute(s) still needing jurors: [${pendingIds}]`
+          );
+        }
       }
       // At this point, either all disputes are fully drawn or max drawing time has passed
     }
