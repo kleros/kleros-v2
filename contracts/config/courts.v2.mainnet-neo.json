@@ -537,7 +537,7 @@
     "feeForJuror": "270000000000000",
     "jurorsForCourtJump": "7",
     "timesPerPeriod": [
-      2700,
+      600,
       2700,
       1800,
       129600
