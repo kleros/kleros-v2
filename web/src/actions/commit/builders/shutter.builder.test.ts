@@ -7,7 +7,7 @@ import { getVoteKey } from "actions/helpers/storage/getVoteKey";
 import { hashJustification } from "utils/crypto/hashJustification";
 import { hashVote } from "utils/crypto/hashVote";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 import { MOCK_SHUTTER_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import { fakeEncrypt, verifyFakeEncryptOutput } from "../../../test/fakes/shutter";
@@ -39,7 +39,7 @@ describe("shutterCommitBuilder", () => {
     roundIndex: 0,
     decryptionDelay: 60,
     justification: "My vote justification",
-    type: DisputeKits.Shutter,
+    disputeKitId: DisputeKits.Shutter,
     ...overrides,
   });
 

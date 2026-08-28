@@ -2,8 +2,6 @@ import {
   mainnet,
   arbitrumSepolia,
   arbitrum,
-  base,
-  optimism,
   gnosisChiado,
   sepolia,
   gnosis,
@@ -64,8 +62,6 @@ const getTransports = () => {
       ? defaultTransport(gnosis)
       : defaultTransport(gnosisChiado),
     [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
-    [base.id]: http(), // Required for EFP follow transactions
-    [optimism.id]: http(), // Required for EFP follow transactions
   };
 
   if (isLocalhost)

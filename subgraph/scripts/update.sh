@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
@@ -11,7 +12,7 @@ function isContractDeployed() { #hardhatNetwork #graphNetwork #subgraphConfig #d
 
     # Get the deployment artifact
     local contractName=$(basename $(yq '.dataSources['$dataSourceIndex'].mapping.abis[] | select(.name == "'$dataSourceName'") | .file' "$subgraphConfig") .json)
-    local artifact="$SCRIPT_DIR/../../contracts/deployments/$hardhatNetwork/$contractName.json"
+    local artifact="$SCRIPT_DIR/../abis/$hardhatNetwork/$contractName.json"
 
     if [ -f "$artifact" ]; then
         return 0 # success in bash
@@ -29,7 +30,7 @@ function update() { #hardhatNetwork #graphNetwork #subgraphConfig #dataSourceInd
 
     # Get the deployment artifact
     local contractName=$(basename $(yq '.dataSources['$dataSourceIndex'].mapping.abis[] | select(.name == "'$dataSourceName'") | .file' "$subgraphConfig") .json)
-    local artifact="$SCRIPT_DIR/../../contracts/deployments/$hardhatNetwork/$contractName.json"
+    local artifact="$SCRIPT_DIR/../abis/$hardhatNetwork/$contractName.json"
 
     echo "Updating $dataSourceName with $artifact"
 
@@ -47,7 +48,7 @@ function update() { #hardhatNetwork #graphNetwork #subgraphConfig #dataSourceInd
     # Set the ABIs path for this Hardhat network
     local abiIndex=0
     for f in $(yq e .dataSources[$dataSourceIndex].mapping.abis[].file "$subgraphConfig" -o json -I 0 | jq -sr '.[]'); do
-        f2=$(echo $f | sed "s|\(.*\/deployments\/\).*\/|\1$hardhatNetwork\/|")
+        f2=$(echo $f | sed "s|\(.*\/abis\/\).*\/|\1$hardhatNetwork\/|")
         yq -i ".dataSources[$dataSourceIndex].mapping.abis[$abiIndex].file=\"$f2\"" "$subgraphConfig"
         ((++abiIndex))
     done
@@ -60,7 +61,10 @@ hardhatNetwork=${1:-arbitrumSepolia}
 graphNetwork=${2:-arbitrum\-sepolia}
 
 subgraphConfig="$SCRIPT_DIR/../${3:-core/subgraph.yaml}"
+
 echo "Updating $subgraphConfig"
+
+"$SCRIPT_DIR/sync-abis.sh" "$hardhatNetwork"
 
 # backup
 cp "$subgraphConfig" "$subgraphConfig.bak.$(date +%s)"
@@ -82,10 +86,12 @@ for contract in $(yq .dataSources[].name "$subgraphConfig"); do
 done
 
 # delete the data sources for the contracts that are not deployed
-for i in "${notDeployedSourceIndices[@]}"; do
+if ((${#notDeployedSourceIndices[@]})); then
+  for i in "${notDeployedSourceIndices[@]}"; do
     echo -e "\e[1;31mDeleting data source $i\e[0m"
     yq -i 'del(.dataSources['$i'])' "$subgraphConfig"
-done
+  done
+fi
 
 # update the data sources
 i=0

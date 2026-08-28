@@ -31,13 +31,13 @@ dataSources:
         - FeeToken
       abis:
         - name: SortitionModule
-          file: ../../contracts/deployments/_PLACEHOLDER_/SortitionModule.json
+          file: ../abis/_PLACEHOLDER_/SortitionModule.json
         - name: DisputeKitClassic
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+          file: ../abis/_PLACEHOLDER_/KlerosCore.json
         - name: RatesConverter
-          file: ../../contracts/deployments/_PLACEHOLDER_/RatesConverter.json
+          file: ../abis/_PLACEHOLDER_/RatesConverter.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -80,7 +80,7 @@ dataSources:
         - Court
       abis:
         - name: PolicyRegistry
-          file: ../../contracts/deployments/_PLACEHOLDER_/PolicyRegistry.json
+          file: ../abis/_PLACEHOLDER_/PolicyRegistry.json
       eventHandlers:
         - event: PolicyUpdate(indexed uint256,string,string)
           handler: handlePolicyUpdate
@@ -103,9 +103,9 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitClassic
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+          file: ../abis/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -138,11 +138,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitClassicUniversity
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassicUniversity.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassicUniversity.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+          file: ../abis/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -175,11 +175,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitShutter
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitShutter.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitShutter.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+          file: ../abis/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -212,11 +212,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitGated
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitGated.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitGated.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+          file: ../abis/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -249,11 +249,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitGatedShutter
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitGatedShutter.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitGatedShutter.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+          file: ../abis/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -286,11 +286,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitGatedArgentinaConsumerProtection
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitGatedArgentinaConsumerProtection.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitGatedArgentinaConsumerProtection.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/_PLACEHOLDER_/DisputeKitClassic.json
+          file: ../abis/_PLACEHOLDER_/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/_PLACEHOLDER_/KlerosCore.json
+          file: ../abis/_PLACEHOLDER_/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -321,7 +321,7 @@ dataSources:
         - ClassicEvidence
       abis:
         - name: EvidenceModule
-          file: ../../contracts/deployments/_PLACEHOLDER_/EvidenceModule.json
+          file: ../abis/_PLACEHOLDER_/EvidenceModule.json
       eventHandlers:
         - event: Evidence(indexed uint256,indexed address,string)
           handler: handleEvidenceEvent
@@ -341,7 +341,7 @@ dataSources:
         - JurorTokensPerCourt
       abis:
         - name: SortitionModule
-          file: ../../contracts/deployments/_PLACEHOLDER_/SortitionModule.json
+          file: ../abis/_PLACEHOLDER_/SortitionModule.json
       eventHandlers:
         - event: StakeDelayed(indexed address,indexed uint96,uint256)
           handler: handleStakeDelayed
@@ -365,7 +365,7 @@ dataSources:
         - User
       abis:
         - name: LeaderboardOffset
-          file: ../../contracts/deployments/_PLACEHOLDER_/LeaderboardOffset.json
+          file: ../abis/_PLACEHOLDER_/LeaderboardOffset.json
       eventHandlers:
         - event: Offset(indexed address,int256,indexed address)
           handler: handleLeaderboardOffset
@@ -385,7 +385,7 @@ dataSources:
         - FeeToken
       abis:
         - name: RatesConverter
-          file: ../../contracts/deployments/_PLACEHOLDER_/RatesConverter.json
+          file: ../abis/_PLACEHOLDER_/RatesConverter.json
       eventHandlers:
         - event: NewCurrencyRate(indexed address,uint64,uint8)
           handler: handleNewCurrencyRate

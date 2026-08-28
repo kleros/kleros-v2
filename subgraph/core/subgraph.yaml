@@ -32,13 +32,13 @@ dataSources:
         - FeeToken
       abis:
         - name: SortitionModule
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
+          file: ../abis/arbitrumSepoliaDevnet/SortitionModule.json
         - name: DisputeKitClassic
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../abis/arbitrumSepoliaDevnet/KlerosCore.json
         - name: RatesConverter
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/RatesConverter.json
+          file: ../abis/arbitrumSepoliaDevnet/RatesConverter.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -81,7 +81,7 @@ dataSources:
         - Court
       abis:
         - name: PolicyRegistry
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/PolicyRegistry.json
+          file: ../abis/arbitrumSepoliaDevnet/PolicyRegistry.json
       eventHandlers:
         - event: PolicyUpdate(indexed uint256,string,string)
           handler: handlePolicyUpdate
@@ -104,9 +104,9 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitClassic
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../abis/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -139,11 +139,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitClassicUniversity
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassicUniversity.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassicUniversity.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../abis/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -176,11 +176,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitShutter
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitShutter.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitShutter.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../abis/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -213,11 +213,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitGated
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitGated.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitGated.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../abis/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -250,11 +250,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitGatedShutter
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitGatedShutter.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitGatedShutter.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../abis/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -287,11 +287,11 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitGatedArgentinaConsumerProtection
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitGatedArgentinaConsumerProtection.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitGatedArgentinaConsumerProtection.json
         - name: DisputeKitClassic # Required on Alchemy
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../abis/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -322,7 +322,7 @@ dataSources:
         - ClassicEvidence
       abis:
         - name: EvidenceModule
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/EvidenceModule.json
+          file: ../abis/arbitrumSepoliaDevnet/EvidenceModule.json
       eventHandlers:
         - event: Evidence(indexed uint256,indexed address,string)
           handler: handleEvidenceEvent
@@ -342,7 +342,7 @@ dataSources:
         - JurorTokensPerCourt
       abis:
         - name: SortitionModule
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
+          file: ../abis/arbitrumSepoliaDevnet/SortitionModule.json
       eventHandlers:
         - event: StakeDelayed(indexed address,indexed uint96,uint256)
           handler: handleStakeDelayed
@@ -366,7 +366,7 @@ dataSources:
         - User
       abis:
         - name: LeaderboardOffset
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/LeaderboardOffset.json
+          file: ../abis/arbitrumSepoliaDevnet/LeaderboardOffset.json
       eventHandlers:
         - event: Offset(indexed address,int256,indexed address)
           handler: handleLeaderboardOffset
@@ -386,7 +386,7 @@ dataSources:
         - FeeToken
       abis:
         - name: RatesConverter
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/RatesConverter.json
+          file: ../abis/arbitrumSepoliaDevnet/RatesConverter.json
       eventHandlers:
         - event: NewCurrencyRate(indexed address,uint64,uint8)
           handler: handleNewCurrencyRate

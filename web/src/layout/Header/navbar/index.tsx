@@ -2,11 +2,13 @@ import React from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
 import ConnectWallet from "components/ConnectWallet";
@@ -64,7 +66,14 @@ const WalletContainer = styled.div`
   display: flex;
   gap: 16px;
   justify-content: space-between;
+  align-items: center;
   flex-wrap: wrap;
+`;
+
+const ConnectWalletContainer = styled.div`
+  label {
+    cursor: pointer;
+  }
 `;
 
 const DisconnectWalletButtonContainer = styled.div`
@@ -87,11 +96,13 @@ export interface IDappList {
 
 const NavBar: React.FC = () => {
   const { t } = useTranslation();
-  const { isConnected } = useAccount();
+  const navigate = useNavigate();
+  const { isConnected, chainId } = useAccount();
+  const isDefaultChain = chainId === DEFAULT_CHAIN.id;
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
-  const { isOpen } = useOpenContext();
+  const { isOpen, toggleIsOpen } = useOpenContext();
   useLockOverlayScroll(isOpen);
 
   return (
@@ -111,7 +122,18 @@ const NavBar: React.FC = () => {
             <Explore isMobileNavbar={true} />
             <hr />
             <WalletContainer>
-              <ConnectWallet />
+              <ConnectWalletContainer
+                onClick={
+                  isConnected && isDefaultChain
+                    ? () => {
+                        toggleIsOpen();
+                        navigate("/profile/stakes/1");
+                      }
+                    : undefined
+                }
+              >
+                <ConnectWallet />
+              </ConnectWalletContainer>
               {isConnected && (
                 <DisconnectWalletButtonContainer>
                   <DisconnectWalletButton />

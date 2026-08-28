@@ -4,9 +4,11 @@ import { useTranslation } from "react-i18next";
 
 import AppealIcon from "svgs/icons/appeal.svg";
 
-import { DisputeKits } from "consts/index";
 import { useSelectedOptionContext } from "hooks/useClassicAppealContext";
 import { isUndefined } from "utils/index";
+import type { NumberString } from "utils/types";
+
+import { DisputeKitAppealProps } from "src/dispute-kits";
 
 import HowItWorks from "components/HowItWorks";
 import Popup, { PopupType } from "components/Popup";
@@ -17,13 +19,7 @@ import { AppealHeader, StyledTitle } from "..";
 import Fund from "./Fund";
 import Options from "./Options";
 
-interface IClassic {
-  isAppealMiniGuideOpen: boolean;
-  toggleAppealMiniGuide: () => void;
-  disputeKitName?: DisputeKits;
-}
-
-const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, disputeKitName }) => {
+const Classic: React.FC<DisputeKitAppealProps> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide, disputeKitId }) => {
   const { t } = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -52,7 +48,7 @@ const Classic: React.FC<IClassic> = ({ isAppealMiniGuideOpen, toggleAppealMiniGu
       </AppealHeader>
       <label>{t("appeal.jury_decision_appealed")}</label>
       <Options setAmount={setAmount} />
-      <Fund amount={amount as `${number}`} setAmount={setAmount} setIsOpen={setIsPopupOpen} {...{ disputeKitName }} />
+      <Fund amount={amount as NumberString} setAmount={setAmount} setIsOpen={setIsPopupOpen} {...{ disputeKitId }} />
     </>
   );
 };

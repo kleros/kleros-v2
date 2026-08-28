@@ -2,6 +2,7 @@ import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
 import type { ContractConfig } from "@wagmi/cli";
 import { Abi, Chain } from "viem";
+import { artifactsSourceDir } from "./contractPaths.js";
 
 type ArtifactPartial = {
   abi: Abi;
@@ -9,6 +10,12 @@ type ArtifactPartial = {
 
 export const getAbi = (artifact: unknown) => {
   return (artifact as ArtifactPartial).abi;
+};
+
+export const readArtifactJson = async (relativePath: string) => {
+  const filePath = join(artifactsSourceDir, relativePath);
+  const fileContent = await readFile(filePath, "utf-8");
+  return JSON.parse(fileContent);
 };
 
 export const readArtifacts = async (viemChainName: string, hardhatChainName?: string) => {

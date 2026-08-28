@@ -20,7 +20,7 @@ dataSources:
         - DisputeTemplate
       abis:
         - name: DisputeTemplateRegistry
-          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeTemplateRegistry.json
+          file: ../abis/arbitrumSepoliaDevnet/DisputeTemplateRegistry.json
       eventHandlers:
         - event: DisputeTemplate(indexed uint256,indexed string,string,string)
           handler: handleDisputeTemplate

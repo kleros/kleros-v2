@@ -2,7 +2,7 @@ import { maxUint256 } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi } from "vitest";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 import { MOCK_CLASSIC_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { VoteContext } from "../context";
@@ -25,7 +25,7 @@ describe("classicVoteBuilder", () => {
     choice: 1n,
     salt: 123456789n,
     justification: "My vote justification",
-    type: DisputeKits.Classic,
+    disputeKitId: DisputeKits.Classic,
     ...overrides,
   });
 

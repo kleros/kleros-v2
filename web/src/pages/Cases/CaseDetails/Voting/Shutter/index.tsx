@@ -1,27 +1,23 @@
 import React, { useMemo } from "react";
 
 import { useParams } from "react-router-dom";
-import type { Address } from "viem";
 import { useAccount } from "wagmi";
 
-import { DisputeKits } from "consts/index";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { useVotingContext } from "hooks/useVotingContext";
 
-import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { DisputeKitVotingProps } from "src/dispute-kits";
 
 import ShutterCommit from "./Commit";
 import Reveal from "./Reveal";
 
-interface IShutter {
-  arbitrable: Address;
-  setIsOpen: (val: boolean) => void;
-  dispute: DisputeDetailsQuery["dispute"];
-  currentPeriodIndex: number;
-  disputeKitName?: DisputeKits;
-}
-
-const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPeriodIndex, disputeKitName }) => {
+const Shutter: React.FC<DisputeKitVotingProps> = ({
+  arbitrable,
+  setIsOpen,
+  dispute,
+  currentPeriodIndex,
+  disputeKitId,
+}) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, dispute?.currentRound.id);
@@ -34,9 +30,9 @@ const Shutter: React.FC<IShutter> = ({ arbitrable, setIsOpen, dispute, currentPe
   return (
     <>
       {shouldShowCommit && (
-        <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, dispute, currentPeriodIndex, disputeKitName }} />
+        <ShutterCommit {...{ arbitrable, setIsOpen, voteIDs, dispute, currentPeriodIndex, disputeKitId }} />
       )}
-      {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, disputeKitName, arbitrable, commit }} />}
+      {shouldShowReveal && <Reveal {...{ setIsOpen, voteIDs, disputeKitId, arbitrable, commit }} />}
     </>
   );
 };

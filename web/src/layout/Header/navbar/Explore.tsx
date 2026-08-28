@@ -2,8 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { useAccount } from "wagmi";
+import { Link, useLocation } from "react-router-dom";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -62,35 +61,21 @@ interface IExplore {
 const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
   const { t } = useTranslation();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   const { toggleIsOpen } = useOpenContext();
-  const { isConnected, address } = useAccount();
 
-  const navLinks = useMemo(() => {
-    const base = [
-      { to: "/", text: t("navigation.home") },
+  const navLinks = useMemo(
+    () => [
       { to: "/cases/display/1/desc/all", text: t("navigation.cases") },
       { to: "/courts", text: t("navigation.courts") },
       { to: "/jurors/1/desc/all", text: t("navigation.jurors") },
       { to: "/get-pnk", text: t("navigation.get_pnk") },
-    ];
-    if (isConnected) {
-      base.push({ to: "/profile/stakes/1", text: t("navigation.my_profile") });
-    }
-    return base;
-  }, [isConnected, t]);
+    ],
+    [t]
+  );
 
   const currentSeg = useMemo(() => location.pathname.split("/")[1] || "", [location.pathname]);
-  const addressParam = searchParams.get("address")?.toLowerCase();
-  const ownsProfile = !addressParam || addressParam === address?.toLowerCase();
 
-  const getIsActive = (to: string) => {
-    const path = to.split("?")[0];
-    if (path === "/") return location.pathname === "/";
-    const targetSeg = path.split("/")[1] || "";
-    if (targetSeg !== currentSeg) return false;
-    return targetSeg !== "profile" || ownsProfile;
-  };
+  const getIsActive = (to: string) => to.split("?")[0].split("/")[1] === currentSeg;
 
   return (
     <Container>

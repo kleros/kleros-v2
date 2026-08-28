@@ -67,12 +67,29 @@ const Message = styled.p`
   margin: 0 0 16px 0;
 `;
 
+const UrlSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 16px 0;
+`;
+
+const UrlBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const UrlLabel = styled.small`
+  color: ${({ theme }) => theme.secondaryText};
+  font-weight: 600;
+`;
+
 const UrlContainer = styled.div`
   background-color: ${({ theme }) => theme.lightGrey};
   border: 1px solid ${({ theme }) => theme.stroke};
   border-radius: 4px;
   padding: 12px;
-  margin: 16px 0;
   word-break: break-all;
 `;
 
@@ -121,12 +138,21 @@ const ConfirmButton = styled(Button)`
 
 interface IExternalLinkWarning {
   isOpen: boolean;
-  url: string;
+  /** Sanitized URL used for navigation. */
+  sanitizedUrl: string;
+  /** Raw URL, un-sanitized */
+  originalUrl: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({ isOpen, url, onConfirm, onCancel }) => {
+const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({
+  isOpen,
+  sanitizedUrl,
+  originalUrl,
+  onConfirm,
+  onCancel,
+}) => {
   const { t } = useTranslation();
   return (
     <StyledModal
@@ -145,9 +171,20 @@ const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({ isOpen, url, onCo
 
       <Message id="external-link-description">{t("popups.external_link_message")}</Message>
 
-      <UrlContainer>
-        <Url>{url}</Url>
-      </UrlContainer>
+      <UrlSection>
+        <UrlBlock>
+          <UrlLabel>{t("popups.original_url")}</UrlLabel>
+          <UrlContainer>
+            <Url>{originalUrl}</Url>
+          </UrlContainer>
+        </UrlBlock>
+        <UrlBlock>
+          <UrlLabel>{t("popups.destination_url_sanitized")}</UrlLabel>
+          <UrlContainer>
+            <Url>{sanitizedUrl}</Url>
+          </UrlContainer>
+        </UrlBlock>
+      </UrlSection>
 
       <Message>
         <strong>{t("popups.safety_tips")}</strong>

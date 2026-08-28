@@ -1,46 +1,75 @@
-const DANGEROUS_PROTOCOLS = ["javascript:", "vbscript:", "file:", "about:", "blob:", "filesystem:"];
+import { sanitizeUrl } from "@braintree/sanitize-url";
 
-const ALLOWED_PROTOCOLS = ["http:", "https:", "mailto:", "tel:", "ftp:"];
+import { IPFS_GATEWAY } from "consts/index";
 
-const ALLOWED_DATA_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
+const BLANK_URL = "about:blank";
 
-const isValidDataUri = (url: string): boolean => {
-  const dataUriRegex = /^data:([^;,]+)(;base64)?,/i;
-  const match = url.match(dataUriRegex);
+const getGatewayOrigin = (): string => new URL(IPFS_GATEWAY).origin;
 
+export const sanitizeHref = (url: string): string => {
+  if (!url || typeof url !== "string") {
+    return "";
+  }
+
+  const sanitized = sanitizeUrl(url.trim());
+  return sanitized === BLANK_URL ? "" : sanitized;
+};
+
+export const isValidUrl = (url: string): boolean => {
+  return sanitizeHref(url) !== "";
+};
+
+export const getSafeNavigationUrl = (url: string) => {
+  const safe = sanitizeHref(url);
+  if (!safe) {
+    return undefined;
+  }
+
+  try {
+    const parsed = new URL(safe.startsWith("//") ? `https:${safe}` : safe);
+    return parsed.protocol === "https:" ? parsed.href : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+export const isSafeNavigationUrl = (url: string) => {
+  return getSafeNavigationUrl(url) !== undefined;
+};
+
+export const getAllowedAttachmentUrl = (url: string): string | undefined => {
+  const safe = sanitizeHref(url);
+  if (!safe) {
+    return undefined;
+  }
+
+  try {
+    const parsed = new URL(safe);
+    if (parsed.protocol !== "https:" || parsed.origin !== getGatewayOrigin() || !parsed.pathname.startsWith("/ipfs/")) {
+      return undefined;
+    }
+
+    return parsed.href;
+  } catch {
+    return undefined;
+  }
+};
+
+const ALLOWED_IMAGE_DATA_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/svg+xml",
+]);
+
+/** Allowed image MIME types for untrusted data: URIs used as `<img src>`. */
+export const isAllowedImageDataUri = (uri: string): boolean => {
+  const match = uri.trim().match(/^data:([^;,]+)(;base64)?,/i);
   if (!match) {
     return false;
   }
 
-  const mimeType = match[1].toLowerCase();
-  return ALLOWED_DATA_TYPES.includes(mimeType);
-};
-
-export const isValidUrl = (url: string): boolean => {
-  if (!url || typeof url !== "string") {
-    return false;
-  }
-
-  const trimmedUrl = url.trim().toLowerCase();
-
-  if (trimmedUrl.length === 0) {
-    return false;
-  }
-
-  if (trimmedUrl.startsWith("data:")) {
-    return isValidDataUri(trimmedUrl);
-  }
-
-  for (const protocol of DANGEROUS_PROTOCOLS) {
-    if (trimmedUrl.startsWith(protocol)) {
-      return false;
-    }
-  }
-
-  try {
-    const urlObj = new URL(url);
-    return ALLOWED_PROTOCOLS.includes(urlObj.protocol);
-  } catch {
-    return false;
-  }
+  return ALLOWED_IMAGE_DATA_TYPES.has(match[1].toLowerCase());
 };

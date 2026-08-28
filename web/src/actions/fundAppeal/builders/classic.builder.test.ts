@@ -2,7 +2,7 @@ import { maxUint256, parseEther } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 import { MOCK_ACCOUNT_1, MOCK_ACCOUNT_2, MOCK_CLASSIC_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks";
 
 import type { FundAppealContext } from "../context";
@@ -25,7 +25,7 @@ describe("classicFundAppealBuilder", () => {
     disputeId: 1n,
     choice: 1n,
     fundAmount: ONE_ETH,
-    type: DisputeKits.Classic,
+    disputeKitId: DisputeKits.Classic,
     ...overrides,
   });
 

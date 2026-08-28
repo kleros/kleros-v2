@@ -4,7 +4,7 @@ import { Answer } from "@kleros/kleros-sdk";
 
 import { DistributiveOmit, PartialBy } from "utils/types";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 
 interface BaseRevealParams {
   disputeId: bigint;
@@ -13,31 +13,31 @@ interface BaseRevealParams {
   salt: bigint;
   roundIndex: number;
   justification: string;
-  type: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
 export interface ClassicRevealParams extends BaseRevealParams {
-  type: DisputeKits.Classic;
+  disputeKitId: DisputeKits.Classic;
 }
 
 export interface ShutterRevealParams extends BaseRevealParams {
-  type: DisputeKits.Shutter;
+  disputeKitId: DisputeKits.Shutter;
 }
 
 export interface GatedRevealParams extends BaseRevealParams {
-  type: DisputeKits.Gated;
+  disputeKitId: DisputeKits.Gated;
 }
 
 export interface GatedShutterRevealParams extends BaseRevealParams {
-  type: DisputeKits.GatedShutter;
+  disputeKitId: DisputeKits.GatedShutter;
 }
 
 export interface ArgentinaConsumerProtectionRevealParams extends BaseRevealParams {
-  type: DisputeKits.ArgentinaConsumerProtection;
+  disputeKitId: DisputeKits.ArgentinaConsumerProtection;
 }
 
 export interface ClassicUniversityRevealParams extends BaseRevealParams {
-  type: DisputeKits.ClassicUniversity;
+  disputeKitId: DisputeKits.ClassicUniversity;
 }
 
 export type RevealParams =

@@ -4,12 +4,13 @@ import { useLocation } from "react-router-dom";
 import { Address } from "viem";
 
 import { DEFAULT_CHAIN } from "consts/chains";
-import { Features } from "consts/disputeFeature";
 import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isEmpty, isUndefined } from "utils/index";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
+import { DisputeKitDataMap } from "src/dispute-kits/prepareArbitratorExtradata";
+import { Features } from "src/dispute-kits/types";
 
 export const MIN_DISPUTE_BATCH_SIZE = 2;
 
@@ -25,12 +26,6 @@ export type AliasArray = {
   name: string;
   address: string | Address;
   isValid?: boolean;
-};
-
-export type DisputeKitOption = {
-  text: DisputeKits;
-  value: number;
-  gated: boolean;
 };
 
 export type Alias = Record<string, string>;
@@ -59,24 +54,8 @@ interface IDisputeData extends IDisputeTemplate {
   numberOfJurors?: number;
   arbitrationCost?: string;
   aliasesArray?: AliasArray[];
-  disputeKitId?: number;
-  disputeKitData?: IDisputeKitData;
-}
-
-export type IDisputeKitData = IGatedDisputeData | ISomeFutureDisputeData;
-
-export interface IGatedDisputeData {
-  type: "gated";
-  isERC1155: boolean;
-  tokenGate: string;
-  tokenId: string;
-  isTokenGateValid?: boolean | null; // null = not validated, false = invalid, true = valid
-}
-
-// Placeholder
-export interface ISomeFutureDisputeData {
-  type: "future";
-  contract: string;
+  disputeKitId?: DisputeKits;
+  disputeKitData?: DisputeKitDataMap[DisputeKits];
 }
 
 interface INewDisputeContext {
@@ -107,7 +86,7 @@ const getInitialDisputeData = (): IDisputeData => ({
     { title: "", id: "2", description: "" },
   ],
   aliasesArray: [{ name: "", address: "", id: "1" }],
-  disputeKitId: 1,
+  disputeKitId: DisputeKits.Classic,
   version: "1.0",
 });
 

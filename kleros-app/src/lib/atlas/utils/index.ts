@@ -44,3 +44,4 @@ export * from "./updateEmail";
 export * from "./confirmEmail";
 export * from "./uploadToIpfs";
 export * from "./deleteUser";
+export * from "./fetchIsSubscribed";

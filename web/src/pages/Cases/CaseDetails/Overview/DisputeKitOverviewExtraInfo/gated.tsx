@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
-import { Address } from "viem";
-
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
+import { useGatedTokenInfo } from "hooks/useGatedTokenInfo";
 import { shortenAddress } from "utils/shortenAddress";
 
+import { OverviewExtraInfoProps } from "src/dispute-kits";
 import { getAddressExplorerLink } from "src/utils";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import { Divider } from "components/Divider";
 import { ExternalLink } from "components/ExternalLink";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import WithHelpTooltip from "components/WithHelpTooltip";
@@ -134,38 +135,51 @@ const SkeletonImage = styled(StyledSkeleton)`
   border-radius: 12px;
 `;
 
-interface IGatedTokenDisplay {
-  isERC721: boolean;
-  tokenAddress: Address | null;
-  tokenName: string | null;
-  tokenSymbol: string | null;
-  imageUri: string | null;
-  nftName: string | null;
-  isLoading: boolean;
-}
-const GatedTokenDisplay: React.FC<IGatedTokenDisplay> = ({
+const TokenImg: React.FC<{ isERC721: boolean; imageUri: string | null; displayName: string }> = ({
   isERC721,
-  tokenAddress,
-  tokenName,
-  tokenSymbol,
   imageUri,
-  nftName,
-  isLoading,
+  displayName,
 }) => {
   const [imgError, setImgError] = useState(false);
 
+  if (isERC721 && imageUri && !imgError) {
+    return (
+      <ImageContainer>
+        <NFTImage src={imageUri} alt={displayName} onError={() => setImgError(true)} loading="lazy" />
+      </ImageContainer>
+    );
+  } else if (isERC721) {
+    return (
+      <ImageContainer>
+        <PlaceholderText>🖼️</PlaceholderText>
+      </ImageContainer>
+    );
+  }
+  return null;
+};
+
+const GatedOverviewExtraInfo: React.FC<OverviewExtraInfoProps> = ({ disputeId, currentRoundIndex }) => {
+  const { isERC721, tokenGateInfo, tokenName, tokenSymbol, imageUri, nftName, isLoading } = useGatedTokenInfo(
+    disputeId,
+    currentRoundIndex
+  );
+
+  const tokenAddress = tokenGateInfo?.tokenGate;
   if (isLoading) {
     return (
-      <Wrapper>
-        <Badge>Token Gated</Badge>
-        <CardContainer>
-          <SkeletonImage />
-          <InfoSection>
-            <StyledSkeleton width={140} />
-            <StyledSkeleton width={80} />
-          </InfoSection>
-        </CardContainer>
-      </Wrapper>
+      <>
+        <Divider />
+        <Wrapper>
+          <Badge>Token Gated</Badge>
+          <CardContainer>
+            <SkeletonImage />
+            <InfoSection>
+              <StyledSkeleton width={140} />
+              <StyledSkeleton width={80} />
+            </InfoSection>
+          </CardContainer>
+        </Wrapper>
+      </>
     );
   }
 
@@ -174,44 +188,30 @@ const GatedTokenDisplay: React.FC<IGatedTokenDisplay> = ({
   const displayName = nftName || tokenName || "Unknown Token";
   const truncatedAddress = shortenAddress(tokenAddress);
 
-  const TokenImg: React.FC = () => {
-    if (isERC721 && imageUri && !imgError) {
-      return (
-        <ImageContainer>
-          <NFTImage src={imageUri} alt={nftName || displayName} onError={() => setImgError(true)} loading="lazy" />
-        </ImageContainer>
-      );
-    } else if (isERC721) {
-      return (
-        <ImageContainer>
-          <PlaceholderText>🖼️</PlaceholderText>
-        </ImageContainer>
-      );
-    }
-    return null;
-  };
-
   return (
-    <Wrapper>
-      <WithHelpTooltip
-        tooltipMsg={`Jurors must hold the required ${isERC721 ? "NFT" : "token"} to be eligible for this case.`}
-      >
-        <Badge>Token Gated</Badge>
-      </WithHelpTooltip>
-      <CardContainer>
-        <TokenImg />
-        <InfoSection>
-          <TokenName>{displayName}</TokenName>
-          {tokenSymbol ? <TokenSymbolLabel>${tokenSymbol}</TokenSymbolLabel> : null}
-          {tokenAddress ? (
-            <ExternalLink to={getAddressExplorerLink(tokenAddress)} target="_blank" rel="noopener noreferrer">
-              {truncatedAddress} <StyledNewTabIcon />
-            </ExternalLink>
-          ) : null}
-        </InfoSection>
-      </CardContainer>
-    </Wrapper>
+    <>
+      <Divider />
+      <Wrapper>
+        <WithHelpTooltip
+          tooltipMsg={`Jurors must hold the required ${isERC721 ? "NFT" : "token"} to be eligible for this case.`}
+        >
+          <Badge>Token Gated</Badge>
+        </WithHelpTooltip>
+        <CardContainer>
+          <TokenImg {...{ imageUri, isERC721, displayName }} />
+          <InfoSection>
+            <TokenName>{displayName}</TokenName>
+            {tokenSymbol ? <TokenSymbolLabel>${tokenSymbol}</TokenSymbolLabel> : null}
+            {tokenAddress ? (
+              <ExternalLink to={getAddressExplorerLink(tokenAddress)} target="_blank" rel="noopener noreferrer">
+                {truncatedAddress} <StyledNewTabIcon />
+              </ExternalLink>
+            ) : null}
+          </InfoSection>
+        </CardContainer>
+      </Wrapper>
+    </>
   );
 };
 
-export default GatedTokenDisplay;
+export default GatedOverviewExtraInfo;

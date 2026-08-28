@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
 
@@ -9,7 +10,7 @@ import { useCastCommit } from "hooks/useCastCommit";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { CommitParams } from "src/actions/commit/params";
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 import { PartialBy } from "src/utils/types";
 
@@ -24,10 +25,11 @@ interface ICommit {
   arbitrable: Address;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  disputeKitName?: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitName }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitId }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -45,19 +47,21 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitN
       }
 
       await castCommit({
-        type: disputeKitName ?? DisputeKits.Classic,
+        disputeKitId,
         disputeId: parsedDisputeID,
         choice,
         voteIds: parsedVoteIDs,
         roundIndex: Number(currentRoundIndex),
       } as PartialBy<CommitParams, "salt">);
     },
-    [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, disputeKitName]
+    [castCommit, parsedDisputeID, currentRoundIndex, parsedVoteIDs, disputeKitId]
   );
 
   return id ? (
     <Container>
-      <OptionsContainer {...{ arbitrable, handleSelection: handleCommit }} />
+      <OptionsContainer
+        {...{ arbitrable, handleSelection: handleCommit, confirmHint: t("voting.justification_at_reveal") }}
+      />
     </Container>
   ) : null;
 };

@@ -24,19 +24,6 @@ const FieldContainer = styled.div<FieldContainerProps>`
     flex-shrink: 0;
   }
 
-  ${({ isList }) =>
-    isList &&
-    css`
-      ${landscapeStyle(
-        () => css`
-          width: auto;
-          .value {
-            flex-grow: 0;
-            text-align: center;
-          }
-        `
-      )}
-    `};
   ${({ isOverview, isJurorBalance }) =>
     (isOverview || isJurorBalance) &&
     css`
@@ -73,7 +60,6 @@ const StyledInternalLink = styled(InternalLink)`
 
 type FieldContainerProps = {
   width?: string;
-  isList?: boolean;
   isOverview?: boolean;
   isJurorBalance?: boolean;
 };
@@ -84,27 +70,16 @@ export interface IField {
   value: string;
   link?: string;
   width?: string;
-  displayAsList?: boolean;
   isOverview?: boolean;
   isJurorBalance?: boolean;
   className?: string;
 }
 
-const Field: React.FC<IField> = ({
-  icon: Icon,
-  name,
-  value,
-  link,
-  width,
-  displayAsList,
-  isOverview,
-  isJurorBalance,
-  className,
-}) => {
+const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width, isOverview, isJurorBalance, className }) => {
   return (
-    <FieldContainer dir="auto" isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
+    <FieldContainer dir="auto" {...{ isOverview, isJurorBalance, width, className }}>
       <Icon />
-      {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
+      <label>{name}:</label>
       {link ? (
         <LinkContainer className="value">
           <StyledInternalLink

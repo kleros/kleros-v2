@@ -1,4 +1,4 @@
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 
 import { FundAppealContext } from "../context";
 import { FundAppealParams } from "../params";
@@ -31,17 +31,17 @@ const builders: Record<DisputeKits, FundAppealBuilder> = {
  * Builds a fund appeal transaction for a given dispute kit type.
  *
  * This function selects the correct fund appeal builder based on
- * `params.type` and calls its `build` method, passing the
+ * `params.disputeKitId` and calls its `build` method, passing the
  * caller-provided `params` and `context`. Dependencies are
  * automatically resolved via each builder's defaults.
  *
  * @param params  Parameters for the fund transaction. Must include
- *                a `type` field corresponding to a `DisputeKits` value.
+ *                a `disputeKitId` field corresponding to a `DisputeKits` value.
  * @param context Execution context, usually including chain info and
  *                account data required by the builder.
  *
  * @returns Returns transaction parameters (ABI, functionName, args, etc.) for call to the relevant DisputeKit
  */
 export const buildFundAppealTxn = (params: FundAppealParams, context: FundAppealContext) => {
-  return builders[params.type].build(params, context);
+  return builders[params.disputeKitId].build(params, context);
 };

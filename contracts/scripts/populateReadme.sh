@@ -9,5 +9,5 @@ fi
 
 deployments="$($SCRIPT_DIR/generateDeploymentsMarkdown.sh)" \
   envsubst '$deployments' \
-  < README.md.template \
-  > README.md
+  < "$SCRIPT_DIR/README.md.template" \
+  > "$SCRIPT_DIR/../README.md"

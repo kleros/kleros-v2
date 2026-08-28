@@ -13,7 +13,7 @@ import type { Bytes32Hash } from "utils/crypto/hashVote";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 
 const Container = styled.div`
@@ -29,10 +29,10 @@ interface IReveal {
   commit?: Bytes32Hash;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
-  disputeKitName?: DisputeKits;
+  disputeKitId: DisputeKits;
 }
 
-const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitName, commit, arbitrable }) => {
+const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitId, commit, arbitrable }) => {
   const { t } = useTranslation();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -59,7 +59,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitName, commit,
         voteIds: parsedVoteIDs,
         roundIndex: Number(currentRoundIndex),
         justification,
-        type: disputeKitName ?? DisputeKits.Shutter,
+        disputeKitId,
       },
       context: {
         commit,
@@ -73,7 +73,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitName, commit,
     revealVote,
     disputeDetails,
     commit,
-    disputeKitName,
+    disputeKitId,
     parsedDisputeID,
   ]);
 

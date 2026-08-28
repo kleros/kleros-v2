@@ -65,7 +65,7 @@ const FormContact: React.FC<IForm> = ({
         value={contactInput}
         onChange={handleInputChange}
         placeholder={contactPlaceholder}
-        disabled={isDisabled}
+        isDisabled={isDisabled}
       />
     </>
   );

@@ -48,8 +48,8 @@
   },
   "resolutions": {
     "async@npm^2.4.0": "npm:2.6.4",
-    "ejs@npm^2.6.1": "npm:3.1.7",
-    "ejs@npm:3.1.6": "npm:3.1.8",
+    "ejs@npm^2.6.1": "npm:ejs@3.1.10",
+    "ejs@npm:3.1.6": "npm:ejs@3.1.10",
     "loader-utils@npm:^1.0.2": "npm:1.4.2",
     "loader-utils@npm:^1.1.0": "npm:1.4.2",
     "lodash@npm^4.17.4": "npm:4.17.21",
@@ -83,16 +83,19 @@
     "@graphprotocol/graph-cli/glob": "^11.1.0",
     "@graphprotocol/graph-cli/immutable": "^5.1.5",
     "@graphprotocol/graph-cli/undici": "^7.24.0",
-    "picomatch": "^4.0.4"
+    "picomatch": "^4.0.4",
+    "react-pdf": "npm:9.2.1"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
-    "local-stack": "scripts/tmux-local-stack.sh",
+    "local-stack": "scripts/run-local-stack.sh start",
+    "stop-local-stack": "scripts/run-local-stack.sh stop",
+    "rebuild-local-stack": "scripts/run-local-stack.sh rebuild",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
     "postinstall": "yarn check-prerequisites; husky install",
     "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable",
-    "build:web:ci": "yarn workspaces focus @kleros/kleros-v2-web && yarn workspaces foreach -Ap --include kleros-app --include contracts run build && yarn workspace @kleros/kleros-v2-web build-netlify",
-    "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-web-devtools build-netlify",
+    "build:web:ci": "yarn workspaces focus @kleros/kleros-v2-web && yarn workspaces foreach -Ap --include kleros-app --include contracts run build && yarn workspace @kleros/kleros-v2-contracts run build:all && yarn workspace @kleros/kleros-v2-web build-netlify",
+    "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-contracts run build:all && yarn workspace @kleros/kleros-v2-web-devtools build-netlify",
     "build:contract-docs": "forge doc --build --out contracts/dist",
     "start:contract-docs": "forge doc --serve",
     "check-types": "yarn workspaces foreach -A -v run check-types"

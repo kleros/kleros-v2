@@ -2,13 +2,15 @@ import React, { Fragment, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
+import { Address } from "viem";
 
 import { BigNumberField, TextField } from "@kleros/ui-components-library";
 
-import { Features } from "consts/disputeFeature";
-import { IGatedDisputeData, useNewDisputeContext } from "context/NewDisputeContext";
+import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC1155Validation } from "hooks/useTokenAddressValidation";
 
+import { GatedDisputeKitData } from "src/dispute-kits/prepareArbitratorExtradata";
+import { Features } from "src/dispute-kits/types";
 import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
@@ -43,8 +45,9 @@ const StyledTokenIdField = styled(BigNumberField)`
 const GatedErc1155: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
   const { disputeData, setDisputeData } = useNewDisputeContext();
+  const gatedData = disputeData.disputeKitData as GatedDisputeKitData | undefined;
 
-  const tokenGateAddress = (disputeData.disputeKitData as IGatedDisputeData)?.tokenGate ?? "";
+  const tokenGateAddress = gatedData?.tokenGate ?? "";
   const validationEnabled = !isUndefined(tokenGateAddress) && tokenGateAddress.trim() !== "";
 
   const {
@@ -63,44 +66,51 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     else return [undefined, "info"];
   }, [isValidating, validationError, isValid]);
 
-  // Update validation state in dispute context
   useEffect(() => {
-    // this can clash with erc20 check
     if (!props.checked) return;
-    // Only update if isValid has actually changed
-    if (disputeData.disputeKitData) {
-      const currentData = disputeData.disputeKitData as IGatedDisputeData;
-
-      if (currentData.isTokenGateValid !== isValid) {
-        setDisputeData({
-          ...disputeData,
-          disputeKitData: { ...currentData, isTokenGateValid: isValid },
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValid, setDisputeData, props.checked]);
-
-  const handleTokenAddressChange = (value: string) => {
-    const currentData = disputeData.disputeKitData as IGatedDisputeData;
+    if (gatedData?.isERC1155 === true) return;
 
     setDisputeData({
       ...disputeData,
       disputeKitData: {
-        ...currentData,
-        tokenGate: value,
-        isTokenGateValid: null, // Reset validation state when address changes
+        tokenGate: (gatedData?.tokenGate ?? "") as Address,
+        isERC1155: true,
+        tokenId: gatedData?.tokenId ?? "0",
+        isValid: gatedData?.isValid ?? null,
+      },
+    });
+  }, [props.checked, gatedData, disputeData, setDisputeData]);
+
+  // Update validation state in dispute context
+  useEffect(() => {
+    if (!props.checked || !gatedData || gatedData.isValid === isValid) return;
+
+    setDisputeData({
+      ...disputeData,
+      disputeKitData: { ...gatedData, isValid },
+    });
+  }, [isValid, gatedData, disputeData, setDisputeData, props.checked]);
+
+  const handleTokenAddressChange = (value: string) => {
+    if (!gatedData) return;
+
+    setDisputeData({
+      ...disputeData,
+      disputeKitData: {
+        ...gatedData,
+        isERC1155: true,
+        tokenGate: value as Address,
+        isValid: null, // Reset validation state when address changes
       },
     });
   };
 
   const handleTokenIdChange = (value: string) => {
-    const currentData = disputeData.disputeKitData as IGatedDisputeData;
-    // DEV: we only update the tokenGate value here, and the disputeKidID,
-    // and type are still handled in Resolver/Court/FeatureSelection.tsx
+    if (!gatedData) return;
+
     setDisputeData({
       ...disputeData,
-      disputeKitData: { ...currentData, tokenId: value },
+      disputeKitData: { ...gatedData, isERC1155: true, tokenId: value },
     });
   };
 
@@ -121,7 +131,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
           />
           <StyledTokenIdField
             onChange={(tokenId) => handleTokenIdChange(tokenId.toString())}
-            value={(disputeData.disputeKitData as IGatedDisputeData)?.tokenId ?? "0"}
+            value={gatedData?.tokenId ?? "0"}
             placeholder={t("forms.placeholders.token_id_example")}
             formatOptions={{ groupSeparator: "" }}
           />

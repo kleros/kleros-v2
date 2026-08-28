@@ -60,7 +60,7 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment) => {
   const core = await ethers.getContract<KlerosCore>(getContractNames().core);
   const sortition = await ethers.getContract<SortitionModule>(getContractNames().sortition);
   const disputeKitClassic = await ethers.getContract<DisputeKitClassic>(getContractNames().disputeKitClassic);
-  const disputeKitClassicUniversity = await ethers.getContract<DisputeKitClassicUniversity>(
+  const disputeKitClassicUniversity = await ethers.getContractOrNull<DisputeKitClassicUniversity>(
     getContractNames().disputeKitClassicUniversity
   );
   const disputeKitShutter = await ethers.getContractOrNull<DisputeKitShutter>(getContractNames().disputeKitShutter);

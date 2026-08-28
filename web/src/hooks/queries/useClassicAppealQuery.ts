@@ -16,6 +16,9 @@ const classicAppealQuery = graphql(`
       }
       currentRound {
         timesPerPeriod
+        disputeKit {
+          address
+        }
       }
       arbitrated {
         id

@@ -51,6 +51,12 @@ test.describe("Voting tests", () => {
 
     await page.getByRole("button", { name: optionOneName }).click();
 
+    // confirmation modal shown before committing the vote
+    const confirmVoteModal = page.getByRole("dialog");
+    await expect(confirmVoteModal.getByText("Confirm your vote")).toBeVisible({ timeout: 30_000 });
+    await expect(confirmVoteModal.getByText(optionOneName)).toBeVisible();
+    await confirmVoteModal.getByRole("button", { name: "Confirm vote" }).click();
+
     // popup after committing
     await expect(page.getByText("Thanks for voting")).toBeVisible({ timeout: 30_000 });
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
@@ -128,6 +128,7 @@ const DesktopHeader: React.FC = () => {
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { isConnected, chainId } = useAccount();
   const isDefaultChain = chainId === DEFAULT_CHAIN.id;
   // Notifications opens via `?notifications=true` (not a hash) so HashRouter doesn't swallow it.
@@ -191,7 +192,7 @@ const DesktopHeader: React.FC = () => {
         <RightSide>
           <ConnectWalletContainer
             {...{ isConnected, isDefaultChain }}
-            onClick={isConnected && isDefaultChain ? toggleIsSettingsOpen : undefined}
+            onClick={isConnected && isDefaultChain ? () => navigate("/profile/stakes/1") : undefined}
           >
             <ConnectWallet />
           </ConnectWalletContainer>

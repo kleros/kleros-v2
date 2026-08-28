@@ -6,6 +6,8 @@ import { useSearchParams } from "react-router-dom";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
+import { getAllowedAttachmentUrl } from "utils/urlValidation";
+
 import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
@@ -51,20 +53,46 @@ const StyledNewTabIcon = styled(NewTabIcon)`
   }
 `;
 
+const UrlBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const UrlLabel = styled.small`
+  color: ${({ theme }) => theme.secondaryText};
+  font-weight: 600;
+`;
+
+const UrlContainer = styled.div`
+  background-color: ${({ theme }) => theme.lightGrey};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 4px;
+  padding: 12px;
+  word-break: break-all;
+`;
+
+const Url = styled.code`
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 13px;
+  font-family: monospace;
+`;
+
 const AttachmentDisplay: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
   const url = searchParams.get("url");
+  const safeUrl = url ? getAllowedAttachmentUrl(url) : null;
   const titleKey = searchParams.get("title");
   const title = titleKey ? t(titleKey) : t("misc.attachment");
   return (
     <Container>
       <AttachmentContainer>
         <Header {...{ title }} />
-        {url ? (
+        {safeUrl ? (
           <>
-            <StyledExternalLink to={url} rel="noreferrer" target="_blank">
+            <StyledExternalLink to={safeUrl} rel="noreferrer" target="_blank">
               {t("misc.open_in_new_tab")} <StyledNewTabIcon />
             </StyledExternalLink>
             <Suspense
@@ -74,9 +102,18 @@ const AttachmentDisplay: React.FC = () => {
                 </LoaderContainer>
               }
             >
-              <FileViewer url={url} />
+              <FileViewer url={safeUrl} />
             </Suspense>
           </>
+        ) : null}
+
+        {url && !safeUrl ? (
+          <UrlBlock>
+            <UrlLabel>{t("errors.invalid_link")}</UrlLabel>
+            <UrlContainer>
+              <Url>{url}</Url>
+            </UrlContainer>
+          </UrlBlock>
         ) : null}
       </AttachmentContainer>
     </Container>

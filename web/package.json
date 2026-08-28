@@ -91,6 +91,7 @@
   },
   "dependencies": {
     "@bigmi/react": "^0.1.0",
+    "@braintree/sanitize-url": "^7.1.2",
     "@coinbase/wallet-sdk": "^4.3.2",
     "@graphql-tools/batch-execute": "^9.0.11",
     "@graphql-tools/utils": "^10.7.2",
@@ -117,7 +118,6 @@
     "chartjs-adapter-moment": "^1.0.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "core-js": "^3.39.0",
-    "ethereum-identity-kit": "^0.2.74",
     "ethers": "^5.8.0",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",

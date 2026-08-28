@@ -89,11 +89,26 @@ Run the commands below from the top-level folder. Alternatively, it is possible 
 
 #### Shortcut using tmux
 
-If you have **[tmux](https://github.com/tmux/tmux/wiki)** installed, you can get started quickly with a single command.
+Requires **[tmux](https://github.com/tmux/tmux/wiki)**, **Docker**, **curl**, **jq**, and **lsof**.
+
+`scripts/run-local-stack.sh` orchestrates the full stack: preflight clean -> contract build -> Hardhat node (deploy) -> graph-node (tmux panes) -> populate -> viem generate -> subgraph deploy -> web. Logs go to a temp dir printed at start.
 
 ```bash
-$ yarn local-stack
+yarn local-stack                    # start (default: clean preflight, then attach tmux)
+yarn stop-local-stack               # kill tmux, stop graph-node, free :8545
+yarn rebuild-local-stack            # stop + full clean + start
+
+yarn local-stack --pin <tag|commit> # pin contracts first (see contracts/README.md)
 ```
+
+Detach tmux: `Ctrl+b` then `d`. Stop everything: `yarn stop-local-stack`.
+
+| Env                        | Default | Purpose                                                 |
+| -------------------------- | ------- | ------------------------------------------------------- |
+| `LOCAL_STACK_SKIP_CLEAN=1` | off     | Skip wiping deployments / graph data on start           |
+| `LOCAL_STACK_TIMEOUT=600`  | 600     | Seconds per readiness wait (RPC, deploy, subgraph sync) |
+
+Manual step-by-step (separate shells) is below if you prefer not to use the shortcut.
 
 ![terminal](/docs/local-stack-2.png)
 

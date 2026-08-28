@@ -16,6 +16,8 @@ const StyledComponentsProvider: React.FC<{
     else setTheme("light");
   };
 
+  // The `dark` class drives the ui-components-library's CSS variables (`:root.dark`
+  // in its theme.css) and styles/base-elements.css. index.html only sets it pre-paint.
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme !== "light");
   }, [theme]);

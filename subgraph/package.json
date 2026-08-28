@@ -4,6 +4,7 @@
   "drtVersion": "2.0.0--rc.2",
   "license": "MIT",
   "scripts": {
+    "sync-abis": "./scripts/sync-abis.sh",
     "update:core:arbitrum-sepolia-devnet": "./scripts/update.sh arbitrumSepoliaDevnet arbitrum-sepolia core/subgraph.yaml",
     "update:core:arbitrum-sepolia": "./scripts/update.sh arbitrumSepolia arbitrum-sepolia core/subgraph.yaml",
     "update:core:arbitrum": "./scripts/update.sh arbitrum arbitrum-one core/subgraph.yaml",
@@ -61,6 +62,7 @@
   "devDependencies": {
     "@goldskycom/cli": "^13.1.1",
     "@graphprotocol/graph-cli": "^0.98.1",
+    "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "eslint": "^9.15.0",

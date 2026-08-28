@@ -102,7 +102,7 @@ const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
     {
       text: t("menu.dapp_guide"),
       Icon: Guide,
-      url: "https://docs.kleros.io/products/court-v2",
+      url: "https://docs.kleros.io/developers/products/court/overview#v2-arbitrum",
     },
     {
       text: t("menu.crypto_beginners_guide"),
@@ -112,7 +112,7 @@ const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
     {
       text: t("menu.faq"),
       Icon: Faq,
-      url: "https://docs.kleros.io/kleros-faq",
+      url: "https://docs.kleros.io/welcome/faq",
     },
     {
       text: t("menu.developer_tools"),

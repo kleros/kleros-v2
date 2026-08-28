@@ -25,7 +25,7 @@ const StyledIcon = styled.div<{ color: string }>`
 const StyledLabel = styled.label<{ color: string }>`
   color: ${({ color }) => color};
 `;
-interface IRewardsAndFundLabel {
+export interface IRewardsAndFundLabel {
   value: string;
   unit: "ETH" | "PNK";
   isFund?: boolean;
@@ -34,13 +34,13 @@ interface IRewardsAndFundLabel {
 const RewardsAndFundLabel: React.FC<IRewardsAndFundLabel> = ({ value, unit = "ETH", isFund = false }) => {
   const theme = useTheme();
   const isWon = Number(value) > 0;
-  const color = isWon ? theme.success : theme.error;
+  const color = isFund ? theme.tint : isWon ? theme.success : theme.error;
   return Number(value) !== 0 ? (
     <Container>
-      <StyledLabel color={isFund ? theme.tint : color}>
+      <StyledLabel {...{ color }}>
         <NumberDisplay {...{ value, unit }} showUnitInDisplay={false} />
       </StyledLabel>
-      <StyledIcon as={unit === "ETH" ? EthIcon : PnkIcon} color={isFund ? theme.tint : color} />
+      <StyledIcon as={unit === "ETH" ? EthIcon : PnkIcon} {...{ color }} />
     </Container>
   ) : null;
 };

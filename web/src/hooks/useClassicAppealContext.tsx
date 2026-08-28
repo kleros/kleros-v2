@@ -14,7 +14,7 @@ import { isUndefined } from "utils/index";
 
 import { useAppealCost } from "queries/useAppealCost";
 import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
-import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
+import { useDisputeKitMultipliers } from "queries/useDisputeKitMultipliers";
 
 type Option = Answer & { paidFee?: string; funded?: boolean };
 interface ICountdownContext {
@@ -61,7 +61,7 @@ export const ClassicAppealProvider: React.FC<{
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable as Address);
-  const { data: multipliers } = useDisputeKitClassicMultipliers();
+  const { data: multipliers } = useDisputeKitMultipliers(data?.dispute?.currentRound?.disputeKit?.address as Address);
 
   const [selectedOption, setSelectedOption] = useState<Option>();
 

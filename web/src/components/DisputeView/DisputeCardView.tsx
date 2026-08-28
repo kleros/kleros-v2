@@ -64,7 +64,6 @@ interface IDisputeCardView {
   period?: Periods;
   date?: number;
   round?: number;
-  overrideIsList?: boolean;
   isOverview?: boolean;
   showLabels?: boolean;
   isLoading?: boolean;

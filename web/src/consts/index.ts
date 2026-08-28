@@ -12,6 +12,7 @@ export const STALE_TIME = 1000;
 export const IPFS_GATEWAY = import.meta.env.REACT_APP_IPFS_GATEWAY || "https://cdn.kleros.link";
 export const HERMES_TELEGRAM_BOT_URL =
   import.meta.env.REACT_APP_HERMES_TELEGRAM_BOT_URL || "https://t.me/HermesTheKlerosV2MessengerBot";
+export const KLEROS_SCOUT_URL = import.meta.env.REACT_APP_KLEROS_SCOUT_URL || "https://scout-app.kleros.io";
 
 export const GIT_BRANCH = gitBranch;
 export const GIT_TAGS = gitTags;
@@ -39,23 +40,5 @@ export const getArbitratorType = (): ArbitratorTypes =>
 export const getDevToolsUrl = () => import.meta.env.REACT_APP_DEVTOOLS_URL || "https://devtools.v2.kleros.builders";
 
 export const spamEvidencesIds: string[] = (import.meta.env.REACT_APP_SPAM_EVIDENCES_IDS ?? "").split(",");
-
-export enum DisputeKits {
-  Classic = "Classic",
-  Shutter = "Shutter",
-  Gated = "Token Gated",
-  GatedShutter = "Token Gated Shutter",
-  ClassicUniversity = "Classic University",
-  ArgentinaConsumerProtection = "Argentina Consumer Protection",
-}
-
-export const isClassicLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
-  disputeKit === DisputeKits.Classic ||
-  disputeKit === DisputeKits.Gated ||
-  disputeKit === DisputeKits.ArgentinaConsumerProtection ||
-  disputeKit === DisputeKits.ClassicUniversity;
-
-export const isShutterLikeDisputeKit = (disputeKit?: DisputeKits): boolean =>
-  disputeKit === DisputeKits.Shutter || disputeKit === DisputeKits.GatedShutter;
 
 export const HARDHAT_NODE_RPC = "http://127.0.0.1:8545";

@@ -2,7 +2,7 @@ import { maxUint256 } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 import { describe, it, expect, vi } from "vitest";
 
-import { DisputeKits } from "src/consts";
+import { DisputeKits } from "src/dispute-kits/disputeKits";
 import { MOCK_CLASSIC_DK_ADDRESS, mockContractsGenerated } from "src/test/mocks/contracts";
 
 import type { RevealContext } from "../context";
@@ -26,7 +26,7 @@ describe("classicRevealBuilder", () => {
     salt: 123456789n,
     roundIndex: 0,
     justification: "My justification for this vote",
-    type: DisputeKits.Classic,
+    disputeKitId: DisputeKits.Classic,
     ...overrides,
   });
 
