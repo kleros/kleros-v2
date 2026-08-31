@@ -98,7 +98,7 @@
     "@kleros/kleros-app": "workspace:^",
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/kleros-v2-contracts": "workspace:^",
-    "@kleros/ui-components-library": "^3.8.0",
+    "@kleros/ui-components-library": "^3.8.1",
     "@lifi/wallet-management": "^3.7.1",
     "@lifi/widget": "^3.18.1",
     "@mdxeditor/editor": "^3.45.0",
