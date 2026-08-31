@@ -7260,7 +7260,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": "npm:^3.8.1"
+    "@kleros/ui-components-library": "npm:^3.9.0"
     "@lifi/wallet-management": "npm:^3.7.1"
     "@lifi/widget": "npm:^3.18.1"
     "@mdxeditor/editor": "npm:^3.45.0"
@@ -7368,7 +7368,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/ui-components-library@npm:^3.8.1":
+"@kleros/ui-components-library@npm:^3.9.0":
   version: 3.9.0
   resolution: "@kleros/ui-components-library@npm:3.9.0"
   dependencies:
