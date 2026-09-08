@@ -5,24 +5,37 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 
+import { BigNumberField } from "@kleros/ui-components-library";
+
+import { useBigNumberFieldReset } from "hooks/useBigNumberFieldReset";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePnkData } from "hooks/usePNKData";
-import { commify, uncommify } from "utils/commify";
-import { formatPNK, roundNumberDown } from "utils/format";
+import { uncommify } from "utils/commify";
+import { formatPNK } from "utils/format";
 import { isUndefined } from "utils/index";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 
-import { NumberInputField } from "components/NumberInputField";
-
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
-const StyledField = styled(NumberInputField)`
-  height: fit-content;
+const StyledField = styled(BigNumberField)`
+  width: 100%;
+
+  /* Joined to the button on the right; the button drops its left border so the seam stays 1px
+     and the input's focus border and glow can complete on the right edge. */
   input {
-    border-radius: 3px 0px 0px 3px;
+    border-radius: 3px 0 0 3px;
+    &:focus {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  /* Hover-revealed stepper arrows would sit under the button's edge. */
+  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
+    display: none;
   }
 `;
 
@@ -59,6 +72,7 @@ const EnsureChainContainer = styled.div`
   button {
     height: 45px;
     border: 1px solid ${({ theme }) => theme.stroke};
+    border-left: none;
     border-radius: 0px 3px 3px 0px;
   }
 `;
@@ -74,8 +88,9 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
   const [debouncedAmount, setDebouncedAmount] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { key: fieldKey, inputRef } = useBigNumberFieldReset(amount);
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
-  const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
+  const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
 
   const { id } = useParams();
   const { balance, jurorBalance } = usePnkData({ courtId: id });
@@ -85,6 +100,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
 
   const parsedStake = formatPNK(jurorBalance?.[2] ?? 0n, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
+  const placeholder = isStaking ? t("forms.placeholders.amount_to_stake") : t("forms.placeholders.amount_to_withdraw");
 
   useEffect(() => {
     if (parsedAmount > 0n && balance === 0n && isStaking) {
@@ -113,8 +129,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
         <label>{t("staking.available_amount", { amount: isStaking ? parsedBalance : parsedStake })}</label>
         <StyledLabel
           onClick={() => {
-            const amount = isStaking ? parsedBalance : parsedStake;
-            setAmount(amount);
+            setAmount(uncommify(isStaking ? parsedBalance : parsedStake));
           }}
         >
           {isStaking ? t("staking.stake_all") : t("staking.withdraw_all")}
@@ -123,14 +138,18 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       <InputArea>
         <InputFieldAndButton>
           <StyledField
-            value={uncommify(amount)}
-            onChange={setAmount}
-            placeholder={
-              isStaking ? t("forms.placeholders.amount_to_stake") : t("forms.placeholders.amount_to_withdraw")
-            }
+            key={fieldKey}
+            inputRef={inputRef}
+            // `amount` is the decimal string viem's parseUnits consumes; "" (not "0") keeps the
+            // field empty when cleared, since the library reports an emptied input as 0.
+            value={amount || undefined}
+            onChange={(value) => setAmount(value.isZero() ? "" : value.toString())}
+            minValue="0"
+            isWheelDisabled
+            inputProps={{ "aria-label": placeholder }}
+            placeholder={placeholder}
             message={isPopupOpen ? undefined : (errorMsg ?? undefined)}
             variant={!isUndefined(errorMsg) && !isPopupOpen ? "error" : "info"}
-            formatter={(number: string) => (number !== "" ? commify(roundNumberDown(Number(number))) : "")}
           />
           <EnsureChainContainer>
             <StakeWithdrawButton

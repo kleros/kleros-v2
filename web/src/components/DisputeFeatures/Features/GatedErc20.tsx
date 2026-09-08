@@ -97,11 +97,12 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.GatedErc20}>
       <WithHelpTooltip tooltipMsg={t("tooltips.token_gating_tooltip")}>
-        <FeatureRadio value={props.value} disabled={props.disabled} label={t("features.jurors_owning_erc20")} />
+        <FeatureRadio {...props} label={t("features.jurors_owning_erc20")} />
       </WithHelpTooltip>
       {props.checked ? (
         <FieldContainer>
           <StyledField
+            aria-label={t("aria_labels.token_address")}
             inputProps={{ dir: "auto" }}
             onChange={handleTokenAddressChange}
             value={tokenGateAddress}

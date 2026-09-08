@@ -79,6 +79,17 @@ const Jurors: React.FC = () => {
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 18);
 
+  const handleJurorsWrite = (value: number | string) => {
+    const parsed = typeof value === "string" ? Number.parseInt(value, 10) : value;
+    const isValid = Number.isInteger(parsed) && parsed >= 1;
+    // While typing, only valid counts are applied: pushing NaN back as `value` would make
+    // react-aria blank the input. On commit (blur/Enter) react-aria has already clamped, and an
+    // empty field arrives as NaN, which clears the count.
+    if (typeof value === "string" && !isValid) return;
+    const numberOfJurors = isValid ? parsed : undefined;
+    if (numberOfJurors !== disputeData.numberOfJurors) setDisputeData({ ...disputeData, numberOfJurors });
+  };
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
@@ -86,9 +97,13 @@ const Jurors: React.FC = () => {
     <Container>
       <Header text={t("headers.select_number_of_jurors")} />
       <StyledField
+        aria-label={t("aria_labels.number_of_jurors")}
         placeholder={t("forms.placeholders.select_the_number_of_jurors")}
         value={disputeData.numberOfJurors ?? NaN}
-        onChange={(numberOfJurors) => setDisputeData({ ...disputeData, numberOfJurors })}
+        // react-aria's NumberField commits `onChange` on blur/Enter; the arbitration cost
+        // should follow every keystroke, so also read the raw input.
+        inputProps={{ onChange: (event) => handleJurorsWrite(event.currentTarget.value) }}
+        onChange={handleJurorsWrite}
         formatOptions={{ useGrouping: false, maximumFractionDigits: 0 }}
         minValue={1}
       />

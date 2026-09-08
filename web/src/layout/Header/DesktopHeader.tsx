@@ -93,7 +93,7 @@ const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain
 // Landscape-only: mirrors HeaderContainer so popups anchor to the header's content box, not
 // the viewport. Two elements: the popups' absolute left/right: 0 resolve against the padding
 // box, so the padding here can't inset them — the inner relative div marks the content edge.
-// Below landscape only the hash-driven popups (e.g. #notifications) reach here, and they
+// Below landscape only the URL-driven popups (e.g. ?notifications=true) reach here, and they
 // center themselves; staying inert lets their top/left percentages resolve against the Overlay.
 const PopupAnchor = styled.div`
   ${landscapeStyle(
@@ -127,12 +127,23 @@ const DesktopHeader: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isConnected, chainId } = useAccount();
   const isDefaultChain = chainId === DEFAULT_CHAIN.id;
   // Notifications opens via `?notifications=true` (not a hash) so HashRouter doesn't swallow it.
   const hasNotificationsPath = searchParams.get("notifications") === "true";
+  // Closing Settings from the popup goes through here so the param never outlives it
+  // (it would reopen the popup on the next hash change). The gear button only toggles
+  // after click-away has already run this.
+  const closeSettings = useCallback(() => {
+    toggleIsSettingsOpen(false);
+    if (hasNotificationsPath) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("notifications");
+      setSearchParams(next, { replace: true });
+    }
+  }, [toggleIsSettingsOpen, hasNotificationsPath, searchParams, setSearchParams]);
   const initializeFragmentURL = useCallback(() => {
     const hashIncludes = (hash: MiniguideHashesType) => location.hash.includes(hash);
     const hasJurorLevelsMiniGuidePath = hashIncludes("#jurorlevels-miniguide");
@@ -206,7 +217,7 @@ const DesktopHeader: React.FC = () => {
               <PopupAnchorInner>
                 {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
                 {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-                {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
+                {isSettingsOpen && <Settings toggleIsSettingsOpen={closeSettings} {...{ initialTab }} />}
               </PopupAnchorInner>
             </PopupAnchor>
           </Overlay>

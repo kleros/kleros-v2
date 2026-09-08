@@ -8,6 +8,8 @@ import { Tabs } from "@kleros/ui-components-library";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
+import { tabsSelectedUnderline } from "styles/commonStyles";
+
 import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -56,6 +58,7 @@ const StyledMarkdownRenderer = styled(MarkdownRenderer)`
 `;
 
 const StyledTabs = styled(Tabs)`
+  ${tabsSelectedUnderline}
   width: 100%;
   > * {
     display: flex;
@@ -112,8 +115,6 @@ const Description: React.FC = () => {
     content: null,
   }));
 
-  // Pass both: `selectedKey` keeps react-aria controlled, `defaultSelectedKey`
-  // drives the library Tabs' own visible underline.
   const activePath = filteredTabs.some(({ path }) => path === currentPathName)
     ? currentPathName
     : filteredTabs[0]?.path;
@@ -124,12 +125,7 @@ const Description: React.FC = () => {
   }, [policy, currentPathName, filteredTabs, navigate, suffix]);
   return policy ? (
     <Container id="description">
-      <StyledTabs
-        selectedKey={activePath}
-        defaultSelectedKey={activePath}
-        items={tabItems}
-        callback={(key) => navigate(`${String(key)}${suffix}`)}
-      />
+      <StyledTabs selectedKey={activePath} items={tabItems} callback={(key) => navigate(`${String(key)}${suffix}`)} />
       <TextContainer>
         <Routes>
           <Route path="purpose" element={formatMarkdown(policy?.purpose)} />

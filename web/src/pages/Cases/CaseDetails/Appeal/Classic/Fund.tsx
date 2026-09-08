@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useId, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -9,6 +9,7 @@ import { useAccount, useBalance } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 
 import { REFETCH_INTERVAL } from "consts/index";
+import { useBigNumberFieldReset } from "hooks/useBigNumberFieldReset";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useFundAppeal } from "hooks/useFundAppeal";
 import { useParsedAmount } from "hooks/useParsedAmount";
@@ -63,6 +64,8 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
   const { id: disputeId } = useParams();
   const { address, isDisconnected } = useAccount();
   const { t } = useTranslation();
+  const labelId = useId();
+  const { key: fieldKey, inputRef } = useBigNumberFieldReset(amount);
 
   const { selectedOption } = useSelectedOptionContext();
   const needFund = useNeedFund();
@@ -110,8 +113,19 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
 
   return needFund ? (
     <Container>
-      <StyledLabel>{t("appeal.how_much_eth_contribute")}</StyledLabel>
-      <EthAmountField value={amount} onChange={setAmount} placeholder={t("forms.placeholders.amount_to_fund")} />
+      <StyledLabel id={labelId}>{t("appeal.how_much_eth_contribute")}</StyledLabel>
+      <EthAmountField
+        key={fieldKey}
+        inputRef={inputRef}
+        // `amount` is the decimal string viem's parseUnits consumes; "" (not "0") keeps the
+        // field empty when cleared, since the library reports an emptied input as 0.
+        value={amount || undefined}
+        onChange={(value) => setAmount(value.isZero() ? "" : value.toString())}
+        minValue="0"
+        isWheelDisabled
+        inputProps={{ "aria-labelledby": labelId }}
+        placeholder={t("forms.placeholders.amount_to_fund")}
+      />
       <EnsureChain>
         <div>
           <StyledButton

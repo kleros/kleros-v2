@@ -9,7 +9,6 @@ import { CustomTimeline } from "@kleros/ui-components-library";
 
 import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
 import GavelExecutedIcon from "svgs/icons/gavel-executed.svg";
-import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -24,6 +23,7 @@ import { getTxnExplorerLink, isUndefined } from "src/utils";
 import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
 import { StyledClosedCircle } from "components/StyledIcons/ClosedCircleIcon";
+import NewTabIcon from "components/StyledIcons/NewTabIcon";
 
 import { ExternalLink } from "../ExternalLink";
 
@@ -36,16 +36,21 @@ const Container = styled.div`
 const StyledTimeline = styled(CustomTimeline)`
   width: 100%;
 
+  /* The library aligns the 16px bullet with the title's top edge and draws the connecting
+     line above it for the title's offset in its row, so keep the title row 16px tall: a
+     16px title line box, and the link box shrink-wrapped to its 16px icon. */
   h2 {
     margin: 0;
+    line-height: 16px;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
   }
 `;
 
 const StyledNewTabIcon = styled(NewTabIcon)`
-  margin-bottom: 2px;
-  path {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
   :hover {
     path {
       fill: ${({ theme }) => theme.secondaryBlue};

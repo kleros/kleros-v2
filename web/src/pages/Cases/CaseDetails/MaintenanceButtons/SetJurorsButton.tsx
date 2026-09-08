@@ -140,6 +140,7 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
       ) : null}
 
       <TextField
+        aria-label={t("aria_labels.juror_addresses")}
         placeholder={t("forms.placeholders.juror_addresses_comma_separated")}
         onChange={setJurorsInput}
         value={jurorsInput}

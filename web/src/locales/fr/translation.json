@@ -257,7 +257,13 @@
     "sort_order": "Ordre de tri",
     "time_range": "Plage de temps",
     "chart_metric": "Métrique du graphique",
-    "select_court": "Sélectionner la cour"
+    "select_court": "Sélectionner la cour",
+    "case_title": "Titre du dossier",
+    "case_category": "Catégorie du dossier",
+    "number_of_jurors": "Nombre de jurés",
+    "token_address": "Adresse du jeton",
+    "token_id": "ID du jeton",
+    "juror_addresses": "Adresses des jurés"
   },
   "juror_levels": {
     "diogenes": "Diogène",

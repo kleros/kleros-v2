@@ -26,10 +26,20 @@ type ILabeledInput = React.ComponentProps<typeof TextField>;
 
 const LabeledInput: React.FC<ILabeledInput> = ({ label, inputProps, ...props }) => {
   const inputId = React.useId();
+  const labelId = React.useId();
   return (
     <Container>
-      {!isUndefined(label) ? <StyledLabel htmlFor={inputId}>{label}</StyledLabel> : null}
-      <StyledField {...props} inputProps={{ dir: "auto", ...inputProps, id: inputId }} />
+      {!isUndefined(label) ? (
+        <StyledLabel id={labelId} htmlFor={inputId}>
+          {label}
+        </StyledLabel>
+      ) : null}
+      <StyledField
+        {...props}
+        // react-aria only recognises the label through aria-labelledby, not htmlFor.
+        aria-labelledby={isUndefined(label) ? undefined : labelId}
+        inputProps={{ dir: "auto", ...inputProps, id: inputId }}
+      />
     </Container>
   );
 };

@@ -1,9 +1,8 @@
-import React from "react";
 import styled from "styled-components";
 
 import { BigNumberField } from "@kleros/ui-components-library";
 
-const StyledBigNumberField = styled(BigNumberField)`
+const EthAmountField = styled(BigNumberField)`
   width: 100%;
 
   input {
@@ -25,18 +24,5 @@ const StyledBigNumberField = styled(BigNumberField)`
     pointer-events: none;
   }
 `;
-
-type Props = Omit<React.ComponentProps<typeof BigNumberField>, "onChange"> & {
-  onChange?: (value: string) => void;
-};
-
-const EthAmountField: React.FC<Props> = ({ value, onChange, ...props }) => (
-  <StyledBigNumberField
-    {...props}
-    // Empty string would render as "NaN" via BigNumber.toFormat.
-    value={value === "" ? undefined : value}
-    onChange={onChange && ((v) => onChange(v.toString()))}
-  />
-);
 
 export default EthAmountField;

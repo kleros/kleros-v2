@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useId, useRef } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { Card, CustomRadioItem, RadioIndicator } from "@kleros/ui-components-library";
+import { BigNumberField, Card, CustomRadioItem, RadioIndicator } from "@kleros/ui-components-library";
 
 import CaseFromScratchIcon from "svgs/icons/caseFromScratch.svg";
 import DuplicateCaseIcon from "svgs/icons/duplicateCase.svg";
@@ -11,7 +11,6 @@ import DuplicateCaseIcon from "svgs/icons/duplicateCase.svg";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
-import { NumberInputField } from "components/NumberInputField";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 export enum CreationMethod {
@@ -75,10 +74,12 @@ const Label = styled.label`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const StyledNumberField = styled(NumberInputField)`
+const StyledNumberField = styled(BigNumberField)`
   max-width: 128px;
-  input {
-    border: 1px solid ${({ theme, variant }) => (variant === "error" ? theme.error : theme.stroke)};
+
+  /* Hover-revealed stepper arrows don't suit an ID picker. */
+  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
+    display: none;
   }
 `;
 
@@ -105,6 +106,8 @@ const CreationCard: React.FC<ICreationCard> = ({
 }) => {
   const { t } = useTranslation();
   const selected = cardMethod === selectedMethod;
+  const disputeIdLabelId = useId();
+  const disputeIdInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <StyledCard hover selected={selected}>
@@ -126,14 +129,21 @@ const CreationCard: React.FC<ICreationCard> = ({
           <Divider />
           <CardBottomContent>
             <WithHelpTooltip tooltipMsg={t("case_creation.case_id_tooltip")}>
-              <Label>{t("forms.labels.enter_cases_id")}</Label>
+              <Label id={disputeIdLabelId}>{t("forms.labels.enter_cases_id")}</Label>
             </WithHelpTooltip>
             <StyledNumberField
+              inputRef={disputeIdInputRef}
+              inputProps={{ "aria-labelledby": disputeIdLabelId }}
               placeholder={t("forms.placeholders.case_id_example")}
               value={disputeID}
-              onChange={(val) => {
-                if (setDisputeID) setDisputeID(val.trim() !== "" ? val : undefined);
-              }}
+              // The library reports an emptied input as 0, and 0 is a real dispute; read the
+              // raw text to tell "cleared" apart from "0".
+              onChange={(id) =>
+                setDisputeID?.(id.isZero() && !disputeIdInputRef.current?.value.trim() ? undefined : id.toString())
+              }
+              minValue="0"
+              isWheelDisabled
+              formatOptions={{ groupSeparator: "" }}
               variant={isInvalidDispute ? "error" : undefined}
             />
             {isInvalidDispute ? <ErrorMsg>{t("forms.messages.invalid_dispute")}</ErrorMsg> : null}

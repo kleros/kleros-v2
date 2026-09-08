@@ -12,7 +12,7 @@ import WithHelpTooltip from "components/WithHelpTooltip";
 
 import { FeatureRadio, RadioInput } from ".";
 
-const ClassicVote: React.FC<RadioInput> = ({ value, disabled }) => {
+const ClassicVote: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
   const { disputeData } = useNewDisputeContext();
   const { data: courtData } = useCourtDetails(disputeData.courtId);
@@ -22,11 +22,7 @@ const ClassicVote: React.FC<RadioInput> = ({ value, disabled }) => {
       tooltipMsg={isCommitEnabled ? t("features.hidden_votes_tooltip") : t("features.non_hidden_votes_tooltip")}
       key={Features.ClassicVote}
     >
-      <FeatureRadio
-        value={value}
-        disabled={disabled}
-        label={isCommitEnabled ? t("features.two_step_commit") : t("features.disabled")}
-      />
+      <FeatureRadio {...props} label={isCommitEnabled ? t("features.two_step_commit") : t("features.disabled")} />
     </WithHelpTooltip>
   );
 };

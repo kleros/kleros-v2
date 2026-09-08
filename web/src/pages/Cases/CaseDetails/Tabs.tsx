@@ -19,9 +19,11 @@ import { isLastRound } from "utils/isLastRound";
 
 import { useAppealCost } from "queries/useAppealCost";
 
+import { tabsSelectedUnderline } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 const StyledTabs = styled(TabsComponent)`
+  ${tabsSelectedUnderline}
   width: 100%;
   margin-top: ${responsiveSize(10, 28)};
   > * {
@@ -105,16 +107,7 @@ const Tabs: React.FC = () => {
     return updatedTabs;
   }, [currentPeriodIndex, rounds.length, appealCost, TABS]);
 
-  // Both props: `selectedKey` keeps the URL the source of truth; `defaultSelectedKey`
-  // primes the library Tabs' internal underline state (which doesn't track `selectedKey`).
-  return (
-    <StyledTabs
-      selectedKey={currentTab}
-      defaultSelectedKey={currentTab}
-      items={tabs}
-      callback={(_key, value) => navigate(TABS[value].path)}
-    />
-  );
+  return <StyledTabs selectedKey={currentTab} items={tabs} callback={(_key, value) => navigate(TABS[value].path)} />;
 };
 
 export default Tabs;

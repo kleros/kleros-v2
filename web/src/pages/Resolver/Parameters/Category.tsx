@@ -62,6 +62,7 @@ const Category: React.FC = () => {
     <Container ref={containerRef}>
       <Header text={t("headers.choose_a_category")} />
       <StyledField
+        aria-label={t("aria_labels.case_category")}
         inputProps={{ dir: "auto" }}
         onChange={handleWrite}
         value={disputeData.category}

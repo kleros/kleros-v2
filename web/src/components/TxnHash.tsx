@@ -3,11 +3,10 @@ import styled, { DefaultTheme } from "styled-components";
 
 import { Hash } from "viem";
 
-import NewTabIcon from "svgs/icons/new-tab.svg";
-
 import { getTxnExplorerLink } from "src/utils";
 
 import { ExternalLink } from "./ExternalLink";
+import NewTabIcon from "./StyledIcons/NewTabIcon";
 
 const TxnLabel = styled.label<{ variant: string }>`
   display: flex;

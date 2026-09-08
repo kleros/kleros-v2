@@ -36,6 +36,7 @@ const FormContainer = styled.form`
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row-reverse;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px;
 `;
@@ -199,18 +200,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
             <Button
               text={t("buttons.cancel")}
               variant="secondary"
-              onClick={(event) => {
-                event.preventDefault();
-                setIsConfirmingUnsubscribe(false);
-              }}
+              onPress={() => setIsConfirmingUnsubscribe(false)}
               isDisabled={isDeletingUser}
             />
             <ConfirmUnsubscribeButton
               text={t("buttons.confirm_unsubscribe")}
-              onClick={(event) => {
-                event.preventDefault();
-                handleConfirmUnsubscribe();
-              }}
+              onPress={handleConfirmUnsubscribe}
               isDisabled={isFetchingUser || isDeletingUser}
               isLoading={isDeletingUser}
             />
@@ -234,10 +229,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
               <UnsubscribeButton
                 variant="secondary"
                 text={t("buttons.unsubscribe")}
-                onClick={(event) => {
-                  event.preventDefault();
-                  setIsConfirmingUnsubscribe(true);
-                }}
+                onPress={() => setIsConfirmingUnsubscribe(true)}
                 isDisabled={isFetchingUser || isDeletingUser}
               />
             ) : null}

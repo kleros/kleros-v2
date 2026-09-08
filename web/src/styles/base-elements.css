@@ -6,11 +6,16 @@
  * (library components keep their own text styling instead of being overridden).
  * Colors use the library's CSS variables so they track the light/dark theme.
  *
+ * Library components render their own h1/h2/h3/small and rely on the Tailwind preflight
+ * (margin: 0), so the margin rules here must not reach them. Every library text element
+ * carries a `klerosUIComponents*` color class, so `:not([class*="klerosUIComponents"])`
+ * keeps these rules on app markup only.
+ *
  * Must be a plain CSS file, not createGlobalStyle — styled-components v5 mangles
  * @layer blocks.
  */
 @layer components {
-  h1 {
+  h1:not([class*="klerosUIComponents"]) {
     margin: 0 0 16px 0;
     font-weight: 600;
     font-size: 24px;
@@ -18,7 +23,7 @@
     color: var(--klerosUIComponentsPrimaryText);
   }
 
-  h2 {
+  h2:not([class*="klerosUIComponents"]) {
     margin: 0 0 16px 0;
     font-weight: 400;
     font-size: 24px;
@@ -26,7 +31,7 @@
     color: var(--klerosUIComponentsPrimaryText);
   }
 
-  h3 {
+  h3:not([class*="klerosUIComponents"]) {
     margin: 0 0 16px 0;
     font-weight: 600;
     font-size: 16px;
@@ -41,8 +46,6 @@
     color: var(--klerosUIComponentsPrimaryText);
   }
 
-  /* :not(...) keeps this off the library's own <small>s (they all carry a
-     klerosUIComponents class); otherwise font-weight: 600 leaks in and bolds their text. */
   small:not([class*="klerosUIComponents"]) {
     font-weight: 600;
     font-size: 14px;

@@ -6,9 +6,10 @@ import { DropdownCascader, DropdownSelect } from "@kleros/ui-components-library"
 /**
  * Accessible wrappers around the library's DropdownSelect / DropdownCascader.
  *
- * @kleros/ui-components-library 3.8.0 hardcodes `aria-label="Select"` after the prop spread,
- * silently dropping caller-supplied `aria-label`. Workaround: pass `aria-labelledby` (which the
- * spread does forward) pointing to a visually-hidden span; per ARIA, labelledby wins.
+ * @kleros/ui-components-library 3.9.0 hardcodes `aria-label="Select"` after the prop
+ * spread, silently dropping caller-supplied `aria-label`. Workaround: pass `aria-labelledby` (which
+ * the spread does forward) pointing to a visually-hidden span; per ARIA, labelledby wins.
+ * Tracked in kleros/ui-components-library#91; once fixed there, these wrappers go away.
  */
 
 // Clip technique keeps the node in the accessibility tree (display: none would remove it).

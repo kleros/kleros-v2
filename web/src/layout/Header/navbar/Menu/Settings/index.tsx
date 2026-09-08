@@ -2,11 +2,11 @@ import React, { useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
 import { useClickAway } from "react-use";
 
 import { Tabs } from "@kleros/ui-components-library";
 
+import { tabsSelectedUnderline } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -50,7 +50,7 @@ const StyledSettingsText = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  padding: 0 ${responsiveSize(8, 32, 300)};
+  ${tabsSelectedUnderline}
   width: 86vw;
   max-width: 660px;
   align-self: center;
@@ -59,21 +59,18 @@ const StyledTabs = styled(Tabs)`
       width: ${responsiveSize(300, 500, 300)};
     `
   )}
+
+  /* Only the tab list is inset; each panel sets its own horizontal padding. */
+  > [role="tablist"] {
+    padding: 0 ${responsiveSize(8, 32, 300)};
+  }
 `;
 
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
   const { t } = useTranslation();
   const containerRef = useRef(null);
   const [currentTab, setCurrentTab] = useState<number>(initialTab ?? 0);
-  const [searchParams, setSearchParams] = useSearchParams();
-  useClickAway(containerRef, () => {
-    toggleIsSettingsOpen();
-    if (searchParams.get("notifications") === "true") {
-      const next = new URLSearchParams(searchParams);
-      next.delete("notifications");
-      setSearchParams(next, { replace: true });
-    }
-  });
+  useClickAway(containerRef, toggleIsSettingsOpen);
 
   const TABS = useMemo(
     () => [
@@ -88,17 +85,10 @@ const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => 
     [t, toggleIsSettingsOpen]
   );
 
-  // Pass both: `selectedKey` controls react-aria Tabs (panel selection),
-  // `defaultSelectedKey` primes the library wrapper's internal underline state.
   return (
     <Container ref={containerRef}>
       <StyledSettingsText>{t("menu.settings")}</StyledSettingsText>
-      <StyledTabs
-        selectedKey={currentTab}
-        defaultSelectedKey={initialTab ?? 0}
-        items={TABS}
-        callback={(_key, value) => setCurrentTab(value)}
-      />
+      <StyledTabs selectedKey={currentTab} items={TABS} callback={(_key, value) => setCurrentTab(value)} />
     </Container>
   );
 };

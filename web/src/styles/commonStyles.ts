@@ -7,3 +7,40 @@ export const hoverShortTransitionTiming = css`
 export const hoverLongTransitionTiming = css`
   transition: 0.2s;
 `;
+
+/* @kleros/ui-components-library 3.9.0 Tabs paints the underline from internal state that is
+   seeded by `defaultSelectedKey` and updated only on click, so it drifts from a controlled
+   `selectedKey` when the route changes. react-aria marks the real selection with
+   `data-selected`; paint from that instead. Unlayered, so it wins over the library's
+   @layer utilities. Tracked in kleros/ui-components-library#90. */
+export const tabsSelectedUnderline = css`
+  [role="tab"] {
+    border-bottom-color: ${({ theme }) => theme.stroke};
+    span {
+      color: ${({ theme }) => theme.primaryText};
+    }
+    svg {
+      fill: ${({ theme }) => theme.primaryText};
+    }
+  }
+  [role="tab"]:not([data-selected]):not([data-disabled]):hover {
+    border-bottom-color: ${({ theme }) => theme.secondaryBlue};
+  }
+  [role="tab"][data-selected] {
+    border-bottom-color: ${({ theme }) => theme.primaryBlue};
+    span {
+      color: ${({ theme }) => theme.primaryBlue};
+    }
+    svg {
+      fill: ${({ theme }) => theme.primaryBlue};
+    }
+  }
+  [role="tab"][data-disabled] {
+    span {
+      color: ${({ theme }) => theme.stroke};
+    }
+    svg {
+      fill: ${({ theme }) => theme.stroke};
+    }
+  }
+`;

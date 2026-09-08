@@ -3,6 +3,8 @@ import styled, { DefaultTheme } from "styled-components";
 
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
 
+import { commify } from "utils/commify";
+
 import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
 import Spinner from "components/Spinner";
@@ -63,7 +65,7 @@ const createApprovalSteps = (
       title: t("wallet.stake_in_wallet"),
       subtitle: "",
       variant: theme.secondaryPurple,
-      party: <StyledLabel>{amount} PNK</StyledLabel>,
+      party: <StyledLabel>{commify(amount)} PNK</StyledLabel>,
       state: "disabled",
     },
   ];
@@ -84,7 +86,7 @@ const createStakeSteps = (
     if (["refused", "accepted"].includes(variant))
       return stakeHash ? <TxnHash hash={stakeHash} variant={variant === "refused" ? "error" : "success"} /> : <></>;
     return state === "loading" ? (
-      <StyledLabel>{amount} PNK</StyledLabel>
+      <StyledLabel>{commify(amount)} PNK</StyledLabel>
     ) : (
       <PartyContainer>
         {stakeHash && <TxnHash hash={stakeHash} variant="pending" />}

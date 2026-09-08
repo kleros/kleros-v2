@@ -117,11 +117,12 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.GatedErc1155}>
       <WithHelpTooltip tooltipMsg={t("tooltips.token_gating_tooltip")}>
-        <FeatureRadio value={props.value} disabled={props.disabled} label={t("features.jurors_owning_erc1155")} />
+        <FeatureRadio {...props} label={t("features.jurors_owning_erc1155")} />
       </WithHelpTooltip>
       {props.checked ? (
         <FieldContainer>
           <StyledField
+            aria-label={t("aria_labels.token_address")}
             inputProps={{ dir: "auto" }}
             onChange={handleTokenAddressChange}
             value={tokenGateAddress}
@@ -130,6 +131,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
             message={validationMessage}
           />
           <StyledTokenIdField
+            inputProps={{ "aria-label": t("aria_labels.token_id") }}
             onChange={(tokenId) => handleTokenIdChange(tokenId.toString())}
             value={gatedData?.tokenId ?? "0"}
             placeholder={t("forms.placeholders.token_id_example")}

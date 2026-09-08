@@ -58,6 +58,7 @@ const Title: React.FC = () => {
     <Container ref={containerRef}>
       <Header text={t("headers.choose_a_title")} />
       <StyledField
+        aria-label={t("aria_labels.case_title")}
         inputProps={{ dir: "auto" }}
         onChange={handleWrite}
         placeholder={t("forms.placeholders.alice_bob_example")}

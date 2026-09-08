@@ -257,7 +257,13 @@
     "sort_order": "Sort order",
     "time_range": "Time range",
     "chart_metric": "Chart metric",
-    "select_court": "Select court"
+    "select_court": "Select court",
+    "case_title": "Case title",
+    "case_category": "Case category",
+    "number_of_jurors": "Number of jurors",
+    "token_address": "Token address",
+    "token_id": "Token ID",
+    "juror_addresses": "Juror addresses"
   },
   "juror_levels": {
     "diogenes": "Diogenes",

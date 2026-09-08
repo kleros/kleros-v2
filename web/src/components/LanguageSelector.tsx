@@ -21,9 +21,7 @@ const Label = styled.label`
 
 const LanguageOptions = styled.div`
   display: grid;
-  // minmax(0, 1fr) so columns can shrink below their content's intrinsic width
-  // (grid items default to min-width: auto, which would push the row to overflow).
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
   gap: 12px;
 `;
 
@@ -39,6 +37,7 @@ const LanguageButton = styled.button<{ $isActive: boolean }>`
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 
   &:hover {
