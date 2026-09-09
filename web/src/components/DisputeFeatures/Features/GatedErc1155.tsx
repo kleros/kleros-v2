@@ -13,9 +13,11 @@ import { GatedDisputeKitData } from "src/dispute-kits/prepareArbitratorExtradata
 import { Features } from "src/dispute-kits/types";
 import { isUndefined } from "src/utils";
 
+import { hideBigNumberFieldSteppers } from "styles/commonStyles";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { FeatureRadio, RadioInput } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const FieldContainer = styled.div`
   width: 100%;
@@ -36,10 +38,7 @@ const StyledTokenIdField = styled(BigNumberField)`
   margin-top: 8px;
   margin-bottom: 32px;
 
-  /* Hover-revealed stepper arrows don't suit a token ID picker. */
-  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
-    display: none;
-  }
+  ${hideBigNumberFieldSteppers}
 `;
 
 const GatedErc1155: React.FC<RadioInput> = (props) => {

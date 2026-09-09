@@ -14,7 +14,7 @@ import NewTabIcon from "components/StyledIcons/NewTabIcon";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { FeatureRadio, RadioInput } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const InstructorContainer = styled.div`
   padding-left: 32px;

@@ -8,6 +8,7 @@ import { BigNumberField, Card, CustomRadioItem, RadioIndicator } from "@kleros/u
 import CaseFromScratchIcon from "svgs/icons/caseFromScratch.svg";
 import DuplicateCaseIcon from "svgs/icons/duplicateCase.svg";
 
+import { hideBigNumberFieldSteppers } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
@@ -76,11 +77,7 @@ const Label = styled.label`
 
 const StyledNumberField = styled(BigNumberField)`
   max-width: 128px;
-
-  /* Hover-revealed stepper arrows don't suit an ID picker. */
-  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
-    display: none;
-  }
+  ${hideBigNumberFieldSteppers}
 `;
 
 const ErrorMsg = styled.small`
@@ -136,8 +133,9 @@ const CreationCard: React.FC<ICreationCard> = ({
               inputProps={{ "aria-labelledby": disputeIdLabelId }}
               placeholder={t("forms.placeholders.case_id_example")}
               value={disputeID}
-              // The library reports an emptied input as 0, and 0 is a real dispute; read the
-              // raw text to tell "cleared" apart from "0".
+              // TODO(ui-components-library): read `id` directly once the field reports an emptied
+              // input as empty (same issue as useBigNumberFieldReset). It reports 0 today, and 0
+              // is a real dispute, so the raw text tells "cleared" apart from "0".
               onChange={(id) =>
                 setDisputeID?.(id.isZero() && !disputeIdInputRef.current?.value.trim() ? undefined : id.toString())
               }

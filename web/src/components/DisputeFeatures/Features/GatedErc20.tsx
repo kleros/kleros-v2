@@ -15,7 +15,7 @@ import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { FeatureRadio, RadioInput } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const FieldContainer = styled.div`
   width: 100%;

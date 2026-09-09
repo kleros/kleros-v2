@@ -6,7 +6,7 @@ import { Features } from "src/dispute-kits/types";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { FeatureRadio, RadioInput } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const ArgentinaConsumerProtection: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();

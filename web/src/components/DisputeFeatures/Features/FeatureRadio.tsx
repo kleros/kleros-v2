@@ -16,7 +16,7 @@ export type RadioInput = {
 export type FeatureUI = React.FC<RadioInput>;
 
 /** The label content of a feature radio: the indicator + text, with the disabled styling. */
-export const FeatureLabel = styled.span<{ $disabled?: boolean }>`
+const FeatureLabel = styled.span<{ $disabled?: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -40,6 +40,8 @@ export const FeatureRadio: React.FC<RadioInput & { label: string }> = ({
   onDeselect,
   label,
 }) => {
+  // TODO(ui-components-library): replace with the group's deselect option once it exists
+  // (issue: "CustomRadio: option to deselect the selected item by pressing it again").
   // The library bundles its own react-aria, whose radio ignores `onPress` and selects from the
   // label's press handler in the bubble phase (stopping propagation), so this must run in the
   // capture phase. It also has to take effect *after* that handler: react-aria re-applies the

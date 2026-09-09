@@ -13,8 +13,6 @@ import GatedErc1155 from "./GatedErc1155";
 import GatedErc20 from "./GatedErc20";
 import UniversityVote from "./UniversityVote";
 
-export { FeatureRadio, type FeatureUI, type RadioInput } from "./FeatureRadio";
-
 const ShieldedVoteComponent: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
   return (

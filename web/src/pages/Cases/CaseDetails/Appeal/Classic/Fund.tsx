@@ -117,8 +117,9 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
       <EthAmountField
         key={fieldKey}
         inputRef={inputRef}
-        // `amount` is the decimal string viem's parseUnits consumes; "" (not "0") keeps the
-        // field empty when cleared, since the library reports an emptied input as 0.
+        // `amount` is the decimal string viem's parseUnits consumes.
+        // TODO(ui-components-library): drop the `isZero` mapping and `|| undefined` once the field
+        // reports an emptied input as empty (same issue as useBigNumberFieldReset).
         value={amount || undefined}
         onChange={(value) => setAmount(value.isZero() ? "" : value.toString())}
         minValue="0"

@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 import { BigNumberField } from "@kleros/ui-components-library";
 
+import { hideBigNumberFieldSteppers } from "styles/commonStyles";
+
 const EthAmountField = styled(BigNumberField)`
   width: 100%;
 
@@ -9,10 +11,7 @@ const EthAmountField = styled(BigNumberField)`
     text-align: center;
   }
 
-  /* Hover-revealed stepper arrows don't suit an ETH amount picker. */
-  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
-    display: none;
-  }
+  ${hideBigNumberFieldSteppers}
 
   & .input-wrapper::after {
     content: "ETH";

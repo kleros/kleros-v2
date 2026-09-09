@@ -38,9 +38,6 @@ const StyledSteps = styled(Steps)`
 
   h2 {
     font-size: ${responsiveSize(12, 14)};
-    /* Center the title on the 24px bullet circle. */
-    line-height: 24px;
-    margin: 0;
   }
 
   ${landscapeStyle(

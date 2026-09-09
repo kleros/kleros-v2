@@ -8,11 +8,12 @@ export const hoverLongTransitionTiming = css`
   transition: 0.2s;
 `;
 
-/* @kleros/ui-components-library 3.9.0 Tabs paints the underline from internal state that is
-   seeded by `defaultSelectedKey` and updated only on click, so it drifts from a controlled
-   `selectedKey` when the route changes. react-aria marks the real selection with
-   `data-selected`; paint from that instead. Unlayered, so it wins over the library's
-   @layer utilities. Tracked in kleros/ui-components-library#90. */
+/* TODO(ui-components-library): remove once Tabs paints its selection from react-aria's render
+   props, kleros/ui-components-library#90.
+   3.9.0 Tabs paints the underline from internal state that is seeded by `defaultSelectedKey`
+   and updated only on click, so it drifts from a controlled `selectedKey` when the route
+   changes. react-aria marks the real selection with `data-selected`; paint from that instead.
+   Unlayered, so it wins over the library's @layer utilities. */
 export const tabsSelectedUnderline = css`
   [role="tab"] {
     border-bottom-color: ${({ theme }) => theme.stroke};
@@ -42,5 +43,16 @@ export const tabsSelectedUnderline = css`
     svg {
       fill: ${({ theme }) => theme.stroke};
     }
+  }
+`;
+
+/* TODO(ui-components-library): remove once NumberField/BigNumberField take a `hideStepper` prop
+   (issue: "NumberField / BigNumberField: prop to hide the stepper buttons").
+   Hides the hover-revealed increment/decrement arrows of a BigNumberField where they don't fit
+   (an ID, an amount joined to a button). Relies on the library's DOM: the arrows sit in the
+   first div of `.input-wrapper` and the buttons carry a fixed English aria-label. */
+export const hideBigNumberFieldSteppers = css`
+  & .input-wrapper > div:has(> button[aria-label="Increment"]) {
+    display: none;
   }
 `;

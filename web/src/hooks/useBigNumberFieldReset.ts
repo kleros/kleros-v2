@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
+ * TODO(ui-components-library): remove once BigNumberField can be emptied through `value`
+ * (issue: "BigNumberField: controlled mode cannot represent an empty field").
+ *
  * `BigNumberField` renders "NaN" for `value=""` and ignores `value={undefined}`, so a consumer that
  * clears its amount from outside the field (e.g. after a transaction popup closes) has no way to
  * empty the input through props. Remount it instead: returns a `key` that changes when `amount`
