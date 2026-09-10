@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -21,7 +21,6 @@ const Settings: React.FC = () => {
     <Container>
       <Routes>
         <Route path="email-confirmation" element={<EmailConfirmation />} />
-        <Route path="notifications" element={<Navigate to="/?notifications=true" replace />} />
       </Routes>
     </Container>
   );
