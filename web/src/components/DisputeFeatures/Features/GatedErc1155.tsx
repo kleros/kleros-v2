@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { Address } from "viem";
 
-import { Field } from "@kleros/ui-components-library";
+import { BigNumberField, TextField } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC1155Validation } from "hooks/useTokenAddressValidation";
@@ -13,22 +13,32 @@ import { GatedDisputeKitData } from "src/dispute-kits/prepareArbitratorExtradata
 import { Features } from "src/dispute-kits/types";
 import { isUndefined } from "src/utils";
 
+import { hideBigNumberFieldSteppers } from "styles/commonStyles";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const FieldContainer = styled.div`
   width: 100%;
   padding-left: 32px;
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 100%;
   margin-top: 8px;
   margin-bottom: 32px;
-  > small {
+  > span {
     margin-top: 16px;
   }
+`;
+
+const StyledTokenIdField = styled(BigNumberField)`
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 32px;
+
+  ${hideBigNumberFieldSteppers}
 `;
 
 const GatedErc1155: React.FC<RadioInput> = (props) => {
@@ -48,7 +58,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     enabled: validationEnabled && props.checked,
   });
 
-  const [validationMessage, variant] = useMemo(() => {
+  const [validationMessage, variant] = useMemo<[string | undefined, "info" | "error" | "success"]>(() => {
     if (isValidating) return [`Validating ERC-1155 token...`, "info"];
     else if (validationError) return [validationError, "error"];
     else if (isValid === true) return [`Valid ERC-1155 token`, "success"];
@@ -80,7 +90,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     });
   }, [isValid, gatedData, disputeData, setDisputeData, props.checked]);
 
-  const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenAddressChange = (value: string) => {
     if (!gatedData) return;
 
     setDisputeData({
@@ -88,41 +98,43 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
       disputeKitData: {
         ...gatedData,
         isERC1155: true,
-        tokenGate: event.target.value as Address,
+        tokenGate: value as Address,
         isValid: null, // Reset validation state when address changes
       },
     });
   };
 
-  const handleTokenIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenIdChange = (value: string) => {
     if (!gatedData) return;
 
     setDisputeData({
       ...disputeData,
-      disputeKitData: { ...gatedData, isERC1155: true, tokenId: event.target.value },
+      disputeKitData: { ...gatedData, isERC1155: true, tokenId: value },
     });
   };
 
   return (
     <Fragment key={Features.GatedErc1155}>
       <WithHelpTooltip tooltipMsg={t("tooltips.token_gating_tooltip")}>
-        <StyledRadio label={t("features.jurors_owning_erc1155")} small {...props} />
+        <FeatureRadio {...props} label={t("features.jurors_owning_erc1155")} />
       </WithHelpTooltip>
       {props.checked ? (
         <FieldContainer>
           <StyledField
-            dir="auto"
+            aria-label={t("aria_labels.token_address")}
+            inputProps={{ dir: "auto" }}
             onChange={handleTokenAddressChange}
             value={tokenGateAddress}
             placeholder={t("forms.placeholders.token_address_example")}
             variant={variant}
             message={validationMessage}
           />
-          <StyledField
-            dir="auto"
-            onChange={handleTokenIdChange}
+          <StyledTokenIdField
+            inputProps={{ "aria-label": t("aria_labels.token_id") }}
+            onChange={(tokenId) => handleTokenIdChange(tokenId.toString())}
             value={gatedData?.tokenId ?? "0"}
             placeholder={t("forms.placeholders.token_id_example")}
+            formatOptions={{ groupSeparator: "" }}
           />
         </FieldContainer>
       ) : null}

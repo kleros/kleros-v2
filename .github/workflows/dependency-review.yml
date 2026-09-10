@@ -38,3 +38,13 @@ jobs:
         with:
           base-ref: ${{ github.event.pull_request.base.sha || 'dev' }}
           head-ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          # GHSA-fvhg-p4hf-79x3 (CVE-2026-30691): @cyntler/react-doc-viewer TXTRenderer "XSS".
+          # Transitive via @kleros/ui-components-library; every published version (<= 1.17.1) is
+          # in the advisory range and no patched release exists. Assessed as not exploitable here:
+          # TXTRenderer renders the file text as a React child (escaped, never innerHTML), and the
+          # library's own markdown renderer claims text/plain with a higher weight, so TXTRenderer
+          # is never selected. Verified in Chromium with a <script>/<img onerror> .txt payload:
+          # rendered as literal text, nothing injected. The upstream report
+          # (cyntler/react-doc-viewer#317) has no maintainer response; its only reply also failed
+          # to reproduce it. Re-check when the library changes its renderer list.
+          allow-ghsas: GHSA-fvhg-p4hf-79x3

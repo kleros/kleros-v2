@@ -5,12 +5,12 @@ import { Tooltip, TooltipModel, ChartType, ActiveElement } from "chart.js";
 import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 
-import { DropdownSelect } from "@kleros/ui-components-library";
-
 import { useHomePageContext } from "hooks/useHomePageContext";
+import type { SelectItem } from "utils/uiComponentsTypes";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { LabeledDropdownSelect } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import CasesByCourtsChart, { CasesByCourtsChartData } from "./CasesByCourtsChart";
@@ -24,7 +24,7 @@ const Container = styled.div`
   gap: 16px;
 `;
 
-const StyledDropdown = styled(DropdownSelect)`
+const StyledDropdown = styled(LabeledDropdownSelect)`
   width: fit-content;
   align-self: start;
 `;
@@ -35,21 +35,22 @@ const ChartOptionsDropdown: React.FC<{
   const { t } = useTranslation();
 
   const CHART_OPTIONS = [
-    { text: t("stats.staked_pnk"), value: "stakedPNK" },
-    { text: t("stats.staked_pnk_per_court"), value: "stakedPNKPerCourt" },
-    { text: t("stats.cases"), value: "cases" },
-    { text: t("stats.cases_per_court"), value: "casesPerCourt" },
+    { text: t("stats.staked_pnk"), id: "stakedPNK", itemValue: "stakedPNK" },
+    { text: t("stats.staked_pnk_per_court"), id: "stakedPNKPerCourt", itemValue: "stakedPNKPerCourt" },
+    { text: t("stats.cases"), id: "cases", itemValue: "cases" },
+    { text: t("stats.cases_per_court"), id: "casesPerCourt", itemValue: "casesPerCourt" },
   ];
 
   return (
     <StyledDropdown
+      ariaLabel={t("aria_labels.chart_metric")}
       smallButton
       simpleButton
-      defaultValue={"stakedPNK"}
+      defaultSelectedKey={"stakedPNK"}
       items={CHART_OPTIONS}
-      callback={(newValue: string | number) => {
-        if (typeof newValue === "string") {
-          setChartOption(newValue);
+      callback={(item: SelectItem) => {
+        if (typeof item.itemValue === "string") {
+          setChartOption(item.itemValue);
         }
       }}
     />

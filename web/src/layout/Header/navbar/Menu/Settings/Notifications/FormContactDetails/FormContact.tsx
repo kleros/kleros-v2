@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction, useMemo, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useId, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import { isEmpty } from "src/utils";
 
@@ -11,7 +11,7 @@ const StyledLabel = styled.label`
   margin-bottom: 10px;
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -41,13 +41,13 @@ const FormContact: React.FC<IForm> = ({
   isEditing,
   isDisabled,
 }) => {
+  const labelId = useId();
   useEffect(() => {
     setContactIsValid(validator.test(contactInput));
   }, [contactInput, setContactIsValid, validator]);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setContactInput(event.target.value);
+  const handleInputChange = (value: string) => {
+    setContactInput(value);
   };
 
   const fieldVariant = useMemo(() => {
@@ -59,14 +59,15 @@ const FormContact: React.FC<IForm> = ({
 
   return (
     <>
-      <StyledLabel>{contactLabel}</StyledLabel>
+      <StyledLabel id={labelId}>{contactLabel}</StyledLabel>
       <StyledField
-        dir="auto"
+        aria-labelledby={labelId}
+        inputProps={{ dir: "auto" }}
         variant={fieldVariant}
         value={contactInput}
         onChange={handleInputChange}
         placeholder={contactPlaceholder}
-        disabled={isDisabled}
+        isDisabled={isDisabled}
       />
     </>
   );

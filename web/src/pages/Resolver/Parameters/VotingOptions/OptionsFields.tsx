@@ -49,13 +49,14 @@ const OptionsFields: React.FC = () => {
     const defaultAnswer: Answer = { title: "", id: value.toString(), description: "" };
     const answers = disputeData.answers;
 
-    if (value < answers?.length) return setDisputeData({ ...disputeData, answers: answers.splice(0, value) });
+    if (value < answers?.length) return setDisputeData({ ...disputeData, answers: answers.slice(0, value) });
     if (value > answers?.length) return setDisputeData({ ...disputeData, answers: [...answers, defaultAnswer] });
   };
 
-  const handleOptionWrite = (event: React.ChangeEvent<HTMLInputElement>, key: number) => {
-    const answers = disputeData.answers;
-    answers[key] = { ...answers[key], [event.target.name]: event.target.value };
+  const handleOptionWrite = (field: "title" | "description", key: number, value: string) => {
+    const answers = disputeData.answers.map((answer, index) =>
+      index === key ? { ...answer, [field]: value } : answer
+    );
     setDisputeData({ ...disputeData, answers });
   };
   return (
@@ -64,18 +65,16 @@ const OptionsFields: React.FC = () => {
         {disputeData.answers.map((answer, index) => (
           <InputContainer key={answer.id}>
             <LabeledInput
-              name="title"
               label={t("forms.labels.voting_option_number", { number: index + 1 })}
               placeholder={t("forms.placeholders.pay_dai_example")}
               value={answer.title ?? ""}
-              onChange={(event) => handleOptionWrite(event, index)}
+              onChange={(value) => handleOptionWrite("title", index, value)}
             />
             <LabeledInput
-              name="description"
               label={t("forms.labels.option_description")}
               placeholder={t("forms.placeholders.description_for_option_number", { number: index + 1 })}
               value={answer.description ?? ""}
-              onChange={(event) => handleOptionWrite(event, index)}
+              onChange={(value) => handleOptionWrite("description", index, value)}
             />
           </InputContainer>
         ))}

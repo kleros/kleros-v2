@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { AlertMessage, DropdownCascader } from "@kleros/ui-components-library";
+import { AlertMessage } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
@@ -12,6 +12,7 @@ import { isUndefined } from "utils/index";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import { LabeledDropdownCascader } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import Header from "pages/Resolver/Header";
 
@@ -31,7 +32,7 @@ const Container = styled.div`
   )}
 `;
 
-const StyledDropdownCascader = styled(DropdownCascader)`
+const StyledDropdownCascader = styled(LabeledDropdownCascader)`
   width: 84vw;
   ${landscapeStyle(
     () => css`
@@ -51,13 +52,20 @@ const AlertMessageContainer = styled.div`
     `
   )}
   margin-top: 24px;
+
+  h2 {
+    margin: 0;
+  }
 `;
 
 const Court: React.FC = () => {
   const { t } = useTranslation();
   const { disputeData, setDisputeData, setSelectedFeatures } = useNewDisputeContext();
   const { data: courtTree } = useCourtTree();
-  const items = useMemo(() => !isUndefined(courtTree?.court) && [rootCourtToItems(courtTree.court)], [courtTree]);
+  const items = useMemo(
+    () => (!isUndefined(courtTree?.court) ? [rootCourtToItems(courtTree.court)] : false),
+    [courtTree]
+  );
 
   const handleCourtChange = (courtId: string) => {
     if (disputeData.courtId !== courtId) {
@@ -71,10 +79,11 @@ const Court: React.FC = () => {
       <Header text={t("headers.select_court_to_arbitrate")} />
       {items ? (
         <StyledDropdownCascader
+          ariaLabel={t("aria_labels.select_court")}
           items={items}
-          onSelect={(path: string | number) => typeof path === "string" && handleCourtChange(path.split("/").pop()!)}
+          callback={(item) => typeof item.itemValue === "string" && handleCourtChange(item.itemValue.split("/").pop()!)}
           placeholder={t("forms.placeholders.select_court")}
-          value={`/courts/${disputeData.courtId}`}
+          selectedKey={`/courts/${disputeData.courtId}`}
         />
       ) : (
         <StyledSkeleton width={240} height={42} />

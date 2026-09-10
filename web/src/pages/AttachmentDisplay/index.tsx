@@ -4,24 +4,23 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
-import NewTabIcon from "svgs/icons/new-tab.svg";
-
 import { getAllowedAttachmentUrl } from "utils/urlValidation";
 
 import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
 import Loader from "components/Loader";
+import NewTabIcon from "components/StyledIcons/NewTabIcon";
 
 import Header from "./Header";
 
-const FileViewer = lazy(() => import("components/FileViewer"));
+const FileViewer = lazy(() => import("@kleros/ui-components-library").then((m) => ({ default: m.FileViewer })));
 
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: calc(24px + (136 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-top: calc(32px + (80 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-top: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   padding-bottom: calc(76px + (96 - 76) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
@@ -45,12 +44,6 @@ const StyledExternalLink = styled(ExternalLink)`
   align-items: center;
   align-self: flex-end;
   gap: 8px;
-`;
-
-const StyledNewTabIcon = styled(NewTabIcon)`
-  path {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
 `;
 
 const UrlBlock = styled.div`
@@ -93,7 +86,7 @@ const AttachmentDisplay: React.FC = () => {
         {safeUrl ? (
           <>
             <StyledExternalLink to={safeUrl} rel="noreferrer" target="_blank">
-              {t("misc.open_in_new_tab")} <StyledNewTabIcon />
+              {t("misc.open_in_new_tab")} <NewTabIcon />
             </StyledExternalLink>
             <Suspense
               fallback={

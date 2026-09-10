@@ -20,7 +20,7 @@ const Container = styled.div`
   margin: 24px 0;
 `;
 
-const OptionsContainer = styled.div`
+const OptionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
@@ -36,7 +36,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
   const { winningChoice, winnerRequiredFunding, fundedChoices } = useFundingContext();
   const { winnerSideCountdown } = useCountdownContext();
   const options = useOptionsContext();
-  const { selectedOption, setSelectedOption } = useSelectedOptionContext();
+  const { setSelectedOption } = useSelectedOptionContext();
   const choice = useMemo(() => options?.find((option) => option.id === winningChoice), [options, winningChoice]);
 
   useEffect(() => {
@@ -52,17 +52,16 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
           {fundedChoices.length > 0 && !choice.funded ? (
             <>
               <StageExplainer stage={2} countdown={winnerSideCountdown} />
-              <OptionsContainer>
+              <OptionsGrid role="list" aria-label={t("appeal.which_option_to_fund")}>
                 <OptionCard
+                  value={choice.id}
                   text={choice.title}
-                  selected={choice.id === selectedOption?.id}
                   winner={true}
                   funding={BigInt(choice.paidFee ?? 0)}
                   required={winnerRequiredFunding!}
-                  canBeSelected={false}
-                  onClick={() => setSelectedOption(choice)}
+                  selectable={false}
                 />
-              </OptionsContainer>
+              </OptionsGrid>
             </>
           ) : (
             <label>{t("appeal.no_losing_option_funded")}</label>
