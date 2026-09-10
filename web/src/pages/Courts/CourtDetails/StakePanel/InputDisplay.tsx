@@ -16,7 +16,7 @@ import { isUndefined } from "utils/index";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
-import { hideBigNumberFieldSteppers, hoverShortTransitionTiming } from "styles/commonStyles";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
@@ -32,8 +32,6 @@ const StyledField = styled(BigNumberField)`
       z-index: 1;
     }
   }
-
-  ${hideBigNumberFieldSteppers}
 `;
 
 const LabelArea = styled.div`

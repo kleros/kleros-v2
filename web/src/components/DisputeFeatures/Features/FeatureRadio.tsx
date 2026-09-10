@@ -41,7 +41,7 @@ export const FeatureRadio: React.FC<RadioInput & { label: string }> = ({
   label,
 }) => {
   // TODO(ui-components-library): replace with the group's deselect option once it exists
-  // (issue: "CustomRadio: option to deselect the selected item by pressing it again").
+  // (kleros/ui-components-library#99).
   // The library bundles its own react-aria, whose radio ignores `onPress` and selects from the
   // label's press handler in the bubble phase (stopping propagation), so this must run in the
   // capture phase. It also has to take effect *after* that handler: react-aria re-applies the

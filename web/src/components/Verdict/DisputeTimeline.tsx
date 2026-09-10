@@ -37,7 +37,7 @@ const StyledTimeline = styled(CustomTimeline)`
   width: 100%;
 
   /* TODO(ui-components-library): remove once CustomTimeline centers its bullet on the title
-     (issue: "CustomTimeline: bullet is top-aligned with the title instead of centered").
+     (kleros/ui-components-library#100).
      The library aligns the 16px bullet with the title's top edge and draws the connecting
      line above it for the title's offset in its row, so keep the title row 16px tall: a
      16px title line box, and the link box shrink-wrapped to its 16px icon. */

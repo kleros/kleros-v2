@@ -47,10 +47,10 @@ export const tabsSelectedUnderline = css`
 `;
 
 /* TODO(ui-components-library): remove once NumberField/BigNumberField take a `hideStepper` prop
-   (issue: "NumberField / BigNumberField: prop to hide the stepper buttons").
-   Hides the hover-revealed increment/decrement arrows of a BigNumberField where they don't fit
-   (an ID, an amount joined to a button). Relies on the library's DOM: the arrows sit in the
-   first div of `.input-wrapper` and the buttons carry a fixed English aria-label. */
+   (kleros/ui-components-library#98).
+   Hides the hover-revealed ±1 arrows of a BigNumberField where stepping makes no sense (an ID)
+   or where they would overlap a suffix drawn in the input (the ETH amount). Relies on the library's DOM:
+   the arrows sit in the first div of `.input-wrapper` and carry a fixed English aria-label. */
 export const hideBigNumberFieldSteppers = css`
   & .input-wrapper > div:has(> button[aria-label="Increment"]) {
     display: none;
