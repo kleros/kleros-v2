@@ -500,14 +500,17 @@ export const withdrawAppealContribution = async (
   contribution: Contribution,
   resolveDisputeKit: DisputeKitResolver = getDisputeKit
 ): Promise<boolean> => {
-  const { disputeKit, localDisputeId, localRoundId } = await resolveDisputeKit(coreDisputeId, coreRoundId);
+  // withdrawFeesAndRewards resolves both the dispute and the round to their local
+  // indices internally, so it must receive the core IDs. Resolving them here first
+  // and passing the result would resolve them twice. See issue #2586.
+  const { disputeKit } = await resolveDisputeKit(coreDisputeId, coreRoundId);
   let success = false;
   let amountWithdrawn = 0n;
   try {
     amountWithdrawn = await disputeKit.withdrawFeesAndRewards.staticCall(
-      localDisputeId,
+      coreDisputeId,
       contribution.contributor.id,
-      localRoundId,
+      coreRoundId,
       contribution.choice
     );
   } catch (e) {
@@ -528,18 +531,18 @@ export const withdrawAppealContribution = async (
     );
     const gas =
       ((await disputeKit.withdrawFeesAndRewards.estimateGas(
-        localDisputeId,
+        coreDisputeId,
         contribution.contributor.id,
-        localRoundId,
+        coreRoundId,
         contribution.choice
       )) *
         150n) /
       100n; // 50% extra gas
     const tx = await (
       await disputeKit.withdrawFeesAndRewards(
-        localDisputeId,
+        coreDisputeId,
         contribution.contributor.id,
-        localRoundId,
+        coreRoundId,
         contribution.choice,
         {
           gasLimit: gas,
