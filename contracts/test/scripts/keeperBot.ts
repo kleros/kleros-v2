@@ -4,12 +4,15 @@ import { DisputeKitClassic } from "../../typechain-types";
 import { getDisputeKit, withdrawAppealContribution } from "../../scripts/keeperBot";
 
 /**
- * Characterization tests for the keeper bot appeal-contribution withdrawal path.
+ * Regression tests for the keeper bot appeal-contribution withdrawal path.
  *
- * These tests pin the CURRENT observable behavior of `withdrawAppealContribution`
- * so that the testability seams introduced alongside them can be proven
- * behavior-preserving. They are not a statement of intent: see the comment on the
- * dispute-ID assertion below.
+ * `withdrawFeesAndRewards` takes a `_coreDisputeID` / `_coreRoundID` pair and resolves
+ * BOTH axes to local IDs internally (`DisputeKitClassicBase.sol:446-447`), so the bot
+ * must hand it the core IDs. Passing the already-resolved local IDs makes the contract
+ * resolve a second time, which either reverts or silently lands on an unrelated dispute
+ * and refunds nothing.
+ *
+ * See https://github.com/kleros/kleros-v2/issues/2586.
  */
 describe("keeperBot: withdrawAppealContribution", () => {
   // Core IDs deliberately diverge from local IDs. This is the situation that occurs
@@ -76,21 +79,25 @@ describe("keeperBot: withdrawAppealContribution", () => {
     );
 
     expect(success).to.equal(true);
+    expect(withdrawFeesAndRewards.calledOnce).to.equal(true);
+    expect(withdrawFeesAndRewards.firstCall.args.at(-1)).to.deep.equal({
+      gasLimit: 150_000n, // estimateGas + 50%
+    });
+  });
 
-    // KNOWN-INCORRECT BEHAVIOR PINNED ON PURPOSE.
-    // `withdrawFeesAndRewards` takes a _coreDisputeID / _coreRoundID pair and resolves
-    // both axes to local IDs internally, so the bot must pass the CORE IDs. It currently
-    // passes the already-resolved LOCAL IDs, causing a second resolution.
-    // See https://github.com/kleros/kleros-v2/issues/2586.
-    // These assertions document the defect so this refactor can be proven
-    // behavior-preserving; they are superseded by the regression test in the next commit.
-    const expectedArgs = [LOCAL_DISPUTE_ID, BENEFICIARY, LOCAL_ROUND_ID, CHOICE];
+  it("passes the core dispute and round IDs to withdrawFeesAndRewards, not the resolved local ones", async () => {
+    withdrawFeesAndRewards.staticCall.resolves(1000n);
+    withdrawFeesAndRewards.estimateGas.resolves(100_000n);
+    withdrawFeesAndRewards.resolves({ wait: async () => ({ hash: "0xdeadbeef" }) });
+
+    await withdrawAppealContribution(CORE_DISPUTE_ID, CORE_ROUND_ID, contribution, resolveDisputeKit as any);
+
+    // The contract resolves both axes internally, so handing it the local IDs the
+    // resolver just returned would resolve them a second time.
+    const expectedArgs = [CORE_DISPUTE_ID, BENEFICIARY, CORE_ROUND_ID, CHOICE];
     expect(withdrawFeesAndRewards.staticCall.firstCall.args).to.deep.equal(expectedArgs);
     expect(withdrawFeesAndRewards.estimateGas.firstCall.args).to.deep.equal(expectedArgs);
-    expect(withdrawFeesAndRewards.firstCall.args).to.deep.equal([
-      ...expectedArgs,
-      { gasLimit: 150_000n }, // estimateGas + 50%
-    ]);
+    expect(withdrawFeesAndRewards.firstCall.args.slice(0, 4)).to.deep.equal(expectedArgs);
   });
 
   it("reports failure and sends no transaction when the static call reverts", async () => {
