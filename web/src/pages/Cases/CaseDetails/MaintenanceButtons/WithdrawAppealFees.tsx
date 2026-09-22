@@ -35,24 +35,22 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
   const publicClient = usePublicClient();
   const { chainId } = useAccount();
 
-  const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
-  const { data: appealData } = useClassicAppealQuery(id);
+  const { data: maintenanceData, isLoading: isLoadingMaintenance } = useDisputeMaintenanceQuery(id);
+  const { data: appealData, isLoading: isLoadingAppeal } = useClassicAppealQuery(id);
 
   const localRounds = useMemo(() => getLocalRounds(appealData?.dispute?.disputeKitDispute), [appealData]);
 
-  const feeDispersed = useMemo(
-    () =>
-      localRounds ? localRounds.slice(0, localRounds.length - 1).every((round) => round.appealFeesDispersed) : false,
-    [localRounds]
+  const withdrawableContributions = useMemo(
+    () => maintenanceData?.contributions.filter((contribution) => !contribution.rewardWithdrawn) ?? [],
+    [maintenanceData]
   );
 
-  const filteredContributions = useMemo(() => {
-    const deDuplicatedContributions = [
-      ...new Set(maintenanceData?.contributions.filter((contribution) => !contribution.rewardWithdrawn)),
-    ];
-
-    return deDuplicatedContributions;
-  }, [maintenanceData]);
+  const nothingToWithdraw = useMemo(
+    () =>
+      withdrawableContributions.length === 0 ||
+      (localRounds.length > 0 && localRounds.every((round) => round.appealFeesDispersed)),
+    [withdrawableContributions, localRounds]
+  );
 
   useEffect(() => {
     if (isUndefined(id) || isUndefined(roundIndex)) return;
@@ -65,7 +63,7 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
 
     const argsArr: TransactionBatcherConfig = [];
 
-    for (const contribution of filteredContributions) {
+    for (const contribution of withdrawableContributions) {
       for (let round = roundIndex; round >= 0; round--) {
         argsArr.push({
           ...baseArgs,
@@ -75,7 +73,7 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
     }
 
     setContractConfigs(argsArr);
-  }, [id, roundIndex, chainId, filteredContributions]);
+  }, [id, roundIndex, chainId, withdrawableContributions]);
 
   const {
     executeBatch,
@@ -83,13 +81,16 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
     isLoading: isLoadingConfig,
     isError,
   } = useTransactionBatcher(contractConfigs, {
-    enabled: !isUndefined(period) && period === Period.Execution && Boolean(ruled) && !feeDispersed,
+    enabled: !isUndefined(period) && period === Period.Execution && Boolean(ruled) && !nothingToWithdraw,
   });
 
-  const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
+  const isLoading = useMemo(
+    () => isLoadingConfig || isLoadingMaintenance || isLoadingAppeal || isSending,
+    [isLoadingConfig, isLoadingMaintenance, isLoadingAppeal, isSending]
+  );
   const isDisabled = useMemo(
-    () => isUndefined(id) || isError || isLoading || period !== Period.Execution || feeDispersed || !ruled,
-    [id, isError, isLoading, period, feeDispersed, ruled]
+    () => isUndefined(id) || isError || isLoading || period !== Period.Execution || nothingToWithdraw || !ruled,
+    [id, isError, isLoading, period, nothingToWithdraw, ruled]
   );
 
   const handleClick = () => {
