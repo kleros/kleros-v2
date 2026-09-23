@@ -165,7 +165,6 @@ const FeatureSelection: React.FC = () => {
                       checked={selected.includes(feature)}
                       disabled={disabled.has(feature)}
                       value={feature}
-                      onDeselect={() => handleToggle(feature)}
                     />
                   );
                 })}
