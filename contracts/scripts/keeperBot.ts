@@ -3,6 +3,7 @@ import { toBigInt, BigNumberish, getNumber, BytesLike } from "ethers";
 import {
   DisputeKitClassic,
   DisputeKitGated,
+  DisputeKitGatedPerCourt,
   DisputeKitGatedShutter,
   DisputeKitShutter,
   SortitionModule,
@@ -101,14 +102,31 @@ const getDisputeKit = async (
   coreDisputeId: string,
   coreRoundId: string
 ): Promise<{
-  disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
+  disputeKit:
+    | DisputeKitClassic
+    | DisputeKitShutter
+    | DisputeKitGated
+    | DisputeKitGatedShutter
+    | DisputeKitGatedPerCourt;
   localDisputeId: bigint;
   localRoundId: bigint;
 }> => {
-  const { core, disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter } = await getContracts();
+  const {
+    core,
+    disputeKitClassic,
+    disputeKitShutter,
+    disputeKitGated,
+    disputeKitGatedShutter,
+    disputeKitGatedPerCourt,
+  } = await getContracts();
   const round = await core.getRoundInfo(coreDisputeId, coreRoundId);
   const disputeKitAddress = await core.disputeKits(round.disputeKitID);
-  let disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
+  let disputeKit:
+    | DisputeKitClassic
+    | DisputeKitShutter
+    | DisputeKitGated
+    | DisputeKitGatedShutter
+    | DisputeKitGatedPerCourt;
   switch (disputeKitAddress) {
     case disputeKitClassic.target:
       disputeKit = disputeKitClassic;
@@ -124,6 +142,10 @@ const getDisputeKit = async (
     case disputeKitGatedShutter?.target:
       if (!disputeKitGatedShutter) throw new Error(`DisputeKitGatedShutter not deployed`);
       disputeKit = disputeKitGatedShutter;
+      break;
+    case disputeKitGatedPerCourt?.target:
+      if (!disputeKitGatedPerCourt) throw new Error(`DisputeKitGatedPerCourt not deployed`);
+      disputeKit = disputeKitGatedPerCourt;
       break;
     default:
       throw new Error(`Unknown dispute kit: ${disputeKitAddress}`);
