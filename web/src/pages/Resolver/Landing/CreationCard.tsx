@@ -8,7 +8,6 @@ import { BigNumberField, Card, CustomRadioItem, RadioIndicator } from "@kleros/u
 import CaseFromScratchIcon from "svgs/icons/caseFromScratch.svg";
 import DuplicateCaseIcon from "svgs/icons/duplicateCase.svg";
 
-import { hideBigNumberFieldSteppers } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
@@ -77,7 +76,6 @@ const Label = styled.label`
 
 const StyledNumberField = styled(BigNumberField)`
   max-width: 128px;
-  ${hideBigNumberFieldSteppers}
 `;
 
 const ErrorMsg = styled.small`

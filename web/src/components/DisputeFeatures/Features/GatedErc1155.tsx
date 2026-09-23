@@ -13,8 +13,6 @@ import { GatedDisputeKitData } from "src/dispute-kits/prepareArbitratorExtradata
 import { Features } from "src/dispute-kits/types";
 import { isUndefined } from "src/utils";
 
-import { hideBigNumberFieldSteppers } from "styles/commonStyles";
-
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 import { FeatureRadio, RadioInput } from "./FeatureRadio";
@@ -37,8 +35,6 @@ const StyledTokenIdField = styled(BigNumberField)`
   width: 100%;
   margin-top: 8px;
   margin-bottom: 32px;
-
-  ${hideBigNumberFieldSteppers}
 `;
 
 const GatedErc1155: React.FC<RadioInput> = (props) => {
@@ -134,6 +130,7 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
             onChange={(tokenId) => handleTokenIdChange(tokenId.toString())}
             value={gatedData?.tokenId ?? "0"}
             placeholder={t("forms.placeholders.token_id_example")}
+            minValue="0"
             formatOptions={{ groupSeparator: "" }}
           />
         </FieldContainer>
