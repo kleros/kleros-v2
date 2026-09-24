@@ -7154,7 +7154,7 @@ __metadata:
   dependencies:
     "@kleros/kleros-v2-eslint-config": "npm:*"
     "@tsconfig/node18": "npm:^18.2.4"
-    "@tsconfig/node20": "npm:^20.1.6"
+    "@tsconfig/node22": "npm:^22.0.0"
     eslint: "npm:^9.15.0"
   languageName: unknown
   linkType: soft
@@ -12264,10 +12264,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/node20@npm:^20.1.6":
-  version: 20.1.6
-  resolution: "@tsconfig/node20@npm:20.1.6"
-  checksum: 10/ddfacb4d50d4395051029fa6350ec26564ff77002d7bf28f0509b3a43f2ab8afeca1210317e9bb536b48738effdccaa56b855a19d06fd106feae6f7e8e21a650
+"@tsconfig/node22@npm:^22.0.0":
+  version: 22.0.6
+  resolution: "@tsconfig/node22@npm:22.0.6"
+  checksum: 10/a74c1bf95086b80e8436da7e3e710bebab4c35ab7cf99348ae68c8fab6032387516e9e9b80a868908c570c5af937e0a75821fc994e14a0495e04c5fab04d3c63
   languageName: node
   linkType: hard
 
