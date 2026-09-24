@@ -3,22 +3,23 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { DropdownSelect } from "@kleros/ui-components-library";
-
 import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
 import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
+import type { SelectItem } from "utils/uiComponentsTypes";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
+import { LabeledDropdownSelect } from "components/LabeledDropdown";
 
 const StyledCard = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 12px 16px;
   justify-content: center;
+  align-items: center;
   margin-top: 12px;
 
   ${landscapeStyle(
@@ -77,8 +78,8 @@ const ExtraStats = () => {
   const [selectedRange, setSelectedRange] = useState(timeRanges[1].value);
   const data = useHomePageExtraStats(selectedRange);
 
-  const handleTimeRangeChange = (value: string | number) => {
-    setSelectedRange(value);
+  const handleTimeRangeChange = (item: SelectItem) => {
+    setSelectedRange(item.itemValue);
   };
 
   return (
@@ -86,14 +87,16 @@ const ExtraStats = () => {
       <ExtraStatsDisplay
         title={t("stats.activity")}
         content={
-          <DropdownSelect
+          <LabeledDropdownSelect
+            ariaLabel={t("aria_labels.time_range")}
             smallButton
             simpleButton
             items={timeRanges.map((range) => ({
-              value: range.value,
+              id: range.value,
+              itemValue: range.value,
               text: range.text,
             }))}
-            defaultValue={selectedRange}
+            defaultSelectedKey={selectedRange}
             callback={handleTimeRangeChange}
           />
         }

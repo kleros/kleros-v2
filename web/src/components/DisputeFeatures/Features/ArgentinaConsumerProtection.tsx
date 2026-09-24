@@ -6,7 +6,7 @@ import { Features } from "src/dispute-kits/types";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const ArgentinaConsumerProtection: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
@@ -16,7 +16,7 @@ const ArgentinaConsumerProtection: React.FC<RadioInput> = (props) => {
       tooltipMsg={t("features.argentina_consumer_protection_tooltip")}
       key={Features.ArgentinaConsumerProtection}
     >
-      <StyledRadio label={t("features.argentina_consumer_protection")} small {...props} />
+      <FeatureRadio {...props} label={t("features.argentina_consumer_protection")} />
     </WithHelpTooltip>
   );
 };

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { Address } from "viem";
 
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC20ERC721Validation } from "hooks/useTokenAddressValidation";
@@ -15,18 +15,18 @@ import { isUndefined } from "src/utils";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const FieldContainer = styled.div`
   width: 100%;
   padding-left: 32px;
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(TextField)`
   width: 100%;
   margin-top: 8px;
   margin-bottom: 32px;
-  > small {
+  > span {
     margin-top: 16px;
   }
 `;
@@ -48,7 +48,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
     enabled: validationEnabled && props.checked,
   });
 
-  const [validationMessage, variant] = useMemo(() => {
+  const [validationMessage, variant] = useMemo<[string | undefined, "info" | "error" | "success"]>(() => {
     if (isValidating) return [`Validating ERC-20 or ERC-721 token...`, "info"];
     else if (validationError) return [validationError, "error"];
     else if (isValid === true) return [`Valid ERC-20 or ERC-721 token`, "success"];
@@ -80,7 +80,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
     });
   }, [isValid, gatedData, disputeData, setDisputeData, props.checked]);
 
-  const handleTokenAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenAddressChange = (value: string) => {
     if (!gatedData) return;
 
     setDisputeData({
@@ -88,7 +88,7 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
       disputeKitData: {
         ...gatedData,
         isERC1155: false,
-        tokenGate: event.target.value as Address,
+        tokenGate: value as Address,
         isValid: null, // Reset validation state when address changes
       },
     });
@@ -97,12 +97,13 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.GatedErc20}>
       <WithHelpTooltip tooltipMsg={t("tooltips.token_gating_tooltip")}>
-        <StyledRadio label={t("features.jurors_owning_erc20")} small {...props} />
+        <FeatureRadio {...props} label={t("features.jurors_owning_erc20")} />
       </WithHelpTooltip>
       {props.checked ? (
         <FieldContainer>
           <StyledField
-            dir="auto"
+            aria-label={t("aria_labels.token_address")}
+            inputProps={{ dir: "auto" }}
             onChange={handleTokenAddressChange}
             value={tokenGateAddress}
             placeholder={t("forms.placeholders.token_address_example")}
