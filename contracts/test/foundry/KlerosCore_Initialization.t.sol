@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
 import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
-import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {DisputeKitClassic, IDisputeKit} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
@@ -21,30 +21,44 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(core.owner(), msg.sender, "Wrong owner");
         assertEq(core.guardian(), guardian, "Wrong guardian");
         assertEq(address(core.pinakion()), address(pinakion), "Wrong pinakion address");
-        assertEq(core.jurorProsecutionModule(), jurorProsecutionModule, "Wrong jurorProsecutionModule address");
         assertEq(address(core.sortitionModule()), address(sortitionModule), "Wrong sortitionModule address");
         assertEq(core.getDisputeKitsLength(), 2, "Wrong DK array length");
 
-        _assertCourtParameters(FORKING_COURT, FORKING_COURT, false, 0, 0, 0, 0, 0);
+        _assertCourtParameters(FORKING_COURT, FORKING_COURT, false, type(uint256).max, 0, 0, 0, 0);
         _assertCourtParameters(GENERAL_COURT, FORKING_COURT, false, 1000, 10000, 0.03 ether, 511, 1);
 
         uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
         assertEq(children.length, 0, "No children");
+        children = core.getCourtChildren(FORKING_COURT);
+        assertEq(children.length, 1, "Wrong number of children");
         _assertTimesPerPeriod(GENERAL_COURT, timesPerPeriod);
+        _assertTimesPerPeriod(FORKING_COURT, forkingTimesPerPeriod);
 
-        assertEq(address(core.disputeKits(NULL_DISPUTE_KIT)), address(0), "Wrong address NULL_DISPUTE_KIT");
+        assertEq(
+            address(core.disputeKits(FORKING_DISPUTE_KIT)),
+            address(centralizedKit),
+            "Wrong address FORKING_DISPUTE_KIT"
+        );
         assertEq(
             address(core.disputeKits(DISPUTE_KIT_CLASSIC)),
             address(disputeKit),
             "Wrong address DISPUTE_KIT_CLASSIC"
         );
-        assertEq(core.isSupported(FORKING_COURT, NULL_DISPUTE_KIT), false, "Forking court null dk should be false");
+        assertEq(
+            core.isSupported(FORKING_COURT, FORKING_DISPUTE_KIT),
+            true,
+            "Forking court FORKING_DISPUTE_KIT should be true"
+        );
         assertEq(
             core.isSupported(FORKING_COURT, DISPUTE_KIT_CLASSIC),
             false,
             "Forking court classic dk should be false"
         );
-        assertEq(core.isSupported(GENERAL_COURT, NULL_DISPUTE_KIT), false, "General court null dk should be false");
+        assertEq(
+            core.isSupported(GENERAL_COURT, FORKING_DISPUTE_KIT),
+            false,
+            "General court FORKING_DISPUTE_KIT should be false"
+        );
         assertEq(core.isSupported(GENERAL_COURT, DISPUTE_KIT_CLASSIC), true, "General court classic dk should be true");
         assertEq(core.paused(), false, "Wrong paused value");
         assertEq(core.wNative(), address(wNative), "Wrong wNative");
@@ -60,6 +74,10 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         assertEq(pinakion.allowance(staker1, address(core)), 1 ether, "Wrong allowance for staker1");
         assertEq(pinakion.balanceOf(staker2), 1 ether, "Wrong token balance of staker2");
         assertEq(pinakion.allowance(staker2, address(core)), 1 ether, "Wrong allowance for staker2");
+
+        assertEq(centralizedKit.owner(), msg.sender, "Wrong CentralDK owner");
+        assertEq(address(centralizedKit.core()), address(core), "Wrong core in centralDK");
+        assertEq(centralizedKit.ruler(), ruler, "Wrong ruler in centralDK");
 
         assertEq(disputeKit.owner(), msg.sender, "Wrong DK owner");
         assertEq(address(disputeKit.core()), address(core), "Wrong core in DK");
@@ -97,7 +115,6 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
         address newOwner = msg.sender;
         address newGuardian = vm.addr(1);
         address newStaker1 = vm.addr(2);
-        address newJurorProsecutionModule = vm.addr(8);
         uint256 newMinStake = 1000;
         uint256 newAlpha = 10000;
         uint256 newFeeForJuror = 0.03 ether;
@@ -147,10 +164,30 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
 
         KlerosCoreMock newCore = KlerosCoreMock(address(proxyCore));
         vm.expectEmit(true, true, true, true);
+        emit KlerosCore.DisputeKitCreated(FORKING_DISPUTE_KIT, centralizedKit);
+        vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitCreated(DISPUTE_KIT_CLASSIC, newDisputeKit);
         vm.expectEmit(true, true, true, true);
 
         uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = FORKING_DISPUTE_KIT;
+        emit KlerosCore.CourtCreated(
+            FORKING_COURT,
+            FORKING_COURT,
+            false,
+            type(uint256).max,
+            0,
+            0,
+            0,
+            [uint256(0), uint256(0), uint256(0), uint256(0)], // Explicitly convert otherwise it throws
+            supportedDK,
+            NULL_ELIGIBILITY_REQUIREMENT
+        );
+
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.DisputeKitEnabled(FORKING_COURT, FORKING_DISPUTE_KIT, true);
+
+        vm.expectEmit(true, true, true, true);
         supportedDK[0] = DISPUTE_KIT_CLASSIC;
         emit KlerosCore.CourtCreated(
             GENERAL_COURT,
@@ -164,17 +201,19 @@ contract KlerosCore_InitializationTest is KlerosCore_TestBase {
             supportedDK,
             NULL_ELIGIBILITY_REQUIREMENT
         );
+
         vm.expectEmit(true, true, true, true);
         emit KlerosCore.DisputeKitEnabled(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
         newCore.initialize(
             payable(newOwner),
             newGuardian,
             newPinakion,
-            newJurorProsecutionModule,
             newDisputeKit,
+            centralizedKit,
             newHiddenVotes,
             [newMinStake, newAlpha, newFeeForJuror, newJurorsForCourtJump],
             newTimesPerPeriod,
+            forkingTimesPerPeriod,
             newSortitionExtraData,
             newSortitionModule,
             address(wNative),
