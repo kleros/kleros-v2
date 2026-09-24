@@ -25,7 +25,9 @@ const ITERATIONS_COOLDOWN_PERIOD = 10 * 1000; // 10 seconds
 const DRAW_PROBE_GAS_LIMIT = { gasLimit: 50_000_000 };
 const MAX_TX_GAS_LIMIT = 25_000_000n; // Max gas per tx enforced by the provider
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
-const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
+// Resolved lazily: reading it at module scope makes the module unimportable (and therefore
+// untestable) whenever SUBGRAPH_URL is unset.
+const getSubgraphUrl = () => env.require("SUBGRAPH_URL");
 const MAX_JURORS_PER_DISPUTE = 1000; // Skip disputes with more than this number of jurors
 const CORE_TYPE = env.optional("CORE_TYPE", "base");
 const DISPUTES_TO_SKIP = env
@@ -97,14 +99,20 @@ enum Phase {
 }
 const PHASES = Object.values(Phase);
 
-const getDisputeKit = async (
-  coreDisputeId: string,
-  coreRoundId: string
-): Promise<{
+type ResolvedDisputeKit = {
   disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
   localDisputeId: bigint;
   localRoundId: bigint;
-}> => {
+};
+
+/** Resolution of a core dispute/round pair to its dispute kit. Injectable so the consumers of
+ * this step can be unit-tested without a deployed set of contracts. */
+export type DisputeKitResolver = (coreDisputeId: string, coreRoundId: string) => Promise<ResolvedDisputeKit>;
+
+export const getDisputeKit: DisputeKitResolver = async (
+  coreDisputeId: string,
+  coreRoundId: string
+): Promise<ResolvedDisputeKit> => {
   const { core, disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter } = await getContracts();
   const round = await core.getRoundInfo(coreDisputeId, coreRoundId);
   const disputeKitAddress = await core.disputeKits(round.disputeKitID);
@@ -145,7 +153,7 @@ const getNonFinalDisputes = async (): Promise<Dispute[]> => {
   `;
   // TODO: use a local graph node if chainId is HARDHAT
   type Disputes = { disputes: Dispute[] };
-  const { disputes } = await request<Disputes>(SUBGRAPH_URL, query);
+  const { disputes } = await request<Disputes>(getSubgraphUrl(), query);
   return disputes;
 };
 
@@ -170,7 +178,7 @@ const getAppealContributions = async (disputeId: string): Promise<Contribution[]
   const variables = { disputeId };
   type AppealContributions = { contributions: Contribution[] };
   // TODO: use a local graph node if chainId is HARDHAT
-  const { contributions } = await request<AppealContributions>(SUBGRAPH_URL, query, variables);
+  const { contributions } = await request<AppealContributions>(getSubgraphUrl(), query, variables);
   return contributions;
 };
 
@@ -187,7 +195,7 @@ const getDisputesWithUnexecutedRuling = async (): Promise<Dispute[]> => {
   `;
   // TODO: use a local graph node if chainId is HARDHAT
   type Disputes = { disputes: Dispute[] };
-  const { disputes } = await request<Disputes>(SUBGRAPH_URL, query);
+  const { disputes } = await request<Disputes>(getSubgraphUrl(), query);
   return disputes;
 };
 
@@ -212,7 +220,7 @@ const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]>
   type Contributions = {
     classicContributions: { coreDispute: Dispute }[];
   };
-  const { classicContributions } = await request<Contributions>(SUBGRAPH_URL, query);
+  const { classicContributions } = await request<Contributions>(getSubgraphUrl(), query);
   const disputes = classicContributions
     .filter((contribution) => contribution.coreDispute.period === "execution")
     .map((dispute) => dispute.coreDispute);
@@ -241,7 +249,7 @@ const getUnstakedJurors = async (disputeId: string): Promise<string[]> => {
       };
     };
   };
-  const { dispute } = await request<UnstakedJurors>(SUBGRAPH_URL, query, { disputeId });
+  const { dispute } = await request<UnstakedJurors>(getSubgraphUrl(), query, { disputeId });
   if (!dispute || !dispute.currentRound) {
     return [];
   }
@@ -486,19 +494,23 @@ const withdrawLeftoverPNK = async (juror: string) => {
   return success;
 };
 
-const withdrawAppealContribution = async (
+export const withdrawAppealContribution = async (
   coreDisputeId: string,
   coreRoundId: string,
-  contribution: Contribution
+  contribution: Contribution,
+  resolveDisputeKit: DisputeKitResolver = getDisputeKit
 ): Promise<boolean> => {
-  const { disputeKit, localDisputeId, localRoundId } = await getDisputeKit(coreDisputeId, coreRoundId);
+  // withdrawFeesAndRewards resolves both the dispute and the round to their local
+  // indices internally, so it must receive the core IDs. Resolving them here first
+  // and passing the result would resolve them twice. See issue #2586.
+  const { disputeKit } = await resolveDisputeKit(coreDisputeId, coreRoundId);
   let success = false;
   let amountWithdrawn = 0n;
   try {
     amountWithdrawn = await disputeKit.withdrawFeesAndRewards.staticCall(
-      localDisputeId,
+      coreDisputeId,
       contribution.contributor.id,
-      localRoundId,
+      coreRoundId,
       contribution.choice
     );
   } catch (e) {
@@ -519,18 +531,18 @@ const withdrawAppealContribution = async (
     );
     const gas =
       ((await disputeKit.withdrawFeesAndRewards.estimateGas(
-        localDisputeId,
+        coreDisputeId,
         contribution.contributor.id,
-        localRoundId,
+        coreRoundId,
         contribution.choice
       )) *
         150n) /
       100n; // 50% extra gas
     const tx = await (
       await disputeKit.withdrawFeesAndRewards(
-        localDisputeId,
+        coreDisputeId,
         contribution.contributor.id,
-        localRoundId,
+        coreRoundId,
         contribution.choice,
         {
           gasLimit: gas,
@@ -901,12 +913,15 @@ async function main() {
   await shutdown();
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(() => {
-    logger.flush();
-  });
+// Guarded so that importing this module does not run the bot, mirroring keeperBotShutter.ts.
+if (require.main === module) {
+  main()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    })
+    .finally(() => {
+      logger.flush();
+    });
+}

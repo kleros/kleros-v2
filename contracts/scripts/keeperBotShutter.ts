@@ -6,7 +6,9 @@ import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import { Cores, getContracts as getContractsForCoreType } from "./utils/contracts";
 
-const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
+// Resolved lazily: keeperBot.ts imports this module, so reading it at module scope makes both
+// modules unimportable (and therefore untestable) whenever SUBGRAPH_URL is unset.
+const getSubgraphUrl = () => env.require("SUBGRAPH_URL");
 const CORE_TYPE = env.optional("CORE_TYPE", "base");
 const DISPUTES_TO_SKIP = env
   .optional("DISPUTES_TO_SKIP", "")
@@ -155,7 +157,7 @@ const getShutterDisputesToReveal = async (
 
   logger.debug(`Using Shutter dispute kit: ${disputeKitShutter.target}`);
   const variables = { shutterDisputeKit: disputeKitShutter.target };
-  const { disputeKits } = await request<ShutterDisputes>(SUBGRAPH_URL, query, variables);
+  const { disputeKits } = await request<ShutterDisputes>(getSubgraphUrl(), query, variables);
   if (disputeKits.length === 0) {
     logger.debug("No Shutter dispute kit found, skipping auto-reveal");
     return [];
