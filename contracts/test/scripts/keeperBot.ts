@@ -4,12 +4,15 @@ import { DisputeKitClassic } from "../../typechain-types";
 import { DisputeKitResolver, getDisputeKit, withdrawAppealContribution } from "../../scripts/keeperBot";
 
 /**
- * Characterization tests for the keeper bot appeal-contribution withdrawal path.
+ * Regression tests for the keeper bot appeal-contribution withdrawal path.
  *
- * These tests pin the CURRENT observable behavior of `withdrawAppealContribution`
- * so that the testability seams introduced alongside them can be proven
- * behavior-preserving. They are not a statement of intent: see the comment on the
- * dispute-ID assertion below.
+ * `withdrawFeesAndRewards(_coreDisputeID, _beneficiary, _choice)` resolves the local
+ * dispute internally and sums the refund over all rounds, so the bot must hand it the
+ * core dispute ID and the contribution's choice. Passing the already-resolved local
+ * dispute ID either reverts or silently lands on an unrelated dispute, and passing the
+ * round ID as the choice refunds the wrong ruling option.
+ *
+ * See https://github.com/kleros/kleros-v2/issues/2586.
  */
 describe("keeperBot: withdrawAppealContribution", () => {
   // Core IDs deliberately diverge from local IDs. This is the situation that occurs
@@ -71,22 +74,25 @@ describe("keeperBot: withdrawAppealContribution", () => {
     const success = await withdrawAppealContribution(CORE_DISPUTE_ID, CORE_ROUND_ID, contribution, resolveDisputeKit);
 
     expect(success).to.equal(true);
+    expect(withdrawFeesAndRewards.calledOnce).to.equal(true);
+    expect(withdrawFeesAndRewards.firstCall.args.at(-1)).to.deep.equal({
+      gasLimit: 150_000n, // estimateGas + 50%
+    });
+  });
 
-    // KNOWN-INCORRECT BEHAVIOR PINNED ON PURPOSE.
-    // `withdrawFeesAndRewards(_coreDisputeID, _beneficiary, _choice)` resolves the local
-    // dispute internally and sums over all rounds, so the bot must pass the CORE dispute ID
-    // and the contribution's choice. It currently passes the already-resolved LOCAL dispute ID,
-    // and the LOCAL round ID in the `_choice` slot.
-    // See https://github.com/kleros/kleros-v2/issues/2586.
-    // These assertions document the defect so this refactor can be proven
-    // behavior-preserving; they are superseded by the regression test in the next commit.
-    const expectedArgs = [LOCAL_DISPUTE_ID, BENEFICIARY, LOCAL_ROUND_ID];
+  it("passes the core dispute ID and the contribution choice to withdrawFeesAndRewards", async () => {
+    withdrawFeesAndRewards.staticCall.resolves(1000n);
+    withdrawFeesAndRewards.estimateGas.resolves(100_000n);
+    withdrawFeesAndRewards.resolves({ wait: async () => ({ hash: "0xdeadbeef" }) });
+
+    await withdrawAppealContribution(CORE_DISPUTE_ID, CORE_ROUND_ID, contribution, resolveDisputeKit);
+
+    // The contract resolves the local dispute internally and sums over all rounds, so it takes
+    // no round argument: the third parameter is the ruling option being withdrawn.
+    const expectedArgs = [CORE_DISPUTE_ID, BENEFICIARY, CHOICE];
     expect(withdrawFeesAndRewards.staticCall.firstCall.args).to.deep.equal(expectedArgs);
     expect(withdrawFeesAndRewards.estimateGas.firstCall.args).to.deep.equal(expectedArgs);
-    expect(withdrawFeesAndRewards.firstCall.args).to.deep.equal([
-      ...expectedArgs,
-      { gasLimit: 150_000n }, // estimateGas + 50%
-    ]);
+    expect(withdrawFeesAndRewards.firstCall.args.slice(0, 3)).to.deep.equal(expectedArgs);
   });
 
   it("reports failure and sends no transaction when the static call reverts", async () => {
