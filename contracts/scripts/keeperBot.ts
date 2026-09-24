@@ -772,6 +772,7 @@ async function main() {
       // iterations would let a fully-stalled run (transactions confirm, nobody gets drawn)
       // silently suppress the stall warning below.
       let actualJurorsDrawn = 0;
+      let drawAttempts = 0;
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       for (const dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
@@ -795,6 +796,7 @@ async function main() {
           logger.info(
             `Drawing ${drawIterations} out of ${numberOfMissingJurors} jurors needed for dispute #${dispute.id}`
           );
+          drawAttempts++;
           if (!(await drawJurors(dispute, drawIterations))) {
             logger.error(`Failed to draw jurors for dispute #${dispute.id}, skipping it`);
             break;
@@ -806,18 +808,19 @@ async function main() {
           actualJurorsDrawn += getNumber(missingBefore) - getNumber(numberOfMissingJurors);
         } while (!(numberOfMissingJurors === 0n) && !maxDrawingTimePassed);
       }
-      // Warn if the drawing run completed with zero actual draws but disputes still need jurors.
-      // This indicates a stall (no eligible jurors staked, RNG issue, or all draws failing).
+      // Warn if draws were attempted but none landed while disputes still need jurors. This
+      // indicates a stall (no eligible jurors staked, RNG issue, or all draws failing). Runs that
+      // attempted nothing (max drawing time already passed, all disputes skipped) are not stalls.
       // Re-query which disputes are still unresolved rather than trusting the pre-loop snapshot.
-      if (actualJurorsDrawn === 0 && disputesWithoutJurors.length > 0) {
+      if (drawAttempts > 0 && actualJurorsDrawn === 0 && disputesWithoutJurors.length > 0) {
         const stillPending = await filterAsync(disputesWithoutJurors, async (dispute) => {
           return !(await isDisputeFullyDrawn(dispute));
         });
         if (stillPending.length > 0) {
           const pendingIds = stillPending.map((d) => d.id).join(", ");
           logger.warn(
-            `Drawing phase run completed with zero draws for ${stillPending.length} ` +
-              `dispute(s) still needing jurors: [${pendingIds}]`
+            `Drawing phase run completed with zero jurors drawn after ${drawAttempts} attempt(s) ` +
+              `for ${stillPending.length} dispute(s) still needing jurors: [${pendingIds}]`
           );
         }
       }
