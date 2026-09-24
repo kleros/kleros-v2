@@ -10,6 +10,7 @@ additional_compiler_profiles = [
 ]
 compilation_restrictions = [
     { paths = "test/foundry/KlerosCore.t.sol", via_ir = false },
+    { paths = "test/foundry/DisputeKitGatedPerCourt.t.sol", via_ir = false },
 ]
 src = 'src'
 out = 'out'

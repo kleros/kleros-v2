@@ -19,6 +19,10 @@ contract DisputeKitGatedShutterNeoProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
+contract DisputeKitGatedPerCourtNeoProxy is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
+
 contract DisputeKitClassicUniversityProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
@@ -32,6 +36,10 @@ contract DisputeKitGatedProxy is UUPSProxy {
 }
 
 contract DisputeKitGatedShutterProxy is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
+
+contract DisputeKitGatedPerCourtProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 

@@ -20,6 +20,7 @@ import {
   EvidenceModule,
   DisputeKitGated,
   DisputeKitGatedShutter,
+  DisputeKitGatedPerCourt,
 } from "../../typechain-types";
 
 export const Cores = {
@@ -44,6 +45,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutterNeo",
       disputeKitGated: "DisputeKitGatedNeo",
       disputeKitGatedShutter: "DisputeKitGatedShutterNeo",
+      disputeKitGatedPerCourt: "DisputeKitGatedPerCourtNeo", // only deployed on NEO so far, resolved with getContractOrNull
       disputeResolver: "DisputeResolverNeo",
     },
     [Cores.BASE]: {
@@ -53,6 +55,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutter",
       disputeKitGated: "DisputeKitGated",
       disputeKitGatedShutter: "DisputeKitGatedShutter",
+      disputeKitGatedPerCourt: "DisputeKitGatedPerCourt", // only deployed on NEO and testnet so far, resolved with getContractOrNull
       disputeResolver: "DisputeResolver",
     },
     [Cores.UNIVERSITY]: {
@@ -62,6 +65,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutterUniversity",
       disputeKitGated: "DisputeKitGatedUniversity",
       disputeKitGatedShutter: "DisputeKitGatedShutterUniversity",
+      disputeKitGatedPerCourt: "DisputeKitGatedPerCourtUniversity", // only deployed on NEO so far, resolved with getContractOrNull
       disputeResolver: "DisputeResolverUniversity",
     },
   };
@@ -116,6 +120,9 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
   const disputeKitGatedShutter = await ethers.getContractOrNull<DisputeKitGatedShutter>(
     getContractNames(coreType).disputeKitGatedShutter
   );
+  const disputeKitGatedPerCourt = await ethers.getContractOrNull<DisputeKitGatedPerCourt>(
+    getContractNames(coreType).disputeKitGatedPerCourt
+  );
   const disputeResolver = await ethers.getContract<DisputeResolver>(getContractNames(coreType).disputeResolver);
   const disputeTemplateRegistry = await ethers.getContract<DisputeTemplateRegistry>(
     getContractNames(coreType).disputeTemplateRegistry
@@ -137,6 +144,7 @@ export const getContracts = async (hre: HardhatRuntimeEnvironment, coreType: Cor
     disputeKitShutter,
     disputeKitGated,
     disputeKitGatedShutter,
+    disputeKitGatedPerCourt,
     disputeResolver,
     disputeTemplateRegistry,
     evidence,
