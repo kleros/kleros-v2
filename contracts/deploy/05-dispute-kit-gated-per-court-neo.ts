@@ -14,6 +14,12 @@ const COURTS_TO_ENABLE: Partial<Record<HomeChains, number[]>> = {
   [HomeChains.HARDHAT]: [Courts.GENERAL],
 };
 
+// Human Passport decoder, per chain: https://docs.passport.human.tech/building-with-passport/stamps/smart-contracts/contract-reference
+// Not available on Hardhat: the Human Passport gate cannot be configured there.
+const PASSPORT_DECODERS: Partial<Record<HomeChains, string>> = {
+  [HomeChains.ARBITRUM_ONE]: "0x2050256A91cbABD7C42465aA0d5325115C1dEB43",
+};
+
 const deployDisputeKitGatedPerCourtNeo: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
 
@@ -24,11 +30,12 @@ const deployDisputeKitGatedPerCourtNeo: DeployFunction = async (hre: HardhatRunt
 
   const core = await ethers.getContract<KlerosCoreNeo>("KlerosCoreNeo");
   const weth = await deployments.get("WETH");
+  const passportDecoder = PASSPORT_DECODERS[chainId as HomeChains] ?? ethers.ZeroAddress;
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitGatedPerCourtNeo", {
     from: deployer,
     contract: "DisputeKitGatedPerCourt",
-    args: [deployer, core.target, weth.address],
+    args: [deployer, core.target, weth.address, passportDecoder],
     log: true,
   }); // proxy contract: DisputeKitGatedPerCourtNeoProxy
 
@@ -65,12 +72,15 @@ const deployDisputeKitGatedPerCourtNeo: DeployFunction = async (hre: HardhatRunt
     await (await core.enableDisputeKits(courtID, [disputeKitID], true)).wait();
   }
 
-  // The token gates are intentionally not configured here
+  // The gates are intentionally not configured here
   console.log(
-    "REMINDER: configure the token gate of each court with DisputeKitGatedPerCourtNeo.changeCourtTokenGate(courtID, token, isERC1155, tokenId), " +
-      "e.g. for courts [%s]: disputeKit.changeCourtTokenGate(<courtID>, <tokenAddress>, false, 0) for an ERC20/ERC721 token. " +
+    "REMINDER: configure the gates of each court, e.g. for courts [%s]:\n" +
+      "- token gate: DisputeKitGatedPerCourtNeo.changeCourtTokenGate(<courtID>, <tokenAddress>, false, 0) for an ERC20/ERC721 token\n" +
+      "- Human Passport gate: DisputeKitGatedPerCourtNeo.changeCourtMinPassportScore(<courtID>, <minScore>), " +
+      "with 4 decimals, e.g. 200000 for a score of 20 (decoder: %s)\n" +
       "Until then, these courts are NOT gated by this dispute kit.",
-    courts.join(", ")
+    courts.join(", "),
+    passportDecoder
   );
 };
 

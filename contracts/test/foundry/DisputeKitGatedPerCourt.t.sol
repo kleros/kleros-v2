@@ -5,7 +5,8 @@ import {Test} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {KlerosCoreMock, KlerosCoreBase} from "../../src/test/KlerosCoreMock.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
-import {DisputeKitGatedPerCourt} from "../../src/arbitration/dispute-kits/DisputeKitGatedPerCourt.sol";
+import {DisputeKitGatedPerCourt, IPassportDecoder} from "../../src/arbitration/dispute-kits/DisputeKitGatedPerCourt.sol";
+import {PassportDecoderMock} from "../../src/test/PassportDecoderMock.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {Initializable} from "../../src/proxy/Initializable.sol";
@@ -31,6 +32,7 @@ contract DisputeKitGatedPerCourtTest is Test {
     uint256 constant GATED_DK_ID = 2;
     uint256 constant STAKE = 20000;
     uint256 constant FEE_FOR_JUROR = 0.03 ether;
+    uint256 constant MIN_PASSPORT_SCORE = 200000; // 20 with 4 decimals
 
     KlerosCoreMock core;
     DisputeKitClassic disputeKitClassic;
@@ -43,6 +45,7 @@ contract DisputeKitGatedPerCourtTest is Test {
     TestERC20 gateERC20;
     TestERC721 gateERC721;
     TestERC1155 gateERC1155;
+    PassportDecoderMock passportDecoder;
     ArbitrableExample arbitrable;
     DisputeTemplateRegistry registry;
 
@@ -86,6 +89,7 @@ contract DisputeKitGatedPerCourtTest is Test {
         gateERC20 = new TestERC20("Gate20", "G20");
         gateERC721 = new TestERC721("Gate721", "G721");
         gateERC1155 = new TestERC1155();
+        passportDecoder = new PassportDecoderMock();
 
         UUPSProxy proxyCore = new UUPSProxy(address(new KlerosCoreMock()), "");
         rng = new BlockHashRNG(msg.sender, address(0), rngLookahead);
@@ -165,8 +169,18 @@ contract DisputeKitGatedPerCourtTest is Test {
     // ************************************* //
 
     function _dkInitData() internal view returns (bytes memory) {
+        return _dkInitData(address(passportDecoder));
+    }
+
+    function _dkInitData(address _passportDecoder) internal view returns (bytes memory) {
         return
-            abi.encodeWithSignature("initialize(address,address,address)", governor, address(core), address(wNative));
+            abi.encodeWithSignature(
+                "initialize(address,address,address,address)",
+                governor,
+                address(core),
+                address(wNative),
+                _passportDecoder
+            );
     }
 
     function _createCourt(uint96 _parent, uint256 _jurorsForCourtJump) internal {
@@ -196,6 +210,11 @@ contract DisputeKitGatedPerCourtTest is Test {
     function _setGate(uint96 _courtID, address _token, bool _isERC1155, uint256 _tokenId) internal {
         vm.prank(governor);
         gatedDK.changeCourtTokenGate(_courtID, _token, _isERC1155, _tokenId);
+    }
+
+    function _setMinPassportScore(uint96 _courtID, uint256 _minPassportScore) internal {
+        vm.prank(governor);
+        gatedDK.changeCourtMinPassportScore(_courtID, _minPassportScore);
     }
 
     function _extraData(uint96 _courtID) internal pure returns (bytes memory) {
@@ -278,9 +297,41 @@ contract DisputeKitGatedPerCourtTest is Test {
         assertEq(gatedDK.version(), "0.1.0", "Wrong version");
         assertEq(gatedDK.singleDrawPerJuror(), false, "singleDrawPerJuror should be false");
         assertEq(address(core.disputeKits(GATED_DK_ID)), address(gatedDK), "Wrong DK registered");
+        assertEq(address(gatedDK.passportDecoder()), address(passportDecoder), "Wrong passport decoder");
 
         vm.expectRevert(Initializable.AlreadyInitialized.selector);
-        gatedDK.initialize(other, core, other);
+        gatedDK.initialize(other, core, other, IPassportDecoder(other));
+    }
+
+    function test_initialize_emitsPassportDecoderChanged() public {
+        DisputeKitGatedPerCourt dkLogic = new DisputeKitGatedPerCourt();
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitGatedPerCourt.PassportDecoderChanged(passportDecoder);
+        new UUPSProxy(address(dkLogic), _dkInitData());
+    }
+
+    function test_initialize_noPassportDecoder() public {
+        DisputeKitGatedPerCourt dk = DisputeKitGatedPerCourt(
+            address(new UUPSProxy(address(new DisputeKitGatedPerCourt()), _dkInitData(address(0))))
+        );
+        assertEq(address(dk.passportDecoder()), address(0), "Passport decoder should not be set");
+
+        // No Human Passport gating possible until a decoder is set.
+        vm.startPrank(governor);
+        vm.expectRevert(DisputeKitGatedPerCourt.PassportDecoderNotSet.selector);
+        dk.changeCourtMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        dk.changeCourtMinPassportScore(PARENT_COURT, 0); // Ungating is fine
+
+        dk.changePassportDecoder(passportDecoder);
+        dk.changeCourtMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        vm.stopPrank();
+        assertEq(dk.courtMinPassportScores(PARENT_COURT), MIN_PASSPORT_SCORE, "Wrong min score");
+    }
+
+    function test_initialize_invalidPassportDecoder() public {
+        DisputeKitGatedPerCourt dkLogic = new DisputeKitGatedPerCourt();
+        vm.expectRevert("Proxy Constructor failed"); // InvalidPassportDecoder: not a contract
+        new UUPSProxy(address(dkLogic), _dkInitData(other));
     }
 
     function test_initialize_emitsInitialized() public {
@@ -293,7 +344,7 @@ contract DisputeKitGatedPerCourtTest is Test {
     function test_initialize_implementationDisabled() public {
         DisputeKitGatedPerCourt dkLogic = new DisputeKitGatedPerCourt();
         vm.expectRevert(Initializable.AlreadyInitialized.selector);
-        dkLogic.initialize(governor, core, address(wNative));
+        dkLogic.initialize(governor, core, address(wNative), passportDecoder);
     }
 
     // ************************************* //
@@ -375,6 +426,50 @@ contract DisputeKitGatedPerCourtTest is Test {
         assertEq(token, address(gateERC1155), "Wrong token");
         assertEq(isERC1155, true, "Wrong isERC1155");
         assertEq(tokenId, 0, "Wrong tokenId");
+    }
+
+    function test_changePassportDecoder_onlyGovernor() public {
+        vm.prank(other);
+        vm.expectRevert(DisputeKitClassicBase.GovernorOnly.selector);
+        gatedDK.changePassportDecoder(passportDecoder);
+    }
+
+    function test_changePassportDecoder_setsAndEmits() public {
+        PassportDecoderMock newDecoder = new PassportDecoderMock();
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitGatedPerCourt.PassportDecoderChanged(newDecoder);
+        vm.prank(governor);
+        gatedDK.changePassportDecoder(newDecoder);
+        assertEq(address(gatedDK.passportDecoder()), address(newDecoder), "Wrong passport decoder");
+    }
+
+    function test_changePassportDecoder_invalid() public {
+        vm.startPrank(governor);
+        vm.expectRevert(DisputeKitGatedPerCourt.InvalidPassportDecoder.selector);
+        gatedDK.changePassportDecoder(IPassportDecoder(address(0)));
+        vm.expectRevert(DisputeKitGatedPerCourt.InvalidPassportDecoder.selector);
+        gatedDK.changePassportDecoder(IPassportDecoder(other)); // Not a contract
+        vm.stopPrank();
+        assertEq(address(gatedDK.passportDecoder()), address(passportDecoder), "Decoder should be unchanged");
+    }
+
+    function test_changeCourtMinPassportScore_onlyGovernor() public {
+        vm.prank(other);
+        vm.expectRevert(DisputeKitClassicBase.GovernorOnly.selector);
+        gatedDK.changeCourtMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+    }
+
+    function test_changeCourtMinPassportScore_setsAndEmits() public {
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitGatedPerCourt.CourtMinPassportScoreChanged(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        assertEq(gatedDK.courtMinPassportScores(PARENT_COURT), MIN_PASSPORT_SCORE, "Wrong min score");
+        assertEq(gatedDK.courtMinPassportScores(CHILD_COURT), 0, "Child court should be ungated");
+
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitGatedPerCourt.CourtMinPassportScoreChanged(PARENT_COURT, 0);
+        _setMinPassportScore(PARENT_COURT, 0);
+        assertEq(gatedDK.courtMinPassportScores(PARENT_COURT), 0, "Should be ungated");
     }
 
     // ************************************* //
@@ -484,6 +579,161 @@ contract DisputeKitGatedPerCourtTest is Test {
         assertEq(sortitionModule.disputesWithoutJurors(), 0, "Dispute should be fully drawn");
     }
 
+    function test_draw_passportGate_thresholdInclusive() public {
+        passportDecoder.setScore(staker1, MIN_PASSPORT_SCORE - 1);
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _drawGatedAndAssert(staker2);
+    }
+
+    function test_draw_passportGate_noAttestation() public {
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _drawGatedAndAssert(staker2); // staker1 has no attestation: getScore() reverts
+    }
+
+    function test_draw_passportGate_expiredAttestation() public {
+        passportDecoder.setScore(staker1, 1000000);
+        passportDecoder.setExpired(staker1);
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _drawGatedAndAssert(staker2);
+    }
+
+    function test_draw_passportGate_noEligibleStaked() public {
+        passportDecoder.setScore(staker1, MIN_PASSPORT_SCORE - 1);
+        passportDecoder.setScore(other, MIN_PASSPORT_SCORE); // Eligible but not staked
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _assertNobodyDrawn();
+    }
+
+    function test_draw_passportGate_decoderBurnsAllGas() public {
+        passportDecoder.setScore(staker1, MIN_PASSPORT_SCORE);
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        passportDecoder.setMode(PassportDecoderMock.Mode.BurnAllGas);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _assertNobodyDrawn();
+    }
+
+    function test_draw_passportGate_decoderShortReturnData() public {
+        passportDecoder.setScore(staker1, MIN_PASSPORT_SCORE);
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        passportDecoder.setMode(PassportDecoderMock.Mode.ShortReturnData);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _assertNobodyDrawn();
+    }
+
+    function test_draw_passportGate_decoderWithoutCode() public {
+        passportDecoder.setScore(staker1, MIN_PASSPORT_SCORE);
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        vm.etch(address(passportDecoder), ""); // e.g. a broken upgrade of the decoder
+        _assertNobodyDrawn();
+    }
+
+    /// @dev Both stakers ineligible in PARENT_COURT: the draw does not revert, nobody is drawn.
+    function _assertNobodyDrawn() internal {
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+        _stake(staker2, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, 10);
+
+        assertEq(_nbVoters(disputeID, 0), 0, "No vote should be drawn");
+        assertEq(core.getRoundInfo(disputeID, 0).drawIterations, 10, "Wrong drawIterations");
+        assertEq(sortitionModule.disputesWithoutJurors(), 1, "Dispute should still be without jurors");
+    }
+
+    /// @dev A caller must not be able to skip an eligible juror by providing too little gas to the decoder call:
+    /// for any gas amount, the draw either reverts or draws the eligible juror.
+    function test_draw_passportGate_notEnoughGasNeverSkipsEligibleJuror() public {
+        uint256 disputeID = _setupEligibleStaker1();
+        for (uint256 gasLimit = 30_000; gasLimit <= 400_000; gasLimit += 1_000) {
+            uint256 snapshot = vm.snapshot();
+            (bool success, ) = address(core).call{gas: gasLimit}(abi.encodeCall(KlerosCoreBase.draw, (disputeID, 1)));
+            if (success) assertEq(_nbVoters(disputeID, 0), 1, "Eligible juror skipped");
+            vm.revertTo(snapshot);
+        }
+    }
+
+    /// @dev When the decoder call fails for lack of gas, the draw reverts instead of rejecting the juror.
+    /// A decoder burning all the gas forwarded makes it observable: the juror rejection that follows is cheap.
+    function test_draw_passportGate_notEnoughGasReverts() public {
+        uint256 disputeID = _setupEligibleStaker1();
+        passportDecoder.setMode(PassportDecoderMock.Mode.BurnAllGas);
+
+        bool guardTriggered;
+        for (uint256 gasLimit = 30_000; gasLimit <= 400_000; gasLimit += 1_000) {
+            uint256 snapshot = vm.snapshot();
+            (bool success, bytes memory result) = address(core).call{gas: gasLimit}(
+                abi.encodeCall(KlerosCoreBase.draw, (disputeID, 1))
+            );
+            if (success) {
+                assertEq(_nbVoters(disputeID, 0), 0, "Nobody should be drawn");
+                assertGe(gasLimit, (gatedDK.PASSPORT_GAS_LIMIT() * 64) / 63, "Rejected with too little gas");
+            } else if (
+                result.length >= 4 && bytes4(result) == DisputeKitGatedPerCourt.NotEnoughGasForPassportCheck.selector
+            ) {
+                guardTriggered = true;
+            }
+            vm.revertTo(snapshot);
+        }
+        assertTrue(guardTriggered, "The gas guard should have triggered");
+    }
+
+    function _setupEligibleStaker1() internal returns (uint256 disputeID) {
+        passportDecoder.setScore(staker1, MIN_PASSPORT_SCORE);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+        disputeID = _createDispute();
+    }
+
+    function test_draw_tokenAndPassportGates() public {
+        address staker3 = vm.addr(10);
+        pinakion.transfer(staker3, 1 ether);
+        vm.prank(staker3);
+        pinakion.approve(address(core), 1 ether);
+
+        // staker1: token only, staker2: passport only, staker3: both.
+        gateERC20.transfer(staker1, 1);
+        gateERC20.transfer(staker3, 1);
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        passportDecoder.setScore(staker3, MIN_PASSPORT_SCORE);
+        _setGate(PARENT_COURT, address(gateERC20), false, 0);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+        _stake(staker2, PARENT_COURT, STAKE);
+        _stake(staker3, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, 100);
+
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "All votes should be drawn");
+        _assertAllVotersAre(disputeID, 0, staker3);
+        assertGt(core.getRoundInfo(disputeID, 0).drawIterations, DEFAULT_NB_OF_JURORS, "Others never drawn?");
+    }
+
+    function test_draw_passportGateLiftedUnblocksDrawing() public {
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE); // No attestation
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, 10);
+        assertEq(_nbVoters(disputeID, 0), 0, "Gated: no vote should be drawn");
+
+        // Governance lifts the gate: applies to the remaining draws.
+        _setMinPassportScore(PARENT_COURT, 0);
+        core.draw(disputeID, 10);
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "Ungated: all votes should be drawn");
+        _assertAllVotersAre(disputeID, 0, staker1);
+        assertEq(sortitionModule.disputesWithoutJurors(), 0, "Dispute should be fully drawn");
+    }
+
     // ************************************* //
     // *           Court jump              * //
     // ************************************* //
@@ -559,6 +809,30 @@ contract DisputeKitGatedPerCourtTest is Test {
         assertEq(_nbVoters(disputeID, 1), 7, "Round 1 should be drawn without rejection");
         assertEq(core.getRoundInfo(disputeID, 1).drawIterations, 7, "No draw should be rejected");
         assertGt(_countVotesOf(disputeID, 1, staker1), 0, "Non-holder should be drawn after the jump");
+    }
+
+    /// @dev The Commerce setup: child ungated -> parent gated by Human Passport score, dispute stays in this DK.
+    /// staker1 staked in the child court without attestation, staker2 in the parent court only with a passing score.
+    function test_courtJump_ungatedChildToPassportGatedParent() public {
+        passportDecoder.setScore(staker2, MIN_PASSPORT_SCORE);
+        _setMinPassportScore(PARENT_COURT, MIN_PASSPORT_SCORE);
+        _stake(staker1, CHILD_COURT, STAKE);
+        _stake(staker2, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+
+        // Round 0 in the ungated child court: staker1 without attestation is drawn.
+        core.draw(disputeID, 20);
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "Round 0 should be fully drawn");
+        _assertAllVotersAre(disputeID, 0, staker1);
+
+        _assertAppealJumpsCourtOnly(disputeID);
+
+        // Round 1 in the gated parent court: only staker2 with a passing score is drawn.
+        core.draw(disputeID, 200);
+        assertEq(_nbVoters(disputeID, 1), 7, "Round 1 should be fully drawn");
+        _assertAllVotersAre(disputeID, 1, staker2);
+        assertGt(core.getRoundInfo(disputeID, 1).drawIterations, 7, "staker1 never drawn in parent?");
     }
 
     /// @dev Round 0 voted and appealed: the court jumps CHILD -> PARENT but the DK stays the same.
