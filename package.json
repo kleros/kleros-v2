@@ -16,7 +16,7 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "bots",
+    "bots/**",
     "contracts",
     "kleros-sdk",
     "subgraph",

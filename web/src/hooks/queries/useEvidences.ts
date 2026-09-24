@@ -6,7 +6,12 @@ import { transformSearch } from "utils/transformSearch";
 
 import { graphql } from "src/graphql";
 import { EvidenceDetailsFragment, EvidencesQuery } from "src/graphql/graphql";
+
 export type { EvidencesQuery };
+
+import { isUndefined } from "src/utils";
+
+import { DisputeArchiveSnapshot, useDisputeArchiveSnapshot } from "./useDisputeArchiveSnapshot";
 
 export const evidenceFragment = graphql(`
   fragment EvidenceDetails on ClassicEvidence {
@@ -42,7 +47,9 @@ const evidenceSearchQuery = graphql(`
 `);
 
 export const useEvidences = (disputeID?: string, keywords?: string) => {
-  const isEnabled = disputeID !== undefined;
+  const { data: archivedData, isLoading: isLoadingArchivedData } = useDisputeArchiveSnapshot(disputeID);
+
+  const isEnabled = !isUndefined(disputeID) && !isLoadingArchivedData;
   const { graphqlBatcher } = useGraphqlBatcher();
 
   const document = keywords ? evidenceSearchQuery : evidencesQuery;
@@ -53,6 +60,14 @@ export const useEvidences = (disputeID?: string, keywords?: string) => {
     enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     queryFn: async () => {
+      if (!isUndefined(archivedData?.evidences)) {
+        const evidences = archivedData.evidences;
+        const filtered = keywords
+          ? evidences.filter((evidence) => searchArchiveEvidence(evidence, keywords))
+          : evidences;
+        return { evidences: filtered };
+      }
+
       const result = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: document,
@@ -63,3 +78,20 @@ export const useEvidences = (disputeID?: string, keywords?: string) => {
     },
   });
 };
+
+function searchArchiveEvidence(evidence: NonNullable<DisputeArchiveSnapshot["evidences"]>[number], keywords: string) {
+  const normalized = keywords.trim().toLowerCase();
+  if (normalized.length === 0) {
+    return true;
+  }
+  // joining the searchable keys and looking for keyword to be a sub-string of this
+  const combinedSearchString = [evidence.name, evidence.description, evidence.evidence]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return normalized
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((word) => combinedSearchString.includes(word));
+}

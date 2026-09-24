@@ -14,6 +14,7 @@ import { graphql } from "src/graphql";
 
 import { klerosCoreAddress } from "../contracts/generated";
 
+import { useDisputeArchiveSnapshot } from "./useDisputeArchiveSnapshot";
 import { useDisputeDetailsQuery } from "./useDisputeDetailsQuery";
 
 const disputeTemplateQuery = graphql(`
@@ -29,20 +30,25 @@ const disputeTemplateQuery = graphql(`
 
 export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: Address) => {
   const { data: disputeData } = useDisputeDetailsQuery(disputeID);
+  const { data: archivedData, isLoading: isLoadingArchivedData } = useDisputeArchiveSnapshot(disputeID);
   const { graphqlBatcher } = useGraphqlBatcher();
   const isEnabled =
     !isUndefined(disputeID) &&
     !isUndefined(disputeData) &&
     !isUndefined(disputeData?.dispute) &&
-    !isUndefined(disputeData.dispute?.arbitrableChainId) &&
-    !isUndefined(disputeData.dispute?.templateId);
+    ((!isUndefined(disputeData.dispute?.arbitrableChainId) && !isUndefined(disputeData.dispute?.templateId)) ||
+      (!isLoadingArchivedData && !isUndefined(archivedData?.populated)));
 
   return useQuery<DisputeDetails>({
-    queryKey: [`DisputeTemplate`, disputeID],
+    queryKey: ["PopulatedDispute", disputeID],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
       if (isEnabled) {
+        if (!isUndefined(archivedData?.populated)) {
+          return archivedData.populated;
+        }
+
         try {
           const { disputeTemplate } = await graphqlBatcher.fetch({
             id: crypto.randomUUID(),
@@ -62,7 +68,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
             arbitrator: klerosCoreAddress[DEFAULT_CHAIN.id],
             arbitratorDisputeID: disputeID,
             arbitrableAddress: arbitrableAddress,
-            arbitrableChainID: disputeData.dispute?.arbitrableChainId,
+            arbitrableChainID: disputeData?.dispute?.arbitrableChainId,
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
           };

@@ -24,6 +24,8 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.periodNotificationIndex = getAndIncrementPeriodCounter(dispute.period);
   dispute.transactionHash = event.transaction.hash.toHexString();
   dispute.evidenceCount = ZERO;
+  dispute.isArchived = false;
+  dispute.archiveCid = null;
   const court = Court.load(courtID);
   if (!court) return;
   // Note: It's okay to use `timesPerPeriod` from court here since, at this point, both are the same.

@@ -56,8 +56,10 @@ const MaintenanceButtons: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [displayRipple, setDisplayRipple] = useState(false);
 
-  const { data } = useDisputeDetailsQuery(id);
+  const { data, isLoading: isLoadingDisputeData } = useDisputeDetailsQuery(id);
   const dispute = data?.dispute;
+
+  const isArchived = Boolean(dispute?.isArchived);
 
   // using interval here instead of useMemo with dispute, since we can't tell when period has timed out,
   // we can use useCountdown, but that would trigger the update every 1 sec. so this is ideal.
@@ -97,7 +99,7 @@ const MaintenanceButtons: React.FC = () => {
   }, [dispute]);
 
   const toggle = () => setIsOpen((prevValue) => !prevValue);
-  return (
+  return isArchived || isLoadingDisputeData ? null : (
     <Container>
       {isOpen ? (
         <>

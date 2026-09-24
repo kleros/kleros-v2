@@ -9,10 +9,7 @@ import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
-import { DEFAULT_CHAIN } from "consts/chains";
-import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
-import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { VotingHistoryQuery } from "hooks/queries/useVotingHistory";
 import { useVotingContext } from "hooks/useVotingContext";
@@ -89,17 +86,14 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
   const { id } = useParams();
   const { isDisconnected } = useAccount();
   const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
-  const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { data: disputeDetails, isLoading: isLoadingDisputeDetails } = useDisputeDetailsQuery(id);
   const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
-  const { data: currentRulingArray, isLoading: isLoadingCurrentRuling } = useReadKlerosCoreCurrentRuling({
-    query: { refetchInterval: REFETCH_INTERVAL },
-    args: [BigInt(id ?? 0)],
-    chainId: DEFAULT_CHAIN.id,
-  });
-  const currentRuling = Number(currentRulingArray?.[0] ?? 0);
+
+  // note that contract and subgraph already handle the ruling if tied, so we don't need to check again
+  const currentRuling = Number(disputeDetails?.dispute?.currentRuling ?? 0);
 
   const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling));
   const buttonText = useMemo(() => {
@@ -116,7 +110,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
         {ruled && (
           <JuryContainer>
             <JuryDecisionTag>{t("voting.jury_decided_in_favor")}</JuryDecisionTag>
-            {isLoadingCurrentRuling ? (
+            {isLoadingDisputeDetails ? (
               <Skeleton height={14} width={60} />
             ) : (
               <AnswerDisplay {...{ answer, currentRuling }} />
@@ -126,7 +120,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
         {!ruled && periodIndex > 1 && BigInt(localRounds?.[localRounds.length - 1]?.totalVoted ?? "0") > 0n && (
           <JuryContainer>
             <JuryDecisionTag>{t("voting.this_option_winning")}</JuryDecisionTag>
-            {isLoadingCurrentRuling ? (
+            {isLoadingDisputeDetails ? (
               <Skeleton height={14} width={60} />
             ) : (
               <AnswerDisplay {...{ answer, currentRuling }} />
