@@ -197,6 +197,7 @@
   "dispute_info": {
     "court": "Corte",
     "round": "Ronda",
+    "round_number": "Ronda {{round}}",
     "category": "Categoría",
     "general": "General",
     "juror_rewards": "Recompensas de jurado",

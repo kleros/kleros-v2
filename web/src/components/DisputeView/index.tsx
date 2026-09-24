@@ -6,7 +6,6 @@ import { Address, formatEther } from "viem";
 import { Periods } from "consts/periods";
 import { useIsList } from "context/IsListProvider";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
-import { isUndefined } from "utils/index";
 
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -45,7 +44,11 @@ const DisputeView: React.FC<IDisputeView> = ({
     currentPeriodIndex === 4
       ? parseInt(lastPeriodChange, 10)
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, currentRound.timesPerPeriod);
-  const { data: populatedDisputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as Address);
+  const {
+    data: populatedDisputeDetails,
+    isError,
+    isPending: isLoading,
+  } = usePopulatedDisputeData(id, arbitrated.id as Address);
 
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
@@ -61,8 +64,7 @@ const DisputeView: React.FC<IDisputeView> = ({
       period={currentPeriodIndex}
       round={parseInt(currentRoundIndex) + 1}
       showLabels
-      {...{ category, rewards, date, overrideIsList }}
-      isLoading={isUndefined(populatedDisputeDetails)}
+      {...{ category, rewards, date, isLoading }}
     />
   ) : (
     <DisputeListView
@@ -72,8 +74,7 @@ const DisputeView: React.FC<IDisputeView> = ({
       court={courtName}
       period={currentPeriodIndex}
       round={parseInt(currentRoundIndex) + 1}
-      showLabels
-      {...{ category, rewards, date }}
+      {...{ category, rewards, date, isLoading }}
     />
   );
 };

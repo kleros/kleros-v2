@@ -72,7 +72,6 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
 
         <DisputeInfo
           isOverview={true}
-          overrideIsList={true}
           courtId={court?.id}
           court={courtName}
           round={localRounds?.length}

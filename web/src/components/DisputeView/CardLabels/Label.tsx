@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import styled, { Theme, useTheme } from "styled-components";
+import styled, { Theme, css, useTheme } from "styled-components";
 
 const COLORS: Record<string, Array<keyof Theme>> = {
   red: ["error", "errorLight"],
@@ -12,7 +12,7 @@ const COLORS: Record<string, Array<keyof Theme>> = {
 
 export type IColors = keyof typeof COLORS;
 
-const LabelContainer = styled.div<{ backgroundColor: string }>`
+const LabelContainer = styled.div<{ contentColor: string; backgroundColor: string; asPill: boolean }>`
   display: inline-flex;
   width: max-content;
   padding: 4px 8px;
@@ -20,6 +20,29 @@ const LabelContainer = styled.div<{ backgroundColor: string }>`
   gap: 8px;
   border-radius: 300px;
   background-color: ${({ backgroundColor }) => backgroundColor};
+
+  ${({ asPill, contentColor }) =>
+    asPill &&
+    css`
+      gap: 6px;
+      height: 24px;
+      padding: 0 12px;
+      border: 1px solid ${`${contentColor}66`};
+      white-space: nowrap;
+
+      label,
+      span {
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      > * + *::before {
+        content: "·";
+        margin-right: 6px;
+        color: ${contentColor};
+        opacity: 0.6;
+      }
+    `}
 `;
 
 const IconContainer = styled.div<{ contentColor: string }>`
@@ -43,20 +66,26 @@ export interface ILabelProps {
   text: string;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
   color: keyof typeof COLORS;
+  asPill?: boolean;
+  /** To render extra items inside the Pill variant. */
+  children?: React.ReactNode;
 }
 
-const Label: React.FC<ILabelProps> = ({ text, icon: Icon, color }) => {
+const Label: React.FC<ILabelProps> = ({ text, icon: Icon, color, asPill = false, children }) => {
   const theme = useTheme();
   const [contentColor, backgroundColor] = useMemo(() => {
     return COLORS[color].map((color) => theme[color]);
   }, [theme, color]);
 
   return (
-    <LabelContainer {...{ backgroundColor }}>
-      <IconContainer {...{ contentColor }}>
-        <Icon />
-      </IconContainer>
+    <LabelContainer {...{ contentColor, backgroundColor, asPill }}>
+      {asPill ? null : (
+        <IconContainer {...{ contentColor }}>
+          <Icon />
+        </IconContainer>
+      )}
       <StyledText {...{ contentColor }}>{text}</StyledText>
+      {asPill ? children : null}
     </LabelContainer>
   );
 };
