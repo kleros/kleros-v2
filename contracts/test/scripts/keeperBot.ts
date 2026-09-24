@@ -1,7 +1,14 @@
 import { expect } from "chai";
 import sinon from "sinon";
 import { DisputeKitClassic } from "../../typechain-types";
-import { DisputeKitResolver, getDisputeKit, withdrawAppealContribution } from "../../scripts/keeperBot";
+import {
+  DisputeKitResolver,
+  getDisputeKit,
+  hasElapsed,
+  Phase,
+  shouldEnterDrawingBlock,
+  withdrawAppealContribution,
+} from "../../scripts/keeperBot";
 
 /**
  * Regression tests for the keeper bot appeal-contribution withdrawal path.
@@ -113,5 +120,63 @@ describe("keeperBot: withdrawAppealContribution", () => {
     expect(success).to.equal(false);
     expect(withdrawFeesAndRewards.estimateGas.called).to.equal(false);
     expect(withdrawFeesAndRewards.called).to.equal(false);
+  });
+});
+
+/**
+ * Regression tests for the keeper bot drawing-phase entry gate.
+ *
+ * minStakingTime only gates the staking -> generating transition, and SortitionModule.passPhase()
+ * uses inclusive `>=` boundaries. A keeper that started while the court was already in generating
+ * or drawing used to skip the whole drawing workflow.
+ *
+ * See https://github.com/kleros/kleros-v2/issues/2574 and #2576.
+ */
+describe("keeperBot: drawing phase gate", () => {
+  describe("hasElapsed", () => {
+    const LAST_PHASE_CHANGE = 1_000n;
+    const THRESHOLD = 60n;
+
+    it("is false before the threshold", () => {
+      expect(hasElapsed(LAST_PHASE_CHANGE + THRESHOLD - 1n, LAST_PHASE_CHANGE, THRESHOLD)).to.equal(false);
+    });
+
+    it("is true exactly at the threshold, matching the contract's >= boundary", () => {
+      expect(hasElapsed(LAST_PHASE_CHANGE + THRESHOLD, LAST_PHASE_CHANGE, THRESHOLD)).to.equal(true);
+    });
+
+    it("is true after the threshold", () => {
+      expect(hasElapsed(LAST_PHASE_CHANGE + THRESHOLD + 1n, LAST_PHASE_CHANGE, THRESHOLD)).to.equal(true);
+    });
+  });
+
+  describe("shouldEnterDrawingBlock", () => {
+    it("enters from staking once minStakingTime has passed", () => {
+      expect(
+        shouldEnterDrawingBlock({ phase: Phase.STAKING, disputesNeedingJurors: 1, minStakingTimePassed: true })
+      ).to.equal(true);
+    });
+
+    it("does not enter from staking before minStakingTime has passed", () => {
+      expect(
+        shouldEnterDrawingBlock({ phase: Phase.STAKING, disputesNeedingJurors: 1, minStakingTimePassed: false })
+      ).to.equal(false);
+    });
+
+    for (const phase of [Phase.GENERATING, Phase.DRAWING]) {
+      it(`enters from ${phase} without waiting for minStakingTime`, () => {
+        expect(shouldEnterDrawingBlock({ phase, disputesNeedingJurors: 1, minStakingTimePassed: false })).to.equal(
+          true
+        );
+      });
+    }
+
+    for (const phase of [Phase.STAKING, Phase.GENERATING, Phase.DRAWING]) {
+      it(`does not enter from ${phase} when no dispute needs jurors`, () => {
+        expect(shouldEnterDrawingBlock({ phase, disputesNeedingJurors: 0, minStakingTimePassed: true })).to.equal(
+          false
+        );
+      });
+    }
   });
 });

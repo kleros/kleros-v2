@@ -84,12 +84,32 @@ enum Period {
   EXECUTION = "execution",
 }
 
-enum Phase {
+export enum Phase {
   STAKING = "staking",
   GENERATING = "generating",
   DRAWING = "drawing",
 }
 const PHASES = Object.values(Phase);
+
+/** Whether `threshold` seconds have elapsed since `lastPhaseChange`. Inclusive, to match the
+ * `>=` boundary used by SortitionModule.passPhase(). */
+export const hasElapsed = (blockTime: bigint, lastPhaseChange: bigint, threshold: bigint): boolean =>
+  blockTime - lastPhaseChange >= threshold;
+
+/** Phase-aware entry gate for the drawing workflow.
+ *  - Already in generating or drawing (advanced by an external actor, or resumed after a keeper
+ *    restart mid-cycle): enter directly. minStakingTime only governs the staking -> generating
+ *    transition; generating -> drawing only requires RNG readiness.
+ *  - In staking: require minStakingTime to have elapsed before advancing. */
+export const shouldEnterDrawingBlock = ({
+  phase,
+  disputesNeedingJurors,
+  minStakingTimePassed,
+}: {
+  phase: Phase;
+  disputesNeedingJurors: number;
+  minStakingTimePassed: boolean;
+}): boolean => disputesNeedingJurors > 0 && (phase !== Phase.STAKING || minStakingTimePassed);
 
 type ResolvedDisputeKit = {
   disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
@@ -647,7 +667,7 @@ async function main() {
     const minStakingTime = await sortition.minStakingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange >= minStakingTime;
+      return hasElapsed(toBigInt(blockTime), lastPhaseChange, minStakingTime);
     });
   };
 
@@ -655,7 +675,7 @@ async function main() {
     const maxDrawingTime = await sortition.maxDrawingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange >= maxDrawingTime;
+      return hasElapsed(toBigInt(blockTime), lastPhaseChange, maxDrawingTime);
     });
   };
 
@@ -721,16 +741,11 @@ async function main() {
 
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
 
-  // Phase-aware dispatch:
-  //  - If already in generating or drawing phase (e.g. advanced by an external actor or resumed
-  //    after a keeper restart mid-cycle), enter the block directly — no minStakingTime gate
-  //    required. minStakingTime only governs the staking -> generating transition
-  //    (SortitionModule.sol); generating -> drawing only requires RNG readiness.
-  //  - Otherwise (phase is staking), require minStakingTime to have elapsed (>= to match contract
-  //    semantics) before advancing from staking through generating into drawing.
-  const enterDrawingBlock =
-    (disputesWithoutJurors.length > 0 && ((await isPhaseGenerating()) || (await isPhaseDrawing()))) ||
-    ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0);
+  const enterDrawingBlock = shouldEnterDrawingBlock({
+    phase: PHASES[getNumber(await sortition.phase())],
+    disputesNeedingJurors: disputesWithoutJurors.length,
+    minStakingTimePassed: await hasMinStakingTimePassed(),
+  });
 
   if (enterDrawingBlock) {
     // ----------------------------------------------- //
