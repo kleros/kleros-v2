@@ -485,14 +485,17 @@ export const withdrawAppealContribution = async (
   contribution: Contribution,
   resolveDisputeKit: DisputeKitResolver = getDisputeKit
 ): Promise<boolean> => {
-  const { disputeKit, localDisputeId, localRoundId } = await resolveDisputeKit(coreDisputeId, coreRoundId);
+  // withdrawFeesAndRewards resolves the local dispute internally and sums over all rounds,
+  // so it must receive the core dispute ID and the contribution's choice. The round ID is
+  // only used here to find the dispute kit handling that round. See issue #2586.
+  const { disputeKit } = await resolveDisputeKit(coreDisputeId, coreRoundId);
   let success = false;
   let amountWithdrawn = 0n;
   try {
     amountWithdrawn = await disputeKit.withdrawFeesAndRewards.staticCall(
-      localDisputeId,
+      coreDisputeId,
       contribution.contributor.id,
-      localRoundId
+      contribution.choice
     );
   } catch {
     logger.warn(
@@ -515,14 +518,14 @@ export const withdrawAppealContribution = async (
     );
     const gas =
       ((await disputeKit.withdrawFeesAndRewards.estimateGas(
-        localDisputeId,
+        coreDisputeId,
         contribution.contributor.id,
-        localRoundId
+        contribution.choice
       )) *
         150n) /
       100n; // 50% extra gas
     const tx = await (
-      await disputeKit.withdrawFeesAndRewards(localDisputeId, contribution.contributor.id, localRoundId, {
+      await disputeKit.withdrawFeesAndRewards(coreDisputeId, contribution.contributor.id, contribution.choice, {
         gasLimit: gas,
       })
     ).wait();
