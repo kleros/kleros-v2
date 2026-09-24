@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { Courts, HomeChains, isSkipped } from "./utils";
+import { findDisputeKitID } from "./utils/klerosCoreHelper";
 import { KlerosCoreNeo } from "../typechain-types";
 
 // Courts where the dispute kit gets enabled, per chain.
@@ -82,14 +83,6 @@ const deployDisputeKitGatedPerCourtNeo: DeployFunction = async (hre: HardhatRunt
     courts.join(", "),
     passportDecoder
   );
-};
-
-const findDisputeKitID = async (core: KlerosCoreNeo, address: string): Promise<number | undefined> => {
-  const length = await core.getDisputeKitsLength();
-  for (let i = 1n; i < length; i++) {
-    if ((await core.disputeKits(i)).toLowerCase() === address.toLowerCase()) return Number(i);
-  }
-  return undefined;
 };
 
 deployDisputeKitGatedPerCourtNeo.tags = ["DisputeKitGatedPerCourtNeo"];

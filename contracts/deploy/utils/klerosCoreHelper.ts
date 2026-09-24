@@ -20,3 +20,15 @@ export const changeCurrencyRate = async (
     await tx.wait();
   }
 };
+
+/// Returns the ID of a dispute kit registered in the core, or undefined if not registered.
+export const findDisputeKitID = async (
+  core: KlerosCore | KlerosCoreNeo,
+  address: string
+): Promise<number | undefined> => {
+  const length = await core.getDisputeKitsLength();
+  for (let i = 1n; i < length; i++) {
+    if ((await core.disputeKits(i)).toLowerCase() === address.toLowerCase()) return Number(i);
+  }
+  return undefined;
+};

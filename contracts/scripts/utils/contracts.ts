@@ -55,7 +55,7 @@ export const getContractNames = (coreType: Core) => {
       disputeKitShutter: "DisputeKitShutter",
       disputeKitGated: "DisputeKitGated",
       disputeKitGatedShutter: "DisputeKitGatedShutter",
-      disputeKitGatedPerCourt: "DisputeKitGatedPerCourt", // only deployed on NEO so far, resolved with getContractOrNull
+      disputeKitGatedPerCourt: "DisputeKitGatedPerCourt", // only deployed on NEO and testnet so far, resolved with getContractOrNull
       disputeResolver: "DisputeResolver",
     },
     [Cores.UNIVERSITY]: {

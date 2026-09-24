@@ -7,6 +7,7 @@ import {IPassportDecoder} from "../arbitration/dispute-kits/DisputeKitGatedPerCo
 /// @title PassportDecoderMock
 /// Mimics the Human Passport decoder on Arbitrum One: `getScore()` reverts for a user without a score attestation
 /// or with an expired one. Also simulates a misbehaving decoder to use in the tests.
+/// Deployed on V2 testnet, where Human Passport is not available: anyone can set any score.
 contract PassportDecoderMock is IPassportDecoder {
     enum Mode {
         Normal,
