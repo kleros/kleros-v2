@@ -37,6 +37,10 @@ contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
     /// recover by pointing to another decoder, by lifting the gates or by upgrading this contract.
     uint256 public constant PASSPORT_GAS_LIMIT = 100_000;
 
+    /// @dev The gas used between the gas check and the Human Passport decoder call (cold account access, calldata),
+    /// so that the decoder always receives PASSPORT_GAS_LIMIT when the check passes.
+    uint256 public constant PASSPORT_CALL_OVERHEAD = 10_000;
+
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -201,17 +205,17 @@ contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
         // If no minimum score is specified, allow all jurors
         if (minPassportScore == 0) return true;
 
-        (bool success, bytes memory result) = address(passportDecoder).staticcall{gas: PASSPORT_GAS_LIMIT}(
+        // Prevents the caller from making the call fail on purpose by providing too little gas (EIP-150), which would
+        // let them skip the jurors they do not want drawn: the decoder always gets the full PASSPORT_GAS_LIMIT, so a
+        // failed call does not depend on the caller. Checked before the call because the gas left after a failed call
+        // does not tell whether it was starved: the nested calls of the decoder return the 1/64 of the gas they kept.
+        IPassportDecoder decoder = passportDecoder;
+        if (gasleft() < (PASSPORT_GAS_LIMIT * 64) / 63 + PASSPORT_CALL_OVERHEAD) revert NotEnoughGasForPassportCheck();
+
+        (bool success, bytes memory result) = address(decoder).staticcall{gas: PASSPORT_GAS_LIMIT}(
             abi.encodeCall(IPassportDecoder.getScore, (_juror))
         );
-        if (!success) {
-            // Prevents the caller from making the call fail on purpose by providing too little gas (EIP-150),
-            // which would let them skip the jurors they do not want drawn. If the call was starved, at most 1/64 of
-            // the gas available before the call remains, which is below PASSPORT_GAS_LIMIT / 63.
-            if (gasleft() <= PASSPORT_GAS_LIMIT / 63) revert NotEnoughGasForPassportCheck();
-            return false;
-        }
-        if (result.length < 32) return false;
+        if (!success || result.length < 32) return false;
         return abi.decode(result, (uint256)) >= minPassportScore;
     }
 

@@ -6,7 +6,7 @@ import {Vm} from "forge-std/Vm.sol";
 import {KlerosCoreMock, KlerosCoreBase} from "../../src/test/KlerosCoreMock.sol";
 import {DisputeKitClassic, DisputeKitClassicBase} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitGatedPerCourt, IPassportDecoder} from "../../src/arbitration/dispute-kits/DisputeKitGatedPerCourt.sol";
-import {PassportDecoderMock} from "../../src/test/PassportDecoderMock.sol";
+import {PassportDecoderMock, PassportDecoderImplMock, PassportResolverMock, DelegateProxyMock} from "../../src/test/PassportDecoderMock.sol";
 import {SortitionModuleMock} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {Initializable} from "../../src/proxy/Initializable.sol";
@@ -33,6 +33,7 @@ contract DisputeKitGatedPerCourtTest is Test {
     uint256 constant STAKE = 20000;
     uint256 constant FEE_FOR_JUROR = 0.03 ether;
     uint256 constant MIN_PASSPORT_SCORE = 200000; // 20 with 4 decimals
+    uint256 constant NESTED_DECODER_WORK_ITERATIONS = 500; // getScore() of the nested decoder: ~59k gas warm, ~71k cold
 
     KlerosCoreMock core;
     DisputeKitClassic disputeKitClassic;
@@ -657,8 +658,8 @@ contract DisputeKitGatedPerCourtTest is Test {
         }
     }
 
-    /// @dev When the decoder call fails for lack of gas, the draw reverts instead of rejecting the juror.
-    /// A decoder burning all the gas forwarded makes it observable: the juror rejection that follows is cheap.
+    /// @dev Without enough gas to give the decoder the full PASSPORT_GAS_LIMIT, the draw reverts instead of rejecting
+    /// the juror. A decoder burning all the gas forwarded makes it observable: the juror rejection that follows is cheap.
     function test_draw_passportGate_notEnoughGasReverts() public {
         uint256 disputeID = _setupEligibleStaker1();
         passportDecoder.setMode(PassportDecoderMock.Mode.BurnAllGas);
@@ -671,7 +672,11 @@ contract DisputeKitGatedPerCourtTest is Test {
             );
             if (success) {
                 assertEq(_nbVoters(disputeID, 0), 0, "Nobody should be drawn");
-                assertGe(gasLimit, (gatedDK.PASSPORT_GAS_LIMIT() * 64) / 63, "Rejected with too little gas");
+                assertGe(
+                    gasLimit,
+                    (gatedDK.PASSPORT_GAS_LIMIT() * 64) / 63 + gatedDK.PASSPORT_CALL_OVERHEAD(),
+                    "Rejected with too little gas"
+                );
             } else if (
                 result.length >= 4 && bytes4(result) == DisputeKitGatedPerCourt.NotEnoughGasForPassportCheck.selector
             ) {
@@ -680,6 +685,84 @@ contract DisputeKitGatedPerCourtTest is Test {
             vm.revertTo(snapshot);
         }
         assertTrue(guardTriggered, "The gas guard should have triggered");
+    }
+
+    /// @dev Same as test_draw_passportGate_notEnoughGasNeverSkipsEligibleJuror with a decoder shaped like the real one
+    /// (proxy -> implementation -> resolver proxy -> resolver implementation) and heavier than it, e.g. after an
+    /// upgrade: when the call runs out of gas in the deepest frame, the outer frames of the decoder return the 1/64
+    /// of the gas they kept, so the gas left after the call cannot tell a starved call from a failing one.
+    /// Isolated: each draw below is a transaction of its own, with cold accesses like a real draw.
+    /// forge-config: default.isolate = true
+    function test_draw_passportGate_notEnoughGasNeverSkipsEligibleJuror_nestedDecoder() public {
+        uint256 disputeID = _setupEligibleStaker1();
+        PassportResolverMock resolver = _setNestedPassportDecoder(NESTED_DECODER_WORK_ITERATIONS);
+        resolver.setScore(staker1, MIN_PASSPORT_SCORE);
+
+        // Not the first draw: the drawIterations SSTORE from zero would need more gas than a skipped juror leaves.
+        core.draw(disputeID, 1);
+        assertEq(_nbVoters(disputeID, 0), 1, "Eligible juror should be drawn");
+
+        uint256 drawn;
+        for (uint256 gasLimit = 30_000; gasLimit <= 300_000; gasLimit += 50) {
+            uint256 snapshot = vm.snapshot();
+            (bool success, ) = address(core).call{gas: gasLimit}(abi.encodeCall(KlerosCoreBase.draw, (disputeID, 1)));
+            if (success) {
+                assertEq(_nbVoters(disputeID, 0), 2, "Eligible juror skipped");
+                drawn++;
+            }
+            vm.revertTo(snapshot);
+        }
+        assertGt(drawn, 0, "The eligible juror should be drawn with enough gas");
+    }
+
+    /// @dev Whenever the draw goes through, the decoder received the full PASSPORT_GAS_LIMIT: the decoder returns the
+    /// gas it received as the score, and the minimum score is what it returns with the full limit.
+    /// Isolated: each draw below is a transaction of its own, where the cold access to the decoder costs the most.
+    /// forge-config: default.isolate = true
+    function test_draw_passportGate_decoderAlwaysGetsFullGasLimit() public {
+        uint256 disputeID = _setupEligibleStaker1();
+        passportDecoder.setMode(PassportDecoderMock.Mode.GasLeft);
+        (, bytes memory result) = address(passportDecoder).staticcall{gas: gatedDK.PASSPORT_GAS_LIMIT()}(
+            abi.encodeCall(IPassportDecoder.getScore, (staker1))
+        );
+        _setMinPassportScore(PARENT_COURT, abi.decode(result, (uint256)));
+
+        // Not the first draw: less gas needed after the decoder call, the closest to the gas check a draw can succeed.
+        core.draw(disputeID, 1);
+        assertEq(_nbVoters(disputeID, 0), 1, "Eligible juror should be drawn");
+
+        // Coarse search of the lowest gas limit letting the draw through, then gas limits around it one by one:
+        // a decoder receiving slightly less than the limit would only happen right above the gas check.
+        uint256 firstSuccess;
+        for (uint256 gasLimit = 30_000; gasLimit <= 400_000 && firstSuccess == 0; gasLimit += 1_000) {
+            if (_drawOnceWithGas(disputeID, gasLimit)) firstSuccess = gasLimit;
+        }
+        assertGt(firstSuccess, 0, "The eligible juror should be drawn with enough gas");
+        for (uint256 gasLimit = firstSuccess - 1_000; gasLimit <= firstSuccess + 1_000; gasLimit++) {
+            _drawOnceWithGas(disputeID, gasLimit);
+        }
+    }
+
+    /// @dev Draws once with `_gasLimit` and reverts the state. If the draw goes through, the juror must be drawn again.
+    /// @return success Whether the draw went through.
+    function _drawOnceWithGas(uint256 _disputeID, uint256 _gasLimit) internal returns (bool success) {
+        uint256 snapshot = vm.snapshot();
+        (success, ) = address(core).call{gas: _gasLimit}(abi.encodeCall(KlerosCoreBase.draw, (_disputeID, 1)));
+        if (success) assertEq(_nbVoters(_disputeID, 0), 2, "Decoder received less than PASSPORT_GAS_LIMIT");
+        vm.revertTo(snapshot);
+    }
+
+    /// @dev Deploys a decoder shaped like the real one on Arbitrum One and sets it in the dispute kit.
+    /// @param _workIterations The work done by the deepest frame, see PassportResolverMock.
+    /// @return resolver The resolver holding the scores.
+    function _setNestedPassportDecoder(uint256 _workIterations) internal returns (PassportResolverMock resolver) {
+        resolver = PassportResolverMock(address(new DelegateProxyMock(address(new PassportResolverMock()))));
+        resolver.setWorkIterations(_workIterations);
+        IPassportDecoder decoder = IPassportDecoder(
+            address(new DelegateProxyMock(address(new PassportDecoderImplMock(resolver))))
+        );
+        vm.prank(governor);
+        gatedDK.changePassportDecoder(decoder);
     }
 
     function _setupEligibleStaker1() internal returns (uint256 disputeID) {
