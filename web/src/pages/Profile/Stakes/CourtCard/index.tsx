@@ -6,14 +6,13 @@ import { Hash } from "viem";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
-import NewTabIcon from "svgs/icons/new-tab.svg";
-
 import { formatDate } from "utils/date";
 import { getTxnExplorerLink } from "utils/index";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { StyledArrowLink } from "components/StyledArrowLink";
+import NewTabIcon from "components/StyledIcons/NewTabIcon";
 
 import CourtName from "./CourtName";
 import Stake from "./Stake";

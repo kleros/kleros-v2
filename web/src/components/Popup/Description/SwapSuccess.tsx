@@ -80,7 +80,7 @@ const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim }) => {
       )}
       <StyledDivider />
       <StyledButton
-        onClick={() => window.open(baseUrl, "_blank", "rel=noopener noreferrer")}
+        onPress={() => window.open(baseUrl, "_blank", "rel=noopener noreferrer")}
         text={t("buttons.view_transaction_etherscan")}
         Icon={ArrowIcon}
       />

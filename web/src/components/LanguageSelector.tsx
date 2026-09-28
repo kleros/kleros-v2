@@ -20,9 +20,8 @@ const Label = styled.label`
 `;
 
 const LanguageOptions = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
   gap: 12px;
 `;
 
@@ -32,11 +31,13 @@ const LanguageButton = styled.button<{ $isActive: boolean }>`
   border: 2px solid ${({ theme, $isActive }) => ($isActive ? theme.primaryBlue : theme.stroke)};
   background-color: ${({ theme, $isActive }) => ($isActive ? theme.mediumBlue : theme.whiteBackground)};
   color: ${({ theme, $isActive }) => ($isActive ? theme.primaryBlue : theme.secondaryText)};
+  font-size: 14px;
   font-weight: ${({ $isActive }) => ($isActive ? "600" : "400")};
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 
   &:hover {

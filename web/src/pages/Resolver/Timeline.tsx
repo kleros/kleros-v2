@@ -8,6 +8,10 @@ import { Steps } from "@kleros/ui-components-library";
 
 const StyledSteps = styled(Steps)`
   height: 360px;
+
+  h2 {
+    margin: 0;
+  }
 `;
 
 const Timeline: React.FC = () => {

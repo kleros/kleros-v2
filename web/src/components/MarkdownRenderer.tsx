@@ -20,6 +20,32 @@ const MarkdownContainer = styled.div`
     font-size: 16px;
   }
 
+  /* The ui-components-library's Tailwind preflight zeroes margins and removes list
+     markers globally; restore the browser defaults for authored content. */
+  p,
+  ul,
+  ol,
+  pre {
+    margin: 1em 0;
+  }
+
+  li > ul,
+  li > ol {
+    margin: 0;
+  }
+
+  hr {
+    margin: 0.5em 0;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
   a {
     pointer-events: none;
     cursor: pointer;

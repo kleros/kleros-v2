@@ -3,8 +3,6 @@ import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import NewTabIcon from "svgs/icons/new-tab.svg";
-
 import { useReadDisputeKitClassicUniversityInstructor } from "hooks/contracts/generated";
 import { shortenAddress } from "utils/shortenAddress";
 
@@ -12,10 +10,11 @@ import { Features } from "src/dispute-kits/types";
 import { getAddressExplorerLink } from "src/utils";
 
 import { ExternalLink } from "components/ExternalLink";
+import NewTabIcon from "components/StyledIcons/NewTabIcon";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-import { RadioInput, StyledRadio } from ".";
+import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
 const InstructorContainer = styled.div`
   padding-left: 32px;
@@ -46,7 +45,7 @@ const UniversityVote: React.FC<RadioInput> = (props) => {
   return (
     <Fragment key={Features.UniversityVote}>
       <WithHelpTooltip tooltipMsg={t("features.university_vote_tooltip")}>
-        <StyledRadio label={t("features.university_vote")} small {...props} />
+        <FeatureRadio {...props} label={t("features.university_vote")} />
       </WithHelpTooltip>
       {props.checked && isLoadingInstructor ? (
         <InstructorContainer>
