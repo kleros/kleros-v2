@@ -116,14 +116,15 @@ const appKit = createAppKit({
   allowUnsupportedChain: true,
   themeVariables: {
     "--w3m-color-mix": lightTheme.primaryPurple,
-    "--w3m-color-mix-strength": 20,
+    "--w3m-color-mix-strength": 10,
+    "--w3m-border-radius-master": "2px",
     // overlay portal is at 9999
     "--w3m-z-index": 10000,
   },
   features: {
-    // adding these here to toggle in futute if needed
+    connectMethodsOrder: ["email", "social", "wallet"],
+    socials: ["google", "apple", "x", "discord", "github"],
     // email: false,
-    // socials: false,
     // onramp:false,
     // swap: false
   },
@@ -134,7 +135,7 @@ const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   // AppKit forwards mode and accent to the social-login wallet iframe, where the approval popup renders.
   useEffect(() => {
     appKit.setThemeMode(theme.name === "light" ? "light" : "dark");
-    appKit.setThemeVariables({ "--w3m-accent": theme.primaryPurple });
+    appKit.setThemeVariables({ "--w3m-accent": theme.secondaryPurple });
   }, [theme]);
 
   return <WagmiProvider config={wagmiAdapter.wagmiConfig}> {children} </WagmiProvider>;
