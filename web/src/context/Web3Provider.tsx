@@ -11,6 +11,7 @@ import {
 } from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { W3mFrameProvider } from "@reown/appkit-wallet";
 import { fallback, http, WagmiProvider, webSocket } from "wagmi";
 
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
@@ -26,6 +27,18 @@ if (!alchemyApiKey) {
 }
 
 const isProduction = isProductionDeployment();
+
+// TEMP
+// The email/social wallet answers eth_chainId with a CAIP-2 id ("eip155:421614"), which viem cannot parse.
+// Must run before any wallet client is created: viem binds provider.request at client creation.
+// https://github.com/reown-com/appkit/issues/5764
+const frameRequest = W3mFrameProvider.prototype.request;
+W3mFrameProvider.prototype.request = async function (args) {
+  const result = await frameRequest.call(this, args);
+  return args.method === "eth_chainId" && typeof result === "string" && result.startsWith("eip155:")
+    ? Number(result.slice("eip155:".length))
+    : result;
+};
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/types/types.ts#L98-L153
 const alchemyToViemChain: Record<number, string> = {
