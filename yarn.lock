@@ -5736,8 +5736,10 @@ __metadata:
     "@kleros/ui-components-library": "npm:^2.20.0"
     "@lifi/wallet-management": "npm:^3.7.1"
     "@lifi/widget": "npm:^3.18.1"
+    "@netlify/blobs": "npm:^8.2.0"
     "@reown/appkit": "npm:^1.7.1"
     "@reown/appkit-adapter-wagmi": "npm:^1.7.1"
+    "@reown/appkit-wallet": "npm:1.7.1"
     "@sentry/react": "npm:^7.120.0"
     "@sentry/tracing": "npm:^7.120.0"
     "@solana/wallet-adapter-react": "npm:^0.15.36"
@@ -6736,6 +6738,13 @@ __metadata:
     uint8-varint: "npm:^2.0.1"
     uint8arrays: "npm:^5.0.0"
   checksum: 10/12f7606391ccdab31c571b5fd3546f32b9f74bb1da6a3255b71d4606619dee2a94c34b7ada2dfd5ea023a4fb01141170510e872e1d0567197482241b42ad2d9d
+  languageName: node
+  linkType: hard
+
+"@netlify/blobs@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@netlify/blobs@npm:8.2.0"
+  checksum: 10/3b34a04fbda6039cdd963e54f28ead9711933c0639d1ccbd01436200e20b97f8bb80e5165ba3e5de1ae3dcb0bff840b6246a1f86fe849ba93c042eb46e6ee6ca
   languageName: node
   linkType: hard
 

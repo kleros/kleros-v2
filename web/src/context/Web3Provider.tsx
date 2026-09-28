@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useTheme } from "styled-components";
 
 import {
   mainnet,
@@ -11,6 +12,7 @@ import {
 } from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { W3mFrameProvider } from "@reown/appkit-wallet";
 import { fallback, http, WagmiProvider, webSocket } from "wagmi";
 
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
@@ -26,6 +28,18 @@ if (!alchemyApiKey) {
 }
 
 const isProduction = isProductionDeployment();
+
+// TEMP
+// The email/social wallet answers eth_chainId with a CAIP-2 id ("eip155:421614"), which viem cannot parse.
+// Must run before any wallet client is created: viem binds provider.request at client creation.
+// https://github.com/reown-com/appkit/issues/5764
+const frameRequest = W3mFrameProvider.prototype.request;
+W3mFrameProvider.prototype.request = async function (args) {
+  const result = await frameRequest.call(this, args);
+  return args.method === "eth_chainId" && typeof result === "string" && result.startsWith("eip155:")
+    ? Number(result.slice("eip155:".length))
+    : result;
+};
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/types/types.ts#L98-L153
 const alchemyToViemChain: Record<number, string> = {
@@ -94,7 +108,7 @@ configureSDK({
   },
 });
 
-createAppKit({
+const appKit = createAppKit({
   adapters: [wagmiAdapter],
   networks: chains,
   defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
@@ -115,6 +129,14 @@ createAppKit({
   },
 });
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const theme = useTheme();
+
+  // AppKit forwards mode and accent to the social-login wallet iframe, where the approval popup renders.
+  useEffect(() => {
+    appKit.setThemeMode(theme.name === "light" ? "light" : "dark");
+    appKit.setThemeVariables({ "--w3m-accent": theme.primaryPurple });
+  }, [theme]);
+
   return <WagmiProvider config={wagmiAdapter.wagmiConfig}> {children} </WagmiProvider>;
 };
 
