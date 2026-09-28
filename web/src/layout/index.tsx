@@ -7,6 +7,7 @@ import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import { OverlayScrollContext } from "context/OverlayScrollContext";
+import { useRecordWalletConnection } from "hooks/useRecordWalletConnection";
 
 import Footer from "./Footer";
 import Header from "./Header";
@@ -36,6 +37,7 @@ const OutletContainer = styled.div`
 
 const Layout: React.FC = () => {
   const containerRef = useRef(null);
+  useRecordWalletConnection();
 
   return (
     <OverlayScrollContext.Provider value={containerRef}>

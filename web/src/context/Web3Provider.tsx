@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useTheme } from "styled-components";
 
 import {
   mainnet,
@@ -107,7 +108,7 @@ configureSDK({
   },
 });
 
-createAppKit({
+const appKit = createAppKit({
   adapters: [wagmiAdapter],
   networks: chains,
   defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
@@ -128,6 +129,14 @@ createAppKit({
   },
 });
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const theme = useTheme();
+
+  // AppKit forwards mode and accent to the social-login wallet iframe, where the approval popup renders.
+  useEffect(() => {
+    appKit.setThemeMode(theme.name === "light" ? "light" : "dark");
+    appKit.setThemeVariables({ "--w3m-accent": theme.primaryPurple });
+  }, [theme]);
+
   return <WagmiProvider config={wagmiAdapter.wagmiConfig}> {children} </WagmiProvider>;
 };
 
