@@ -30,7 +30,7 @@ interface IPassportDecoder {
 /// court supports this dispute kit. The gates are evaluated at drawing time, so a change applies to the next draws
 /// of the disputes already created.
 contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
-    string public constant override version = "0.1.0";
+    string public constant override version = "0.12.0";
 
     /// @dev The gas forwarded to the Human Passport decoder. `getScore()` uses ~24k gas on Arbitrum One (cold).
     /// If a decoder upgrade makes it cost more, every juror becomes ineligible in the gated courts: governance can
@@ -55,8 +55,8 @@ contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
     // *             Storage               * //
     // ************************************* //
 
-    mapping(uint96 courtID => TokenGate) public courtTokenGates; // The token gate of each court.
     IPassportDecoder public passportDecoder; // The Human Passport decoder.
+    mapping(uint96 courtID => TokenGate) public courtTokenGates; // The token gate of each court.
     mapping(uint96 courtID => uint256) public courtMinPassportScores; // The minimum Human Passport score of each court (4 decimals), 0 for no gating.
 
     // ************************************* //

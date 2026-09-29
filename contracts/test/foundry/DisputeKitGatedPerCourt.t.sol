@@ -295,7 +295,7 @@ contract DisputeKitGatedPerCourtTest is Test {
         assertEq(gatedDK.governor(), governor, "Wrong governor");
         assertEq(address(gatedDK.core()), address(core), "Wrong core");
         assertEq(gatedDK.wNative(), address(wNative), "Wrong wNative");
-        assertEq(gatedDK.version(), "0.1.0", "Wrong version");
+        assertEq(gatedDK.version(), "0.12.0", "Wrong version");
         assertEq(gatedDK.singleDrawPerJuror(), false, "singleDrawPerJuror should be false");
         assertEq(address(core.disputeKits(GATED_DK_ID)), address(gatedDK), "Wrong DK registered");
         assertEq(address(gatedDK.passportDecoder()), address(passportDecoder), "Wrong passport decoder");
