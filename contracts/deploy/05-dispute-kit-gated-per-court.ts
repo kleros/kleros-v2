@@ -11,6 +11,7 @@ import { DisputeKitGatedPerCourt, KlerosCore } from "../typechain-types";
 // - testnet: 8 (Agentic Commerce) and its parent 7 (Commerce), gated by Human Passport score in 7 only,
 //   mirroring the Arbitrum One setup for courts 34 and 33.
 // - hardhat/localhost (local testing): the General court, gated by Human Passport score.
+// Each juror can only be drawn once per round in all the configured courts.
 const CONFIG: Record<string, { courts: number[]; passportGates: Record<number, bigint> }> = {
   arbitrumSepolia: { courts: [8, 7], passportGates: { 7: 200000n } }, // 200000 is a score of 20
   hardhat: { courts: [Courts.GENERAL], passportGates: { [Courts.GENERAL]: 200000n } },
@@ -96,6 +97,17 @@ const deployDisputeKitGatedPerCourt: DeployFunction = async (hre: HardhatRuntime
       continue;
     }
     await (await disputeKit.changeCourtMinPassportScore(courtID, minScore)).wait();
+  }
+
+  // Single draw per juror in all the configured courts
+  for (const courtID of config.courts) {
+    if (await disputeKit.courtSingleDrawPerJuror(courtID)) continue;
+    console.log(`disputeKit.changeCourtSingleDrawPerJuror(${courtID}, true)`);
+    if (!isDKGovernor) {
+      console.warn("deployer %s is not the dispute kit governor (%s), tx not sent", deployer, dkGovernor);
+      continue;
+    }
+    await (await disputeKit.changeCourtSingleDrawPerJuror(courtID, true)).wait();
   }
   console.log(
     "REMINDER: set the jurors' Human Passport scores on PassportDecoderMock (%s) with setScore(juror, score), " +

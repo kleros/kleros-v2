@@ -3,13 +3,14 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { Courts, HomeChains, isSkipped } from "./utils";
 import { findDisputeKitID } from "./utils/klerosCoreHelper";
-import { KlerosCoreNeo } from "../typechain-types";
+import { DisputeKitGatedPerCourt, KlerosCoreNeo } from "../typechain-types";
 
 // Courts where the dispute kit gets enabled, per chain.
 // - Arbitrum One: 34 (Agentic Commerce) and its parent 33 (Commerce), so that a dispute can still use this DK
 //   after a court jump from 34 to 33 (a court jump keeps the DK only if the parent court supports it).
 // - Hardhat (local testing): the General court only, as the mainnet courts do not exist there.
 // Arbitrum Sepolia (devnet/testnet) is skipped: it runs KlerosCore (BASE), not KlerosCoreNeo.
+// Each juror can only be drawn once per round in these courts.
 const COURTS_TO_ENABLE: Partial<Record<HomeChains, number[]>> = {
   [HomeChains.ARBITRUM_ONE]: [34, 33],
   [HomeChains.HARDHAT]: [Courts.GENERAL],
@@ -39,6 +40,21 @@ const deployDisputeKitGatedPerCourtNeo: DeployFunction = async (hre: HardhatRunt
     args: [deployer, core.target, weth.address, passportDecoder],
     log: true,
   }); // proxy contract: DisputeKitGatedPerCourtNeoProxy
+  const courts = COURTS_TO_ENABLE[chainId as HomeChains] ?? [];
+
+  // Single draw per juror in the configured courts, the deployer being the dispute kit governor on a fresh deployment
+  const dk = await ethers.getContract<DisputeKitGatedPerCourt>("DisputeKitGatedPerCourtNeo");
+  const dkGovernor = await dk.governor();
+  const isDKGovernor = dkGovernor.toLowerCase() === deployer.toLowerCase();
+  for (const courtID of courts) {
+    if (await dk.courtSingleDrawPerJuror(courtID)) continue;
+    console.log(`DisputeKitGatedPerCourtNeo.changeCourtSingleDrawPerJuror(${courtID}, true)`);
+    if (!isDKGovernor) {
+      console.warn("deployer %s is not the dispute kit governor (%s), tx not sent", deployer, dkGovernor);
+      continue;
+    }
+    await (await dk.changeCourtSingleDrawPerJuror(courtID, true)).wait();
+  }
 
   const governor = await core.governor();
   const isGovernor = governor.toLowerCase() === deployer.toLowerCase();
@@ -62,7 +78,6 @@ const deployDisputeKitGatedPerCourtNeo: DeployFunction = async (hre: HardhatRunt
   console.log("DisputeKitGatedPerCourtNeo has disputeKitID %d", disputeKitID);
 
   // Enable the dispute kit in the configured courts, skipping the courts already supporting it
-  const courts = COURTS_TO_ENABLE[chainId as HomeChains] ?? [];
   for (const courtID of courts) {
     if (await core.isSupported(courtID, disputeKitID)) {
       console.log("court %d already supports disputeKitID %d, skipping", courtID, disputeKitID);

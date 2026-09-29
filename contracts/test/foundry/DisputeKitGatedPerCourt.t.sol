@@ -54,6 +54,7 @@ contract DisputeKitGatedPerCourtTest is Test {
     address guardian;
     address staker1;
     address staker2;
+    address staker3;
     address disputer;
     address crowdfunder1;
     address crowdfunder2;
@@ -71,6 +72,7 @@ contract DisputeKitGatedPerCourtTest is Test {
         guardian = vm.addr(1);
         staker1 = vm.addr(2);
         staker2 = vm.addr(3);
+        staker3 = vm.addr(7);
         disputer = vm.addr(4);
         crowdfunder1 = vm.addr(5);
         crowdfunder2 = vm.addr(6);
@@ -85,6 +87,7 @@ contract DisputeKitGatedPerCourtTest is Test {
         wNative = new TestERC20("wrapped ETH", "wETH");
         pinakion.transfer(staker1, 1 ether);
         pinakion.transfer(staker2, 1 ether);
+        pinakion.transfer(staker3, 1 ether);
 
         // Gate tokens, owned/minted by this test contract.
         gateERC20 = new TestERC20("Gate20", "G20");
@@ -157,6 +160,8 @@ contract DisputeKitGatedPerCourtTest is Test {
         pinakion.approve(address(core), 1 ether);
         vm.prank(staker2);
         pinakion.approve(address(core), 1 ether);
+        vm.prank(staker3);
+        pinakion.approve(address(core), 1 ether);
 
         DisputeTemplateRegistry registryLogic = new DisputeTemplateRegistry();
         registry = DisputeTemplateRegistry(
@@ -218,6 +223,11 @@ contract DisputeKitGatedPerCourtTest is Test {
         gatedDK.changeCourtMinPassportScore(_courtID, _minPassportScore);
     }
 
+    function _setSingleDrawPerJuror(uint96 _courtID, bool _singleDrawPerJuror) internal {
+        vm.prank(governor);
+        gatedDK.changeCourtSingleDrawPerJuror(_courtID, _singleDrawPerJuror);
+    }
+
     function _extraData(uint96 _courtID) internal pure returns (bytes memory) {
         return abi.encodePacked(uint256(_courtID), DEFAULT_NB_OF_JURORS, GATED_DK_ID);
     }
@@ -259,6 +269,13 @@ contract DisputeKitGatedPerCourtTest is Test {
         }
     }
 
+    function _assertDistinctVoters(uint256 _disputeID, uint256 _roundID) internal view {
+        uint256 nbVoters = _nbVoters(_disputeID, _roundID);
+        for (uint256 i = 0; i < nbVoters; i++) {
+            assertEq(_countVotesOf(_disputeID, _roundID, _voter(_disputeID, _roundID, i)), 1, "Juror drawn twice");
+        }
+    }
+
     /// @dev Round 0: every drawn juror votes choice 2, then the dispute moves to the appeal period.
     function _voteAndPassToAppeal(uint256 _disputeID) internal {
         vm.warp(block.timestamp + timesPerPeriod[0]);
@@ -297,6 +314,7 @@ contract DisputeKitGatedPerCourtTest is Test {
         assertEq(gatedDK.wNative(), address(wNative), "Wrong wNative");
         assertEq(gatedDK.version(), "0.12.0", "Wrong version");
         assertEq(gatedDK.singleDrawPerJuror(), false, "singleDrawPerJuror should be false");
+        assertEq(gatedDK.courtSingleDrawPerJuror(PARENT_COURT), false, "courtSingleDrawPerJuror should be false");
         assertEq(address(core.disputeKits(GATED_DK_ID)), address(gatedDK), "Wrong DK registered");
         assertEq(address(gatedDK.passportDecoder()), address(passportDecoder), "Wrong passport decoder");
 
@@ -471,6 +489,26 @@ contract DisputeKitGatedPerCourtTest is Test {
         emit DisputeKitGatedPerCourt.CourtMinPassportScoreChanged(PARENT_COURT, 0);
         _setMinPassportScore(PARENT_COURT, 0);
         assertEq(gatedDK.courtMinPassportScores(PARENT_COURT), 0, "Should be ungated");
+    }
+
+    function test_changeCourtSingleDrawPerJuror_onlyGovernor() public {
+        vm.prank(other);
+        vm.expectRevert(DisputeKitClassicBase.GovernorOnly.selector);
+        gatedDK.changeCourtSingleDrawPerJuror(PARENT_COURT, true);
+    }
+
+    function test_changeCourtSingleDrawPerJuror_setsAndEmits() public {
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitGatedPerCourt.CourtSingleDrawPerJurorChanged(PARENT_COURT, true);
+        _setSingleDrawPerJuror(PARENT_COURT, true);
+        assertEq(gatedDK.courtSingleDrawPerJuror(PARENT_COURT), true, "Should be single draw");
+        assertEq(gatedDK.courtSingleDrawPerJuror(CHILD_COURT), false, "Child court should not be single draw");
+        assertEq(gatedDK.singleDrawPerJuror(), false, "Global setting should not change");
+
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitGatedPerCourt.CourtSingleDrawPerJurorChanged(PARENT_COURT, false);
+        _setSingleDrawPerJuror(PARENT_COURT, false);
+        assertEq(gatedDK.courtSingleDrawPerJuror(PARENT_COURT), false, "Should not be single draw");
     }
 
     // ************************************* //
@@ -818,6 +856,98 @@ contract DisputeKitGatedPerCourtTest is Test {
     }
 
     // ************************************* //
+    // *        Single draw per juror      * //
+    // ************************************* //
+
+    function test_draw_singleDrawPerJuror() public {
+        _setSingleDrawPerJuror(PARENT_COURT, true);
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+        _stake(staker2, PARENT_COURT, STAKE);
+        _stake(staker3, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, 100);
+
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "All votes should be drawn");
+        _assertDistinctVoters(disputeID, 0);
+        assertGt(core.getRoundInfo(disputeID, 0).drawIterations, DEFAULT_NB_OF_JURORS, "No juror drawn twice?");
+    }
+
+    /// @dev A setting on another court must not affect this one: a single juror gets every vote.
+    function test_draw_singleDrawPerJuror_otherCourt() public {
+        _setSingleDrawPerJuror(CHILD_COURT, true);
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "All votes should be drawn");
+        _assertAllVotersAre(disputeID, 0, staker1);
+    }
+
+    /// @dev Fewer distinct eligible jurors than votes: the drawing stalls until the setting is disabled.
+    function test_draw_singleDrawPerJuror_notEnoughJurors() public {
+        _setSingleDrawPerJuror(PARENT_COURT, true);
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+        _stake(staker2, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, 100);
+        assertEq(_nbVoters(disputeID, 0), 2, "Only 2 distinct jurors should be drawn");
+        _assertDistinctVoters(disputeID, 0);
+        assertEq(sortitionModule.disputesWithoutJurors(), 1, "Dispute should still be without jurors");
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        vm.expectRevert(KlerosCoreBase.DisputeStillDrawing.selector);
+        core.passPeriod(disputeID);
+
+        _setSingleDrawPerJuror(PARENT_COURT, false);
+        core.draw(disputeID, 100);
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "Drawing should complete once disabled");
+        assertEq(sortitionModule.disputesWithoutJurors(), 0, "Dispute should be fully drawn");
+    }
+
+    /// @dev Enabled in the middle of a round: the juror drawn before cannot be drawn again.
+    function test_draw_singleDrawPerJuror_enabledMidRound() public {
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+        _stake(staker2, PARENT_COURT, STAKE);
+        _stake(staker3, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, 1);
+        assertEq(_nbVoters(disputeID, 0), 1, "One vote should be drawn");
+
+        _setSingleDrawPerJuror(PARENT_COURT, true);
+        core.draw(disputeID, 100);
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "All votes should be drawn");
+        _assertDistinctVoters(disputeID, 0);
+        assertGt(core.getRoundInfo(disputeID, 0).drawIterations, DEFAULT_NB_OF_JURORS, "No juror drawn twice?");
+    }
+
+    /// @dev Combined with a token gate: only the distinct holders are drawn, the non-holder is never drawn.
+    function test_draw_singleDrawPerJuror_withTokenGate() public {
+        gateERC721.safeMint(staker2);
+        gateERC721.safeMint(staker3);
+        _setGate(PARENT_COURT, address(gateERC721), false, 0);
+        _setSingleDrawPerJuror(PARENT_COURT, true);
+        arbitrable.changeArbitratorExtraData(_extraData(PARENT_COURT));
+        _stake(staker1, PARENT_COURT, STAKE);
+        _stake(staker2, PARENT_COURT, STAKE);
+        _stake(staker3, PARENT_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+        core.draw(disputeID, 100);
+
+        assertEq(_nbVoters(disputeID, 0), 2, "Only the 2 holders should be drawn");
+        assertEq(_countVotesOf(disputeID, 0, staker1), 0, "Non-holder drawn");
+        assertEq(_countVotesOf(disputeID, 0, staker2), 1, "Holder staker2 should be drawn once");
+        assertEq(_countVotesOf(disputeID, 0, staker3), 1, "Holder staker3 should be drawn once");
+    }
+
+    // ************************************* //
     // *           Court jump              * //
     // ************************************* //
 
@@ -916,6 +1046,53 @@ contract DisputeKitGatedPerCourtTest is Test {
         assertEq(_nbVoters(disputeID, 1), 7, "Round 1 should be fully drawn");
         _assertAllVotersAre(disputeID, 1, staker2);
         assertGt(core.getRoundInfo(disputeID, 1).drawIterations, 7, "staker1 never drawn in parent?");
+    }
+
+    /// @dev Child single draw -> parent stake-weighted draw: the setting of the current court applies.
+    function test_courtJump_singleDrawChildToMultipleDrawParent() public {
+        _setSingleDrawPerJuror(CHILD_COURT, true);
+        _stake(staker1, CHILD_COURT, STAKE);
+        _stake(staker2, CHILD_COURT, STAKE);
+        _stake(staker3, CHILD_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+
+        // Round 0 in the child court: 3 distinct jurors.
+        core.draw(disputeID, 100);
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "Round 0 should be fully drawn");
+        _assertDistinctVoters(disputeID, 0);
+
+        _assertAppealJumpsCourtOnly(disputeID);
+
+        // Round 1 in the parent court: 7 votes for 3 jurors, so some are drawn several times.
+        core.draw(disputeID, 7);
+        assertEq(_nbVoters(disputeID, 1), 7, "Round 1 should be drawn without rejection");
+        assertEq(core.getRoundInfo(disputeID, 1).drawIterations, 7, "No draw should be rejected");
+    }
+
+    /// @dev Child stake-weighted draw -> parent single draw: 7 votes but only 3 distinct jurors, so the drawing
+    /// stalls. The jurors drawn in round 0 can still be drawn in round 1.
+    function test_courtJump_multipleDrawChildToSingleDrawParent() public {
+        _setSingleDrawPerJuror(PARENT_COURT, true);
+        _stake(staker1, CHILD_COURT, STAKE);
+        _stake(staker2, CHILD_COURT, STAKE);
+        _stake(staker3, CHILD_COURT, STAKE);
+
+        uint256 disputeID = _createDispute();
+
+        // Round 0 in the child court: stake-weighted draw.
+        core.draw(disputeID, 100);
+        assertEq(_nbVoters(disputeID, 0), DEFAULT_NB_OF_JURORS, "Round 0 should be fully drawn");
+
+        _assertAppealJumpsCourtOnly(disputeID);
+
+        // Round 1 in the parent court: each of the 3 jurors drawn once, including those drawn in round 0.
+        core.draw(disputeID, 200);
+        assertEq(_nbVoters(disputeID, 1), 3, "Only 3 distinct jurors should be drawn");
+        _assertDistinctVoters(disputeID, 1);
+        for (uint256 i = 0; i < DEFAULT_NB_OF_JURORS; i++) {
+            assertEq(_countVotesOf(disputeID, 1, _voter(disputeID, 0, i)), 1, "Round 0 juror should be drawn again");
+        }
     }
 
     /// @dev Round 0 voted and appealed: the court jumps CHILD -> PARENT but the DK stays the same.

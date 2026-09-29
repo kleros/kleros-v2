@@ -21,6 +21,7 @@ interface IPassportDecoder {
 ///   - a token gate: a non-zero balance of an ERC20, ERC721 or ERC1155 token,
 ///   - a Human Passport gate: a minimum Human Passport score.
 ///   A juror must pass every gate configured for the court. A court without any configured gate is not gated.
+///   A court can also allow each juror to be drawn only once per round.
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
@@ -29,6 +30,9 @@ interface IPassportDecoder {
 /// keyed by court. It lets a dispute use different gates (or none) after a court jump, as long as the parent
 /// court supports this dispute kit. The gates are evaluated at drawing time, so a change applies to the next draws
 /// of the disputes already created.
+///
+/// The single draw per juror is also a court setting (`courtSingleDrawPerJuror`): the global `singleDrawPerJuror`
+/// of the base contract is not used by this dispute kit and stays false.
 contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
     string public constant override version = "0.12.0";
 
@@ -58,6 +62,7 @@ contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
     IPassportDecoder public passportDecoder; // The Human Passport decoder.
     mapping(uint96 courtID => TokenGate) public courtTokenGates; // The token gate of each court.
     mapping(uint96 courtID => uint256) public courtMinPassportScores; // The minimum Human Passport score of each court (4 decimals), 0 for no gating.
+    mapping(uint96 courtID => bool) public courtSingleDrawPerJuror; // Whether each juror can only be drawn once per round in each court, false by default.
 
     // ************************************* //
     // *              Events               * //
@@ -78,6 +83,11 @@ contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
     /// @param _courtID The ID of the court.
     /// @param _minPassportScore The minimum Human Passport score (4 decimals), 0 for no gating.
     event CourtMinPassportScoreChanged(uint96 indexed _courtID, uint256 _minPassportScore);
+
+    /// @dev To be emitted when the single draw per juror setting of a court is changed.
+    /// @param _courtID The ID of the court.
+    /// @param _singleDrawPerJuror Whether each juror can only be drawn once per round.
+    event CourtSingleDrawPerJurorChanged(uint96 indexed _courtID, bool _singleDrawPerJuror);
 
     // ************************************* //
     // *            Constructor            * //
@@ -151,6 +161,19 @@ contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
         emit CourtMinPassportScoreChanged(_courtID, _minPassportScore);
     }
 
+    /// @notice Changes whether each juror can only be drawn once per round in a court.
+    /// @param _courtID The ID of the court.
+    /// @param _singleDrawPerJuror True for at most one vote per juror in each round, false for stake-weighted draws
+    /// that can give several votes to the same juror.
+    /// Note: when enabled, a round of N votes needs N distinct eligible jurors staked in the court, otherwise the
+    /// drawing cannot complete until more jurors are eligible or the setting is disabled. Votes per round grow with
+    /// appeals (3, 7, 15, 31...). Only a sybil-resistant gate makes it one vote per person rather than per address.
+    /// It applies to the next draws, including those of the current round.
+    function changeCourtSingleDrawPerJuror(uint96 _courtID, bool _singleDrawPerJuror) external onlyByGovernor {
+        courtSingleDrawPerJuror[_courtID] = _singleDrawPerJuror;
+        emit CourtSingleDrawPerJurorChanged(_courtID, _singleDrawPerJuror);
+    }
+
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
@@ -169,9 +192,20 @@ contract DisputeKitGatedPerCourt is DisputeKitClassicBase {
     ) internal view override returns (bool) {
         if (!super._postDrawCheck(_round, _coreDisputeID, _juror)) return false;
 
-        // The gate of the court the dispute is currently in, which changes after a court jump.
+        // The settings of the court the dispute is currently in, which changes after a court jump.
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        if (courtSingleDrawPerJuror[courtID] && _isAlreadyDrawn(_coreDisputeID, _juror)) return false;
         return _passTokenGate(courtID, _juror) && _passPassportGate(courtID, _juror);
+    }
+
+    /// @dev Checks whether a juror has already been drawn in the current round of a dispute.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _juror The address of the juror.
+    /// @return Whether the juror has already been drawn.
+    function _isAlreadyDrawn(uint256 _coreDisputeID, address _juror) internal view returns (bool) {
+        uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
+        uint256 localRoundID = disputes[localDisputeID].rounds.length - 1;
+        return alreadyDrawn[localDisputeID][localRoundID][_juror];
     }
 
     /// @dev Checks the token gate of a court, if any.
