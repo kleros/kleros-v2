@@ -4,13 +4,14 @@
 
 The Sortition Module is a critical component of the Kleros V2 protocol that manages juror selection and stake tracking. It implements a sortition sum tree data structure to enable weighted random selection of jurors based on their staked PNK tokens.
 
+PNK deposits, withdrawals and token balances are managed by KlerosCore. SortitionModule tracks active court stakes and amounts locked in disputes. Unstaking changes selection weight; it does not withdraw tokens or release existing dispute locks.
+
 ## 📑 Table of Contents
 
 1. [🔄 Phase Management](#-phase-management)
    - [Rationale](#rationale)
    - [Phases](#phases)
    - [Phase Transition Flow](#phase-transition-flow)
-   - [Interactions](#interactions)
    - [Juror Selection Flow](#juror-selection-flow)
 2. [🌳 Sortition Trees](#-sortition-trees)
    - [Tree Structure](#tree-structure)
@@ -21,9 +22,6 @@ The Sortition Module is a critical component of the Kleros V2 protocol that mana
 4. [🕒 Delayed Stakes Management](#-delayed-stakes-management)
    - [Overview](#overview)
    - [Delayed Stake Structure](#delayed-stake-structure)
-   - [Handling Different Scenarios](#handling-different-scenarios)
-   - [Successive Delayed Stakes](#successive-delayed-stakes)
-   - [Execution of Delayed Stakes](#execution-of-delayed-stakes)
    - [Edge Cases](#edge-cases)
 5. [📢 Events](#-events)
    - [Phase Events](#phase-events)
@@ -63,6 +61,8 @@ The module operates in three distinct phases:
    - Jurors can be drawn
    - Transitions after all disputes have jurors or `maxDrawingTime` passes
 
+Each Staking → Generating → Drawing cycle is a session. Disputes and appeal rounds registered during Staking can participate in that session’s drawing. Those registered during Generating or Drawing are deferred to the next session and cannot use the current random number. Returning from Drawing to Staking advances the session and includes the deferred disputes.
+
 ### Phase Transition Flow
 
 ```mermaid
@@ -77,7 +77,7 @@ sequenceDiagram
     Staking->>Staking: Check block.timestamp - lastPhaseChange >= minStakingTime
     Staking->>Staking: Check disputesWithoutJurors > 0
     Staking-->>Generating: passPhase()
-    Note over Generating: Request RNG at block.number + rngLookahead
+    Note over Generating: Request RNG
 
     Note over Generating: Generating → Drawing
     Generating->>Generating: Check randomNumber from RNG
@@ -97,81 +97,6 @@ sequenceDiagram
     Note over Staking,Drawing: Each transition emits NewPhase(phase)
 ```
 
-### Interactions
-
-```mermaid
-sequenceDiagram
-    participant Bot
-    participant SortitionModule
-    participant KlerosCore
-    participant RNG
-
-    Note over Bot,RNG: Staking → Generating Phase
-
-    Bot->>SortitionModule: passPhase()
-    activate SortitionModule
-    SortitionModule->>SortitionModule: Check phase == Staking
-    SortitionModule->>SortitionModule: Check minStakingTime elapsed
-    SortitionModule->>SortitionModule: Check disputesWithoutJurors > 0
-    SortitionModule->>RNG: requestRandomness(block.number + rngLookahead)
-    SortitionModule->>SortitionModule: Set phase = Generating
-    SortitionModule->>SortitionModule: Store randomNumberRequestBlock
-    SortitionModule-->>Bot: Emit NewPhase(Generating)
-    deactivate SortitionModule
-
-    Note over Bot,RNG: Generating → Drawing Phase
-
-    Bot->>SortitionModule: passPhase()
-    activate SortitionModule
-    SortitionModule->>SortitionModule: Check phase == Generating
-    SortitionModule->>RNG: receiveRandomness(randomNumberRequestBlock + rngLookahead)
-    RNG-->>SortitionModule: Return randomNumber
-    SortitionModule->>SortitionModule: Store randomNumber
-    SortitionModule->>SortitionModule: Set phase = Drawing
-    SortitionModule-->>Bot: Emit NewPhase(Drawing)
-    deactivate SortitionModule
-
-    Note over Bot,RNG: Drawing, see diagram below
-
-    Note over Bot,RNG: Drawing → Staking Phase
-
-    Bot->>SortitionModule: passPhase()
-    activate SortitionModule
-    SortitionModule->>SortitionModule: Check phase == Drawing
-    alt All disputes have jurors
-        SortitionModule->>SortitionModule: Check disputesWithoutJurors == 0
-    else Max time elapsed
-        SortitionModule->>SortitionModule: Check maxDrawingTime elapsed
-    end
-    SortitionModule->>SortitionModule: Set phase = Staking
-    SortitionModule-->>Bot: Emit NewPhase(Staking)
-    deactivate SortitionModule
-
-    Note over Bot,RNG: Stake Management
-
-    KlerosCore->>SortitionModule: setStake()
-    activate SortitionModule
-    SortitionModule->>SortitionModule: Check phase
-    alt Staking Phase
-        SortitionModule->>SortitionModule: Update tree immediately
-    else Other Phases
-        SortitionModule->>SortitionModule: Store delayed stake
-    end
-    SortitionModule->>KlerosCore: setStakeBySortitionModule()
-    deactivate SortitionModule
-
-    Note over Bot,RNG: Delayed Stakes Execution
-
-    Bot->>SortitionModule: executeDelayedStakes()
-    activate SortitionModule
-    SortitionModule->>SortitionModule: Check phase == Staking
-    loop For each delayed stake
-        SortitionModule->>KlerosCore: setStakeBySortitionModule()
-        KlerosCore->>KlerosCore: Update juror stakes
-    end
-    deactivate SortitionModule
-```
-
 ### Juror Selection Flow
 
 ```mermaid
@@ -188,7 +113,6 @@ sequenceDiagram
         activate DisputeKit
         DisputeKit->>SortitionModule: draw(courtID, disputeID, nonce)
         SortitionModule-->>DisputeKit: Return drawnAddress
-        DisputeKit->>DisputeKit: _postDrawCheck()
         DisputeKit-->>KlerosCore: Return drawnAddress
         deactivate DisputeKit
         alt drawnAddress != address(0)
@@ -196,7 +120,7 @@ sequenceDiagram
             KlerosCore-->>KlerosCore: Emit Draw(drawnAddress, disputeID, roundID, voteID)
             KlerosCore->>KlerosCore: Store drawnAddress
             alt All jurors drawn
-                KlerosCore->>SortitionModule: postDrawHook(disputeID, roundID)
+                KlerosCore->>SortitionModule: completeDisputeDrawing()
             end
         end
     end
@@ -216,10 +140,11 @@ struct SortitionSumTree {
   mapping(uint256 => bytes32) nodeIndexesToIDs;
 }
 ```
+Each stake path identifies a juror and the court where they directly staked. Its weight is included in that court’s tree and every ancestor tree up to General Court. Drawing returns both the juror and the court where that selected path was directly staked.
 
 ### Tree Operations
 
-- **Creation**: `createTree(bytes32 _key, bytes memory _extraData)`
+- **Creation**: `createTree(uint96 _courtID)`
 
   - Initializes a new sortition tree for a court
   - Key is derived from court ID
@@ -236,10 +161,10 @@ struct SortitionSumTree {
 
 ```solidity
 function draw(
-    bytes32 _key,
+    uint96 _courtID,
     uint256 _coreDisputeID,
     uint256 _nonce
-) public view returns (address drawnAddress)
+) public view returns (address drawnAddress, uint96 fromSubcourtID)
 ```
 
 Key characteristics:
@@ -251,184 +176,42 @@ Key characteristics:
 ### Random Number Generation
 
 - Managed through external RNG contract
-- Configurable lookahead period
 - Random number used for all drawings in a phase
 
 ## 🕒 Delayed Stakes Management
 
 ### Overview
 
-Delayed stakes are a mechanism to handle stake changes during the Generating and Drawing phases while maintaining system integrity. When the system is not in the Staking phase, stake changes are stored for later execution but handled differently based on whether they increase or decrease the stake.
+All manual stake changes, including unstaking, are delayed. They can be activated only during Staking and after their activation time. Forced unstaking executes immediately during Staking; during Generating or Drawing it is queued with the same stakingDelay.
 
 ### Delayed Stake Structure
 
 ```solidity
 struct DelayedStake {
-  address account; // The juror's address
-  uint96 courtID; // The court ID
-  uint256 stake; // The new stake amount
-  bool alreadyTransferred; // Whether tokens were already transferred
+  uint256 stake; // The new stake.
+  bool forced; // Whether the stake was forced (e.g. forcedUnstakeAllCourts) or not. Forced stakes will not be replaced with manual stakes.
+  bool pending; // Whether the stake is pending or not, to distinguish between 0 stake and no entry.
+  uint256 activationTime; // Time after which delayed stake can be executed.
+  uint256 reservedStake; // Additional PNK reserved for this delayed stake above the currently active stake in the court.
 }
 ```
 
-### Handling Different Scenarios
-
-#### 1. Stake Increase During Non-Staking Phase
-
-```solidity
-if (_newStake > currentStake) {
-    delayedStake.alreadyTransferred = true;
-    pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
-    emit StakeDelayedAlreadyTransferredDeposited(_account, _courtID, _newStake);
-}
-```
-
-- Tokens are transferred immediately
-- `stakedPnk` is updated
-- Drawing chance update is delayed
-- Emits `StakeDelayedAlreadyTransferredDeposited`
-
-#### 2. Stake Decrease During Non-Staking Phase
-
-```solidity
-else {
-    emit StakeDelayedNotTransferred(_account, _courtID, _newStake);
-}
-```
-
-- No immediate token transfer
-- Drawing chance update is delayed
-- Token transfer will occur during execution
-- Emits `StakeDelayedNotTransferred`
-
-### Successive Delayed Stakes
-
-The system handles multiple delayed stakes for the same juror and court through the `latestDelayedStakeIndex` mapping:
-
-```solidity
-mapping(address jurorAccount => mapping(uint96 courtId => uint256)) public latestDelayedStakeIndex
-```
-
-This mechanism is designed to improve user experience by allowing jurors to modify their stake decisions without waiting for delayed stakes to execute. For example:
-
-- A juror who increased their stake but changed their mind can decrease it
-- A juror who decreased their stake can increase it again if needed
-- Each new decision immediately overrides the previous one
-- Token transfers are handled efficiently to minimize unnecessary movements
-
-The system ensures that only the final decision matters, while handling token transfers appropriately based on the sequence of changes.
-
-When a new delayed stake is created for the same juror and court, the previous one is always deleted. The handling of PNK transfers depends on the sequence:
-
-#### Scenario 1: Stake Increase Then Decrease
-
-```solidity
-// First delayed stake (increase from 100 to 500)
-delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
-    account: _account,
-    courtID: _courtID,
-    stake: 500,
-    alreadyTransferred: true  // PNK transferred immediately
-});
-latestDelayedStakeIndex[_account][_courtID] = delayedStakeWriteIndex;
-
-// Second delayed stake (decrease to 200)
-// 1. Previous delayed stake is found and deleted
-// 2. Since it was an increase with tokens transferred:
-uint256 amountToWithdraw = 500 - sortitionStake; // 500 - 100 = 400
-juror.stakedPnk -= amountToWithdraw;  // Reverse the previous increase
-// 3. New delayed stake stored
-delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
-    account: _account,
-    courtID: _courtID,
-    stake: 200,
-    alreadyTransferred: false  // No immediate PNK transfer
-});
-```
-
-In this scenario:
-
-- First stake: 400 PNK transferred immediately to the arbitrator contract
-- Second stake:
-  - 400 PNK returned to juror (reversing first stake)
-  - Final transfer of 100 PNK (from 100 to 200) delayed until execution
-
-#### Scenario 2: Stake Decrease Then Increase
-
-```solidity
-// First delayed stake (decrease from 500 to 200)
-delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
-    account: _account,
-    courtID: _courtID,
-    stake: 200,
-    alreadyTransferred: false  // No PNK transferred yet
-});
-latestDelayedStakeIndex[_account][_courtID] = delayedStakeWriteIndex;
-
-// Second delayed stake (increase to 800)
-// 1. Previous delayed stake is found and deleted
-// 2. Since it was a decrease with no tokens transferred:
-//    No token operations needed to reverse it
-// 3. New delayed stake stored
-delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
-    account: _account,
-    courtID: _courtID,
-    stake: 800,
-    alreadyTransferred: true  // PNK transferred immediately
-});
-```
-
-In this scenario:
-
-- First stake: No immediate PNK transfer
-- Second stake:
-  - First stake discarded (no transfers to reverse)
-  - 300 PNK transferred immediately to contract (from 500 to 800)
-
-Key Points:
-
-- Only increases trigger immediate PNK transfers
-- When overwriting a previous delayed stake:
-  - If previous was an increase: Reverse the transfer
-  - If previous was a decrease: No transfer to reverse
-- Final stake value always determined by most recent delayed stake
-- **Drawing chances only update when stakes are executed in Staking phase**
+There is one pending entry per juror and court. A new manual request replaces an existing manual request and resets its activation time. Manual requests cannot replace forced entries.
 
 ### Execution of Delayed Stakes
 
-Delayed stakes are executed when the phase returns to Staking.
-
-Key aspects:
-
-- Processes stakes in batches for gas efficiency
-- Executes from `delayedStakeReadIndex` to `delayedStakeWriteIndex`
-- Each stake execution:
-  1. Updates the sortition tree
-  2. Transfers tokens if not already transferred
-  3. Cleans up the delayed stake storage
+Anyone can call executeDelayedStakes(accounts, courtIDs) to process selected entries during Staking, once their activation times have passed. Execution is not automatic when the phase changes. Accepted changes update the trees; changes rejected by the staking checks emit StakeDelayedExecutionFailed. In either case, the processed entry and its reservation are cleared.
 
 ### Edge Cases
 
-1. **Locked Tokens**
-
-   - Delayed stake decreases respect locked tokens
-   - Cannot withdraw below `lockedPnk` amount
-   - Example: If `stakedPnk = 1000`, `lockedPnk = 400`, maximum withdrawal is 600
-
-2. **Zero Stakes**
-
-   - Cannot set stake to 0 if current stake is 0
-   - Prevents unnecessary storage operations
-
-3. **Court Limits**
+1. **Court Limits**
    - Cannot stake in more than `MAX_STAKE_PATHS` courts
    - Critical for controlling computational complexity
    - Many operations have O(n) complexity where n is number of staked courts:
-     - `setJurorInactive()`: `O(n * (p * log_k(j)))`
+     - `forcedUnstakeAllCourts()`: `O(n * (p * log_k(j)))`
      - `setStake()`: `O(n)` for court array iteration
      - Stake updates: `O(n)` for parent court propagation
    - `MAX_STAKE_PATHS` keeps these operations bounded and gas-efficient
-   - New stakes in additional courts are rejected with `StakingResult.CannotStakeInMoreCourts`
 
 ## 📢 Events
 
@@ -446,11 +229,9 @@ event NewPhase(Phase _phase)
 event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _amountAllCourts);
 
 // Delayed Stakes
-event StakeDelayedNotTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
+event StakeDelayed(address indexed _address, uint96 indexed _courtID, uint256 _amount);
 
-event StakeDelayedAlreadyTransferredDeposited(address indexed _address, uint256 _courtID, uint256 _amount);
-
-event StakeDelayedAlreadyTransferredWithdrawn(address indexed _address, uint96 indexed _courtID, uint256 _amount);
+event StakeDelayedExecutionFailed(address indexed _address, uint96 indexed _courtID, uint256 _amount);
 
 // Stake Locking
 event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unlock);
@@ -461,23 +242,21 @@ event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unloc
 ### Tree Management
 
 ```solidity
-function createTree(bytes32 _key, bytes memory _extraData)
+function createTree(uint96 _courtID)
 ```
 
 - Creates new sortition tree
 - Called by KlerosCore only
 - Key derived from court ID
-- ExtraData contains tree parameters
 
 ### Stake Management
 
 ```solidity
-function setStake(address _account, uint96 _courtID, uint256 _newStake, bool _alreadyTransferred)
+function setStake(address _account, uint96 _courtID, uint256 _newStake, bool forced)
 ```
 
 - Sets juror's stake in a court
 - Handles both increases and decreases
-- Manages delayed stakes during drawing phase
 - Updates tree values accordingly
 
 ### Stake Locking and Penalties
@@ -501,14 +280,8 @@ function unlockStake(address _account, uint256 _relativeAmount)
 - Emits `StakeLocked(account, amount, true)`
 
 ```solidity
-function penalizeStake(address _account, uint256 _relativeAmount)
+function forcedUnstakeAllCourts(address _account)
 ```
-
 - Called by KlerosCore only
-- Reduces juror's `stakedPnk` by penalty amount
-- If `stakedPnk` is less than penalty, sets to 0
-- Does not affect `lockedPnk` which covers penalties
-
-```solidity
-function setJurorInactive(address _account)
-```
+- Unstakes the inactive juror from all courts
+- Used after dispute resolution

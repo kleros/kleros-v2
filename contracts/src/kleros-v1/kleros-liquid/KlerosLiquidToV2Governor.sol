@@ -36,7 +36,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(owner == msg.sender);
         _;
     }
@@ -63,14 +63,14 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeOwnerProposal(address _destination, uint256 _amount, bytes calldata _data) external onlyByOwner {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes calldata _data) external onlyOwner {
         (bool success, ) = _destination.call{value: _amount}(_data); // solium-disable-line security/no-call-value
         require(success, "Call execution failed.");
     }
 
     /// @dev Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
-    function changeOwner(address _owner) external onlyByOwner {
+    function changeOwner(address _owner) external onlyOwner {
         owner = _owner;
     }
 
@@ -78,7 +78,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Relays disputes from KlerosLiquid to Kleros v2. Only disputes in the evidence period of the initial round can be realyed.
+    /// @dev Relays disputes from KlerosLiquid to Kleros v2. Only disputes in the evidence period of the initial round can be relayed.
     /// @param _disputeID The ID of the dispute as defined in KlerosLiquid.
     function relayDispute(uint256 _disputeID) external {
         require(klerosLiquidDisputeIDtoGatewayDisputeID[_disputeID] == 0, "Dispute already relayed");
@@ -115,7 +115,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     ///
     /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _ruling Ruling given by the arbitrator.
-    function rule(uint256 _disputeID, uint256 _ruling) public override {
+    function rule(uint256 _disputeID, uint256 _ruling) public {
         require(msg.sender == address(foreignGateway), "Not the arbitrator.");
         DisputeData storage dispute = disputes[_disputeID];
         require(dispute.klerosLiquidDisputeID != 0, "Dispute does not exist.");
@@ -158,7 +158,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     /// @notice Called when `_owner` sends ether to the MiniMe Token contract
     /// @param - owner The address that sent the ether to create tokens
     /// @return allowed True if the ether is accepted, false if it throws
-    function proxyPayment(address /*_owner*/) external payable override returns (bool allowed) {
+    function proxyPayment(address /*_owner*/) external payable returns (bool allowed) {
         allowed = false;
     }
 
@@ -167,7 +167,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     /// @param - to The destination of the transfer
     /// @param _amount The amount of the transfer
     /// @return allowed False if the controller does not authorize the transfer
-    function onTransfer(address _from, address /*_to*/, uint256 _amount) external view override returns (bool allowed) {
+    function onTransfer(address _from, address /*_to*/, uint256 _amount) external view returns (bool allowed) {
         if (klerosLiquid.lockInsolventTransfers()) {
             // Never block penalties or rewards.
             IPinakion pinakion = IPinakion(klerosLiquid.pinakion());
@@ -190,7 +190,7 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
         address /*_owner*/,
         address /*_spender*/,
         uint256 /*_amount*/
-    ) external pure override returns (bool allowed) {
+    ) external pure returns (bool allowed) {
         allowed = true;
     }
 

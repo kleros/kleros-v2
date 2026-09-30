@@ -4,6 +4,9 @@ pragma solidity >=0.8.0 <0.9.0;
 
 /// @title IDisputeTemplateRegistry
 /// @notice Dispute Template Registry interface.
+/// @dev Dispute templates define the structure and ruling options of disputes submitted to Kleros.
+/// Data mappings allow template fields to be populated with dispute-specific data, so the same template
+/// can be reused across multiple disputes.
 interface IDisputeTemplateRegistry {
     // ************************************* //
     // *              Events               * //
@@ -31,8 +34,8 @@ interface IDisputeTemplateRegistry {
     /// @param _templateDataMappings The data mappings for the template.
     /// @return templateId The identifier of the dispute template.
     function setDisputeTemplate(
-        string memory _templateTag,
-        string memory _templateData,
-        string memory _templateDataMappings
+        string calldata _templateTag,
+        string calldata _templateData,
+        string calldata _templateDataMappings
     ) external returns (uint256 templateId);
 }

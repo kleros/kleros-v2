@@ -5,9 +5,11 @@ pragma solidity ^0.8.28;
 import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeTemplateRegistry} from "../interfaces/IDisputeTemplateRegistry.sol";
+import {SafeSend} from "../../libraries/SafeSend.sol";
 
 /// @title Implementation of the Evidence Standard with Moderated Submissions
 contract ModeratedEvidenceModule is IArbitrableV2 {
+    using SafeSend for address payable;
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -56,6 +58,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     uint256 public bondTimeout; // The time in seconds during which the last moderation status can be challenged.
     uint256 public totalCostMultiplier; // Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
     uint256 public initialDepositMultiplier; // Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
+    address public wNative; // The wrapped native token for safeSend().
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -100,6 +103,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     /// @param _arbitratorExtraData Extra data for the trusted arbitrator contract.
     /// @param _templateData The dispute template data.
     /// @param _templateDataMappings The dispute template data mappings.
+    /// @param _wNative The wrapped native token address, typically wETH.
     constructor(
         IArbitratorV2 _arbitrator,
         address _owner,
@@ -109,11 +113,13 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         uint256 _bondTimeout,
         bytes memory _arbitratorExtraData,
         string memory _templateData,
-        string memory _templateDataMappings
+        string memory _templateDataMappings,
+        address _wNative
     ) {
         arbitrator = _arbitrator;
         owner = _owner;
         templateRegistry = _templateRegistry;
+        wNative = _wNative;
 
         totalCostMultiplier = _totalCostMultiplier; // For example 15000, which would provide a 100% reward to the dispute winner.
         initialDepositMultiplier = _initialDepositMultiplier; // For example 63, which equals 1/16.
@@ -316,7 +322,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         _moderation.paidFees[uint256(_side)] += contribution;
         _moderation.feeRewards += contribution;
 
-        if (remainingETH != 0) _contributor.send(remainingETH);
+        if (remainingETH != 0) _contributor.safeSend(remainingETH, wNative);
 
         return contribution;
     }
@@ -372,7 +378,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         contributionTo[uint256(Party.Submitter)] = 0;
         contributionTo[uint256(Party.Moderator)] = 0;
 
-        _beneficiary.send(reward); // It is the user responsibility to accept ETH.
+        _beneficiary.safeSend(reward, wNative); // It is the user responsibility to accept ETH.
     }
 
     /// @notice Give a ruling for a dispute.
@@ -383,7 +389,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     ///
     /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _ruling Ruling given by the arbitrator.
-    function rule(uint256 _disputeID, uint256 _ruling) public override {
+    function rule(uint256 _disputeID, uint256 _ruling) public {
         bytes32 evidenceID = disputeIDtoEvidenceID[_disputeID];
         EvidenceData storage evidenceData = evidences[evidenceID];
         Moderation storage moderation = evidenceData.moderations[evidenceData.moderations.length - 1];

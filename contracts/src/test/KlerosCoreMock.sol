@@ -7,8 +7,8 @@ import {KlerosCore} from "../arbitration/KlerosCore.sol";
 /// @title KlerosCoreMock
 /// KlerosCore with view functions to use in Foundry tests.
 contract KlerosCoreMock is KlerosCore {
-    function getCourtChildren(uint256 _courtId) external view returns (uint256[] memory children) {
-        children = courts[_courtId].children;
+    function getLatestCourtID() external view returns (uint96) {
+        return uint96(courts.length - 1);
     }
 
     function extraDataToCourtIDMinJurorsDisputeKit(

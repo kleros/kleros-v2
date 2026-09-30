@@ -1,26 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol"; // Import the console for logging
 import {KlerosCoreMock} from "../../src/test/KlerosCoreMock.sol";
-import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
+import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {CentralizedKit} from "../../src/arbitration/dispute-kits/CentralizedKit.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {SortitionModuleMock, SortitionModule} from "../../src/test/SortitionModuleMock.sol";
-import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
-import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
-import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
+import {BlockHashRNG} from "../../src/rng/BlockhashRNG.sol";
 import {RNGMock} from "../../src/test/RNGMock.sol";
 import {PNK} from "../../src/token/PNK.sol";
 import {TestERC20} from "../../src/token/TestERC20.sol";
 import {ArbitrableExample, IArbitrableV2} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {DisputeTemplateRegistry} from "../../src/arbitration/DisputeTemplateRegistry.sol";
 import {IKlerosCore, KlerosCoreSnapshotProxy} from "../../src/arbitration/view/KlerosCoreSnapshotProxy.sol";
-import {RatesConverter} from "../../src/arbitration/RatesConverter.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_TestBase
@@ -35,28 +34,26 @@ abstract contract KlerosCore_TestBase is Test {
 
     KlerosCoreMock core;
     DisputeKitClassic disputeKit;
+    CentralizedKit centralizedKit;
     SortitionModuleMock sortitionModule;
     BlockHashRNG rng;
     PNK pinakion;
-    TestERC20 feeToken;
     TestERC20 wNative;
     ArbitrableExample arbitrable;
     DisputeTemplateRegistry registry;
-    RatesConverter ratesConverter;
 
     // ************************************* //
     // *            Test Accounts          * //
     // ************************************* //
 
     address owner;
-    address guardian;
     address staker1;
     address staker2;
     address disputer;
     address crowdfunder1;
     address crowdfunder2;
+    address ruler;
     address other;
-    address jurorProsecutionModule;
 
     // ************************************* //
     // *         Test Parameters           * //
@@ -66,14 +63,15 @@ abstract contract KlerosCore_TestBase is Test {
     uint256 alpha;
     uint256 feeForJuror;
     uint256 jurorsForCourtJump;
-    bytes sortitionExtraData;
     bytes arbitratorExtraData;
     uint256[4] timesPerPeriod;
+    uint256[4] finalCourtTimesPerPeriod;
     bool hiddenVotes;
     uint256 totalSupply = 1000000 ether;
     uint256 minStakingTime;
     uint256 maxDrawingTime;
     uint256 rngLookahead; // Time in seconds
+    uint256 stakingDelay;
     string templateData;
     string templateDataMappings;
 
@@ -81,34 +79,33 @@ abstract contract KlerosCore_TestBase is Test {
         KlerosCoreMock coreLogic = new KlerosCoreMock();
         SortitionModuleMock smLogic = new SortitionModuleMock();
         DisputeKitClassic dkLogic = new DisputeKitClassic();
+        CentralizedKit centralDkLogic = new CentralizedKit();
         DisputeTemplateRegistry registryLogic = new DisputeTemplateRegistry();
         pinakion = new PNK();
-        feeToken = new TestERC20("Test", "TST");
         wNative = new TestERC20("wrapped ETH", "wETH");
 
         owner = msg.sender;
-        guardian = vm.addr(1);
         staker1 = vm.addr(2);
         staker2 = vm.addr(3);
         disputer = vm.addr(4);
         crowdfunder1 = vm.addr(5);
         crowdfunder2 = vm.addr(6);
+        ruler = vm.addr(7);
         vm.deal(disputer, 10 ether);
         vm.deal(crowdfunder1, 10 ether);
         vm.deal(crowdfunder2, 10 ether);
-        jurorProsecutionModule = vm.addr(8);
         other = vm.addr(9);
         minStake = 1000;
         alpha = 10000;
         feeForJuror = 0.03 ether;
         jurorsForCourtJump = 511;
         timesPerPeriod = [60, 120, 180, 240];
+        finalCourtTimesPerPeriod = [0, 0, 0, 0];
 
         pinakion.transfer(msg.sender, totalSupply - 2 ether);
         pinakion.transfer(staker1, 1 ether);
         pinakion.transfer(staker2, 1 ether);
 
-        sortitionExtraData = abi.encode(uint256(5));
         minStakingTime = 18;
         maxDrawingTime = 24;
         hiddenVotes = false;
@@ -116,73 +113,86 @@ abstract contract KlerosCore_TestBase is Test {
         rngLookahead = 30;
         rng = new BlockHashRNG(msg.sender, address(sortitionModule), rngLookahead);
 
-        UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
+        stakingDelay = 33;
 
-        bytes memory initDataDk = abi.encodeWithSignature(
+        TransparentUpgradeableProxy proxyCore = new TransparentUpgradeableProxy(address(coreLogic), owner, "");
+
+        bytes memory initDataCentralDk = abi.encodeWithSignature(
             "initialize(address,address,address)",
-            owner,
             address(proxyCore),
+            ruler,
             address(wNative)
         );
 
-        UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
+        TransparentUpgradeableProxy proxyCentralDk = new TransparentUpgradeableProxy(
+            address(centralDkLogic),
+            owner,
+            initDataCentralDk
+        );
+        centralizedKit = CentralizedKit(payable(address(proxyCentralDk)));
+
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,uint256)",
+            address(proxyCore),
+            address(wNative),
+            FINAL_DISPUTE_KIT
+        );
+
+        TransparentUpgradeableProxy proxyDk = new TransparentUpgradeableProxy(address(dkLogic), owner, initDataDk);
         disputeKit = DisputeKitClassic(address(proxyDk));
 
         bytes memory initDataSm = abi.encodeWithSignature(
-            "initialize(address,address,uint256,uint256,address,uint256,uint256)",
+            "initialize(address,address,uint256,uint256,address,uint256)",
             owner,
             address(proxyCore),
             minStakingTime,
             maxDrawingTime,
             rng,
-            type(uint256).max,
-            type(uint256).max
+            stakingDelay
         );
 
-        UUPSProxy proxySm = new UUPSProxy(address(smLogic), initDataSm);
+        TransparentUpgradeableProxy proxySm = new TransparentUpgradeableProxy(address(smLogic), owner, initDataSm);
         sortitionModule = SortitionModuleMock(address(proxySm));
         vm.prank(owner);
         rng.changeConsumer(address(sortitionModule));
         vm.prank(owner); // Use the owner to deploy converter, to avoid modifying permission tests.
-        ratesConverter = new RatesConverter();
 
         core = KlerosCoreMock(address(proxyCore));
         core.initialize(
             payable(owner),
-            guardian,
             pinakion,
-            jurorProsecutionModule,
             disputeKit,
+            centralizedKit,
             hiddenVotes,
             [minStake, alpha, feeForJuror, jurorsForCourtJump],
             timesPerPeriod,
-            sortitionExtraData,
+            finalCourtTimesPerPeriod,
             sortitionModule,
-            address(wNative),
-            IERC721(address(0)),
-            ratesConverter
+            address(wNative)
         );
-        vm.prank(staker1);
+        vm.startPrank(staker1);
         pinakion.approve(address(core), 1 ether);
-        vm.prank(staker2);
+        core.depositTokens(1 ether);
+        vm.stopPrank();
+
+        vm.startPrank(staker2);
         pinakion.approve(address(core), 1 ether);
+        core.depositTokens(1 ether);
+        vm.stopPrank();
 
         templateData = "AAA";
         templateDataMappings = "BBB";
         arbitratorExtraData = abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC);
 
-        bytes memory initDataRegistry = abi.encodeWithSignature("initialize(address)", owner);
-        UUPSProxy proxyRegistry = new UUPSProxy(address(registryLogic), initDataRegistry);
+        bytes memory initDataRegistry = "";
+        TransparentUpgradeableProxy proxyRegistry = new TransparentUpgradeableProxy(
+            address(registryLogic),
+            owner,
+            initDataRegistry
+        );
         registry = DisputeTemplateRegistry(address(proxyRegistry));
 
-        arbitrable = new ArbitrableExample(
-            core,
-            templateData,
-            templateDataMappings,
-            arbitratorExtraData,
-            registry,
-            feeToken
-        );
+        arbitrable = new ArbitrableExample(core, templateData, templateDataMappings, arbitratorExtraData, registry);
     }
 
     // ************************************* //
@@ -214,12 +224,11 @@ abstract contract KlerosCore_TestBase is Test {
             feeForJurorValue,
             jurorsForJumpValue,
             timesPerPeriod,
-            sortitionExtraData,
             supportedDK,
             NULL_ELIGIBILITY_REQUIREMENT
         );
 
-        return uint96(core.getCourtChildren(parent)[core.getCourtChildren(parent).length - 1]);
+        return core.getLatestCourtID();
     }
 
     /// @dev Helper function to check court parameters
@@ -241,7 +250,7 @@ abstract contract KlerosCore_TestBase is Test {
         assertEq(courtMinStake, expectedMinStake, "Wrong minStake value");
         assertEq(courtAlpha, expectedAlpha, "Wrong alpha value");
         assertEq(courtFeeForJuror, expectedFeeForJuror, "Wrong feeForJuror value");
-        // Before asserting check that the court has additional court parameters initialized (e.g Forking court doesn't)
+        // Before asserting check that the court has additional court parameters initialized (e.g Final court doesn't)
         if (courtParamsLength > 0) {
             KlerosCore.AdditionalCourtParams memory courtParams = core.getAdditionalCourtParams(
                 courtId,

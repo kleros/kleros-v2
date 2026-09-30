@@ -48,7 +48,7 @@ task("compare-storage", "Compare storage layout between deployed and modified co
         unsafeAllow: [],
         unsafeSkipStorageCheck: false,
         unsafeAllowLinkedLibraries: false,
-        kind: "uups",
+        kind: "transparent",
       };
 
       const report = getStorageUpgradeReport(originalLayout, updatedLayout, validationOptions);
