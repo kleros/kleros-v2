@@ -1,6 +1,6 @@
 DisputeResolver.sol
-CentralizedKit.sol
 DisputeKitClassic.sol
+DisputeKitClassicBase.sol
 DisputeKitGated.sol
 DisputeKitGatedArgentinaConsumerProtection.sol
 DisputeKitGatedShutter.sol
@@ -9,7 +9,6 @@ DisputeKitSybilResistant.sol
 EvidenceModule.sol
 IArbitrableV2.sol
 IArbitratorV2.sol
-ICourtEligibility.sol
 IDisputeKit.sol
 IDisputeTemplateRegistry.sol
 IEvidence.sol
@@ -18,12 +17,14 @@ DisputeTemplateRegistry.sol
 KlerosCore.sol
 PolicyRegistry.sol
 SortitionModule.sol
-LeaderboardOffset.sol
 Constants.sol
 SafeERC20.sol
 SafeSend.sol
 SortitionTrees.sol
+Initializable.sol
+UUPSProxiable.sol
+UUPSProxy.sol
+ChainlinkConsumerBaseV2Plus.sol
 ChainlinkRNG.sol
 IRNG.sol
 RNGWithFallback.sol
-SBT.sol

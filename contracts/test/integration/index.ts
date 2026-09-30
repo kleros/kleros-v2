@@ -158,7 +158,6 @@ describe("Integration tests", async () => {
     expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
     expect(roundInfo.pnkAtStakePerJuror).to.equal(ONE_HUNDRED_PNK * 2n);
     expect(roundInfo.totalFeesForJurors).to.equal(arbitrationCost);
-    expect(roundInfo.feeToken).to.equal(ethers.ZeroAddress);
 
     expect((await core.disputes(0)).period).to.equal(Period.evidence);
 
@@ -174,7 +173,7 @@ describe("Integration tests", async () => {
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     await expect(core.execute(0, 0, 1000))
       .to.emit(core, "JurorRewardPenalty")
-      .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n, ethers.ZeroAddress);
+      .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n);
 
     await expect(core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }))
       .to.emit(core, "RulingExecuted")

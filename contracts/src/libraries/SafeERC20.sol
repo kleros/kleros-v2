@@ -9,7 +9,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 ///
 /// @notice Wrappers around ERC20 operations
 ///
-/// @dev Throws on failure (when the token contract returns false).
+/// @dev Returns false instead of reverting.
 /// Tokens that return no value (and instead revert or throw on failure) are also supported.
 /// Non-reverting calls are assumed to be successful.
 /// To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,
@@ -19,9 +19,13 @@ library SafeERC20 {
     /// @param _token Token to transfer.
     /// @param _spender The address which will spend the funds.
     /// @param _addedValue The amount of tokens to increase the allowance by.
+    /// @return Whether increaseAllowance succeeded or not.
     function increaseAllowance(IERC20 _token, address _spender, uint256 _addedValue) internal returns (bool) {
-        _token.approve(_spender, _token.allowance(address(this), _spender) + _addedValue);
-        return true;
+        uint256 newAllowance = _token.allowance(address(this), _spender) + _addedValue;
+        (bool success, bytes memory data) = address(_token).call(
+            abi.encodeCall(IERC20.approve, (_spender, newAllowance))
+        );
+        return (success && (data.length == 0 || abi.decode(data, (bool))));
     }
 
     /// @notice Calls transfer() without reverting.

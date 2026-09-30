@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {SortitionTrees, TreeKey, CourtID} from "../libraries/SortitionTrees.sol";
+import {SortitionTrees} from "../libraries/SortitionTrees.sol";
 
 /// @title SortitionTreesMock
 /// @dev Test contract to expose SortitionTrees library functions for testing
 contract SortitionTreesMock {
-    using SortitionTrees for mapping(TreeKey => SortitionTrees.Tree);
+    using SortitionTrees for SortitionTrees.SortitionSumTrees;
 
     // Storage for multiple test trees
-    mapping(TreeKey => SortitionTrees.Tree) public trees;
+    SortitionTrees.SortitionSumTrees internal trees;
 
     // Court hierarchy helpers (for testing parent-child relationships)
     mapping(uint96 => uint96[]) public childCourts;
@@ -21,15 +21,13 @@ contract SortitionTreesMock {
 
     /// @dev Create a sortition sum tree for a court
     function createTree(uint96 _courtID, uint256 _k) external {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
-        trees.createTree(key, _k);
+        trees.createTree(bytes32(uint256(_courtID)), _k);
     }
 
     /// @dev Set stake for a juror in a specific court
     function set(uint96 _courtID, address _account, uint256 _value) external {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
         bytes32 stakePathID = SortitionTrees.toStakePathID(_account, _courtID);
-        SortitionTrees.set(trees[key], _value, stakePathID);
+        trees.set(bytes32(uint256(_courtID)), _value, stakePathID);
     }
 
     /// @dev Draw a juror from a court's tree
@@ -39,15 +37,17 @@ contract SortitionTreesMock {
         uint256 _nonce,
         uint256 _randomNumber
     ) external view returns (address drawnAddress, uint96 fromSubcourtID) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
-        return SortitionTrees.draw(trees[key], _disputeID, _nonce, _randomNumber);
+        return
+            trees.draw(
+                bytes32(uint256(_courtID)),
+                uint256(keccak256(abi.encodePacked(_randomNumber, _disputeID, _nonce)))
+            );
     }
 
     /// @dev Get stake of a juror in a specific court
     function stakeOf(uint96 _courtID, address _account) external view returns (uint256) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
         bytes32 stakePathID = SortitionTrees.toStakePathID(_account, _courtID);
-        return SortitionTrees.stakeOf(trees[key], stakePathID);
+        return trees.stakeOf(bytes32(uint256(_courtID)), stakePathID);
     }
 
     // ************************************* //
@@ -97,40 +97,34 @@ contract SortitionTreesMock {
 
     /// @dev Get all nodes in a tree
     function getTreeNodes(uint96 _courtID) external view returns (uint256[] memory) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
-        return trees[key].nodes;
+        return trees.trees[bytes32(uint256(_courtID))].nodes;
     }
 
     /// @dev Get tree K value
     function getTreeK(uint96 _courtID) external view returns (uint256) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
-        return trees[key].K;
+        return trees.trees[bytes32(uint256(_courtID))].K;
     }
 
     /// @dev Get tree stack
     function getTreeStack(uint96 _courtID) external view returns (uint256[] memory) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
-        return trees[key].stack;
+        return trees.trees[bytes32(uint256(_courtID))].stack;
     }
 
     /// @dev Get node index for a juror in a court
     function getNodeIndex(uint96 _courtID, address _account) external view returns (uint256) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
         bytes32 stakePathID = SortitionTrees.toStakePathID(_account, _courtID);
-        return trees[key].IDsToNodeIndexes[stakePathID];
+        return trees.trees[bytes32(uint256(_courtID))].IDsToNodeIndexes[stakePathID];
     }
 
     /// @dev Check if a court tree exists
     function courtExists(uint96 _courtID) external view returns (bool) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
-        return trees[key].K != 0;
+        return trees.trees[bytes32(uint256(_courtID))].K != 0;
     }
 
     /// @dev Get the root sum (total stakes) of a court
     function getRootSum(uint96 _courtID) external view returns (uint256) {
-        TreeKey key = CourtID.wrap(_courtID).toTreeKey();
-        if (trees[key].nodes.length == 0) return 0;
-        return trees[key].nodes[0];
+        if (trees.trees[bytes32(uint256(_courtID))].nodes.length == 0) return 0;
+        return trees.trees[bytes32(uint256(_courtID))].nodes[0];
     }
 
     // ************************************* //
@@ -148,7 +142,7 @@ contract SortitionTreesMock {
     }
 
     /// @dev Test function to convert court ID to tree key
-    function testToTreeKey(uint96 _courtID) external pure returns (TreeKey) {
-        return CourtID.wrap(_courtID).toTreeKey();
+    function testToTreeKey(uint96 _courtID) external pure returns (bytes32) {
+        return bytes32(uint256(_courtID));
     }
 }
