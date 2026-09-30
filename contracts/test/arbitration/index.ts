@@ -9,6 +9,7 @@ import {
   DisputeKitClassicUniversity,
 } from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { zeroAddress } from "viem";
 
 describe("DisputeKitClassic", async () => {
   let deployer: HardhatEthersSigner;
@@ -27,55 +28,72 @@ describe("DisputeKitClassic", async () => {
 
   it("Kleros Core initialization", async () => {
     const events = await core.queryFilter(core.filters.DisputeKitCreated());
-    expect(events.length).to.equal(5);
-    expect(events[0].args._disputeKitID).to.equal(1);
-    expect(events[0].args._disputeKitAddress).to.equal(disputeKit.target);
-    expect(events[1].args._disputeKitID).to.equal(2);
-    expect(events[1].args._disputeKitAddress).to.equal(disputeKitShutter.target);
-    expect(events[2].args._disputeKitID).to.equal(3);
-    expect(events[2].args._disputeKitAddress).to.equal(disputeKitGated.target);
-    expect(events[3].args._disputeKitID).to.equal(4);
-    expect(events[3].args._disputeKitAddress).to.equal(disputeKitGatedShutter.target);
-    expect(events[4].args._disputeKitID).to.equal(5);
-    expect(events[4].args._disputeKitAddress).to.equal(disputeKitClassicUniversity.target);
+    expect(events.length).to.equal(6);
+    expect(events[0].args._disputeKitID).to.equal(0);
+    expect(events[0].args._disputeKitAddress).to.equal(zeroAddress);
+    expect(events[1].args._disputeKitID).to.equal(1);
+    expect(events[1].args._disputeKitAddress).to.equal(disputeKit.target);
+    expect(events[2].args._disputeKitID).to.equal(2);
+    expect(events[2].args._disputeKitAddress).to.equal(disputeKitShutter.target);
+    expect(events[3].args._disputeKitID).to.equal(3);
+    expect(events[3].args._disputeKitAddress).to.equal(disputeKitGated.target);
+    expect(events[4].args._disputeKitID).to.equal(4);
+    expect(events[4].args._disputeKitAddress).to.equal(disputeKitGatedShutter.target);
+    expect(events[5].args._disputeKitID).to.equal(5);
+    expect(events[5].args._disputeKitAddress).to.equal(disputeKitClassicUniversity.target);
 
     // Reminder: the Forking court will be added which will break these expectations.
     const events2 = await core.queryFilter(core.filters.CourtCreated());
-    expect(events2.length).to.equal(1);
-    expect(events2[0].args._courtID).to.equal(1);
+    expect(events2.length).to.equal(2);
+    expect(events2[0].args._courtID).to.equal(0);
     expect(events2[0].args._parent).to.equal(0);
     expect(events2[0].args._hiddenVotes).to.equal(false);
-    expect(events2[0].args._minStake).to.equal(ethers.parseUnits("200", 18));
-    expect(events2[0].args._alpha).to.equal(10000);
-    expect(events2[0].args._feeForJuror).to.equal(ethers.parseUnits("0.1", 18));
-    expect(events2[0].args._jurorsForCourtJump).to.equal(256);
-    expect(events2[0].args._timesPerPeriod).to.deep.equal([0, 0, 0, 10]);
-    expect(events2[0].args._supportedDisputeKits).to.deep.equal([1]);
+    expect(events2[0].args._minStake).to.equal(ethers.MaxUint256);
+    expect(events2[0].args._alpha).to.equal(0);
+    expect(events2[0].args._feeForJuror).to.equal(0);
+    expect(events2[0].args._jurorsForCourtJump).to.equal(0);
+    expect(events2[0].args._timesPerPeriod).to.deep.equal([0, 0, 0, 0]);
+    expect(events2[0].args._supportedDisputeKits).to.deep.equal([0]);
+
+    expect(events2[1].args._courtID).to.equal(1);
+    expect(events2[1].args._parent).to.equal(0);
+    expect(events2[1].args._hiddenVotes).to.equal(false);
+    expect(events2[1].args._minStake).to.equal(ethers.parseUnits("200", 18));
+    expect(events2[1].args._alpha).to.equal(10000);
+    expect(events2[1].args._feeForJuror).to.equal(ethers.parseUnits("0.1", 18));
+    expect(events2[1].args._jurorsForCourtJump).to.equal(256);
+    expect(events2[1].args._timesPerPeriod).to.deep.equal([0, 0, 0, 10]);
+    expect(events2[1].args._supportedDisputeKits).to.deep.equal([1]);
 
     const events3 = await core.queryFilter(core.filters.DisputeKitEnabled());
-    expect(events3.length).to.equal(5);
+    expect(events3.length).to.equal(6);
 
-    const classicDisputeKit = events3[0].args;
+    const centralizedKit = events3[0].args;
+    expect(centralizedKit._courtID).to.equal(0);
+    expect(centralizedKit._disputeKitID).to.equal(0);
+    expect(centralizedKit._enable).to.equal(true);
+
+    const classicDisputeKit = events3[1].args;
     expect(classicDisputeKit._courtID).to.equal(1);
     expect(classicDisputeKit._disputeKitID).to.equal(1);
     expect(classicDisputeKit._enable).to.equal(true);
 
-    const shutterDisputeKit = events3[1].args;
+    const shutterDisputeKit = events3[2].args;
     expect(shutterDisputeKit._courtID).to.equal(1);
     expect(shutterDisputeKit._disputeKitID).to.equal(2);
     expect(shutterDisputeKit._enable).to.equal(true);
 
-    const gatedDisputeKit = events3[2].args;
+    const gatedDisputeKit = events3[3].args;
     expect(gatedDisputeKit._courtID).to.equal(1);
     expect(gatedDisputeKit._disputeKitID).to.equal(3);
     expect(gatedDisputeKit._enable).to.equal(true);
 
-    const gatedShutterDisputeKit = events3[3].args;
+    const gatedShutterDisputeKit = events3[4].args;
     expect(gatedShutterDisputeKit._courtID).to.equal(1);
     expect(gatedShutterDisputeKit._disputeKitID).to.equal(4);
     expect(gatedShutterDisputeKit._enable).to.equal(true);
 
-    const classicUniversityDisputeKit = events3[4].args;
+    const classicUniversityDisputeKit = events3[5].args;
     expect(classicUniversityDisputeKit._courtID).to.equal(1);
     expect(classicUniversityDisputeKit._disputeKitID).to.equal(5);
     expect(classicUniversityDisputeKit._enable).to.equal(true);

@@ -23,9 +23,7 @@ contract DisputeResolverRuler is DisputeResolver {
     constructor(
         IArbitratorV2 _arbitrator,
         IDisputeTemplateRegistry _templateRegistry
-    ) DisputeResolver(_arbitrator, _templateRegistry) {
-        owner = msg.sender;
-    }
+    ) DisputeResolver(_arbitrator, _templateRegistry) {}
 
     // ************************************* //
     // *         State Modifiers           * //

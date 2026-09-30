@@ -101,7 +101,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.target, disputeID, anyValue)
       .and.to.emit(core, "JurorRewardPenalty")
-      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
+      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue)
       .and.to.emit(resolver, "DisputeRequest")
       .withArgs(core.target, disputeID, templateId)
       .and.to.emit(resolver, "Ruling")
@@ -128,7 +128,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.target, disputeID, 2)
       .and.to.emit(core, "JurorRewardPenalty")
-      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress)
+      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue)
       .and.to.emit(resolver, "DisputeRequest")
       .withArgs(core.target, disputeID, templateId)
       .and.to.emit(resolver, "Ruling")
@@ -166,7 +166,7 @@ describe("KlerosCoreRuler", async () => {
 
     await expect(core.execute(disputeID, 0))
       .and.to.emit(core, "JurorRewardPenalty")
-      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue, ZeroAddress);
+      .withArgs(dev.address, disputeID, 0, 10000, 10000, 0, anyValue);
   });
 });
 

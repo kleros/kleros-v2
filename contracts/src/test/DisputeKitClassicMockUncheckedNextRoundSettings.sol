@@ -7,17 +7,22 @@ import {DisputeKitClassic} from "../arbitration/dispute-kits/DisputeKitClassic.s
 /// @title DisputeKitClassicMockUncheckedNextRoundSettings
 /// DisputeKitClassic with unchecked next round settings to test `KlerosCore._getCompatibleNextRoundSettings()` fallback logic.
 contract DisputeKitClassicMockUncheckedNextRoundSettings is DisputeKitClassic {
-    function getNextRoundSettings(
-        uint256 /* _disputeID */,
-        uint96 _currentCourtID,
-        uint96 /* _parentCourtID */,
-        uint256 /* _currentCourtJurorsForJump */,
-        uint256 /* _currentDisputeKitID */,
-        uint256 /* _currentRoundNbVotes */
-    ) public view override returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes) {
-        NextRoundSettings storage nextRoundSettings = courtIDToNextRoundSettings[_currentCourtID];
-        newRoundNbVotes = nextRoundSettings.nbVotes;
-        newCourtID = nextRoundSettings.jumpCourtID;
-        newDisputeKitID = nextRoundSettings.jumpDisputeKitID;
+    uint96 public jumpCourtID;
+    uint256 public jumpNbVotes;
+
+    function setJumpCourt(uint96 _jumpCourtID) external {
+        jumpCourtID = _jumpCourtID;
+    }
+
+    function setJumpDK(uint256 _jumpDisputeKitID) external {
+        jumpDisputeKitID = _jumpDisputeKitID;
+    }
+
+    function setJumpNbVotes(uint256 _jumpNbVotes) external {
+        jumpNbVotes = _jumpNbVotes;
+    }
+
+    function getNextRoundSettings(uint256 /*_coreDisputeID*/) public view override returns (uint96, uint256, uint256) {
+        return (jumpCourtID, jumpDisputeKitID, jumpNbVotes);
     }
 }

@@ -17,6 +17,16 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 1500);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -31,10 +41,9 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS); // Do 3 iterations and see that the juror will get drawn 3 times despite low stake.
 
-        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(
-            staker1,
-            GENERAL_COURT
-        );
+        (uint256 totalStaked, uint256 totalLocked) = sortitionModule.getJurorBalance(staker1);
+        uint256 stakedInCourt = sortitionModule.stakeOf(staker1, GENERAL_COURT);
+
         assertEq(totalStaked, 1500, "Wrong amount total staked");
         assertEq(totalLocked, 3000, "Wrong amount locked"); // 1000 per draw
         assertEq(stakedInCourt, 1500, "Wrong amount staked in court");
@@ -59,6 +68,8 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
             assertFalse(entries[i].topics[0] == drawEventSignature, "Draw event should not be emitted");
         }
 
+        (totalStaked, totalLocked) = sortitionModule.getJurorBalance(staker1);
+        stakedInCourt = sortitionModule.stakeOf(staker1, GENERAL_COURT);
         assertEq(totalStaked, 1500, "Wrong amount total staked");
         assertEq(totalLocked, 3000, "Wrong amount locked");
         assertEq(stakedInCourt, 1500, "Wrong amount staked in court");
@@ -102,17 +113,22 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
             0.03 ether, // fee for juror
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
-            sortitionExtraData, // Sortition extra data
             supportedDK,
             NULL_ELIGIBILITY_REQUIREMENT
         );
 
-        uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
-        assertEq(children.length, 1, "Wrong children count");
-        assertEq(children[0], 2, "Wrong child ID");
-
         vm.prank(staker1);
         core.setStake(newCourtID, 3000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = newCourtID;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action"); // Dispute uses general court by default
         vm.warp(block.timestamp + minStakingTime);
@@ -140,12 +156,181 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         assertEq(nbVoters, 3, "nbVoters should be 3");
     }
 
+    function test_currentSessionDraw() public {
+        // Check that can't draw a dispute if it was created in the drawing session, when the random number is known
+        // Check specifically for Drawing phase
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
+        assertEq(sortitionModule.sessionID(), 0, "Wrong sessionID");
+
+        // Create 1st dispute
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        assertEq(
+            sortitionModule.disputesWithoutJurors(),
+            1,
+            "Wrong disputesWithoutJurors count in the current session"
+        );
+
+        // Create new dispute to check that it will get a delayed queue.
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        uint256 sessionID = 0;
+        uint256 disputeID = 0;
+        uint256 newDisputeID = 1;
+
+        assertEq(
+            sortitionModule.disputesWithoutJurors(),
+            1,
+            "Wrong disputesWithoutJurors count in the current session"
+        );
+        assertEq(
+            sortitionModule.delayedDisputesCount(sessionID),
+            1,
+            "Wrong delayedDisputesCount in the current session"
+        );
+        assertEq(sortitionModule.delayedDisputes(sessionID, newDisputeID), true, "Should be in delayed queue");
+
+        vm.expectRevert(SortitionModule.DisputeIsDelayed.selector);
+        core.draw(newDisputeID, DEFAULT_NB_OF_JURORS);
+
+        // Switch to the next drawing session.
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking
+
+        uint256 nextSessionID = 1;
+        assertEq(sortitionModule.sessionID(), nextSessionID, "Wrong sessionID");
+
+        assertEq(sortitionModule.disputesWithoutJurors(), 2, "Wrong disputesWithoutJurors count in the next session");
+        assertEq(
+            sortitionModule.delayedDisputesCount(nextSessionID),
+            0,
+            "Wrong delayedDisputesCount in the next session"
+        );
+        assertEq(sortitionModule.delayedDisputes(nextSessionID, newDisputeID), false, "Should not be in delayed queue");
+
+        // Check that both disputes are drawable
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        core.draw(newDisputeID, DEFAULT_NB_OF_JURORS);
+        assertEq(sortitionModule.disputesWithoutJurors(), 0, "Wrong disputesWithoutJurors after drawing");
+    }
+
+    function test_currentSessionDraw_generatingPhase() public {
+        // Check that can't draw a dispute if it was created in the drawing session, when the random number is known.
+        // Check specifically for Generating phase
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
+        assertEq(sortitionModule.sessionID(), 0, "Wrong sessionID");
+
+        // Create 1st dispute
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+
+        // Create new dispute to check that it will get a delayed queue.
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        uint256 sessionID = 0;
+        uint256 disputeID = 0;
+        uint256 newDisputeID = 1;
+
+        assertEq(
+            sortitionModule.disputesWithoutJurors(),
+            1,
+            "Wrong disputesWithoutJurors count in the current session"
+        );
+        assertEq(
+            sortitionModule.delayedDisputesCount(sessionID),
+            1,
+            "Wrong delayedDisputesCount in the current session"
+        );
+        assertEq(sortitionModule.delayedDisputes(sessionID, newDisputeID), true, "Should be in delayed queue");
+
+        vm.expectRevert(SortitionModule.DisputeIsDelayed.selector);
+        core.draw(newDisputeID, DEFAULT_NB_OF_JURORS);
+
+        // Switch to the next drawing session.
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking
+
+        uint256 nextSessionID = 1;
+        assertEq(sortitionModule.sessionID(), nextSessionID, "Wrong sessionID");
+
+        assertEq(sortitionModule.disputesWithoutJurors(), 2, "Wrong disputesWithoutJurors count in the next session");
+        assertEq(
+            sortitionModule.delayedDisputesCount(nextSessionID),
+            0,
+            "Wrong delayedDisputesCount in the next session"
+        );
+        assertEq(sortitionModule.delayedDisputes(nextSessionID, newDisputeID), false, "Should not be in delayed queue");
+
+        // Check that both disputes are drawable
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+        core.draw(newDisputeID, DEFAULT_NB_OF_JURORS);
+        assertEq(sortitionModule.disputesWithoutJurors(), 0, "Wrong disputesWithoutJurors after drawing");
+    }
+
     function testFuzz_drawIterations(uint256 iterations) public {
         uint256 disputeID = 0;
         uint256 roundID = 0;
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 2000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -169,10 +354,9 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         assertEq(round.drawIterations, iterationsCount, "Wrong drawIterations number");
         assertEq(round.nbVotes, DEFAULT_NB_OF_JURORS, "Wrong nbVotes");
 
-        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(
-            staker1,
-            GENERAL_COURT
-        );
+        (uint256 totalStaked, uint256 totalLocked) = sortitionModule.getJurorBalance(staker1);
+        uint256 stakedInCourt = sortitionModule.stakeOf(staker1, GENERAL_COURT);
+
         uint256 pnkAtStake = (minStake * alpha) / ONE_BASIS_POINT;
         assertEq(totalStaked, 2000, "Wrong amount total staked");
         assertEq(totalLocked, pnkAtStake * iterationsCount, "Wrong amount locked"); // 1000 per draw
@@ -191,6 +375,16 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 2000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: disputeValue}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -215,10 +409,10 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         }
 
         assertEq(round.drawIterations, iterationsCount, "Wrong drawIterations number");
-        (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(
-            staker1,
-            GENERAL_COURT
-        );
+
+        (uint256 totalStaked, uint256 totalLocked) = sortitionModule.getJurorBalance(staker1);
+        uint256 stakedInCourt = sortitionModule.stakeOf(staker1, GENERAL_COURT);
+
         uint256 pnkAtStake = (minStake * alpha) / ONE_BASIS_POINT;
         assertEq(totalStaked, 2000, "Wrong amount total staked");
         assertEq(totalLocked, pnkAtStake * iterationsCount, "Wrong amount locked");

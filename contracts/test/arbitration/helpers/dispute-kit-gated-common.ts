@@ -216,7 +216,6 @@ export async function setupTokenGatedTest(config: TokenGatedTestConfig): Promise
 
   const deploymentResult = await deployUpgradable(deployments, config.contractName, {
     from: deployer,
-    proxyAlias: "UUPSProxy",
     args: [deployer, core.target, weth.target],
     log: true,
   });

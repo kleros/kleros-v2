@@ -2,11 +2,10 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
-import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH, ONE_MINUTE_IN_SECONDS } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCore, RatesConverter, RNGWithFallback } from "../typechain-types";
+import { KlerosCore, RNGWithFallback } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -22,17 +21,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
   const nft = await deployERC721(hre, deployer, "Kleros V2 Neo Early User", "KlerosV2NeoEarlyUser");
 
-  const ratesConverter = await getContractOrDeploy<RatesConverter>(hre, "RatesConverter", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-
-  await getContractOrDeploy(hre, "TransactionBatcher", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
+  await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
   await deployUpgradable(deployments, "PolicyRegistry", {
     from: deployer,
@@ -40,26 +29,21 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deployUpgradable(deployments, "EvidenceModule", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-
-  const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
-    from: deployer,
-    args: [deployer, ZeroAddress, weth.target],
-    log: true,
-  });
+  await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [], log: true, initializer: false });
 
   let klerosCoreAddress = await deployments.getOrNull("KlerosCore").then((deployment) => deployment?.address);
   if (!klerosCoreAddress) {
     const nonce = await ethers.provider.getTransactionCount(deployer);
-    // deployed on the 4th tx (nonce+3):
-    // SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
-    klerosCoreAddress = getContractAddress(deployer, nonce + 3);
-    console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
+    klerosCoreAddress = getContractAddress(deployer, nonce + 5); // deployed on the 6th tx (nonce+5): DK Impl tx, DK Proxy tx, SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+    console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 5, klerosCoreAddress);
   }
+
+  const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
+    from: deployer,
+    args: [deployer, klerosCoreAddress, weth.target],
+    log: true,
+  }); // nonce (implementation), nonce+1 (proxy)
+
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 3 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
   const maxFreezingTime = devnet ? 10 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
@@ -78,39 +62,29 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       maxTotalStaked,
     ],
     log: true,
-  }); // nonce (implementation), nonce+1 (proxy)
+  }); // nonce+2 (implementation), nonce+3 (proxy)
 
   const minStake = PNK(200);
   const alpha = 10000;
   const feeForJuror = ETH(0.1);
   const jurorsForCourtJump = 256;
-  const klerosCore = await deployUpgradable(deployments, "KlerosCore", {
+  await deployUpgradable(deployments, "KlerosCore", {
     from: deployer,
     args: [
       deployer,
-      deployer,
       pnk.target,
-      ZeroAddress, // jurorProsecutionModule is not implemented yet
       disputeKit.address,
+      ZeroAddress, // Centralized kit
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
-      [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+      [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
       weth.target,
       nft.target,
-      ratesConverter.target,
     ],
     log: true,
-  }); // nonce+2 (implementation), nonce+3 (proxy)
-
-  // disputeKit.changeCore() only if necessary
-  const disputeKitContract = await hre.ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
-  const currentCore = await disputeKitContract.core();
-  if (currentCore !== klerosCore.address) {
-    console.log(`disputeKit.changeCore(${klerosCore.address})`);
-    await disputeKitContract.changeCore(klerosCore.address);
-  }
+  }); // nonce+4 (implementation), nonce+5 (proxy)
 
   // rngWithFallback.changeConsumer() only if necessary
   const rngConsumer = await rngWithFallback.consumer();
@@ -120,16 +94,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }
 
   const core = await hre.ethers.getContract<KlerosCore>("KlerosCore");
-  try {
-    await changeCurrencyRate(core, ratesConverter, await weth.getAddress(), true, 1, 1);
-  } catch (e) {
-    console.error("failed to change currency rates:", e);
-  }
 
   const disputeTemplateRegistry = await getContractOrDeployUpgradable(hre, "DisputeTemplateRegistry", {
     from: deployer,
-    args: [deployer],
+    args: [],
     log: true,
+    initializer: false,
   });
 
   const resolver = await deploy("DisputeResolver", {
@@ -167,7 +137,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // Snapshot proxy
   await getContractOrDeploy(hre, "KlerosCoreSnapshotProxy", {
     from: deployer,
-    args: [deployer, core.target],
+    args: [core.target],
     log: true,
   });
 
