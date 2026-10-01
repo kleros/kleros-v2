@@ -37,15 +37,17 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
 };
 
 const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { ready, authenticated, login } = usePrivy();
+  const { ready, authenticated, connectOrCreateWallet } = usePrivy();
   const logout = useLogout();
 
-  // `login()` is a no-op while Privy is authenticated. This button only renders without a wagmi connection,
-  // so an authenticated session here is stale (e.g. wagmi was disconnected on its own): clear it first.
+  // `connectOrCreateWallet()` logs email/Google users in (creating their embedded wallet) but only connects
+  // external wallets, so they are not asked for a Privy SIWE signature. This button only renders without a
+  // wagmi connection, so a Privy session still authenticated here is stale (e.g. wagmi was disconnected on its
+  // own): clear it first.
   const handleConnect = useCallback(async () => {
     if (authenticated) await logout();
-    login();
-  }, [authenticated, logout, login]);
+    connectOrCreateWallet();
+  }, [authenticated, logout, connectOrCreateWallet]);
 
   return <Button {...{ className }} disabled={!ready} small text={"Connect"} onClick={handleConnect} />;
 };

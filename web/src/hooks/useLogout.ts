@@ -5,7 +5,7 @@ import { useDisconnect } from "wagmi";
 
 /**
  * Ends the Privy session and drops the wagmi connection.
- * Disconnecting wagmi alone leaves Privy authenticated, which makes a later `login()` a no-op.
+ * Disconnecting wagmi alone leaves an email/Google Privy session authenticated, restoring it on the next visit.
  */
 export const useLogout = () => {
   const { logout } = usePrivy();

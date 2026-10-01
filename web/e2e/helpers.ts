@@ -49,19 +49,23 @@ export const waitUntil = async <T>(fn: () => Promise<T>, ok: (v: T) => boolean, 
   return last;
 };
 
-const amountInput = (page: Page) => page.getByPlaceholder(/Amount to (stake|withdraw)/);
+const amountInput = (page: Page) => page.getByPlaceholder(/Amount to (register|unregister)/);
+
+/** The court panel labels its actions Register/Unregister. */
+const ACTION_LABEL = { Stake: "Register", Withdraw: "Unregister" } as const;
 
 /** Types an amount in the StakePanel, waits for simulation (button enabled) and clicks the action button. */
 export const stakeAction = async (page: Page, action: "Stake" | "Withdraw", amount: string) => {
+  const label = ACTION_LABEL[action];
   await page
     .locator("button[class*=BaseTag]")
-    .filter({ hasText: new RegExp(`^${action}$`) })
+    .filter({ hasText: new RegExp(`^${label}$`) })
     .click();
   const input = amountInput(page);
   // The field is read-only until focused, then it re-mounts as an editable input.
   await input.click();
   await input.fill(amount);
-  const button = page.locator("button[class*=BaseButton]").filter({ hasText: new RegExp(`^${action}$`) });
+  const button = page.locator("button[class*=BaseButton]").filter({ hasText: new RegExp(`^${label}$`) });
   await expect(button).toBeEnabled({ timeout: 60_000 });
   await button.click();
 };

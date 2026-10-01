@@ -10,7 +10,10 @@ const REQUIRED = ["REACT_APP_PRIVY_APP_ID", "E2E_EXTERNAL_WALLET_PRIVATE_KEY", "
 test.skip(missingEnv(REQUIRED).length > 0, `missing env: ${missingEnv(REQUIRED).join(", ")}`);
 
 test("external wallet: connect, claim PNK, stake/withdraw paying own gas", async ({ page }) => {
-  const { account, log } = await installMockWallet(page, process.env.E2E_EXTERNAL_WALLET_PRIVATE_KEY as `0x${string}`);
+  const { account, log, signingRequests } = await installMockWallet(
+    page,
+    process.env.E2E_EXTERNAL_WALLET_PRIVATE_KEY as `0x${string}`
+  );
   const address = account.address;
   const fmt = (s: Awaited<ReturnType<typeof snapshot>>) =>
     JSON.stringify({ stake: s.stake, eth: s.eth, pnk: s.pnk, claimed: s.claimed }, (_, v) =>
@@ -26,6 +29,9 @@ test("external wallet: connect, claim PNK, stake/withdraw paying own gas", async
   await page.getByText(MOCK_WALLET_NAME).first().click();
   await expect(page.getByRole("button", { name: "Log out" }).first()).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText("0xF605...e2dA").first()).toBeVisible();
+  // Connecting an external wallet must not ask for a Privy SIWE signature (requested while the modal is still open).
+  await expect(page.locator("#privy-modal-content")).toBeHidden({ timeout: 30_000 });
+  expect(signingRequests).toEqual([]);
   await page.screenshot({ path: "../odd/artifacts/task9/external-1-connected.png" });
 
   if (!before.claimed) {
