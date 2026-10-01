@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import { usePrivy } from "@privy-io/react-auth";
 import { useAccount } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -52,6 +53,9 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { address } = useAccount();
   const { user, isAddingUser, isFetchingUser, addUser, updateEmail, isUpdatingUser, userExists } = useAtlasProvider();
 
+  const { user: privyUser } = usePrivy();
+  const privyEmail = privyUser?.email?.address ?? privyUser?.google?.email;
+
   const isEditingEmail = user?.email !== emailInput;
 
   const isEmailUpdateable = user?.email
@@ -63,6 +67,13 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
     setEmailInput(user.email);
   }, [user, userExists]);
+
+  // Prefill the Privy login email only when Atlas has none saved and the user has not typed anything.
+  useEffect(() => {
+    if (!privyEmail || isFetchingUser || user?.email) return;
+
+    setEmailInput((current) => (current === "" ? privyEmail : current));
+  }, [privyEmail, isFetchingUser, user?.email]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
