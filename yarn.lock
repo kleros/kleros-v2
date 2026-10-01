@@ -6088,6 +6088,7 @@ __metadata:
     vite-plugin-node-polyfills: "npm:^0.23.0"
     vite-plugin-svgr: "npm:^4.3.0"
     vite-tsconfig-paths: "npm:^4.3.2"
+    vitest: "npm:^1.6.0"
     wagmi: "npm:^2.14.15"
   languageName: unknown
   linkType: soft
