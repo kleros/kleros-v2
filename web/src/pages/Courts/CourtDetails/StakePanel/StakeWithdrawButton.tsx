@@ -306,7 +306,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     <EnsureChain>
       <Container>
         <Button
-          text={isStaking ? "Stake" : "Withdraw"}
+          text={isStaking ? "Register" : "Unregister"}
           isLoading={isPopupOpen || isSimulatingAllowance || isSimulatingSetStake}
           disabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
           onClick={handleClick}
