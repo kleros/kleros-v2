@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import { useAppKit, useAppKitState } from "@reown/appkit/react";
+import { usePrivy } from "@privy-io/react-auth";
 import { useAccount, useSwitchChain } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -35,17 +35,8 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
 };
 
 const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { open } = useAppKit();
-  const { open: isOpen } = useAppKitState();
-  return (
-    <Button
-      {...{ className }}
-      disabled={isOpen}
-      small
-      text={"Connect"}
-      onClick={async () => open({ view: "Connect" })}
-    />
-  );
+  const { ready, login } = usePrivy();
+  return <Button {...{ className }} disabled={!ready} small text={"Connect"} onClick={() => login()} />;
 };
 
 const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
