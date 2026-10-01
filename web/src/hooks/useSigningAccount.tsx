@@ -1,28 +1,48 @@
+import { useSignTypedData } from "@privy-io/react-auth";
 import { useLocalStorage } from "react-use";
-import { Hex, WalletClient, keccak256 } from "viem";
+import { Hex, keccak256 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { useWalletClient } from "wagmi";
 
 import messages from "consts/eip712-messages";
+import { useEmbeddedWallet } from "hooks/useIsEmbeddedWallet";
 import { isUndefined } from "utils/index";
 
 const useSigningAccount = () => {
   const { data: wallet } = useWalletClient();
+  const embeddedWallet = useEmbeddedWallet();
+  const { signTypedData: privySignTypedData } = useSignTypedData();
   const address = wallet?.account.address;
   const key = `signingAccount-${address}`;
   const [signingKey, setSigningKey] = useLocalStorage<Hex>(key);
+
+  const sign = async (): Promise<Hex | undefined> => {
+    if (isUndefined(address) || isUndefined(wallet)) return;
+    const typedData = messages.signingAccount(address);
+    if (embeddedWallet) {
+      // Privy signs silently for the embedded wallet; wagmi would open a Privy modal.
+      const { account: _, ...message } = typedData;
+      const { signature } = await privySignTypedData(message, {
+        uiOptions: { showWalletUIs: false },
+        address: embeddedWallet.address,
+      });
+      return signature as Hex;
+    }
+    return wallet.signTypedData(typedData);
+  };
+
+  const generateSigningAccount = async () => {
+    const signature = await sign();
+    if (isUndefined(signature)) return;
+    const newSigningKey = keccak256(signature);
+    setSigningKey(newSigningKey);
+    return privateKeyToAccount(newSigningKey);
+  };
+
   return {
     signingAccount: !isUndefined(signingKey) ? privateKeyToAccount(signingKey) : undefined,
-    generateSigningAccount: () => (!isUndefined(wallet) ? generateSigningAccount(wallet, setSigningKey) : undefined),
+    generateSigningAccount,
   };
-};
-
-const generateSigningAccount = async (wallet: WalletClient, setSigningKey: (signingKey: `0x${string}`) => void) => {
-  if (isUndefined(wallet.account)) return;
-  const signature = await wallet.signTypedData(messages.signingAccount(wallet.account.address));
-  const signingKey = keccak256(signature);
-  setSigningKey(signingKey);
-  return privateKeyToAccount(signingKey);
 };
 
 export default useSigningAccount;

@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+import { usePublicClient, useConfig } from "wagmi";
 
 import { Answer } from "@kleros/kleros-sdk";
 import { Button } from "@kleros/ui-components-library";
@@ -13,6 +13,7 @@ import { Button } from "@kleros/ui-components-library";
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
+import { useWriteRequest } from "hooks/useWriteRequest";
 import { isUndefined } from "utils/index";
 import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
@@ -57,7 +58,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
-  const { data: walletClient } = useWalletClient();
+  const writeRequest = useWriteRequest();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
@@ -79,8 +80,8 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
         args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
       })
     );
-    if (request && walletClient && publicClient) {
-      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+    if (request && publicClient) {
+      await wrapWithToast(async () => await writeRequest(request), publicClient).then(({ status }) => {
         setIsOpen(status);
       });
     }
@@ -98,7 +99,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     parsedDisputeID,
     publicClient,
     setIsOpen,
-    walletClient,
+    writeRequest,
   ]);
 
   return (

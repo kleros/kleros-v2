@@ -11,12 +11,11 @@ import { DEFAULT_CHAIN } from "consts/chains";
 import {
   klerosCoreAddress,
   useSimulateKlerosCoreSetStake,
-  useWriteKlerosCoreSetStake,
   useSimulatePnkIncreaseAllowance,
-  useWritePnkIncreaseAllowance,
 } from "hooks/contracts/generated";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { usePnkData } from "hooks/usePNKData";
+import { useWriteRequest } from "hooks/useWriteRequest";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
 import { refetchWithRetry } from "utils/refecthWithRetry";
@@ -103,7 +102,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     args: [klerosCoreAddress[DEFAULT_CHAIN], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
 
-  const { writeContractAsync: increaseAllowance } = useWritePnkIncreaseAllowance();
+  const writeRequest = useWriteRequest();
 
   const {
     data: setStakeConfig,
@@ -122,7 +121,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
     args: [BigInt(id ?? 0), targetStake],
   });
-  const { writeContractAsync: setStake } = useWriteKlerosCoreSetStake();
 
   const updatePopupState = (signal: AbortSignal, state: Steps) => {
     if (signal.aborted) return;
@@ -142,7 +140,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           getStakeSteps(isWithdraw ? StakeSteps.WithdrawInitiate : StakeSteps.StakeInitiate, ...commonArgs)
         );
 
-        setStake(requestData)
+        writeRequest(requestData)
           .then(async (hash) => {
             if (signal.aborted) return;
             updatePopupState(
@@ -192,7 +190,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         );
       }
     },
-    [setStake, setStakeConfig, publicClient, amount, theme, action]
+    [writeRequest, setStakeConfig, publicClient, amount, theme, action]
   );
 
   const handleClick = useCallback(() => {
@@ -204,7 +202,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       const commonArgs: [string, DefaultTheme] = [amount, theme];
       updatePopupState(signal, getStakeSteps(StakeSteps.ApproveInitiate, ...commonArgs));
 
-      increaseAllowance(increaseAllowanceConfig.request)
+      writeRequest(increaseAllowanceConfig.request)
         .then(async (hash) => {
           if (signal.aborted) return;
           updatePopupState(signal, getStakeSteps(StakeSteps.ApprovePending, ...commonArgs, hash));
@@ -243,7 +241,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       handleStake(signal);
     }
   }, [
-    increaseAllowance,
+    writeRequest,
     increaseAllowanceConfig,
     handleStake,
     isAllowance,
