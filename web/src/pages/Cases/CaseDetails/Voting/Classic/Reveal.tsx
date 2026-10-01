@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
-import { usePublicClient, useConfig } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
 
 import { Answer } from "@kleros/kleros-sdk";
 import { Button } from "@kleros/ui-components-library";
@@ -59,6 +59,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const [justification, setJustification] = useState("");
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const writeRequest = useWriteRequest();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
@@ -81,7 +82,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
       })
     );
     if (request && publicClient) {
-      await wrapWithToast(async () => await writeRequest(request), publicClient).then(({ status }) => {
+      await wrapWithToast(async () => await writeRequest(request), publicClient, address).then(({ status }) => {
         setIsOpen(status);
       });
     }
@@ -100,6 +101,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     publicClient,
     setIsOpen,
     writeRequest,
+    address,
   ]);
 
   return (

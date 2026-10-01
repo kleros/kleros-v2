@@ -53,7 +53,7 @@ const ClaimPnkButton: React.FC = () => {
       functionName: "request",
     });
     if (publicClient) {
-      wrapWithToast(async () => await writeRequest(request), publicClient)
+      wrapWithToast(async () => await writeRequest(request), publicClient, address)
         .finally(() => {
           setIsSending(false);
         })

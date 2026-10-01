@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { usePublicClient, useConfig } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import { useWriteRequest } from "hooks/useWriteRequest";
@@ -30,6 +30,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
   const writeRequest = useWriteRequest();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
 
@@ -45,7 +46,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
         ],
       });
       if (publicClient) {
-        await wrapWithToast(async () => await writeRequest(request), publicClient).then(({ status }) => {
+        await wrapWithToast(async () => await writeRequest(request), publicClient, address).then(({ status }) => {
           setIsOpen(status);
         });
       }
@@ -59,6 +60,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
       publicClient,
       setIsOpen,
       writeRequest,
+      address,
     ]
   );
 

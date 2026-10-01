@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
-import { usePublicClient, useConfig } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitClassicCastCommit } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
@@ -35,6 +35,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
   const writeRequest = useWriteRequest();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
@@ -63,7 +64,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
         args: [parsedDisputeID, parsedVoteIDs, commit],
       });
       if (publicClient) {
-        await wrapWithToast(async () => await writeRequest(request), publicClient).then(({ status }) => {
+        await wrapWithToast(async () => await writeRequest(request), publicClient, address).then(({ status }) => {
           setIsOpen(status);
         });
       }
@@ -78,6 +79,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       publicClient,
       setIsOpen,
       writeRequest,
+      address,
       generateSigningAccount,
       signingAccount,
       refetch,
