@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import { usePrivy } from "@privy-io/react-auth";
 import { useAccount, useSwitchChain } from "wagmi";
@@ -6,6 +6,7 @@ import { useAccount, useSwitchChain } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import { useEmbeddedWallet } from "hooks/useIsEmbeddedWallet";
 
 import AccountDisplay from "./AccountDisplay";
 
@@ -41,9 +42,16 @@ const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
 
 const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
   const { isConnected, chainId } = useAccount();
+  const embeddedWallet = useEmbeddedWallet();
+  const isWrongChain = chainId !== DEFAULT_CHAIN;
+
+  // Embedded (web2) users never see a network prompt: the Privy wallet is switched silently.
+  useEffect(() => {
+    if (embeddedWallet && isWrongChain) embeddedWallet.switchChain(DEFAULT_CHAIN).catch(console.error);
+  }, [embeddedWallet, isWrongChain]);
 
   if (isConnected) {
-    if (chainId !== DEFAULT_CHAIN) {
+    if (isWrongChain && !embeddedWallet) {
       return <SwitchChainButton {...{ className }} />;
     } else return <AccountDisplay />;
   } else return <ConnectButton {...{ className }} />;
