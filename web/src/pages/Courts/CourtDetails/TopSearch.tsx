@@ -115,7 +115,9 @@ const TopSearch: React.FC = () => {
 
   const filteredCourts = useMemo(() => {
     if (!data?.court) return [];
-    const courts = flattenCourts(data.court).filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+    const courts = flattenCourts(data.court).filter((c) =>
+      (c.name ?? "Unnamed Court").toLowerCase().includes(search.toLowerCase())
+    );
     const selectedCourt = courts.find((c) => c.id === currentCourtId);
     if (!selectedCourt) return courts;
 
@@ -151,7 +153,7 @@ const TopSearch: React.FC = () => {
                     }}
                   >
                     {court.parentName && <CourtParentSpan>{court.parentName} / </CourtParentSpan>}
-                    <CourtNameSpan>{court.name}</CourtNameSpan>
+                    <CourtNameSpan>{court.name ?? "Unnamed Court"}</CourtNameSpan>
                   </StyledCard>
                 ))}
               </SearchResultsContainer>
