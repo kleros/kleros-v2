@@ -25,7 +25,7 @@ interface IPrivyTransaction {
 }
 
 export interface IWriteRequestDeps {
-  /** Set only when the active wallet is the Privy embedded wallet. */
+  /** Set whenever the user has a Privy embedded wallet. */
   embeddedAddress?: Address;
   sendPrivyTransaction: (
     tx: IPrivyTransaction,

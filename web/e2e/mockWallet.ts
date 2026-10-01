@@ -11,13 +11,17 @@ export const MOCK_WALLET_NAME = "E2E Wallet";
  * Injects an EIP-1193 provider (window.ethereum + EIP-6963 announcement) backed by a local viem account.
  * Reads are forwarded to the Alchemy RPC; signing and sending happen in the Node test process.
  */
-export const installMockWallet = async (page: Page, privateKey: Hex) => {
+export const installMockWallet = async (page: Page, privateKey: Hex, walletName: string = MOCK_WALLET_NAME) => {
   const account = privateKeyToAccount(privateKey);
   const wallet = createWalletClient({ account, chain: arbitrumSepolia, transport: http(rpcUrl()) });
   let chainId = arbitrumSepolia.id;
   const log: { method: string; hash?: string }[] = [];
+  /** Every signing/sending request the wallet received, whether or not it was fulfilled. */
+  const signingRequests: string[] = [];
+  const signingMethods = /^(eth_sendTransaction|eth_sign|personal_sign|eth_signTypedData.*|eth_sendRawTransaction)$/;
 
   await page.exposeFunction("__e2eWalletRequest", async (method: string, params: any[] = []) => {
+    if (signingMethods.test(method)) signingRequests.push(method);
     switch (method) {
       case "eth_requestAccounts":
       case "eth_accounts":
@@ -96,8 +100,8 @@ export const installMockWallet = async (page: Page, privateKey: Hex) => {
       (window as any).ethereum = provider;
       announce();
     },
-    { name: MOCK_WALLET_NAME, address: account.address }
+    { name: walletName, address: account.address }
   );
 
-  return { account, log };
+  return { account, log, signingRequests };
 };

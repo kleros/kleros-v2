@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTheme } from "styled-components";
 
-import { PrivyProvider } from "@privy-io/react-auth";
-import { createConfig, WagmiProvider } from "@privy-io/wagmi";
+import { PrivyProvider, useWallets } from "@privy-io/react-auth";
+import { createConfig, useSetActiveWallet, WagmiProvider } from "@privy-io/wagmi";
 import { type Chain } from "viem";
 import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "viem/chains";
 import { fallback, http, webSocket } from "wagmi";
@@ -92,6 +92,22 @@ configureSDK({
   },
 });
 
+/**
+ * Makes the Privy embedded wallet wagmi's active wallet. Pre-authorized injected wallets (e.g. Rabby) are
+ * listed by Privy as connected wallets and could otherwise be wagmi's active account for an email/Google user.
+ */
+const ActiveWalletSync: React.FC = () => {
+  const { wallets } = useWallets();
+  const { setActiveWallet } = useSetActiveWallet();
+  const embedded = wallets.find((wallet) => wallet.walletClientType === "privy");
+
+  useEffect(() => {
+    if (embedded) setActiveWallet(embedded).catch(() => undefined);
+  }, [embedded, wallets.length, setActiveWallet]);
+
+  return null;
+};
+
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const theme = useTheme();
 
@@ -113,7 +129,10 @@ const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       }}
     >
       <QueryClientProvider>
-        <WagmiProvider config={wagmiConfig}>{children}</WagmiProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <ActiveWalletSync />
+          {children}
+        </WagmiProvider>
       </QueryClientProvider>
     </PrivyProvider>
   );
