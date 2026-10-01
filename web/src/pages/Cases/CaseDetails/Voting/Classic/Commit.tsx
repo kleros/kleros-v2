@@ -88,7 +88,13 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
 
   return id ? (
     <Container>
-      <OptionsContainer {...{ arbitrable, handleSelection: handleCommit }} />
+      <OptionsContainer
+        {...{
+          arbitrable,
+          handleSelection: handleCommit,
+          confirmHint: "You will provide your justification when revealing your vote.",
+        }}
+      />
     </Container>
   ) : null;
 };
