@@ -7,6 +7,7 @@ import { Button } from "@kleros/ui-components-library";
 
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { useEmbeddedWallet } from "hooks/useIsEmbeddedWallet";
+import { useLogout } from "hooks/useLogout";
 
 import AccountDisplay from "./AccountDisplay";
 
@@ -36,8 +37,17 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
 };
 
 const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { ready, login } = usePrivy();
-  return <Button {...{ className }} disabled={!ready} small text={"Connect"} onClick={() => login()} />;
+  const { ready, authenticated, login } = usePrivy();
+  const logout = useLogout();
+
+  // `login()` is a no-op while Privy is authenticated. This button only renders without a wagmi connection,
+  // so an authenticated session here is stale (e.g. wagmi was disconnected on its own): clear it first.
+  const handleConnect = useCallback(async () => {
+    if (authenticated) await logout();
+    login();
+  }, [authenticated, logout, login]);
+
+  return <Button {...{ className }} disabled={!ready} small text={"Connect"} onClick={handleConnect} />;
 };
 
 const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {

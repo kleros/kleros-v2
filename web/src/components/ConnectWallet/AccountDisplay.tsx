@@ -5,10 +5,11 @@ import { usePrivy } from "@privy-io/react-auth";
 import Identicon from "react-identicons";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
-import { useAccount, useChainId, useDisconnect, useEnsAvatar, useEnsName } from "wagmi";
+import { useAccount, useChainId, useEnsAvatar, useEnsName } from "wagmi";
 
 import { getChain } from "consts/chains";
 import { useIsEmbeddedWallet } from "hooks/useIsEmbeddedWallet";
+import { useLogout } from "hooks/useLogout";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -194,19 +195,13 @@ export const ChainDisplay: React.FC = () => {
 };
 
 export const Logout: React.FC = () => {
-  const { logout } = usePrivy();
-  const { disconnectAsync } = useDisconnect();
-  // Privy's logout does not always drop the wagmi connection, so disconnect explicitly.
-  const handleLogout = async () => {
-    await logout();
-    await disconnectAsync().catch(console.error);
-  };
+  const logout = useLogout();
   return (
     <LogoutButton
       type="button"
       onClick={(event) => {
         event.stopPropagation();
-        handleLogout();
+        logout();
       }}
     >
       Log out
