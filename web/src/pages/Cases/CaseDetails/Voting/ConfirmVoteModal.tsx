@@ -74,6 +74,9 @@ interface IConfirmVoteModal {
    * The modal makes no assumption about why a justification is absent.
    */
   hint?: React.ReactNode;
+  title?: string;
+  description?: string;
+  confirmText?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -83,6 +86,9 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({
   choice,
   justification,
   hint,
+  title = "Confirm your vote",
+  description = "Please review your choice before submitting. Once sent, this cannot be undone.",
+  confirmText = "Confirm vote",
   onConfirm,
   onCancel,
 }) => (
@@ -94,11 +100,9 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({
     role="dialog"
     aria={{ labelledby: "confirm-vote-title", describedby: "confirm-vote-description" }}
   >
-    <h3 id="confirm-vote-title">Confirm your vote</h3>
+    <h3 id="confirm-vote-title">{title}</h3>
 
-    <Description id="confirm-vote-description">
-      Please review your choice before submitting. Once sent, this cannot be undone.
-    </Description>
+    <Description id="confirm-vote-description">{description}</Description>
 
     <Section>
       <Label>Your choice</Label>
@@ -124,7 +128,7 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({
 
     <ButtonArea>
       <Button variant="secondary" text="Cancel" onClick={onCancel} />
-      <Button text="Confirm vote" onClick={onConfirm} />
+      <Button text={confirmText} onClick={onConfirm} />
     </ButtonArea>
   </StyledModal>
 );
