@@ -8,6 +8,12 @@ import messages from "consts/eip712-messages";
 import { useEmbeddedWallet } from "hooks/useIsEmbeddedWallet";
 import { isUndefined } from "utils/index";
 
+/** `account` only selects the signer; it is not part of the EIP-712 payload, so Privy gets everything else. */
+export const toPrivyTypedData = (typedData: ReturnType<typeof messages.signingAccount>) => {
+  const { account: _, ...message } = typedData;
+  return message;
+};
+
 const useSigningAccount = () => {
   const { data: wallet } = useWalletClient();
   const embeddedWallet = useEmbeddedWallet();
@@ -21,8 +27,7 @@ const useSigningAccount = () => {
     const typedData = messages.signingAccount(address);
     if (embeddedWallet) {
       // Privy signs silently for the embedded wallet; wagmi would open a Privy modal.
-      const { account: _, ...message } = typedData;
-      const { signature } = await privySignTypedData(message, {
+      const { signature } = await privySignTypedData(toPrivyTypedData(typedData), {
         uiOptions: { showWalletUIs: false },
         address: embeddedWallet.address,
       });
