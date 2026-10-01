@@ -42,6 +42,7 @@
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen --require tsconfig-paths/register",
     "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"
@@ -56,6 +57,7 @@
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
+    "@playwright/test": "1.57.0",
     "@types/busboy": "^1.5.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
