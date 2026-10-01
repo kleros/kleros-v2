@@ -5,6 +5,21 @@ import { snapshot } from "./chain";
 
 export const COURT_URL = "/#/courts/1";
 
+const DEPLOYED_ORIGIN = "https://kleros-university-web2.netlify.app";
+
+/**
+ * Privy only accepts the deployed origin (API origin check and SIWE message domain), so a localhost page cannot log in.
+ * Serves the site under test from the deployed origin by proxying its requests to the local server, and returns the URL to open.
+ */
+export const openAsDeployedOrigin = async (page: Page, path: string = COURT_URL) => {
+  const local = process.env.E2E_BASE_URL ?? "http://localhost:5173";
+  await page.route(`${DEPLOYED_ORIGIN}/**`, async (route) => {
+    const { pathname, search } = new URL(route.request().url());
+    await route.fulfill({ response: await route.fetch({ url: `${local}${pathname}${search}` }) });
+  });
+  await page.goto(`${DEPLOYED_ORIGIN}${path}`);
+};
+
 /** Records any text shown inside the Privy modal. The hidden Privy iframe is not part of #privy-modal-content. */
 export const watchPrivyModal = async (page: Page) => {
   await page.evaluate(() => {

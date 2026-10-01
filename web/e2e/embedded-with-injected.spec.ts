@@ -3,7 +3,7 @@ import { type Address } from "viem";
 
 import { snapshot } from "./chain";
 import { missingEnv } from "./env";
-import { COURT_URL, ONE_PNK, connectButton, stakeAndVerify } from "./helpers";
+import { ONE_PNK, connectButton, stakeAndVerify, openAsDeployedOrigin } from "./helpers";
 import { installMockWallet } from "./mockWallet";
 
 const REQUIRED = [
@@ -30,7 +30,7 @@ test("embedded Privy login with a pre-authorized injected wallet never prompts t
   const before = await snapshot(EMBEDDED_ADDRESS);
   expect(before.eth).toBe(0n);
 
-  await page.goto(COURT_URL);
+  await openAsDeployedOrigin(page);
   await connectButton(page).click();
   await page.getByPlaceholder("your@email.com").fill(process.env.E2E_PRIVY_TEST_EMAIL!);
   await page.getByRole("button", { name: "Submit" }).click();

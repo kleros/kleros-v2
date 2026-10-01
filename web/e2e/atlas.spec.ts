@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { missingEnv } from "./env";
-import { COURT_URL, connectButton } from "./helpers";
+import { connectButton, openAsDeployedOrigin } from "./helpers";
 import { installMockWallet, MOCK_WALLET_NAME } from "./mockWallet";
 
 const REQUIRED = [
@@ -66,7 +66,7 @@ const signInToAtlas = async (page: Page) => {
 
 test("Atlas SIWE sign-in with an external wallet", async ({ page }) => {
   await installMockWallet(page, process.env.E2E_EXTERNAL_WALLET_PRIVATE_KEY as `0x${string}`);
-  await page.goto(COURT_URL);
+  await openAsDeployedOrigin(page);
   await connectButton(page).click();
   await page.getByText("Continue with a wallet").click();
   await page.getByText(MOCK_WALLET_NAME).first().click();
@@ -79,7 +79,7 @@ test("Atlas SIWE sign-in with an external wallet", async ({ page }) => {
 test("Atlas SIWE sign-in with the embedded Privy wallet silently (no Privy sign modal) and prefills the email", async ({
   page,
 }) => {
-  await page.goto(COURT_URL);
+  await openAsDeployedOrigin(page);
   await connectButton(page).click();
   await page.getByPlaceholder("your@email.com").fill(process.env.E2E_PRIVY_TEST_EMAIL!);
   await page.getByRole("button", { name: "Submit" }).click();

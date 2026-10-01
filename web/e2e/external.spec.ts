@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { snapshot } from "./chain";
 import { missingEnv } from "./env";
-import { COURT_URL, ONE_PNK, connectButton, stakeAndVerify, waitUntil } from "./helpers";
+import { ONE_PNK, connectButton, stakeAndVerify, waitUntil, openAsDeployedOrigin } from "./helpers";
 import { installMockWallet, MOCK_WALLET_NAME } from "./mockWallet";
 
 const REQUIRED = ["REACT_APP_PRIVY_APP_ID", "E2E_EXTERNAL_WALLET_PRIVATE_KEY", "ALCHEMY_API_KEY"];
@@ -20,7 +20,7 @@ test("external wallet: connect, claim PNK, stake/withdraw paying own gas", async
   const before = await snapshot(address);
   console.log("before", fmt(before));
 
-  await page.goto(COURT_URL);
+  await openAsDeployedOrigin(page);
   await connectButton(page).click();
   await page.getByText("Continue with a wallet").click();
   await page.getByText(MOCK_WALLET_NAME).first().click();

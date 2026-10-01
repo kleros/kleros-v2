@@ -18,14 +18,21 @@ export const installMockWallet = async (page: Page, privateKey: Hex, walletName:
   const log: { method: string; hash?: string }[] = [];
   /** Every signing/sending request the wallet received, whether or not it was fulfilled. */
   const signingRequests: string[] = [];
+  // Like real wallets (EIP-2255): accounts are only exposed after the user approved the site, until the permission is revoked.
+  let authorized = false;
   const signingMethods = /^(eth_sendTransaction|eth_sign|personal_sign|eth_signTypedData.*|eth_sendRawTransaction)$/;
 
   await page.exposeFunction("__e2eWalletRequest", async (method: string, params: any[] = []) => {
     if (signingMethods.test(method)) signingRequests.push(method);
     switch (method) {
       case "eth_requestAccounts":
-      case "eth_accounts":
+        authorized = true;
         return [account.address];
+      case "eth_accounts":
+        return authorized ? [account.address] : [];
+      case "wallet_revokePermissions":
+        authorized = false;
+        return null;
       case "eth_chainId":
         return `0x${chainId.toString(16)}`;
       case "net_version":

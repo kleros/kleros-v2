@@ -3,7 +3,14 @@ import { getAddress, type Address } from "viem";
 
 import { snapshot } from "./chain";
 import { missingEnv } from "./env";
-import { COURT_URL, ONE_PNK, connectButton, privyModalSightings, stakeAndVerify, watchPrivyModal } from "./helpers";
+import {
+  ONE_PNK,
+  connectButton,
+  privyModalSightings,
+  stakeAndVerify,
+  watchPrivyModal,
+  openAsDeployedOrigin,
+} from "./helpers";
 
 const REQUIRED = ["REACT_APP_PRIVY_APP_ID", "E2E_PRIVY_TEST_EMAIL", "E2E_PRIVY_TEST_OTP", "ALCHEMY_API_KEY"];
 const EMBEDDED_ADDRESS = "0xEECd563bc5e3c7374D2b6Ccd90180055A78D2b97" as Address;
@@ -20,7 +27,7 @@ test("embedded Privy wallet: login, sponsored stake/withdraw without modal or ET
   );
   expect(before.eth).toBe(0n);
 
-  await page.goto(COURT_URL);
+  await openAsDeployedOrigin(page);
   await connectButton(page).click();
   await page.getByPlaceholder("your@email.com").fill(process.env.E2E_PRIVY_TEST_EMAIL!);
   await page.getByRole("button", { name: "Submit" }).click();
