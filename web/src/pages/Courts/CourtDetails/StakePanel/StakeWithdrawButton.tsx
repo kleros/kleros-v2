@@ -3,7 +3,7 @@ import styled, { DefaultTheme, useTheme } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { type TransactionReceipt } from "viem";
-import { usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 
 import { type _TimelineItem1, Button } from "@kleros/ui-components-library";
 
@@ -19,6 +19,7 @@ import { useWriteRequest } from "hooks/useWriteRequest";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
 import { refetchWithRetry } from "utils/refecthWithRetry";
+import { isUserOperationReverted } from "utils/userOperation";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
@@ -69,6 +70,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { balance, jurorBalance, allowance, refetchAllowance } = usePnkData({ courtId: id });
   const { data: courtDetails } = useCourtDetails(id);
   const publicClient = usePublicClient();
+  const { address } = useAccount();
 
   const isStaking = action === ActionType.stake;
   const isAllowance = isStaking && !isUndefined(allowance) && allowance < parsedAmount;
@@ -149,7 +151,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
             );
             await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then((res: TransactionReceipt) => {
               if (signal.aborted) return;
-              const status = res.status === "success";
+              const status = res.status === "success" && !isUserOperationReverted(res, address);
               if (status) {
                 updatePopupState(
                   signal,
@@ -190,7 +192,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         );
       }
     },
-    [writeRequest, setStakeConfig, publicClient, amount, theme, action]
+    [writeRequest, setStakeConfig, publicClient, amount, theme, action, address]
   );
 
   const handleClick = useCallback(() => {
@@ -211,7 +213,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
             .waitForTransactionReceipt({ hash, confirmations: 2 })
             .then(async (res: TransactionReceipt) => {
               if (signal.aborted) return;
-              const status = res.status === "success";
+              const status = res.status === "success" && !isUserOperationReverted(res, address);
               if (status) {
                 await refetchAllowance();
                 const refetchData = await refetchWithRetry(refetchSetStake);
@@ -251,6 +253,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     refetchAllowance,
     refetchSetStake,
     setIsPopupOpen,
+    address,
   ]);
 
   useEffect(() => {
