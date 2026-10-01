@@ -37,15 +37,24 @@ const openNotificationSettings = async (page: Page) => {
   await page.getByText("Notifications", { exact: true }).first().click();
 };
 
-const signInToAtlas = async (page: Page, approvePrivyModal: boolean) => {
+// Records whether the Privy modal is ever rendered, so a transient "Sign message" prompt cannot slip by.
+const watchPrivyModal = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { __privyModalSeen: boolean };
+    w.__privyModalSeen = false;
+    const check = () => {
+      if (document.querySelector("#privy-modal-content")) w.__privyModalSeen = true;
+    };
+    new MutationObserver(check).observe(document.documentElement, { childList: true, subtree: true });
+    check();
+  });
+
+const privyModalSeen = (page: Page) =>
+  page.evaluate(() => (window as unknown as { __privyModalSeen: boolean }).__privyModalSeen);
+
+const signInToAtlas = async (page: Page) => {
   await openNotificationSettings(page);
   await page.getByRole("button", { name: "Sign In" }).click();
-  if (approvePrivyModal) {
-    const modal = page.locator("#privy-modal-content");
-    await expect(modal).toContainText(/sign/i, { timeout: 60_000 });
-    await page.screenshot({ path: "../odd/artifacts/task9/atlas-embedded-2-privy-sign.png" });
-    await modal.getByRole("button", { name: /sign/i }).click();
-  }
   await expect(page.getByText("Signed In successfully!")).toBeVisible({ timeout: 90_000 });
   await expect(page.locator("#privy-modal-content")).toBeHidden({ timeout: 30_000 });
   // The Notifications form is only rendered by EnsureAuth once the Atlas session is verified.
@@ -63,11 +72,13 @@ test("Atlas SIWE sign-in with an external wallet", async ({ page }) => {
   await page.getByText(MOCK_WALLET_NAME).first().click();
   await expect(page.getByRole("button", { name: "Log out" }).first()).toBeVisible({ timeout: 60_000 });
 
-  await signInToAtlas(page, false);
+  await signInToAtlas(page);
   await page.screenshot({ path: "../odd/artifacts/task9/atlas-external-1-signed-in.png" });
 });
 
-test("Atlas SIWE sign-in with the embedded Privy wallet (Privy sign modal expected)", async ({ page }) => {
+test("Atlas SIWE sign-in with the embedded Privy wallet silently (no Privy sign modal) and prefills the email", async ({
+  page,
+}) => {
   await page.goto(COURT_URL);
   await connectButton(page).click();
   await page.getByPlaceholder("your@email.com").fill(process.env.E2E_PRIVY_TEST_EMAIL!);
@@ -82,6 +93,10 @@ test("Atlas SIWE sign-in with the embedded Privy wallet (Privy sign modal expect
   await expect(page.getByRole("button", { name: "Log out" }).first()).toBeVisible({ timeout: 90_000 });
   await expect(page.locator("#privy-modal-content")).toBeHidden({ timeout: 30_000 });
 
-  await signInToAtlas(page, true);
+  await watchPrivyModal(page);
+  await signInToAtlas(page);
+  expect(await privyModalSeen(page), "Privy sign modal must not appear").toBe(false);
+  await expect(page.locator("#privy-modal-content")).toHaveCount(0);
+  await expect(page.getByPlaceholder("your.email@email.com")).toHaveValue(process.env.E2E_PRIVY_TEST_EMAIL!);
   await page.screenshot({ path: "../odd/artifacts/task9/atlas-embedded-3-signed-in.png" });
 });

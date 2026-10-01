@@ -2,6 +2,7 @@ import React, { useMemo, createContext, useContext, useState, useCallback, useEf
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
 import { decodeJwt } from "jose";
+import type { Address, Hex } from "viem";
 import { useAccount, useChainId, useSignMessage, type Config } from "wagmi";
 import {
   createMessage,
@@ -54,6 +55,11 @@ interface AtlasConfig {
   uri: string;
   product: Products;
   wagmiConfig: Config;
+  /**
+   * Optional custom message signer (e.g. a silent embedded-wallet signer). When provided it is used instead of
+   * wagmi's `signMessage`, which is the default.
+   */
+  signMessage?: (args: { message: string; address: Address }) => Promise<Hex>;
 }
 
 export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.ReactNode }> = ({ children, config }) => {
@@ -67,7 +73,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
-  const { signMessageAsync } = useSignMessage({ config: config.wagmiConfig });
+  const { signMessageAsync: wagmiSignMessageAsync } = useSignMessage({ config: config.wagmiConfig });
+  const customSignMessage = config.signMessage;
 
   const atlasGqlClient = useMemo(() => {
     const headers = authToken
@@ -202,7 +209,9 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         const nonce = await getNonce(atlasGqlClient, address);
 
         const message = createMessage(address, nonce, chainId, statement);
-        const signature = await signMessageAsync({ message });
+        const signature = customSignMessage
+          ? await customSignMessage({ message, address })
+          : await wagmiSignMessageAsync({ message });
 
         const token = await loginUser(atlasGqlClient, { message, signature });
         setAuthToken(token);
@@ -212,7 +221,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsSigningIn(false);
       }
     },
-    [address, chainId, setAuthToken, signMessageAsync, atlasGqlClient]
+    [address, chainId, setAuthToken, wagmiSignMessageAsync, customSignMessage, atlasGqlClient]
   );
 
   /**
