@@ -11,7 +11,8 @@ import { createRefillLoops } from "./refill";
 import { createReporterLoops } from "./reporter";
 
 async function main(): Promise<number> {
-  const platform = await createPlatform(process.env);
+  const argv = process.argv.slice(2);
+  const platform = await createPlatform(process.env, argv);
   const { ports } = platform;
   const priceOracle = createPriceOracle(ports);
   const gateways = createGatewayAdapters(ports);
@@ -22,7 +23,7 @@ async function main(): Promise<number> {
     ...createReporterLoops(ports, { gateways, transfers, routeProvider }),
     ...createRatesLoops(ports, { priceOracle }),
   ];
-  return platform.run(loops, process.argv.slice(2));
+  return platform.run(loops, argv);
 }
 
 main().then(

@@ -16,7 +16,8 @@ export interface Platform {
   run(loops: Loop[], argv: string[]): Promise<number>;
 }
 
-export type CreatePlatform = (env: NodeJS.ProcessEnv) => Promise<Platform>;
+/** `argv` is the command (`start` | `status` | `reconcile`), so `status` can open the journal read-only. */
+export type CreatePlatform = (env: NodeJS.ProcessEnv, argv: string[]) => Promise<Platform>;
 export type CreatePriceOracle = (ports: CorePorts) => PriceOracle;
 export type CreateGatewayAdapters = (ports: CorePorts) => GatewayAdapters;
 export type CreateRouteProvider = (ports: CorePorts, deps: { priceOracle: PriceOracle }) => RouteProvider;
