@@ -1,0 +1,44 @@
+{
+  "_comment": "Non-secret configuration. Addresses are placeholders until the Veashi gateway deployment is final; the Arc chain id is the testnet id cited in the specification and must be replaced by the verified mainnet id.",
+  "topology": {
+    "chains": [
+      { "id": 42161, "name": "arbitrum", "rpcUrlEnv": "ARBITRUM_RPC_URL", "nativeSymbol": "ETH", "wrappedNative": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", "confirmations": 3, "explorerTxUrl": "https://arbiscan.io/tx/{hash}" },
+      { "id": 8453, "name": "base", "rpcUrlEnv": "BASE_RPC_URL", "nativeSymbol": "ETH", "wrappedNative": "0x4200000000000000000000000000000000000006", "confirmations": 3, "explorerTxUrl": "https://basescan.org/tx/{hash}" },
+      { "id": 5042002, "name": "arc", "rpcUrlEnv": "ARC_RPC_URL", "nativeSymbol": "USDC", "nativeDecimals": 18, "confirmations": 3 }
+    ],
+    "pairs": [
+      {
+        "id": "arc-arbitrum",
+        "foreignChainId": 5042002,
+        "foreignGateway": "0x0000000000000000000000000000000000000000",
+        "homeChainId": 42161,
+        "homeGateway": "0x0000000000000000000000000000000000000000",
+        "collectedAssets": [{ "chainId": 5042002, "address": "native", "symbol": "USDC", "decimals": 18 }],
+        "rateCurrency": "USD"
+      },
+      {
+        "id": "base-arbitrum",
+        "foreignChainId": 8453,
+        "foreignGateway": "0x0000000000000000000000000000000000000000",
+        "homeChainId": 42161,
+        "homeGateway": "0x0000000000000000000000000000000000000000",
+        "collectedAssets": [
+          { "chainId": 8453, "address": "native", "symbol": "ETH", "decimals": 18 },
+          { "chainId": 8453, "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "symbol": "USDC", "decimals": 6 }
+        ],
+        "rateCurrency": "USD"
+      }
+    ],
+    "routes": [
+      { "id": "arc->arbitrum", "pairId": "arc-arbitrum", "chainId": 5042002, "reporter": "0x0000000000000000000000000000000000000000", "fundingMethod": "nativeTransfer" },
+      { "id": "arbitrum->arc", "pairId": "arc-arbitrum", "chainId": 42161, "reporter": "0x0000000000000000000000000000000000000000", "fundingMethod": "nativeTransfer" },
+      { "id": "base->arbitrum", "pairId": "base-arbitrum", "chainId": 8453, "reporter": "0x0000000000000000000000000000000000000000", "fundingMethod": "nativeTransfer" },
+      { "id": "arbitrum->base", "pairId": "base-arbitrum", "chainId": 42161, "reporter": "0x0000000000000000000000000000000000000000", "fundingMethod": "nativeTransfer" }
+    ]
+  },
+  "platform": {},
+  "refill": {},
+  "lifi": {},
+  "reporter": {},
+  "rates": {}
+}
