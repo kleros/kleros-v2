@@ -1,5 +1,6 @@
 import { isNative, type Address, type Hex } from "../domain";
 import type {
+  Journal,
   QuoteResult,
   RouteProvider,
   RouteQuote,
@@ -91,11 +92,18 @@ type TransferScript = {
   outcome: TransferOutcome | ((intent: TransferIntent) => TransferOutcome);
 };
 
-/** Default: every transfer completes 1:1 with the allocations unchanged. Idempotent per (parent, tag). */
+/**
+ * Default: every transfer completes 1:1 with the allocations unchanged. Idempotent per (parent, tag). Given a journal,
+ * it performs the ledger moves the real `Transfers` owns: on a completed run it debits the source `eoa` holding of
+ * each allocation on the source chain and credits the destination `eoa` holding per `receivedByScope` on the
+ * destination chain. Callers never credit or debit around a transfer themselves.
+ */
 export class FakeTransfers implements Transfers {
   readonly intents: TransferIntent[] = [];
   readonly scripts: TransferScript[] = [];
   readonly outcomes = new Map<string, TransferOutcome>();
+
+  constructor(private readonly journal?: Journal) {}
 
   onRun(match: (intent: TransferIntent) => boolean, outcome: TransferScript["outcome"]): this {
     this.scripts.push({ match, outcome });
@@ -121,6 +129,31 @@ export class FakeTransfers implements Transfers {
           txHashes: [fakeHash(key)],
         };
     if (outcome.status !== "deferred") this.outcomes.set(key, outcome);
+    if (this.journal && outcome.status === "completed") {
+      for (const allocation of intent.allocations) {
+        await this.journal.ledger.debit({
+          scope: allocation.scope,
+          chainId: intent.fromChainId,
+          asset: intent.fromAsset.address,
+          location: "eoa",
+          amount: allocation.amount,
+          operationId: outcome.operationId,
+          reason: "transfer sent",
+        });
+      }
+      for (const received of outcome.receivedByScope) {
+        if (received.amount <= 0n) continue;
+        await this.journal.ledger.credit({
+          scope: received.scope,
+          chainId: intent.toChainId,
+          asset: intent.toAsset.address,
+          location: "eoa",
+          amount: received.amount,
+          operationId: outcome.operationId,
+          reason: "transfer received",
+        });
+      }
+    }
     return outcome;
   }
 }

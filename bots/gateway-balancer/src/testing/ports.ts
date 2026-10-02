@@ -116,6 +116,13 @@ export function exampleConfig(overrides: Partial<AppConfigInput> = {}): AppConfi
   return appConfigSchema.parse({ topology: exampleTopology(), ...overrides });
 }
 
+/** The fake ports' `fetch`: tests that need HTTP assign a stub returning a `Response` built from a fixture. */
+export const noNetwork: typeof globalThis.fetch = async (input) => {
+  throw new Error(
+    `no network in tests: assign ports.fetch a stub (requested ${typeof input === "string" ? input : "a request"})`
+  );
+};
+
 export interface FakePorts extends CorePorts {
   logger: FakeLogger;
   clock: FakeClock;
@@ -139,5 +146,6 @@ export function makeFakePorts(config: AppConfig = exampleConfig()): FakePorts {
     executor: new FakeExecutor(FAKE_SIGNER, journal),
     notifier: new FakeNotifier(),
     signer: FAKE_SIGNER,
+    fetch: noNetwork,
   };
 }

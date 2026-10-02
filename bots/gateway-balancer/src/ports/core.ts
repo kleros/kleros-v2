@@ -18,4 +18,6 @@ export interface CorePorts {
   notifier: Notifier;
   /** The balancer EOA, the same address on every chain. */
   signer: Address;
+  /** HTTP for LI.FI, price providers and notification adapters. Tests inject it; the fakes refuse the network. */
+  fetch: typeof globalThis.fetch;
 }
