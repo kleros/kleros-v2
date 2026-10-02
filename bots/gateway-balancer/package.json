@@ -1,0 +1,36 @@
+{
+  "name": "@kleros/gateway-balancer-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Treasury and maintenance bot for Kleros gateway pairs: HomeGateway refills, Veashi reporter funding and ForeignGateway rate updates.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "tsx src/main.ts start",
+    "status": "tsx src/main.ts status",
+    "reconcile": "tsx src/main.ts reconcile",
+    "lifi-probe": "tsx src/lifi/probe.ts",
+    "test": "vitest run",
+    "check-types": "tsc --noEmit",
+    "check-style": "eslint . --no-error-on-unmatched-pattern && prettier --check \"src/**/*.ts\""
+  },
+  "prettier": "@kleros/kleros-v2-prettier-config",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "viem": "^2.24.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@kleros/kleros-v2-eslint-config": "workspace:^",
+    "@kleros/kleros-v2-prettier-config": "workspace:^",
+    "@kleros/kleros-v2-tsconfig": "workspace:^",
+    "@types/node": "^22.13.0",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}
