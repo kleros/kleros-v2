@@ -5,9 +5,8 @@ src/
 │   │   └── DisputeResolver.sol
 │   ├── devtools ❌
 │   ├── dispute-kits
-│   │   ├── CentralizedKit.sol
 │   │   ├── DisputeKitClassic.sol
-│   │   ├── DisputeKitClassicUniversity.sol ❌
+│   │   ├── DisputeKitClassicBase.sol
 │   │   ├── DisputeKitGated.sol
 │   │   ├── DisputeKitGatedArgentinaConsumerProtection.sol
 │   │   ├── DisputeKitGatedShutter.sol
@@ -19,7 +18,6 @@ src/
 │   ├── interfaces
 │   │   ├── IArbitrableV2.sol
 │   │   ├── IArbitratorV2.sol
-│   │   ├── ICourtEligibility.sol
 │   │   ├── IDisputeKit.sol
 │   │   ├── IDisputeTemplateRegistry.sol
 │   │   ├── IEvidence.sol
@@ -28,19 +26,25 @@ src/
 │   ├── KlerosCore.sol
 │   ├── PolicyRegistry.sol
 │   ├── SortitionModule.sol
+│   ├── university ❌
 │   └── view
 │       └── KlerosCoreSnapshotProxy.sol ❌
 ├── gateway  ❌
-├── governance
-│   └── LeaderboardOffset.sol
 ├── kleros-v1 ❌
 ├── libraries
 │   ├── Constants.sol
 │   ├── SafeERC20.sol
 │   ├── SafeSend.sol
 │   └── SortitionTrees.sol
+├── proxy
+│   ├── Initializable.sol
+│   ├── KlerosProxies.sol ❌
+│   ├── mock  ❌
+│   ├── UUPSProxiable.sol
+│   └── UUPSProxy.sol
 ├── rng
 │   ├── BlockHashRNG.sol ❌
+│   ├── ChainlinkConsumerBaseV2Plus.sol
 │   ├── ChainlinkRNG.sol
 │   ├── IncrementalNG.sol ❌
 │   ├── IRandomizer.sol ❌
@@ -49,14 +53,6 @@ src/
 │   ├── RandomizerRNG.sol ❌
 │   └── RNGWithFallback.sol
 ├── test ❌
-├── token
-│   ├── Faucet.sol ❌
-│   ├── PinakionV2.sol ❌
-│   ├── PNK.sol ❌
-│   ├── SBT.sol
-│   ├── TestERC20.sol ❌
-│   ├── TestERC721.sol ❌
-│   ├── TestERC1155.sol ❌
-│   └── WrappedPinakionV2.sol ❌
+├── token ❌
 └── utils
     └── TransactionBatcher.sol ❌

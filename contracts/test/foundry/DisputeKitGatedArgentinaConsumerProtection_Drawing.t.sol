@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitGatedArgentinaConsumerProtection} from "../../src/arbitration/dispute-kits/DisputeKitGatedArgentinaConsumerProtection.sol";
 import {ArbitrableExample} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {TestERC721} from "../../src/token/TestERC721.sol";
-import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
 import "../../src/libraries/Constants.sol";
@@ -43,6 +43,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
     uint96 argentinaCourt;
     uint256 constant ARGENTINA_DK_ID = 2; // Assuming DK ID 1 is DisputeKitClassic
     ArbitrableExample argentinaArbitrable; // Arbitrable for Argentina court
+    uint256 maxExtraFilteringAttempts = 30;
 
     function setUp() public override {
         super.setUp();
@@ -62,14 +63,15 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         // Deploy and initialize the Argentina dispute kit
         DisputeKitGatedArgentinaConsumerProtection dkLogic = new DisputeKitGatedArgentinaConsumerProtection();
         bytes memory initData = abi.encodeWithSignature(
-            "initialize(address,address,address,address,address)",
-            owner,
+            "initialize(address,address,uint256,uint256,address,address)",
             address(core),
             address(wNative),
+            DISPUTE_KIT_CLASSIC,
+            maxExtraFilteringAttempts,
             address(accreditedProfessionalToken),
             address(accreditedConsumerProtectionLawyerToken)
         );
-        UUPSProxy proxyDK = new UUPSProxy(address(dkLogic), initData);
+        TransparentUpgradeableProxy proxyDK = new TransparentUpgradeableProxy(address(dkLogic), owner, initData);
         argentinaDK = DisputeKitGatedArgentinaConsumerProtection(address(proxyDK));
 
         // Add the dispute kit to core
@@ -91,13 +93,11 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
             0.03 ether, // fee for juror
             50, // jurors for jump
             [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
-            sortitionExtraData,
             supportedDK,
             NULL_ELIGIBILITY_REQUIREMENT
         );
 
-        uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
-        argentinaCourt = uint96(children[children.length - 1]);
+        argentinaCourt = core.getLatestCourtID();
 
         // Enable the dispute kit in the Argentina court
         uint256[] memory dkIDs = new uint256[](1);
@@ -116,8 +116,7 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
             templateData,
             templateDataMappings,
             argentinaExtraData,
-            registry,
-            feeToken
+            registry
         );
 
         // Give PNK to all test jurors and approve core
@@ -125,8 +124,10 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         for (uint256 i = 0; i < jurors.length; i++) {
             vm.prank(owner);
             pinakion.transfer(jurors[i], 5000);
-            vm.prank(jurors[i]);
+            vm.startPrank(jurors[i]);
             pinakion.approve(address(core), 5000);
+            core.depositTokens(5000);
+            vm.stopPrank();
         }
     }
 
@@ -184,6 +185,17 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         vm.prank(lawyer2);
         core.setStake(argentinaCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](2);
+        uint96[] memory courtIDs = new uint96[](2);
+
+        jurors[0] = lawyer1;
+        jurors[1] = lawyer2;
+        courtIDs[0] = argentinaCourt;
+        courtIDs[1] = argentinaCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         // Create dispute
         vm.prank(disputer);
         argentinaArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
@@ -205,6 +217,11 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
 
         // Verify the dispute is still waiting for jurors
         assertEq(sortitionModule.disputesWithoutJurors(), 1, "Dispute should still be waiting for jurors");
+
+        // Try 4 more iterations to check that the filter will stop after maxExtraFilteringAttempts
+        core.draw(disputeID, 4);
+        (, , , , nbVoters, ) = argentinaDK.getRoundInfo(disputeID, roundID, 0);
+        assertEq(nbVoters, DEFAULT_NB_OF_JURORS, "Should have drawn all jurors");
     }
 
     /// @notice Test that drawing succeeds when only consumer protection lawyers are staked
@@ -218,6 +235,17 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         core.setStake(argentinaCourt, 3000);
         vm.prank(consumerLawyer2);
         core.setStake(argentinaCourt, 3000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](2);
+        uint96[] memory courtIDs = new uint96[](2);
+
+        jurors[0] = consumerLawyer1;
+        jurors[1] = consumerLawyer2;
+        courtIDs[0] = argentinaCourt;
+        courtIDs[1] = argentinaCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
 
         // Create dispute
         vm.prank(disputer);
@@ -260,6 +288,19 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         vm.prank(consumerLawyer1);
         core.setStake(argentinaCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](3);
+        uint96[] memory courtIDs = new uint96[](3);
+
+        jurors[0] = lawyer1;
+        jurors[1] = lawyer2;
+        jurors[2] = consumerLawyer1;
+        courtIDs[0] = argentinaCourt;
+        courtIDs[1] = argentinaCourt;
+        courtIDs[2] = argentinaCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         // Create dispute
         vm.prank(disputer);
         argentinaArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
@@ -295,6 +336,15 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         // Stake in the Argentina court
         vm.prank(bothLawyer);
         core.setStake(argentinaCourt, 3000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = bothLawyer;
+        courtIDs[0] = argentinaCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
 
         // Create dispute
         vm.prank(disputer);
@@ -341,6 +391,17 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         vm.prank(noTokenJuror);
         core.setStake(argentinaCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](2);
+        uint96[] memory courtIDs = new uint96[](2);
+
+        jurors[0] = consumerLawyer1;
+        jurors[1] = noTokenJuror;
+        courtIDs[0] = argentinaCourt;
+        courtIDs[1] = argentinaCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         // Create dispute
         vm.prank(disputer);
         argentinaArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
@@ -375,6 +436,17 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         core.setStake(argentinaCourt, 5000);
         vm.prank(consumerLawyer1);
         core.setStake(argentinaCourt, 5000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](2);
+        uint96[] memory courtIDs = new uint96[](2);
+
+        jurors[0] = lawyer1;
+        jurors[1] = consumerLawyer1;
+        courtIDs[0] = argentinaCourt;
+        courtIDs[1] = argentinaCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
 
         // Create dispute
         vm.deal(disputer, 100 ether);
@@ -438,6 +510,14 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         uint256 expectedJurorsRound1 = DEFAULT_NB_OF_JURORS * 2 + 1;
 
         // Draw round 1
+        // Switch to the next drawing session first to make the dispute eligible for drawing.
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing
+
         core.draw(disputeID, expectedJurorsRound1 * 5); // Extra iterations for retries
         (, , , , uint256 nbVoters1, ) = argentinaDK.getRoundInfo(disputeID, 1, 0);
         assertEq(nbVoters1, expectedJurorsRound1, "Round 1 should have all jurors");
@@ -454,6 +534,15 @@ contract DisputeKitGatedArgentinaConsumerProtection_DrawingTest is KlerosCore_Te
         // Stake in the Argentina court
         vm.prank(consumerLawyer1);
         core.setStake(argentinaCourt, 3000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = consumerLawyer1;
+        courtIDs[0] = argentinaCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
 
         // Create dispute
         vm.prank(disputer);

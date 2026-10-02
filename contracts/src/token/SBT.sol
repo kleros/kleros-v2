@@ -2,157 +2,122 @@
 
 pragma solidity ^0.8.28;
 
-import {ERC721, IERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import {ERC721Pausable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
-import {IERC4906} from "@openzeppelin/contracts/interfaces/IERC4906.sol";
-import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
-import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
-contract SBT is ERC721, ERC721Pausable, ERC721Burnable, IERC4906, Ownable {
-    // Interface ID as defined in ERC-4906. This does not correspond to a traditional interface ID as ERC-4906 only
-    // defines events and does not include any external function.
-    bytes4 private constant ERC4906_INTERFACE_ID = bytes4(0x49064906);
-
+/// @title SBT
+/// @notice Minimal non-transferable soulbound token.
+contract SBT {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    uint256 private __nextTokenId;
-    string private __name;
-    string public description;
-    string public imageUri;
-    string public externalUrl;
+    address public owner; // The contract owner.
+
+    string public name; // Token name.
+    string public symbol; // Token symbol.
+    string public metadataURI; // Shared metadata URI for all tokens.
+
+    uint256 public nextTokenId; // Next token ID to mint.
+
+    mapping(address account => uint256 balance) public balanceOf; // Number of tokens held by an account.
+    mapping(uint256 tokenId => address account) public ownerOf; // Owner of each token.
 
     // ************************************* //
     // *              Events               * //
     // ************************************* //
 
-    error TransfersNotPermitted();
+    /// @notice Emitted when a token is minted or burned.
+    /// @param from Previous token owner. Zero address when minting.
+    /// @param to New token owner. Zero address when burning.
+    /// @param tokenId Token ID.
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
     // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        string memory _description,
-        string memory _imageUri,
-        string memory _externalUrl
-    ) ERC721(_name, _symbol) Ownable(msg.sender) {
-        __name = _name;
-        description = _description;
-        imageUri = _imageUri;
-        externalUrl = _externalUrl;
+    /// @notice Constructor.
+    /// @param _name Token name.
+    /// @param _symbol Token symbol.
+    /// @param _metadataURI Shared metadata URI for all tokens.
+    constructor(string memory _name, string memory _symbol, string memory _metadataURI) {
+        owner = msg.sender;
+        name = _name;
+        symbol = _symbol;
+        metadataURI = _metadataURI;
     }
 
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
 
-    function pause() public onlyOwner {
-        _pause();
-    }
-
-    function unpause() public onlyOwner {
-        _unpause();
-    }
-
-    function changeName(string memory _name) public onlyOwner {
-        __name = _name;
-    }
-
-    function changeDescription(string memory _description) public onlyOwner {
-        description = _description;
-    }
-
-    function changeImageUri(string memory _imageUri) public onlyOwner {
-        imageUri = _imageUri;
-    }
-
-    function changeExternalUrl(string memory _externalUrl) public onlyOwner {
-        externalUrl = _externalUrl;
-    }
-
-    function batchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId) public onlyOwner {
-        emit BatchMetadataUpdate(_fromTokenId, _toTokenId);
+    /// @notice Changes the contract owner.
+    /// @param _owner New owner address.
+    function changeOwner(address _owner) external {
+        require(msg.sender == owner, NotAuthorized());
+        owner = _owner;
     }
 
     // ************************************* //
-    // *        ERC-721 Functions          * //
+    // *               Token               * //
     // ************************************* //
 
-    function name() public view override returns (string memory) {
-        return __name;
+    /// @notice Mints an SBT to an address.
+    /// @dev An address can hold at most one token.
+    /// @param _to Recipient address.
+    /// @return tokenId Minted token ID.
+    function mint(address _to) external returns (uint256 tokenId) {
+        require(msg.sender == owner, NotAuthorized());
+        require(_to != address(0), InvalidAddress());
+        require(balanceOf[_to] == 0, AddressAlreadyHasToken());
+
+        tokenId = nextTokenId++;
+
+        balanceOf[_to] = 1;
+        ownerOf[tokenId] = _to;
+
+        emit Transfer(address(0), _to, tokenId);
     }
 
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        _requireOwned(_tokenId); // For compatibility with ERC-721
-        string memory json = Base64.encode(
-            bytes(
-                string.concat(
-                    '{"name":"',
-                    __name,
-                    '","description":"',
-                    description,
-                    '","image":"',
-                    imageUri,
-                    '", "external_url":"',
-                    externalUrl,
-                    '"}'
-                )
-            )
-        );
-        return string.concat("data:application/json;base64,", json);
+    /// @notice Burns an SBT.
+    /// @dev The token holder can burn their token and the contract owner can revoke it.
+    /// @param _tokenId Token ID to burn.
+    function burn(uint256 _tokenId) external {
+        address tokenOwner = ownerOf[_tokenId];
+
+        require(tokenOwner != address(0), TokenDoesNotExist());
+        require(msg.sender == tokenOwner || msg.sender == owner, NotAuthorized());
+
+        balanceOf[tokenOwner] = 0;
+        delete ownerOf[_tokenId];
+
+        emit Transfer(tokenOwner, address(0), _tokenId);
     }
 
-    function safeMint(address _to) public onlyOwner returns (uint256) {
-        require(balanceOf(_to) == 0, AddressAlreadyHasToken());
-        uint256 tokenId = __nextTokenId++;
-        _safeMint(_to, tokenId);
-        emit MetadataUpdate(tokenId);
-        return tokenId;
-    }
+    // ************************************* //
+    // *         Soulbound Behavior        * //
+    // ************************************* //
 
-    /// @dev The contract owner is authorized to operate on any token, enabling admin burn.
-    /// Note: this also technically authorizes the owner for transfers, but this has no practical
-    /// effect since transferFrom and safeTransferFrom revert with TransfersNotPermitted regardless.
-    function _isAuthorized(
-        address _tokenOwner,
-        address _spender,
-        uint256 _tokenId
-    ) internal view override returns (bool) {
-        return _spender == owner() || super._isAuthorized(_tokenOwner, _spender, _tokenId);
-    }
-
-    function transferFrom(address, address, uint256) public pure override(ERC721, IERC721) {
+    /// @notice Transfers are disabled for this contract.
+    function transferFrom(address, address, uint256) external pure {
         revert TransfersNotPermitted();
     }
 
-    function safeTransferFrom(address, address, uint256, bytes memory) public pure override(ERC721, IERC721) {
+    /// @notice Transfers are disabled for this contract.
+    function safeTransferFrom(address, address, uint256) external pure {
         revert TransfersNotPermitted();
     }
 
-    function _update(
-        address _to,
-        uint256 _tokenId,
-        address _auth
-    ) internal override(ERC721, ERC721Pausable) returns (address) {
-        return super._update(_to, _tokenId, _auth);
-    }
-
-    // ************************************* //
-    // *        ERC-165 Functions          * //
-    // ************************************* //
-
-    function supportsInterface(bytes4 _interfaceId) public view override(ERC721, IERC165) returns (bool) {
-        return _interfaceId == ERC4906_INTERFACE_ID || super.supportsInterface(_interfaceId);
+    /// @notice Transfers are disabled for this contract.
+    function safeTransferFrom(address, address, uint256, bytes calldata) external pure {
+        revert TransfersNotPermitted();
     }
 
     // ************************************* //
     // *              Errors               * //
     // ************************************* //
+
+    error NotAuthorized();
+    error InvalidAddress();
     error AddressAlreadyHasToken();
+    error TokenDoesNotExist();
+    error TransfersNotPermitted();
 }
