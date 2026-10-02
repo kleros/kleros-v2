@@ -441,7 +441,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         );
 
         uint256[] memory badSupportedDK = new uint256[](2);
-        badSupportedDK[0] = NULL_DISPUTE_KIT; // Include NULL_DK to check that it reverts
+        badSupportedDK[0] = FORKING_DISPUTE_KIT; // Include FORKING_DISPUTE_KIT to check that it reverts
         badSupportedDK[1] = DISPUTE_KIT_CLASSIC;
         vm.expectRevert(KlerosCore.WrongDisputeKitIndex.selector);
         vm.prank(owner);
@@ -627,6 +627,34 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         _assertTimesPerPeriod(GENERAL_COURT, [uint256(10), uint256(20), uint256(30), uint256(40)]);
     }
 
+    function test_changeCourtParameters_ForkingCourt() public {
+        vm.prank(owner);
+        vm.expectEmit(true, true, true, true);
+        emit KlerosCore.CourtModified(
+            FORKING_COURT,
+            true,
+            2000,
+            20000,
+            0.04 ether,
+            50,
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Explicitly convert otherwise it throws
+            NULL_ELIGIBILITY_REQUIREMENT
+        );
+        core.changeCourtParameters(
+            FORKING_COURT,
+            true, // Hidden votes
+            2000, // min stake
+            20000, // alpha
+            0.04 ether, // fee for juror
+            50, // jurors for jump
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Times per period
+            NULL_ELIGIBILITY_REQUIREMENT
+        );
+
+        _assertCourtParameters(FORKING_COURT, FORKING_COURT, true, 2000, 20000, 0.04 ether, 50, 2);
+        _assertTimesPerPeriod(FORKING_COURT, [uint256(10), uint256(20), uint256(30), uint256(40)]);
+    }
+
     function test_enableDisputeKits() public {
         DisputeKitSybilResistant newDK = new DisputeKitSybilResistant();
         uint256 newDkID = 2;
@@ -641,7 +669,7 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
 
         vm.expectRevert(KlerosCore.WrongDisputeKitIndex.selector);
         vm.prank(owner);
-        supportedDK[0] = NULL_DISPUTE_KIT;
+        supportedDK[0] = FORKING_DISPUTE_KIT;
         core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
 
         vm.expectRevert(KlerosCore.WrongDisputeKitIndex.selector);
@@ -733,5 +761,12 @@ contract KlerosCore_GovernanceTest is KlerosCore_TestBase {
         assertEq(courtID, GENERAL_COURT, "Wrong courtID"); // Value in extra data is out of scope so fall back
         assertEq(minJurors, 41, "Wrong minJurors");
         assertEq(disputeKitID, 6, "Wrong disputeKitID");
+
+        // Forking court, forking DK.
+        extraData = abi.encodePacked(uint256(FORKING_COURT), DEFAULT_NB_OF_JURORS, FORKING_DISPUTE_KIT);
+        (courtID, minJurors, disputeKitID) = core.extraDataToCourtIDMinJurorsDisputeKit(extraData);
+        assertEq(courtID, GENERAL_COURT, "Wrong courtID"); // fallback
+        assertEq(minJurors, DEFAULT_NB_OF_JURORS, "Wrong minJurors");
+        assertEq(disputeKitID, DISPUTE_KIT_CLASSIC, "Wrong disputeKitID"); // fallback
     }
 }

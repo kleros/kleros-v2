@@ -93,11 +93,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer,
       deployer,
       pnk.target,
-      ZeroAddress, // KlerosCore is configured later
       disputeKit.address,
+      ZeroAddress, // Centralized dispute kit is configured later
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+      [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
       weth.target,
