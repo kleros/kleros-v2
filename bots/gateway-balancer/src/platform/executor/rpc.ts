@@ -10,6 +10,7 @@ import {
 import type { Address, ChainId, Hex, TxRequest } from "../../domain";
 import { chainDefinition, makePublicClient } from "../chains/chainClient";
 import { findRevertData, isExecutionRevert, shortMessage } from "../chains/rpcError";
+import { GAS_PRICE_ORACLE, gasPriceOracleAbi } from "../gas/l1DataFee";
 import type { ReserveRpc } from "../gas/reserve";
 import type { Redact } from "../redact";
 
@@ -141,6 +142,27 @@ export class ViemExecutorRpc implements ExecutorRpc {
         throw error;
       }
     });
+  }
+
+  /**
+   * The OP-stack GasPriceOracle's `getL1Fee` of `unsignedTx` at `blockNumber`. Every failure (transport, timeout, an
+   * oracle revert, no code at the predeploy) is a non-revert `RpcFailure` without revert data: the oracle is not the
+   * request's contract, so a submit fails `aborted:` and the loops retry it without counting a rejection ([L65]).
+   */
+  getL1Fee(unsignedTx: Hex, blockNumber: bigint): Promise<bigint> {
+    return this.client
+      .readContract({
+        address: GAS_PRICE_ORACLE,
+        abi: gasPriceOracleAbi,
+        functionName: "getL1Fee",
+        args: [unsignedTx],
+        blockNumber,
+      })
+      .catch((error: unknown) => {
+        // One line: viem's message for a contract revert spans several.
+        const detail = shortMessage(error).replace(/\s+/g, " ");
+        throw new RpcFailure(this.redact(`L1 data fee unavailable: ${detail}`), null, false);
+      });
   }
 
   sendRawTransaction(raw: Hex): Promise<void> {
