@@ -282,6 +282,22 @@ function txOf(step: StoredStep): TxRequest {
 /** How a fee paid on top that the scopes' native holdings cannot cover is worded (`feesOnTop`). */
 const FEE_SHORTFALL = "value: the fee of";
 
+/**
+ * For an `attention` reached after the leg's send was signed (reverted, replaced, unknown, a signed `failed`, a LI.FI
+ * failure or an unknown status past the timeout): the fees paid on top its bracket debited from the native `eoa`
+ * holdings, which only a person can tell were spent (a revert spends none, a LI.FI refund may return them). Empty when
+ * the leg debited none.
+ */
+function feesNote(leg: Pick<Leg, "fromChainId" | "feesOnTop">): string {
+  const fees = leg.feesOnTop ?? [];
+  if (fees.length === 0) return "";
+  const shares = fees.map((f) => `${f.scope} ${f.amount}`).join(", ");
+  return (
+    `; LI.FI fees paid on top debited from the native eoa holding on chain ${leg.fromChainId}: ${shares} ` +
+    "(credit them back by hand if the transaction did not spend them)"
+  );
+}
+
 /** The native value a leg's send carries beyond its own native input: LI.FI fees paid on top ([L49]). */
 function feeOnTop(
   quote: { inputAmount: bigint; steps: readonly { kind: string; tx: { value: bigint } }[] },
@@ -733,9 +749,11 @@ export class LifiTransfers implements Transfers {
   }
 
   /**
-   * Step `release`: the continuation was abandoned and its intermediate is already in the `eoa` holding. The transfer
-   * goes to `attention` with one `critical`; a resume here (after a crash before that write, or an operator reopening
-   * it) raises the same again and never requotes, since nothing is booked in transit any more.
+   * Step `release`: the continuation was abandoned and its intermediate is already in the `eoa` holding. One `critical`
+   * is sent, then the transfer goes to `attention`: in that order, because nothing runs an operation already in
+   * `attention`, so a stop between the two leaves it at `release` and the next tick sends the critical again (its dedup
+   * key makes the repeat harmless). A resume here (after such a stop, or an operator reopening it) raises the same and
+   * never requotes, since nothing is booked in transit any more.
    */
   private async released(
     id: OperationId,
@@ -745,10 +763,6 @@ export class LifiTransfers implements Transfers {
   ): Promise<TransferOutcome> {
     const asset = `${leg.fromAsset.symbol} (${leg.fromAsset.address})`;
     const { why, reason } = state.released ?? { why: "continuation abandoned", reason: "no reason recorded" };
-    const outcome = await this.attention(
-      id,
-      `${why} (${reason}); ${leg.amount} ${asset} moved to the eoa holding on chain ${leg.fromChainId}`
-    );
     await this.ports.notifier.notify({
       severity: "critical",
       title: "LI.FI continuation swap abandoned: intermediate token left in the EOA",
@@ -763,7 +777,10 @@ export class LifiTransfers implements Transfers {
         `Swap ${asset} on chain ${leg.fromChainId} to ${payload.toAsset.symbol} by hand. Resuming this operation ` +
         "does not swap it.",
     });
-    return outcome;
+    return this.attention(
+      id,
+      `${why} (${reason}); ${leg.amount} ${asset} moved to the eoa holding on chain ${leg.fromChainId}`
+    );
   }
 
   /** The current policy's violations of the leg's persisted quote, the daily limit excepted (checked at send). */
@@ -1260,7 +1277,8 @@ export class LifiTransfers implements Transfers {
           return this.attention(
             id,
             `bridge submit returned failed but the record under ${sendKey} is ` +
-              `${record ? `${record.status} with a signed transaction` : "missing"}; the funds stay in transit`
+              `${record ? `${record.status} with a signed transaction` : "missing"}; the funds stay in transit` +
+              feesNote(leg)
           );
         }
         const first = state.legs.length === 1;
@@ -1277,7 +1295,7 @@ export class LifiTransfers implements Transfers {
         return { status: "in-progress", operationId: id, step: `send failed, retrying: ${outcome.error}` };
       }
       default:
-        return this.attention(id, `bridge transaction ${this.describe(outcome)}`);
+        return this.attention(id, `bridge transaction ${this.describe(outcome)}${feesNote(leg)}`);
     }
   }
 
@@ -1320,12 +1338,14 @@ export class LifiTransfers implements Transfers {
         const expired = state.doneSeenAt
           ? now.getTime() - new Date(state.doneSeenAt).getTime() > config.statusTimeoutSeconds * 1000
           : timedOut;
-        if (expired) return this.attention(id, `transfer status unknown past the timeout: ${status.detail}`);
+        if (expired) {
+          return this.attention(id, `transfer status unknown past the timeout: ${status.detail}${feesNote(leg)}`);
+        }
         await this.save(id, "bridging", state);
         return { status: "in-progress", operationId: id, step: "bridging" };
       }
       case "failed":
-        return this.attention(id, `LI.FI reports the transfer failed: ${status.reason}`);
+        return this.attention(id, `LI.FI reports the transfer failed: ${status.reason}${feesNote(leg)}`);
       case "done":
         return this.received(id, payload, state, leg, status);
     }

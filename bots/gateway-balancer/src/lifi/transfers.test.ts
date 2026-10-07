@@ -2028,6 +2028,54 @@ describe("run 011: late DONE waits, fees paid on top, continuations without a ro
     expect(bridgeSubmissions(ports)).toHaveLength(0);
   });
 
+  // Re-review F1: an attention reached after the send was signed names the fees its bracket debited.
+
+  it("names the debited fee paid on top when the signed send reverts", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    ports.executor.script((r) => r.to === FAKE_LIFI_DIAMOND, { status: "reverted", hash: fakeHash("r"), reason: null });
+    const intent = await parentWithHolding(ports);
+    await creditNative(ports, foreignEth.chainId, FEE);
+    const outcome = await drive(t, ports, intent);
+    expect(outcome).toMatchObject({ status: "attention" });
+    if (outcome.status === "attention") {
+      expect(outcome.reason).toMatch(/^bridge transaction reverted/);
+      expect(outcome.reason).toContain(
+        `LI.FI fees paid on top debited from the native eoa holding on chain ${foreignEth.chainId}: ` +
+          `${scopeKey(scope)} ${FEE} (credit them back by hand if the transaction did not spend them)`
+      );
+    }
+    // Nothing is moved automatically: the person reconciling reads the amounts from the reason.
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+    expect(await holding(ports, usdc.chainId, usdc.address, "in-transit")).toBe(AMOUNT);
+  });
+
+  it("names the debited fee paid on top when LI.FI reports the bridge failed", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const intent = await parentWithHolding(ports);
+    await creditNative(ports, foreignEth.chainId, FEE);
+    for (let i = 0; i < 3; i++) await t.run(intent);
+    expect((await childOf(ports)).step).toBe("bridging");
+    routes.statuses.set(sendHashOf(ports), { state: "failed", reason: "bridge refunded" });
+    ports.clock.advance(30_000);
+    const outcome = await t.run(intent);
+    expect(outcome).toMatchObject({ status: "attention" });
+    if (outcome.status === "attention") {
+      expect(outcome.reason).toMatch(/^LI\.FI reports the transfer failed: bridge refunded; LI\.FI fees paid on top/);
+      expect(outcome.reason).toContain(`${scopeKey(scope)} ${FEE}`);
+    }
+  });
+
+  it("adds no fee note when the leg debited no fee paid on top", async () => {
+    const { ports, transfers: t } = setup();
+    ports.executor.script((r) => r.to === FAKE_LIFI_DIAMOND, { status: "reverted", hash: fakeHash("r"), reason: null });
+    const intent = await parentWithHolding(ports);
+    const outcome = await drive(t, ports, intent);
+    expect(outcome).toMatchObject({ status: "attention" });
+    if (outcome.status === "attention") expect(outcome.reason).not.toMatch(/fees paid on top/);
+  });
+
   // Row 3: a continuation leg without a route is bounded like a policy-blocked one ([L64]).
 
   it("(e) no route: a continuation warns per tick, then goes to eoa and attention, freeing its slot", async () => {
@@ -2236,14 +2284,18 @@ describe("review follow-ups: continuation causes and the release step ([L64])", 
     let child = await childOf(ports);
     expect(child.step).toBe("release");
     expect(child.status).toBe("open");
-    expect(ports.notifier.bySeverity("critical")).toHaveLength(0);
+    // The critical goes out before the attention write, so the crash cannot lose it.
+    expect(ports.notifier.bySeverity("critical")).toHaveLength(1);
     expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(0n);
     expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
 
     expect(await t.run(intent)).toMatchObject({ status: "attention" });
     child = await childOf(ports);
     expect(child.lastError).toMatch(/^continuation blocked by the policy after 1 ticks \(asset: .*\); 2990000000 USDC/);
-    expect(ports.notifier.bySeverity("critical")).toHaveLength(1);
+    // The resume sends it again under the same dedup key (the notifier's dedup makes it one message).
+    const critical = ports.notifier.bySeverity("critical");
+    expect(critical).toHaveLength(2);
+    expect(new Set(critical.map((n) => n.dedupKey))).toEqual(new Set([`transfer-continuation-abandoned:${child.id}`]));
 
     // An operator reopening it (after adding the token to allowedAssets) gets the same attention: nothing is requoted,
     // sent or moved, since the intermediate is already in the eoa holding.
@@ -2252,6 +2304,31 @@ describe("review follow-ups: continuation causes and the release step ([L64])", 
     expect(await t.run(intent)).toMatchObject({ status: "attention", reason: child.lastError });
     expect(bridgeSubmissions(ports)).toHaveLength(submissions);
     expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(0n);
+    expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
+  });
+
+  it("re-review F1: a critical that fails to send stays at release, and the next tick sends it", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation({ continuationBlockedMaxTicks: 1 });
+    rejectContinuation(routes);
+    const notify = ports.notifier.notify.bind(ports.notifier);
+    let failures = 1;
+    const spy = vi.spyOn(ports.notifier, "notify").mockImplementation(async (notification) => {
+      if (notification.severity === "critical" && failures-- > 0) throw new Error("notifier unavailable");
+      return notify(notification);
+    });
+    expect(await t.run(intent)).toMatchObject({ step: "error: notifier unavailable" });
+    spy.mockRestore();
+    let child = await childOf(ports);
+    // Not in attention yet: an operation in attention is never run again, so its critical would be lost for good.
+    expect(child).toMatchObject({ step: "release", status: "open" });
+    expect(ports.notifier.bySeverity("critical")).toHaveLength(0);
+
+    expect(await t.run(intent)).toMatchObject({ status: "attention" });
+    child = await childOf(ports);
+    expect(child.status).toBe("attention");
+    const critical = ports.notifier.bySeverity("critical");
+    expect(critical).toHaveLength(1);
+    expect(critical[0]!.dedupKey).toBe(`transfer-continuation-abandoned:${child.id}`);
     expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
   });
 });
