@@ -1,0 +1,27 @@
+{
+  "_comment": "The `reporter` section of the configuration file. Amounts are decimal strings in whole native tokens of the reporter's chain (ETH on Arbitrum and Base, USDC on Arc). Message counts are integers. Every route of `topology.routes` needs a `costPerMessage`; a route without one is suspended with a critical notification. The values below are placeholders until the operator sets the launch thresholds. Defaults: refill below 20 messages, up to 100 messages, never top up fewer than 5 messages' worth; each route may override them. An operation whose transfer keeps deferring with an ambiguous reason (`insufficient-holding:` or an unknown one) goes to attention after `maxAmbiguousDeferrals` deferrals or `ambiguousDeferralMaxAgeMinutes` minutes.",
+  "reporter": {
+    "lowWaterMessages": 20,
+    "targetMessages": 100,
+    "minTopUpMessages": 5,
+    "maxAmbiguousDeferrals": 5,
+    "ambiguousDeferralMaxAgeMinutes": 60,
+    "routes": {
+      "arc->arbitrum": {
+        "costPerMessage": "0.05"
+      },
+      "arbitrum->arc": {
+        "costPerMessage": "0.00002"
+      },
+      "base->arbitrum": {
+        "costPerMessage": "0.00002"
+      },
+      "arbitrum->base": {
+        "costPerMessage": "0.00002",
+        "lowWaterMessages": 30,
+        "targetMessages": 150,
+        "minTopUpMessages": 10
+      }
+    }
+  }
+}
