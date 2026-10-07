@@ -172,10 +172,17 @@ send reuses it (`spendReserved`), so exactly one row exists and `spentSince` doe
 the 24-hour window the next send adds a fresh one, as for any retry. A continuation leg's input is the intermediate
 this operation delivered and stays booked in transit while it is requoted, up to a bound (decisions [L64]): every
 tick the policy blocks a continuation leg (its first quote, a requote, the re-evaluation before approval or send, a
-`send:submit` resume), or LI.FI has no route for it (`awaiting-route:`, a failed quote request included), raises a warning (dedup per operation) and requotes; after `continuationBlockedMaxTicks` blocked
-ticks or `statusTimeoutSeconds` from the first one, the booking moves (inside a `release:crediting` marker) from
-`in-transit` to the `eoa` holding of that token on the destination chain under the operation's own scope, the
-transfer goes to `attention` and one `critical` is raised. Nothing stays booked in transit after that `attention`. A recorded transaction is always resolved
+`send:submit` resume), LI.FI has no route for it (`awaiting-route:`), its quote request fails (`awaiting-route: quote
+failed: …`: a LI.FI error or timeout, or a ledger read error while quoting) or the scopes' native holding cannot pay
+its fee paid on top (`policy-rejected: value: the fee of …`), raises a warning (dedup per operation, one per cause) and
+requotes; after `continuationBlockedMaxTicks` blocked ticks or `statusTimeoutSeconds` from the first one, the booking
+moves (inside a `release:crediting` marker) from `in-transit` to the `eoa` holding of that token on the destination
+chain under the operation's own scope, the step becomes `release`, the transfer goes to `attention` and one
+`critical` is raised. A failed quote request is no evidence of a missing route: it starts the time but adds no blocked
+tick, so only `statusTimeoutSeconds` ends an outage of LI.FI. The counter is never reset by a passing quote: a quote the
+provider accepts can still be blocked by the re-evaluation before send, and a reset there would never reach the tick
+bound. A resume at step `release` (a crash before the `attention` write, or an operator reopening the operation) raises
+the same `attention` and `critical` and never requotes. Nothing stays booked in transit after that `attention`. A recorded transaction is always resolved
 under its key, never requoted. A `failed` submit credits `in-transit` back
 to `eoa` only when the journal's record under the key is `failed` with no signed bytes and no hash; anything else
 is `attention` with the funds left in transit. An approval, send or unwrap that fails before signing, an `aborted:`
@@ -274,7 +281,7 @@ first quoted is not a deferral: `run` throws and the caller's tick fails into th
 | `feeRecipients` | `[]` | Per source chain: who LI.FI's fee forwarder may pay inside a `SwapData.callData`, besides the signer and the Diamond. Empty (the default and the shipped example) rejects every quote with a fee step that pays a third party (all recorded quotes do); add LI.FI's fee wallet only after verifying it with LI.FI (launch gate above). |
 | `creditCheckMaxTicks` | 10 | Failed checks (one per poll) of an ERC20 delivery's balance increase before the transfer goes to `attention`. |
 | `creditCheckMaxAgeSeconds` | 1800 | ...or this long after the first failed check. |
-| `continuationBlockedMaxTicks` | 20 | Blocked ticks (by the policy, or for lack of a LI.FI route: `awaiting-route:`, a failed quote request included) of a continuation leg (its input already on the destination chain) before its booking moves from `in-transit` to the `eoa` holding of that token and the transfer goes to `attention` (decisions [L64]); also after `statusTimeoutSeconds` from the first block. |
+| `continuationBlockedMaxTicks` | 20 | Blocked ticks (by the policy, for lack of a LI.FI route, or for lack of native to pay a fee paid on top; a failed quote request adds none) of a continuation leg (its input already on the destination chain) before its booking moves from `in-transit` to the `eoa` holding of that token and the transfer goes to `attention` (decisions [L64]); also after `statusTimeoutSeconds` from the first block. |
 | `limits` | `[]` | Per source chain and asset: `decimals`, `perTransfer`, `daily` in whole units. `decimals` must equal the topology's (the chain's `nativeDecimals` for `native`, the collected asset's for a token): `createRouteProvider`, `createTransfers` and `lifi-probe` refuse a mismatch, an unknown chain or an asset outside the topology, naming `lifi.limits[i]` (decisions [L36]). |
 | `nativeTokens` | `[]` | LI.FI's token for a chain's native asset when it is not the zero address (Arc: `0x3600…0000`, 6 decimals). |
 | `priceSymbols` | `WETH→ETH`, `USDC.e→USDC`, `USDbC→USDC` | Token symbol to price-oracle symbol. |
@@ -305,8 +312,9 @@ verified and added to `feeRecipients` (above).
 | `Transfer credited more than the balance delta` | warning | Native deliveries only. Compare the receiving transaction with the EOA's balance history (other activity on the EOA can explain it); reconcile the holdings if funds are really short. |
 | `LI.FI delivery not visible in the EOA balance` | warning (once per transfer) | An ERC20 delivery that LI.FI reports `DONE` did not raise the EOA's token balance by the amount: nothing is credited. Check the receiving transaction and the token balance; if the funds did not arrive the transfer goes to `attention` (`unverified delivery: …`) after `creditCheckMaxTicks` checks or `creditCheckMaxAgeSeconds`, and the funds stay `in-transit` in the ledger until resolved by hand. |
 | `LI.FI continuation swap blocked by the policy` | warning (dedup per transfer) | The bridge delivered an intermediate token whose swap the policy rejects (for instance not in `allowedAssets`, or not the bridge's declared output). Add the token to `lifi.allowedAssets` if you accept it; otherwise the transfer goes to `attention` after `continuationBlockedMaxTicks` blocked ticks or `statusTimeoutSeconds`. |
-| `LI.FI continuation swap has no route` | warning (dedup per transfer) | The bridge delivered an intermediate token and LI.FI finds no route for its swap (or the quote request fails). Run `lifi-probe` for that swap; the transfer is requoted every tick and goes to `attention` after `continuationBlockedMaxTicks` blocked ticks or `statusTimeoutSeconds`. |
-| `LI.FI continuation swap abandoned: intermediate token left in the EOA` | critical (once per transfer) | The named token and amount are booked in the operation scope's `eoa` holding on the named chain and the operation is in `attention`. Swap it by hand, or add the token to `lifi.allowedAssets` and resume the operation (for lack of a route: swap it by hand). |
+| `LI.FI continuation swap has no route` | warning (dedup per transfer) | The bridge delivered an intermediate token and LI.FI finds no route for its swap (or the quote request fails). Run `lifi-probe` for that swap; the transfer is requoted every tick and goes to `attention` after `continuationBlockedMaxTicks` blocked ticks or `statusTimeoutSeconds` (a failed quote request counts toward the time only). |
+| `LI.FI continuation swap cannot pay its fee` | warning (dedup per transfer) | The continuation's quote carries a LI.FI fee paid on top in native that the scope's native `eoa` holding on that chain does not cover (the body names the amounts). Fund that holding; otherwise the transfer goes to `attention` after `continuationBlockedMaxTicks` blocked ticks or `statusTimeoutSeconds`. |
+| `LI.FI continuation swap abandoned: intermediate token left in the EOA` | critical (once per transfer) | The named token and amount are booked in the operation scope's `eoa` holding on the named chain and the operation is in `attention` (step `release`). Swap it by hand. Resuming the operation does not swap it: it raises the same `attention` again. |
 | `LI.FI transfer waiting for an inbound slot` | warning (once per blocking transfer) | Another transfer to the same chain and asset is in flight. Nothing to do unless the named transfer is stuck; it ends in `attention` on its own (timeout) and then frees the slot. |
 
 A transfer in `attention` is reported by its caller (the refill or reporter loop) with the transfer's reason:

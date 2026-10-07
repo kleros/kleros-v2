@@ -1497,7 +1497,8 @@ describe("run 010: every blocked path, re-approval recheck, receipt reads ([L64]
     expect(critical[0]!.body).toContain(child!.id);
     expect(critical[0]!.body).toContain(homeUsdc.address);
     expect(critical[0]!.body).toContain(`chain ${homeChain}`);
-    expect(critical[0]!.action).toMatch(/by hand, or add the token to lifi\.allowedAssets and resume/);
+    // A resume never requotes a released continuation (step `release`), so the critical names only the hand swap.
+    expect(critical[0]!.action).toMatch(/by hand\. Resuming this operation does not swap it\.$/);
     // The outcome stays `attention`; nothing more is quoted, sent or notified.
     const sent = ports.notifier.sent.length;
     expect(await t.run(intent)).toMatchObject({ status: "attention" });
@@ -1785,7 +1786,12 @@ describe("run 011: late DONE waits, fees paid on top, continuations without a ro
     const { ports, routes, transfers: t } = setup();
     const intent = await parentWithHolding(ports);
     for (let i = 0; i < 3; i++) await t.run(intent);
-    routes.statuses.set(sendHashOf(ports), { ...done(ETH), ...override });
+    const hash = sendHashOf(ports);
+    routes.statuses.set(hash, { state: "pending" });
+    // DONE is first seen past statusTimeoutSeconds (3600) from the send, so a bound from sentAt would end it at once.
+    ports.clock.advance(3_700_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    routes.statuses.set(hash, { ...done(ETH), ...override });
     ports.clock.advance(30_000);
     expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
     const seen = (await payloadOf(ports)).doneSeenAt;
@@ -2094,5 +2100,158 @@ describe("run 011: late DONE waits, fees paid on top, continuations without a ro
     expect((await childOf(ports)).status).toBe("open");
     expect(ports.notifier.bySeverity("critical")).toHaveLength(0);
     expect(await holding(ports, usdc.chainId, usdc.address, "eoa")).toBe(AMOUNT);
+  });
+});
+
+describe("review follow-ups: continuation causes and the release step ([L64])", () => {
+  const FEE = 10n ** 15n;
+  const homeChain = EXAMPLE_CHAINS.home;
+  const homeUsdc: Asset = {
+    chainId: EXAMPLE_CHAINS.home,
+    address: "0x00000000000000000000000000000000000000c9",
+    symbol: "USDC",
+    decimals: 6,
+  };
+  const BRIDGED = 2_990_000_000n;
+
+  const childOf = async (ports: FakePorts) => (await ports.journal.listOperations({ kind: "transfer" }))[0]!;
+  const blockedOf = async (ports: FakePorts) =>
+    ((await childOf(ports)).stepPayload as unknown as { continuationBlocked?: { count: number } | null })
+      .continuationBlocked;
+
+  /** A bridge that delivered the intermediate `homeUsdc` (LI.FI PARTIAL): the continuation is at `requote`. */
+  async function atContinuation(lifi: Record<string, unknown> = {}) {
+    const raw = { bridgeOutput: { address: homeUsdc.address, estimate: BRIDGED.toString() } };
+    const env = setup({ quote: { raw }, lifi });
+    const { ports, routes, transfers } = env;
+    const intent = await parentWithHolding(ports);
+    for (let i = 0; i < 3; i++) await transfers.run(intent);
+    routes.statuses.set(sendHashOf(ports), done(BRIDGED, homeUsdc));
+    confirmReceipt(ports);
+    ports.chains.get(homeChain)!.setErc20Balance(homeUsdc.address as Address, FAKE_SIGNER, BRIDGED);
+    ports.clock.advance(30_000);
+    expect(await transfers.run(intent)).toMatchObject({ step: "requote" });
+    expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(BRIDGED);
+    return { ...env, intent };
+  }
+
+  function rejectContinuation(routes: FakeRouteProvider) {
+    routes.quotes.unshift({
+      match: (r) => r.fromChainId === homeChain,
+      result: () => ({
+        kind: "rejected",
+        violations: [`asset: ${homeUsdc.address} on chain ${homeChain} is not in allowedAssets`],
+      }),
+    });
+  }
+
+  /** Continuation quotes on the home chain carrying `FEE` paid on top in native. */
+  function feeOnTopContinuation(routes: FakeRouteProvider) {
+    routes.quotes.unshift({
+      match: (r) => r.fromChainId === homeChain,
+      result: (r) => {
+        const quote = quoteFor(r, { estimatedOutput: ETH, minimumOutput: (98n * ETH) / 100n });
+        const steps = quote.steps.map((s) =>
+          s.kind === "approve" ? s : { ...s, tx: { ...s.tx, value: s.tx.value + FEE } }
+        );
+        return { kind: "quote", quote: { ...quote, steps } };
+      },
+    });
+  }
+
+  it("F2: failed quote requests add no blocked tick; real route gaps still reach the tick bound", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation({ continuationBlockedMaxTicks: 2 });
+    const failing = {
+      match: (r: { fromChainId: number }) => r.fromChainId === homeChain,
+      result: () => {
+        throw new Error("LI.FI quote failed: HTTP 503");
+      },
+    };
+    routes.quotes.unshift(failing);
+    for (let tick = 0; tick < 5; tick++) {
+      expect(await t.run(intent)).toMatchObject({
+        status: "in-progress",
+        step: "awaiting-route: quote failed: LI.FI quote failed: HTTP 503",
+      });
+      ports.clock.advance(30_000);
+    }
+    expect((await blockedOf(ports))!.count).toBe(0);
+    expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(BRIDGED);
+    expect(ports.notifier.bySeverity("critical")).toHaveLength(0);
+    // LI.FI answers again, with no route: two real gaps reach continuationBlockedMaxTicks (2).
+    routes.quotes.splice(routes.quotes.indexOf(failing), 1);
+    routes.quotes.unshift({ match: (r) => r.fromChainId === homeChain, result: { kind: "no-route", reason: "1002" } });
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "awaiting-route: 1002" });
+    expect(await t.run(intent)).toMatchObject({ status: "attention" });
+    expect((await childOf(ports)).lastError).toMatch(/continuation blocked for lack of a LI\.FI route after 2 ticks/);
+    expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
+  });
+
+  it("F2: a ledger read error while quoting is a failed request, not a blocked tick", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation({ continuationBlockedMaxTicks: 2 });
+    feeOnTopContinuation(routes);
+    const spy = vi.spyOn(ports.journal.ledger, "holdings").mockRejectedValue(new Error("journal busy"));
+    for (let tick = 0; tick < 4; tick++) {
+      expect(await t.run(intent)).toMatchObject({
+        status: "in-progress",
+        step: "awaiting-route: quote failed: journal busy",
+      });
+    }
+    spy.mockRestore();
+    expect((await blockedOf(ports))!.count).toBe(0);
+    expect((await childOf(ports)).status).toBe("open");
+  });
+
+  it("F3: a continuation fee shortfall names the native funding, not allowedAssets", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation({ continuationBlockedMaxTicks: 2 });
+    feeOnTopContinuation(routes);
+    // No native is held on the home chain: the fee paid on top is not covered.
+    expect(await t.run(intent)).toMatchObject({
+      status: "in-progress",
+      step: expect.stringMatching(/^policy-rejected: value: the fee of 1000000000000000 paid on top/),
+    });
+    const [warning] = ports.notifier.sent.filter((n) => n.title === "LI.FI continuation swap cannot pay its fee");
+    expect(warning).toBeDefined();
+    expect(warning!.dedupKey).toMatch(/^transfer-continuation-fee:/);
+    expect(warning!.action).toMatch(new RegExp(`^Fund the scope's native eoa holding on chain ${homeChain}`));
+    expect(warning!.action).not.toMatch(/allowedAssets/);
+    expect(ports.notifier.sent.filter((n) => n.title === "LI.FI continuation swap blocked by the policy")).toEqual([]);
+    expect(await t.run(intent)).toMatchObject({ status: "attention" });
+    expect((await childOf(ports)).lastError).toMatch(
+      /continuation blocked for lack of native to pay its LI\.FI fee after 2 ticks/
+    );
+  });
+
+  it("row 6: a crash after the release resumes at step release to attention and one critical", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation({ continuationBlockedMaxTicks: 1 });
+    rejectContinuation(routes);
+    const update = ports.journal.updateOperation.bind(ports.journal);
+    let crashes = 1;
+    const spy = vi.spyOn(ports.journal, "updateOperation").mockImplementation(async (id, patch) => {
+      if (patch.status === "attention" && crashes-- > 0) throw new Error("simulated crash");
+      return update(id, patch);
+    });
+    expect(await t.run(intent)).toMatchObject({ step: expect.stringMatching(/^error: simulated crash/) });
+    spy.mockRestore();
+    let child = await childOf(ports);
+    expect(child.step).toBe("release");
+    expect(child.status).toBe("open");
+    expect(ports.notifier.bySeverity("critical")).toHaveLength(0);
+    expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(0n);
+    expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
+
+    expect(await t.run(intent)).toMatchObject({ status: "attention" });
+    child = await childOf(ports);
+    expect(child.lastError).toMatch(/^continuation blocked by the policy after 1 ticks \(asset: .*\); 2990000000 USDC/);
+    expect(ports.notifier.bySeverity("critical")).toHaveLength(1);
+
+    // An operator reopening it (after adding the token to allowedAssets) gets the same attention: nothing is requoted,
+    // sent or moved, since the intermediate is already in the eoa holding.
+    const submissions = bridgeSubmissions(ports).length;
+    await ports.journal.updateOperation(child.id, { status: "open" });
+    expect(await t.run(intent)).toMatchObject({ status: "attention", reason: child.lastError });
+    expect(bridgeSubmissions(ports)).toHaveLength(submissions);
+    expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(0n);
+    expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
   });
 });

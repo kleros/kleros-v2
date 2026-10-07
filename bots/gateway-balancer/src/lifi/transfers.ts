@@ -159,8 +159,13 @@ interface StepState {
   slotWarnedFor?: OperationId | null;
   /** Failed credit verifications of the current delivery: the first one's time and how many. */
   creditCheck?: { since: string; count: number } | null;
-  /** Policy-blocked ticks of the continuation leg: the first one's time and how many (decisions [L64]). */
+  /**
+   * Blocked ticks of the continuation leg: the first one's time and how many (decisions [L64]). A failed quote request
+   * starts the time but adds no tick.
+   */
   continuationBlocked?: { since: string; count: number } | null;
+  /** Why the continuation was abandoned (step `release`), so a resume there raises the same attention and critical. */
+  released?: { why: string; reason: string } | null;
   /** When LI.FI first reported the current leg DONE; the receipt-read bound runs from here (decisions [L67]). */
   doneSeenAt?: string | null;
   received: bigint | null;
@@ -273,6 +278,9 @@ function txOf(step: StoredStep): TxRequest {
   if (step.tx.data) tx.data = step.tx.data;
   return tx;
 }
+
+/** How a fee paid on top that the scopes' native holdings cannot cover is worded (`feesOnTop`). */
+const FEE_SHORTFALL = "value: the fee of";
 
 /** The native value a leg's send carries beyond its own native input: LI.FI fees paid on top ([L49]). */
 function feeOnTop(
@@ -467,7 +475,7 @@ export class LifiTransfers implements Transfers {
         return {
           shares,
           shortfall:
-            `value: the fee of ${fee} paid on top in the native token of chain ${leg.fromChainId} is not covered: ` +
+            `${FEE_SHORTFALL} ${fee} paid on top in the native token of chain ${leg.fromChainId} is not covered: ` +
             `${key} holds ${held?.amount ?? 0n} there, ${amount} needed`,
         };
       }
@@ -625,12 +633,14 @@ export class LifiTransfers implements Transfers {
   }
 
   /**
-   * A continuation leg the policy blocked, or for which LI.FI has no route (`cause: "no-route"`, a failed quote
-   * request included) (decisions [L64]): its input is the intermediate this operation delivered, booked `in-transit`
-   * on the destination chain, and it holds its inbound slot. Until `continuationBlockedMaxTicks` blocked ticks or
-   * `statusTimeoutSeconds` after the first one (both causes share the counter), it warns (dedup per operation) and
-   * goes back to `requote`; then the booking moves to the `eoa` holding of that asset on that chain, the transfer goes
-   * to `attention` and one `critical` names the operator action. Nothing stays booked in transit once in `attention`.
+   * A continuation leg the policy blocked, for which LI.FI has no route (`no-route`), whose quote request failed
+   * (`failed`: a LI.FI error or timeout, or a ledger read error while quoting) or whose fee paid on top the scopes'
+   * native holdings cannot cover (`fee`) (decisions [L64]): its input is the intermediate this operation delivered,
+   * booked `in-transit` on the destination chain, and it holds its inbound slot. Until `continuationBlockedMaxTicks`
+   * blocked ticks or `statusTimeoutSeconds` after the first one (every cause shares the counter; a failed request is
+   * no evidence of a missing route, so it counts toward the time only), it warns (dedup per operation) and goes back to
+   * `requote`; then the booking moves to the `eoa` holding of that asset on that chain, the transfer goes to
+   * `attention` and one `critical` names the operator action. Nothing stays booked in transit once in `attention`.
    */
   private async continuationBlocked(
     id: OperationId,
@@ -638,34 +648,62 @@ export class LifiTransfers implements Transfers {
     state: StepState,
     leg: Leg,
     reason: string,
-    cause: "policy" | "no-route" = "policy"
+    cause: "policy" | "no-route" | "failed" | "fee" = reason.startsWith(FEE_SHORTFALL) ? "fee" : "policy"
   ): Promise<TransferOutcome> {
     const { config } = this.deps;
     const now = this.ports.clock.now();
     const blocked = state.continuationBlocked ?? { since: now.toISOString(), count: 0 };
-    blocked.count += 1;
+    if (cause !== "failed") blocked.count += 1;
     state.continuationBlocked = blocked;
     const asset = `${leg.fromAsset.symbol} (${leg.fromAsset.address})`;
     const age = now.getTime() - new Date(blocked.since).getTime();
-    const noRoute = cause === "no-route";
-    const by = noRoute ? "for lack of a LI.FI route" : "by the policy";
+    const noRoute = cause === "no-route" || cause === "failed";
+    const by = {
+      policy: "by the policy",
+      "no-route": "for lack of a LI.FI route",
+      failed: "by failing LI.FI quote requests",
+      fee: "for lack of native to pay its LI.FI fee",
+    }[cause];
     if (blocked.count < config.continuationBlockedMaxTicks && age < config.statusTimeoutSeconds * 1000) {
       await this.save(id, "requote", state);
       if (noRoute) {
+        const what =
+          cause === "failed"
+            ? `the LI.FI quote request for the swap of ${leg.amount} ${asset} on chain ${leg.fromChainId} failed`
+            : `LI.FI has no route for the swap of ${leg.amount} ${asset} on chain ${leg.fromChainId}`;
         await this.ports.notifier.notify({
           severity: "warning",
           title: "LI.FI continuation swap has no route",
           body:
-            `Transfer ${id}: LI.FI has no route for the swap of ${leg.amount} ${asset} on chain ${leg.fromChainId} ` +
-            `to ${payload.toAsset.symbol} (${reason}); requoted on the next tick (${blocked.count} blocked).`,
+            `Transfer ${id}: ${what} to ${payload.toAsset.symbol} (${reason}); requoted on the next tick ` +
+            `(${blocked.count} blocked).`,
           dedupKey: `transfer-continuation-no-route:${id}`,
           operationId: id,
           chainId: leg.fromChainId,
           action:
             `Run lifi-probe for this swap; after ${config.continuationBlockedMaxTicks} blocked ticks or ` +
-            `${config.statusTimeoutSeconds} s the token is left in the EOA and the transfer goes to attention.`,
+            `${config.statusTimeoutSeconds} s the token is left in the EOA and the transfer goes to attention ` +
+            "(a failed quote request counts toward the time only).",
         });
         return { status: "in-progress", operationId: id, step: `awaiting-route: ${reason}` };
+      }
+      if (cause === "fee") {
+        await this.ports.notifier.notify({
+          severity: "warning",
+          title: "LI.FI continuation swap cannot pay its fee",
+          body:
+            `Transfer ${id}: the swap of ${leg.amount} ${asset} on chain ${leg.fromChainId} to ` +
+            `${payload.toAsset.symbol} carries a LI.FI fee paid on top that the scope's native holding does not ` +
+            `cover (${reason}); requoted on the next tick (${blocked.count} blocked).`,
+          dedupKey: `transfer-continuation-fee:${id}`,
+          operationId: id,
+          chainId: leg.fromChainId,
+          action:
+            `Fund the scope's native eoa holding on chain ${leg.fromChainId} with the amount named; after ` +
+            `${config.continuationBlockedMaxTicks} blocked ticks or ${config.statusTimeoutSeconds} s the token is ` +
+            "left in the EOA and the transfer goes to attention.",
+        });
+        return { status: "in-progress", operationId: id, step: `policy-rejected: ${reason}` };
       }
       await this.ports.notifier.notify({
         severity: "warning",
@@ -685,11 +723,31 @@ export class LifiTransfers implements Transfers {
     await this.save(id, "release:crediting", state);
     await this.returnToEoa(id, leg, `continuation blocked ${by}`);
     leg.sent = [];
+    const why =
+      cause === "failed"
+        ? `continuation blocked ${by} for ${Math.floor(age / 1000)} s`
+        : `continuation blocked ${by} after ${blocked.count} ticks`;
+    state.released = { why, reason };
     await this.save(id, "release", state);
+    return this.released(id, payload, state, leg);
+  }
+
+  /**
+   * Step `release`: the continuation was abandoned and its intermediate is already in the `eoa` holding. The transfer
+   * goes to `attention` with one `critical`; a resume here (after a crash before that write, or an operator reopening
+   * it) raises the same again and never requotes, since nothing is booked in transit any more.
+   */
+  private async released(
+    id: OperationId,
+    payload: TransferPayload,
+    state: StepState,
+    leg: Leg
+  ): Promise<TransferOutcome> {
+    const asset = `${leg.fromAsset.symbol} (${leg.fromAsset.address})`;
+    const { why, reason } = state.released ?? { why: "continuation abandoned", reason: "no reason recorded" };
     const outcome = await this.attention(
       id,
-      `continuation blocked ${by} after ${blocked.count} ticks (${reason}); ${leg.amount} ${asset} moved to ` +
-        `the eoa holding on chain ${leg.fromChainId}`
+      `${why} (${reason}); ${leg.amount} ${asset} moved to the eoa holding on chain ${leg.fromChainId}`
     );
     await this.ports.notifier.notify({
       severity: "critical",
@@ -701,10 +759,9 @@ export class LifiTransfers implements Transfers {
       dedupKey: `transfer-continuation-abandoned:${id}`,
       operationId: id,
       chainId: leg.fromChainId,
-      action: noRoute
-        ? `Swap ${asset} on chain ${leg.fromChainId} to ${payload.toAsset.symbol} by hand.`
-        : `Swap ${asset} on chain ${leg.fromChainId} to ${payload.toAsset.symbol} by hand, or add the token to ` +
-          "lifi.allowedAssets and resume the operation.",
+      action:
+        `Swap ${asset} on chain ${leg.fromChainId} to ${payload.toAsset.symbol} by hand. Resuming this operation ` +
+        "does not swap it.",
     });
     return outcome;
   }
@@ -776,6 +833,8 @@ export class LifiTransfers implements Transfers {
         return this.poll(id, payload, state, leg);
       case "unwrap":
         return this.unwrap(id, payload, state, leg);
+      case "release":
+        return this.released(id, payload, state, leg);
       default:
         return this.attention(id, `unknown transfer step "${child.step}"`);
     }
@@ -788,12 +847,12 @@ export class LifiTransfers implements Transfers {
     leg: Leg
   ): Promise<TransferOutcome> {
     const quoted = await this.quoteLeg(payload, leg, this.continuationOf(payload, state)).catch((error: unknown) => ({
-      kind: "no-route" as const,
+      kind: "failed" as const,
       reason: `quote failed: ${messageOf(error)}`,
     }));
-    if (quoted.kind === "no-route") {
+    if (quoted.kind === "no-route" || quoted.kind === "failed") {
       // A continuation's input sits in transit on the destination chain and holds its inbound slot: bounded ([L64]).
-      if (state.legs.length > 1) return this.continuationBlocked(id, payload, state, leg, quoted.reason, "no-route");
+      if (state.legs.length > 1) return this.continuationBlocked(id, payload, state, leg, quoted.reason, quoted.kind);
       return { status: "in-progress", operationId: id, step: `awaiting-route: ${quoted.reason}` };
     }
     if (quoted.kind === "rejected") {
