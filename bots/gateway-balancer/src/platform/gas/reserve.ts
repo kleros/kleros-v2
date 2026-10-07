@@ -1,12 +1,24 @@
 import { parseTransaction } from "viem";
-import { NATIVE, type Address, type ChainId } from "../../domain";
+import { NATIVE, type Address, type ChainId, type Hex } from "../../domain";
 import type { Journal, TransactionRecord, TxStatus } from "../../ports";
+import {
+  chargesL1DataFee,
+  L1_FEE_HEADROOM,
+  unsignedPayloadOf,
+  unsignedPayloadOfSigned,
+  type NextTransaction,
+} from "./l1DataFee";
 
 /** Chain reads pinned to one block, so the balance and the transaction count describe the same state. */
 export interface ReserveRpc {
   getBlockNumber(): Promise<bigint>;
   getBalance(address: Address, blockNumber: bigint): Promise<bigint>;
   getNonce(address: Address, block: bigint): Promise<number>;
+  /**
+   * The OP-stack GasPriceOracle's `getL1Fee` of unsigned transaction bytes at `blockNumber`. Required on an OP-stack
+   * chain (`chargesL1DataFee`) whenever a read there has something to price.
+   */
+  getL1Fee?(unsignedTx: Hex, blockNumber: bigint): Promise<bigint>;
 }
 
 export interface GasReserve {
@@ -16,11 +28,19 @@ export interface GasReserve {
   transactionCount: number;
   /** Native `eoa` holdings the ledger assigns to scopes on this chain. */
   ledgerHeldWei: bigint;
-  /** `value + gas * maxFeePerGas` (or `gasPrice`) of this chain's unmined nonce-holding records. */
+  /**
+   * `value + gas * maxFeePerGas` (or `gasPrice`) of this chain's unmined nonce-holding records, plus, on an OP-stack
+   * chain, their L1 data fee (`L1_FEE_HEADROOM` x the oracle quote).
+   */
   inFlightWei: bigint;
   inFlight: string[];
   /** `balanceWei - ledgerHeldWei - inFlightWei`: what is left for transaction gas. */
   reserveWei: bigint;
+  /**
+   * The L1 data fee of `next` on an OP-stack chain (`L1_FEE_HEADROOM` x the oracle quote), else 0. Not in
+   * `reserveWei`: the executor adds it to what the reserve must cover.
+   */
+  nextL1FeeWei: bigint;
 }
 
 const NONCE_HOLDING: TxStatus[] = ["signed", "broadcast", "unknown"];
@@ -44,14 +64,20 @@ export function maxCostOf(record: TransactionRecord): bigint {
  * at the same block, minus the native `eoa` holdings of the ledger, minus the maximum cost of this chain's
  * nonce-holding records whose nonce is not yet in that block (a mined record is already in the balance). The
  * executor's pre-signing check and the `gas:<chainId>` monitor both use this.
+ *
+ * On an OP-stack chain every transaction also pays an L1 data fee from the same balance: each unmined record's fee
+ * (from its unsigned bytes) is part of `inFlightWei`, and the fee of `next` (the transaction about to be signed) is
+ * returned as `nextL1FeeWei`, both priced by the GasPriceOracle at the same block. An L1 data fee that cannot be read
+ * fails the read; it is never taken as zero. Nothing to price means no oracle call.
  */
 export async function readGasReserve(input: {
   rpc: ReserveRpc;
   journal: Journal;
   chainId: ChainId;
   signer: Address;
+  next?: NextTransaction;
 }): Promise<GasReserve> {
-  const { rpc, journal, chainId, signer } = input;
+  const { rpc, journal, chainId, signer, next } = input;
   const blockNumber = await rpc.getBlockNumber();
   const [balanceWei, transactionCount] = await Promise.all([
     rpc.getBalance(signer, blockNumber),
@@ -64,7 +90,16 @@ export async function readGasReserve(input: {
   const unmined = (await journal.listTransactions({ chainId, status: NONCE_HOLDING })).filter(
     (r) => r.from.toLowerCase() === signer.toLowerCase() && r.nonce !== null && r.nonce >= transactionCount
   );
-  const inFlightWei = unmined.reduce((acc, r) => acc + maxCostOf(r), 0n);
+  // L2 cost first: a record without signed bytes throws before any oracle read.
+  let inFlightWei = unmined.reduce((acc, r) => acc + maxCostOf(r), 0n);
+  let nextL1FeeWei = 0n;
+  if (chargesL1DataFee(chainId)) {
+    const fees = await Promise.all(
+      unmined.map((r) => readL1Fee(rpc, chainId, unsignedPayloadOfSigned(r.signedRaw as Hex), blockNumber))
+    );
+    inFlightWei += fees.reduce((acc, fee) => acc + fee, 0n);
+    if (next) nextL1FeeWei = await readL1Fee(rpc, chainId, unsignedPayloadOf(chainId, next), blockNumber);
+  }
   return {
     blockNumber,
     balanceWei,
@@ -73,5 +108,13 @@ export async function readGasReserve(input: {
     inFlightWei,
     inFlight: unmined.map((r) => r.idempotencyKey),
     reserveWei: balanceWei - ledgerHeldWei - inFlightWei,
+    nextL1FeeWei,
   };
+}
+
+async function readL1Fee(rpc: ReserveRpc, chainId: ChainId, payload: Hex, blockNumber: bigint): Promise<bigint> {
+  if (!rpc.getL1Fee) {
+    throw new Error(`chain ${chainId} charges an L1 data fee and its RPC cannot read GasPriceOracle.getL1Fee`);
+  }
+  return (await rpc.getL1Fee(payload, blockNumber)) * L1_FEE_HEADROOM;
 }

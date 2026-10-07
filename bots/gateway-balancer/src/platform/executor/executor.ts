@@ -328,12 +328,7 @@ export class PlatformExecutor implements TxExecutor {
         gas = withBuffer(await rpc.estimateGas(request, this.signer), this.deps.options.gasLimitBufferPercent);
       }
       const fees = await rpc.feeData(this.deps.options.baseFeeMultiplier);
-      await this.checkGasReserve(
-        request,
-        chain,
-        rpc,
-        gas * (fees.type === "eip1559" ? fees.maxFeePerGas : fees.gasPrice)
-      );
+      await this.checkGasReserve(request, chain, rpc, gas, fees);
       const nonce = await this.nextNonce(chain, rpc);
       checkNotAborted();
       prepared = { gas, fees, nonce };
@@ -393,26 +388,31 @@ export class PlatformExecutor implements TxExecutor {
 
   /**
    * Under the chain lock, before a nonce is assigned: what the operator reserve keeps after this request's value
-   * (already debited from its holding by the loop) must cover this transaction's gas at its fee cap.
+   * (already debited from its holding by the loop) must cover this transaction's gas at its fee cap, plus its L1 data
+   * fee on an OP-stack chain (an unreadable one fails the submit `aborted:`, decisions [L65]).
    */
   private async checkGasReserve(
     request: TxRequest,
     chain: ExecutorChain,
     rpc: ExecutorRpc,
-    maxGasCost: bigint
+    gas: bigint,
+    fees: FeeData
   ): Promise<void> {
     const reserve = await readGasReserve({
       rpc,
       journal: this.deps.journal,
       chainId: chain.chainId,
       signer: this.signer,
+      next: { request, gas, fees },
     });
+    const maxGasCost = gas * (fees.type === "eip1559" ? fees.maxFeePerGas : fees.gasPrice) + reserve.nextL1FeeWei;
     const left = reserve.reserveWei - request.value;
     if (left >= maxGasCost) return;
+    const l1 = reserve.nextL1FeeWei > 0n ? `, of which ${reserve.nextL1FeeWei} is its L1 data fee` : "";
     throw new GasReserveRefusal(
       `${GAS_RESERVE} operator gas reserve on ${chain.name} is ${left} wei after this transaction's value ` +
         `(balance ${reserve.balanceWei} at block ${reserve.blockNumber}, ledger holdings ${reserve.ledgerHeldWei}, ` +
-        `unmined transactions ${reserve.inFlightWei}, value ${request.value}); it needs ${maxGasCost} wei of gas`
+        `unmined transactions ${reserve.inFlightWei}, value ${request.value}); it needs ${maxGasCost} wei of gas${l1}`
     );
   }
 
