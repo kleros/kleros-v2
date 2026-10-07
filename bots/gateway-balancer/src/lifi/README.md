@@ -135,7 +135,11 @@ below, split pro-rata), once the receiving transaction is confirmed successful o
 fee LI.FI charges on top of the input (the part of the send's value beyond a native input) is debited in the same
 `send:debiting` bracket from the scopes' native `eoa` holdings on the leg's chain, split like the input, and credited
 back (inside `send:crediting`) whenever the send is undone with nothing signed; operator gas never pays it. A fee those
-holdings cannot cover is rejected as `policy-rejected: value: …` (when quoting, and again before the bracket).
+holdings cannot cover is rejected as `policy-rejected: value: …` (when quoting, and again before the bracket). Once
+the send is signed the fee is never credited back automatically: every `attention` after that point (a reverted,
+replaced or unknown send, a signed `failed` record, a LI.FI failure, a status unknown past the timeout) names the
+debited fee per scope, to be credited back by hand if the transaction did not spend it (a revert spends none; a LI.FI
+refund may return it).
 `in-transit:<operationId>` tracks what is in flight. Every ledger write sits between step markers; a resume at a
 marker is `attention`.
 
