@@ -1,0 +1,294 @@
+{
+ "bridges": [
+  {
+   "key": "arbitrum",
+   "name": "Arbitrum Bridge"
+  },
+  {
+   "key": "across",
+   "name": "AcrossV4"
+  },
+  {
+   "key": "gnosis",
+   "name": "Gnosis Bridge"
+  },
+  {
+   "key": "omni",
+   "name": "Omni Bridge"
+  },
+  {
+   "key": "celercircle",
+   "name": "CCTP + Celer (Standard)"
+  },
+  {
+   "key": "celercirclefast",
+   "name": "CCTP + Celer (Fast)"
+  },
+  {
+   "key": "allbridge",
+   "name": "Allbridge"
+  },
+  {
+   "key": "squid",
+   "name": "Squid"
+  },
+  {
+   "key": "mayan",
+   "name": "Mayan (Swift)"
+  },
+  {
+   "key": "mayanWH",
+   "name": "Mayan (Wormhole)"
+  },
+  {
+   "key": "mayanMCTP",
+   "name": "CCTP + Mayan"
+  },
+  {
+   "key": "stargateV2",
+   "name": "StargateV2 (Fast mode)"
+  },
+  {
+   "key": "stargateV2Bus",
+   "name": "StargateV2 (Economy mode)"
+  },
+  {
+   "key": "symbiosis",
+   "name": "Symbiosis"
+  },
+  {
+   "key": "polygon",
+   "name": "Polygon Bridge (PoS)"
+  },
+  {
+   "key": "glacis",
+   "name": "Glacis"
+  },
+  {
+   "key": "chainflip",
+   "name": "Chainflip"
+  },
+  {
+   "key": "gasZipBridge",
+   "name": "GasZip"
+  },
+  {
+   "key": "relaydepository",
+   "name": "Relay"
+  },
+  {
+   "key": "mayanFastMCTP",
+   "name": "CCTPv2 + Mayan"
+  },
+  {
+   "key": "unit",
+   "name": "Unit"
+  },
+  {
+   "key": "polymer",
+   "name": "Polymer (Fast)"
+  },
+  {
+   "key": "polymerStandard",
+   "name": "Polymer (Standard)"
+  },
+  {
+   "key": "cctp",
+   "name": "Circle CCTP"
+  },
+  {
+   "key": "eco",
+   "name": "Eco"
+  },
+  {
+   "key": "near",
+   "name": "NearIntents"
+  },
+  {
+   "key": "hyperliquidSA",
+   "name": "Hyperliquid"
+  },
+  {
+   "key": "lifiIntents",
+   "name": "LI.FI Intents"
+  },
+  {
+   "key": "garden",
+   "name": "Garden"
+  },
+  {
+   "key": "megaeth",
+   "name": "MegaETH Gateway"
+  },
+  {
+   "key": "hyperliquidNative",
+   "name": "Hyperliquid Native"
+  },
+  {
+   "key": "superset",
+   "name": "Superset"
+  },
+  {
+   "key": "paxos",
+   "name": "Paxos Labs Transit"
+  },
+  {
+   "key": "smartDeposits",
+   "name": "Smart Deposits"
+  },
+  {
+   "key": "layerswap",
+   "name": "Layerswap"
+  },
+  {
+   "key": "frax",
+   "name": "Frax Bridge"
+  }
+ ],
+ "exchanges": [
+  {
+   "key": "bitget",
+   "name": "Bitget"
+  },
+  {
+   "key": "dodo",
+   "name": "DODO"
+  },
+  {
+   "key": "eisen",
+   "name": "Eisen"
+  },
+  {
+   "key": "gluex",
+   "name": "GlueX"
+  },
+  {
+   "key": "paraswap",
+   "name": "Velora"
+  },
+  {
+   "key": "enso",
+   "name": "Enso"
+  },
+  {
+   "key": "1inch",
+   "name": "1inch"
+  },
+  {
+   "key": "openocean",
+   "name": "De\u00b9"
+  },
+  {
+   "key": "kyberswap",
+   "name": "Kyberswap"
+  },
+  {
+   "key": "lifidexaggregator",
+   "name": "LI.FI DEX Aggregator"
+  },
+  {
+   "key": "jupiter",
+   "name": "Jupiter"
+  },
+  {
+   "key": "sushiswap",
+   "name": "SushiSwap Aggregator"
+  },
+  {
+   "key": "bebop",
+   "name": "Bebop"
+  },
+  {
+   "key": "okx",
+   "name": "OKX Dex Aggregator"
+  },
+  {
+   "key": "aftermath",
+   "name": "Aftermath"
+  },
+  {
+   "key": "bluefin7k",
+   "name": "Bluefin7K"
+  },
+  {
+   "key": "merkle",
+   "name": "Merkle"
+  },
+  {
+   "key": "liquidswap",
+   "name": "LiquidSwap"
+  },
+  {
+   "key": "hyperbloom",
+   "name": "Hyperbloom"
+  },
+  {
+   "key": "dflow",
+   "name": "DFlow"
+  },
+  {
+   "key": "hypertrade",
+   "name": "Hypertrade"
+  },
+  {
+   "key": "hyperflow",
+   "name": "HyperFlow"
+  },
+  {
+   "key": "fly",
+   "name": "Fly"
+  },
+  {
+   "key": "titan",
+   "name": "Titan"
+  },
+  {
+   "key": "momentum",
+   "name": "Momentum"
+  },
+  {
+   "key": "monorail",
+   "name": "Monorail"
+  },
+  {
+   "key": "kuru",
+   "name": "Kuru"
+  },
+  {
+   "key": "hyperliquidSpotDex",
+   "name": "Hyperliquid"
+  },
+  {
+   "key": "nordstern",
+   "name": "Nordstern Finance"
+  },
+  {
+   "key": "cetus",
+   "name": "Cetus"
+  },
+  {
+   "key": "kumbaya",
+   "name": "Kumbaya"
+  },
+  {
+   "key": "lifiIntentsDex",
+   "name": "LI.FI Intents"
+  },
+  {
+   "key": "supersetDex",
+   "name": "Superset"
+  },
+  {
+   "key": "nexroute",
+   "name": "Nexroute"
+  },
+  {
+   "key": "rialto",
+   "name": "Rialto"
+  },
+  {
+   "key": "soroswap",
+   "name": "Soroswap"
+  }
+ ]
+}
