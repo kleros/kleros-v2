@@ -1,12 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { usePrivy } from "@privy-io/react-auth";
 import Identicon from "react-identicons";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from "wagmi";
 
 import { getChain } from "consts/chains";
+import { useIsEmbeddedWallet } from "hooks/useIsEmbeddedWallet";
+import { useLogout } from "hooks/useLogout";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -99,6 +102,24 @@ const ChainConnectionContainer = styled.div`
   )}
 `;
 
+const LogoutButton = styled.button`
+  all: unset;
+  cursor: pointer;
+  font-size: 14px;
+  color: ${({ theme }) => theme.primaryBlue};
+  padding: 0 4px;
+
+  :hover {
+    text-decoration: underline;
+  }
+
+  ${landscapeStyle(
+    () => css`
+      color: ${({ theme }) => theme.white}CC;
+    `
+  )}
+`;
+
 const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`
   align-items: center;
   svg {
@@ -144,14 +165,25 @@ interface IAddressOrName {
   address?: `0x${string}`;
 }
 
+/** Email or Google identity of the logged in Privy user, only for embedded wallets. */
+const useEmbeddedIdentity = (): string | undefined => {
+  const isEmbedded = useIsEmbeddedWallet();
+  const { user } = usePrivy();
+  if (!isEmbedded) return undefined;
+  return user?.google?.email ?? user?.email?.address;
+};
+
 export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }) => {
   const { address: defaultAddress } = useAccount();
+  const identity = useEmbeddedIdentity();
   const address = propAddress || defaultAddress;
 
   const { data } = useEnsName({
     address,
     chainId: 1,
   });
+
+  if (identity && !propAddress) return <label>{identity}</label>;
 
   return <label>{data ?? (isAddress(address!) ? shortenAddress(address) : address)}</label>;
 };
@@ -162,12 +194,28 @@ export const ChainDisplay: React.FC = () => {
   return <label>{chain?.name}</label>;
 };
 
+export const Logout: React.FC = () => {
+  const logout = useLogout();
+  return (
+    <LogoutButton
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        logout();
+      }}
+    >
+      Log out
+    </LogoutButton>
+  );
+};
+
 const AccountDisplay: React.FC = () => {
   return (
     <Container>
       <AccountContainer>
         <IdenticonOrAvatar size="32" />
         <AddressOrName />
+        <Logout />
       </AccountContainer>
       <ChainConnectionContainer>
         <ChainDisplay />

@@ -81,8 +81,8 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   );
 
   const isWithdraw = action === ActionType.withdraw;
-  const preStakeText = useMemo(() => (isWithdraw ? "withdrawing" : "staking"), [isWithdraw]);
-  const postStakeText = useMemo(() => (isWithdraw ? "withdrew" : "staked"), [isWithdraw]);
+  const preStakeText = useMemo(() => (isWithdraw ? "unregistering" : "registering"), [isWithdraw]);
+  const postStakeText = useMemo(() => (isWithdraw ? "unregistered" : "registered"), [isWithdraw]);
 
   return (
     <StakingMsgContainer>
@@ -94,7 +94,9 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
         <QuantityContainer>
           <Quantity>{effectiveStakeDisplay}</Quantity>
           <TextWithTooltipContainer>
-            <WithHelpTooltip tooltipMsg="The stake is confirmed! It is standard procedure to delay the execution of a change in stakes if the phase of the arbitrator is not currently Staking. It'll be updated shortly.">
+            <WithHelpTooltip
+              tooltipMsg={`${isWithdraw ? "Unregistration" : "Registration"} confirmed! It is standard procedure to delay the execution of a change in stakes if the phase of the arbitrator is not currently Staking. It'll be updated shortly.`}
+            >
               Current Stake
             </WithHelpTooltip>
           </TextWithTooltipContainer>{" "}

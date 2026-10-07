@@ -88,7 +88,7 @@ const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake
   return (
     <Container>
       <StyledTitle>
-        🎉 Your {isStake ? "stake" : "unstake"} in the {courtName} court was successful! 🎉
+        🎉 Your {isStake ? "registration" : "unregistration"} in the {courtName} court was successful! 🎉
       </StyledTitle>
       <AmountStakedOrWithdrawnContainer>
         <AmountStakedOrWithdrawn pnkStaked={pnkStaked} isStake={isStake} />

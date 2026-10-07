@@ -21,6 +21,7 @@ yarn install @kleros/kleros-app
 1. At the root of your app, setup AtlasProvider.
    **uri** : Atlas backend uri
    **product** : The product / Kleros DApp interacting with Atlas (CourtV2, Curate, etc.)
+   **signMessage** : (optional) custom signer `({ message, address }) => Promise<Hex>` used for the sign-in message instead of wagmi's `signMessage`, e.g. to sign silently with an embedded wallet.
 
 ```typescript
 import { WagmiProvider } from 'wagmi'

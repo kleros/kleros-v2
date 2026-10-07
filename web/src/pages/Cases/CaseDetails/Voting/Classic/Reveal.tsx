@@ -5,14 +5,16 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
 
 import { Answer } from "@kleros/kleros-sdk";
+import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsSchema";
 import { Button } from "@kleros/ui-components-library";
 
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
+import { useWriteRequest } from "hooks/useWriteRequest";
 import { isUndefined } from "utils/index";
 import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
@@ -20,6 +22,8 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { EnsureChain } from "components/EnsureChain";
 import InfoCard from "components/InfoCard";
+
+import ConfirmVoteModal from "../ConfirmVoteModal";
 
 import JustificationArea from "./JustificationArea";
 
@@ -57,7 +61,8 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
-  const { data: walletClient } = useWalletClient();
+  const writeRequest = useWriteRequest();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
@@ -68,37 +73,66 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   );
   const [storedSaltAndChoice, _] = useLocalStorage<string>(saltKey);
 
-  const handleReveal = useCallback(async () => {
+  const [pendingReveal, setPendingReveal] = useState<{ salt: string; choice: string | number | bigint } | undefined>(
+    undefined
+  );
+
+  const pendingChoice = useMemo(() => {
+    if (isUndefined(pendingReveal)) return "";
+    const choiceId = BigInt(pendingReveal.choice);
+    if (choiceId === BigInt(0)) {
+      return (
+        disputeDetails?.answers?.find((answer) => BigInt(answer.id) === BigInt(0))?.title ??
+        RefuseToArbitrateAnswer.title
+      );
+    }
+    return disputeDetails?.answers?.find((answer) => BigInt(answer.id) === choiceId)?.title ?? "";
+  }, [pendingReveal, disputeDetails?.answers]);
+
+  // Recover the committed choice (and salt) before asking for confirmation.
+  const handleOpenConfirm = useCallback(async () => {
     setIsSending(true);
-    const { salt, choice } = isUndefined(storedSaltAndChoice)
-      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers, commit)
-      : JSON.parse(storedSaltAndChoice);
-    if (isUndefined(choice)) return;
+    try {
+      const recovered = isUndefined(storedSaltAndChoice)
+        ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers, commit)
+        : JSON.parse(storedSaltAndChoice);
+      if (isUndefined(recovered) || isUndefined(recovered.choice)) return;
+      setPendingReveal(recovered);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSending(false);
+    }
+  }, [storedSaltAndChoice, signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers, commit]);
+
+  const onCancel = useCallback(() => setPendingReveal(undefined), []);
+
+  const handleReveal = useCallback(async () => {
+    if (isUndefined(pendingReveal)) return;
+    const { salt, choice } = pendingReveal;
+    setPendingReveal(undefined);
+    setIsSending(true);
     const { request } = await catchShortMessage(
       simulateDisputeKitClassicCastVote(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
       })
     );
-    if (request && walletClient && publicClient) {
-      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+    if (request && publicClient) {
+      await wrapWithToast(async () => await writeRequest(request), publicClient, address).then(({ status }) => {
         setIsOpen(status);
       });
     }
     setIsSending(false);
   }, [
     wagmiConfig,
-    commit,
-    disputeDetails?.answers,
-    storedSaltAndChoice,
-    generateSigningAccount,
-    signingAccount,
-    saltKey,
+    pendingReveal,
     justification,
     parsedVoteIDs,
     parsedDisputeID,
     publicClient,
     setIsOpen,
-    walletClient,
+    writeRequest,
+    address,
   ]);
 
   return (
@@ -117,9 +151,18 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
               text="Justify & Reveal"
               disabled={isSending || isUndefined(disputeDetails)}
               isLoading={isSending}
-              onClick={handleReveal}
+              onClick={handleOpenConfirm}
             />
           </StyledEnsureChain>
+          <ConfirmVoteModal
+            isOpen={!isUndefined(pendingReveal)}
+            choice={pendingChoice}
+            title="Confirm your reveal"
+            description="Please review your choice and justification before revealing. This cannot be undone."
+            confirmText="Confirm reveal"
+            {...{ justification, onCancel }}
+            onConfirm={handleReveal}
+          />
         </>
       ) : (
         <StyledInfoCard msg="Your vote was successfully commited, please wait until reveal period to reveal it." />

@@ -1,26 +1,18 @@
 import React, { useEffect } from "react";
 import { useTheme } from "styled-components";
 
-import {
-  mainnet,
-  arbitrumSepolia,
-  arbitrum,
-  gnosisChiado,
-  sepolia,
-  gnosis,
-  type AppKitNetwork,
-} from "@reown/appkit/networks";
-import { createAppKit } from "@reown/appkit/react";
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { W3mFrameProvider } from "@reown/appkit-wallet";
-import { fallback, http, WagmiProvider, webSocket } from "wagmi";
+import { PrivyProvider, useWallets } from "@privy-io/react-auth";
+import { createConfig, useSetActiveWallet, WagmiProvider } from "@privy-io/wagmi";
+import { type Chain } from "viem";
+import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "viem/chains";
+import { fallback, http, webSocket } from "wagmi";
 
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 
-import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import { ALL_CHAINS, DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
 
-import { lightTheme } from "styles/themes";
+import QueryClientProvider from "./QueryClientProvider";
 
 const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY;
 if (!alchemyApiKey) {
@@ -28,18 +20,6 @@ if (!alchemyApiKey) {
 }
 
 const isProduction = isProductionDeployment();
-
-// TEMP
-// The email/social wallet answers eth_chainId with a CAIP-2 id ("eip155:421614"), which viem cannot parse.
-// Must run before any wallet client is created: viem binds provider.request at client creation.
-// https://github.com/reown-com/appkit/issues/5764
-const frameRequest = W3mFrameProvider.prototype.request;
-W3mFrameProvider.prototype.request = async function (args) {
-  const result = await frameRequest.call(this, args);
-  return args.method === "eth_chainId" && typeof result === "string" && result.startsWith("eip155:")
-    ? Number(result.slice("eip155:".length))
-    : result;
-};
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/types/types.ts#L98-L153
 const alchemyToViemChain: Record<number, string> = {
@@ -71,9 +51,9 @@ export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
 };
 
 export const getTransports = () => {
-  const alchemyTransport = (chain: AppKitNetwork) =>
+  const alchemyTransport = (chain: Chain) =>
     fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
-  const defaultTransport = (chain: AppKitNetwork) =>
+  const defaultTransport = (chain: Chain) =>
     fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
 
   return {
@@ -87,7 +67,7 @@ export const getTransports = () => {
   };
 };
 
-const chains = ALL_CHAINS as [AppKitNetwork, ...AppKitNetwork[]];
+const chains = ALL_CHAINS as [Chain, ...Chain[]];
 const transports = getTransports();
 
 const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID;
@@ -95,11 +75,15 @@ if (!projectId) {
   throw new Error("WalletConnect project ID is not set in WALLETCONNECT_PROJECT_ID environment variable.");
 }
 
-const wagmiAdapter = new WagmiAdapter({
-  networks: chains,
-  projectId,
+export const wagmiConfig = createConfig({
+  chains,
   transports,
 });
+
+const privyAppId = import.meta.env.REACT_APP_PRIVY_APP_ID;
+if (!privyAppId) {
+  throw new Error("Privy app ID is not set in REACT_APP_PRIVY_APP_ID environment variable.");
+}
 
 configureSDK({
   client: {
@@ -108,37 +92,50 @@ configureSDK({
   },
 });
 
-const appKit = createAppKit({
-  adapters: [wagmiAdapter],
-  networks: chains,
-  defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
-  projectId,
-  allowUnsupportedChain: true,
-  themeVariables: {
-    "--w3m-color-mix": lightTheme.primaryPurple,
-    "--w3m-color-mix-strength": 10,
-    "--w3m-border-radius-master": "2px",
-    // overlay portal is at 9999
-    "--w3m-z-index": 10000,
-  },
-  features: {
-    connectMethodsOrder: ["email", "social", "wallet"],
-    socials: ["google", "apple", "x", "discord", "github"],
-    // email: false,
-    // onramp:false,
-    // swap: false
-  },
-});
+/**
+ * Makes the Privy embedded wallet wagmi's active wallet. Pre-authorized injected wallets (e.g. Rabby) are
+ * listed by Privy as connected wallets and could otherwise be wagmi's active account for an email/Google user.
+ */
+const ActiveWalletSync: React.FC = () => {
+  const { wallets } = useWallets();
+  const { setActiveWallet } = useSetActiveWallet();
+  const embedded = wallets.find((wallet) => wallet.walletClientType === "privy");
+
+  useEffect(() => {
+    if (embedded) setActiveWallet(embedded).catch(() => undefined);
+  }, [embedded, wallets.length, setActiveWallet]);
+
+  return null;
+};
+
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const theme = useTheme();
 
-  // AppKit forwards mode and accent to the social-login wallet iframe, where the approval popup renders.
-  useEffect(() => {
-    appKit.setThemeMode(theme.name === "light" ? "light" : "dark");
-    appKit.setThemeVariables({ "--w3m-accent": theme.secondaryPurple });
-  }, [theme]);
-
-  return <WagmiProvider config={wagmiAdapter.wagmiConfig}> {children} </WagmiProvider>;
+  return (
+    <PrivyProvider
+      appId={privyAppId}
+      config={{
+        loginMethods: ["email", "google", "wallet"],
+        embeddedWallets: { ethereum: { createOnLogin: "users-without-wallets" } },
+        defaultChain: SUPPORTED_CHAINS[DEFAULT_CHAIN],
+        supportedChains: chains,
+        externalWallets: { walletConnect: { enabled: true } },
+        walletConnectCloudProjectId: projectId,
+        appearance: {
+          theme: theme.name === "light" ? "light" : "dark",
+          accentColor: theme.secondaryPurple as `#${string}`,
+          walletList: ["detected_ethereum_wallets", "wallet_connect"],
+        },
+      }}
+    >
+      <QueryClientProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <ActiveWalletSync />
+          {children}
+        </WagmiProvider>
+      </QueryClientProvider>
+    </PrivyProvider>
+  );
 };
 
 export default Web3Provider;
