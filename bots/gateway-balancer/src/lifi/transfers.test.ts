@@ -1,6 +1,6 @@
 import { decodeFunctionData, erc20Abi } from "viem";
 import { describe, expect, it, vi } from "vitest";
-import type { AccountingScope, Address, Asset, Hex } from "../domain";
+import { scopeKey, type AccountingScope, type Address, type Asset, type Hex } from "../domain";
 import type { RouteQuote, RouteRequest, TransferIntent, TransferOutcome, TransferStatus } from "../ports";
 import { WRAPPED_NATIVE_ABI } from "../gateway/abi/weth";
 import {
@@ -1655,5 +1655,444 @@ describe("run 010: every blocked path, re-approval recheck, receipt reads ([L64]
     ports.clock.advance(30_000);
     expect(await t.run(intent)).toMatchObject({ status: "completed", received: ETH });
     expect(await holding(ports, homeChain, "native", "eoa")).toBe(ETH);
+  });
+});
+
+describe("run 011: late DONE waits, fees paid on top, continuations without a route ([L26], [L64], [L67])", () => {
+  const FEE = 10n ** 15n;
+  const homeChain = EXAMPLE_CHAINS.home;
+  const homeUsdc: Asset = {
+    chainId: EXAMPLE_CHAINS.home,
+    address: "0x00000000000000000000000000000000000000c9",
+    symbol: "USDC",
+    decimals: 6,
+  };
+  const BRIDGED = 2_990_000_000n;
+
+  const childOf = async (ports: FakePorts) => (await ports.journal.listOperations({ kind: "transfer" }))[0]!;
+  const payloadOf = async (ports: FakePorts) =>
+    (await childOf(ports)).stepPayload as unknown as {
+      doneSeenAt?: string | null;
+      legs: { feesOnTop?: { scope: string; amount: bigint }[] }[];
+    };
+
+  /** The quote with `fee` added to the value of each non-approval step: a LI.FI fee paid on top in native. */
+  function withFeeOnTop(quote: RouteQuote, fee: bigint): RouteQuote {
+    return {
+      ...quote,
+      steps: quote.steps.map((s) => (s.kind === "approve" ? s : { ...s, tx: { ...s.tx, value: s.tx.value + fee } })),
+    };
+  }
+
+  function feeQuotes(routes: FakeRouteProvider, fee: bigint) {
+    routes.quotes.unshift({
+      match: () => true,
+      result: (r) => ({
+        kind: "quote",
+        quote: withFeeOnTop(quoteFor(r, { estimatedOutput: ETH, minimumOutput: (98n * ETH) / 100n }), fee),
+      }),
+    });
+  }
+
+  async function creditNative(ports: FakePorts, chainId: number, amount: bigint, operationId = "funding") {
+    await ports.journal.ledger.credit({
+      scope,
+      chainId,
+      asset: "native",
+      location: "eoa",
+      amount,
+      operationId,
+      reason: "test",
+    });
+  }
+
+  /** A native transfer of 1 ETH from the foreign chain to the home chain; the scope holds `held` native there. */
+  async function nativeParent(ports: FakePorts, held: bigint): Promise<TransferIntent> {
+    const parent = await ports.journal.createOperation({
+      kind: "refill",
+      description: "test parent",
+      scopes: [scope],
+      pairId: "eth-home",
+      payload: null,
+    });
+    await creditNative(ports, foreignEth.chainId, held, parent.id);
+    return {
+      parentOperationId: parent.id,
+      tag: "withdraw-0",
+      fromChainId: foreignEth.chainId,
+      fromAsset: foreignEth,
+      amount: ETH,
+      toChainId: homeEth.chainId,
+      toAsset: homeEth,
+      allocations: [{ scope, amount: ETH }],
+      purpose: "refill",
+    };
+  }
+
+  /** Runs to `send:submit` with nothing recorded under the send key (a crash between the bracket and the submit). */
+  async function crashAtSubmit(ports: FakePorts, t: LifiTransfers, intent: TransferIntent) {
+    const spy = vi.spyOn(ports.executor, "submit").mockImplementationOnce(async () => {
+      throw new Error("simulated crash");
+    });
+    expect(await t.run(intent)).toMatchObject({ step: expect.stringMatching(/^error: simulated crash/) });
+    spy.mockRestore();
+    expect((await childOf(ports)).step).toBe("send:submit");
+  }
+
+  /** A bridge that delivered the intermediate `homeUsdc` (LI.FI PARTIAL): the continuation is at `requote`. */
+  async function atContinuation(lifi: Record<string, unknown> = {}) {
+    const raw = { bridgeOutput: { address: homeUsdc.address, estimate: BRIDGED.toString() } };
+    const env = setup({ quote: { raw }, lifi });
+    const { ports, routes, transfers } = env;
+    const intent = await parentWithHolding(ports);
+    for (let i = 0; i < 3; i++) await transfers.run(intent);
+    routes.statuses.set(sendHashOf(ports), done(BRIDGED, homeUsdc));
+    confirmReceipt(ports);
+    ports.chains.get(homeChain)!.setErc20Balance(homeUsdc.address as Address, FAKE_SIGNER, BRIDGED);
+    ports.clock.advance(30_000);
+    expect(await transfers.run(intent)).toMatchObject({ step: "requote" });
+    expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(BRIDGED);
+    return { ...env, intent };
+  }
+
+  // Row 1: every wait after the first DONE is bounded from doneSeenAt, never from the send ([L67]).
+
+  it("keeps a late DONE without a receiving hash in progress, bounded from doneSeenAt, and credits it", async () => {
+    const { ports, routes, transfers: t } = setup();
+    const intent = await parentWithHolding(ports);
+    for (let i = 0; i < 3; i++) await t.run(intent);
+    const hash = sendHashOf(ports);
+    routes.statuses.set(hash, { state: "pending" });
+    ports.clock.advance(3_700_000); // past statusTimeoutSeconds (3600) from the send
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    routes.statuses.set(hash, { state: "done", received: ETH, receivedAsset: homeEth, receivingTxHash: null });
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    expect((await payloadOf(ports)).doneSeenAt).toBe(ports.clock.now().toISOString());
+    routes.statuses.set(hash, done(ETH)); // a hash, but no receipt yet (null, not a throw)
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    confirmReceipt(ports);
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "completed", received: ETH });
+    expect(await holding(ports, homeChain, "native", "eoa")).toBe(ETH);
+  });
+
+  it.each([
+    ["done without a receiving transaction", { receivingTxHash: null }],
+    ["receiving transaction not found yet", {}],
+  ])("ends a DONE %s in attention only past statusTimeoutSeconds from doneSeenAt", async (detail, override) => {
+    const { ports, routes, transfers: t } = setup();
+    const intent = await parentWithHolding(ports);
+    for (let i = 0; i < 3; i++) await t.run(intent);
+    routes.statuses.set(sendHashOf(ports), { ...done(ETH), ...override });
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    const seen = (await payloadOf(ports)).doneSeenAt;
+    expect(seen).toBe(ports.clock.now().toISOString());
+    ports.clock.advance(1_800_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    expect((await payloadOf(ports)).doneSeenAt).toBe(seen);
+    ports.clock.advance(1_800_001);
+    const outcome = await t.run(intent);
+    expect(outcome).toMatchObject({ status: "attention" });
+    if (outcome.status === "attention") {
+      expect(outcome.reason).toContain(detail);
+      expect(outcome.reason).toMatch(/after LI\.FI reported it done/);
+    }
+    // `attention` releases the inbound slot: the next transfer to the same destination is sent.
+    const next = await parentWithHolding(ports);
+    expect(await drive(t, ports, next, 4)).toMatchObject({ step: "bridging" });
+  });
+
+  it("measures an unknown status after a late DONE from doneSeenAt, not from the send", async () => {
+    const { ports, routes, transfers: t } = setup();
+    const intent = await parentWithHolding(ports);
+    for (let i = 0; i < 3; i++) await t.run(intent);
+    const hash = sendHashOf(ports);
+    routes.statuses.set(hash, { state: "pending" });
+    ports.clock.advance(3_700_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    routes.statuses.set(hash, done(ETH)); // no receipt yet
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    routes.statuses.delete(hash); // one transient LI.FI failure: the fake answers `unknown`
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    routes.statuses.set(hash, done(ETH));
+    confirmReceipt(ports);
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "completed", received: ETH });
+  });
+
+  // Row 2: a native fee paid on top is debited from the operation's holdings, never from operator gas ([L26]).
+
+  it("debits a native fee paid on top from the scope's native holding with the input; gas pays nothing", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const intent = await nativeParent(ports, ETH + FEE);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "send" });
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "bridging" });
+    expect(bridgeSubmissions(ports)).toHaveLength(1);
+    expect(bridgeSubmissions(ports)[0]!.request.value).toBe(ETH + FEE);
+    // The holding dropped by exactly the transaction's value: the fee is the operation's, not the gas float's.
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(ETH);
+    expect((await payloadOf(ports)).legs[0]!.feesOnTop).toEqual([{ scope: scopeKey(scope), amount: FEE }]);
+    // The fee is not part of the daily limit ([L58]).
+    expect(await ports.journal.ledger.spentSince({ since: new Date(0), category: "transfer" })).toBe(ETH);
+    routes.statuses.set(sendHashOf(ports), done(ETH));
+    confirmReceipt(ports);
+    ports.clock.advance(30_000);
+    expect(await t.run(intent)).toMatchObject({ status: "completed", received: ETH });
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(0n);
+    expect(await holding(ports, homeChain, "native", "eoa")).toBe(ETH);
+  });
+
+  it("debits an ERC20 input's native fee paid on top from the scope's native holding on the source chain", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const intent = await parentWithHolding(ports);
+    await creditNative(ports, foreignEth.chainId, FEE);
+    expect(await t.run(intent)).toMatchObject({ step: "approve" });
+    expect(await t.run(intent)).toMatchObject({ step: "send" });
+    expect(await t.run(intent)).toMatchObject({ step: "bridging" });
+    expect(bridgeSubmissions(ports)[0]!.request.value).toBe(FEE);
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+    expect(await holding(ports, usdc.chainId, usdc.address, "eoa")).toBe(0n);
+    expect(await holding(ports, usdc.chainId, usdc.address, "in-transit")).toBe(AMOUNT);
+  });
+
+  it("refuses a fee paid on top the scope's native holding cannot cover: nothing is created or signed", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const native = await nativeParent(ports, ETH); // the input only
+    expect(await t.run(native)).toMatchObject({
+      status: "deferred",
+      reason: expect.stringMatching(/^policy-rejected: value: .*paid on top/),
+    });
+    expect(await ports.journal.listOperations({ kind: "transfer" })).toHaveLength(0);
+    expect(ports.executor.submissions).toHaveLength(0);
+
+    const second = setup();
+    feeQuotes(second.routes, FEE);
+    const token = await parentWithHolding(second.ports); // no native holding at all on the source chain
+    expect(await second.transfers.run(token)).toMatchObject({
+      status: "deferred",
+      reason: expect.stringMatching(/^policy-rejected: value: .*paid on top/),
+    });
+    expect(await second.ports.journal.listOperations({ kind: "transfer" })).toHaveLength(0);
+    expect(second.ports.executor.submissions).toHaveLength(0);
+  });
+
+  it("re-checks the fee cover before the bracket: short, the leg goes back to requote, nothing debited", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const intent = await nativeParent(ports, ETH + FEE);
+    expect(await t.run(intent)).toMatchObject({ step: "send" });
+    const entry = {
+      scope,
+      chainId: foreignEth.chainId,
+      asset: "native" as const,
+      location: "eoa" as const,
+      amount: 1n,
+      operationId: "other-op",
+      reason: "test",
+    };
+    await ports.journal.ledger.debit(entry);
+    expect(await t.run(intent)).toMatchObject({
+      status: "in-progress",
+      step: expect.stringMatching(/^policy-rejected: value: /),
+    });
+    expect((await childOf(ports)).step).toBe("requote");
+    expect(bridgeSubmissions(ports)).toHaveLength(0);
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(ETH + FEE - 1n);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(0n);
+    expect(await ports.journal.ledger.spentSince({ since: new Date(0), category: "transfer" })).toBe(0n);
+    await ports.journal.ledger.credit(entry);
+    expect(await drive(t, ports, intent, 3)).toMatchObject({ step: "bridging" });
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+  });
+
+  it("credits the fee back with the input when the send fails unsigned, and debits it once on retry", async () => {
+    const { ports, routes, transfers: t } = setup();
+    let failures = 1;
+    ports.executor.script((request) => request.to === FAKE_LIFI_DIAMOND && failures-- > 0, {
+      status: "failed",
+      error: "simulation reverted revertData=none",
+    });
+    feeQuotes(routes, FEE);
+    const intent = await nativeParent(ports, ETH + FEE);
+    await t.run(intent);
+    expect(await t.run(intent)).toMatchObject({ step: expect.stringMatching(/send failed/) });
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(ETH + FEE);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(0n);
+    expect((await payloadOf(ports)).legs[0]!.feesOnTop).toEqual([]);
+    expect(await t.run(intent)).toMatchObject({ step: "bridging" });
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(ETH);
+    expect(bridgeSubmissions(ports).map((s) => s.options.idempotencyKey)).toEqual([
+      expect.stringMatching(/:step:send-0$/),
+      expect.stringMatching(/:step:send-0:1$/),
+    ]);
+    expect(bridgeSubmissions(ports)[1]!.request.value).toBe(ETH + FEE);
+  });
+
+  it("moves the fee back with the input when a send:submit resume is blocked by the policy", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const intent = await nativeParent(ports, ETH + FEE);
+    expect(await t.run(intent)).toMatchObject({ step: "send" });
+    await crashAtSubmit(ports, t, intent);
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(ETH);
+    routes.verdict.violations = ["target: revoked since the quote"];
+    expect(await t.run(intent)).toMatchObject({ step: expect.stringMatching(/^policy-rejected: target:/) });
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(ETH + FEE);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(0n);
+    expect(bridgeSubmissions(ports)).toHaveLength(0);
+  });
+
+  it("moves back and re-sends a send:submit leg whose bracket an older version wrote without the fee", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const intent = await nativeParent(ports, ETH + FEE);
+    expect(await t.run(intent)).toMatchObject({ step: "send" });
+    await crashAtSubmit(ports, t, intent);
+    // The record an older version wrote: no `feesOnTop`, and the fee never debited.
+    const child = await childOf(ports);
+    const state = child.stepPayload as unknown as { legs: Record<string, unknown>[] };
+    const legacy = { ...state.legs[0]! };
+    delete legacy.feesOnTop;
+    await ports.journal.updateOperation(child.id, {
+      stepPayload: { ...state, legs: [legacy] } as unknown as typeof child.stepPayload,
+    });
+    await creditNative(ports, foreignEth.chainId, FEE);
+    expect(await t.run(intent)).toMatchObject({ step: "send" });
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(ETH + FEE);
+    expect(await holding(ports, foreignEth.chainId, "native", "in-transit")).toBe(0n);
+    expect(await t.run(intent)).toMatchObject({ step: "bridging" });
+    expect(await holding(ports, foreignEth.chainId, "native", "eoa")).toBe(0n);
+    expect(bridgeSubmissions(ports)).toHaveLength(1);
+    expect(bridgeSubmissions(ports)[0]!.options.idempotencyKey).toMatch(/:step:send-0:1$/);
+    expect(bridgeSubmissions(ports)[0]!.request.value).toBe(ETH + FEE);
+  });
+
+  it("debits a continuation swap's fee paid on top from the native holding on the destination chain", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation();
+    routes.quotes.unshift({
+      match: (r) => r.fromChainId === homeChain,
+      result: (r) => ({
+        kind: "quote",
+        quote: withFeeOnTop(quoteFor(r, { estimatedOutput: ETH, minimumOutput: (98n * ETH) / 100n }), FEE),
+      }),
+    });
+    await creditNative(ports, homeChain, FEE);
+    let outcome = await t.run(intent);
+    for (let i = 0; i < 4 && outcome.status === "in-progress" && outcome.step !== "bridging"; i++) {
+      outcome = await t.run(intent);
+    }
+    expect(outcome).toMatchObject({ status: "in-progress", step: "bridging" });
+    const continuation = bridgeSubmissions(ports).at(-1)!;
+    expect(continuation.request).toMatchObject({ chainId: homeChain, value: FEE });
+    expect(await holding(ports, homeChain, "native", "eoa")).toBe(0n);
+    expect((await payloadOf(ports)).legs[1]!.feesOnTop).toEqual([{ scope: scopeKey(scope), amount: FEE }]);
+  });
+
+  it("resumes a crash at the fee debit inside the bracket to attention, with nothing submitted", async () => {
+    const { ports, routes, transfers: t } = setup();
+    feeQuotes(routes, FEE);
+    const intent = await parentWithHolding(ports);
+    await creditNative(ports, foreignEth.chainId, FEE);
+    expect(await t.run(intent)).toMatchObject({ step: "approve" });
+    expect(await t.run(intent)).toMatchObject({ step: "send" });
+    const debit = ports.journal.ledger.debit.bind(ports.journal.ledger);
+    let crashes = 1;
+    const spy = vi.spyOn(ports.journal.ledger, "debit").mockImplementation(async (entry) => {
+      if (entry.asset === "native" && crashes-- > 0) throw new Error("simulated crash");
+      return debit(entry);
+    });
+    expect(await t.run(intent)).toMatchObject({ step: expect.stringMatching(/^error: simulated crash/) });
+    spy.mockRestore();
+    expect(await t.run(intent)).toMatchObject({
+      status: "attention",
+      reason: expect.stringMatching(/ledger bracket "send:debiting"/),
+    });
+    expect(bridgeSubmissions(ports)).toHaveLength(0);
+  });
+
+  // Row 3: a continuation leg without a route is bounded like a policy-blocked one ([L64]).
+
+  it("(e) no route: a continuation warns per tick, then goes to eoa and attention, freeing its slot", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation({ continuationBlockedMaxTicks: 3 });
+    routes.quotes.unshift({
+      match: (r) => r.fromChainId === homeChain,
+      result: { kind: "no-route", reason: "LI.FI 404 code 1002" },
+    });
+    const continuationId = (await childOf(ports)).id;
+    const other = await parentWithHolding(ports);
+    for (let tick = 1; tick <= 2; tick++) {
+      expect(await t.run(intent)).toMatchObject({
+        status: "in-progress",
+        step: "awaiting-route: LI.FI 404 code 1002",
+      });
+      expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(BRIDGED);
+      const warnings = ports.notifier.sent.filter((n) => n.title === "LI.FI continuation swap has no route");
+      expect(warnings).toHaveLength(tick);
+      expect(new Set(warnings.map((w) => w.dedupKey)).size).toBe(1);
+      ports.clock.advance(30_000);
+    }
+    // The continuation holds its inbound slot while it waits for a route.
+    expect(await drive(t, ports, other, 3)).toMatchObject({ step: `awaiting-inbound-slot: ${continuationId}` });
+    expect(await t.run(intent)).toMatchObject({ status: "attention" });
+    const child = (await ports.journal.listOperations({ kind: "transfer", parentId: intent.parentOperationId }))[0]!;
+    expect(child.lastError).toMatch(/continuation blocked for lack of a LI\.FI route after 3 ticks/);
+    expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(0n);
+    expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
+    const critical = ports.notifier.bySeverity("critical");
+    expect(critical).toHaveLength(1);
+    expect(critical[0]!.action).toMatch(/by hand/);
+    expect(critical[0]!.action).not.toMatch(/allowedAssets/);
+    expect(await drive(t, ports, other, 6)).toMatchObject({ step: "bridging" });
+  });
+
+  it("(e) a continuation whose quote requests keep failing is bounded by age", async () => {
+    const { ports, routes, transfers: t, intent } = await atContinuation({ continuationBlockedMaxTicks: 100 });
+    routes.quotes.unshift({
+      match: (r) => r.fromChainId === homeChain,
+      result: () => {
+        throw new Error("LI.FI quote failed: HTTP 500");
+      },
+    });
+    expect(await t.run(intent)).toMatchObject({
+      status: "in-progress",
+      step: "awaiting-route: quote failed: LI.FI quote failed: HTTP 500",
+    });
+    ports.clock.advance(1_800_000);
+    expect(await t.run(intent)).toMatchObject({ status: "in-progress" });
+    ports.clock.advance(1_800_001); // past statusTimeoutSeconds (3600) from the first blocked tick
+    expect(await t.run(intent)).toMatchObject({ status: "attention" });
+    expect(await holding(ports, homeChain, homeUsdc.address, "in-transit")).toBe(0n);
+    expect(await holding(ports, homeChain, homeUsdc.address, "eoa")).toBe(BRIDGED);
+    expect(ports.notifier.bySeverity("critical")).toHaveLength(1);
+  });
+
+  it("(a) a first leg without a route at requote stays open and unbounded", async () => {
+    const { ports, routes, transfers: t } = setup({ lifi: { continuationBlockedMaxTicks: 2 } });
+    const intent = await parentWithHolding(ports);
+    expect(await t.run(intent)).toMatchObject({ step: "approve" });
+    routes.verdict.violations = ["spender: revoked since the quote"];
+    expect(await t.run(intent)).toMatchObject({ step: expect.stringMatching(/^policy-rejected: spender:/) });
+    routes.verdict.violations = [];
+    expect((await childOf(ports)).step).toBe("requote");
+    routes.quotes.unshift({ match: () => true, result: { kind: "no-route", reason: "1002" } });
+    for (let i = 0; i < 4; i++) {
+      expect(await t.run(intent)).toMatchObject({ status: "in-progress", step: "awaiting-route: 1002" });
+      ports.clock.advance(3_600_000);
+    }
+    expect((await childOf(ports)).status).toBe("open");
+    expect(ports.notifier.bySeverity("critical")).toHaveLength(0);
+    expect(await holding(ports, usdc.chainId, usdc.address, "eoa")).toBe(AMOUNT);
   });
 });

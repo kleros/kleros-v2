@@ -46,7 +46,9 @@ import { computeBaseline, legMinimumOutput, minimumAcceptableOutput, withinBudge
  *
  * Ledger moves are owned here: on the first send each allocation moves from the source `eoa` holding to
  * `in-transit`; on receipt `in-transit` is debited and the destination `eoa` holding credited with LI.FI's reported
- * amount, split pro-rata. Every ledger write is bracketed by step markers (`*:debiting`, `*:crediting`): a resume
+ * amount, split pro-rata. A native fee LI.FI charges on top of the input (part of the send's value) is debited in the
+ * same bracket from the scopes' native `eoa` holdings on the source chain and credited back when nothing was signed;
+ * operator gas never pays it. Every ledger write is bracketed by step markers (`*:debiting`, `*:crediting`): a resume
  * that finds a marker goes to `attention`, so a crash leaves money untracked, never counted twice.
  *
  * Verified credit (decisions [L39]): the credit is `min(status.received, quote estimate)`, only once the receiving
@@ -115,6 +117,11 @@ interface Leg {
   spendRecorded?: boolean;
   /** When that row was written; a row older than the rolling 24 hours no longer reserves the leg's input. */
   spendRecordedAt?: string;
+  /**
+   * Per scope, the native fee paid on top debited in the send bracket and credited back when nothing was signed
+   * (absent in older payloads: a bracket written by an earlier version debited no fee).
+   */
+  feesOnTop?: StoredAllocation[];
 }
 
 interface TransferPayload {
@@ -267,6 +274,16 @@ function txOf(step: StoredStep): TxRequest {
   return tx;
 }
 
+/** The native value a leg's send carries beyond its own native input: LI.FI fees paid on top ([L49]). */
+function feeOnTop(
+  quote: { inputAmount: bigint; steps: readonly { kind: string; tx: { value: bigint } }[] },
+  fromAsset: Pick<Asset, "address">
+): bigint {
+  const send = quote.steps.find((s) => s.kind !== "approve"); // the step `submitSend` signs
+  const input = fromAsset.address === NATIVE ? quote.inputAmount : 0n;
+  return send && send.tx.value > input ? send.tx.value - input : 0n;
+}
+
 /**
  * A `failed` record that never produced a signed transaction (the executor fails before signing). The frozen
  * `FakeExecutor` numbers its failed records, so the test is on the signed bytes and hash, which only signing sets.
@@ -403,7 +420,75 @@ export class LifiTransfers implements Transfers {
     if (quote.inputAmount > leg.amount) {
       return { kind: "rejected", reason: `amount: quote input ${quote.inputAmount} exceeds ${leg.amount}` };
     }
+    const fees = await this.feesOnTop(payload, leg, quote);
+    if (fees.shortfall) return { kind: "rejected", reason: fees.shortfall };
     return { kind: "quote", quote };
+  }
+
+  /**
+   * The leg's native fee paid on top, split per scope like its input, and whether the scopes' native `eoa` holdings
+   * on the leg's chain cover it (with the input too when that is native and still in `eoa`). Never a fallback to
+   * another scope or to operator gas: a shortfall is a `value:` rejection. No ledger read when there is no fee.
+   */
+  private async feesOnTop(
+    payload: TransferPayload,
+    leg: Leg,
+    quote: RouteQuote | StoredQuote
+  ): Promise<{ shares: StoredAllocation[]; shortfall: string | null }> {
+    const fee = feeOnTop(quote, leg.fromAsset);
+    if (fee === 0n) return { shares: [], shortfall: null };
+    // A continuation's in-transit booking, or the allocations of a first leg before its bracket.
+    const weights = leg.sent.length > 0 ? leg.sent : payload.allocations;
+    const split = splitProRata(
+      fee,
+      weights.map((a) => a.amount)
+    );
+    const shares = weights.map((a, i) => ({ scope: a.scope, amount: split[i]! })).filter((a) => a.amount > 0n);
+    const needed = new Map<string, bigint>();
+    for (const share of shares) needed.set(share.scope, (needed.get(share.scope) ?? 0n) + share.amount);
+    if (leg.sent.length === 0 && leg.fromAsset.address === NATIVE) {
+      // A native first leg's input is still in `eoa` and is debited in the same bracket.
+      const inputs = splitProRata(
+        quote.inputAmount,
+        payload.allocations.map((a) => a.amount)
+      );
+      payload.allocations.forEach((a, i) => {
+        if (needed.has(a.scope)) needed.set(a.scope, needed.get(a.scope)! + inputs[i]!);
+      });
+    }
+    for (const [key, amount] of needed) {
+      const [held] = await this.ledger.holdings({
+        scope: parseScopeKey(key),
+        chainId: leg.fromChainId,
+        asset: NATIVE,
+        location: "eoa",
+      });
+      if ((held?.amount ?? 0n) < amount) {
+        return {
+          shares,
+          shortfall:
+            `value: the fee of ${fee} paid on top in the native token of chain ${leg.fromChainId} is not covered: ` +
+            `${key} holds ${held?.amount ?? 0n} there, ${amount} needed`,
+        };
+      }
+    }
+    return { shares, shortfall: null };
+  }
+
+  /** Credits the leg's debited fees paid on top back to the native `eoa` holdings (nothing was signed). */
+  private async refundFeesOnTop(id: OperationId, leg: Leg, reason: string): Promise<void> {
+    for (const share of leg.feesOnTop ?? []) {
+      await this.ledger.credit({
+        scope: parseScopeKey(share.scope),
+        chainId: leg.fromChainId,
+        asset: NATIVE,
+        location: "eoa",
+        amount: share.amount,
+        operationId: id,
+        reason,
+      });
+    }
+    leg.feesOnTop = [];
   }
 
   private async start(intent: TransferIntent): Promise<TransferOutcome> {
@@ -540,18 +625,20 @@ export class LifiTransfers implements Transfers {
   }
 
   /**
-   * A continuation leg the policy blocked (decisions [L64]): its input is the intermediate this operation delivered,
-   * booked `in-transit` on the destination chain. Until `continuationBlockedMaxTicks` blocked ticks or
-   * `statusTimeoutSeconds` after the first one, it warns (dedup per operation) and goes back to `requote`; then the
-   * booking moves to the `eoa` holding of that asset on that chain, the transfer goes to `attention` and one
-   * `critical` names the operator action. Nothing stays booked in transit once in `attention`.
+   * A continuation leg the policy blocked, or for which LI.FI has no route (`cause: "no-route"`, a failed quote
+   * request included) (decisions [L64]): its input is the intermediate this operation delivered, booked `in-transit`
+   * on the destination chain, and it holds its inbound slot. Until `continuationBlockedMaxTicks` blocked ticks or
+   * `statusTimeoutSeconds` after the first one (both causes share the counter), it warns (dedup per operation) and
+   * goes back to `requote`; then the booking moves to the `eoa` holding of that asset on that chain, the transfer goes
+   * to `attention` and one `critical` names the operator action. Nothing stays booked in transit once in `attention`.
    */
   private async continuationBlocked(
     id: OperationId,
     payload: TransferPayload,
     state: StepState,
     leg: Leg,
-    reason: string
+    reason: string,
+    cause: "policy" | "no-route" = "policy"
   ): Promise<TransferOutcome> {
     const { config } = this.deps;
     const now = this.ports.clock.now();
@@ -560,8 +647,26 @@ export class LifiTransfers implements Transfers {
     state.continuationBlocked = blocked;
     const asset = `${leg.fromAsset.symbol} (${leg.fromAsset.address})`;
     const age = now.getTime() - new Date(blocked.since).getTime();
+    const noRoute = cause === "no-route";
+    const by = noRoute ? "for lack of a LI.FI route" : "by the policy";
     if (blocked.count < config.continuationBlockedMaxTicks && age < config.statusTimeoutSeconds * 1000) {
       await this.save(id, "requote", state);
+      if (noRoute) {
+        await this.ports.notifier.notify({
+          severity: "warning",
+          title: "LI.FI continuation swap has no route",
+          body:
+            `Transfer ${id}: LI.FI has no route for the swap of ${leg.amount} ${asset} on chain ${leg.fromChainId} ` +
+            `to ${payload.toAsset.symbol} (${reason}); requoted on the next tick (${blocked.count} blocked).`,
+          dedupKey: `transfer-continuation-no-route:${id}`,
+          operationId: id,
+          chainId: leg.fromChainId,
+          action:
+            `Run lifi-probe for this swap; after ${config.continuationBlockedMaxTicks} blocked ticks or ` +
+            `${config.statusTimeoutSeconds} s the token is left in the EOA and the transfer goes to attention.`,
+        });
+        return { status: "in-progress", operationId: id, step: `awaiting-route: ${reason}` };
+      }
       await this.ports.notifier.notify({
         severity: "warning",
         title: "LI.FI continuation swap blocked by the policy",
@@ -578,12 +683,12 @@ export class LifiTransfers implements Transfers {
       return { status: "in-progress", operationId: id, step: `policy-rejected: ${reason}` };
     }
     await this.save(id, "release:crediting", state);
-    await this.returnToEoa(id, leg, "continuation blocked by the policy");
+    await this.returnToEoa(id, leg, `continuation blocked ${by}`);
     leg.sent = [];
     await this.save(id, "release", state);
     const outcome = await this.attention(
       id,
-      `continuation blocked by the policy after ${blocked.count} ticks (${reason}); ${leg.amount} ${asset} moved to ` +
+      `continuation blocked ${by} after ${blocked.count} ticks (${reason}); ${leg.amount} ${asset} moved to ` +
         `the eoa holding on chain ${leg.fromChainId}`
     );
     await this.ports.notifier.notify({
@@ -596,9 +701,10 @@ export class LifiTransfers implements Transfers {
       dedupKey: `transfer-continuation-abandoned:${id}`,
       operationId: id,
       chainId: leg.fromChainId,
-      action:
-        `Swap ${asset} on chain ${leg.fromChainId} to ${payload.toAsset.symbol} by hand, or add the token to ` +
-        "lifi.allowedAssets and resume the operation.",
+      action: noRoute
+        ? `Swap ${asset} on chain ${leg.fromChainId} to ${payload.toAsset.symbol} by hand.`
+        : `Swap ${asset} on chain ${leg.fromChainId} to ${payload.toAsset.symbol} by hand, or add the token to ` +
+          "lifi.allowedAssets and resume the operation.",
     });
     return outcome;
   }
@@ -685,8 +791,11 @@ export class LifiTransfers implements Transfers {
       kind: "no-route" as const,
       reason: `quote failed: ${messageOf(error)}`,
     }));
-    if (quoted.kind === "no-route")
+    if (quoted.kind === "no-route") {
+      // A continuation's input sits in transit on the destination chain and holds its inbound slot: bounded ([L64]).
+      if (state.legs.length > 1) return this.continuationBlocked(id, payload, state, leg, quoted.reason, "no-route");
       return { status: "in-progress", operationId: id, step: `awaiting-route: ${quoted.reason}` };
+    }
     if (quoted.kind === "rejected") {
       if (state.legs.length > 1) return this.continuationBlocked(id, payload, state, leg, quoted.reason);
       return { status: "in-progress", operationId: id, step: `policy-rejected: ${quoted.reason}` };
@@ -877,6 +986,13 @@ export class LifiTransfers implements Transfers {
     const parentLeg = state.legs.length === 1;
     const overLimit = parentLeg ? await this.dailyLimitViolation(leg, leg.quote) : null;
     if (overLimit) return { status: "in-progress", operationId: id, step: `policy-rejected: ${overLimit}` };
+    // The fee paid on top is re-checked against the holdings now; its shares are computed once for the debit below.
+    const fees = await this.feesOnTop(payload, leg, leg.quote);
+    if (fees.shortfall) {
+      if (state.legs.length > 1) return this.continuationBlocked(id, payload, state, leg, fees.shortfall);
+      await this.save(id, "requote", state);
+      return { status: "in-progress", operationId: id, step: `policy-rejected: ${fees.shortfall}` };
+    }
     await this.save(id, "send:debiting", state);
     // Every leg records the balances its own delivery is checked against (a WETH delivery of a continuation swap is
     // measured from that swap's send, not from the first bridge's).
@@ -902,6 +1018,19 @@ export class LifiTransfers implements Transfers {
         await this.ledger.credit({ ...entry, location: "in-transit", reason: "transfer sent" });
       }
     }
+    for (const share of fees.shares) {
+      await this.ledger.debit({
+        scope: parseScopeKey(share.scope),
+        chainId: leg.fromChainId,
+        asset: NATIVE,
+        location: "eoa",
+        amount: share.amount,
+        operationId: id,
+        reason: "transfer fee paid on top",
+      });
+    }
+    // Always set ([] included): it marks a bracket written by this version (see `resumeSubmit`).
+    leg.feesOnTop = fees.shares;
     if (parentLeg && !this.spendReserved(leg)) {
       // Inside the bracket and before the submit: the next send (of any operation) sees it in the daily limit, and a
       // crash before the marker below is `attention`, never a second row. A send that later fails before signing
@@ -969,7 +1098,9 @@ export class LifiTransfers implements Transfers {
       this.key(id, `send-${state.legs.length - 1}`, state.attempt)
     );
     if (record || !leg.quote) return this.submitSend(id, payload, state, leg);
-    if (this.quoteIsStale(leg.quote)) return this.moveBack(id, payload, state, leg, null);
+    // A bracket an older version wrote debited no fee paid on top: nothing is signed, so it is moved back and resent.
+    const legacyFees = leg.feesOnTop === undefined && feeOnTop(leg.quote, leg.fromAsset) > 0n;
+    if (legacyFees || this.quoteIsStale(leg.quote)) return this.moveBack(id, payload, state, leg, null);
     const violations = this.recheckViolations(payload, state, leg);
     if (state.legs.length === 1) {
       const overLimit = await this.dailyLimitViolation(leg, leg.quote);
@@ -992,10 +1123,14 @@ export class LifiTransfers implements Transfers {
     leg: Leg,
     rejected: string | null
   ): Promise<TransferOutcome> {
-    if (state.legs.length === 1 && leg.sent.length > 0) {
+    const booked = state.legs.length === 1 && leg.sent.length > 0;
+    if (booked || leg.feesOnTop?.length) {
       await this.save(id, "send:crediting", state);
-      await this.returnToEoa(id, leg, "transfer blocked before signing");
-      leg.sent = [];
+      if (booked) {
+        await this.returnToEoa(id, leg, "transfer blocked before signing");
+        leg.sent = [];
+      }
+      await this.refundFeesOnTop(id, leg, "transfer blocked before signing");
     }
     state.attempt += 1;
     await this.save(id, "requote", state);
@@ -1070,10 +1205,13 @@ export class LifiTransfers implements Transfers {
           );
         }
         const first = state.legs.length === 1;
-        if (first) {
+        if (first || leg.feesOnTop?.length) {
           await this.save(id, "send:crediting", state);
-          await this.returnToEoa(id, leg, "transfer send failed");
-          leg.sent = [];
+          if (first) {
+            await this.returnToEoa(id, leg, "transfer send failed");
+            leg.sent = [];
+          }
+          await this.refundFeesOnTop(id, leg, "transfer send failed");
         }
         state.attempt += 1;
         await this.save(id, "send", state);
@@ -1118,14 +1256,19 @@ export class LifiTransfers implements Transfers {
         }
         await this.save(id, "bridging", state);
         return { status: "in-progress", operationId: id, step: "bridging" };
-      case "unknown":
-        if (timedOut) return this.attention(id, `transfer status unknown past the timeout: ${status.detail}`);
+      case "unknown": {
+        // Once LI.FI has reported the leg DONE, the bound runs from that report, never from the send (decisions [L67]).
+        const expired = state.doneSeenAt
+          ? now.getTime() - new Date(state.doneSeenAt).getTime() > config.statusTimeoutSeconds * 1000
+          : timedOut;
+        if (expired) return this.attention(id, `transfer status unknown past the timeout: ${status.detail}`);
         await this.save(id, "bridging", state);
         return { status: "in-progress", operationId: id, step: "bridging" };
+      }
       case "failed":
         return this.attention(id, `LI.FI reports the transfer failed: ${status.reason}`);
       case "done":
-        return this.received(id, payload, state, leg, status, timedOut);
+        return this.received(id, payload, state, leg, status);
     }
   }
 
@@ -1134,16 +1277,18 @@ export class LifiTransfers implements Transfers {
     payload: TransferPayload,
     state: StepState,
     leg: Leg,
-    status: { received: bigint; receivedAsset: Asset | null; receivingTxHash: Hex | null },
-    timedOut: boolean
+    status: { received: bigint; receivedAsset: Asset | null; receivingTxHash: Hex | null }
   ): Promise<TransferOutcome> {
+    const now = this.ports.clock.now();
+    state.doneSeenAt ??= now.toISOString();
+    // Every wait after the first DONE is bounded from that report, never from the send (decisions [L67]).
+    const sinceDone = now.getTime() - new Date(state.doneSeenAt).getTime();
+    const expired = sinceDone > this.deps.config.statusTimeoutSeconds * 1000;
     const waiting = async (detail: string): Promise<TransferOutcome> => {
-      if (timedOut) return this.attention(id, `${detail} past the timeout`);
+      if (expired) return this.attention(id, `${detail} ${sinceDone / 1000} s after LI.FI reported it done`);
       await this.save(id, "bridging", state);
       return { status: "in-progress", operationId: id, step: "bridging" };
     };
-    const now = this.ports.clock.now();
-    state.doneSeenAt ??= now.toISOString();
     if (!status.receivingTxHash) return waiting("done without a receiving transaction");
     const asset = status.receivedAsset;
     if (!asset || asset.chainId !== payload.toChainId) {
@@ -1157,11 +1302,10 @@ export class LifiTransfers implements Transfers {
     // A failing read keeps the leg in progress; past `statusTimeoutSeconds` from the first DONE (never from the send:
     // a bridge that finished late survives one failing read) it is `attention`, which frees the inbound slot.
     const readFailed = async (error: unknown): Promise<TransferOutcome> => {
-      const since = now.getTime() - new Date(state.doneSeenAt!).getTime();
-      if (since > this.deps.config.statusTimeoutSeconds * 1000) {
+      if (expired) {
         return this.attention(
           id,
-          `receiving transaction ${status.receivingTxHash} cannot be read ${since / 1000} s after LI.FI reported ` +
+          `receiving transaction ${status.receivingTxHash} cannot be read ${sinceDone / 1000} s after LI.FI reported ` +
             `it done: ${messageOf(error)}`
         );
       }
