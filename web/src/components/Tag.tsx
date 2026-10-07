@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { Tag as BaseTag } from "@kleros/ui-components-library";
 
@@ -9,18 +8,10 @@ interface ITag {
   onClick: () => void;
 }
 
-const TagContainer = styled.button`
-  padding: 0;
-  border: none;
-  background-color: transparent;
-`;
-
+// The library `Tag` is a react-aria button; its press events stop propagation,
+// so an outer native onClick wouldn't fire — pass the handler as `onPress`.
 const Tag: React.FC<ITag> = ({ text, active, onClick }) => {
-  return (
-    <TagContainer onClick={onClick}>
-      <BaseTag text={text} active={active} />
-    </TagContainer>
-  );
+  return <BaseTag text={text} active={active} onPress={onClick} />;
 };
 
 export default Tag;

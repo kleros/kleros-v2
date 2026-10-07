@@ -12,7 +12,8 @@ test.describe("Case tests", () => {
 
     await page.getByRole("button", { name: "Next" }).click();
 
-    await page.getByTestId("resolver-title-input").fill("Test Case");
+    // TextField puts unknown props on its wrapper, so the testid is on the container, not the input.
+    await page.getByTestId("resolver-title-input").locator("input").fill("Test Case");
 
     await page.getByRole("button", { name: "Next" }).click();
 
@@ -39,26 +40,26 @@ test.describe("Case tests", () => {
     await page.getByRole("button", { name: "Next" }).click();
 
     // fill questions and answers
-    await page.getByRole("textbox", { name: "eg. How much should Alice" }).fill("How much should Alice recieve?");
-    await page.getByRole("textbox", { name: "eg. Pay 150 DAI" }).first().click();
-    await page.getByRole("textbox", { name: "eg. Pay 150 DAI" }).first().fill("Pay 150 DAI");
-    await page.getByRole("textbox", { name: "Description for Option 1" }).click();
-    await page.getByRole("textbox", { name: "Description for Option 1" }).fill("Pay 150 DAI");
-    await page.getByRole("textbox", { name: "eg. Pay 150 DAI" }).nth(1).click();
-    await page.getByRole("textbox", { name: "eg. Pay 150 DAI" }).nth(1).fill("Pay 200 DAI");
-    await page.getByRole("textbox", { name: "Description for Option 2" }).click();
-    await page.getByRole("textbox", { name: "Description for Option 2" }).fill("Pay 200 DAI");
+    // LabeledInput associates its label with the input, so these are named by label, not placeholder.
+    await page.getByRole("textbox", { name: "Question" }).fill("How much should Alice recieve?");
+    await page.getByRole("textbox", { name: "Voting Option 1" }).click();
+    await page.getByRole("textbox", { name: "Voting Option 1" }).fill("Pay 150 DAI");
+    await page.getByPlaceholder("Description for Option 1").click();
+    await page.getByPlaceholder("Description for Option 1").fill("Pay 150 DAI");
+    await page.getByRole("textbox", { name: "Voting Option 2" }).click();
+    await page.getByRole("textbox", { name: "Voting Option 2" }).fill("Pay 200 DAI");
+    await page.getByPlaceholder("Description for Option 2").click();
+    await page.getByPlaceholder("Description for Option 2").fill("Pay 200 DAI");
     await page.getByRole("button", { name: "Next" }).click();
 
     // fill aliases
-    await page.getByRole("textbox", { name: "eg. Alice (Developer)" }).click();
-    await page.getByRole("textbox", { name: "eg. Alice (Developer)" }).fill("Alice");
-    await page.getByRole("textbox", { name: "eg. Alice.eth" }).click();
-    await page.getByRole("textbox", { name: "eg. Alice.eth" }).fill("Alice.eth");
+    await page.getByRole("textbox", { name: "Person 1", exact: true }).click();
+    await page.getByRole("textbox", { name: "Person 1", exact: true }).fill("Alice");
+    await page.getByRole("textbox", { name: "Person 1 Address" }).click();
+    await page.getByRole("textbox", { name: "Person 1 Address" }).fill("Alice.eth");
     await page.getByRole("button", { name: "Next" }).click();
 
     // input policy
-    await page.getByRole("button").nth(5).click();
     await page.setInputFiles("input[type='file']", {
       name: "file.pdf",
       mimeType: "application/pdf",

@@ -266,7 +266,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
           <StyledButton
             variant="secondary"
             text={popupType === PopupType.DISPUTE_CREATED ? t("popups.check_the_case") : t("buttons.close")}
-            onClick={() => {
+            onPress={() => {
               closePopup();
               if (popupType === PopupType.DISPUTE_CREATED) {
                 const { disputeId } = props as IDisputeCreated;

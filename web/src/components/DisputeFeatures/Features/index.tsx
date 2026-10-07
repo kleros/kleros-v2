@@ -1,9 +1,6 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
-
-import { Radio } from "@kleros/ui-components-library";
 
 import { Features } from "src/dispute-kits/types";
 
@@ -11,38 +8,23 @@ import WithHelpTooltip from "components/WithHelpTooltip";
 
 import ArgentinaConsumerProtection from "./ArgentinaConsumerProtection";
 import ClassicVote from "./ClassicVote";
+import { FeatureRadio, type FeatureUI, type RadioInput } from "./FeatureRadio";
 import GatedErc1155 from "./GatedErc1155";
 import GatedErc20 from "./GatedErc20";
 import UniversityVote from "./UniversityVote";
-
-export type RadioInput = {
-  name: string;
-  value: Features;
-  checked: boolean;
-  disabled: boolean;
-  onClick: () => void;
-};
-
-export type FeatureUI = React.FC<RadioInput>;
-
-export const StyledRadio = styled(Radio)`
-  font-size: 14px;
-  color: ${({ theme, disabled }) => (disabled ? theme.secondaryText : theme.primaryText)};
-  opacity: ${({ disabled }) => (disabled ? "0.7" : 1)};
-`;
 
 const ShieldedVoteComponent: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
   return (
     <WithHelpTooltip tooltipMsg={t("tooltips.shielded_voting_tooltip")} key={Features.ShieldedVote}>
-      <StyledRadio label={t("features.single_step_shutter")} small {...props} />
+      <FeatureRadio {...props} label={t("features.single_step_shutter")} />
     </WithHelpTooltip>
   );
 };
 
 const ClassicEligibilityComponent: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
-  return <StyledRadio key={Features.ClassicEligibility} label={t("features.all_jurors_in_court")} small {...props} />;
+  return <FeatureRadio {...props} label={t("features.all_jurors_in_court")} />;
 };
 
 export const FeatureUIs: Record<Features, FeatureUI> = {

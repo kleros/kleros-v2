@@ -39,17 +39,20 @@ test.describe("Voting tests", () => {
     await expect(page.getByText(`Case #${disputeId}`)).toBeVisible({ timeout: 30_000 });
 
     // go to Votes Tab
-    await page.getByRole("button", { name: "Votes" }).click();
+    await page.getByRole("tab", { name: "Votes" }).click();
 
     const optionOneName = DISPUTE_SCENARIOS.simple.answers[0].title;
     const optionTwoName = DISPUTE_SCENARIOS.simple.answers[1].title;
 
-    // checking that options are available
-    await expect(page.getByRole("button", { name: optionOneName })).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole("button", { name: optionTwoName })).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole("button", { name: RefuseToArbitrateAnswer.title })).toBeVisible({ timeout: 30_000 });
+    // The Tooltip trigger is a focusable div[role="button"] with the same name, so match the real <button>.
+    const voteOption = (name: string) => page.getByRole("button", { name }).and(page.locator("button"));
 
-    await page.getByRole("button", { name: optionOneName }).click();
+    // checking that options are available
+    await expect(voteOption(optionOneName)).toBeVisible({ timeout: 30_000 });
+    await expect(voteOption(optionTwoName)).toBeVisible({ timeout: 30_000 });
+    await expect(voteOption(RefuseToArbitrateAnswer.title)).toBeVisible({ timeout: 30_000 });
+
+    await voteOption(optionOneName).click();
 
     // confirmation modal shown before committing the vote
     const confirmVoteModal = page.getByRole("dialog");
@@ -79,7 +82,7 @@ test.describe("Voting tests", () => {
     await executeRulingForDispute(hardhat, disputeId!);
 
     // going to Overview Tab
-    await page.getByRole("button", { name: "Overview" }).click();
+    await page.getByRole("tab", { name: "Overview" }).click();
 
     await expect(page.getByText("Case Closed")).toBeVisible({ timeout: 30_000 });
   });

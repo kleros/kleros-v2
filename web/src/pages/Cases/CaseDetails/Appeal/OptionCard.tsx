@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useMeasure } from "react-use";
 import { formatEther } from "viem";
 
-import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
+import { Card, LinearProgress, CustomRadioItem, RadioIndicator } from "@kleros/ui-components-library";
 
 import Gavel from "svgs/icons/gavel.svg";
 
@@ -14,14 +14,14 @@ import { isUndefined } from "utils/index";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 
-const StyledCard = styled(Card)<{ canBeSelected: boolean }>`
+const StyledItem = styled(CustomRadioItem)`
+  width: 100%;
+`;
+
+const StyledCard = styled(Card)`
   ${hoverShortTransitionTiming}
   width: 100%;
   padding: 16px;
-
-  :hover {
-    cursor: ${({ canBeSelected }) => (canBeSelected ? "pointer" : "auto")};
-  }
 
   ${landscapeStyle(
     () => css`
@@ -36,13 +36,6 @@ const WinnerLabel = styled.label<{ winner: boolean }>`
     width: 12px;
     margin-right: 8px;
     fill: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
-  }
-`;
-
-const StyledRadio = styled(Radio)`
-  padding-left: 24px;
-  > input {
-    display: none;
   }
 `;
 
@@ -74,23 +67,63 @@ const LabelContainer = styled.div`
   justify-content: center;
 `;
 
-interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
+const ProgressContainer = styled.div`
+  width: 100%;
+`;
+
+interface IOptionCard {
+  /** The option id; used as the radio group value when `selectable` is true. */
+  value: string;
   text: string;
   funding: bigint;
   required?: bigint;
   winner?: boolean;
-  selected?: boolean;
+  /** When true, the card is wrapped in a `CustomRadioItem` (must live inside a `CustomRadio`)
+   *  and renders a radio indicator. When false, the card is plain and can be rendered anywhere. */
+  selectable?: boolean;
+  /** Only meaningful when `selectable` is true; gates the radio item. */
   canBeSelected?: boolean;
 }
 
+const CardBody: React.FC<{
+  text: string;
+  fundingLabel: string;
+  progress: number;
+  width: number;
+  winner: boolean;
+  innerRef: (el: HTMLDivElement) => void;
+  rightSlot?: React.ReactNode;
+  role?: string;
+  t: (key: string) => string;
+}> = ({ text, fundingLabel, progress, width, winner, innerRef, rightSlot, role, t }) => (
+  <StyledCard hover role={role}>
+    <TopContainer>
+      <TextContainer>
+        <BlockLabel>{text}</BlockLabel>
+        <WinnerLabel winner={winner}>
+          <Gavel />
+          {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
+        </WinnerLabel>
+      </TextContainer>
+      {rightSlot}
+    </TopContainer>
+    <LabelContainer>
+      <label>{fundingLabel}</label>
+    </LabelContainer>
+    <ProgressContainer ref={innerRef}>
+      <LinearProgress value={progress} width={width} />
+    </ProgressContainer>
+  </StyledCard>
+);
+
 const OptionCard: React.FC<IOptionCard> = ({
+  value,
   text,
   funding,
   required,
   winner,
-  selected,
+  selectable = true,
   canBeSelected = true,
-  ...props
 }) => {
   const { t } = useTranslation();
   const [ref, { width }] = useMeasure<HTMLDivElement>();
@@ -106,23 +139,36 @@ const OptionCard: React.FC<IOptionCard> = ({
     else return [t("appeal.no_contributions"), 0];
   }, [funding, required, t]);
 
+  if (!selectable) {
+    return (
+      <CardBody
+        text={text}
+        fundingLabel={fundingLabel}
+        progress={progress}
+        width={width}
+        winner={!!winner}
+        innerRef={ref}
+        role="listitem"
+        t={t}
+      />
+    );
+  }
+
   return (
-    <StyledCard hover {...props} {...{ canBeSelected, ref }}>
-      <TopContainer>
-        <TextContainer>
-          <BlockLabel>{text}</BlockLabel>
-          <WinnerLabel winner={winner ? true : false}>
-            <Gavel />
-            {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
-          </WinnerLabel>
-        </TextContainer>
-        {canBeSelected && <StyledRadio label="" checked={selected} />}
-      </TopContainer>
-      <LabelContainer>
-        <label>{fundingLabel}</label>
-      </LabelContainer>
-      <LinearProgress progress={progress} width={width} />
-    </StyledCard>
+    <StyledItem value={value} isDisabled={!canBeSelected}>
+      {(rp) => (
+        <CardBody
+          text={text}
+          fundingLabel={fundingLabel}
+          progress={progress}
+          width={width}
+          winner={!!winner}
+          innerRef={ref}
+          rightSlot={canBeSelected ? <RadioIndicator {...rp} /> : null}
+          t={t}
+        />
+      )}
+    </StyledItem>
   );
 };
 

@@ -16,7 +16,7 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 38px;
+  margin-bottom: 16px;
 `;
 
 const TitleContainer = styled.div`
@@ -90,7 +90,7 @@ const Header: React.FC<{ title: string }> = ({ title }) => {
         <StyledPaperClip />
         <Title>{title}</Title>
       </TitleContainer>
-      <StyledButton text={t("buttons.return")} Icon={Arrow} onClick={handleReturn} />
+      <StyledButton text={t("buttons.return")} Icon={Arrow} onPress={handleReturn} />
     </Container>
   );
 };

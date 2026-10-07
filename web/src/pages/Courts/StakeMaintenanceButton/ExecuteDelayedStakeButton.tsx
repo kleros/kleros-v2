@@ -76,8 +76,8 @@ const ExecuteDelayedStakeButton: React.FC<IExecuteStakeDelayedButton> = ({ setIs
       text={t("buttons.execute_delayed_stakes")}
       small
       isLoading={isLoading}
-      disabled={isDisabled}
-      onClick={handleClick}
+      isDisabled={isDisabled}
+      onPress={handleClick}
     />
   );
 };

@@ -16,6 +16,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 import { useVotingHistory } from "queries/useVotingHistory";
 
+import { tabsSelectedUnderline } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
@@ -32,6 +33,7 @@ const Container = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
+  ${tabsSelectedUnderline}
   width: 100%;
 `;
 
@@ -107,12 +109,14 @@ const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = (
           )}
           <TabsContainer>
             <StyledTabs
-              currentValue={currentTab}
+              selectedKey={currentTab}
               items={rounds.map((_, i) => ({
+                id: i,
                 text: t("voting.round_number", { number: i + 1 }),
                 value: i,
+                content: null,
               }))}
-              callback={(i: number) => setCurrentTab(i)}
+              callback={(_key, value) => setCurrentTab(value)}
             />
             <PendingVotesBox
               current={Number(localRounds?.[currentTab]?.totalVoted)}

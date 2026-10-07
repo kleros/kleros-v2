@@ -49,8 +49,7 @@ const CaseStarButton: React.FC<{ id: string }> = ({ id }) => {
         starred={starred}
         aria-label={text}
         aria-checked={starred}
-        onClick={(e) => {
-          e.stopPropagation();
+        onPress={() => {
           starCase(id);
         }}
       />

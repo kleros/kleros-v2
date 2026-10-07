@@ -10,7 +10,7 @@ import { useAccount } from "wagmi";
 import Check from "svgs/icons/check-circle-outline.svg";
 
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { commify, uncommify } from "utils/commify";
+import { commify } from "utils/commify";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
@@ -96,7 +96,7 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
     <StakingMsgContainer>
       {isSuccess ? <CheckIcon /> : null}
       <StakingMsg>{stakingMessage}</StakingMsg>
-      <StakingAmount>{amount} PNK</StakingAmount>
+      <StakingAmount>{commify(amount)} PNK</StakingAmount>
       {courtDetails?.court?.name ? (
         <CourtName>{t("staking.on_court", { court: courtDetails.court.name })}</CourtName>
       ) : null}
@@ -115,7 +115,7 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
             jurorCurrentEffectiveStake,
             jurorCurrentSpecificStake,
             isStaking: !isWithdraw,
-            amountToStake: Number(uncommify(amount)),
+            amountToStake: Number(amount),
           }}
         />
       )}
