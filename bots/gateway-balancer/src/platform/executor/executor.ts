@@ -158,7 +158,9 @@ export class PlatformExecutor implements TxExecutor {
     if (!record) return undefined;
     if (record.status === "unknown") return unknownOutcome(record);
     const chain = this.deps.chains.get(record.chainId);
-    if (!chain) return this.unknownChain(record);
+    // A final record keeps its journal outcome once its chain is removed; only a non-final one needs the chain
+    // (decisions [L22]).
+    if (!chain) return (await this.finalOutcome(record, null)) ?? this.unknownChain(record);
     const rpc = this.bounded(chain, this.deps.options.waitMs);
     return (await this.inspect(record, chain, rpc, chain.confirmations, "runtime", new Set())).outcome;
   }
@@ -238,7 +240,7 @@ export class PlatformExecutor implements TxExecutor {
       if (existing.status === "failed") return { status: "failed", error: existing.error ?? "failed" };
       if (existing.status === "unknown") return unknownOutcome(existing);
       const existingChain = this.deps.chains.get(existing.chainId);
-      if (!existingChain) return this.unknownChain(existing);
+      if (!existingChain) return (await this.finalOutcome(existing, null)) ?? this.unknownChain(existing);
       return this.wait(existing, existingChain, options.confirmations ?? existingChain.confirmations, waitMs);
     }
     if (!chain) {
@@ -630,8 +632,11 @@ export class PlatformExecutor implements TxExecutor {
     }
   }
 
-  /** The outcome of a record already final in the journal. */
-  private async finalOutcome(record: TransactionRecord, rpc: ExecutorRpc): Promise<SubmitOutcome | null> {
+  /**
+   * The outcome of a record already final in the journal. Without `rpc` (its chain is no longer configured) a
+   * `confirmed` one reports `gasUsed` 0, as when its receipt cannot be read.
+   */
+  private async finalOutcome(record: TransactionRecord, rpc: ExecutorRpc | null): Promise<SubmitOutcome | null> {
     switch (record.status) {
       case "failed":
         return { status: "failed", error: record.error ?? "failed" };
@@ -642,10 +647,12 @@ export class PlatformExecutor implements TxExecutor {
       case "unknown":
         return unknownOutcome(record);
       case "confirmed": {
-        const gasUsed = await rpc.getReceipt(record.hash as Hex).then(
-          (r) => r?.gasUsed ?? 0n,
-          () => 0n
-        );
+        const gasUsed = rpc
+          ? await rpc.getReceipt(record.hash as Hex).then(
+              (r) => r?.gasUsed ?? 0n,
+              () => 0n
+            )
+          : 0n;
         return { status: "confirmed", hash: record.hash as Hex, blockNumber: record.blockNumber ?? 0n, gasUsed };
       }
       default:

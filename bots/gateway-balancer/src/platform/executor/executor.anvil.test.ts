@@ -6,7 +6,7 @@ import { custom, http, HttpRequestError, keccak256, parseTransaction, type Trans
 import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from "viem/accounts";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import type { Address, Hex, Notification, TxRequest } from "../../domain";
-import type { Clock, Notifier } from "../../ports";
+import type { Clock, Notifier, SubmitOutcome } from "../../ports";
 import { FakeJournal } from "../../testing/fakeJournal";
 import { FakeLogger } from "../../testing/fakeLogger";
 import { FakeNotifier } from "../../testing/fakeNotifier";
@@ -669,6 +669,108 @@ describe("PlatformExecutor on a chain removed from the topology", () => {
     expect(await anvil.rpc("eth_getTransactionByHash", [hash])).toBeNull();
     expect(Number(await anvil.rpc<Hex>("eth_getTransactionCount", [eoa.address, "pending"]))).toBe(0);
     expect((await journal.getTransaction(k))?.status).toBe("unknown");
+  });
+
+  it("answers a confirmed record from the journal after its chain is removed; its operation stays open", async () => {
+    const journal = new FakeJournal();
+    const h = harness({ journal });
+    const op = await journal.createOperation({
+      kind: "refill",
+      pairId: "arc-arbitrum",
+      description: "confirmed on C",
+      scopes: [{ kind: "arbitration", pairId: "arc-arbitrum" }],
+      payload: null,
+    });
+    const k = { idempotencyKey: `op:${op.id}:step:send`, operationId: op.id };
+    expect((await h.executor.submit(transfer(), k)).status).toBe("confirmed");
+    const record = (await journal.getTransaction(k.idempotencyKey))!;
+    const pendingBefore = await nonce("pending");
+    // C removed from the topology: the confirmed record is final, so nothing is settled or sent to attention.
+    const without = harness({ journal, chainId: REMOVED });
+    const report = await reconcile({
+      journal,
+      executor: without.executor,
+      notifier: without.notifier,
+      logger: new FakeLogger(),
+    });
+    expect(report.recovery).toEqual({ resolved: 0, rebroadcast: 0, unknown: [] });
+    expect(report.attention).toEqual([]);
+    // resolve() and a repeat submit() answer it from the journal (no receipt to read: gasUsed 0).
+    const confirmed: SubmitOutcome = {
+      status: "confirmed",
+      hash: record.hash as Hex,
+      blockNumber: record.blockNumber!,
+      gasUsed: 0n,
+    };
+    expect(await without.executor.resolve(k.idempotencyKey)).toEqual(confirmed);
+    expect(await without.executor.submit(transfer(), k)).toEqual(confirmed);
+    expect(await journal.getTransaction(k.idempotencyKey)).toEqual(record);
+    expect((await journal.getOperation(op.id))?.status).toBe("open");
+    expect(without.notifier.sent).toEqual([]);
+    expect(await nonce("pending")).toBe(pendingBefore);
+  });
+
+  it("answers reverted, replaced and failed records from the journal; a non-final one stays unknown", async () => {
+    const h = harness();
+    const reason = `execution reverted revertData=${REVERT_SELECTOR}`;
+    const error = `simulation reverted revertData=${REVERT_SELECTOR}`;
+    const reverted = await seed(h.journal, "broadcast", 0);
+    const revertedRecord = await h.journal.updateTransaction(reverted.key, {
+      status: "reverted",
+      blockNumber: 7n,
+      error: reason,
+    });
+    const replaced = await seed(h.journal, "broadcast", 1);
+    const replacedRecord = await h.journal.updateTransaction(replaced.key, {
+      status: "replaced",
+      error: "nonce 1 consumed by another transaction 1 blocks deep",
+    });
+    const failed = await seed(h.journal, "prepared", 0);
+    await h.journal.updateTransaction(failed.key, { status: "failed", error });
+    const cases: Array<{ seeded: { operationId: string; key: string }; expected: SubmitOutcome }> = [
+      { seeded: reverted, expected: { status: "reverted", hash: revertedRecord.hash as Hex, reason } },
+      { seeded: replaced, expected: { status: "replaced", hash: replacedRecord.hash as Hex, replacedByHash: null } },
+      { seeded: failed, expected: { status: "failed", error } },
+    ];
+    for (const { seeded, expected } of cases) {
+      const k = seeded.key;
+      const before = await h.journal.getTransaction(k);
+      expect(await h.executor.resolve(k)).toEqual(expected);
+      expect(
+        await h.executor.submit(
+          { chainId: REMOVED, to: RECIPIENT, value: 1n },
+          { idempotencyKey: k, operationId: seeded.operationId }
+        )
+      ).toEqual(expected);
+      expect(await h.journal.getTransaction(k)).toEqual(before);
+    }
+    // Final records are not settled again.
+    expect(await h.executor.recover()).toEqual({ resolved: 0, rebroadcast: 0, unknown: [] });
+    // A non-final record still needs its chain (L22): resolve() answers unknown and persists nothing.
+    const signed = await seed(h.journal, "signed", 3);
+    expect(await h.executor.resolve(signed.key)).toMatchObject({
+      status: "unknown",
+      detail: `chain ${REMOVED} is not configured`,
+    });
+    expect((await h.journal.getTransaction(signed.key))?.status).toBe("signed");
+    expect(h.notifier.sent).toEqual([]);
+  });
+
+  it("fails a new submit on an unconfigured chain with its own error; resolve() answers it (L65)", async () => {
+    const h = harness();
+    const k = key();
+    const request: TxRequest = { chainId: REMOVED, to: RECIPIENT, value: 1n };
+    const failed: SubmitOutcome = { status: "failed", error: `chain ${REMOVED} is not configured revertData=none` };
+    expect(await h.executor.submit(request, k)).toEqual(failed);
+    expect(await h.journal.getTransaction(k.idempotencyKey)).toMatchObject({
+      status: "failed",
+      nonce: null,
+      signedRaw: null,
+      error: failed.error,
+    });
+    expect(await h.executor.resolve(k.idempotencyKey)).toEqual(failed);
+    expect(await h.executor.submit(request, k)).toEqual(failed);
+    expect(h.notifier.sent).toEqual([]);
   });
 });
 
