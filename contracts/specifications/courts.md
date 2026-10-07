@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This document specifies the format and structure of courts in the Kleros V2 protocol. Courts are organized in a hierarchical tree structure where each court can have a parent court and multiple child courts. Courts are created through the `KlerosCoreBase` contract and their configuration is stored on-chain.
+This document specifies the format and structure of courts in the Kleros V2 protocol. Courts are organized in a hierarchical tree structure where each court can have a parent court and multiple child courts. Courts are created through the `KlerosCore` contract and their configuration is stored on-chain.
 
 ## 🔧 Format
 
@@ -16,9 +16,9 @@ Each court is defined by the following properties:
   hiddenVotes: boolean;       // Whether juror votes are hidden during voting period
   minStake: string;          // Minimum amount of PNK tokens required to stake (in wei)
   feeForJuror: string;       // Fee paid to jurors per dispute (in wei)
-  alpha: string;             // Chance of being drawn as juror based on stake (in basis points)
+  alpha: string;             // PNK collateral per drawn vote, expressed as a fraction of minStake (in basis points)
   jurorsForCourtJump: string; // Number of jurors for a dispute to jump to parent court
-  timesPerPeriod: number[];   // Duration of each period [evidence, vote, appeal, execution] in seconds
+  timesPerPeriod: number[];   // Duration of each period [evidence, commit, vote, appeal] in seconds
 }
 ```
 
@@ -45,7 +45,7 @@ Each court is defined by the following properties:
   - Description: ID of the parent court
   - Constraints:
     - Must reference an existing court ID
-    - Root court references itself (e.g., General Court has parent=1)
+    - Final Court has parent=0. General Court is its child and also has parent=0
     - Creates a hierarchical tree structure
   - Example: `1`
 
@@ -73,7 +73,7 @@ Each court is defined by the following properties:
 - **alpha** (required)
 
   - Type: `string`
-  - Description: Chance of being drawn as juror based on stake
+  - Description: PNK collateral per drawn vote, expressed as a fraction of minStake
   - Format: Basis points (1/10000)
   - Example: `"10000"` (100%)
 
@@ -89,40 +89,38 @@ Each court is defined by the following properties:
   - Description: Duration of each period in seconds
   - Format: Array of 4 numbers representing:
     1. Evidence period
-    2. Vote period
-    3. Appeal period
-    4. Execution period
+    2. Commit period
+    3. Vote period
+    4. Appeal period
   - Example: `[280800, 583200, 583200, 388800]`
 
 ## 🌳 Hierarchy Rules
 
 1. **Reserved Court IDs**
 
-   - Court ID 0 is reserved for the future "Forking Court"
-   - Court ID 1 is the General Court, currently serving as root
+   - Court ID 0 is reserved for the "Final Court"
+   - Court ID 1 is the General Court
    - All other court IDs must be greater than 1
 
 2. **Root Court Structure**
 
-   - Currently: The General Court (ID: 1) acts as the root of the hierarchy
-   - Future: The Forking Court (ID: 0) will become the ultimate root-level court
-   - The General Court will become a child of the Forking Court
-   - The Forking Court is designed to handle protocol-level disputes and forking decisions
+   - The Final Court (ID: 0) is the ultimate root-level court
+   - The General Court is a child of the Final Court
+   - The Final Court is designed to handle protocol-level disputes and forking decisions
 
 3. **Parent-Child Relationships**
 
-   - Each court (except current/future root) must have a valid parent court
+   - Each court (except root) must have a valid parent court
    - A court can have multiple child courts
    - Child courts inherit certain properties from their parent:
      - Policy rules (see policy-format.md)
-     - Supported dispute kits
 
 4. **Appeals Flow**
    - Disputes can be appealed to parent courts
    - Number of jurors typically increases with each appeal
    - The `jurorsForCourtJump` parameter determines when a dispute jumps to parent
    - Currently: All appeals eventually reach the General Court
-   - Future: Protocol-level appeals may reach the Forking Court
+   - Future: Protocol-level appeals may reach the Final Court
 
 ## ⚙️ DisputeKit Compatibility
 
@@ -131,20 +129,11 @@ Courts can be configured to support specific dispute resolution mechanisms throu
 1. **Supported Kits**
 
    - Each court specifies which DisputeKits it supports
-   - Child courts inherit supported kits from parent courts
    - Multiple kits can be supported simultaneously
 
 2. **Configuration**
    - Specified during court creation via `_supportedDisputeKits` array
    - Each element is an index referencing a registered DisputeKit
-   - Cannot be changed after court creation
-
-## 🛠️ Technical Parameters
-
-1. **Sortition Parameters**
-   - `_sortitionExtraData`: Used to initialize the sortition sum tree
-   - Typically set to `ethers.toBeHex(5)`
-   - Controls technical aspects of juror selection
 
 ## 💡 Example
 
@@ -152,7 +141,7 @@ Courts can be configured to support specific dispute resolution mechanisms throu
 {
   "name": "General Court",
   "id": 1,
-  "parent": 1,
+  "parent": 0,
   "hiddenVotes": true,
   "minStake": "2300000000000000000000",
   "feeForJuror": "5000000000000000",
@@ -173,7 +162,7 @@ Courts can be configured to support specific dispute resolution mechanisms throu
 
 ## 🔗 Related Components
 
-- `KlerosCoreBase.sol`: Contract for creating and managing courts
+- `KlerosCore.sol`: Contract for creating and managing courts
 - `PolicyRegistry.sol`: Manages court policies and defines authoritative court names
 - DisputeKit contracts: Implement specific dispute resolution mechanisms
 - Sortition module: Handles random juror selection

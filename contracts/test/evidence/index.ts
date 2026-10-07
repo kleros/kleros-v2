@@ -75,7 +75,8 @@ describe("Home Evidence contract", async () => {
       bondTimeout,
       arbitratorExtraData,
       disputeTemplate,
-      "disputeTemplateMapping: TODO"
+      "disputeTemplateMapping: TODO",
+      ZeroAddress
     );
   });
 

@@ -249,7 +249,6 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
 
     const deploymentResult = await deployUpgradable(deployments, "DisputeKitGatedShutterMock", {
       from: deployer,
-      proxyAlias: "UUPSProxy",
       args: [deployer, core.target, weth.target],
       log: true,
     });

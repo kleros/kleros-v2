@@ -25,20 +25,10 @@ contract DisputeResolver is IArbitrableV2 {
     // *             Storage               * //
     // ************************************* //
 
-    address public owner; // The owner.
     IArbitratorV2 public arbitrator; // The arbitrator.
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     DisputeStruct[] public disputes; // Local disputes.
     mapping(uint256 => uint256) public arbitratorDisputeIDToLocalID; // Maps arbitrator-side dispute IDs to local dispute IDs.
-
-    // ************************************* //
-    // *        Function Modifiers         * //
-    // ************************************* //
-
-    modifier onlyByOwner() {
-        require(owner == msg.sender, OwnerOnly());
-        _;
-    }
 
     // ************************************* //
     // *            Constructor            * //
@@ -48,26 +38,7 @@ contract DisputeResolver is IArbitrableV2 {
     /// @param _arbitrator Target global arbitrator for any disputes.
     /// @param _templateRegistry The dispute template registry.
     constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {
-        owner = msg.sender;
         arbitrator = _arbitrator;
-        templateRegistry = _templateRegistry;
-    }
-
-    // ************************************* //
-    // *           Governance              * //
-    // ************************************* //
-
-    /// @notice Changes the owner.
-    /// @param _owner The address of the new owner.
-    function changeOwner(address _owner) external onlyByOwner {
-        owner = _owner;
-    }
-
-    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByOwner {
-        arbitrator = _arbitrator;
-    }
-
-    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByOwner {
         templateRegistry = _templateRegistry;
     }
 
@@ -75,7 +46,7 @@ contract DisputeResolver is IArbitrableV2 {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @notice Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @notice Calls createDispute function of the specified arbitrator to create a dispute. TRUSTED.
     /// @dev No need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
     /// @param _disputeTemplate Dispute template.
@@ -98,6 +69,7 @@ contract DisputeResolver is IArbitrableV2 {
     }
 
     /// @notice Give a ruling for a dispute.
+    /// @dev Callback from the trusted arbitrator, which is expected to call `rule()` only for disputes created by this resolver.
     ///
     /// @dev This is a callback function for the arbitrator to provide the ruling to this contract.
     /// Only the arbitrator must be allowed to call this function.
@@ -105,7 +77,7 @@ contract DisputeResolver is IArbitrableV2 {
     ///
     /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _ruling Ruling given by the arbitrator.
-    function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
+    function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external {
         uint256 localDisputeID = arbitratorDisputeIDToLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
         require(msg.sender == address(arbitrator), ArbitratorOnly());
@@ -122,6 +94,12 @@ contract DisputeResolver is IArbitrableV2 {
     // *            Internal               * //
     // ************************************* //
 
+    /// @notice Creates a dispute with the arbitrator and registers its dispute template.
+    /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
+    /// @param _disputeTemplate Dispute template.
+    /// @param _disputeTemplateDataMappings The data mappings.
+    /// @param _numberOfRulingOptions Number of ruling options.
+    /// @return arbitratorDisputeID Dispute id on the arbitrator side of the created dispute.
     function _createDispute(
         bytes calldata _arbitratorExtraData,
         string memory _disputeTemplate,
@@ -147,7 +125,6 @@ contract DisputeResolver is IArbitrableV2 {
     // *              Errors               * //
     // ************************************* //
 
-    error OwnerOnly();
     error ArbitratorOnly();
     error RulingOutOfBounds();
     error DisputeAlreadyRuled();

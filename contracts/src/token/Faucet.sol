@@ -19,7 +19,7 @@ contract Faucet {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(address(owner) == msg.sender, "Access not allowed: Owner only.");
         _;
     }
@@ -37,15 +37,15 @@ contract Faucet {
     // *             Governance            * //
     // ************************************* //
 
-    function changeOwner(address _owner) public onlyByOwner {
+    function changeOwner(address _owner) public onlyOwner {
         owner = _owner;
     }
 
-    function changeAmount(uint256 _amount) public onlyByOwner {
+    function changeAmount(uint256 _amount) public onlyOwner {
         amount = _amount;
     }
 
-    function withdraw() public onlyByOwner {
+    function withdraw() public onlyOwner {
         token.transfer(owner, token.balanceOf(address(this)));
     }
 
