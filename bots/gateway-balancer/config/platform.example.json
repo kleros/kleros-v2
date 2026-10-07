@@ -1,0 +1,54 @@
+{
+  "_comment": "The platform section with every default spelled out. \"platform\": {} in config/example.json means exactly this. Copy only the fields you change. Wei amounts are decimal strings.",
+  "journalPath": "data/journal.sqlite",
+  "schedule": {
+    "defaultIntervalMs": 60000,
+    "intervalsMs": {},
+    "suspendedIntervalMs": 900000,
+    "backoff": {
+      "initialMs": 30000,
+      "factor": 2,
+      "maxMs": 1800000
+    },
+    "stopTimeoutMs": 60000
+  },
+  "executor": {
+    "waitMs": 45000,
+    "pollIntervalMs": 2000,
+    "stuckAfterMs": 900000,
+    "baseFeeMultiplier": 2,
+    "gasLimitBufferPercent": 20
+  },
+  "ownership": {
+    "heartbeatMs": 15000,
+    "staleAfterMs": 180000
+  },
+  "gas": {
+    "intervalMs": 300000,
+    "minimumReserveWei": {},
+    "defaultMinimumReserveWei": "5000000000000000"
+  },
+  "notifications": {
+    "minSeverity": "info",
+    "dedupWindowSeconds": 3600,
+    "providers": {
+      "slack": {
+        "enabled": false,
+        "webhookUrlEnv": "SLACK_WEBHOOK_URL",
+        "minSeverity": "info"
+      },
+      "telegram": {
+        "enabled": false
+      }
+    }
+  },
+  "health": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 8080,
+    "allowNonLoopback": false
+  },
+  "http": {
+    "timeoutMs": 30000
+  }
+}
