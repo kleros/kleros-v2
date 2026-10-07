@@ -1,0 +1,62 @@
+{
+  "providers": [
+    {
+      "id": "chainlink",
+      "source": "chainlink:arbitrum",
+      "chainId": 42161,
+      "feeds": {
+        "ETH": {
+          "address": "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+          "freshnessSeconds": 3900
+        },
+        "USDC": {
+          "address": "0x50834F3163758fcC1Df9973b6e91f0F0F0434aD3",
+          "freshnessSeconds": 90000
+        }
+      }
+    },
+    {
+      "id": "chainlink",
+      "source": "chainlink:base",
+      "chainId": 8453,
+      "feeds": {
+        "ETH": {
+          "address": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+          "freshnessSeconds": 3900
+        },
+        "USDC": {
+          "address": "0x7e860098F58bBFC8648a4311b374B1D669a2bc6B",
+          "freshnessSeconds": 90000
+        }
+      }
+    },
+    {
+      "id": "coingecko",
+      "baseUrl": "https://api.coingecko.com",
+      "apiKeyEnv": "COINGECKO_API_KEY",
+      "apiKeyHeader": "x-cg-demo-api-key",
+      "coinIds": {
+        "ETH": "ethereum",
+        "USDC": "usd-coin"
+      },
+      "freshnessSeconds": 600
+    }
+  ],
+  "minSources": 3,
+  "maxSpreadBps": 200,
+  "freshnessSeconds": 3600,
+  "updateTriggerBps": 500,
+  "cooldownSeconds": 3600,
+  "rejectionRetrySeconds": 3600,
+  "rejectionsBeforeCritical": 3,
+  "priceMissesBeforeWarning": 3,
+  "priceUnavailableCriticalSeconds": 21600,
+  "pairs": {
+    "arc-arbitrum": {
+      "quoteSymbol": "USD"
+    },
+    "base-arbitrum": {
+      "quoteSymbol": "USD"
+    }
+  }
+}
