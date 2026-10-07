@@ -1,0 +1,64 @@
+{
+  "_comment": "The `lifi` section of the configuration file. With `\"lifi\": {}` every allowlist is empty and every quote is rejected: nothing is approved by default. The entries below are the routes recorded in src/lifi/fixtures on 2026-10-06 and are NOT an approval: the operator approves tools, targets and spenders after the launch-gate review (`lifi-probe`). Keys starting with `_` are ignored.",
+  "endpoint": "https://li.quest/v1",
+  "requestSlippage": 0.005,
+  "maxLossBps": 500,
+  "_maxLossBps": "End-to-end loss budget of one operation against the oracle baseline (input converted at the price oracle's USD prices). A quote passes when minimum output + fees deducted from the input - fees paid on top (included: false), all normalized into the output asset (+ the same of earlier legs) >= baseline - maxLossBps. Requotes and resumes keep the original baseline.",
+  "maxQuotedFeeBps": 300,
+  "_maxQuotedFeeBps": "Quoted fees (included and paid on top) normalized into the output asset may not exceed this share of the gross output.",
+  "maxFeeBps": 100,
+  "_maxFeeBps": "The most LI.FI's fee forwarder (forwardNativeFees / forwardERC20Fees inside a SwapData.callData) may pay in one transaction, as a share of the forwarding item's input: 100 is 1 percent. The recorded quotes forward 25 bps.",
+  "allowedChains": [8453, 42161, 5042],
+  "allowedTools": ["feeCollection", "layerswap", "gasZipBridge", "okx"],
+  "_allowedTools": "LI.FI tool keys of every included step; `feeCollection` is LI.FI's own fee step. Candidates seen in the recorded quotes; approve each explicitly.",
+  "allowedAssets": [
+    { "chainId": 8453, "address": "native" },
+    { "chainId": 8453, "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
+    { "chainId": 42161, "address": "native" },
+    { "chainId": 5042, "address": "native" }
+  ],
+  "allowedTargets": [
+    { "chainId": 8453, "address": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE" },
+    { "chainId": 5042, "address": "0xA4072583658Fae592A3506A42431cb6316a8d40b" }
+  ],
+  "allowedSpenders": [{ "chainId": 8453, "address": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE" }],
+  "allowedSwapContracts": [
+    { "chainId": 8453, "address": "0xCE40449B773a3E6E5e769ADb4e567179d4828cbd" },
+    { "chainId": 8453, "address": "0x67d03631FE51B741C0C00c4E16eb662AC84381df" },
+    { "chainId": 8453, "address": "0x57df6092665eb6058DE53939612413ff4B09114E" },
+    { "chainId": 5042, "address": "0xEDff4051B8286d2333149429F019dC10E23570da" }
+  ],
+  "_allowedSwapContracts": "Every SwapData.callTo and SwapData.approveTo inside a LI.FI transaction (source swaps the Diamond runs before bridging): LI.FI's fee collector (0xCE40… on Base, 0xEDff… on Arc) and the OKX router and approval proxy of the recorded Base USDC -> Base ETH swap. A quote whose SwapData names any other contract is rejected.",
+  "layerSwapDepositories": [
+    { "chainId": 8453, "address": "0x2Fc617E933a52713247CE25730f6695920B3befe" },
+    { "chainId": 8453, "address": "0x08b00cEEE2Fb66029B53D76110B19eeAabfd1e65" }
+  ],
+  "_layerSwapDepositories": "LayerSwapData.depositoryReceiver per source chain, as recorded (ETH and USDC on Base). The facet checks LayerSwap's signature over the request; this allowlist is the bot's own pin on top. Verify each with LayerSwap before launch.",
+  "feeRecipients": [],
+  "_feeRecipients": "Shipped EMPTY on purpose (fail-closed, decisions [L41]): with it empty every quote whose fee step pays a third party is rejected, which is every recorded quote, so lifi-probe reports REJECTED until the operator adds LI.FI's fee wallet per source chain, e.g. { \"chainId\": 8453, \"address\": \"0x…\" }, after verifying the address with LI.FI (launch gate, see src/lifi/README.md). The recorded quotes pay 0xC06ebbefD94032B85424D51906e2A335EFAe264B on Base and Arc; that is an observation, not a verified address. The forwarded total must also equal the fee the quote reports for that step and stay within maxFeeBps.",
+  "limits": [
+    { "chainId": 8453, "asset": "native", "decimals": 18, "perTransfer": "0.5", "daily": "1" },
+    { "chainId": 8453, "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "decimals": 6, "perTransfer": "1500", "daily": "3000" },
+    { "chainId": 5042, "asset": "native", "decimals": 18, "perTransfer": "1500", "daily": "3000" }
+  ],
+  "_limits": "Per source chain and asset, in whole units; decimals must equal the topology asset's (checked at startup). An asset without an entry is rejected. The daily limit is a rolling 24 hours of `transfer` spends in the ledger, checked when quoting and again when a (cached) quote is sent.",
+  "nativeTokens": [{ "chainId": 5042, "address": "0x3600000000000000000000000000000000000000", "decimals": 6 }],
+  "_nativeTokens": "LI.FI's token for a chain's native asset when it is not the zero address. Arc's native USDC is 0x3600…0000 with 6 decimals in LI.FI, 18 in the chain's native unit.",
+  "priceSymbols": { "WETH": "ETH", "USDC.e": "USDC", "USDbC": "USDC" },
+  "quoteMaxAgeSeconds": 120,
+  "pollIntervalSeconds": 30,
+  "statusTimeoutSeconds": 7200,
+  "creditCheckMaxTicks": 10,
+  "creditCheckMaxAgeSeconds": 1800,
+  "_creditCheck": "An ERC20 delivery (WETH, a token) is credited only once the EOA's token balance rose by the amount since the send. A delivery not visible after this many checks (one per poll) or this long goes to attention; nothing is credited meanwhile.",
+  "continuationBlockedMaxTicks": 20,
+  "_continuationBlockedMaxTicks": "A continuation leg of a bridge-then-swap (its input, the intermediate token the bridge delivered, already sits on the destination chain) that the policy keeps blocking is requoted at most this many ticks, or for statusTimeoutSeconds after the first block; then its booking moves from in-transit to the eoa holding of that token on that chain, the transfer goes to attention and one critical names the operator action (swap it by hand, or add the token to allowedAssets and resume).",
+  "_statusTimeoutSeconds": "A transfer whose status is unknown (or done without a confirmed receiving transaction) past this is `attention`; a pending one keeps being polled with one warning. Never a second bridge.",
+  "routeClasses": [
+    { "name": "Arc USDC -> Arbitrum ETH", "fromChainId": 5042, "fromAsset": "native", "toChainId": 42161, "toAsset": "native", "amount": "100" },
+    { "name": "Base ETH -> Arbitrum ETH", "fromChainId": 8453, "fromAsset": "native", "toChainId": 42161, "toAsset": "native", "amount": "0.05" },
+    { "name": "Base USDC -> Arbitrum ETH", "fromChainId": 8453, "fromAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "toChainId": 42161, "toAsset": "native", "amount": "100" },
+    { "name": "Base USDC -> Base ETH", "fromChainId": 8453, "fromAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "toChainId": 8453, "toAsset": "native", "amount": "100" }
+  ],
+  "_routeClasses": "What `lifi-probe` quotes. Empty: derived from the topology (every collected asset to its home chain's native, every ERC20 collected asset to its own chain's native)."
+}

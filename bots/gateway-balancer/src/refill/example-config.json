@@ -1,0 +1,19 @@
+{
+  "_comment": "The `refill` section of the configuration file. Amounts are decimal strings in whole units (ETH, USDC). Without `referenceCaseCostEth` a pair's loop only records observations and never refills (launch gate). Keys starting with `_` are ignored.",
+  "referenceCaseCostEth": "0.0025",
+  "_referenceCaseCostEth": "ETH cost of one reference case (three jurors). The trigger is available native ETH strictly below lowWaterCases x this.",
+  "lowWaterCases": 20,
+  "targetCases": 100,
+  "_targetCases": "Nominal capacity. A sweep that cannot reach it is a partial refill: it proceeds and notifies (warning).",
+  "economicMinimums": { "ETH": "0.002", "USDC": "5" },
+  "_economicMinimums": "Per collected-asset symbol: a withdrawable arbitration balance under this is deferred (not withdrawn, not bridged).",
+  "depositMethod": "function",
+  "_depositMethod": "`function`: the HomeGateway's payable deposit from src/gateway/abi/homeGateway.ts (pending signature). `nativeTransfer`: value with empty calldata, only for a gateway whose receive() is verified.",
+  "maxAmbiguousDeferrals": 10,
+  "ambiguousDeferralMaxAgeSeconds": 3600,
+  "_maxAmbiguousDeferrals": "An ambiguous transfer deferral (insufficient-holding, or a reason the loop does not recognise) is retried at most this many consecutive times or this many seconds, then the operation is attention. price-unavailable and no-route deferrals are retried without a bound.",
+  "pairs": {
+    "arc-arbitrum": { "economicMinimums": { "USDC": "25" } },
+    "base-arbitrum": { "referenceCaseCostEth": "0.0025", "targetCases": 100, "enabled": true }
+  }
+}
