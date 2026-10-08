@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 
@@ -7,6 +6,7 @@ import { StandardPagination } from "@kleros/ui-components-library";
 
 import { useIsList } from "context/IsListProvider";
 import useIsDesktop from "hooks/useIsDesktop";
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter } from "utils/uri";
 
@@ -16,27 +16,7 @@ import DisputeView from "components/DisputeView";
 
 import { SkeletonDisputeCard, SkeletonDisputeListRow } from "../StyledSkeleton";
 
-const GridContainer = styled.div`
-  --gap: 16px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(312px, (100% - var(--gap) * 2)/3)), 1fr));
-  align-items: stretch;
-  gap: var(--gap);
-`;
-
-const ListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-`;
-
 // 24px as margin-top since we already have 8px from the flex gap
-const StyledPagination = styled(StandardPagination)`
-  margin-top: 24px;
-  margin-left: auto;
-  margin-right: auto;
-`;
 
 export interface ICasesGrid {
   disputes?: DisputeDetailsFragment[];
@@ -56,28 +36,35 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
   return (
     <>
       {isList && isDesktop ? (
-        <ListContainer>
+        <div className="flex flex-col justify-center gap-2">
           {isUndefined(disputes)
             ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeListRow key={i} />)
             : disputes.map((dispute) => {
                 return <DisputeView key={dispute.id} {...dispute} />;
               })}
-        </ListContainer>
+        </div>
       ) : (
-        <GridContainer>
+        <div
+          className={cn(
+            "[--gap:16px] grid",
+            "[grid-template-columns:repeat(auto-fill,_minmax(min(100%,_max(312px,_(100%_-_var(--gap)_*_2)/3)),_1fr))]",
+            "items-stretch gap-[var(--gap)]"
+          )}
+        >
           {isUndefined(disputes)
             ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeCard key={i} />)
             : disputes.map((dispute) => {
                 return <DisputeView key={dispute.id} {...dispute} overrideIsList />;
               })}
-        </GridContainer>
+        </div>
       )}
 
       {isUndefined(searchValue) ? (
-        <StyledPagination
+        <StandardPagination
           currentPage={currentPage}
           numPages={Math.ceil(totalPages ?? 0)}
           callback={(page: number) => setCurrentPage(page)}
+          className="mt-6 ml-auto mr-auto"
         />
       ) : null}
     </>

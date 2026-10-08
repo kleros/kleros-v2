@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { DefaultTheme } from "styled-components";
 
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
 
@@ -7,17 +6,10 @@ import { commify } from "utils/commify";
 
 import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
+import type { Theme } from "styles/themes";
+
 import Spinner from "components/Spinner";
 import TxnHash from "components/TxnHash";
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.secondaryPurple};
-`;
-
-const PartyContainer = styled.div`
-  display: flex;
-  gap: 8px;
-`;
 
 export enum StakeSteps {
   ApproveInitiate,
@@ -34,7 +26,7 @@ export enum StakeSteps {
 }
 
 const createApprovalSteps = (
-  theme: DefaultTheme,
+  theme: Theme,
   variant: string,
   state: CustomTimelineItem["state"],
   amount: string,
@@ -47,10 +39,10 @@ const createApprovalSteps = (
     return state === "loading" ? (
       <></>
     ) : (
-      <PartyContainer>
+      <div className="flex gap-2">
         {hash && <TxnHash hash={hash} variant="pending" />}
         <Spinner />
-      </PartyContainer>
+      </div>
     );
   };
   return [
@@ -65,14 +57,14 @@ const createApprovalSteps = (
       title: t("wallet.stake_in_wallet"),
       subtitle: "",
       variant: theme.secondaryPurple,
-      party: <StyledLabel>{commify(amount)} PNK</StyledLabel>,
+      party: <label className="text-klerosUIComponentsSecondaryPurple">{commify(amount)} PNK</label>,
       state: "disabled",
     },
   ];
 };
 
 const createStakeSteps = (
-  theme: DefaultTheme,
+  theme: Theme,
   variant: string,
   state: CustomTimelineItem["state"],
   amount: string,
@@ -86,12 +78,12 @@ const createStakeSteps = (
     if (["refused", "accepted"].includes(variant))
       return stakeHash ? <TxnHash hash={stakeHash} variant={variant === "refused" ? "error" : "success"} /> : <></>;
     return state === "loading" ? (
-      <StyledLabel>{commify(amount)} PNK</StyledLabel>
+      <label className="text-klerosUIComponentsSecondaryPurple">{commify(amount)} PNK</label>
     ) : (
-      <PartyContainer>
+      <div className="flex gap-2">
         {stakeHash && <TxnHash hash={stakeHash} variant="pending" />}
         <Spinner />
-      </PartyContainer>
+      </div>
     );
   };
   return isStake
@@ -127,7 +119,7 @@ const createStakeSteps = (
 export const getStakeSteps = (
   stepType: StakeSteps,
   amount: string,
-  theme: DefaultTheme,
+  theme: Theme,
   t: (key: string) => string,
   approvalHash?: `0x${string}`,
   stakeHash?: `0x${string}`,

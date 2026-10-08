@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -11,44 +10,9 @@ import SettingsIcon from "svgs/menu-icons/settings.svg";
 
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import LightButton from "components/LightButton";
 
 import { IHelp, ISettings } from "../index";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )}
-`;
-
-const ButtonContainer = styled.div`
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-
-  button {
-    padding: 0px;
-  }
-
-  .button-text {
-    display: block;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      .button-text {
-        display: none;
-      }
-    `
-  )}
-`;
 
 interface IMenu {
   isMobileNavbar?: boolean;
@@ -81,13 +45,16 @@ const Menu: React.FC<ISettings & IHelp & IMenu> = ({ toggleIsHelpOpen, toggleIsS
   ];
 
   return (
-    <Container>
+    <div className="flex flex-col lg:flex-row">
       {buttons.map(({ text, Icon, onPress }) => (
-        <ButtonContainer key={text}>
+        <div
+          key={text}
+          className="min-h-[32px] flex items-center [&_button]:p-0 [&_.button-text]:block lg:[&_.button-text]:hidden"
+        >
           <LightButton {...{ text, onPress, Icon, isMobileNavbar }} />
-        </ButtonContainer>
+        </div>
       ))}
-    </Container>
+    </div>
   );
 };
 

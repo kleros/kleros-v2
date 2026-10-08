@@ -1,67 +1,10 @@
 import React from "react";
-import styled from "styled-components";
 
 import Link from "next/link";
 
 import PaperIcon from "svgs/icons/arrow.svg";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  border-top: 3px solid ${({ theme }) => theme.klerosUIComponentsSecondaryPurple};
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  background-color: ${({ theme }) => theme.klerosUIComponentsWhiteBackground};
-  padding: 16px;
-`;
-
-const ToolList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  width: 100%;
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const ToolItem = styled.li`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 16px;
-  border: 1px solid ${({ theme }) => theme.klerosUIComponentsLightBlue};
-  border-radius: 3px;
-  background-color: ${({ theme }) => theme.klerosUIComponentsLightBackground};
-  width: 100%;
-  transition: background-color 0.3s;
-`;
-
-const ToolLink = styled.div`
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  gap: 8px;
-  color: ${({ theme }) => theme.klerosUIComponentsSecondaryText};
-  width: 100%;
-`;
-
-const SVGContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  svg {
-    fill: ${({ theme }) => theme.klerosUIComponentsSecondaryPurple};
-    height: 12px;
-    width: 12px;
-  }
-`;
-
-const ToolName = styled.span`
-  font-size: 16px;
-`;
+import { cn } from "utils/cn";
 
 const tools = [
   { name: "Dispute Templates Preview", route: "/dispute-template" },
@@ -72,23 +15,39 @@ const tools = [
 
 const Tools: React.FC = () => {
   return (
-    <Container>
+    <div
+      className={cn(
+        "flex flex-col items-center gap-4 rounded-t-[3px] border-t-[3px]",
+        "border-klerosUIComponentsSecondaryPurple bg-klerosUIComponentsWhiteBackground p-4"
+      )}
+    >
       <p>Tools</p>
-      <ToolList>
+      <div className="grid w-full grid-cols-2 gap-2 max-[768px]:grid-cols-1">
         {tools.map((tool, index) => (
-          <ToolItem key={index}>
+          <li
+            className={cn(
+              "flex w-full items-center gap-2 rounded-[3px] border border-klerosUIComponentsLightBlue",
+              "bg-klerosUIComponentsLightBackground p-4 transition-colors duration-300"
+            )}
+            key={index}
+          >
             <Link href={tool.route} passHref>
-              <ToolLink>
-                <SVGContainer>
+              <div className="flex w-full items-center gap-2 text-klerosUIComponentsSecondaryText no-underline">
+                <div
+                  className={cn(
+                    "flex items-center justify-center [&_svg]:size-3",
+                    "[&_svg]:fill-klerosUIComponentsSecondaryPurple"
+                  )}
+                >
                   <PaperIcon />
-                </SVGContainer>
-                <ToolName>{tool.name}</ToolName>
-              </ToolLink>
+                </div>
+                <span className="text-base">{tool.name}</span>
+              </div>
             </Link>
-          </ToolItem>
+          </li>
         ))}
-      </ToolList>
-    </Container>
+      </div>
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
@@ -18,10 +17,6 @@ import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
 
 interface IWithdrawAppealFees extends IBaseMaintenanceButton {
   roundIndex?: number;
@@ -104,12 +99,13 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
     });
   };
   return (
-    <StyledButton
+    <Button
       text={t("buttons.appeal_rewards")}
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
       onPress={handleClick}
+      className="w-full"
     />
   );
 };

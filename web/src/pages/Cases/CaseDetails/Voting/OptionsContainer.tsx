@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
@@ -16,38 +15,6 @@ import MarkdownEditor from "components/MarkdownEditor";
 import MarkdownRenderer from "components/MarkdownRenderer";
 
 import ConfirmVoteModal from "./ConfirmVoteModal";
-
-const MainContainer = styled.div`
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-`;
-
-const OptionsContainer = styled.div`
-  margin-top: 24px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 16px;
-`;
-
-const RefuseToArbitrateContainer = styled.div`
-  position: relative;
-  left: 0;
-  right: 0;
-  width: auto;
-  margin: calc(-1 * (16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875));
-  margin-top: 32px;
-  background-color: ${({ theme }) => theme.lightBlue};
-  padding: 32px;
-  display: flex;
-  justify-content: center;
-`;
-
-const StyledEnsureChain = styled(EnsureChain)`
-  align-self: center;
-`;
 
 interface IOptions {
   arbitrable: Address;
@@ -99,14 +66,14 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
 
   return id ? (
     <>
-      <MainContainer dir="auto">
+      <div dir="auto" className="w-full h-auto flex flex-col">
         <MarkdownRenderer content={disputeDetails?.question ?? ""} />
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
           <MarkdownEditor value={justification} onChange={setJustification} />
         ) : null}
         {isUndefined(disputeDetails?.answers) ? null : (
-          <StyledEnsureChain>
-            <OptionsContainer>
+          <EnsureChain className="self-center">
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
               {disputeDetails?.answers?.map((answer: Answer) => {
                 return BigInt(answer.id) !== BigInt(0) ? (
                   <Tooltip text={answer.description} key={answer.title}>
@@ -119,11 +86,11 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
                   </Tooltip>
                 ) : null;
               })}
-            </OptionsContainer>
-          </StyledEnsureChain>
+            </div>
+          </EnsureChain>
         )}
-      </MainContainer>
-      <RefuseToArbitrateContainer>
+      </div>
+      <div className="relative left-0 right-0 w-auto m-[calc(-1_*_(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_875))] mt-8 bg-klerosUIComponentsLightBlue p-8 flex justify-center">
         <EnsureChain>
           <Tooltip text={updatedRTA.description}>
             <Button
@@ -135,7 +102,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
             />
           </Tooltip>
         </EnsureChain>
-      </RefuseToArbitrateContainer>
+      </div>
       <ConfirmVoteModal
         isOpen={!isUndefined(pendingOption)}
         choice={pendingChoice}

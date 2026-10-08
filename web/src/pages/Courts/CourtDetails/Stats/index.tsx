@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -12,44 +11,7 @@ import useIsDesktop from "hooks/useIsDesktop";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import StatsContent from "./StatsContent";
-
-const Container = styled.div`
-  padding: 0 24px 12px 24px;
-`;
-
-const Header = styled.h3`
-  color: ${({ theme }) => theme.primaryText};
-  font-weight: 600;
-  margin: 0;
-`;
-
-const StyledAccordion = styled(Accordion)`
-  > * > button {
-    padding: 12px 16px !important;
-    justify-content: unset;
-  }
-  //adds padding to body container
-  > * > div > div {
-    padding: 0 8px 8px;
-  }
-  > div {
-    margin: 0;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      > * > div > div {
-        padding: 0 24px;
-      }
-      > * > button {
-        padding: 12px 24px !important;
-      }
-    `
-  )}
-`;
 
 const Stats = () => {
   const { t } = useTranslation();
@@ -60,12 +22,12 @@ const Stats = () => {
   const isDesktop = useIsDesktop();
 
   return isDesktop ? (
-    <Container>
-      <Header>{t("headers.statistics")}</Header>
+    <div className="p-[0_24px_12px_24px]">
+      <h3 className="text-klerosUIComponentsPrimaryText font-semibold m-0">{t("headers.statistics")}</h3>
       <StatsContent court={data?.court} {...{ pricesData, coinIds }} />
-    </Container>
+    </div>
   ) : (
-    <StyledAccordion
+    <Accordion
       defaultExpanded={0}
       items={[
         {
@@ -73,7 +35,8 @@ const Stats = () => {
           body: <StatsContent court={data?.court} {...{ pricesData, coinIds }} />,
         },
       ]}
-    ></StyledAccordion>
+      className="[&_>_*_>_button]:p-[12px_16px]! [&_>_*_>_button]:[justify-content:unset] [&_>_*_>_div_>_div]:p-[0_8px_8px] [&_>_div]:m-0 lg:[&_>_*_>_div_>_div]:p-[0_24px] lg:[&_>_*_>_button]:p-[12px_24px]!"
+    ></Accordion>
   );
 };
 

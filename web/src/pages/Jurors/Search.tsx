@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -9,17 +8,6 @@ import { Searchbar } from "@kleros/ui-components-library";
 
 import { isEmpty } from "utils/index";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
-
-const StyledSearchbar = styled(Searchbar)`
-  width: 100%;
-
-  input {
-    font-size: 16px;
-    height: 45px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-  }
-`;
 
 const Search: React.FC = () => {
   const { t } = useTranslation();
@@ -48,13 +36,14 @@ const Search: React.FC = () => {
   );
 
   return (
-    <StyledSearchbar
+    <Searchbar
       dir="auto"
       type="text"
       aria-label={t("forms.placeholders.search_by_address")}
       placeholder={t("forms.placeholders.search_by_address")}
       value={search}
       onChange={setSearch}
+      className="w-full [&_input]:text-[16px]! [&_input]:h-[45px] [&_input]:pt-0 [&_input]:pb-0"
     />
   );
 };

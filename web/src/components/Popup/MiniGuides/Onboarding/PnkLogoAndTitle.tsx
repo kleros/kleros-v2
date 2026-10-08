@@ -1,47 +1,27 @@
 import React from "react";
-import styled from "styled-components";
 
 import PnkIcon from "svgs/styled/pnk.svg";
 
-import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 32px;
-  align-items: center;
-`;
-
-const StyledPnkIcon = styled(PnkIcon)`
-  width: ${responsiveSize(220, 280)};
-  height: ${responsiveSize(220, 252)};
-  [class$="stop-1"] {
-    stop-color: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="stop-2"] {
-    stop-color: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const StyledCourtLabel = styled.label`
-  font-size: 24px;
-  background: linear-gradient(
-    90deg,
-    ${({ theme }) => theme.secondaryPurple} 0%,
-    ${({ theme }) => theme.primaryBlue} 100%
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-`;
+import { cn } from "utils/cn";
 
 const PnkLogoAndTitle = () => {
   return (
-    <Container>
-      <StyledPnkIcon />
-      <StyledCourtLabel>Court v.2</StyledCourtLabel>
-    </Container>
+    <div className="flex flex-col justify-center gap-8 items-center">
+      <PnkIcon
+        className={
+          'w-[calc(220px_+_(280_-_220)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] h-[calc(220px_+_(252_-_220)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_[class$="stop-1"]]:[stop-color:var(--klerosUIComponentsPrimaryBlue)] [&_[class$="stop-2"]]:[stop-color:var(--klerosUIComponentsSecondaryPurple)]'
+        }
+      />
+      <label
+        className={cn(
+          "text-[24px]",
+          "[background-image:linear-gradient(_90deg,_var(--klerosUIComponentsSecondaryPurple)_0%,_var(--klerosUIComponentsPrimaryBlue)_100%_)]",
+          "[background-clip:text] [-webkit-background-clip:text] [-webkit-text-fill-color:transparent]"
+        )}
+      >
+        Court v.2
+      </label>
+    </div>
   );
 };
 

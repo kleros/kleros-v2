@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
@@ -24,12 +23,6 @@ import JurorCard from "../Home/TopJurors/JurorCard";
 interface IDisplayJurors {
   totalLeaderboardJurors?: number;
 }
-
-const StyledPagination = styled(StandardPagination)`
-  margin-top: 24px;
-  margin-left: auto;
-  margin-right: auto;
-`;
 
 const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => {
   const { t } = useTranslation();
@@ -83,7 +76,12 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
             ))}
           </ListContainer>
           {!searchValue && (
-            <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+            <StandardPagination
+              currentPage={currentPage}
+              numPages={totalPages}
+              callback={handlePageChange}
+              className="mt-6 ml-auto mr-auto"
+            />
           )}
         </>
       ) : (
@@ -97,7 +95,12 @@ const DisplayJurors: React.FC<IDisplayJurors> = ({ totalLeaderboardJurors }) => 
                 ? jurors.map((juror) => <JurorCard key={juror.id} {...juror} address={juror.id as Address} />)
                 : [...Array(jurorsPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
               {!searchValue && (
-                <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+                <StandardPagination
+                  currentPage={currentPage}
+                  numPages={totalPages}
+                  callback={handlePageChange}
+                  className="mt-6 ml-auto mr-auto"
+                />
               )}
             </>
           )}

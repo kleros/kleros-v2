@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
-import styled, { css, useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import { Periods } from "consts/periods";
+import { useTheme } from "hooks/useTheme";
 
 import { Period } from "src/graphql/graphql";
 
@@ -13,28 +13,6 @@ interface ICaseStatus {
   period?: Period;
   ruled?: boolean;
 }
-
-const StyledLabel = styled.label<{ frontColor: string; withDot?: boolean }>`
-  display: flex;
-  align-items: center;
-  width: auto;
-  color: ${({ frontColor }) => frontColor};
-  ${({ withDot, frontColor }) =>
-    withDot
-      ? css`
-          ::before {
-            content: "";
-            display: inline-block;
-            height: 8px;
-            width: 8px;
-            border-radius: 50%;
-            margin-right: 8px;
-            background-color: ${frontColor};
-            flex-shrink: 0;
-          }
-        `
-      : null}
-`;
 
 const CaseStatus: React.FC<ICaseStatus> = ({ period, ruled }) => {
   const { t } = useTranslation();
@@ -63,9 +41,12 @@ const CaseStatus: React.FC<ICaseStatus> = ({ period, ruled }) => {
   };
 
   return (
-    <StyledLabel frontColor={frontColor} withDot>
+    <label
+      className="flex items-center w-auto before:content-[''] before:inline-block before:h-2 before:w-2 before:rounded-full before:mr-2 before:bg-current before:shrink-0"
+      style={{ color: frontColor }}
+    >
       {getPeriodLabel(currentPeriod)}
-    </StyledLabel>
+    </label>
   );
 };
 export default CaseStatus;

@@ -1,72 +1,19 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Hash } from "viem";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
+import { cn } from "utils/cn";
 import { formatDate } from "utils/date";
 import { getTxnExplorerLink } from "utils/index";
-
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import { StyledArrowLink } from "components/StyledArrowLink";
 import NewTabIcon from "components/StyledIcons/NewTabIcon";
 
 import CourtName from "./CourtName";
 import Stake from "./Stake";
-
-const Container = styled(_Card)<{ isCurrentStakeCard?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  height: auto;
-  width: 100%;
-  padding: 20px 16px 24px;
-  border-left: 5px solid
-    ${({ theme, isCurrentStakeCard }) => (isCurrentStakeCard ? theme.secondaryPurple : theme.secondaryText)};
-  gap: 16px;
-
-  :hover {
-    cursor: auto;
-  }
-
-  ${({ theme }) => (theme.name === "light" ? `box-shadow: 0px 2px 3px 0px ${theme.stroke};` : "")}
-
-  ${landscapeStyle(
-    () => css`
-      display: grid;
-      grid-template-columns: 160px 120px auto;
-      align-items: center;
-      padding: 21.5px 28px;
-      gap: 20px;
-    `
-  )}
-`;
-
-const StakeAndLink = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-
-  ${landscapeStyle(
-    () => css`
-      justify-content: flex-end;
-    `
-  )}
-`;
-
-const DateLabel = styled.label``;
-
-const StyledLink = styled(StyledArrowLink)`
-  width: fit-content;
-
-  > svg {
-    height: 14px;
-    width: 14px;
-  }
-`;
 
 interface ICourtCard {
   name: string;
@@ -88,18 +35,29 @@ const CourtCard: React.FC<ICourtCard> = ({
   const { i18n } = useTranslation();
 
   return (
-    <Container hover {...{ isCurrentStakeCard }}>
+    <_Card
+      hover
+      className={cn(
+        "flex flex-col h-auto w-full pt-5 px-4 pb-6 border-l-[5px] gap-4 hover:cursor-auto not-dark:shadow-[0px_2px_3px_0px_var(--klerosUIComponentsStroke)] lg:grid lg:grid-cols-[160px_120px_auto] lg:items-center lg:py-[21.5px] lg:px-7 lg:gap-5",
+        isCurrentStakeCard ? "border-l-klerosUIComponentsSecondaryPurple" : "border-l-klerosUIComponentsSecondaryText"
+      )}
+    >
       <CourtName {...{ name, id }} />
       <Stake {...{ stake }} />
-      <StakeAndLink>
-        {timestamp ? <DateLabel>{formatDate(timestamp, false, i18n.language)}</DateLabel> : null}
+      <div className="flex flex-row items-center gap-2 lg:justify-end">
+        {timestamp ? <label>{formatDate(timestamp, false, i18n.language)}</label> : null}
         {transactionHash ? (
-          <StyledLink to={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
+          <StyledArrowLink
+            to={getTxnExplorerLink(transactionHash)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-fit [&&_>_svg]:h-[14px] [&&_>_svg]:w-[14px]"
+          >
             <NewTabIcon />
-          </StyledLink>
+          </StyledArrowLink>
         ) : null}
-      </StakeAndLink>
-    </Container>
+      </div>
+    </_Card>
   );
 };
 

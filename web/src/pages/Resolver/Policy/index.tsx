@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -15,82 +14,10 @@ import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 import { getFileUploaderMsg, isUndefined } from "src/utils";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { InternalLink } from "components/InternalLink";
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  ${landscapeStyle(
-    () => css`
-      padding-bottom: 82px;
-    `
-  )}
-`;
-
-const StyledLabel = styled.label`
-  width: 84vw;
-  margin-bottom: 48px;
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
-`;
-
-const StyledFileUploader = styled(FileUploader)`
-  width: 84vw;
-  margin-bottom: ${responsiveSize(150, 72)};
-
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
-  small {
-    white-space: pre-line;
-    text-align: start;
-    font-size: 14px;
-  }
-  /* The library colors the info icon primary blue; match it to the message text. */
-  svg:has(+ [id="dropzone-label"]) {
-    fill: ${({ theme }) => theme.secondaryText};
-    path {
-      fill: ${({ theme }) => theme.secondaryText};
-    }
-  }
-  /* Align the icon to the first line of the message, not its vertical center. */
-  div:has(> [id="dropzone-label"]) {
-    align-items: flex-start;
-  }
-`;
-
-const StyledPolicyIcon = styled(PolicyIcon)`
-  width: 16px;
-  fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledInternalLink = styled(InternalLink)`
-  ${hoverShortTransitionTiming}
-  display: flex;
-  gap: 4px;
-  align-self: flex-start;
-  margin-bottom: 32px;
-  margin-top: 32px;
-  &:hover {
-    svg {
-      fill: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
 
 const Policy: React.FC = () => {
   const { t } = useTranslation();
@@ -115,23 +42,31 @@ const Policy: React.FC = () => {
   };
 
   return (
-    <Container>
+    <div className="flex flex-col items-center lg:pb-20.5">
       <Header text={t("headers.submit_policy_file")} />
-      <StyledLabel>{t("misc.fundamental_to_any_case")}</StyledLabel>
+      <label className="w-[84vw] mb-12 lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))]">
+        {t("misc.fundamental_to_any_case")}
+      </label>
 
-      <StyledFileUploader
+      <FileUploader
         callback={handleFileUpload}
         variant={isDesktop ? "info" : undefined}
         msg={`${t("misc.you_can_attach_additional")}\n${getFileUploaderMsg(Roles.Policy, roleRestrictions, t)}`}
+        className={
+          'w-[84vw] mb-[calc(150px_+_(72_-_150)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))] [&_small]:[white-space:pre-line] [&_small]:text-start [&_small]:text-[14px] [&_svg:has(+_[id="dropzone-label"])]:fill-klerosUIComponentsSecondaryText [&_svg:has(+_[id="dropzone-label"])_path]:fill-klerosUIComponentsSecondaryText [&_div:has(>_[id="dropzone-label"])]:items-start'
+        }
       />
       {!isUndefined(disputeData.policyURI) ? (
-        <StyledInternalLink to={`/attachment/?title=misc.policy_file&url=${getIpfsUrl(disputeData.policyURI)}`}>
-          <StyledPolicyIcon />
+        <InternalLink
+          to={`/attachment/?title=misc.policy_file&url=${getIpfsUrl(disputeData.policyURI)}`}
+          className="[transition:0.1s] flex gap-1 self-start mb-8 mt-8 [&:hover_svg]:fill-klerosUIComponentsSecondaryBlue"
+        >
+          <PolicyIcon className="w-[16px] fill-klerosUIComponentsPrimaryBlue" />
           {t("misc.inspect_uploaded_policy")}
-        </StyledInternalLink>
+        </InternalLink>
       ) : null}
       <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />
-    </Container>
+    </div>
   );
 };
 export default Policy;

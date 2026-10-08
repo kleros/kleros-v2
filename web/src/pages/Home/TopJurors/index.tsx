@@ -1,15 +1,12 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Address } from "viem";
 
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 
 import { useJurorsByCoherenceScore } from "queries/useJurorsByCoherenceScore";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import SeeAllJurorsButton from "components/SeeAllJurorsButton";
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
@@ -17,39 +14,23 @@ import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 import Header from "./Header";
 import JurorCard from "./JurorCard";
 
-const Container = styled.div`
-  margin-top: ${responsiveSize(28, 48)};
-`;
+export const ListContainer = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(
+  function ListContainer({ className, ...props }, ref) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        className={cn("flex flex-col justify-center lg:grid lg:[grid-template-columns:1fr]", className)}
+      />
+    );
+  }
+);
 
-const TitleAndButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: ${responsiveSize(12, 24)};
-`;
-
-const Title = styled.h1`
-  margin-bottom: 0;
-  font-size: ${responsiveSize(20, 24)};
-`;
-
-export const ListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  ${landscapeStyle(
-    () => css`
-      display: grid;
-      grid-template-columns: 1fr;
-    `
-  )}
-`;
-
-export const StyledLabel = styled.label`
-  font-size: 16px;
-`;
+export const StyledLabel = React.forwardRef<React.ElementRef<"label">, React.ComponentPropsWithoutRef<"label">>(
+  function StyledLabel({ className, ...props }, ref) {
+    return <label {...props} ref={ref} className={cn("text-[16px]", className)} />;
+  }
+);
 
 const TopJurors: React.FC = () => {
   const { t } = useTranslation();
@@ -61,11 +42,13 @@ const TopJurors: React.FC = () => {
   }));
 
   return (
-    <Container>
-      <TitleAndButtonContainer>
-        <Title>{t("misc.top_jurors")}</Title>
+    <div className="mt-[calc(28px_+_(48_-_28)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+      <div className="flex flex-row items-center gap-3 mb-[calc(12px_+_(24_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+        <h1 className="mb-0 text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("misc.top_jurors")}
+        </h1>
         <SeeAllJurorsButton />
-      </TitleAndButtonContainer>
+      </div>
       {!isUndefined(topJurors) && topJurors.length === 0 ? (
         <StyledLabel>{t("misc.no_jurors_found")}</StyledLabel>
       ) : (
@@ -76,7 +59,7 @@ const TopJurors: React.FC = () => {
             : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
         </ListContainer>
       )}
-    </Container>
+    </div>
   );
 };
 export default TopJurors;

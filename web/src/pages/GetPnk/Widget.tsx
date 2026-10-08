@@ -1,21 +1,14 @@
 import React, { useMemo } from "react";
-import styled, { Theme, useTheme } from "styled-components";
 
 import { LiFiWidget, WidgetConfig } from "@lifi/widget";
 
+import { useTheme } from "hooks/useTheme";
+
 import { responsiveSize } from "styles/responsiveSize";
+import type { Theme } from "styles/themes";
 
 import { WalletProvider } from "./WalletProvider";
 
-const WidgetContainer = styled.div`
-  width: 100%;
-  > div {
-    height: auto;
-    > div > div {
-      max-height: none;
-    }
-  }
-`;
 const getWidgetConfig = (theme: Theme): WidgetConfig => ({
   fromChain: 1,
   toChain: 42161,
@@ -87,9 +80,9 @@ export const Widget = () => {
 
   return (
     <WalletProvider>
-      <WidgetContainer>
+      <div className="w-full [&_>_div]:h-auto [&_>_div_>_div_>_div]:max-h-[none]">
         <LiFiWidget config={widgetConfig} integrator="Kleros" />
-      </WidgetContainer>
+      </div>
     </WalletProvider>
   );
 };

@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -13,17 +12,7 @@ import { useUserQuery, userFragment } from "queries/useUser";
 import { useFragment as readFragment } from "src/graphql";
 import { DisputeDetailsFragment, OrderDirection } from "src/graphql/graphql";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import CasesDisplay from "components/CasesDisplay";
-
-const StyledCasesDisplay = styled(CasesDisplay)`
-  margin-top: ${responsiveSize(24, 32)};
-
-  .title {
-    margin-bottom: ${responsiveSize(12, 24)};
-  }
-`;
 
 interface ICases {
   searchParamAddress: `0x${string}`;
@@ -57,7 +46,7 @@ const Cases: React.FC<ICases> = ({ searchParamAddress }) => {
   );
 
   return (
-    <StyledCasesDisplay
+    <CasesDisplay
       title={t("profile.cases_drawn")}
       disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
       numberDisputes={totalCases}
@@ -68,6 +57,7 @@ const Cases: React.FC<ICases> = ({ searchParamAddress }) => {
         navigate(`${location}/${newPage}/${order}/${filter}?${searchParams.toString()}`)
       }
       {...{ casesPerPage }}
+      className="mt-[calc(24px_+_(32_-_24)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_.title]:mb-[calc(12px_+_(24_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
     />
   );
 };

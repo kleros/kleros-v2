@@ -1,59 +1,9 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import { useLanguage } from "context/LanguageProvider";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0 0 16px 0;
-`;
-
-const Label = styled.label`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-  text-align: center;
-`;
-
-const LanguageOptions = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
-  gap: 12px;
-`;
-
-const LanguageButton = styled.button<{ $isActive: boolean }>`
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: 2px solid ${({ theme, $isActive }) => ($isActive ? theme.primaryBlue : theme.stroke)};
-  background-color: ${({ theme, $isActive }) => ($isActive ? theme.mediumBlue : theme.whiteBackground)};
-  color: ${({ theme, $isActive }) => ($isActive ? theme.primaryBlue : theme.secondaryText)};
-  font-size: 14px;
-  font-weight: ${({ $isActive }) => ($isActive ? "600" : "400")};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  &:hover {
-    border-color: ${({ theme }) => theme.primaryBlue};
-    background-color: ${({ theme }) => theme.mediumBlue};
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-`;
-
-const Flag = styled.span`
-  font-size: 20px;
-`;
+import { cn } from "utils/cn";
 
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
@@ -66,20 +16,29 @@ export const LanguageSelector: React.FC = () => {
   const { language, changeLanguage } = useLanguage();
 
   return (
-    <Container>
-      <Label>{t("misc.language")}</Label>
-      <LanguageOptions>
+    <div className="flex flex-col gap-3 p-[0_0_16px_0]">
+      <label className="text-[14px] font-semibold text-klerosUIComponentsPrimaryText text-center">
+        {t("misc.language")}
+      </label>
+      <div className="grid [grid-template-columns:repeat(auto-fit,_minmax(136px,_1fr))] gap-3">
         {languages.map((lang) => (
-          <LanguageButton
+          <button
             key={lang.code}
-            $isActive={language === lang.code}
+            className={cn(
+              "flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-solid px-5 py-2.5",
+              "text-[14px] transition-all duration-200 ease-[ease] hover:border-klerosUIComponentsPrimaryBlue",
+              "hover:bg-klerosUIComponentsMediumBlue disabled:cursor-not-allowed disabled:opacity-50",
+              language === lang.code
+                ? "border-klerosUIComponentsPrimaryBlue bg-klerosUIComponentsMediumBlue font-semibold text-klerosUIComponentsPrimaryBlue"
+                : "border-klerosUIComponentsStroke bg-klerosUIComponentsWhiteBackground font-normal text-klerosUIComponentsSecondaryText"
+            )}
             onClick={() => changeLanguage(lang.code as "en" | "es" | "fr")}
           >
-            <Flag>{lang.flag}</Flag>
+            <span className="text-[20px]">{lang.flag}</span>
             {lang.name}
-          </LanguageButton>
+          </button>
         ))}
-      </LanguageOptions>
-    </Container>
+      </div>
+    </div>
   );
 };

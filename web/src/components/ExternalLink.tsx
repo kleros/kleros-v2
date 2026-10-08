@@ -1,9 +1,9 @@
-import styled from "styled-components";
+import React from "react";
 
 import { Link } from "react-router-dom";
 
-export const ExternalLink = styled(Link)`
-  :hover {
-    text-decoration: underline;
-  }
-`;
+import { cn } from "utils/cn";
+
+export const ExternalLink = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof Link>) => (
+  <Link {...props} className={cn("[&:hover]:underline", className)} />
+);

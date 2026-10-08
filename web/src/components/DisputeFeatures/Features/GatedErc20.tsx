@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Address } from "viem";
@@ -16,20 +15,6 @@ import { isUndefined } from "src/utils";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 import { FeatureRadio, RadioInput } from "./FeatureRadio";
-
-const FieldContainer = styled.div`
-  width: 100%;
-  padding-left: 32px;
-`;
-
-const StyledField = styled(TextField)`
-  width: 100%;
-  margin-top: 8px;
-  margin-bottom: 32px;
-  > span {
-    margin-top: 16px;
-  }
-`;
 
 const GatedErc20: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
@@ -100,8 +85,8 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
         <FeatureRadio {...props} label={t("features.jurors_owning_erc20")} />
       </WithHelpTooltip>
       {props.checked ? (
-        <FieldContainer>
-          <StyledField
+        <div className="w-full pl-8">
+          <TextField
             aria-label={t("aria_labels.token_address")}
             inputProps={{ dir: "auto" }}
             onChange={handleTokenAddressChange}
@@ -109,8 +94,9 @@ const GatedErc20: React.FC<RadioInput> = (props) => {
             placeholder={t("forms.placeholders.token_address_example")}
             variant={variant}
             message={validationMessage}
+            className="w-full mt-2 mb-8 [&>span]:mt-4"
           />
-        </FieldContainer>
+        </div>
       ) : null}
     </Fragment>
   );

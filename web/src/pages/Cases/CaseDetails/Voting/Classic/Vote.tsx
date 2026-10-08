@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
@@ -13,11 +12,6 @@ import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 
 import OptionsContainer from "../OptionsContainer";
-
-const Container = styled.div`
-  width: 100%;
-  height: auto;
-`;
 
 interface IVote {
   arbitrable: Address;
@@ -57,9 +51,9 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen, disputeKitId })
   );
 
   return (
-    <Container>
+    <div className="w-full h-auto">
       <OptionsContainer {...{ arbitrable, justification, setJustification, handleSelection: handleVote }} />
-    </Container>
+    </div>
   );
 };
 

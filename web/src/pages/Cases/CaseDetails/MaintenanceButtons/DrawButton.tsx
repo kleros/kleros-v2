@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -24,12 +23,6 @@ import { Phases } from "components/Phase";
 import SetJurorsButton from "./SetJurorsButton";
 
 import { IBaseMaintenanceButton } from ".";
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
-
-const StyledLabel = styled.label``;
 
 interface IDrawButton extends IBaseMaintenanceButton {
   numberOfVotes?: string;
@@ -107,22 +100,23 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
   return (
     <>
       {needToPassPhase ? (
-        <StyledLabel>
+        <label>
           {t("maintenance.jurors_drawn_in_drawing_phase")}
           <br />
           <Trans
             i18nKey="maintenance.pass_phase_here"
             components={{ anchor: <Link to="/courts/1/purpose/#maintenance" /> }}
           />
-        </StyledLabel>
+        </label>
       ) : null}
       {isUniversity && canDraw ? <SetJurorsButton {...{ id, disputeKitAddress }} /> : null}
-      <StyledButton
+      <Button
         text={t("buttons.draw")}
         small
         isLoading={isLoading}
         isDisabled={isDisabled}
         onPress={handleClick}
+        className="w-full"
       />
     </>
   );

@@ -1,25 +1,20 @@
 import React from "react";
-import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import Filters from "./Filters";
 import Stats, { IStats } from "./Stats";
 
-const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: ${responsiveSize(4, 8)};
-  margin-bottom: ${responsiveSize(16, 32)};
-  justify-content: space-between;
-`;
-
 const StatsAndFilters: React.FC<IStats> = ({ totalDisputes, closedDisputes }) => (
-  <Container>
+  <div
+    className={cn(
+      "flex flex-wrap gap-2 mt-[calc(4px_+_(8_-_4)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+      "mb-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] justify-between"
+    )}
+  >
     <Stats {...{ totalDisputes, closedDisputes }} />
     <Filters />
-  </Container>
+  </div>
 );
 
 export default StatsAndFilters;

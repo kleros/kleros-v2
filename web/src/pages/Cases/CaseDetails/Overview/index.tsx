@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { Address, formatEther } from "viem";
@@ -14,29 +13,11 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { isUndefined } from "src/utils";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
 import DisputeInfo from "components/DisputeView/DisputeInfo";
 import { Divider } from "components/Divider";
 import Verdict from "components/Verdict/index";
-
-const Container = styled.div`
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px 16px 16px;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 32px;
-      gap: 24px;
-    `
-  )}
-`;
 
 interface IOverview {
   arbitrable?: Address;
@@ -63,7 +44,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
   const DisputeKitOverviewExtraInfoComponent = disputeKitInfo?.OverviewExtraInfo;
   return (
     <>
-      <Container>
+      <div className="w-full h-auto flex flex-col gap-4 p-[20px_16px_16px] lg:p-8 lg:gap-6">
         <DisputeContext isRpcError={isError} disputeId={id} {...{ votingHistory, disputeDetails, dispute }} />
         <Divider />
 
@@ -80,7 +61,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID }) => {
         {!isUndefined(id) && !isUndefined(disputeKitAddress) && DisputeKitOverviewExtraInfoComponent ? (
           <DisputeKitOverviewExtraInfoComponent disputeId={id} {...{ disputeKitAddress, currentRoundIndex }} />
         ) : null}
-      </Container>
+      </div>
       <Policies
         disputePolicyURI={disputeDetails?.policyURI}
         courtId={courtID}

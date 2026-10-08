@@ -1,32 +1,12 @@
 import React from "react";
-import styled from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 import { Address, isAddress } from "viem";
 import { useEnsAddress } from "wagmi";
 
+import { cn } from "utils/cn";
+
 import { AddressOrName, IdenticonOrAvatar } from "../ConnectWallet/AccountDisplay";
-
-const AliasContainer = styled.div`
-  min-height: 32px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  max-width: 100%;
-`;
-
-const TextContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  max-width: 100%;
-  > label {
-    color: ${({ theme }) => theme.primaryText};
-    font-size: 14px;
-    word-wrap: break-word;
-    max-width: 100%;
-  }
-`;
 
 interface IAlias {
   name: string;
@@ -47,13 +27,18 @@ const AliasDisplay: React.FC<IAlias> = ({ name, address }) => {
   const resolvedAddress = addressFromENS ?? (address as Address);
 
   return (
-    <AliasContainer dir="auto">
+    <div dir="auto" className="min-h-[32px] flex gap-2 items-center max-w-full">
       {isLoading ? <Skeleton width={30} height={24} /> : <IdenticonOrAvatar address={resolvedAddress} size="24" />}
-      <TextContainer>
+      <div
+        className={cn(
+          "flex flex-wrap items-center max-w-full [&>label]:text-klerosUIComponentsPrimaryText",
+          "[&>label]:text-[14px] [&>label]:[word-wrap:break-word] [&>label]:max-w-full"
+        )}
+      >
         {isLoading ? <Skeleton width={30} height={24} /> : <AddressOrName address={resolvedAddress} />}&nbsp;
         <label>({name})</label>
-      </TextContainer>
-    </AliasContainer>
+      </div>
+    </div>
   );
 };
 

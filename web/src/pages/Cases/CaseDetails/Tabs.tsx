@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -18,28 +17,6 @@ import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
 
 import { useAppealCost } from "queries/useAppealCost";
-
-import { tabsSelectedUnderline } from "styles/commonStyles";
-import { responsiveSize } from "styles/responsiveSize";
-
-const StyledTabs = styled(TabsComponent)`
-  ${tabsSelectedUnderline}
-  width: 100%;
-  margin-top: ${responsiveSize(10, 28)};
-  > * {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  // Set on the label, not the container: the library's text-base wouldn't inherit.
-  [role="tab"] {
-    span {
-      font-size: ${responsiveSize(12, 16)};
-    }
-    svg {
-      margin-right: 8px;
-    }
-  }
-`;
 
 const Tabs: React.FC = () => {
   const { t } = useTranslation();
@@ -107,7 +84,16 @@ const Tabs: React.FC = () => {
     return updatedTabs;
   }, [currentPeriodIndex, rounds.length, appealCost, TABS]);
 
-  return <StyledTabs selectedKey={currentTab} items={tabs} callback={(_key, value) => navigate(TABS[value].path)} />;
+  return (
+    <TabsComponent
+      selectedKey={currentTab}
+      items={tabs}
+      callback={(_key, value) => navigate(TABS[value].path)}
+      className={
+        'tabs-selected-underline w-full mt-[calc(10px_+_(28_-_10)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_>_*]:flex [&_>_*]:flex-wrap [&_[role="tab"]_span]:text-[calc(12px_+_(16_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_[role="tab"]_svg]:mr-2'
+      }
+    />
+  );
 };
 
 export default Tabs;

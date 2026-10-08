@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 
@@ -17,34 +16,6 @@ import DrawButton from "./DrawButton";
 import ExecuteRulingButton from "./ExecuteRuling";
 import PassPeriodButton from "./PassPeriodButton";
 import WithdrawAppealFees from "./WithdrawAppealFees";
-
-const Container = styled.div`
-  width: 36px;
-  height: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-`;
-
-const PopupContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  height: fit-content;
-  overflow-y: auto;
-  z-index: 31;
-  padding: 27px;
-  gap: 16px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border-radius: 3px;
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
-
-  bottom: 0;
-  left: 0;
-  transform: translate(-100%, 100%);
-`;
 
 export interface IBaseMaintenanceButton {
   setIsOpen: (open: boolean) => void;
@@ -98,11 +69,11 @@ const MaintenanceButtons: React.FC = () => {
 
   const toggle = () => setIsOpen((prevValue) => !prevValue);
   return (
-    <Container>
+    <div className="w-[36px] h-[36px] flex justify-center items-center relative">
       {isOpen ? (
         <>
           <Overlay onClick={() => setIsOpen(false)} />
-          <PopupContainer>
+          <div className="flex flex-col absolute h-fit overflow-y-auto z-31 p-6.75 gap-4 border border-solid border-klerosUIComponentsStroke bg-klerosUIComponentsWhiteBackground rounded-[3px] [box-shadow:0px_2px_3px_rgba(0,_0,_0,_0.06)] bottom-0 left-0 [transform:translate(-100%,_100%)]">
             <EnsureChain>
               <>
                 <DrawButton
@@ -126,11 +97,11 @@ const MaintenanceButtons: React.FC = () => {
                 />
               </>
             </EnsureChain>
-          </PopupContainer>
+          </div>
         </>
       ) : null}
       <DottedMenuButton {...{ toggle, displayRipple }} />
-    </Container>
+    </div>
   );
 };
 

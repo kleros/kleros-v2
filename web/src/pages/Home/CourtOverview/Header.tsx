@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -7,38 +6,20 @@ import { Button } from "@kleros/ui-components-library";
 
 import Bookmark from "svgs/icons/bookmark.svg";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { InternalLink } from "components/InternalLink";
-
-const StyledHeader = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px 12px;
-  margin-bottom: ${responsiveSize(12, 20)};
-`;
-
-const StyledH1 = styled.h1`
-  font-size: ${responsiveSize(20, 24)};
-  margin: 0;
-`;
-
-const StyledInternalLink = styled(InternalLink)`
-  display: flex;
-  height: 34px;
-`;
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <StyledHeader>
-      <StyledH1>{t("misc.court_overview")}</StyledH1>
-      <StyledInternalLink to={"/resolver"}>
+    <div className="flex flex-wrap justify-between gap-[8px_12px] mb-[calc(12px_+_(20_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+      <h1 className="text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] m-0">
+        {t("misc.court_overview")}
+      </h1>
+      <InternalLink to={"/resolver"} className="flex h-[34px]">
         <Button small Icon={Bookmark} text={t("buttons.create_a_case")} />
-      </StyledInternalLink>
-    </StyledHeader>
+      </InternalLink>
+    </div>
   );
 };
 

@@ -1,42 +1,8 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { getUserLevelData } from "utils/userLevelCalculation";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import PixelArt from "pages/Profile/JurorCard/BottomContent/PixelArt";
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  ${landscapeStyle(
-    () => css`
-      gap: 16px;
-      justify-content: end;
-    `
-  )}
-`;
-
-const StyledLabel = styled.label`
-  font-size: 12px !important;
-
-  &::before {
-    content: "Lv. ";
-  }
-
-  ${landscapeStyle(
-    () => css`
-      font-size: 16px !important;
-
-      &::before {
-        content: "Level ";
-      }
-    `
-  )}
-`;
 
 interface IJurorLevel {
   coherenceScore: number;
@@ -47,10 +13,12 @@ const JurorLevel: React.FC<IJurorLevel> = ({ coherenceScore }) => {
   const level = userLevelData.level;
 
   return (
-    <Container>
-      <StyledLabel>{level}</StyledLabel>
+    <div className="flex items-center gap-2 lg:gap-4 lg:justify-end">
+      <label className={'text-[12px]! [&::before]:[content:"Lv._"] lg:text-[16px]! lg:[&::before]:[content:"Level_"]'}>
+        {level}
+      </label>
       <PixelArt width="32px" height="32px" level={level} />
-    </Container>
+    </div>
   );
 };
 export default JurorLevel;

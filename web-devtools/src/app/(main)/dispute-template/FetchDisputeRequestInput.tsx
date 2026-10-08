@@ -1,47 +1,17 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
 import { useDebounce } from "react-use";
 import { type GetEventArgs } from "viem";
 
-import { Field } from "@kleros/ui-components-library";
+import { TextField, NumberField } from "@kleros/ui-components-library";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { getDisputeRequestParamsFromTxn } from "utils/getDisputeRequestParamsFromTxn";
 import { isUndefined } from "utils/isUndefined";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
-  margin-left: 24px;
-`;
-const InputContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-const StyledChainInput = styled(Field)`
-  width: 120px;
-`;
-const StyledHeader = styled.h2`
-  margin-top: 24px;
-`;
-
-const StyledH3 = styled.h3`
-  margin-top: 28px;
-`;
-
-const PresetsContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
-
-const StyledA = styled.a`
-  cursor: pointer;
-`;
+// React Aria resets uncommitted input when this object's identity changes.
+const NUMBER_FORMAT_OPTIONS = { useGrouping: false };
 
 const presets = [
   {
@@ -93,26 +63,33 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
   }, [debouncedTxnHash, chainId]);
 
   return (
-    <Container>
-      <StyledHeader>Fetch Dispute Request params from transaction</StyledHeader>
-      <InputContainer>
-        <Field
+    <div className="ml-6 mt-6 flex flex-col">
+      <h2 className="mt-6">Fetch Dispute Request params from transaction</h2>
+      <div className="flex flex-wrap gap-2">
+        <TextField
+          aria-label="Transaction hash"
+          inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
           value={txnHash}
           placeholder="Enter transaction hash"
-          onChange={(e) => setTxnHash(e.target.value)}
+          onChange={setTxnHash}
           message={loading ? "fetching ..." : error || ""}
         />
-        <StyledChainInput
+        <NumberField
+          aria-label="Chain ID"
+          inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
+          formatOptions={NUMBER_FORMAT_OPTIONS}
+          className="w-[120px]"
           value={chainId}
           placeholder="Enter chain Id"
-          type="number"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChainId(Number(e.target.value))}
+          onChange={(value) => setChainId(Number.isNaN(value) ? 0 : value)}
         />
-      </InputContainer>
-      <StyledH3>Presets</StyledH3>
-      <PresetsContainer>
+      </div>
+      <h3 className="mt-7">Presets</h3>
+      <div className="flex flex-wrap gap-4">
         {presets.map((preset) => (
-          <StyledA
+          <button
+            type="button"
+            className="cursor-pointer text-sm font-normal text-klerosUIComponentsPrimaryBlue [line-height:normal]"
             key={preset.txnHash}
             onClick={() => {
               setTxnHash(preset.txnHash);
@@ -120,10 +97,10 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
             }}
           >
             {preset.title}
-          </StyledA>
+          </button>
         ))}
-      </PresetsContainer>
-    </Container>
+      </div>
+    </div>
   );
 };
 

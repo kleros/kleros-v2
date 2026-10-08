@@ -1,6 +1,5 @@
 "use client";
 import React, { useContext, useMemo, useRef, createContext } from "react";
-import styled, { css } from "styled-components";
 
 import Link from "next/link";
 import { useClickAway, useToggle } from "react-use";
@@ -8,39 +7,9 @@ import { useClickAway, useToggle } from "react-use";
 import KlerosDevtoolsLogo from "svgs/header/devtools-logo.svg";
 import HamburgerIcon from "svgs/header/hamburger.svg";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import LightButton from "components/LightButton";
 
 import NavBar from "./navbar";
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-
-  ${landscapeStyle(
-    () => css`
-      display: none;
-    `
-  )}
-`;
-const StyledLightButton = styled(LightButton)`
-  padding: 0;
-  background-color: transparent;
-  :hover {
-    background-color: transparent;
-  }
-
-  .button-svg {
-    margin-right: 0px;
-    fill: white;
-  }
-  .button-text {
-    display: none;
-  }
-`;
 
 const OpenContext = createContext({
   isOpen: false,
@@ -59,15 +28,20 @@ const MobileHeader: React.FC = () => {
   useClickAway(containerRef, () => toggleIsOpen(false));
   const memoizedContext = useMemo(() => ({ isOpen, toggleIsOpen }), [isOpen, toggleIsOpen]);
   return (
-    <Container ref={containerRef}>
+    <div className="flex w-full items-center justify-between lg:hidden" ref={containerRef}>
       <OpenContext.Provider value={memoizedContext}>
         <Link href="/">
           <KlerosDevtoolsLogo />
         </Link>
         <NavBar />
-        <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
+        <LightButton
+          className="bg-transparent p-0 hover:bg-transparent [&_svg]:mr-0 [&_svg]:fill-white [&_.button-text]:hidden"
+          text=""
+          Icon={HamburgerIcon}
+          onClick={toggleIsOpen}
+        />
       </OpenContext.Provider>
-    </Container>
+    </div>
   );
 };
 

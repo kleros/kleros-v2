@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +22,6 @@ import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 
 import { isTemplateValid } from "./SubmitDisputeButton";
-
-const StyledButton = styled(Button)``;
 
 const SubmitBatchDisputesButton: React.FC = () => {
   const { t } = useTranslation();
@@ -93,7 +90,7 @@ const SubmitBatchDisputesButton: React.FC = () => {
   return (
     <EnsureChain>
       <div>
-        <StyledButton
+        <Button
           text={t("buttons.create_cases")}
           isDisabled={isButtonDisabled}
           isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}

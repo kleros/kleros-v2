@@ -1,16 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
 
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 
 import { useTopStakedJurorsByCourt } from "queries/useTopStakedJurorsByCourt";
 
 import { OrderDirection } from "src/graphql/graphql";
-
-import { responsiveSize } from "styles/responsiveSize";
 
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 import { ListContainer as BaseListContainer } from "pages/Home/TopJurors";
@@ -18,24 +16,9 @@ import { ListContainer as BaseListContainer } from "pages/Home/TopJurors";
 import Header from "./Header";
 import JurorCard from "./JurorCard";
 
-const ListContainer = styled(BaseListContainer)`
-  overflow: visible;
-`;
-
-const CardsWrapper = styled.div`
-  max-height: 520px;
-  overflow-y: hidden;
-
-  &:hover {
-    overflow-y: auto;
-  }
-`;
-
-const StyledLabel = styled.label`
-  display: flex;
-  font-size: 16px;
-  margin-top: ${responsiveSize(12, 20)};
-`;
+const ListContainer = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof BaseListContainer>) => (
+  <BaseListContainer {...props} className={cn("overflow-visible", className)} />
+);
 
 const PER_PAGE = 30;
 
@@ -91,17 +74,19 @@ const DisplayJurors: React.FC = () => {
   return (
     <>
       {!isUndefined(jurors) && jurors.length === 0 && !isFetching ? (
-        <StyledLabel>{t("misc.no_jurors_found")}</StyledLabel>
+        <label className="flex text-[16px] mt-[calc(12px_+_(20_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("misc.no_jurors_found")}
+        </label>
       ) : (
         <ListContainer>
           <Header />
-          <CardsWrapper>
+          <div className="max-h-[520px] overflow-y-hidden [&:hover]:overflow-y-auto">
             {jurors.map((j) => (
               <JurorCard key={j.id} address={j.id} {...j} />
             ))}
             {isFetching && [...Array(9)].map((_, i) => <SkeletonDisputeListItem key={`s-${i}`} />)}
             <div ref={sentinelRef} />
-          </CardsWrapper>
+          </div>
         </ListContainer>
       )}
     </>

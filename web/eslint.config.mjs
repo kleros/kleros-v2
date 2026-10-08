@@ -137,7 +137,7 @@ export default [
 
           pathGroups: [
             {
-              pattern: "{react,styled-components}",
+              pattern: "react",
               group: "external",
               position: "before",
             },

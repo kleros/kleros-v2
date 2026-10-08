@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -9,31 +8,7 @@ import Star from "svgs/icons/star.svg";
 
 import useIsDesktop from "hooks/useIsDesktop";
 import useStarredCases from "hooks/useStarredCases";
-
-const StyledButton = styled(Button)<{ starred: boolean }>`
-  background: none;
-  padding: 0 0 2px 0;
-
-  .button-svg {
-    width: 24px;
-    height: 24px;
-    margin: 0;
-    fill: none;
-
-    path {
-      stroke: ${({ theme }) => theme.secondaryPurple};
-    }
-    ${({ starred }) =>
-      starred &&
-      css`
-        fill: ${({ theme }) => theme.secondaryPurple};
-      `};
-  }
-
-  :hover {
-    background: none;
-  }
-`;
+import { cn } from "utils/cn";
 
 const CaseStarButton: React.FC<{ id: string }> = ({ id }) => {
   const { t } = useTranslation();
@@ -43,10 +18,14 @@ const CaseStarButton: React.FC<{ id: string }> = ({ id }) => {
   const text = starred ? t("misc.remove_from_favorites") : t("misc.add_to_favorites");
   return (
     <Tooltip {...{ text }} place={isDesktop ? "right" : "bottom"}>
-      <StyledButton
+      <Button
+        className={cn(
+          "bg-transparent p-0 pb-0.5 hover:bg-transparent [&_.button-svg]:m-0 [&_.button-svg]:size-6",
+          "[&_.button-svg_path]:stroke-klerosUIComponentsSecondaryPurple",
+          starred ? "[&_.button-svg]:fill-klerosUIComponentsSecondaryPurple" : "[&_.button-svg]:fill-none"
+        )}
         Icon={Star}
         text=""
-        starred={starred}
         aria-label={text}
         aria-checked={starred}
         onPress={() => {

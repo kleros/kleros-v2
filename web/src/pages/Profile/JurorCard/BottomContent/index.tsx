@@ -1,49 +1,14 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { Address } from "viem";
 
 import { ILevelCriteria } from "utils/userLevelCalculation";
-
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import StakingRewards from "../StakingRewards";
 
 import Coherence from "./Coherence";
 import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 32px;
-  width: 100%;
-  height: auto;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      align-items: flex-start;
-    `
-  )}
-`;
-
-const LeftContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 48px;
-  flex-direction: column;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )}
-`;
 
 interface IBottomContent {
   userLevelData: ILevelCriteria;
@@ -59,14 +24,14 @@ const BottomContent: React.FC<IBottomContent> = ({
   searchParamAddress,
 }) => {
   return (
-    <Container>
-      <LeftContent>
+    <div className="flex flex-col flex-wrap justify-between items-center gap-8 w-full h-auto lg:flex-row lg:items-start">
+      <div className="flex gap-12 flex-col lg:flex-row">
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
         <Coherence isMiniGuide={false} {...{ userLevelData, totalCoherentVotes, totalResolvedVotes }} />
         <JurorRewards {...{ searchParamAddress }} />
-      </LeftContent>
+      </div>
       <StakingRewards />
-    </Container>
+    </div>
   );
 };
 export default BottomContent;

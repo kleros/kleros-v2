@@ -1,27 +1,18 @@
-import styled, { keyframes } from "styled-components";
+import React from "react";
 
 import SpinnerIcon from "svgs/icons/spinner.svg";
 
-const rotating = keyframes`
-    0%{
-      transform: rotate(0deg);
-    }
-    50%{
-      transform: rotate(180deg);
-    }
-    100%{
-      transform: rotate(360deg);
-    }
-`;
+import { cn } from "utils/cn";
 
-const Spinner = styled(SpinnerIcon)`
-  path {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-  width: 16px;
-  height: 16px;
-  margin-right: 4px;
-  animation: ${rotating} 2s ease-in-out infinite normal;
-`;
+const Spinner: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
+  <SpinnerIcon
+    {...props}
+    className={cn(
+      "mr-1 size-4 animate-[kleros-rotating_2s_ease-in-out_infinite_normal]",
+      "[&_path]:fill-klerosUIComponentsPrimaryBlue",
+      className
+    )}
+  />
+);
 
 export default Spinner;

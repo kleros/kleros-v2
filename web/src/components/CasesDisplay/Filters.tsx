@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css, useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -9,47 +8,12 @@ import ListIcon from "svgs/icons/list.svg";
 
 import { useIsList } from "context/IsListProvider";
 import useIsDesktop from "hooks/useIsDesktop";
+import useTheme from "hooks/useTheme";
+import { cn } from "utils/cn";
 import type { SelectItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import { LabeledDropdownSelect } from "components/LabeledDropdown";
-
-const Container = styled.div`
-  display: flex;
-  justify-content: end;
-  gap: 12px;
-  width: fit-content;
-`;
-
-const IconsContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-`;
-
-const BaseIconStyles = css`
-  ${hoverShortTransitionTiming}
-  cursor: pointer;
-  fill: ${({ theme }) => theme.primaryBlue};
-  width: 16px;
-  height: 16px;
-  overflow: hidden;
-
-  :hover {
-    fill: ${({ theme }) => theme.secondaryBlue};
-  }
-`;
-
-const StyledGridIcon = styled(GridIcon)`
-  ${BaseIconStyles}
-`;
-
-const StyledListIcon = styled(ListIcon)`
-  ${BaseIconStyles}
-`;
 
 const Filters: React.FC = () => {
   const { t } = useTranslation();
@@ -75,7 +39,7 @@ const Filters: React.FC = () => {
   const isDesktop = useIsDesktop();
 
   return (
-    <Container>
+    <div className="flex justify-end gap-3 w-fit">
       <LabeledDropdownSelect
         ariaLabel={t("aria_labels.filter_by_status")}
         smallButton
@@ -121,21 +85,31 @@ const Filters: React.FC = () => {
         callback={handleOrderChange}
       />
       {isDesktop ? (
-        <IconsContainer>
+        <div className="flex justify-center items-center gap-1">
           {isList ? (
-            <StyledGridIcon onClick={() => setIsList(false)} />
+            <GridIcon
+              onClick={() => setIsList(false)}
+              className={cn(
+                "[transition:0.1s] cursor-pointer fill-klerosUIComponentsPrimaryBlue w-[16px] h-[16px] overflow-hidden",
+                "[&:hover]:fill-klerosUIComponentsSecondaryBlue"
+              )}
+            />
           ) : (
-            <StyledListIcon
+            <ListIcon
               onClick={() => {
                 if (isDesktop) {
                   setIsList(true);
                 }
               }}
+              className={cn(
+                "[transition:0.1s] cursor-pointer fill-klerosUIComponentsPrimaryBlue w-[16px] h-[16px] overflow-hidden",
+                "[&:hover]:fill-klerosUIComponentsSecondaryBlue"
+              )}
             />
           )}
-        </IconsContainer>
+        </div>
       ) : null}
-    </Container>
+    </div>
   );
 };
 

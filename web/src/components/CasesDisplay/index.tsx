@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
@@ -7,36 +6,13 @@ import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import { StyledArrowLink } from "../StyledArrowLink";
 
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
-
-const TitleContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: ${responsiveSize(12, 24)};
-`;
-
-const StyledTitle = styled.h1`
-  margin: 0px;
-  font-size: ${responsiveSize(20, 24)};
-`;
-
-const StyledLabel = styled.label`
-  font-size: ${responsiveSize(14, 16)};
-`;
-
-const LinksContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-`;
 
 interface ICasesDisplay extends ICasesGrid {
   numberDisputes?: number;
@@ -63,9 +39,17 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
 
   return (
     <div {...{ className }}>
-      <TitleContainer className="title">
-        <StyledTitle>{title ?? t("navigation.cases")}</StyledTitle>
-        <LinksContainer>
+      <div
+        className={cn(
+          "flex justify-between items-center flex-wrap",
+          "mb-[calc(12px_+_(24_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+          "title"
+        )}
+      >
+        <h1 className="m-0 text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {title ?? t("navigation.cases")}
+        </h1>
+        <div className="flex flex-row gap-4">
           {location.pathname.startsWith("/cases/display") && profileLink ? (
             <StyledArrowLink to={profileLink}>
               {t("headers.my_cases")} <ArrowIcon />
@@ -76,13 +60,15 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
               {t("buttons.create_a_case")} <ArrowIcon />
             </StyledArrowLink>
           ) : null}
-        </LinksContainer>
-      </TitleContainer>
+        </div>
+      </div>
       <Search />
       <StatsAndFilters totalDisputes={numberDisputes || 0} closedDisputes={numberClosedDisputes || 0} />
 
       {disputes?.length === 0 ? (
-        <StyledLabel>{t("misc.no_cases_found")}</StyledLabel>
+        <label className="text-[calc(14px_+_(16_-_14)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("misc.no_cases_found")}
+        </label>
       ) : (
         <CasesGrid
           disputes={disputes}

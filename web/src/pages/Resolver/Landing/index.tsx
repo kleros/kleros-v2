@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -18,36 +17,9 @@ import { useRoundDetailsQuery } from "queries/useRoundDetailsQuery";
 import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import Header from "../Header";
 
 import CreationCard, { CreationMethod } from "./CreationCard";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 84vw;
-
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-
-      padding-bottom: 240px;
-    `
-  )}
-`;
-
-const CardContainer = styled(CustomRadio)`
-  width: 100%;
-  max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 32px;
-`;
 
 const Landing: React.FC = () => {
   const { t } = useTranslation();
@@ -132,12 +104,13 @@ const Landing: React.FC = () => {
   }, [populatedDispute, roundData, isInvalidDispute]);
 
   return (
-    <Container>
+    <div className="flex flex-col items-center w-[84vw] lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))] lg:pb-60">
       <Header text={t("headers.create_a_case")} />
-      <CardContainer
+      <CustomRadio
         aria-label={t("headers.create_a_case")}
         value={String(creationMethod)}
         onChange={(value) => setCreationMethod(Number(value) as CreationMethod)}
+        className="w-full max-w-[720px] flex flex-col gap-4 mb-8"
       >
         <CreationCard
           cardMethod={CreationMethod.Scratch}
@@ -149,7 +122,7 @@ const Landing: React.FC = () => {
           selectedMethod={creationMethod}
           {...{ disputeID, setDisputeID, isInvalidDispute }}
         />
-      </CardContainer>
+      </CustomRadio>
 
       <Button
         text={t("buttons.next")}
@@ -161,7 +134,7 @@ const Landing: React.FC = () => {
         }
         onPress={() => navigate("/resolver/title")}
       />
-    </Container>
+    </div>
   );
 };
 

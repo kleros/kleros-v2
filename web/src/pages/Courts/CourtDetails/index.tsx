@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,9 +10,6 @@ import { isProductionDeployment } from "consts/index";
 import { getDescriptiveCourtName } from "utils/getDescriptiveCourtName";
 
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import ClaimPnkButton from "components/ClaimPnkButton";
 import { Divider } from "components/Divider";
@@ -29,93 +25,6 @@ import StakePanel from "./StakePanel";
 import StakingHistoryByCourt from "./StakingHistoryByCourt";
 import Stats from "./Stats";
 import TopSearch from "./TopSearch";
-
-const Container = styled.div``;
-
-const CourtHeader = styled.h1`
-  display: flex;
-  flex-direction: row;
-  font-size: ${responsiveSize(20, 24)};
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-`;
-
-const CourtInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: center;
-  gap: 20px;
-
-  ${landscapeStyle(
-    () => css`
-      align-items: flex-end;
-    `
-  )};
-`;
-
-const StyledCard = styled(Card)`
-  padding: 16px;
-  margin-top: 12px;
-  width: 100%;
-  height: auto;
-  min-height: 100px;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 32px;
-    `
-  )}
-`;
-
-const StyledBreadcrumb = styled(Breadcrumb)`
-  align-items: center;
-  button {
-    font-size: 16px;
-  }
-`;
-
-const StakePanelAndStats = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 24px;
-  gap: 16px;
-  flex-wrap: wrap;
-
-  ${landscapeStyle(
-    () => css`
-      & > * {
-        flex: 1 1 calc(50% - 8px);
-      }
-    `
-  )}
-`;
-
-const StakingSections = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  margin-top: ${responsiveSize(28, 48)};
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      gap: 48px;
-      & > * {
-        flex: 1 1 calc(50% - 24px);
-      }
-    `
-  )}
-`;
 
 const CourtDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -136,48 +45,49 @@ const CourtDetails: React.FC = () => {
   const courtName = currentCourt?.name;
 
   return (
-    <Container>
+    <div>
       <TopSearch />
-      <StyledCard>
-        <CourtHeader>
-          <CourtInfo>
+      <Card className="p-4 mt-3 w-full h-auto min-h-[100px] lg:p-8">
+        <h1 className="flex flex-row text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] justify-between gap-2 flex-wrap mb-4">
+          <div className="flex flex-col gap-2">
             {data ? courtName : <StyledSkeleton width={200} />}
             {breadcrumbItems.length > 1 ? (
-              <StyledBreadcrumb
+              <Breadcrumb
                 items={breadcrumbItems}
                 clickable
                 callback={(courtId: string) => navigate(`/courts/${courtId}`)}
+                className="items-center [&_button]:text-[16px]"
               />
             ) : null}
-          </CourtInfo>
-          <ButtonContainer>
+          </div>
+          <div className="flex flex-wrap flex-row justify-center gap-5 lg:items-end">
             {!isProductionDeployment() && <ClaimPnkButton />}
             <HowItWorks
               isMiniGuideOpen={isStakingMiniGuideOpen}
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-          </ButtonContainer>
-        </CourtHeader>
+          </div>
+        </h1>
         <Divider />
-        <StakePanelAndStats>
+        <div className="flex flex-row justify-between mt-6 gap-4 flex-wrap lg:[&_>_*]:[flex:1_1_calc(50%_-_8px)]">
           <StakePanel {...{ courtName }} />
           <Stats />
-        </StakePanelAndStats>
-      </StyledCard>
-      <StyledCard>
+        </div>
+      </Card>
+      <Card className="p-4 mt-3 w-full h-auto min-h-[100px] lg:p-8">
         <Description />
-      </StyledCard>
+      </Card>
       <LatestCases
         title={t("misc.latest_cases_in_court", { court: getDescriptiveCourtName(courtName) })}
         filters={{ court: id }}
       />
-      <StakingSections>
+      <div className="flex flex-col gap-8 mt-[calc(28px_+_(48_-_28)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] lg:flex-row lg:gap-12 lg:[&_>_*]:[flex:1_1_calc(50%_-_24px)]">
         <JurorsStakedByCourt {...{ courtName }} />
         <StakingHistoryByCourt {...{ courtName }} />
-      </StakingSections>
+      </div>
       <ScrollTop />
-    </Container>
+    </div>
   );
 };
 

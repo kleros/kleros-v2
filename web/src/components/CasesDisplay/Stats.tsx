@@ -1,30 +1,15 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-const FieldWrapper = styled.div`
-  display: inline-flex;
-  gap: 8px;
-`;
-
-const SeparatorLabel = styled.label`
-  margin: 0 8px;
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryText};
-`;
-
 const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <FieldWrapper>
-    <StyledLabel>{label}</StyledLabel>
+  <div className="inline-flex gap-2">
+    <label className="text-klerosUIComponentsPrimaryText">{label}</label>
     <small>{value}</small>
-  </FieldWrapper>
+  </div>
 );
 
-const Separator: React.FC = () => <SeparatorLabel>|</SeparatorLabel>;
+const Separator: React.FC = () => <label className="m-[0_8px] text-klerosUIComponentsPrimaryText">|</label>;
 
 export interface IStats {
   totalDisputes: number;

@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -8,47 +7,42 @@ import { useToggle } from "react-use";
 
 import { Periods } from "consts/periods";
 import { useDisputeKitInfo } from "hooks/useDisputeKitInfo";
+import { cn } from "utils/cn";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { isUndefined } from "src/utils";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import InfoCard from "components/InfoCard";
 
 import AppealHistory from "./AppealHistory";
 
-const Container = styled.div`
-  padding: 16px;
+export const AppealHeader = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(
+  function AppealHeader({ className, ...props }, ref) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        className={cn("flex flex-col items-center justify-between mb-6 gap-3 lg:flex-row", className)}
+      />
+    );
+  }
+);
 
-  ${landscapeStyle(
-    () => css`
-      padding: 32px;
-    `
-  )}
-`;
-
-export const AppealHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 12px;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )}
-`;
-
-export const StyledTitle = styled.h1`
-  margin: 0;
-  font-size: ${responsiveSize(18, 24)};
-`;
+export const StyledTitle = React.forwardRef<React.ElementRef<"h1">, React.ComponentPropsWithoutRef<"h1">>(
+  function StyledTitle({ className, ...props }, ref) {
+    return (
+      <h1
+        {...props}
+        ref={ref}
+        className={cn(
+          "m-0 text-[calc(18px_+_(24_-_18)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+          className
+        )}
+      />
+    );
+  }
+);
 
 const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }) => {
   const { t } = useTranslation();
@@ -60,18 +54,18 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
 
   if (isUndefined(disputeKitInfo)) {
     return (
-      <Container>
+      <div className="p-4 lg:p-8">
         {isUndefined(disputeKitAddress) ? (
           <Skeleton height={200} />
         ) : (
           <InfoCard msg={t("alerts.unsupported_dispute_kit")} />
         )}
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container>
+    <div className="p-4 lg:p-8">
       {Periods.appeal === currentPeriodIndex ? (
         <disputeKitInfo.AppealComponent
           isAppealMiniGuideOpen={isAppealMiniGuideOpen}
@@ -81,7 +75,7 @@ const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }
       ) : (
         <AppealHistory isAppealMiniGuideOpen={isAppealMiniGuideOpen} toggleAppealMiniGuide={toggleAppealMiniGuide} />
       )}
-    </Container>
+    </div>
   );
 };
 

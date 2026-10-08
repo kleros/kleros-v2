@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -9,50 +8,29 @@ import { ISettings } from "layout/Header/navbar/index";
 
 import FormContactDetails from "./FormContactDetails";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-  margin-top: 16px;
-  margin-bottom: 12px;
-`;
-
 const HeaderNotifs: React.FC = () => {
   const { t } = useTranslation();
-  return <HeaderContainer>{t("headers.contact_details")}</HeaderContainer>;
+  return (
+    <div className="flex justify-center text-[16px] font-semibold text-klerosUIComponentsPrimaryText mt-4 mb-3">
+      {t("headers.contact_details")}
+    </div>
+  );
 };
-
-const EnsureChainContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
-`;
 
 const NotificationSettings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   return (
-    <EnsureChainContainer>
+    <div className="flex justify-center pt-5 pb-5">
       <EnsureChain>
-        <Container>
+        <div className="flex flex-col items-center w-full h-full">
           <EnsureAuth>
             <>
               <HeaderNotifs />
               <FormContactDetails toggleIsSettingsOpen={toggleIsSettingsOpen} />
             </>
           </EnsureAuth>
-        </Container>
+        </div>
       </EnsureChain>
-    </EnsureChainContainer>
+    </div>
   );
 };
 

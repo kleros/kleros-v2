@@ -1,13 +1,9 @@
 import React, { useEffect } from "react";
-import { ThemeProvider } from "styled-components";
 
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { ToggleThemeProvider } from "hooks/useToggleThemeContext";
 
-import { GlobalStyle } from "styles/global-style";
-import { lightTheme, darkTheme } from "styles/themes";
-
-const StyledComponentsProvider: React.FC<{
+const ThemeProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [theme, setTheme] = useLocalStorage<string>("theme", "dark");
@@ -22,14 +18,7 @@ const StyledComponentsProvider: React.FC<{
     document.documentElement.classList.toggle("dark", theme !== "light");
   }, [theme]);
 
-  return (
-    <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
-      <ToggleThemeProvider {...{ theme, toggleTheme }}>
-        <GlobalStyle />
-        {children}
-      </ToggleThemeProvider>
-    </ThemeProvider>
-  );
+  return <ToggleThemeProvider {...{ theme, toggleTheme }}>{children}</ToggleThemeProvider>;
 };
 
-export default StyledComponentsProvider;
+export default ThemeProvider;

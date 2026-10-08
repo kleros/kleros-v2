@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -15,6 +14,7 @@ import CanVoteIcon from "svgs/label-icons/vote.svg";
 import VotedIcon from "svgs/label-icons/voted.svg";
 
 import { useLabelInfoQuery } from "hooks/queries/useLabelInfoQuery";
+import { cn } from "utils/cn";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { isUndefined } from "utils/index";
 
@@ -23,29 +23,6 @@ import { LabelInfoQuery } from "src/graphql/graphql";
 import Label, { IColors } from "./Label";
 import RewardsAndFundLabel, { IRewardsAndFundLabel } from "./RewardsAndFundLabel";
 
-const Container = styled.div<{ isOverview: boolean }>`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  margin-top: 24px;
-
-  ${({ isOverview }) =>
-    isOverview &&
-    css`
-      width: auto;
-      margin-top: 0;
-    `}
-`;
-
-const RewardsContainer = styled.div`
-  display: flex;
-  gap: 4px 8px;
-  flex-wrap: wrap;
-  justify-content: end;
-`;
 interface ICardLabels {
   disputeId: string;
   round: number;
@@ -182,16 +159,16 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isOverview = false
   }
 
   return (
-    <Container {...{ isOverview }}>
+    <div className={cn("flex flex-row flex-wrap items-center gap-2", isOverview ? "mt-0 w-auto" : "mt-6 w-full")}>
       {isLoading ? (
         <Skeleton width={130} height={14} />
       ) : (
         <>
           <Label {...labelData} />
-          <RewardsContainer>{rewards}</RewardsContainer>
+          <div className="flex gap-[4px_8px] flex-wrap justify-end">{rewards}</div>
         </>
       )}
-    </Container>
+    </div>
   );
 };
 

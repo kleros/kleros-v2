@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -12,6 +11,7 @@ import GavelExecutedIcon from "svgs/icons/gavel-executed.svg";
 
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import useTheme from "hooks/useTheme";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { getVoteChoice } from "utils/getVoteChoice";
 
@@ -26,39 +26,6 @@ import { StyledClosedCircle } from "components/StyledIcons/ClosedCircleIcon";
 import NewTabIcon from "components/StyledIcons/NewTabIcon";
 
 import { ExternalLink } from "../ExternalLink";
-
-const Container = styled.div`
-  display: flex;
-  position: relative;
-  flex-direction: column;
-`;
-
-const StyledTimeline = styled(CustomTimeline)`
-  width: 100%;
-
-  /* TODO(ui-components-library): remove once CustomTimeline centers its bullet on the title
-     (kleros/ui-components-library#100).
-     The library aligns the 16px bullet with the title's top edge and draws the connecting
-     line above it for the title's offset in its row, so keep the title row 16px tall: a
-     16px title line box, and the link box shrink-wrapped to its 16px icon. */
-  h2 {
-    margin: 0;
-    line-height: 16px;
-  }
-
-  a {
-    display: flex;
-    align-items: center;
-  }
-`;
-
-const StyledNewTabIcon = styled(NewTabIcon)`
-  :hover {
-    path {
-      fill: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
 
 type TimelineItems = [CustomTimelineItem, ...CustomTimelineItem[]];
 
@@ -98,7 +65,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
         title: t("dispute_info.dispute_created"),
         party: txnDisputeCreatedLink ? (
           <ExternalLink to={txnDisputeCreatedLink} rel="noopener noreferrer" target="_blank">
-            <StyledNewTabIcon />
+            <NewTabIcon className="[&:hover_path]:fill-klerosUIComponentsSecondaryBlue" />
           </ExternalLink>
         ) : (
           ""
@@ -146,7 +113,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: Address) =>
         title: t("dispute_info.enforcement"),
         party: txnEnforcementLink ? (
           <ExternalLink to={txnEnforcementLink} rel="noopener noreferrer" target="_blank">
-            <StyledNewTabIcon />
+            <NewTabIcon className="[&:hover_path]:fill-klerosUIComponentsSecondaryBlue" />
           </ExternalLink>
         ) : (
           ""
@@ -180,6 +147,15 @@ const DisputeTimeline: React.FC<IDisputeTimeline> = ({ arbitrable }) => {
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const items = useItems(disputeDetails, arbitrable);
 
-  return <Container>{items && <StyledTimeline {...{ items }} />}</Container>;
+  return (
+    <div className="flex relative flex-col">
+      {items && (
+        <CustomTimeline
+          {...{ items }}
+          className="w-full [&_h2]:m-0 [&_h2]:leading-[16px] [&_a]:flex [&_a]:items-center"
+        />
+      )}
+    </div>
+  );
 };
 export default DisputeTimeline;

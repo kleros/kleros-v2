@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useClickAway, useToggle } from "react-use";
@@ -13,72 +12,12 @@ import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
 
 import { getDevToolsUrl } from "consts/index";
-
-import { landscapeStyle } from "styles/landscapeStyle";
+import { cn } from "utils/cn";
 
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
 
 import Debug from "../Debug";
 import { IHelp } from "../index";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  max-height: 80vh;
-  overflow-y: auto;
-  width: 86vw;
-  max-width: 444px;
-  top: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  padding: 12px 12px 24px 12px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border-radius: 3px;
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
-
-  ${landscapeStyle(
-    () => css`
-      margin-top: 64px;
-      width: 260px;
-      top: 0;
-      right: 0;
-      left: auto;
-      transform: none;
-    `
-  )}
-`;
-
-const ListItem = styled.a`
-  display: flex;
-  gap: 8px;
-  padding: 12px 8px;
-  cursor: pointer;
-  transition: transform 0.2s;
-
-  small {
-    font-size: 16px;
-    font-weight: 400;
-  }
-
-  :hover {
-    transform: scale(1.02);
-  }
-
-  :hover small {
-    transition: color 0.1s;
-    color: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const Icon = styled.svg`
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  fill: ${({ theme }) => theme.secondaryPurple};
-`;
 
 const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
   const { t } = useTranslation();
@@ -128,20 +67,35 @@ const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
 
   return (
     <>
-      <Container ref={containerRef}>
+      <div
+        ref={containerRef}
+        className={cn(
+          "flex flex-col absolute max-h-[80vh] overflow-y-auto w-[86vw] max-w-[444px] top-[5%] left-[50%]",
+          "[transform:translateX(-50%)] z-1 p-[12px_12px_24px_12px]",
+          "border border-solid border-klerosUIComponentsStroke bg-klerosUIComponentsWhiteBackground rounded-[3px]",
+          "[box-shadow:0px_2px_3px_rgba(0,_0,_0,_0.06)] lg:mt-16 lg:w-[260px] lg:top-0 lg:right-0 lg:left-auto",
+          "lg:[transform:none]"
+        )}
+      >
         {ITEMS.map((item, index) => (
-          <ListItem
+          <a
             href={item.url}
             key={item.text}
             target="_blank"
             onClick={index === 0 ? () => toggleIsOnboardingMiniGuidesOpen() : undefined}
+            className={cn(
+              "flex gap-2 p-[12px_8px] cursor-pointer [transition:transform_0.2s] [&_small]:text-[16px]",
+              "[&_small]:font-normal [&:hover]:[transform:scale(1.02)] [&:hover_small]:[transition:color_0.1s]",
+              "[&:hover_small]:text-klerosUIComponentsSecondaryPurple"
+            )}
+            rel="noreferrer"
           >
-            <Icon as={item.Icon} />
+            <item.Icon className="inline-block size-4 fill-klerosUIComponentsSecondaryPurple" />
             <small>{item.text}</small>
-          </ListItem>
+          </a>
         ))}
         <Debug />
-      </Container>
+      </div>
       {isOnboardingMiniGuidesOpen && <Onboarding toggleMiniGuide={toggleIsOnboardingMiniGuidesOpen} />}
     </>
   );

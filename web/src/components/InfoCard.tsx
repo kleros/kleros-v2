@@ -1,19 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 
 import InfoCircle from "svgs/icons/info-circle.svg";
 
-import { responsiveSize } from "styles/responsiveSize";
-
-const InfoContainer = styled.div`
-  display: grid;
-  grid-template-columns: 16px auto;
-  gap: ${responsiveSize(6, 8, 300)};
-  align-items: center;
-  justify-items: start;
-  text-align: start;
-  color: ${({ theme }) => theme.secondaryText};
-`;
+import { cn } from "utils/cn";
 
 interface IInfoCard {
   msg: string;
@@ -22,10 +11,17 @@ interface IInfoCard {
 
 const InfoCard: React.FC<IInfoCard> = ({ msg, className }) => {
   return (
-    <InfoContainer {...{ className }}>
+    <div
+      className={cn(
+        "grid [grid-template-columns:16px_auto]",
+        "gap-[calc(6px_+_(8_-_6)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))] items-center",
+        "[justify-items:start] text-start text-klerosUIComponentsSecondaryText",
+        className
+      )}
+    >
       <InfoCircle />
       {msg}
-    </InfoContainer>
+    </div>
   );
 };
 

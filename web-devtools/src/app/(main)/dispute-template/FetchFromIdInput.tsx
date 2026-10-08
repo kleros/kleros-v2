@@ -1,24 +1,11 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
 import { useDebounce } from "react-use";
 
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import { useDisputeTemplateFromId } from "hooks/queries/useDisputeTemplateFromId";
 import { isUndefined } from "utils/isUndefined";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
-  margin-left: 24px;
-`;
-
-const StyledInput = styled(Field)``;
-const StyledHeader = styled.h2`
-  margin-top: 24px;
-`;
 
 interface IFetchFromID {
   setDisputeTemplateInput: (templateData: string) => void;
@@ -55,15 +42,17 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({
   }, [templateFromId, error]);
 
   return (
-    <Container>
-      <StyledHeader>Fetch dispute template from template ID</StyledHeader>
-      <StyledInput
+    <div className="ml-6 mt-6 flex flex-col">
+      <h2 className="mt-6">Fetch dispute template from template ID</h2>
+      <TextField
+        aria-label="Template ID"
+        inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
         value={templateId}
         placeholder="Enter template Id"
         message={isLoading ? "fetching ..." : ""}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemplateId(e.target.value)}
+        onChange={setTemplateId}
       />
-    </Container>
+    </div>
   );
 };
 // will try to format else will be repaired in editor

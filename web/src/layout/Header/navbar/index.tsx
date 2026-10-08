@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +9,7 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import { cn } from "utils/cn";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
@@ -24,62 +24,6 @@ import Menu from "./Menu";
 import Help from "./Menu/Help";
 import Settings from "./Menu/Settings";
 import { DisconnectWalletButton } from "./Menu/Settings/General";
-
-const Wrapper = styled.div<{ isOpen: boolean }>`
-  visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
-`;
-
-const StyledOverlay = styled(Overlay)`
-  top: unset;
-`;
-
-const Container = styled.div<{ isOpen: boolean }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  max-height: calc(100vh - 160px);
-  overflow-y: auto;
-  z-index: 1;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  box-shadow: 0px 2px 3px ${({ theme }) => theme.defaultShadow};
-  transform-origin: top;
-  transform: scaleY(${({ isOpen }) => (isOpen ? "1" : "0")});
-  visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};
-  transition-property: transform, visibility;
-  transition-duration: ${({ theme }) => theme.transitionSpeed};
-  transition-timing-function: ease;
-  padding: 24px;
-
-  hr {
-    margin: 24px 0;
-  }
-`;
-
-const WalletContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-`;
-
-const ConnectWalletContainer = styled.div`
-  label {
-    cursor: pointer;
-  }
-`;
-
-const DisconnectWalletButtonContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
 
 export interface ISettings {
   toggleIsSettingsOpen: () => void;
@@ -107,9 +51,17 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <Wrapper {...{ isOpen }}>
-        <StyledOverlay>
-          <Container {...{ isOpen }}>
+      <div className={cn("absolute top-full left-0 z-[1] h-screen w-screen", isOpen ? "visible" : "invisible")}>
+        <Overlay className="top-auto">
+          <div
+            className={cn(
+              "absolute inset-x-0 top-0 z-[1] max-h-[calc(100vh-160px)] origin-top overflow-y-auto",
+              "bg-klerosUIComponentsWhiteBackground p-6 shadow-[0px_2px_3px_var(--klerosUIComponentsDefaultShadow)]",
+              "transition-[transform,visibility] duration-[var(--klerosUIComponentsTransitionSpeed)] ease-[ease]",
+              "[&_hr]:my-6 [&_hr]:mx-0",
+              isOpen ? "visible scale-y-100" : "invisible scale-y-0"
+            )}
+          >
             <LightButton
               isMobileNavbar={true}
               text={t("navigation.kleros_solutions")}
@@ -121,8 +73,9 @@ const NavBar: React.FC = () => {
             <hr />
             <Explore isMobileNavbar={true} />
             <hr />
-            <WalletContainer>
-              <ConnectWalletContainer
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div
+                className="[&_label]:cursor-pointer"
                 onClick={
                   isConnected && isDefaultChain
                     ? () => {
@@ -133,19 +86,19 @@ const NavBar: React.FC = () => {
                 }
               >
                 <ConnectWallet />
-              </ConnectWalletContainer>
+              </div>
               {isConnected && (
-                <DisconnectWalletButtonContainer>
+                <div className="flex items-center">
                   <DisconnectWalletButton />
-                </DisconnectWalletButtonContainer>
+                </div>
               )}
-            </WalletContainer>
+            </div>
             <hr />
             <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} isMobileNavbar={true} />
             <br />
-          </Container>
-        </StyledOverlay>
-      </Wrapper>
+          </div>
+        </Overlay>
+      </div>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <OverlayPortal>
           <Overlay>

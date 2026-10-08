@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -8,56 +7,8 @@ import { Button } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
+import { cn } from "utils/cn";
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
-
-const InfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  padding-top: 16px;
-  margin-top: 32px;
-  border-top: 1px solid ${({ theme }) => theme.stroke};
-`;
-
-const InfoInnerContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 8px;
-`;
-
-const InfoTitle = styled.h3`
-  margin: 0;
-`;
-const InfoSubtitle = styled.label``;
-
-const StyledHourglassIcon = styled(HourglassIcon)`
-  width: 32px;
-  height: 32px;
-  fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledButton = styled(Button)`
-  display: inline-block;
-  background-color: transparent;
-  padding: 0;
-  .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-    font-weight: 400;
-    font-size: 14px;
-  }
-  .button-svg {
-    path {
-      fill: ${({ theme }) => theme.primaryBlue};
-    }
-  }
-  :focus,
-  :hover {
-    background-color: transparent;
-  }
-`;
 
 interface IEmailInfo {
   toggleIsSettingsOpen: () => void;
@@ -84,17 +35,26 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
   }, [user, updateEmail, toggleIsSettingsOpen, t]);
 
   return userExists && !user?.isEmailVerified ? (
-    <InfoContainer>
-      <StyledHourglassIcon />
-      <InfoInnerContainer>
-        <InfoTitle>{t("email_verification.email_verification_pending")}</InfoTitle>
-        <InfoSubtitle>
+    <div className="flex flex-row items-center gap-4 w-full pt-4 mt-8 [border-top:1px_solid_var(--klerosUIComponentsStroke)]">
+      <HourglassIcon className="w-[32px] h-[32px] fill-klerosUIComponentsPrimaryBlue" />
+      <div className="flex flex-col [align-items:start] gap-2">
+        <h3 className="m-0">{t("email_verification.email_verification_pending")}</h3>
+        <label>
           {t("email_verification.verification_email_sent_text")}
           <br /> {t("email_verification.didnt_receive_email")}{" "}
-          <StyledButton text={t("buttons.resend_it")} onPress={resendVerificationEmail} />
-        </InfoSubtitle>
-      </InfoInnerContainer>
-    </InfoContainer>
+          <Button
+            text={t("buttons.resend_it")}
+            onPress={resendVerificationEmail}
+            className={cn(
+              "inline-block bg-transparent p-0 [&_.button-text]:text-klerosUIComponentsPrimaryBlue",
+              "[&_.button-text]:font-normal [&_.button-text]:text-[14px]",
+              "[&_.button-svg_path]:fill-klerosUIComponentsPrimaryBlue [&:focus]:bg-transparent",
+              "[&:hover]:bg-transparent"
+            )}
+          />
+        </label>
+      </div>
+    </div>
   ) : (
     <></>
   );

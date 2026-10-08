@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
@@ -24,10 +23,6 @@ import { isUndefined } from "src/utils";
 import { Phases } from "components/Phase";
 
 import { IBaseStakeMaintenanceButton } from ".";
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
 
 type IPassPhaseButton = IBaseStakeMaintenanceButton;
 
@@ -90,12 +85,13 @@ const PassPhaseButton: React.FC<IPassPhaseButton> = ({ setIsOpen }) => {
     });
   };
   return (
-    <StyledButton
+    <Button
       text={t("buttons.pass_phase")}
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
       onPress={handleClick}
+      className="w-full"
     />
   );
 };

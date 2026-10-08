@@ -1,65 +1,39 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
-import { hoverLongTransitionTiming } from "styles/commonStyles";
+import { cn } from "utils/cn";
 
 import { AddressOrName, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
 
 import { ISettings } from "../../../index";
 
-const Container = styled.div`
-  ${hoverLongTransitionTiming}
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px 32px;
-  gap: 24px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 30px;
-
-  > label {
-    color: ${({ theme }) => theme.primaryText};
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  :hover {
-    background-color: ${({ theme }) => theme.lightBlue};
-  }
-`;
-
-const AvatarAndAddressContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-`;
-
-const ReStyledArrowLink = styled(StyledArrowLink)`
-  font-size: 14px;
-
-  > svg {
-    height: 14px;
-    width: 14px;
-  }
-`;
-
 const WalletAndProfile: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { t } = useTranslation();
   return (
-    <Container>
-      <AvatarAndAddressContainer>
+    <div
+      className={cn(
+        "[transition:0.2s] flex justify-center items-center p-[16px_32px] gap-6",
+        "border border-solid border-klerosUIComponentsStroke rounded-[30px]",
+        "[&>label]:text-klerosUIComponentsPrimaryText [&>label]:text-[16px] [&>label]:font-semibold",
+        "[&:hover]:bg-klerosUIComponentsLightBlue"
+      )}
+    >
+      <div className="flex flex-row gap-2">
         <IdenticonOrAvatar />
         <AddressOrName />
-      </AvatarAndAddressContainer>
-      <ReStyledArrowLink to={"/profile/stakes/1"} onClick={toggleIsSettingsOpen}>
+      </div>
+      <StyledArrowLink
+        to={"/profile/stakes/1"}
+        onClick={toggleIsSettingsOpen}
+        className="text-[14px] [&>svg]:h-[14px] [&>svg]:w-[14px]"
+      >
         {t("navigation.my_profile")} <ArrowIcon />
-      </ReStyledArrowLink>
-    </Container>
+      </StyledArrowLink>
+    </div>
   );
 };
 export default WalletAndProfile;

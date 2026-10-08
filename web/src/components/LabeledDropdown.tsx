@@ -1,5 +1,4 @@
 import React, { useId } from "react";
-import styled from "styled-components";
 
 import { DropdownCascader, DropdownSelect } from "@kleros/ui-components-library";
 
@@ -14,22 +13,8 @@ import { DropdownCascader, DropdownSelect } from "@kleros/ui-components-library"
  */
 
 // Clip technique keeps the node in the accessibility tree (display: none would remove it).
-const SrOnly = styled.span`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-`;
 
 // display: contents so the wrapper doesn't break a parent flex/grid layout.
-const Wrapper = styled.div`
-  display: contents;
-`;
 
 type SelectProps = React.ComponentProps<typeof DropdownSelect>;
 type CascaderProps = React.ComponentProps<typeof DropdownCascader>;
@@ -39,19 +24,29 @@ type WithAriaLabel<T> = Omit<T, "aria-label" | "aria-labelledby"> & { ariaLabel:
 export const LabeledDropdownSelect: React.FC<WithAriaLabel<SelectProps>> = ({ ariaLabel, ...props }) => {
   const id = useId();
   return (
-    <Wrapper>
-      <SrOnly id={id}>{ariaLabel}</SrOnly>
+    <div className="contents">
+      <span
+        id={id}
+        className="absolute w-[1px] h-[1px] p-0 -m-0.25 overflow-hidden [clip:rect(0,_0,_0,_0)] whitespace-nowrap border-0"
+      >
+        {ariaLabel}
+      </span>
       <DropdownSelect {...props} aria-labelledby={id} />
-    </Wrapper>
+    </div>
   );
 };
 
 export const LabeledDropdownCascader: React.FC<WithAriaLabel<CascaderProps>> = ({ ariaLabel, ...props }) => {
   const id = useId();
   return (
-    <Wrapper>
-      <SrOnly id={id}>{ariaLabel}</SrOnly>
+    <div className="contents">
+      <span
+        id={id}
+        className="absolute w-[1px] h-[1px] p-0 -m-0.25 overflow-hidden [clip:rect(0,_0,_0,_0)] whitespace-nowrap border-0"
+      >
+        {ariaLabel}
+      </span>
       <DropdownCascader {...props} aria-labelledby={id} />
-    </Wrapper>
+    </div>
   );
 };

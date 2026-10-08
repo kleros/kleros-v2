@@ -1,5 +1,4 @@
 import React, { Fragment } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -16,25 +15,6 @@ import WithHelpTooltip from "components/WithHelpTooltip";
 
 import { FeatureRadio, RadioInput } from "./FeatureRadio";
 
-const InstructorContainer = styled.div`
-  padding-left: 32px;
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const InstructorLabel = styled.span`
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledNewTabIcon = styled(NewTabIcon)`
-  width: 14px;
-  height: 14px;
-`;
-
 const UniversityVote: React.FC<RadioInput> = (props) => {
   const { t } = useTranslation();
 
@@ -48,18 +28,18 @@ const UniversityVote: React.FC<RadioInput> = (props) => {
         <FeatureRadio {...props} label={t("features.university_vote")} />
       </WithHelpTooltip>
       {props.checked && isLoadingInstructor ? (
-        <InstructorContainer>
-          <InstructorLabel>{t("features.university_instructor")}:</InstructorLabel>
+        <div className="pl-8 mt-2 flex items-center gap-2 text-[14px] text-klerosUIComponentsSecondaryText">
+          <span className="text-klerosUIComponentsPrimaryText">{t("features.university_instructor")}:</span>
           <StyledSkeleton width="120px" height="16px" />
-        </InstructorContainer>
+        </div>
       ) : null}
       {props.checked && instructorAddress ? (
-        <InstructorContainer>
-          <InstructorLabel>{t("features.university_instructor")}:</InstructorLabel>
+        <div className="pl-8 mt-2 flex items-center gap-2 text-[14px] text-klerosUIComponentsSecondaryText">
+          <span className="text-klerosUIComponentsPrimaryText">{t("features.university_instructor")}:</span>
           <ExternalLink to={getAddressExplorerLink(instructorAddress)} target="_blank" rel="noopener noreferrer">
-            {shortenAddress(instructorAddress)} <StyledNewTabIcon />
+            {shortenAddress(instructorAddress)} <NewTabIcon className="w-[14px] h-[14px]" />
           </ExternalLink>
-        </InstructorContainer>
+        </div>
       ) : null}
     </Fragment>
   );

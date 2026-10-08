@@ -1,0 +1,252 @@
+/* Editor content and portaled controls use vendor selectors. */
+.mdx-editor-container {
+  width: 100%;
+
+  .mdxeditor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: var(--klerosUIComponentsLightGrey) !important;
+    border: 1px solid var(--klerosUIComponentsStroke) !important;
+    border-radius: 3px;
+    font-family: "Open Sans", sans-serif;
+  }
+
+  .mdxeditor-toolbar button {
+    color: var(--klerosUIComponentsPrimaryText) !important;
+  }
+
+  .mdxeditor-toolbar button:hover {
+    background-color: var(--klerosUIComponentsWhiteBackground) !important;
+    cursor: pointer !important;
+  }
+
+  .mdxeditor-toolbar button[data-state="on"],
+  .mdxeditor-toolbar button[aria-pressed="true"] {
+    background-color: var(--klerosUIComponentsWhiteBackground) !important;
+  }
+
+  .mdxeditor-toolbar button:disabled,
+  .mdxeditor-toolbar button[data-disabled="true"] {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+  }
+
+  .mdxeditor-toolbar button svg {
+    color: var(--klerosUIComponentsPrimaryText) !important;
+  }
+
+  .mdxeditor-toolbar button:disabled svg,
+  .mdxeditor-toolbar button[data-disabled="true"] svg {
+    color: var(--klerosUIComponentsSecondaryText) !important;
+  }
+
+  .mdxeditor-root-contenteditable {
+    background-color: var(--klerosUIComponentsWhiteBackground) !important;
+    border: 1px solid var(--klerosUIComponentsStroke) !important;
+    border-radius: 3px;
+    color: var(--klerosUIComponentsPrimaryText) !important;
+    height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  [class*="placeholder"] {
+    color: var(--klerosUIComponentsSecondaryText) !important;
+    opacity: 0.6 !important;
+    margin-top: 16px;
+  }
+
+  .mdxeditor-root-contenteditable {
+    transition: background-color 0.1s ease !important;
+    &:hover {
+      background-color: color-mix(in srgb, var(--klerosUIComponentsLightGrey) 37.6471%, transparent) !important;
+    }
+  }
+
+  .mdxeditor-root-contenteditable p {
+    color: var(--klerosUIComponentsPrimaryText) !important;
+    margin: 0 0 12px 0;
+  }
+
+  .mdxeditor-root-contenteditable h1,
+  .mdxeditor-root-contenteditable h2,
+  .mdxeditor-root-contenteditable h3,
+  .mdxeditor-root-contenteditable h4,
+  .mdxeditor-root-contenteditable h5,
+  .mdxeditor-root-contenteditable h6 {
+    color: var(--klerosUIComponentsPrimaryText) !important;
+    font-weight: 600;
+    margin: 16px 0 8px 0;
+  }
+
+  .mdxeditor-root-contenteditable blockquote {
+    color: var(--klerosUIComponentsPrimaryText) !important;
+    border-left: 3px solid var(--klerosUIComponentsMediumBlue) !important;
+    font-style: italic;
+    margin: 16px 0;
+    padding-left: 12px;
+  }
+
+  .mdxeditor-root-contenteditable pre {
+    background-color: var(--klerosUIComponentsLightBackground) !important;
+    color: var(--klerosUIComponentsPrimaryText) !important;
+    border: 1px solid var(--klerosUIComponentsStroke) !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    margin: 12px 0 !important;
+    font-family: "Fira Code", monospace !important;
+    font-size: 14px !important;
+  }
+
+  .mdxeditor-root-contenteditable a {
+    color: var(--klerosUIComponentsPrimaryBlue) !important;
+  }
+
+  .mdxeditor-root-contenteditable span[class*="_code_"],
+  .mdxeditor-root-contenteditable code {
+    background-color: var(--klerosUIComponentsLightBackground) !important;
+    color: var(--klerosUIComponentsPrimaryText) !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-family: "Fira Code", monospace !important;
+    border: 1px solid var(--klerosUIComponentsStroke) !important;
+  }
+
+  .mdxeditor-root-contenteditable th {
+    background-color: var(--klerosUIComponentsLightGrey) !important;
+    color: var(--klerosUIComponentsPrimaryText) !important;
+  }
+
+  .mdxeditor-root-contenteditable td {
+    color: var(--klerosUIComponentsPrimaryText) !important;
+  }
+
+  [class*="tableColumnEditorPopoverContent"],
+  [class*="addRowButton"],
+  [class*="addColumnButton"],
+  [class*="deleteRowButton"],
+  [class*="deleteColumnButton"],
+  [class*="tableEditor"],
+  [class*="tableToolbar"],
+  [class*="tablePopover"] {
+    background-color: var(--klerosUIComponentsWhiteBackground) !important;
+
+    svg,
+    path {
+      color: var(--klerosUIComponentsPrimaryText) !important;
+    }
+  }
+}
+
+/* Editor controls can be portaled outside the content container. */
+:where(.mdx-editor-container, .mdxeditor-popup-container) {
+  .cm-editor {
+    background-color: var(--klerosUIComponentsLightBackground) !important;
+    border: 1px solid var(--klerosUIComponentsStroke) !important;
+    border-radius: 6px !important;
+  }
+
+  .cm-content {
+    color: var(--klerosUIComponentsPrimaryText) !important;
+    font-family: "Fira Code", monospace !important;
+    font-size: 14px !important;
+    padding: 12px !important;
+  }
+
+  .cm-focused {
+    outline: none !important;
+  }
+
+  [class*="codeMirrorToolbar"] {
+    background-color: transparent !important;
+  }
+
+  [class*="cm-gutterElement"] {
+    color: var(--klerosUIComponentsSecondaryText) !important;
+  }
+
+  [class*="codeMirrorWrapper"] {
+    border: 1px solid var(--klerosUIComponentsStroke) !important;
+    padding: 0 !important;
+  }
+
+  [class*="activeLineGutter"] {
+    background-color: transparent !important;
+  }
+
+  /* Global styles for all MDXEditor popups and overlays */
+  [class*="linkDialogPopoverContent"],
+  [class*="selectTrigger"],
+  [class*="selectContent"],
+  [class*="tableColumnEditorPopoverContent"],
+  [class*="tablePopover"],
+  [data-radix-popper-content-wrapper] [class*="linkDialog"],
+  [data-radix-popper-content-wrapper] [class*="select"],
+  [data-radix-popper-content-wrapper] [class*="table"],
+  [data-radix-portal] [class*="linkDialog"],
+  [data-radix-portal] [class*="select"],
+  [data-radix-portal] [class*="table"],
+  [data-radix-portal] div[class*="mdx"],
+  [data-radix-popper-content-wrapper] div[class*="mdx"] {
+    background-color: var(--klerosUIComponentsWhiteBackground) !important;
+    border: 1px solid var(--klerosUIComponentsStroke) !important;
+    color: var(--klerosUIComponentsPrimaryText) !important;
+
+    input,
+    select {
+      background-color: var(--klerosUIComponentsWhiteBackground) !important;
+      border: 1px solid var(--klerosUIComponentsStroke) !important;
+      color: var(--klerosUIComponentsPrimaryText) !important;
+
+      &:hover {
+        background-color: var(--klerosUIComponentsLightGrey) !important;
+      }
+    }
+
+    button {
+      background-color: var(--klerosUIComponentsLightGrey) !important;
+      color: var(--klerosUIComponentsPrimaryText) !important;
+      border: 1px solid var(--klerosUIComponentsStroke) !important;
+      cursor: pointer !important;
+      transition: background-color 0.2s ease !important;
+
+      &:hover {
+        background-color: var(--klerosUIComponentsLightBackground) !important;
+      }
+
+      &:active {
+        background-color: var(--klerosUIComponentsStroke) !important;
+      }
+    }
+
+    label,
+    span,
+    div {
+      color: var(--klerosUIComponentsPrimaryText) !important;
+    }
+
+    svg,
+    path {
+      color: var(--klerosUIComponentsPrimaryText) !important;
+    }
+  }
+
+  [class*="mdx"] button,
+  [class*="select"] button,
+  [class*="trigger"],
+  [role="button"],
+  [data-radix-portal] [role="button"],
+  [data-radix-popper-content-wrapper] [role="button"],
+  [data-radix-portal] [data-state],
+  [data-radix-popper-content-wrapper] [data-state] {
+    cursor: pointer !important;
+    transition: all 0.1s ease !important;
+    &:hover {
+      background-color: var(--klerosUIComponentsLightGrey) !important;
+    }
+  }
+}

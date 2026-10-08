@@ -1,5 +1,9 @@
 import React, { useMemo } from "react";
-import styled, { Theme, css, useTheme } from "styled-components";
+
+import useTheme from "hooks/useTheme";
+import { cn } from "utils/cn";
+
+import { type Theme } from "styles/themes";
 
 const COLORS: Record<string, Array<keyof Theme>> = {
   red: ["error", "errorLight"],
@@ -11,56 +15,6 @@ const COLORS: Record<string, Array<keyof Theme>> = {
 };
 
 export type IColors = keyof typeof COLORS;
-
-const LabelContainer = styled.div<{ contentColor: string; backgroundColor: string; asPill: boolean }>`
-  display: inline-flex;
-  width: max-content;
-  padding: 4px 8px;
-  align-items: center;
-  gap: 8px;
-  border-radius: 300px;
-  background-color: ${({ backgroundColor }) => backgroundColor};
-
-  ${({ asPill, contentColor }) =>
-    asPill &&
-    css`
-      gap: 6px;
-      height: 24px;
-      padding: 0 12px;
-      border: 1px solid ${`${contentColor}66`};
-      white-space: nowrap;
-
-      label,
-      span {
-        font-size: 12px;
-        font-weight: 600;
-      }
-
-      > * + *::before {
-        content: "·";
-        margin-right: 6px;
-        color: ${contentColor};
-        opacity: 0.6;
-      }
-    `}
-`;
-
-const IconContainer = styled.div<{ contentColor: string }>`
-  height: 14px;
-  width: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  > svg {
-    fill: ${({ contentColor }) => contentColor};
-  }
-`;
-
-const StyledText = styled.label<{ contentColor: string }>`
-  font-size: 12px;
-  font-weight: 400;
-  color: ${({ contentColor }) => contentColor};
-`;
 
 export interface ILabelProps {
   text: string;
@@ -78,15 +32,30 @@ const Label: React.FC<ILabelProps> = ({ text, icon: Icon, color, asPill = false,
   }, [theme, color]);
 
   return (
-    <LabelContainer {...{ contentColor, backgroundColor, asPill }}>
-      {asPill ? null : (
-        <IconContainer {...{ contentColor }}>
-          <Icon />
-        </IconContainer>
+    <div
+      className={cn(
+        "inline-flex w-max items-center gap-2 rounded-[300px] px-2 py-1",
+        asPill &&
+          "h-6 gap-1.5 border border-solid px-3 py-0 whitespace-nowrap [&_label]:text-[12px] [&_label]:font-semibold [&_span]:text-[12px] [&_span]:font-semibold [&>*+*]:before:mr-1.5 [&>*+*]:before:text-[var(--label-color)] [&>*+*]:before:opacity-60 [&>*+*]:before:content-['·']"
       )}
-      <StyledText {...{ contentColor }}>{text}</StyledText>
+      style={
+        {
+          backgroundColor,
+          borderColor: asPill ? `${contentColor}66` : undefined,
+          "--label-color": contentColor,
+        } as React.CSSProperties
+      }
+    >
+      {asPill ? null : (
+        <div className="flex size-3.5 items-center justify-center [&>svg]:fill-current" style={{ color: contentColor }}>
+          <Icon />
+        </div>
+      )}
+      <label className="text-[12px] font-normal" style={{ color: contentColor }}>
+        {text}
+      </label>
       {asPill ? children : null}
-    </LabelContainer>
+    </div>
   );
 };
 

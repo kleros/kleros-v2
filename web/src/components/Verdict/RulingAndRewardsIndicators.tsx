@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -8,12 +7,6 @@ import Hourglass from "svgs/icons/hourglass.svg";
 import Coins from "svgs/icons/pile-coins.svg";
 
 import Label from "components/DisputeView/CardLabels/Label";
-
-const Container = styled.div`
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-`;
 
 interface IRulingAndRewardsIndicators {
   jurorRewardsDispersed: boolean;
@@ -24,7 +17,7 @@ const RulingAndRewardsIndicators: React.FC<IRulingAndRewardsIndicators> = ({ jur
   const { t } = useTranslation();
 
   return (
-    <Container>
+    <div className="flex gap-2 flex-wrap">
       {ruled ? (
         <Label icon={CheckCircle} text={t("case_status.case_closed")} color="green" />
       ) : (
@@ -33,7 +26,7 @@ const RulingAndRewardsIndicators: React.FC<IRulingAndRewardsIndicators> = ({ jur
       {jurorRewardsDispersed ? (
         <Label icon={Coins} text={t("case_status.juror_rewards_distributed")} color="green" />
       ) : null}
-    </Container>
+    </div>
   );
 };
 

@@ -1,33 +1,18 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { isUndefined } from "utils/index";
 
-const FieldWrapper = styled.div`
-  display: inline-flex;
-  gap: 8px;
-`;
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const ValueAndExtraLabel = styled.div`
-  display: flex;
-  gap: 4px;
-`;
-
 const Field: React.FC<{ label: string; value?: number; extraLabel?: string }> = ({ label, value, extraLabel }) => (
-  <FieldWrapper>
-    <StyledLabel>{label}</StyledLabel>
-    <ValueAndExtraLabel>
+  <div className="inline-flex gap-2">
+    <label className="text-klerosUIComponentsPrimaryText">{label}</label>
+    <div className="flex gap-1">
       <small>{!isUndefined(value) ? value : <Skeleton width={16} />}</small>
       {extraLabel ? <small>{extraLabel}</small> : null}
-    </ValueAndExtraLabel>
-  </FieldWrapper>
+    </div>
+  </div>
 );
 
 export interface IStats {

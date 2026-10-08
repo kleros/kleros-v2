@@ -1,37 +1,22 @@
 import React from "react";
-import styled from "styled-components";
 
 import { Link } from "react-router-dom";
 
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-`;
-
-const StyledKlerosCourtLogo = styled(KlerosCourtLogo)`
-  ${hoverShortTransitionTiming}
-  max-height: 40px;
-  width: auto;
-
-  &:hover {
-    path {
-      fill: ${({ theme }) => theme.white}BF;
-    }
-  }
-`;
+import { cn } from "utils/cn";
 
 const Logo: React.FC = () => (
-  <Container>
+  <div className="flex flex-row items-center gap-4">
     <Link to={"/"}>
-      <StyledKlerosCourtLogo />
+      <KlerosCourtLogo
+        className={cn(
+          "[transition:0.1s] max-h-[40px] w-auto",
+          "[&:hover_path]:[fill:color-mix(in_srgb,_var(--klerosUIComponentsWhite)_74.90196078431373%,_transparent)]"
+        )}
+      />
     </Link>
-  </Container>
+  </div>
 );
 
 export default Logo;

@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -26,8 +25,6 @@ import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import Popup, { PopupType } from "components/Popup";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
-
-const StyledButton = styled(Button)``;
 
 const SubmitDisputeButton: React.FC = () => {
   const navigate = useNavigate();
@@ -97,7 +94,7 @@ const SubmitDisputeButton: React.FC = () => {
       {" "}
       <EnsureChain>
         <div>
-          <StyledButton
+          <Button
             text={t("buttons.submit_the_case")}
             isDisabled={isButtonDisabled}
             isLoading={(isSubmittingCase || isBalanceLoading || isLoadingConfig) && !insufficientBalance}

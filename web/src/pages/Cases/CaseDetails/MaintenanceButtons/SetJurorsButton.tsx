@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Address, isAddress } from "viem";
@@ -19,40 +18,6 @@ import AddressExplorerLink from "src/components/AddressExplorerLink";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
-
-const InstructorContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const InstructorLabel = styled.span`
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const JurorsQueueContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const JurorsQueueLabel = styled.span`
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const JurorsList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-`;
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
 
 interface ISetJurorsButton extends Pick<IBaseMaintenanceButton, "id"> {
   disputeKitAddress?: Address;
@@ -122,21 +87,23 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
   return (
     <>
       {instructorAddress ? (
-        <InstructorContainer>
-          <InstructorLabel>{t("features.university_instructor")}:</InstructorLabel>
+        <div className="flex items-center gap-2 text-[14px] text-klerosUIComponentsSecondaryText">
+          <span className="text-klerosUIComponentsPrimaryText">{t("features.university_instructor")}:</span>
           <AddressExplorerLink address={instructorAddress} />
-        </InstructorContainer>
+        </div>
       ) : null}
 
       {jurorsInQueue && jurorsInQueue.length > 0 ? (
-        <JurorsQueueContainer>
-          <JurorsQueueLabel>{t("maintenance.jurors_in_queue", { count: jurorsInQueue.length })}</JurorsQueueLabel>
-          <JurorsList>
+        <div className="flex flex-col gap-1 text-[14px] text-klerosUIComponentsSecondaryText">
+          <span className="text-klerosUIComponentsPrimaryText">
+            {t("maintenance.jurors_in_queue", { count: jurorsInQueue.length })}
+          </span>
+          <div className="flex flex-wrap gap-[4px_8px]">
             {jurorsInQueue.map((address) => (
               <AddressExplorerLink key={address} {...{ address }} />
             ))}
-          </JurorsList>
-        </JurorsQueueContainer>
+          </div>
+        </div>
       ) : null}
 
       <TextField
@@ -145,12 +112,13 @@ const SetJurorsButton: React.FC<ISetJurorsButton> = ({ id, disputeKitAddress }) 
         onChange={setJurorsInput}
         value={jurorsInput}
       />
-      <StyledButton
+      <Button
         text={t("buttons.set_jurors")}
         small
         isLoading={isLoading}
         isDisabled={isDisabled}
         onPress={handleClick}
+        className="w-full"
       />
     </>
   );

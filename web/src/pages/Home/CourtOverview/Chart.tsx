@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { Tooltip, TooltipModel, ChartType, ActiveElement } from "chart.js";
 import { useTranslation } from "react-i18next";
@@ -8,26 +7,12 @@ import { formatUnits } from "viem";
 import { useHomePageContext } from "hooks/useHomePageContext";
 import type { SelectItem } from "utils/uiComponentsTypes";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { LabeledDropdownSelect } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import CasesByCourtsChart, { CasesByCourtsChartData } from "./CasesByCourtsChart";
 import StakedPNKByCourtsChart, { StakedPNKByCourtsChartData } from "./StakedPNKByCourtsChart";
 import TimeSeriesChart from "./TimeSeriesChart";
-
-const Container = styled.div`
-  margin-bottom: ${responsiveSize(16, 32)};
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const StyledDropdown = styled(LabeledDropdownSelect)`
-  width: fit-content;
-  align-self: start;
-`;
 
 const ChartOptionsDropdown: React.FC<{
   setChartOption: (newValue: string) => void;
@@ -42,7 +27,7 @@ const ChartOptionsDropdown: React.FC<{
   ];
 
   return (
-    <StyledDropdown
+    <LabeledDropdownSelect
       ariaLabel={t("aria_labels.chart_metric")}
       smallButton
       simpleButton
@@ -53,6 +38,7 @@ const ChartOptionsDropdown: React.FC<{
           setChartOption(item.itemValue);
         }
       }}
+      className="w-fit [align-self:start]"
     />
   );
 };
@@ -130,10 +116,10 @@ const Chart: React.FC = () => {
   }, [processedCourtsData, processedStakedPNKData, processedData, chartOption]);
 
   return (
-    <Container>
+    <div className="mb-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] flex flex-col gap-4">
       <ChartOptionsDropdown {...{ setChartOption }} />
       {ChartComponent}
-    </Container>
+    </div>
   );
 };
 

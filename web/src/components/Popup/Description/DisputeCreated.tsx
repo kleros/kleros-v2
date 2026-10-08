@@ -1,36 +1,30 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { Trans, useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
+import { cn } from "utils/cn";
 import { formatDate, getCurrentTime } from "utils/date";
 import { isUndefined } from "utils/index";
 
-import { responsiveSize } from "styles/responsiveSize";
+const StyledTitle = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(
+  function StyledTitle({ className, ...props }, ref) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        className={cn(
+          "ml-[calc(8px_+_(44_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+          "mr-[calc(8px_+_(44_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+          "text-klerosUIComponentsSecondaryText text-center",
+          className
+        )}
+      />
+    );
+  }
+);
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 24px;
-`;
-
-const StyledTitle = styled.div`
-  margin-left: ${responsiveSize(8, 44, 300)};
-  margin-right: ${responsiveSize(8, 44, 300)};
-  color: ${({ theme }) => theme.secondaryText};
-  text-align: center;
-`;
-
-const StyledDateContainer = styled.span`
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledSubtitle = styled(StyledTitle)`
-  margin-top: 24px;
-  color: ${({ theme }) => theme.primaryText};
-`;
 interface IDisputeCreated {
   courtId: string;
 }
@@ -49,7 +43,7 @@ const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
   );
 
   return (
-    <Container>
+    <div className="flex flex-col mb-6">
       <StyledTitle>
         <Trans
           i18nKey="popups.dispute_created_full_message"
@@ -57,13 +51,13 @@ const DisputeCreated: React.FC<IDisputeCreated> = ({ courtId }) => {
             date: isUndefined(date) ? (
               <Skeleton width={60} height={20} />
             ) : (
-              <StyledDateContainer>{formatDate(date, false, i18n.language)}</StyledDateContainer>
+              <span className="text-klerosUIComponentsPrimaryText">{formatDate(date, false, i18n.language)}</span>
             ),
           }}
         />
       </StyledTitle>
-      <StyledSubtitle>{t("popups.submit_evidence_now")}</StyledSubtitle>
-    </Container>
+      <StyledTitle className="mt-6 text-klerosUIComponentsPrimaryText">{t("popups.submit_evidence_now")}</StyledTitle>
+    </div>
   );
 };
 

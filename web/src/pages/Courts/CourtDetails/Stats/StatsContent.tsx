@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -7,51 +6,21 @@ import ChartIcon from "svgs/icons/chart.svg";
 
 import { Prices } from "hooks/useCoinPrice";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 
 import { CourtDetailsQuery } from "queries/useCourtDetails";
-
-import { responsiveSize } from "styles/responsiveSize";
 
 import StatDisplay from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import { getStats } from "./stats";
 
-const TimeDisplayContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-`;
-
-const AllTimeContainer = styled(TimeDisplayContainer)`
-  padding: ${responsiveSize(12, 16)} 0;
-`;
-
-const StyledAllTimeText = styled.p`
-  color: ${({ theme }) => theme.primaryText};
-  margin: 0;
-  font-size: 14px;
-`;
-
-const StyledChartIcon = styled(ChartIcon)`
-  path {
-    fill: ${({ theme }) => theme.primaryText};
+const TimeDisplayContainer = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(
+  function TimeDisplayContainer({ className, ...props }, ref) {
+    return <div {...props} ref={ref} className={cn("flex flex-row items-center gap-2", className)} />;
   }
-`;
-
-const AccordionContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const StyledCard = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px 0;
-`;
+);
 
 const StatsContent: React.FC<{ court: CourtDetailsQuery["court"]; pricesData?: Prices; coinIds: string[] }> = ({
   court,
@@ -62,13 +31,13 @@ const StatsContent: React.FC<{ court: CourtDetailsQuery["court"]; pricesData?: P
   const stats = getStats(t);
 
   return (
-    <AccordionContainer>
+    <div className="flex flex-col gap-1">
       <div>
-        <AllTimeContainer>
-          <StyledChartIcon />
-          <StyledAllTimeText>{t("timeline.parameters")}</StyledAllTimeText>
-        </AllTimeContainer>
-        <StyledCard>
+        <TimeDisplayContainer className="p-[calc(12px_+_(16_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_0]">
+          <ChartIcon className="[&_path]:fill-klerosUIComponentsPrimaryText" />
+          <p className="text-klerosUIComponentsPrimaryText m-0 text-[14px]">{t("timeline.parameters")}</p>
+        </TimeDisplayContainer>
+        <div className="flex flex-wrap gap-[20px_0]">
           {stats.slice(0, 3).map(({ title, coinId, getText, getSubtext, color, icon }) => {
             const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
             return (
@@ -81,14 +50,14 @@ const StatsContent: React.FC<{ court: CourtDetailsQuery["court"]; pricesData?: P
               />
             );
           })}
-        </StyledCard>
+        </div>
       </div>
       <div>
-        <AllTimeContainer>
-          <StyledChartIcon />
-          <StyledAllTimeText>{t("stats.activity")}</StyledAllTimeText>
-        </AllTimeContainer>
-        <StyledCard>
+        <TimeDisplayContainer className="p-[calc(12px_+_(16_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_0]">
+          <ChartIcon className="[&_path]:fill-klerosUIComponentsPrimaryText" />
+          <p className="text-klerosUIComponentsPrimaryText m-0 text-[14px]">{t("stats.activity")}</p>
+        </TimeDisplayContainer>
+        <div className="flex flex-wrap gap-[20px_0]">
           {stats.slice(3, 7).map(({ title, coinId, getText, getSubtext, color, icon }) => {
             const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
             return (
@@ -101,14 +70,14 @@ const StatsContent: React.FC<{ court: CourtDetailsQuery["court"]; pricesData?: P
               />
             );
           })}
-        </StyledCard>
+        </div>
       </div>
       <div>
-        <AllTimeContainer>
-          <StyledChartIcon />
-          <StyledAllTimeText>{t("juror_levels.total_rewards")}</StyledAllTimeText>
-        </AllTimeContainer>
-        <StyledCard>
+        <TimeDisplayContainer className="p-[calc(12px_+_(16_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_0]">
+          <ChartIcon className="[&_path]:fill-klerosUIComponentsPrimaryText" />
+          <p className="text-klerosUIComponentsPrimaryText m-0 text-[14px]">{t("juror_levels.total_rewards")}</p>
+        </TimeDisplayContainer>
+        <div className="flex flex-wrap gap-[20px_0]">
           {stats.slice(7, 9).map(({ title, coinId, getText, getSubtext, color, icon }) => {
             const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
             return (
@@ -121,9 +90,9 @@ const StatsContent: React.FC<{ court: CourtDetailsQuery["court"]; pricesData?: P
               />
             );
           })}
-        </StyledCard>
+        </div>
       </div>
-    </AccordionContainer>
+    </div>
   );
 };
 

@@ -1,31 +1,28 @@
 import React from "react";
-import styled from "styled-components";
 
 import PolicySvg from "svgs/mini-guides/dispute-resolver/policy.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledPolicySvg = styled(PolicySvg)`
-  [class$="rect-1"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="rect-2"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
-  [class$="rect-3"] {
-    fill: ${({ theme }) => theme.mediumBlue};
-    stroke: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="path-1"],
-  [class$="path-3"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-  [class$="path-2"],
-  [class$="path-4"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-`;
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-const Policy: React.FC = () => <StyledImage as={StyledPolicySvg} />;
+const StyledPolicySvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof PolicySvg>) => (
+  <PolicySvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsMediumBlue',
+      '[&_[class$="rect-3"]]:stroke-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryBlue',
+      className
+    )}
+  />
+);
+
+const Policy: React.FC = () => <StyledPolicySvg className={miniGuideImageClassName} />;
 
 export default Policy;

@@ -1,18 +1,9 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 
 import { Steps } from "@kleros/ui-components-library";
-
-const StyledSteps = styled(Steps)`
-  height: 360px;
-
-  h2 {
-    margin: 0;
-  }
-`;
 
 const Timeline: React.FC = () => {
   const { t } = useTranslation();
@@ -51,7 +42,7 @@ const Timeline: React.FC = () => {
     0
   );
 
-  return <StyledSteps {...{ items, currentItemIndex }} />;
+  return <Steps {...{ items, currentItemIndex }} className="h-[360px] [&_h2]:m-0" />;
 };
 
 export default Timeline;

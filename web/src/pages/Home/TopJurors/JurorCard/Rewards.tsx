@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { Address } from "viem";
 
@@ -10,38 +9,7 @@ import { useUserQuery } from "hooks/queries/useUser";
 import useIsDesktop from "hooks/useIsDesktop";
 import { getFormattedRewards } from "utils/jurorRewardConfig";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import NumberDisplay from "components/NumberDisplay";
-
-const Container = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 2px;
-
-  ${landscapeStyle(
-    () => css`
-      justify-content: center;
-    `
-  )}
-`;
-
-const StyledIcon = styled.div`
-  width: 16px;
-  height: 16px;
-
-  path {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const StyledLabel = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-`;
 
 interface IRewards {
   address: Address;
@@ -55,22 +23,22 @@ const Rewards: React.FC<IRewards> = ({ address }) => {
   const isDesktop = useIsDesktop();
 
   return (
-    <Container>
-      <StyledLabel>
+    <div className="flex gap-2 items-center flex-wrap mt-0.5 lg:justify-center">
+      <label className="text-[16px] font-semibold text-klerosUIComponentsPrimaryText">
         <NumberDisplay
           value={ethReward ?? ""}
           unit="ETH"
           showUnitInDisplay={false}
           place={isDesktop ? "top" : "right"}
         />
-      </StyledLabel>
-      <StyledIcon as={EthIcon} />
-      <StyledLabel>+</StyledLabel>
-      <StyledLabel>
+      </label>
+      <EthIcon className="size-4 [&_path]:fill-klerosUIComponentsSecondaryPurple" />
+      <label className="text-[16px] font-semibold text-klerosUIComponentsPrimaryText">+</label>
+      <label className="text-[16px] font-semibold text-klerosUIComponentsPrimaryText">
         <NumberDisplay value={pnkReward ?? ""} unit="PNK" showUnitInDisplay={false} />
-      </StyledLabel>
-      <StyledIcon as={PnkIcon} />
-    </Container>
+      </label>
+      <PnkIcon className="size-4 [&_path]:fill-klerosUIComponentsSecondaryPurple" />
+    </div>
   );
 };
 export default Rewards;

@@ -1,38 +1,31 @@
 /*
- * Base element typography for kleros-v2's own markup.
- *
- * In @layer components so it stays above the ui-components-library's Tailwind preflight
- * (app headings keep their styles) but below the library's @layer utilities
- * (library components keep their own text styling instead of being overridden).
- * Colors use the library's CSS variables so they track the light/dark theme.
- *
- * Library components render their own h1/h2/h3/small and rely on the Tailwind preflight
- * (margin: 0), so the margin rules here must not reach them. Every library text element
- * carries a `klerosUIComponents*` color class, so `:not([class*="klerosUIComponents"])`
- * keeps these rules on app markup only.
- *
- * Must be a plain CSS file, not createGlobalStyle — styled-components v5 mangles
- * @layer blocks.
+ * Application typography remains below utility classes, including those supplied
+ * by the UI library. Color utilities must not opt application text out of these
+ * defaults. Keep heading margins separate because library headings rely on
+ * preflight's zero margin; colored application headings set their own margins.
  */
 @layer components {
-  h1:not([class*="klerosUIComponents"]) {
-    margin: 0 0 16px 0;
+  h1:not([class*="klerosUIComponents"]),
+  h2:not([class*="klerosUIComponents"]),
+  h3:not([class*="klerosUIComponents"]) {
+    margin: 0 0 16px;
+  }
+
+  h1 {
     font-weight: 600;
     font-size: 24px;
     line-height: 32px;
     color: var(--klerosUIComponentsPrimaryText);
   }
 
-  h2:not([class*="klerosUIComponents"]) {
-    margin: 0 0 16px 0;
+  h2 {
     font-weight: 400;
     font-size: 24px;
     line-height: 32px;
     color: var(--klerosUIComponentsPrimaryText);
   }
 
-  h3:not([class*="klerosUIComponents"]) {
-    margin: 0 0 16px 0;
+  h3 {
     font-weight: 600;
     font-size: 16px;
     line-height: 24px;
@@ -46,11 +39,15 @@
     color: var(--klerosUIComponentsPrimaryText);
   }
 
-  small:not([class*="klerosUIComponents"]) {
-    font-weight: 600;
+  small {
     font-size: 14px;
     line-height: 18px;
     color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  /* Library dates inherit their weight; application color overrides set it explicitly. */
+  small:not([class*="klerosUIComponents"]) {
+    font-weight: 600;
   }
 
   label {

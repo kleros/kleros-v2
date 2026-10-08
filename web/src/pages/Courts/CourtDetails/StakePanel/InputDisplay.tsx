@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -16,61 +15,7 @@ import { isUndefined } from "utils/index";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
-
-const StyledField = styled(BigNumberField)`
-  width: 100%;
-
-  /* Joined to the button on the right; the button drops its left border so the seam stays 1px
-     and the input's focus border and glow can complete on the right edge. */
-  input {
-    border-radius: 3px 0 0 3px;
-    &:focus {
-      position: relative;
-      z-index: 1;
-    }
-  }
-`;
-
-const LabelArea = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const StyledLabel = styled.label`
-  ${hoverShortTransitionTiming}
-  color: ${({ theme }) => theme.primaryBlue};
-  cursor: pointer;
-
-  :hover {
-    color: ${({ theme }) => theme.secondaryBlue};
-  }
-`;
-
-const InputArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-`;
-
-const InputFieldAndButton = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-`;
-
-const EnsureChainContainer = styled.div`
-  button {
-    height: 45px;
-    border: 1px solid ${({ theme }) => theme.stroke};
-    border-left: none;
-    border-radius: 0px 3px 3px 0px;
-  }
-`;
 
 interface IInputDisplay {
   action: ActionType;
@@ -120,19 +65,20 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
 
   return (
     <>
-      <LabelArea>
+      <div className="flex justify-between">
         <label>{t("staking.available_amount", { amount: isStaking ? parsedBalance : parsedStake })}</label>
-        <StyledLabel
+        <label
           onClick={() => {
             setAmount(uncommify(isStaking ? parsedBalance : parsedStake));
           }}
+          className="[transition:0.1s] text-klerosUIComponentsPrimaryBlue cursor-pointer [&:hover]:text-klerosUIComponentsSecondaryBlue"
         >
           {isStaking ? t("staking.stake_all") : t("staking.withdraw_all")}
-        </StyledLabel>
-      </LabelArea>
-      <InputArea>
-        <InputFieldAndButton>
-          <StyledField
+        </label>
+      </div>
+      <div className="flex flex-col items-center gap-3 w-full">
+        <div className="flex flex-row w-full">
+          <BigNumberField
             key={fieldKey}
             inputRef={inputRef}
             // `amount` is the decimal string viem's parseUnits consumes.
@@ -146,8 +92,9 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
             placeholder={placeholder}
             message={isPopupOpen ? undefined : (errorMsg ?? undefined)}
             variant={!isUndefined(errorMsg) && !isPopupOpen ? "error" : "info"}
+            className="w-full [&&_input]:rounded-[3px_0_0_3px] [&_input:focus]:relative [&_input:focus]:z-1"
           />
-          <EnsureChainContainer>
+          <div className="[&_button]:h-[45px] [&_button]:border [&_button]:border-solid [&_button]:border-klerosUIComponentsStroke [&_button]:border-l-0 [&_button]:rounded-[0px_3px_3px_0px]">
             <StakeWithdrawButton
               {...{
                 amount,
@@ -159,9 +106,9 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
                 setIsPopupOpen,
               }}
             />
-          </EnsureChainContainer>
-        </InputFieldAndButton>
-      </InputArea>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

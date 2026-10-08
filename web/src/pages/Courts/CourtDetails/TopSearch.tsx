@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useTranslation } from "react-i18next";
@@ -7,94 +6,15 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Card, Searchbar } from "@kleros/ui-components-library";
 
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 
 import { useCourtTree, rootCourtToItems, CourtTreeQuery } from "queries/useCourtTree";
-
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import { LabeledDropdownCascader } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import StakeMaintenanceButtons from "../StakeMaintenanceButton";
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px 16px;
-  flex-wrap: wrap;
-`;
-
-const StyledDropdownCascader = styled(LabeledDropdownCascader)`
-  width: ${responsiveSize(200, 240)};
-  > button {
-    width: 100%;
-  }
-`;
-
-const SearchBarContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  position: relative;
-  ${landscapeStyle(
-    () => css`
-      flex: 1;
-    `
-  )}
-`;
-
-const StyledSearchbar = styled(Searchbar)`
-  width: 100%;
-  input {
-    font-size: 16px;
-    height: 45px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-  }
-`;
-
-const SearchResultsContainer = styled(OverlayScrollbarsComponent)`
-  position: absolute;
-  margin-top: 45px;
-  max-height: 400px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  width: 100%;
-  flex-direction: column;
-  border-radius: 4px;
-  overflow-y: auto;
-  z-index: 1;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-`;
-
-const StyledCard = styled(Card)<{ selected: boolean }>`
-  ${hoverShortTransitionTiming}
-  height: auto;
-  width: 100%;
-  padding: ${({ selected }) => (selected ? "16px 13px" : "16px")};
-  cursor: pointer;
-  border: none;
-  border-left: ${({ selected, theme }) => (selected ? `3px solid ${theme.primaryBlue}` : "none")};
-  background-color: ${({ selected, theme }) => (selected ? theme.mediumBlue : "transparent")};
-  border-radius: 0;
-
-  :hover {
-    background-color: ${({ theme }) => theme.mediumBlue};
-  }
-`;
-
-const CourtParentSpan = styled.span`
-  color: ${({ theme }) => theme.secondaryText}EE;
-`;
-
-const CourtNameSpan = styled.span`
-  color: ${({ theme }) => theme.primaryText};
-`;
 
 type CourtNode = NonNullable<CourtTreeQuery["court"]>;
 type FlattenedCourt = CourtNode & { parentName: string | null };
@@ -126,48 +46,57 @@ const TopSearch: React.FC = () => {
   }, [data, search, currentCourtId]);
 
   return (
-    <Container>
+    <div className="w-full flex justify-between items-center gap-[8px_16px] flex-wrap">
       {items ? (
         <>
-          <StyledDropdownCascader
+          <LabeledDropdownCascader
             ariaLabel={t("aria_labels.select_court")}
             items={items}
             callback={(item) => navigate(item.itemValue.toString())}
             placeholder={t("forms.placeholders.select_court")}
+            className="w-[calc(200px_+_(240_-_200)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_>_button]:w-full"
           />
-          <SearchBarContainer>
-            <StyledSearchbar
+          <div className="flex flex-wrap relative lg:flex-1">
+            <Searchbar
               dir="auto"
               type="text"
               aria-label={t("forms.placeholders.search")}
               placeholder={t("forms.placeholders.search")}
               value={search}
               onChange={setSearch}
+              className="w-full [&_input]:text-[16px]! [&_input]:h-[45px] [&_input]:pt-0 [&_input]:pb-0"
             />
             {search && filteredCourts.length > 0 && (
-              <SearchResultsContainer>
+              <OverlayScrollbarsComponent className="absolute! mt-11.25 max-h-[400px] border border-solid border-klerosUIComponentsStroke w-full flex-col rounded-[4px] overflow-y-auto z-1 bg-klerosUIComponentsWhiteBackground [border-top-left-radius:0] [border-top-right-radius:0]">
                 {filteredCourts.map((court) => (
-                  <StyledCard
+                  <Card
                     key={court.id}
-                    selected={court.id === currentCourtId}
+                    className={cn(
+                      "[transition:0.1s] h-auto w-full py-4 cursor-pointer border-0 rounded-none hover:bg-klerosUIComponentsMediumBlue",
+                      court.id === currentCourtId
+                        ? "px-[13px] border-l-[3px] border-l-klerosUIComponentsPrimaryBlue bg-klerosUIComponentsMediumBlue"
+                        : "px-4 bg-transparent"
+                    )}
                     onClick={() => {
                       navigate(`/courts/${court.id}`);
                       setSearch("");
                     }}
                   >
-                    {court.parentName && <CourtParentSpan>{court.parentName} / </CourtParentSpan>}
-                    <CourtNameSpan>{court.name}</CourtNameSpan>
-                  </StyledCard>
+                    {court.parentName && (
+                      <span className="text-klerosUIComponentsSecondaryText/[0.9333]">{court.parentName} / </span>
+                    )}
+                    <span className="text-klerosUIComponentsPrimaryText">{court.name}</span>
+                  </Card>
                 ))}
-              </SearchResultsContainer>
+              </OverlayScrollbarsComponent>
             )}
-          </SearchBarContainer>
+          </div>
         </>
       ) : (
         <StyledSkeleton width={240} height={42} />
       )}
       <StakeMaintenanceButtons />
-    </Container>
+    </div>
   );
 };
 

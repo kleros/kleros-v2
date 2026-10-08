@@ -1,68 +1,8 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { cn } from "utils/cn";
 
 import { InternalLink } from "./InternalLink";
-
-const FieldContainer = styled.div<FieldContainerProps>`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  white-space: nowrap;
-  width: 100%;
-  .value {
-    flex-grow: 1;
-    text-align: end;
-    color: ${({ theme }) => theme.primaryText};
-  }
-
-  svg {
-    fill: ${({ theme }) => theme.secondaryPurple};
-    margin-right: 8px;
-    width: 14px;
-    flex-shrink: 0;
-  }
-
-  ${({ isOverview, isJurorBalance }) =>
-    (isOverview || isJurorBalance) &&
-    css`
-      ${landscapeStyle(
-        () => css`
-          width: auto;
-          gap: 8px;
-          .value {
-            flex-grow: 0;
-            text-align: none;
-            font-weight: 600;
-          }
-          a {
-            font-weight: 600;
-          }
-          svg {
-            margin-right: 0;
-          }
-        `
-      )}
-    `};
-`;
-
-const LinkContainer = styled.div`
-  padding-bottom: 1px;
-`;
-
-const StyledInternalLink = styled(InternalLink)`
-  display: flex;
-  text-wrap: auto;
-  justify-content: end;
-  line-height: 1.25;
-`;
-
-type FieldContainerProps = {
-  width?: string;
-  isOverview?: boolean;
-  isJurorBalance?: boolean;
-};
 
 export interface IField {
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
@@ -75,26 +15,37 @@ export interface IField {
   className?: string;
 }
 
-const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width, isOverview, isJurorBalance, className }) => {
+const Field: React.FC<IField> = ({ icon: Icon, name, value, link, isOverview, isJurorBalance, className }) => {
   return (
-    <FieldContainer dir="auto" {...{ isOverview, isJurorBalance, width, className }}>
+    <div
+      dir="auto"
+      className={cn(
+        "flex w-full items-center justify-start whitespace-nowrap [&_.value]:grow [&_.value]:text-end",
+        "[&_.value]:text-klerosUIComponentsPrimaryText [&_svg]:mr-2 [&_svg]:w-3.5 [&_svg]:shrink-0",
+        "[&_svg]:fill-klerosUIComponentsSecondaryPurple",
+        (isOverview || isJurorBalance) &&
+          "lg:w-auto lg:gap-2 lg:[&_.value]:grow-0 lg:[&_.value]:font-semibold lg:[&_a]:font-semibold lg:[&_svg]:mr-0",
+        className
+      )}
+    >
       <Icon />
       <label>{name}:</label>
       {link ? (
-        <LinkContainer className="value">
-          <StyledInternalLink
+        <div className={cn("pb-0.25", "value")}>
+          <InternalLink
             to={link}
             onClick={(event) => {
               event.stopPropagation();
             }}
+            className="flex [text-wrap:auto] justify-end leading-[1.25]"
           >
             {value}
-          </StyledInternalLink>
-        </LinkContainer>
+          </InternalLink>
+        </div>
       ) : (
         <label className="value">{value}</label>
       )}
-    </FieldContainer>
+    </div>
   );
 };
 export default Field;

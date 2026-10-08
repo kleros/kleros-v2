@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -20,29 +19,11 @@ import { isLastRound } from "utils/isLastRound";
 import { useAppealCost } from "queries/useAppealCost";
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
 import Popup, { PopupType } from "components/Popup";
 
 import VotingHistory from "./VotingHistory";
-
-const Container = styled.div`
-  padding: 20px 16px 16px;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 32px 32px 16px;
-    `
-  )}
-`;
-
-const InfoCardContainer = styled.div`
-  display: flex;
-  margin-bottom: ${responsiveSize(16, 24)};
-`;
 
 const useFinalDate = (lastPeriodChange?: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
   useMemo(() => {
@@ -80,19 +61,19 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
 
   if (isUndefined(disputeKitInfo)) {
     return (
-      <Container>
+      <div className="p-[20px_16px_16px] lg:p-[32px_32px_16px]">
         {isUndefined(disputeKitAddress) ? (
           <Skeleton height={200} />
         ) : (
           <InfoCard msg={t("alerts.unsupported_dispute_kit")} />
         )}
-      </Container>
+      </div>
     );
   }
 
   const VotingComponent = disputeKitInfo.VotingComponent;
   return (
-    <Container>
+    <div className="p-[20px_16px_16px] lg:p-[32px_32px_16px]">
       {isLastRound(appealCost) && (
         <>
           <InfoCard msg={t("alerts.dispute_last_round")} />
@@ -101,13 +82,13 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
       )}
 
       {userWasDrawn || isDisconnected ? null : (
-        <InfoCardContainer>
+        <div className="flex mb-[calc(16px_+_(24_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
           {isDrawDataLoading ? (
             <Skeleton width={300} height={20} />
           ) : (
             <InfoCard msg={t("alerts.not_drawn_current_round")} />
           )}
-        </InfoCardContainer>
+        </div>
       )}
 
       {isPopupOpen && (
@@ -138,7 +119,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />
       )}
-    </Container>
+    </div>
   );
 };
 

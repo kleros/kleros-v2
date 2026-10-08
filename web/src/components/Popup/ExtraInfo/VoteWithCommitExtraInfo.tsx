@@ -1,18 +1,10 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import InfoCard from "components/InfoCard";
-
-const StyledInfoCard = styled(InfoCard)`
-  margin: ${responsiveSize(8, 24, 300)} ${responsiveSize(8, 32, 300)} 0;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 19px;
-`;
 
 interface Props {
   automaticVoteReveal?: boolean;
@@ -22,7 +14,15 @@ const VoteWithCommitExtraInfo: React.FC<Props> = ({ automaticVoteReveal = false 
   const { t } = useTranslation();
 
   const msg = automaticVoteReveal ? t("popups.enable_notifications_progress") : t("popups.enable_notifications_reveal");
-  return <StyledInfoCard msg={msg} />;
+  return (
+    <InfoCard
+      msg={msg}
+      className={cn(
+        "m-[calc(8px_+_(24_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))_calc(8px_+_(32_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))_0]",
+        "text-[14px] font-normal leading-[19px]"
+      )}
+    />
+  );
 };
 
 export default VoteWithCommitExtraInfo;

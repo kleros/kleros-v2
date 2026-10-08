@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Address } from "viem";
@@ -9,10 +8,8 @@ import { Card as _Card } from "@kleros/ui-components-library";
 import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledArrowLink } from "components/StyledArrowLink";
 import { GroupedDraw } from "pages/Profile/Votes";
@@ -23,80 +20,6 @@ import CourtName from "./CourtName";
 import Round from "./Round";
 import Vote from "./Vote";
 import VoteCount from "./VoteCount";
-
-const Container = styled(_Card)`
-  display: flex;
-  flex-direction: column;
-  height: auto;
-  width: 100%;
-  padding: 20px 16px 24px;
-  border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
-  gap: 16px;
-
-  :hover {
-    cursor: auto;
-  }
-
-  ${({ theme }) => (theme.name === "light" ? `box-shadow: 0px 2px 3px 0px ${theme.stroke};` : "")}
-
-  ${landscapeStyle(
-    () => css`
-      display: grid;
-      grid-template-columns:
-        minmax(70px, 0.3fr)
-        minmax(140px, 1.2fr)
-        minmax(140px, 1.3fr)
-        minmax(70px, 0.6fr)
-        minmax(70px, 0.5fr)
-        minmax(70px, 0.5fr)
-        auto;
-      align-items: center;
-      padding: 21.5px 28px;
-      gap: ${responsiveSize(12, 16, 900)};
-    `
-  )}
-`;
-
-const LeftContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      display: contents;
-    `
-  )}
-`;
-
-const BottomRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      display: contents;
-    `
-  )}
-`;
-
-const ReStyledArrowLink = styled(StyledArrowLink)`
-  font-size: 14px;
-
-  > svg {
-    height: 15px;
-    width: 15px;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      justify-self: end;
-    `
-  )}
-`;
 
 interface IVoteCard {
   vote: GroupedDraw;
@@ -180,21 +103,30 @@ const VoteCard: React.FC<IVoteCard> = ({ vote: draw }) => {
   }, [voteData, populatedDisputeData, isLoadingDisputeData, hiddenVotes, isActiveRound, period, t]);
 
   return (
-    <Container hover>
-      <LeftContent>
+    <_Card
+      hover
+      className={cn(
+        "flex flex-col h-auto w-full p-[20px_16px_24px] [border-left:5px_solid_var(--klerosUIComponentsSecondaryPurple)] gap-4 [&:hover]:cursor-auto lg:grid lg:[grid-template-columns:minmax(70px,_0.3fr)_minmax(140px,_1.2fr)_minmax(140px,_1.3fr)_minmax(70px,_0.6fr)_minmax(70px,_0.5fr)_minmax(70px,_0.5fr)_auto] lg:items-center lg:p-[21.5px_28px] lg:gap-[calc(12px_+_(16_-_12)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))]",
+        "not-dark:shadow-[0px_2px_3px_0px_var(--klerosUIComponentsStroke)]"
+      )}
+    >
+      <div className="flex flex-col gap-4 lg:contents">
         <CaseNumber id={caseId} />
         <CourtName name={courtName} courtId={courtId} />
         <Vote choice={voteChoice} />
         <Round number={roundNumber} />
         <CaseStatus period={draw.dispute?.period} ruled={draw.dispute?.ruled} />
-        <BottomRow>
+        <div className="flex flex-row justify-between items-center gap-4 lg:contents">
           <VoteCount count={voteCount} />
-          <ReStyledArrowLink to={`/cases/${caseId?.toString()}/voting`}>
+          <StyledArrowLink
+            to={`/cases/${caseId?.toString()}/voting`}
+            className="text-[14px] [&&_>_svg]:h-[15px] [&&_>_svg]:w-[15px] lg:[justify-self:end]"
+          >
             {t("voting.view_vote")} <ArrowIcon />
-          </ReStyledArrowLink>
-        </BottomRow>
-      </LeftContent>
-    </Container>
+          </StyledArrowLink>
+        </div>
+      </div>
+    </_Card>
   );
 };
 

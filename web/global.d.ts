@@ -1,5 +1,4 @@
-import {} from "styled-components";
-import { lightTheme } from "styles/themes";
+import type { ChartType, TooltipPositionerFunction } from "chart.js";
 
 declare global {
   module "*.svg" {
@@ -10,12 +9,6 @@ declare global {
     const path: string;
     export default path;
   }
-}
-
-declare module "styled-components" {
-  type Theme = typeof lightTheme;
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  export interface DefaultTheme extends Theme {}
 }
 
 declare module "chart.js" {

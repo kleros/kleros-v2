@@ -1,5 +1,4 @@
 import React, { useMemo, useRef, useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -14,43 +13,7 @@ import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { rootCourtToItems, useCourtTree } from "queries/useCourtTree";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { LabeledDropdownCascader } from "components/LabeledDropdown";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${responsiveSize(8, 16)};
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )}
-`;
-
-const SearchBarContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 5px;
-  z-index: 0;
-`;
-
-const StyledSearchbar = styled(Searchbar)`
-  flex: 1;
-  flex-basis: 310px;
-
-  input {
-    font-size: 16px;
-    height: 45px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-  }
-`;
 
 const Search: React.FC = () => {
   const { t } = useTranslation();
@@ -89,7 +52,7 @@ const Search: React.FC = () => {
   }, [courtTreeData, t]);
 
   return (
-    <Container>
+    <div className="flex flex-col gap-[calc(8px_+_(16_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] lg:flex-row">
       {items ? (
         <LabeledDropdownCascader
           ariaLabel={t("aria_labels.select_court")}
@@ -105,17 +68,18 @@ const Search: React.FC = () => {
       ) : (
         <Skeleton width={240} height={42} />
       )}
-      <SearchBarContainer>
-        <StyledSearchbar
+      <div className="w-full flex flex-wrap gap-2 mb-1.25 z-0">
+        <Searchbar
           dir="auto"
           type="text"
           aria-label={t("forms.placeholders.search_by_id")}
           placeholder={t("forms.placeholders.search_by_id")}
           value={search}
           onChange={setSearch}
+          className="flex-1 [flex-basis:310px] [&_input]:text-[16px]! [&_input]:h-[45px] [&_input]:pt-0 [&_input]:pb-0"
         />
-      </SearchBarContainer>
-    </Container>
+      </div>
+    </div>
   );
 };
 

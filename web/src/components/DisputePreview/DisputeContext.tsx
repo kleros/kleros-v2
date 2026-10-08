@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
@@ -7,12 +6,11 @@ import { useAccount } from "wagmi";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 import { Answer as IAnswer } from "context/NewDisputeContext";
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 import { getSafeNavigationUrl } from "utils/urlValidation";
 
 import { DisputeDetailsQuery, VotingHistoryQuery } from "src/graphql/graphql";
-
-import { responsiveSize } from "styles/responsiveSize";
 
 import ExternalLinkWarning from "components/ExternalLinkWarning";
 import MarkdownRenderer from "components/MarkdownRenderer";
@@ -25,98 +23,30 @@ import RulingAndRewardsIndicators from "../Verdict/RulingAndRewardsIndicators";
 
 import AliasDisplay from "./Alias";
 
-const StyledH1 = styled.h1`
-  margin: 0;
-  word-wrap: break-word;
-  font-size: ${responsiveSize(20, 26)};
-  line-height: 24px;
-`;
+export const AnswerTitleAndDescription = React.forwardRef<
+  React.ElementRef<"div">,
+  React.ComponentPropsWithoutRef<"div">
+>(function AnswerTitleAndDescription({ className, ...props }, ref) {
+  return <div {...props} ref={ref} className={cn("block", className)} />;
+});
 
-const TitleSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const ReactMarkdownWrapper = styled.div`
-  & p:first-of-type {
-    margin: 0;
+export const AnswerTitle = React.forwardRef<React.ElementRef<"small">, React.ComponentPropsWithoutRef<"small">>(
+  function AnswerTitle({ className, ...props }, ref) {
+    return <small {...props} ref={ref} className={cn("[display:inline]", className)} />;
   }
-`;
+);
 
-const VotingOptions = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const AnswersContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${responsiveSize(4, 2)};
-`;
-
-const AnswersHeader = styled.small`
-  margin: 0;
-`;
-
-export const AnswerTitleAndDescription = styled.div`
-  display: block;
-`;
-
-export const AnswerTitle = styled.small`
-  display: inline;
-`;
-
-export const AnswerDescription = styled.small`
-  display: inline;
-  font-weight: 400;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const AliasesContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${responsiveSize(8, 20)};
-`;
-
-const RulingAndRewardsAndLabels = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const FrontendUrlSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-`;
-
-const FrontendUrlLabel = styled.small`
-  color: ${({ theme }) => theme.primaryText};
-  font-weight: 600;
-`;
-
-const FrontendUrlLink = styled.a`
-  color: ${({ theme }) => theme.primaryBlue};
-  cursor: pointer;
-
-  :hover {
-    text-decoration: underline;
-    color: ${({ theme }) => theme.secondaryBlue};
+export const AnswerDescription = React.forwardRef<React.ElementRef<"small">, React.ComponentPropsWithoutRef<"small">>(
+  function AnswerDescription({ className, ...props }, ref) {
+    return (
+      <small
+        {...props}
+        ref={ref}
+        className={cn("[display:inline] font-normal text-klerosUIComponentsSecondaryText", className)}
+      />
+    );
   }
-`;
-
-const FlaggedFrontendUrl = styled.span`
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: ${({ theme }) => theme.secondaryText};
-  font-size: 14px;
-`;
+);
 
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
@@ -161,15 +91,21 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
 
   return (
     <>
-      <TitleSection>
-        <StyledH1 dir="auto">
+      <div className="flex flex-col gap-3">
+        <h1
+          dir="auto"
+          className={cn(
+            "m-0 [word-wrap:break-word]",
+            "text-[calc(20px_+_(26_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] leading-[24px]"
+          )}
+        >
           {isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}
-        </StyledH1>
+        </h1>
         {!isUndefined(disputeDetails) &&
         !isUndefined(dispute) &&
         !isUndefined(disputeId) &&
         !isUndefined(votingHistory) ? (
-          <RulingAndRewardsAndLabels>
+          <div className="flex flex-row flex-wrap gap-2">
             {!isUndefined(Boolean(dispute?.dispute?.ruled)) || jurorRewardsDispersed ? (
               <RulingAndRewardsIndicators
                 ruled={Boolean(dispute?.dispute?.ruled)}
@@ -179,36 +115,40 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
             {!isDisconnected ? (
               <CardLabel {...{ disputeId }} round={(rounds?.length ?? 0) - 1} isOverview={true} />
             ) : null}
-          </RulingAndRewardsAndLabels>
+          </div>
         ) : null}
         <Divider />
-      </TitleSection>
+      </div>
       {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
         <div>
           {disputeDetails?.question?.trim() ? (
-            <ReactMarkdownWrapper dir="auto">
+            <div dir="auto" className="[&_p:first-of-type]:m-0">
               <MarkdownRenderer content={disputeDetails.question} />
-            </ReactMarkdownWrapper>
+            </div>
           ) : null}
           {disputeDetails?.description?.trim() ? (
-            <ReactMarkdownWrapper dir="auto">
+            <div dir="auto" className="[&_p:first-of-type]:m-0">
               <MarkdownRenderer content={disputeDetails.description} />
-            </ReactMarkdownWrapper>
+            </div>
           ) : null}
         </div>
       ) : null}
 
       {!isUndefined(frontendUrl) && !isUndefined(safeFrontendUrl) ? (
         <>
-          <FrontendUrlLink
+          <a
             href={safeFrontendUrl}
             onClick={(event) => {
               event.preventDefault();
               setIsWarningOpen(true);
             }}
+            className={cn(
+              "text-klerosUIComponentsPrimaryBlue cursor-pointer [&:hover]:underline",
+              "[&:hover]:text-klerosUIComponentsSecondaryBlue"
+            )}
           >
             {t("misc.go_to_arbitrable")}
-          </FrontendUrlLink>
+          </a>
           <ExternalLinkWarning
             isOpen={isWarningOpen}
             sanitizedUrl={safeFrontendUrl}
@@ -220,16 +160,24 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
       ) : null}
 
       {!isUndefined(frontendUrl) && isUndefined(safeFrontendUrl) ? (
-        <FrontendUrlSection>
-          <FrontendUrlLabel>{t("misc.arbitrable_url")}:</FrontendUrlLabel>
+        <div className="flex flex-col gap-1 w-full">
+          <small className="text-klerosUIComponentsPrimaryText font-semibold">{t("misc.arbitrable_url")}:</small>
           <WithHelpTooltip tooltipMsg={t("tooltips.unsafe_frontend_url")}>
-            <FlaggedFrontendUrl title={frontendUrl}>{frontendUrl}</FlaggedFrontendUrl>
+            <span
+              title={frontendUrl}
+              className={cn(
+                "max-w-full overflow-hidden [text-overflow:ellipsis] whitespace-nowrap",
+                "text-klerosUIComponentsSecondaryText text-[14px]"
+              )}
+            >
+              {frontendUrl}
+            </span>
           </WithHelpTooltip>
-        </FrontendUrlSection>
+        </div>
       ) : null}
-      <VotingOptions>
-        {isUndefined(disputeDetails) ? null : <AnswersHeader>{t("headers.voting_options")}</AnswersHeader>}
-        <AnswersContainer>
+      <div className="flex flex-col gap-2">
+        {isUndefined(disputeDetails) ? null : <small className="m-0">{t("headers.voting_options")}</small>}
+        <div className="flex flex-col gap-[calc(4px_+_(2_-_4)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
             <AnswerTitleAndDescription dir="auto" key={answer.title}>
               <label>{i + 1}. </label>
@@ -237,17 +185,17 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
               <AnswerDescription>{answer.description.trim() ? ` - ${answer.description}` : null}</AnswerDescription>
             </AnswerTitleAndDescription>
           ))}
-        </AnswersContainer>
-      </VotingOptions>
+        </div>
+      </div>
 
       {isUndefined(aliases) ? null : (
         <>
           <Divider />
-          <AliasesContainer>
+          <div className="flex flex-wrap gap-[calc(8px_+_(20_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
             {Object.keys(aliases).map((key) => (
               <AliasDisplay name={key} key={key} address={aliases[key]} />
             ))}
-          </AliasesContainer>
+          </div>
         </>
       )}
     </>

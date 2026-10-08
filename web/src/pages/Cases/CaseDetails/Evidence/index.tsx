@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -17,70 +16,11 @@ import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 
 import { isUndefined } from "src/utils";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { Divider } from "components/Divider";
 import EvidenceCard from "components/EvidenceCard";
 import { SkeletonEvidenceCard } from "components/StyledSkeleton";
 
 import EvidenceSearch from "./EvidenceSearch";
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: center;
-  padding: 20px 16px 16px;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 32px;
-    `
-  )}
-`;
-
-const StyledLabel = styled.label`
-  display: flex;
-  margin-top: 16px;
-  font-size: 16px;
-`;
-
-const ScrollButton = styled(Button)`
-  align-self: flex-end;
-  background-color: transparent;
-  padding: 0;
-  flex-direction: row-reverse;
-  gap: 8px;
-  .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-    font-weight: 400;
-  }
-  .button-svg {
-    margin: 0;
-    path {
-      fill: ${({ theme }) => theme.primaryBlue};
-    }
-  }
-
-  :hover {
-    background-color: transparent;
-    .button-svg {
-      path {
-        fill: ${({ theme }) => theme.secondaryBlue};
-      }
-    }
-    .button-text {
-      color: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
-
-const SpamLabel = styled.label`
-  color: ${({ theme }) => theme.primaryBlue};
-  align-self: center;
-  cursor: pointer;
-`;
 
 interface IEvidence {
   arbitrable?: Address;
@@ -123,9 +63,15 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
   }, [data, isSpam]);
 
   return (
-    <Container ref={ref}>
+    <div ref={ref} className="w-full flex flex-col gap-4 items-center p-[20px_16px_16px] lg:p-8">
       <EvidenceSearch {...{ search, setSearch }} />
-      <ScrollButton small Icon={DownArrow} text={t("buttons.scroll_to_latest")} onPress={scrollToLatest} />
+      <Button
+        small
+        Icon={DownArrow}
+        text={t("buttons.scroll_to_latest")}
+        onPress={scrollToLatest}
+        className="self-end bg-transparent p-0 flex-row-reverse gap-2 [&_.button-text]:text-klerosUIComponentsPrimaryBlue [&_.button-text]:font-normal [&_.button-svg]:m-0 [&_.button-svg_path]:fill-klerosUIComponentsPrimaryBlue [&:hover]:bg-transparent [&:hover_.button-svg_path]:fill-klerosUIComponentsSecondaryBlue [&:hover_.button-text]:text-klerosUIComponentsSecondaryBlue"
+      />
       {!isUndefined(arbitrableEvidences) && arbitrableEvidences.length > 0 ? (
         <>
           {arbitrableEvidences.map(({ name, description, fileURI, sender, timestamp, transactionHash }, index) => (
@@ -161,7 +107,12 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
               <Divider />
               {showSpam ? (
                 <>
-                  <SpamLabel onClick={() => setShowSpam(false)}>{t("evidence.hide_spam")}</SpamLabel>
+                  <label
+                    onClick={() => setShowSpam(false)}
+                    className="text-klerosUIComponentsPrimaryBlue self-center cursor-pointer"
+                  >
+                    {t("evidence.hide_spam")}
+                  </label>
                   {evidences?.spamEvidences.map(
                     ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
                       <EvidenceCard
@@ -174,7 +125,12 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
                   )}
                 </>
               ) : (
-                <SpamLabel onClick={() => setShowSpam(true)}>{t("evidence.show_likely_spam")}</SpamLabel>
+                <label
+                  onClick={() => setShowSpam(true)}
+                  className="text-klerosUIComponentsPrimaryBlue self-center cursor-pointer"
+                >
+                  {t("evidence.show_likely_spam")}
+                </label>
               )}
             </>
           ) : null}
@@ -183,8 +139,10 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
         <SkeletonEvidenceCard />
       )}
 
-      {data && data.evidences.length === 0 ? <StyledLabel>{t("evidence.no_evidence_yet")}</StyledLabel> : null}
-    </Container>
+      {data && data.evidences.length === 0 ? (
+        <label className="flex mt-4 text-[16px]">{t("evidence.no_evidence_yet")}</label>
+      ) : null}
+    </div>
   );
 };
 

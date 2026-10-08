@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -7,57 +6,11 @@ import { useParams } from "react-router-dom";
 import PaperclipIcon from "svgs/icons/paperclip.svg";
 import PolicyIcon from "svgs/icons/policy.svg";
 
+import { cn } from "utils/cn";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { isUndefined } from "utils/index";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { InternalLink } from "components/InternalLink";
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 12px 16px;
-  padding: 12px 16px 20px;
-  background-color: ${({ theme }) => theme.mediumBlue};
-
-  ${landscapeStyle(
-    () => css`
-      padding: 20px 32px;
-    `
-  )}
-`;
-
-const StyledP = styled.p`
-  font-size: 14px;
-  margin: 0;
-  color: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledPolicyIcon = styled(PolicyIcon)`
-  width: 16px;
-  fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledPaperclipIcon = styled(PaperclipIcon)`
-  width: 16px;
-  fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledInternalLink = styled(InternalLink)`
-  ${hoverShortTransitionTiming}
-  display: flex;
-  gap: 4px;
-
-  &:hover {
-    svg {
-      fill: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
 
 type Attachment = {
   label?: string;
@@ -74,30 +27,40 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
   const { t } = useTranslation();
 
   return (
-    <Container>
-      <StyledP>{t("misc.policy_documents")}</StyledP>
+    <div
+      className={cn(
+        "flex items-center flex-row flex-wrap gap-[12px_16px] p-[12px_16px_20px]",
+        "bg-klerosUIComponentsMediumBlue lg:p-[20px_32px]"
+      )}
+    >
+      <p className="text-[14px] m-0 text-klerosUIComponentsPrimaryBlue">{t("misc.policy_documents")}</p>
       {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-        <StyledInternalLink
+        <InternalLink
           to={`/attachment/?disputeId=${id}&title=misc.case_policy&url=${getIpfsUrl(attachment.uri)}`}
+          className="[transition:0.1s] flex gap-1 [&:hover_svg]:fill-klerosUIComponentsSecondaryBlue"
         >
-          <StyledPaperclipIcon />
+          <PaperclipIcon className="w-[16px] fill-klerosUIComponentsPrimaryBlue" />
           {attachment.label ?? t("misc.attachment")}
-        </StyledInternalLink>
+        </InternalLink>
       ) : null}
       {isUndefined(disputePolicyURI) ? null : (
-        <StyledInternalLink
+        <InternalLink
           to={`/attachment/?disputeId=${id}&title=misc.dispute_policy&url=${getIpfsUrl(disputePolicyURI)}`}
+          className="[transition:0.1s] flex gap-1 [&:hover_svg]:fill-klerosUIComponentsSecondaryBlue"
         >
-          <StyledPolicyIcon />
+          <PolicyIcon className="w-[16px] fill-klerosUIComponentsPrimaryBlue" />
           {t("misc.dispute_policy")}
-        </StyledInternalLink>
+        </InternalLink>
       )}
       {isUndefined(courtId) ? null : (
-        <StyledInternalLink to={`/courts/${courtId}/policy?section=description`}>
-          <StyledPolicyIcon />
+        <InternalLink
+          to={`/courts/${courtId}/policy?section=description`}
+          className="[transition:0.1s] flex gap-1 [&:hover_svg]:fill-klerosUIComponentsSecondaryBlue"
+        >
+          <PolicyIcon className="w-[16px] fill-klerosUIComponentsPrimaryBlue" />
           {t("misc.court_policy")}
-        </StyledInternalLink>
+        </InternalLink>
       )}
-    </Container>
+    </div>
   );
 };

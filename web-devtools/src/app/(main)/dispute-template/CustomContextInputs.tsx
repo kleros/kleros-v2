@@ -1,33 +1,11 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useDebounce } from "react-use";
 
 import retrieveVariables from "@kleros/kleros-sdk/src/dataMappings/utils/retrieveVariables";
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 32px;
-`;
-
-const Header = styled.h2`
-  margin: 0;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
-const VariableName = styled.p`
-  font-family: "Roboto Mono", monospace;
-`;
 
 // prevent duplicating input fields
 const DisputeRequestParams = [
@@ -65,32 +43,34 @@ const CustomContextInputs: React.FC<ICustomContextInputs> = ({ dataMapping, setC
   );
 
   return requiredVariables.length ? (
-    <Container>
+    <div className="mt-8 flex w-full flex-col gap-4">
       <WithHelpTooltip
         tooltipMsg={
           "These are additional variables required by the data mapping to be passed as initial context. " +
           "Please ignore the variables that will come from the result of the preceeding data mappings"
         }
       >
-        <Header>Additional Context</Header>
+        <h2 className="m-0">Additional Context</h2>
       </WithHelpTooltip>
       {requiredVariables.map((variable, index) =>
         DisputeRequestParams.includes(variable) ? null : (
-          <InputContainer key={`${variable}-${index}`}>
-            <VariableName>{variable}:</VariableName>
-            <Field
+          <div className="flex flex-wrap gap-4" key={`${variable}-${index}`}>
+            <p className="font-['Roboto_Mono',monospace]">{variable}:</p>
+            <TextField
+              aria-label={variable}
+              inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
               type="text"
               name={variable}
               value={customContextInputs?.[variable]}
-              onChange={(e) => {
-                setCustomContextInputs((prev) => ({ ...prev, [variable]: e.target.value }));
+              onChange={(value) => {
+                setCustomContextInputs((prev) => ({ ...prev, [variable]: value }));
               }}
               placeholder="0x..."
             />
-          </InputContainer>
+          </div>
         )
       )}
-    </Container>
+    </div>
   ) : null;
 };
 

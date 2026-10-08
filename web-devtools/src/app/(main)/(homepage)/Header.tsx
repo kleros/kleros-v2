@@ -1,38 +1,22 @@
 import React from "react";
-import styled from "styled-components";
 
 import Typewriter from "typewriter-effect";
 
-import { responsiveSize } from "styles/responsiveSize";
-
-const StyledHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const StyledH1 = styled.h1`
-  display: flex;
-  gap: 8px;
-  font-size: ${responsiveSize(21, 24)};
-  font-weight: 500;
-  margin-bottom: 48px;
-  letter-spacing: 1px;
-`;
-
-const TypewriterContainer = styled.div`
-  .typewriter-text {
-    color: ${({ theme }) => theme.klerosUIComponentsSecondaryPurple};
-  }
-`;
+import { cn } from "utils/cn";
 
 const Header: React.FC = () => {
   const Phrases = ["Manage Courts", "Get Insights", "Edit Dispute Templates", "Get PNK Faucets", "Boost productivity"];
 
   return (
-    <StyledHeader>
-      <StyledH1>
+    <div className="flex justify-between">
+      <h1
+        className={cn(
+          "mb-12 flex gap-2 text-[length:calc(21px+(24-21)*(min(max(100vw,375px),1250px)-375px)/875)]",
+          "font-medium tracking-[1px]"
+        )}
+      >
         Developer Toolkit:
-        <TypewriterContainer>
+        <div className="[&_.typewriter-text]:text-klerosUIComponentsSecondaryPurple">
           <Typewriter
             options={{
               strings: Phrases,
@@ -41,9 +25,9 @@ const Header: React.FC = () => {
               wrapperClassName: "typewriter-text",
             }}
           />
-        </TypewriterContainer>
-      </StyledH1>
-    </StyledHeader>
+        </div>
+      </h1>
+    </div>
   );
 };
 

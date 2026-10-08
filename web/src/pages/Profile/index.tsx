@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Routes, Route, useNavigate, useSearchParams, useLocation, Navigate } from "react-router-dom";
@@ -12,10 +11,6 @@ import DocIcon from "svgs/icons/doc.svg";
 import PnkIcon from "svgs/icons/pnk.svg";
 import VotedIcon from "svgs/icons/voted-ballot.svg";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import ConnectWallet from "components/ConnectWallet";
 import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
@@ -24,47 +19,6 @@ import Cases from "./Cases";
 import JurorCard from "./JurorCard";
 import Stakes from "./Stakes";
 import Votes from "./Votes";
-
-const Container = styled.div`
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBackground};
-  padding: 32px 16px 40px;
-  max-width: ${MAX_WIDTH_LANDSCAPE};
-  margin: 0 auto;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 48px ${responsiveSize(0, 132)} 60px;
-    `
-  )}
-`;
-
-const StyledTabs = styled(TabsComponent)`
-  ${tabsSelectedUnderline}
-  width: 100%;
-  margin-top: ${responsiveSize(16, 32)};
-  > * {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  // Set on the label, not the container: the library's text-base wouldn't inherit.
-  [role="tab"] {
-    span {
-      font-size: ${responsiveSize(14, 16)};
-    }
-    svg {
-      margin-right: 8px;
-    }
-  }
-`;
-
-const ConnectWalletContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: ${({ theme }) => theme.primaryText};
-`;
 
 const TAB_PATHS = ["stakes/1", "cases/1/desc/all", "votes/1/desc/all"];
 
@@ -104,14 +58,17 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <Container>
+    <div className="w-full bg-klerosUIComponentsLightBackground p-[32px_16px_40px] max-w-[1400px] m-[0_auto] lg:p-[48px_calc(0px_+_(132_-_0)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_60px]">
       {searchParamAddress ? (
         <>
           <JurorCard {...{ searchParamAddress }} />
-          <StyledTabs
+          <TabsComponent
             selectedKey={getTabIndex(pathname)}
             items={TABS}
             callback={(_key, value) => handleTabChange(value)}
+            className={
+              'tabs-selected-underline w-full mt-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_>_*]:flex [&_>_*]:flex-wrap [&_[role="tab"]_span]:text-[calc(14px_+_(16_-_14)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_[role="tab"]_svg]:mr-2'
+            }
           />
           <Routes>
             <Route path="stakes/:page" element={<Stakes {...{ searchParamAddress }} />} />
@@ -129,15 +86,15 @@ const Profile: React.FC = () => {
           </Routes>
         </>
       ) : !isConnected ? (
-        <ConnectWalletContainer>
+        <div className="flex flex-col justify-center items-center text-klerosUIComponentsPrimaryText">
           {t("profile.to_see_profile_connect")}
           <hr />
           <ConnectWallet />
-        </ConnectWalletContainer>
+        </div>
       ) : null}
       <FavoriteCases />
       <ScrollTop />
-    </Container>
+    </div>
   );
 };
 

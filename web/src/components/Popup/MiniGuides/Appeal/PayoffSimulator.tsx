@@ -1,79 +1,54 @@
 import React from "react";
-import styled from "styled-components";
 
 import PayoffSimulatorSvg from "svgs/mini-guides/appeal/payoff-simulator.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledPayoffSimulatorSvg = styled(PayoffSimulatorSvg)`
-  [class$="circle-1"] {
-    fill: ${({ theme }) => theme.successLight};
-  }
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-  [class$="rect-2"] {
-    fill: ${({ theme }) => theme.mediumBlue};
-  }
+const StyledPayoffSimulatorSvg = ({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof PayoffSimulatorSvg>) => (
+  <PayoffSimulatorSvg
+    {...props}
+    className={cn(
+      '[&_[class$="circle-1"]]:fill-klerosUIComponentsSuccessLight',
+      '[&_[class$="rect-2"]]:fill-klerosUIComponentsMediumBlue',
+      '[&_[class$="circle-2"]]:fill-klerosUIComponentsMediumPurple',
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-1"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-5"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-6"]]:fill-klerosUIComponentsWhite [&_[class$="rect-7"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="rect-8"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsSuccess',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsSecondaryPurple',
+      '[&_[class$="path-16"]]:fill-klerosUIComponentsSecondaryPurple',
+      '[&_[class$="path-11"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-13"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-9"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-10"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-12"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-14"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-15"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-17"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="line-1"]]:stroke-klerosUIComponentsMediumBlue',
+      '[&_[class$="line-2"]]:stroke-klerosUIComponentsMediumBlue',
+      '[&_[class$="path-1"]]:stroke-klerosUIComponentsMediumBlue',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsLightBlue',
+      className
+    )}
+  />
+);
 
-  [class$="circle-2"] {
-    fill: ${({ theme }) => theme.mediumPurple};
-  }
-
-  [class$="rect-1"],
-  [class$="rect-5"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-    stroke: ${({ theme }) => theme.stroke};
-  }
-
-  [class$="rect-6"],
-  [class$="rect-7"],
-  [class$="rect-8"] {
-    fill: ${({ theme }) => theme.white};
-  }
-
-  [class$="path-2"] {
-    fill: ${({ theme }) => theme.success};
-  }
-
-  [class$="path-3"],
-  [class$="path-16"] {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-
-  [class$="path-11"],
-  [class$="path-13"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-
-  [class$="path-4"],
-  [class$="path-5"],
-  [class$="path-6"],
-  [class$="path-7"],
-  [class$="path-8"],
-  [class$="path-9"],
-  [class$="path-10"],
-  [class$="path-12"],
-  [class$="path-14"],
-  [class$="path-15"],
-  [class$="path-17"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-
-  [class$="rect-3"],
-  [class$="rect-4"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-
-  [class$="line-1"],
-  [class$="line-2"],
-  [class$="path-1"] {
-    stroke: ${({ theme }) => theme.mediumBlue};
-  }
-
-  [class$="path-1"] {
-    fill: ${({ theme }) => theme.lightBlue};
-  }
-`;
-
-const PayoffSimulator: React.FC = () => <StyledImage as={StyledPayoffSimulatorSvg} />;
+const PayoffSimulator: React.FC = () => <StyledPayoffSimulatorSvg className={miniGuideImageClassName} />;
 
 export default PayoffSimulator;

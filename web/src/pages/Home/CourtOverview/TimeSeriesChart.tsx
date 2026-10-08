@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
 
 import {
   Chart as ChartJS,
@@ -12,11 +11,9 @@ import {
   ScriptableContext,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import "chartjs-adapter-moment";
 
-const LineContainer = styled.div`
-  height: 220px;
-`;
+import { useTheme } from "hooks/useTheme";
+import "chartjs-adapter-moment";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, TimeScale, Tooltip);
 
@@ -75,7 +72,7 @@ const TimeSeriesChart: React.FC<ITimeSeriesChart> = ({ data }) => {
   };
 
   return (
-    <LineContainer>
+    <div className="h-[220px]">
       {
         // eslint-disable-next-line
         // @ts-ignore
@@ -126,7 +123,7 @@ const TimeSeriesChart: React.FC<ITimeSeriesChart> = ({ data }) => {
           ]}
         />
       }
-    </LineContainer>
+    </div>
   );
 };
 export default TimeSeriesChart;

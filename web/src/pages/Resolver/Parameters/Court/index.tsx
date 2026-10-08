@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -9,9 +8,6 @@ import { useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
 import { isUndefined } from "utils/index";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { LabeledDropdownCascader } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import Header from "pages/Resolver/Header";
@@ -19,44 +15,6 @@ import Header from "pages/Resolver/Header";
 import NavigationButtons from "../../NavigationButtons";
 
 import FeatureSelection from "./FeatureSelection";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  ${landscapeStyle(
-    () => css`
-      padding-bottom: 115px;
-    `
-  )}
-`;
-
-const StyledDropdownCascader = styled(LabeledDropdownCascader)`
-  width: 84vw;
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
-  > button {
-    width: 100%;
-  }
-`;
-
-const AlertMessageContainer = styled.div`
-  width: 84vw;
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
-  margin-top: 24px;
-
-  h2 {
-    margin: 0;
-  }
-`;
 
 const Court: React.FC = () => {
   const { t } = useTranslation();
@@ -75,30 +33,31 @@ const Court: React.FC = () => {
   };
 
   return (
-    <Container>
+    <div className="flex flex-col items-center lg:pb-28.75">
       <Header text={t("headers.select_court_to_arbitrate")} />
       {items ? (
-        <StyledDropdownCascader
+        <LabeledDropdownCascader
           ariaLabel={t("aria_labels.select_court")}
           items={items}
           callback={(item) => typeof item.itemValue === "string" && handleCourtChange(item.itemValue.split("/").pop()!)}
           placeholder={t("forms.placeholders.select_court")}
           selectedKey={`/courts/${disputeData.courtId}`}
+          className="w-[84vw] lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))] [&_>_button]:w-full"
         />
       ) : (
         <StyledSkeleton width={240} height={42} />
       )}
 
-      <AlertMessageContainer>
+      <div className="w-[84vw] lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))] mt-6 [&_h2]:m-0">
         <AlertMessage
           title={t("alerts.check_courts_beforehand")}
           msg={t("alerts.kleros_different_courts")}
           variant="info"
         />
-      </AlertMessageContainer>
+      </div>
       {isUndefined(disputeData.courtId) ? null : <FeatureSelection />}
       <NavigationButtons prevRoute="/resolver/description" nextRoute="/resolver/category" />
-    </Container>
+    </div>
   );
 };
 

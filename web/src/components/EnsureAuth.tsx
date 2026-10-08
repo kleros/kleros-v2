@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
@@ -8,19 +7,6 @@ import { useAtlasProvider } from "@kleros/kleros-app";
 import { Button } from "@kleros/ui-components-library";
 
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-`;
-
-const StyledInfo = styled.p`
-  margin: 0;
-  padding: 0;
-`;
 
 interface IEnsureAuth {
   children: React.ReactElement;
@@ -47,8 +33,8 @@ const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, clas
   return isVerified ? (
     children
   ) : (
-    <Container>
-      {message ? <StyledInfo>{message}</StyledInfo> : null}
+    <div className="flex flex-col gap-4 justify-center items-center">
+      {message ? <p className="m-0 p-0">{message}</p> : null}
       <Button
         text={buttonText ?? t("wallet.sign_in")}
         onPress={handleClick}
@@ -56,7 +42,7 @@ const EnsureAuth: React.FC<IEnsureAuth> = ({ children, message, buttonText, clas
         isLoading={isSigningIn}
         {...{ className }}
       />
-    </Container>
+    </div>
   );
 };
 

@@ -1,34 +1,16 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import InfoCircle from "svgs/icons/info-circle.svg";
 
-const Container = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-`;
-
-const StyledSpan = styled.span`
-  color: ${({ theme }) => theme.secondaryText};
-  font-size: 14px;
-`;
-
-const StyledInfoCircle = styled(InfoCircle)`
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-`;
-
 const Info: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <Container>
-      <StyledInfoCircle />
-      <StyledSpan>{t("misc.past_performance_disclaimer")}</StyledSpan>
-    </Container>
+    <div className="flex items-start gap-2">
+      <InfoCircle className="w-[16px] h-[16px] shrink-0" />
+      <span className="text-klerosUIComponentsSecondaryText text-[14px]">{t("misc.past_performance_disclaimer")}</span>
+    </div>
   );
 };
 export default Info;

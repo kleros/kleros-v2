@@ -1,95 +1,48 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 
 import { socialmedia } from "consts/socialmedia";
-
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import { ExternalLink } from "components/ExternalLink";
 import LightButton from "components/LightButton";
 
-const Container = styled.div`
-  width: 100%;
-  background-color: ${({ theme }) => (theme.name === "dark" ? theme.lightBlue : theme.primaryPurple)};
-  display: flex;
-  justify-content: center;
-`;
-
-const Inner = styled.div`
-  width: 100%;
-  max-width: ${MAX_WIDTH_LANDSCAPE};
-  min-height: 114px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 16px;
-  gap: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      min-height: 64px;
-      flex-direction: row;
-      justify-content: space-between;
-      padding: 0 ${responsiveSize(0, 132)};
-    `
-  )}
-`;
-
-const StyledSecuredByKlerosLogo = styled(SecuredByKlerosLogo)`
-  ${hoverShortTransitionTiming}
-  min-height: 24px;
-
-  path {
-    fill: ${({ theme }) => theme.white}BF;
-  }
-
-  :hover path {
-    fill: ${({ theme }) => theme.white};
-  }
-`;
-
-const StyledSocialMedia = styled.div`
-  display: flex;
-
-  .button-svg {
-    margin-right: 0;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      margin-right: -8px;
-    `
-  )}
-`;
-
 const SecuredByKleros: React.FC = () => (
   <ExternalLink to="https://kleros.io" target="_blank" rel="noreferrer">
-    <StyledSecuredByKlerosLogo />
+    <SecuredByKlerosLogo
+      className={cn(
+        "[transition:0.1s] min-h-[24px]",
+        "[&_path]:[fill:color-mix(in_srgb,_var(--klerosUIComponentsWhite)_74.90196078431373%,_transparent)]",
+        "[&:hover_path]:fill-klerosUIComponentsWhite"
+      )}
+    />
   </ExternalLink>
 );
 
 const SocialMedia = () => (
-  <StyledSocialMedia>
+  <div className="flex [&_.button-svg]:mr-0 lg:-mr-2">
     {Object.values(socialmedia).map((site) => (
       <ExternalLink key={site.url} to={site.url} target="_blank" rel="noreferrer">
         <LightButton Icon={site.icon} text="" />
       </ExternalLink>
     ))}
-  </StyledSocialMedia>
+  </div>
 );
 
 const Footer: React.FC = () => (
-  <Container>
-    <Inner>
+  <div className="flex w-full justify-center bg-klerosUIComponentsPrimaryPurple dark:bg-klerosUIComponentsLightBlue">
+    <div
+      className={cn(
+        "w-full max-w-[1400px] min-h-[114px] flex flex-col justify-center items-center p-[8px_16px] gap-4",
+        "lg:min-h-[64px] lg:flex-row lg:justify-between",
+        "lg:p-[0_calc(0px_+_(132_-_0)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
+      )}
+    >
       <SecuredByKleros />
       <SocialMedia />
-    </Inner>
-  </Container>
+    </div>
+  </div>
 );
 
 export default Footer;

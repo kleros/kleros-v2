@@ -1,30 +1,28 @@
 "use client";
 import React from "react";
-import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import HeroImage from "components/HeroImage";
 
 import Header from "./Header";
 import Tools from "./Tools";
 
-const Container = styled.div`
-  width: 100%;
-  background-color: ${({ theme }) => theme.klerosUIComponentsLightBackground};
-  padding: ${responsiveSize(32, 72)} ${responsiveSize(8, 132)} ${responsiveSize(76, 96)};
-  max-width: 1780px;
-  margin: 0 auto;
-`;
-
 const Home: React.FC = () => {
   return (
     <div>
       <HeroImage />
-      <Container>
+      <div
+        className={cn(
+          "mx-auto w-full max-w-[1780px] bg-klerosUIComponentsLightBackground",
+          "px-[calc(8px+(132-8)*(min(max(100vw,375px),1250px)-375px)/875)]",
+          "pt-[calc(32px+(72-32)*(min(max(100vw,375px),1250px)-375px)/875)]",
+          "pb-[calc(76px+(96-76)*(min(max(100vw,375px),1250px)-375px)/875)]"
+        )}
+      >
         <Header />
         <Tools />
-      </Container>
+      </div>
     </div>
   );
 };

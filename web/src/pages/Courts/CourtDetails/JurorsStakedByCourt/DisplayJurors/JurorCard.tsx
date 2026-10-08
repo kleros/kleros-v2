@@ -1,27 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-
-import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import JurorLink from "components/JurorLink";
 
 import Stake from "./Stake";
-
-const Container = styled.div`
-  ${hoverShortTransitionTiming}
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top: none;
-  align-items: center;
-  padding: 16px 20px;
-
-  :hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
-  }
-`;
 
 interface IJurorCard {
   address: string;
@@ -30,10 +11,10 @@ interface IJurorCard {
 
 const JurorCard: React.FC<IJurorCard> = ({ address, effectiveStake }) => {
   return (
-    <Container>
+    <div className="[transition:0.1s] flex justify-between w-full bg-klerosUIComponentsWhiteBackground border border-solid border-klerosUIComponentsStroke border-t-0 items-center p-[16px_20px] [&:hover]:[background-color:color-mix(in_srgb,_var(--klerosUIComponentsLightGrey)_73.33333333333333%,_transparent)]">
       <JurorLink {...{ address }} smallDisplay />
       <Stake {...{ effectiveStake }} />
-    </Container>
+    </div>
   );
 };
 

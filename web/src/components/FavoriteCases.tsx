@@ -1,62 +1,17 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import { StandardPagination } from "@kleros/ui-components-library";
 
 import useStarredCases from "hooks/useStarredCases";
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 
 import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { responsiveSize } from "styles/responsiveSize";
-
 import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
-
-const Container = styled.div`
-  margin-top: ${responsiveSize(24, 48)};
-`;
-
-const Title = styled.h1`
-  margin: 0;
-  font-size: ${responsiveSize(20, 24)};
-`;
-
-const DisputeContainer = styled.div`
-  --gap: 16px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(312px, (100% - var(--gap) * 2)/3)), 1fr));
-  align-items: stretch;
-  gap: var(--gap);
-`;
-
-const TitleAndClearLabel = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: ${responsiveSize(12, 24)};
-`;
-
-const StyledLabel = styled.label`
-  ${hoverShortTransitionTiming}
-  color: ${({ theme }) => theme.primaryBlue};
-  cursor: pointer;
-  margin-top: 6px;
-
-  :hover {
-    color: ${({ theme }) => theme.secondaryBlue};
-  }
-`;
-
-const StyledPagination = styled(StandardPagination)`
-  margin-top: 24px;
-  margin-left: auto;
-  margin-right: auto;
-`;
 
 const FavoriteCases: React.FC = () => {
   const { t } = useTranslation();
@@ -73,24 +28,46 @@ const FavoriteCases: React.FC = () => {
   const disputes: DisputeDetailsFragment[] = useMemo(() => data?.disputes as DisputeDetailsFragment[], [data]);
 
   return starredCaseIds.length > 0 && (isUndefined(disputes) || disputes.length > 0) ? (
-    <Container>
-      <TitleAndClearLabel>
-        <Title>{t("misc.favorite_cases")}</Title>
-        <StyledLabel onClick={clearAll}>{t("buttons.clear_all")}</StyledLabel>
-      </TitleAndClearLabel>
-      <DisputeContainer>
+    <div className="mt-[calc(24px_+_(48_-_24)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+      <div
+        className={cn(
+          "flex flex-row gap-3 items-center",
+          "mb-[calc(12px_+_(24_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
+        )}
+      >
+        <h1 className="m-0 text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("misc.favorite_cases")}
+        </h1>
+        <label
+          onClick={clearAll}
+          className={cn(
+            "[transition:0.1s] text-klerosUIComponentsPrimaryBlue cursor-pointer mt-1.5",
+            "[&:hover]:text-klerosUIComponentsSecondaryBlue"
+          )}
+        >
+          {t("buttons.clear_all")}
+        </label>
+      </div>
+      <div
+        className={cn(
+          "[--gap:16px] grid",
+          "[grid-template-columns:repeat(auto-fill,_minmax(min(100%,_max(312px,_(100%_-_var(--gap)_*_2)/3)),_1fr))]",
+          "items-stretch gap-[var(--gap)]"
+        )}
+      >
         {isUndefined(disputes)
           ? Array.from({ length: 3 }).map((_, index) => <SkeletonDisputeCard key={index} />)
           : disputes.map((dispute) => <DisputeView key={dispute.id} {...dispute} overrideIsList />)}
-      </DisputeContainer>
+      </div>
       {totalPages > 1 ? (
-        <StyledPagination
+        <StandardPagination
           currentPage={currentPage}
           numPages={totalPages}
           callback={(page: number) => setCurrentPage(page)}
+          className="mt-6 ml-auto mr-auto"
         />
       ) : null}
-    </Container>
+    </div>
   ) : null;
 };
 

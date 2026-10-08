@@ -1,22 +1,8 @@
-import React, { Dispatch, SetStateAction, useId, useMemo, useEffect } from "react";
-import styled from "styled-components";
+import React, { Dispatch, SetStateAction, useEffect, useId, useMemo } from "react";
 
 import { TextField } from "@kleros/ui-components-library";
 
 import { isEmpty } from "src/utils";
-
-const StyledLabel = styled.label`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-`;
-
-const StyledField = styled(TextField)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-`;
 
 interface IForm {
   contactLabel: string;
@@ -59,8 +45,10 @@ const FormContact: React.FC<IForm> = ({
 
   return (
     <>
-      <StyledLabel id={labelId}>{contactLabel}</StyledLabel>
-      <StyledField
+      <label id={labelId} className="flex justify-between mb-2.5">
+        {contactLabel}
+      </label>
+      <TextField
         aria-labelledby={labelId}
         inputProps={{ dir: "auto" }}
         variant={fieldVariant}
@@ -68,6 +56,7 @@ const FormContact: React.FC<IForm> = ({
         onChange={handleInputChange}
         placeholder={contactPlaceholder}
         isDisabled={isDisabled}
+        className="flex flex-col items-center w-full"
       />
     </>
   );

@@ -11,8 +11,6 @@ import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
 
-import { theme } from "styles/Theme";
-
 const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 if (!alchemyApiKey) {
   throw new Error("Alchemy API key is not set in NEXT_PUBLIC_ALCHEMY_API_KEY environment variable.");
@@ -93,7 +91,7 @@ createAppKit({
   defaultNetwork: isProduction ? arbitrum : arbitrumSepolia,
   projectId,
   themeVariables: {
-    "--w3m-color-mix": theme.klerosUIComponentsPrimaryPurple,
+    "--w3m-color-mix": "#7e1bd4",
     "--w3m-color-mix-strength": 20,
   },
 });

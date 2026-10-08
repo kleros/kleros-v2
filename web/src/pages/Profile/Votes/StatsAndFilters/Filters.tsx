@@ -1,20 +1,13 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
+import { useTheme } from "hooks/useTheme";
 import type { SelectItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { LabeledDropdownSelect } from "components/LabeledDropdown";
-
-const Container = styled.div`
-  display: flex;
-  justify-content: end;
-  gap: 12px;
-  width: fit-content;
-`;
 
 const Filters: React.FC = () => {
   const { t } = useTranslation();
@@ -37,7 +30,7 @@ const Filters: React.FC = () => {
   };
 
   return (
-    <Container>
+    <div className="flex justify-end gap-3 w-fit">
       <LabeledDropdownSelect
         ariaLabel={t("aria_labels.filter_by_status")}
         smallButton
@@ -76,7 +69,7 @@ const Filters: React.FC = () => {
         defaultSelectedKey={order}
         callback={handleOrderChange}
       />
-    </Container>
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
@@ -8,36 +7,7 @@ import { AliasArray, useNewDisputeContext } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
 import { validateAddress } from "utils/validateAddressOrEns";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import LabeledInput from "components/LabeledInput";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 48px;
-  width: 84vw;
-
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
-`;
-
-const AliasContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  width: 100%;
-  ${landscapeStyle(
-    () => css`
-      display: grid;
-      grid-template-columns: 190px auto;
-    `
-  )}
-`;
 
 const PersonFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
@@ -95,9 +65,9 @@ const PersonFields: React.FC = () => {
   };
 
   return (
-    <Container>
+    <div className="flex flex-col gap-12 w-[84vw] lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))]">
       {disputeData.aliasesArray?.map((alias, index) => (
-        <AliasContainer key={alias?.id}>
+        <div key={alias?.id} className="flex flex-col gap-7.5 w-full lg:grid lg:[grid-template-columns:190px_auto]">
           <LabeledInput
             label={t("forms.labels.person_number", { number: index + 1 })}
             placeholder={t("forms.placeholders.alice_developer_example")}
@@ -112,9 +82,9 @@ const PersonFields: React.FC = () => {
             value={alias.address}
             onChange={(value) => handleAliasesWrite(index, "address", value)}
           />
-        </AliasContainer>
+        </div>
       ))}
-    </Container>
+    </div>
   );
 };
 export default PersonFields;

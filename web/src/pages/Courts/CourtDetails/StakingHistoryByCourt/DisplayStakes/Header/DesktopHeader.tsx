@@ -1,79 +1,30 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-const Container = styled.div`
-  display: none;
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBlue};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  padding: 16px 20px;
-  margin-top: ${responsiveSize(12, 16)};
-  gap: 12px;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-    `
-  )}
-`;
-
-const StyledLabel = styled.label`
-  font-size: 14px;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const JurorLabel = styled(StyledLabel)`
-  flex: 1;
-  min-width: 150px;
-  text-align: left;
-`;
-
-const StakeLabel = styled(StyledLabel)`
-  width: 90px;
-  text-align: right;
-  flex-shrink: 0;
-`;
-
-const CourtLabelContainer = styled.div`
-  width: 110px;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-`;
-
-const CourtLabel = styled(StyledLabel)`
-  text-align: right;
-`;
-
-const DateLabel = styled(StyledLabel)`
-  width: 120px;
-  text-align: right;
-  flex-shrink: 0;
-`;
+const StyledLabel = React.forwardRef<React.ElementRef<"label">, React.ComponentPropsWithoutRef<"label">>(
+  function StyledLabel({ className, ...props }, ref) {
+    return <label {...props} ref={ref} className={cn("text-[14px] text-klerosUIComponentsSecondaryText", className)} />;
+  }
+);
 
 export const DesktopHeader: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Container>
-      <JurorLabel>{t("profile.juror")}</JurorLabel>
-      <StakeLabel>{t("profile.pnk_staked")}</StakeLabel>
-      <CourtLabelContainer>
+    <div className="hidden w-full bg-klerosUIComponentsLightBlue border border-solid border-klerosUIComponentsStroke [border-top-left-radius:3px] [border-top-right-radius:3px] p-[16px_20px] mt-[calc(12px_+_(16_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] gap-3 lg:flex">
+      <StyledLabel className="flex-1 min-w-[150px] text-left">{t("profile.juror")}</StyledLabel>
+      <StyledLabel className="w-[90px] text-right shrink-0">{t("profile.pnk_staked")}</StyledLabel>
+      <div className="w-[110px] shrink-0 flex justify-end items-center">
         <WithHelpTooltip place="top" tooltipMsg={t("profile.court_staking_tooltip")}>
-          <CourtLabel>{t("profile.court")}</CourtLabel>
+          <StyledLabel className="text-right">{t("profile.court")}</StyledLabel>
         </WithHelpTooltip>
-      </CourtLabelContainer>
-      <DateLabel>{t("profile.date")}</DateLabel>
-    </Container>
+      </div>
+      <StyledLabel className="w-[120px] text-right shrink-0">{t("profile.date")}</StyledLabel>
+    </div>
   );
 };

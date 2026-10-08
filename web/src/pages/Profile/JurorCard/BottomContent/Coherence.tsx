@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -7,22 +6,7 @@ import { CircularProgress } from "@kleros/ui-components-library";
 
 import { ILevelCriteria } from "utils/userLevelCalculation";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import WithHelpTooltip from "components/WithHelpTooltip";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-
-  ${landscapeStyle(
-    () => css`
-      gap: 0;
-    `
-  )}
-`;
 
 interface ICoherence {
   userLevelData: ILevelCriteria;
@@ -46,7 +30,7 @@ const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, to
   );
 
   return (
-    <Container>
+    <div className="flex flex-col items-center gap-1 lg:gap-0">
       <small>{t(userLevelData.titleKey)}</small>
       <label>{t("juror_levels.level_number", { level: userLevelData.level })}</label>
       <CircularProgress value={parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2))} />
@@ -57,7 +41,7 @@ const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, to
       ) : (
         votesContent
       )}
-    </Container>
+    </div>
   );
 };
 

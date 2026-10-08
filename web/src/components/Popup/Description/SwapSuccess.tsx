@@ -1,60 +1,14 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 import PnkIcon from "svgs/tokens/pnk.svg";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import { Divider } from "components/Divider";
 import LightButton from "components/LightButton";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 24px;
-  margin-top: 32px;
-  gap: 24px;
-`;
-
-const AmountContainer = styled.div`
-  display: flex;
-  align-items: center;
-  height: fit-content;
-  gap: ${responsiveSize(16, 32)};
-`;
-
-const SVGContainer = styled.div`
-  width: ${responsiveSize(30, 50)};
-  height: ${responsiveSize(30, 50)};
-`;
-
-const Amount = styled.h1`
-  color: ${({ theme }) => theme.secondaryPurple};
-  font-size: ${responsiveSize(32, 64)};
-  margin: 0px;
-`;
-
-const Subtitle = styled.label`
-  display: flex;
-`;
-
-const StyledButton = styled(LightButton)`
-  display: flex;
-  flex-direction: row-reverse;
-  gap: 8px;
-  > .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-  padding-top: 0px;
-`;
-
-const StyledDivider = styled(Divider)`
-  margin: ${responsiveSize(32, 64)} 0px 0px;
-`;
 
 interface ISwapSuccess {
   hash: string;
@@ -66,25 +20,38 @@ const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim }) => {
   const { t } = useTranslation();
   const baseUrl = `https://sepolia.arbiscan.io/tx/${hash}`;
   return (
-    <Container>
-      <AmountContainer>
-        <Amount>{amount} PNK</Amount>
-        <SVGContainer>
+    <div className="flex flex-col items-center mb-6 mt-8 gap-6">
+      <div className="flex items-center h-fit gap-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+        <h1
+          className={cn(
+            "text-klerosUIComponentsSecondaryPurple",
+            "text-[calc(32px_+_(64_-_32)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] m-0"
+          )}
+        >
+          {amount} PNK
+        </h1>
+        <div
+          className={cn(
+            "w-[calc(30px_+_(50_-_30)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "h-[calc(30px_+_(50_-_30)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
+          )}
+        >
           <PnkIcon />
-        </SVGContainer>
-      </AmountContainer>
+        </div>
+      </div>
       {isClaim ? (
-        <Subtitle>{t("swap.claimed_testnet", { amount })}</Subtitle>
+        <label className="flex">{t("swap.claimed_testnet", { amount })}</label>
       ) : (
-        <Subtitle>{t("swap.bridge_from_to", { from: "Ethereum", to: "Arbitrum" })}</Subtitle>
+        <label className="flex">{t("swap.bridge_from_to", { from: "Ethereum", to: "Arbitrum" })}</label>
       )}
-      <StyledDivider />
-      <StyledButton
+      <Divider className="m-[calc(32px_+_(64_-_32)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_0px_0px]" />
+      <LightButton
         onPress={() => window.open(baseUrl, "_blank", "rel=noopener noreferrer")}
         text={t("buttons.view_transaction_etherscan")}
         Icon={ArrowIcon}
+        className="flex [flex-direction:row-reverse] gap-2 [&>.button-text]:text-klerosUIComponentsPrimaryBlue pt-0"
       />
-    </Container>
+    </div>
   );
 };
 

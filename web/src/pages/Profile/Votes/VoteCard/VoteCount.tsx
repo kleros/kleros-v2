@@ -1,26 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import VotesIcon from "svgs/icons/voted-ballot.svg";
-
-const Container = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-
-  small {
-    font-weight: 400;
-    color: ${({ theme }) => theme.secondaryPurple};
-  }
-
-  svg {
-    path {
-      fill: ${({ theme }) => theme.secondaryPurple};
-    }
-  }
-`;
 
 interface IVoteCount {
   count: number;
@@ -30,10 +12,10 @@ const VoteCount: React.FC<IVoteCount> = ({ count }) => {
   const { t } = useTranslation();
 
   return (
-    <Container>
+    <div className="flex gap-2 items-center [&_small]:font-normal [&_small]:text-klerosUIComponentsSecondaryPurple [&_svg_path]:fill-klerosUIComponentsSecondaryPurple">
       <VotesIcon />
       <small>{t("voting.vote", { count })}</small>
-    </Container>
+    </div>
   );
 };
 

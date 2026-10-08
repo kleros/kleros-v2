@@ -1,36 +1,26 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { cn } from "utils/cn";
 
 import Coherence from "pages/Profile/JurorCard/BottomContent/Coherence";
 import PixelArt from "pages/Profile/JurorCard/BottomContent/PixelArt";
 
 import Template from "./MainStructureTemplate";
-import { Title, ParagraphsContainer, LeftContentContainer } from "./PageContentsTemplate";
+import { LeftContentContainer, ParagraphsContainer, Title } from "./PageContentsTemplate";
 
-const Card = styled(_Card)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 234px;
-  height: 100%;
-  gap: 28px;
-
-  padding: 24px;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      width: 100%;
-      height: 236px;
-    `
-  )}
-`;
+const Card = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof _Card>) => (
+  <_Card
+    {...props}
+    className={cn(
+      "flex flex-col items-center w-[234px] h-full gap-7 p-6 lg:flex-row lg:w-full lg:h-[236px]",
+      className
+    )}
+  />
+);
 
 const getLeftPageContents = (t: any) => [
   {

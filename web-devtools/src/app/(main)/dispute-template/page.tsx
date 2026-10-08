@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 import { useDebounce } from "react-use";
@@ -9,7 +8,7 @@ import { Mode } from "vanilla-jsoneditor";
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
-import { Field } from "@kleros/ui-components-library";
+import { TextField } from "@kleros/ui-components-library";
 
 import PolicyIcon from "svgs/icons/policy.svg";
 
@@ -20,134 +19,12 @@ import { debounceErrorToast } from "utils/debounceErrorToast";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { isEmpty } from "utils/isEmpty";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import JSONEditor from "components/JSONEditor";
 import ReactMarkdown from "components/ReactMarkdown";
 
 import CustomContextInputs from "./CustomContextInputs";
 import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestInput";
 import FetchFromIDInput from "./FetchFromIdInput";
-
-const Container = styled.div`
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  > h1 {
-    margin: 0;
-  }
-
-  > hr {
-    width: 100%;
-  }
-`;
-
-const QuestionAndDescription = styled.div`
-  display: flex;
-  flex-direction: column;
-  > * {
-    margin: 0px;
-  }
-`;
-
-const VotingOptions = styled(QuestionAndDescription)`
-  display: flex;
-  flex-direction: column;
-  > span {
-    margin: 0px;
-    display: flex;
-    gap: 8px;
-  }
-`;
-
-const ShadeArea = styled.div`
-  width: 100%;
-  padding: 16px;
-  margin-top: 16px;
-  background-color: ${({ theme }) => theme.klerosUIComponentsMediumBlue};
-  > p {
-    margin-top: 0;
-  }
-`;
-
-const StyledA = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  > svg {
-    width: 16px;
-    fill: ${({ theme }) => theme.klerosUIComponentsPrimaryBlue};
-  }
-`;
-
-const LinkContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const LongTextSections = styled.div`
-  min-height: calc(100vh - 144px);
-  margin: 24px;
-  display: flex;
-  gap: 12px;
-  flex-direction: column;
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-    `
-  )}
-`;
-const UpperContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  ${landscapeStyle(
-    () => css`
-      grid-template-columns: 1fr 1fr;
-    `
-  )}
-`;
-
-const StyledForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-top: 24px;
-  margin-left: 24px;
-`;
-
-const StyledRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      gap: 24px;
-    `
-  )}
-`;
-
-const StyledP = styled.p`
-  font-family: "Roboto Mono", monospace;
-`;
-
-const StyledHeader = styled.h2`
-  margin-top: 24px;
-`;
-
-const StyledTitle = styled.div`
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const LongText = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: auto;
-`;
 
 const DisputeTemplateView = () => {
   const klerosCoreAddress = klerosCoreConfig.address[DEFAULT_CHAIN as keyof typeof klerosCoreConfig.address];
@@ -165,12 +42,9 @@ const DisputeTemplateView = () => {
 
   useDebounce(() => setDebouncedParams(params), 350, [params]);
 
-  const handleFormUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = ["_arbitrator", "_arbitrable", "_templateUri"].includes(event.target.name)
-      ? event.target.value
-      : BigInt(event.target.value);
-
-    setParams({ ...params, [event.target.name]: value });
+  const handleFormUpdate = (name: keyof DisputeRequest, input: string) => {
+    const value = ["_arbitrator", "_arbitrable", "_templateUri"].includes(name) ? input : BigInt(input);
+    setParams((previous) => ({ ...previous, [name]: value }));
   };
 
   useEffect(() => {
@@ -222,56 +96,64 @@ const DisputeTemplateView = () => {
 
   return (
     <>
-      <StyledTitle>
+      <div className="mt-4 flex items-center justify-center">
         <h1>Dispute Preview</h1>
-      </StyledTitle>
-      <UpperContainer>
-        <StyledForm>
-          <StyledHeader>Dispute Request event parameters</StyledHeader>
-          <StyledRow>
-            <StyledP>{"arbitrator :"}</StyledP>
-            <Field
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+        <form className="ml-6 mt-6 flex flex-col justify-center">
+          <h2 className="mt-6">Dispute Request event parameters</h2>
+          <div className="flex flex-col lg:flex-row lg:gap-6">
+            <p className="font-['Roboto_Mono',monospace]">{"arbitrator :"}</p>
+            <TextField
               type="text"
+              inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
+              aria-label="arbitrator"
               name="_arbitrator"
               value={params._arbitrator}
-              onChange={handleFormUpdate}
+              onChange={(value) => handleFormUpdate("_arbitrator", value)}
               placeholder="0x..."
             />
-          </StyledRow>
-          <StyledRow>
-            <StyledP>{"arbitrable :"}</StyledP>
-            <Field
+          </div>
+          <div className="flex flex-col lg:flex-row lg:gap-6">
+            <p className="font-['Roboto_Mono',monospace]">{"arbitrable :"}</p>
+            <TextField
               type="text"
+              inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
+              aria-label="arbitrable"
               name="_arbitrable"
               value={params._arbitrable}
-              onChange={handleFormUpdate}
+              onChange={(value) => handleFormUpdate("_arbitrable", value)}
               placeholder="0x..."
             />
-          </StyledRow>
-          <StyledRow>
-            <StyledP>{"arbitratorDisputeID :"}</StyledP>
-            <Field
+          </div>
+          <div className="flex flex-col lg:flex-row lg:gap-6">
+            <p className="font-['Roboto_Mono',monospace]">{"arbitratorDisputeID :"}</p>
+            <TextField
               type="text"
+              inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
+              aria-label="arbitratorDisputeID"
               name="_arbitratorDisputeID"
               value={params._arbitratorDisputeID?.toString()}
-              onChange={handleFormUpdate}
+              onChange={(value) => handleFormUpdate("_arbitratorDisputeID", value)}
               placeholder="0"
             />
-          </StyledRow>
-          <StyledRow>
-            <StyledP>{"templateID :"}</StyledP>
-            <Field
+          </div>
+          <div className="flex flex-col lg:flex-row lg:gap-6">
+            <p className="font-['Roboto_Mono',monospace]">{"templateID :"}</p>
+            <TextField
               type="text"
+              inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
+              aria-label="templateId"
               name="_templateId"
               value={params._templateId?.toString()}
-              onChange={handleFormUpdate}
+              onChange={(value) => handleFormUpdate("_templateId", value)}
               placeholder="0"
             />
-          </StyledRow>
-          <StyledRow>
+          </div>
+          <div className="flex flex-col lg:flex-row lg:gap-6">
             <CustomContextInputs dataMapping={dataMappingsInput} setCustomContext={setCustomContext} />
-          </StyledRow>
-        </StyledForm>
+          </div>
+        </form>
         <div>
           <FetchFromIDInput
             {...{ setDataMappingsInput, setDisputeTemplateInput }}
@@ -279,11 +161,11 @@ const DisputeTemplateView = () => {
           />
           <FetchDisputeRequestInput setParams={setParams} />
         </div>
-      </UpperContainer>
+      </div>
 
-      <LongTextSections>
-        <LongText>
-          <StyledHeader>Template</StyledHeader>
+      <div className="m-6 flex min-h-[calc(100vh-144px)] flex-col gap-3 lg:flex-row">
+        <div className="flex w-auto flex-col">
+          <h2 className="mt-6">Template</h2>
           <JSONEditor
             content={{ text: disputeTemplateInput }}
             mode={Mode.text}
@@ -291,9 +173,9 @@ const DisputeTemplateView = () => {
               setDisputeTemplateInput(val.text);
             }}
           />
-        </LongText>
-        <LongText>
-          <StyledHeader>Data Mapping</StyledHeader>
+        </div>
+        <div className="flex w-auto flex-col">
+          <h2 className="mt-6">Data Mapping</h2>
           <JSONEditor
             content={{ text: dataMappingsInput }}
             mode={Mode.text}
@@ -301,31 +183,31 @@ const DisputeTemplateView = () => {
               setDataMappingsInput(val.text);
             }}
           />
-        </LongText>
-        <LongText>
-          <StyledHeader>Dispute Preview</StyledHeader>
+        </div>
+        <div className="flex w-auto flex-col">
+          <h2 className="mt-6">Dispute Preview</h2>
           <br />
           {loading ? <Skeleton /> : <Overview disputeDetails={disputeDetails} />}
-        </LongText>
-      </LongTextSections>
+        </div>
+      </div>
     </>
   );
 };
 
 const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ disputeDetails }) => {
   return (
-    <Container>
+    <div className="flex h-auto flex-col gap-4 [&>h1]:m-0 [&>hr]:w-full">
       <h1>{disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR}</h1>
-      <QuestionAndDescription>
+      <div className="flex flex-col [&>*]:m-0">
         <ReactMarkdown>{disputeDetails?.question ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
         <ReactMarkdown>{disputeDetails?.description ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
-      </QuestionAndDescription>
+      </div>
       {disputeDetails?.frontendUrl && (
         <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
         </a>
       )}
-      <VotingOptions>
+      <div className="flex flex-col [&>*]:m-0 [&>span]:flex [&>span]:gap-2">
         {disputeDetails && <h3>Voting Options</h3>}
         {disputeDetails?.answers?.map((answer: Answer, i: number) => (
           <span key={answer.id}>
@@ -334,19 +216,24 @@ const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ di
             <label>{answer.description}</label>
           </span>
         ))}
-      </VotingOptions>
-      <ShadeArea>
+      </div>
+      <div className="mt-4 w-full bg-klerosUIComponentsMediumBlue p-4 [&>p]:mt-0">
         <p>Make sure you read and understand the Policies</p>
-        <LinkContainer>
+        <div className="flex justify-between">
           {disputeDetails?.policyURI && (
-            <StyledA href={getIpfsUrl(disputeDetails?.policyURI)} target="_blank" rel="noreferrer">
+            <a
+              className="flex items-center gap-1 [&>svg]:w-4 [&>svg]:fill-klerosUIComponentsPrimaryBlue"
+              href={getIpfsUrl(disputeDetails?.policyURI)}
+              target="_blank"
+              rel="noreferrer"
+            >
               <PolicyIcon />
               Dispute Policy
-            </StyledA>
+            </a>
           )}
-        </LinkContainer>
-      </ShadeArea>
-    </Container>
+        </div>
+      </div>
+    </div>
   );
 };
 

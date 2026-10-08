@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Routes, Route, Navigate, useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
@@ -8,66 +7,8 @@ import { Tabs } from "@kleros/ui-components-library";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
-
 import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
-
-const Container = styled.div`
-  width: 100%;
-`;
-
-const TextContainer = styled.div`
-  width: 100%;
-  padding: 12px 0;
-`;
-
-const StyledMarkdownRenderer = styled(MarkdownRenderer)`
-  p {
-    word-break: break-word;
-  }
-
-  ul,
-  ol {
-    li + li {
-      margin-top: 8px;
-    }
-  }
-
-  h1 {
-    margin: 16px 0 16px 0;
-    font-size: 20px;
-    line-height: 26px;
-  }
-
-  h2 {
-    margin: 16px 0 16px 0;
-    font-size: 20px;
-    line-height: 26px;
-  }
-
-  h3 {
-    margin: 16px 0 16px 0;
-    font-size: 18px;
-    line-height: 24px;
-  }
-
-  a {
-    font-size: 16px;
-  }
-`;
-
-const StyledTabs = styled(Tabs)`
-  ${tabsSelectedUnderline}
-  width: 100%;
-  > * {
-    display: flex;
-    flex-wrap: wrap;
-    > svg {
-      margin-right: 0px !important;
-    }
-  }
-`;
 
 interface IPolicy {
   purpose?: string;
@@ -124,21 +65,33 @@ const Description: React.FC = () => {
     }
   }, [policy, currentPathName, filteredTabs, navigate, suffix]);
   return policy ? (
-    <Container id="description">
-      <StyledTabs selectedKey={activePath} items={tabItems} callback={(key) => navigate(`${String(key)}${suffix}`)} />
-      <TextContainer>
+    <div id="description" className="w-full">
+      <Tabs
+        selectedKey={activePath}
+        items={tabItems}
+        callback={(key) => navigate(`${String(key)}${suffix}`)}
+        className={"tabs-selected-underline w-full [&_>_*]:flex [&_>_*]:flex-wrap [&_>_*_>_svg]:mr-0!"}
+      />
+      <div className="w-full p-[12px_0]">
         <Routes>
           <Route path="purpose" element={formatMarkdown(policy?.purpose)} />
           <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
           <Route path="policy" element={formatMarkdown(policy?.rules)} />
           <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
         </Routes>
-      </TextContainer>
-    </Container>
+      </div>
+    </div>
   ) : null;
 };
 
 const formatMarkdown = (markdown?: string) =>
-  markdown ? <StyledMarkdownRenderer content={markdown} /> : <StyledSkeleton />;
+  markdown ? (
+    <MarkdownRenderer
+      content={markdown}
+      className="[&_p]:[word-break:break-word] [&_ul_li_+_li]:mt-2 [&_ol_li_+_li]:mt-2 [&_h1]:m-[16px_0_16px_0] [&_h1]:text-[20px] [&_h1]:leading-[26px] [&_h2]:m-[16px_0_16px_0] [&_h2]:text-[20px] [&_h2]:leading-[26px] [&_h3]:m-[16px_0_16px_0] [&_h3]:text-[18px] [&_h3]:leading-[24px] [&_a]:text-[16px]"
+    />
+  ) : (
+    <StyledSkeleton />
+  );
 
 export default Description;

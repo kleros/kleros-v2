@@ -1,109 +1,74 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
-import styled, { css } from "styled-components";
+import React from "react";
 
-import { Checkbox, Field, type CheckboxProps, type FieldProps } from "@kleros/ui-components-library";
+import { Checkbox, NumberField, TextField } from "@kleros/ui-components-library";
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  width: 280px;
-  max-width: 280px;
-  height: 46px;
-  position: relative;
-  box-sizing: border-box;
-`;
+import { cn } from "utils/cn";
 
-const ContainerCss = css`
-  flex: 1;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid ${({ theme }) => theme.klerosUIComponentsStroke};
-`;
+// React Aria resets uncommitted input when this object's identity changes.
+const NUMBER_FORMAT_OPTIONS = { useGrouping: false };
 
-const LabelContainer = styled.div<{ isField?: boolean }>`
-  ${ContainerCss}
-  border-radius: 3px 0px 0px 3px;
-  background-color: ${({ theme }) => theme.klerosUIComponentsLightBackground};
-  ${({ isField }) =>
-    isField &&
-    css`
-      width: 50%;
-      height: 45px;
-      position: absolute;
-      top: 0.5px;
-      left: 0.5px;
-      z-index: 1;
-    `}
-`;
-
-const Label = styled.label`
-  color: ${({ theme }) => theme.klerosUIComponentsPrimaryText};
-`;
-
-const InputContainer = styled.div<{ isField?: boolean }>`
-  ${ContainerCss}
-  position: relative;
-  border-radius: 0px 3px 3px 0px;
-  border-left: none;
-  background-color: ${({ theme }) => theme.klerosUIComponentsWhiteBackground};
-  ${({ isField }) =>
-    isField &&
-    css`
-      width: 100%;
-      z-index: 0;
-      border-radius: 3px;
-    `}
-`;
-
-const StyledField = styled(Field)<{ paddingLeft?: number }>`
-  width: 100%;
-  > input {
-    border: none;
-    box-sizing: border-box;
-    ${({ paddingLeft = 0 }) =>
-      paddingLeft &&
-      css`
-        padding-left: ${paddingLeft + 8}px;
-      `}
-  }
-`;
-
-const StyledCheckbox = styled(Checkbox)`
-  height: 24px;
-  width: 24px;
-  padding: 0;
-`;
-
-type BaseProps = {
-  inputType?: "field" | "checkbox";
-  label: string;
+type CheckboxInputProps = Omit<React.ComponentProps<typeof Checkbox>, "label"> & { inputType: "checkbox" };
+type TextInputProps = Omit<React.ComponentProps<typeof TextField>, "label" | "type"> & {
+  inputType?: "field";
+  type?: "text";
 };
+type NumberInputProps = Omit<React.ComponentProps<typeof NumberField>, "label"> & {
+  inputType?: "field";
+  type: "number";
+};
+type LabeledInputProps = { label: string } & (CheckboxInputProps | TextInputProps | NumberInputProps);
 
-type CheckboxInputProps = CheckboxProps & { inputType: "checkbox" };
-type DefaultInputProps = FieldProps & { inputType?: "field" };
+const LabeledInput: React.FC<LabeledInputProps> = (props) => {
+  const isField = props.inputType !== "checkbox";
+  let input: React.ReactNode;
+  if (props.inputType === "checkbox") {
+    const { label, inputType: inputTypeIgnored, ...checkboxProps } = props;
+    input = <Checkbox {...checkboxProps} label="" aria-label={label} className="size-6 p-0 [&>div]:top-0" />;
+  } else if (props.type === "number") {
+    const { label, inputType: inputTypeIgnored, type: typeIgnored, ...numberProps } = props;
+    input = (
+      <NumberField
+        formatOptions={NUMBER_FORMAT_OPTIONS}
+        {...numberProps}
+        aria-label={label}
+        inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
+        className="w-full [&_input]:border-0 [&_input]:pl-[calc(50%+8px)]"
+      />
+    );
+  } else {
+    const { label, inputType: inputTypeIgnored, ...textProps } = props;
+    input = (
+      <TextField
+        {...textProps}
+        aria-label={label}
+        inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
+        className="w-full [&_input]:border-0 [&_input]:pl-[calc(50%+8px)]"
+      />
+    );
+  }
 
-type LabeledInputProps = BaseProps & (CheckboxInputProps | DefaultInputProps);
-
-const LabeledInput: React.FC<LabeledInputProps> = ({ inputType = "field", label, ...props }) => {
-  const labelRef = useRef<HTMLDivElement>(null);
-  const [labelWidth, setLabelWidth] = useState(0);
-  useLayoutEffect(() => {
-    if (labelRef.current) {
-      setLabelWidth(labelRef.current.offsetWidth);
-    }
-  }, []);
   return (
-    <Container>
-      <LabelContainer ref={labelRef} isField={inputType === "field"}>
-        <Label>{label}</Label>
-      </LabelContainer>
-      <InputContainer isField={inputType === "field"}>
-        {inputType === "field" && <StyledField {...props} paddingLeft={labelWidth} />}
-        {inputType === "checkbox" && <StyledCheckbox label="&nbsp;" {...props} />}
-      </InputContainer>
-    </Container>
+    <div className="relative flex h-[46px] w-[280px] max-w-[280px] items-center">
+      <span
+        className={cn(
+          "pointer-events-none z-[1] flex h-full flex-1 items-center justify-center",
+          "rounded-l-[3px] border border-klerosUIComponentsStroke bg-klerosUIComponentsLightBackground",
+          "text-sm text-klerosUIComponentsPrimaryText",
+          isField && "absolute top-[0.5px] left-[0.5px] h-[45px] w-1/2"
+        )}
+      >
+        {props.label}
+      </span>
+      <div
+        className={cn(
+          "relative flex h-full flex-1 items-center justify-center rounded-r-[3px]",
+          "border border-l-0 border-klerosUIComponentsStroke bg-klerosUIComponentsWhiteBackground",
+          isField && "z-0 w-full rounded-[3px]"
+        )}
+      >
+        {input}
+      </div>
+    </div>
   );
 };
 

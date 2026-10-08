@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToggle } from "react-use";
@@ -9,8 +8,8 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import { cn } from "utils/cn";
 
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
@@ -33,86 +32,9 @@ import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
 
-const Container = styled.div`
-  display: none;
-  position: absolute;
-  height: 64px;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      position: relative;
-    `
-  )};
-`;
-
-const LeftSide = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-left: -8px;
-`;
-
-const MiddleSide = styled.div`
-  display: flex;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`;
-
-const RightSide = styled.div`
-  display: flex;
-  gap: ${responsiveSize(4, 8)};
-
-  margin-left: 8px;
-  margin-right: -8px;
-  canvas {
-    width: 20px;
-  }
-`;
-
-const LightButtonContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
-  fill: ${({ theme }) => theme.white} !important;
-`;
-
-const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain: boolean }>`
-  label {
-    color: ${({ theme }) => theme.white};
-    cursor: pointer;
-  }
-`;
-
-// Landscape-only: mirrors HeaderContainer so popups anchor to the header's content box, not
-// the viewport. Two elements: the popups' absolute left/right: 0 resolve against the padding
-// box, so the padding here can't inset them — the inner relative div marks the content edge.
-// Below landscape only the hash-driven popups (e.g. #notifications) reach here, and they
-// center themselves; staying inert lets their top/left percentages resolve against the Overlay.
-const PopupAnchor = styled.div`
-  ${landscapeStyle(
-    () => css`
-      width: 100%;
-      max-width: ${MAX_WIDTH_LANDSCAPE};
-      margin: 0 auto;
-      padding: 0 ${responsiveSize(0, 132)};
-    `
-  )}
-`;
-
-const PopupAnchorInner = styled.div`
-  ${landscapeStyle(
-    () => css`
-      position: relative;
-    `
-  )}
-`;
+const WhiteKlerosSolutionsIcon: React.FC<React.SVGAttributes<SVGElement>> = ({ className, ...props }) => (
+  <KlerosSolutionsIcon {...props} className={cn("fill-white!", className)} />
+);
 
 const DesktopHeader: React.FC = () => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
@@ -178,44 +100,47 @@ const DesktopHeader: React.FC = () => {
 
   return (
     <>
-      <Container>
-        <LeftSide>
-          <LightButtonContainer>
+      <div className="absolute hidden h-16 lg:relative lg:flex lg:w-full lg:items-center lg:justify-between">
+        <div className="-ml-2 flex gap-2">
+          <div className="flex items-center">
             <LightButton
               text=""
               onPress={() => {
                 toggleIsDappListOpen();
               }}
-              Icon={StyledKlerosSolutionsIcon}
+              Icon={WhiteKlerosSolutionsIcon}
             />
-          </LightButtonContainer>
+          </div>
           <Logo />
-        </LeftSide>
+        </div>
 
-        <MiddleSide>
+        <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2">
           <Explore />
-        </MiddleSide>
+        </div>
 
-        <RightSide>
-          <ConnectWalletContainer
-            {...{ isConnected, isDefaultChain }}
+        <div className="mr-[-8px] ml-2 flex [&_canvas]:w-5" style={{ gap: responsiveSize(4, 8) }}>
+          <div
+            className="[&_label]:cursor-pointer [&_label]:text-white"
             onClick={isConnected && isDefaultChain ? () => navigate("/profile/stakes/1") : undefined}
           >
             <ConnectWallet />
-          </ConnectWalletContainer>
+          </div>
           <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
-        </RightSide>
-      </Container>
+        </div>
+      </div>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <OverlayPortal>
           <Overlay>
-            <PopupAnchor>
-              <PopupAnchorInner>
+            <div
+              className="lg:mx-auto lg:w-full lg:max-w-[1400px] lg:px-[var(--header-padding)]"
+              style={{ "--header-padding": responsiveSize(0, 132) } as React.CSSProperties}
+            >
+              <div className="lg:relative">
                 {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
                 {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
                 {isSettingsOpen && <Settings toggleIsSettingsOpen={closeSettings} {...{ initialTab }} />}
-              </PopupAnchorInner>
-            </PopupAnchor>
+              </div>
+            </div>
           </Overlay>
         </OverlayPortal>
       )}

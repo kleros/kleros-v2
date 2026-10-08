@@ -1,32 +1,8 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { Tooltip } from "@kleros/ui-components-library";
 
 import _HelpIcon from "svgs/icons/help.svg";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const HelpIcon = styled(_HelpIcon)`
-  display: flex;
-  align-items: center;
-  height: 12px;
-  width: 12px;
-  fill: ${({ theme }) => theme.klerosUIComponentsSecondaryText};
-  margin: 0 0 0 8px;
-
-  ${landscapeStyle(
-    () => css`
-      height: 14px;
-      width: 14px;
-    `
-  )}
-`;
 
 interface IWithHelpTooltip {
   tooltipMsg: string;
@@ -35,12 +11,12 @@ interface IWithHelpTooltip {
 }
 
 const WithHelpTooltip: React.FC<IWithHelpTooltip> = ({ tooltipMsg, children, place }) => (
-  <Container>
+  <div className="flex items-center">
     {children}
-    <Tooltip small text={tooltipMsg} {...{ place }}>
-      <HelpIcon />
+    <Tooltip small text={tooltipMsg} wrapperProps={{ tabIndex: 0, "aria-label": "Help" }} {...{ place }}>
+      <_HelpIcon className="ml-2 flex size-3 items-center fill-klerosUIComponentsSecondaryText lg:size-3.5" />
     </Tooltip>
-  </Container>
+  </div>
 );
 
 export default WithHelpTooltip;

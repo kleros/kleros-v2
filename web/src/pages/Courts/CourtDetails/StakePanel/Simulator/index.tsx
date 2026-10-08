@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -21,8 +20,6 @@ import { isUndefined } from "utils/index";
 import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { Divider } from "components/Divider";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
@@ -30,92 +27,6 @@ import Info from "../../Info";
 
 import Header from "./Header";
 import QuantityToSimulate from "./QuantityToSimulate";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  background-color: ${({ theme }) => theme.lightBlue};
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.mediumBlue};
-  justify-content: center;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 20px;
-    `
-  )}
-`;
-
-const ItemsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px 0;
-  margin: 24px 0 12px 0;
-`;
-
-const SimulatorItem = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  justify-content: space-between;
-`;
-
-const IconWrapper = styled.div`
-  svg {
-    width: 14px;
-    height: 14px;
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const StyledDivider = styled(Divider)`
-  background-color: ${({ theme }) => theme.mediumBlue};
-  margin: 12px 0 8px 0;
-`;
-
-const LeftContent = styled.div`
-  display: flex;
-  align-items: flex-start;
-  flex-direction: row;
-  gap: 8px;
-
-  ${landscapeStyle(
-    () => css`
-      align-items: center;
-    `
-  )}
-`;
-
-const RightContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-`;
-
-const StyledTitle = styled.span`
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const StyledCurrentValue = styled.span`
-  font-weight: 600;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const StyledFutureValue = styled.span`
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledArrowRightIcon = styled(ArrowRightIcon)<{ isStaking: boolean }>`
-  fill: ${({ theme, isStaking }) => (isStaking ? theme.success : theme.warning)};
-`;
-
-const InfoContainer = styled.div`
-  padding-top: 4px;
-`;
 
 const calculateJurorOdds = (newStake: number, totalStake: number): string => {
   const odds = totalStake !== 0 ? (newStake * 100) / totalStake : 0;
@@ -236,43 +147,47 @@ const Simulator: React.FC<ISimulator> = ({ amountToStake, isStaking }) => {
   ];
 
   return (
-    <Container>
+    <div className="flex flex-col bg-klerosUIComponentsLightBlue [box-shadow:0px_4px_12px_rgba(0,_0,_0,_0.1)] p-4 rounded-[8px] border border-solid border-klerosUIComponentsMediumBlue justify-center lg:p-5">
       <Header />
-      <StyledDivider />
+      <Divider className="bg-klerosUIComponentsMediumBlue m-[12px_0_8px_0]" />
       <QuantityToSimulate {...{ jurorCurrentEffectiveStake, jurorCurrentSpecificStake, isStaking, amountToStake }} />
-      <ItemsContainer>
+      <div className="flex flex-col gap-[8px_0] m-[24px_0_12px_0]">
         {simulatorItems.map((item) => (
-          <SimulatorItem key={item.title}>
-            <LeftContent>
-              <IconWrapper>{item.icon}</IconWrapper>
+          <div key={item.title} className="flex items-center text-[14px] justify-between">
+            <div className="flex items-start flex-row gap-2 lg:items-center">
+              <div className="[&_svg]:w-[14px] [&_svg]:h-[14px] [&_svg]:fill-klerosUIComponentsSecondaryPurple">
+                {item.icon}
+              </div>
               {item.tooltipMsg ? (
                 <WithHelpTooltip place="top" tooltipMsg={item.tooltipMsg}>
-                  <StyledTitle>{item.title}: </StyledTitle>
+                  <span className="text-klerosUIComponentsSecondaryText">{item.title}: </span>
                 </WithHelpTooltip>
               ) : (
-                <StyledTitle>{item.title}: </StyledTitle>
+                <span className="text-klerosUIComponentsSecondaryText">{item.title}: </span>
               )}
-            </LeftContent>
-            <RightContent>
-              <StyledCurrentValue>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <span className="font-semibold text-klerosUIComponentsSecondaryText">
                 {!isUndefined(item.currentValue) ? item.currentValue : <Skeleton width={32} />}
-              </StyledCurrentValue>
-              <StyledArrowRightIcon {...{ isStaking }} />
-              <StyledFutureValue>
+              </span>
+              <ArrowRightIcon
+                className={isStaking ? "fill-klerosUIComponentsSuccess" : "fill-klerosUIComponentsWarning"}
+              />
+              <span className="font-semibold text-klerosUIComponentsPrimaryText">
                 {!amountToStake || amountToStake === 0 ? "?" : null}
                 {!isUndefined(amountToStake) &&
                   amountToStake > 0 &&
                   (!isUndefined(item.futureValue) ? item.futureValue : <Skeleton width={32} />)}
-              </StyledFutureValue>
-            </RightContent>
-          </SimulatorItem>
+              </span>
+            </div>
+          </div>
         ))}
-      </ItemsContainer>
-      <StyledDivider />
-      <InfoContainer>
+      </div>
+      <Divider className="bg-klerosUIComponentsMediumBlue m-[12px_0_8px_0]" />
+      <div className="pt-1">
         <Info />
-      </InfoContainer>
-    </Container>
+      </div>
+    </div>
   );
 };
 

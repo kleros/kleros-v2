@@ -1,22 +1,13 @@
 import React, { useMemo } from "react";
-import styled, { DefaultTheme } from "styled-components";
 
 import { Hash } from "viem";
+
+import { cn } from "utils/cn";
 
 import { getTxnExplorerLink } from "src/utils";
 
 import { ExternalLink } from "./ExternalLink";
 import NewTabIcon from "./StyledIcons/NewTabIcon";
-
-const TxnLabel = styled.label<{ variant: string }>`
-  display: flex;
-  gap: 4px;
-  color: ${({ theme, variant }) => (variant === "pending" ? theme.primaryBlue : theme[variant as keyof DefaultTheme])};
-  cursor: pointer;
-  path {
-    fill: ${({ theme, variant }) => (variant === "pending" ? theme.primaryBlue : theme[variant as keyof DefaultTheme])};
-  }
-`;
 
 interface ITxnHash {
   hash: Hash;
@@ -29,11 +20,20 @@ const TxnHash: React.FC<ITxnHash> = ({ hash, variant }) => {
 
   return (
     <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-      <TxnLabel {...{ variant }}>
+      <label
+        className={cn(
+          "flex cursor-pointer gap-1 [&_path]:fill-current!",
+          variant === "pending"
+            ? "text-klerosUIComponentsPrimaryBlue"
+            : variant === "success"
+              ? "text-klerosUIComponentsSuccess"
+              : "text-klerosUIComponentsError"
+        )}
+      >
         {" "}
         <span>{hash.substring(0, 6) + "..." + hash.substring(hash.length - 4)}</span>
         <NewTabIcon />
-      </TxnLabel>
+      </label>
     </ExternalLink>
   );
 };

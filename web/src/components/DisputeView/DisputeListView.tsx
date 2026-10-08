@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -8,11 +7,12 @@ import { useAccount } from "wagmi";
 import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
+import useTheme from "hooks/useTheme";
+import { cn } from "utils/cn";
 import { formatDate } from "utils/date";
 import { isUndefined } from "utils/index";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
+import { BREAKPOINT_LANDSCAPE } from "styles/breakpoints";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { InternalLink } from "components/InternalLink";
@@ -23,126 +23,6 @@ import { getPeriodPhrase } from "./DisputeInfo";
 import { getPeriodColors, getPeriodLabel } from "./PeriodBanner";
 
 const fromLandscape = (min: number, max: number) => responsiveSize(min, max, BREAKPOINT_LANDSCAPE);
-
-const StyledLink = styled(Link)<{ $hasLabel: boolean }>`
-  display: block;
-  margin-top: ${({ $hasLabel }) => ($hasLabel ? "12px" : "0")};
-`;
-
-const StyledListItem = styled(Card)<{ $accent: string }>`
-  ${hoverShortTransitionTiming}
-  position: relative;
-  width: 100%;
-  height: auto;
-  border-left: 3px solid ${({ $accent }) => $accent};
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) ${fromLandscape(180, 300)};
-  align-items: center;
-  gap: ${fromLandscape(20, 32)};
-  padding: ${fromLandscape(16, 18)} ${fromLandscape(20, 24)};
-`;
-
-const CaseInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-`;
-
-const TitleLine = styled.div`
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  min-width: 0;
-`;
-
-const DisputeId = styled.span`
-  flex-shrink: 0;
-  font-size: 14px;
-  color: ${({ theme }) => theme.secondaryText};
-  font-variant-numeric: tabular-nums;
-`;
-
-const Title = styled.h3`
-  margin: 0;
-  min-width: 0;
-  font-size: ${fromLandscape(16, 18)};
-  line-height: 24px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const Phase = styled.span<{ $accent: string }>`
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: ${({ $accent }) => $accent};
-  white-space: nowrap;
-`;
-
-const Meta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  font-size: ${fromLandscape(12, 13)};
-  color: ${({ theme }) => theme.secondaryText};
-  white-space: nowrap;
-
-  a {
-    flex-shrink: 0;
-    font-size: inherit;
-  }
-
-  > * + *::before {
-    content: "·";
-    margin-right: 10px;
-    color: ${({ theme }) => theme.stroke};
-  }
-`;
-
-const MetaItem = styled.span`
-  flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
-`;
-
-const Category = styled.span`
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const Deadline = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-self: end;
-  gap: 4px;
-  padding-right: 8px;
-  white-space: nowrap;
-`;
-
-const DeadlineLabel = styled.span`
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const DeadlineValue = styled.span`
-  font-size: ${fromLandscape(14, 16)};
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-  font-variant-numeric: tabular-nums;
-`;
-
-const LabelContainer = styled.div`
-  position: absolute;
-  top: 0;
-  right: 20px;
-  transform: translateY(-50%);
-`;
 
 interface IDisputeListView {
   title: string;
@@ -180,36 +60,71 @@ const DisputeListView: React.FC<IDisputeListView> = ({
     ) : null;
 
   return (
-    <StyledLink to={`/cases/${disputeID?.toString()}`} $hasLabel={Boolean(label)}>
-      <StyledListItem hover $accent={accent}>
-        <CaseInfo>
-          <TitleLine>
-            <DisputeId>#{disputeID}</DisputeId>
-            {isLoading ? <StyledSkeleton width={220} height={18} /> : <Title dir="auto">{title}</Title>}
-            {!isUndefined(period) ? <Phase $accent={accent}>{getPeriodLabel(period, false, t)}</Phase> : null}
-          </TitleLine>
-          <Meta>
+    <Link to={`/cases/${disputeID?.toString()}`} className={cn("block", label ? "mt-3" : "mt-0")}>
+      <Card
+        hover
+        className="relative grid h-auto w-full items-center border-l-[3px] border-solid [transition:0.1s]"
+        style={{
+          borderLeftColor: accent,
+          gridTemplateColumns: `minmax(0, 1fr) ${fromLandscape(180, 300)}`,
+          gap: fromLandscape(20, 32),
+          padding: `${fromLandscape(16, 18)} ${fromLandscape(20, 24)}`,
+        }}
+      >
+        <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex min-w-0 items-baseline gap-3">
+            <span className="shrink-0 text-[14px] text-klerosUIComponentsSecondaryText tabular-nums">#{disputeID}</span>
+            {isLoading ? (
+              <StyledSkeleton width={220} height={18} />
+            ) : (
+              <h3 dir="auto" className="m-0 min-w-0 truncate leading-6" style={{ fontSize: fromLandscape(16, 18) }}>
+                {title}
+              </h3>
+            )}
+            {!isUndefined(period) ? (
+              <span className="shrink-0 text-[13px] font-semibold whitespace-nowrap" style={{ color: accent }}>
+                {getPeriodLabel(period, false, t)}
+              </span>
+            ) : null}
+          </div>
+          <div
+            className={cn(
+              "flex min-w-0 items-center gap-2.5 whitespace-nowrap text-klerosUIComponentsSecondaryText",
+              "[&_a]:shrink-0 [&_a]:text-[length:inherit] [&>*+*]:before:mr-2.5",
+              "[&>*+*]:before:text-klerosUIComponentsStroke [&>*+*]:before:content-['·']"
+            )}
+            style={{ fontSize: fromLandscape(12, 13) }}
+          >
             {!isUndefined(court) && !isUndefined(courtId) ? (
               <InternalLink to={`/courts/${courtId}`} onClick={(event) => event.stopPropagation()}>
                 {court}
               </InternalLink>
             ) : null}
-            {!isUndefined(round) ? <MetaItem>{t("dispute_info.round_number", { round })}</MetaItem> : null}
-            <Category>{category ?? t("dispute_info.general")}</Category>
-            {!isUndefined(rewards) ? <MetaItem>{rewards}</MetaItem> : null}
-          </Meta>
-        </CaseInfo>
+            {!isUndefined(round) ? (
+              <span className="shrink-0 tabular-nums">{t("dispute_info.round_number", { round })}</span>
+            ) : null}
+            <span className="min-w-0 overflow-hidden text-ellipsis">{category ?? t("dispute_info.general")}</span>
+            {!isUndefined(rewards) ? <span className="shrink-0 tabular-nums">{rewards}</span> : null}
+          </div>
+        </div>
 
         {!isUndefined(period) && !isUndefined(date) ? (
-          <Deadline>
-            <DeadlineLabel>{getPeriodPhrase(period, t)}</DeadlineLabel>
-            <DeadlineValue>{formatDate(date, false, i18n.language)}</DeadlineValue>
-          </Deadline>
+          <div className="flex flex-col items-end justify-self-end gap-1 pr-2 whitespace-nowrap">
+            <span className="text-[11px] tracking-[0.1em] text-klerosUIComponentsSecondaryText uppercase">
+              {getPeriodPhrase(period, t)}
+            </span>
+            <span
+              className="font-semibold text-klerosUIComponentsPrimaryText tabular-nums"
+              style={{ fontSize: fromLandscape(14, 16) }}
+            >
+              {formatDate(date, false, i18n.language)}
+            </span>
+          </div>
         ) : null}
 
-        {label ? <LabelContainer>{label}</LabelContainer> : null}
-      </StyledListItem>
-    </StyledLink>
+        {label ? <div className="absolute top-0 right-5 -translate-y-1/2">{label}</div> : null}
+      </Card>
+    </Link>
   );
 };
 

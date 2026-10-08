@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
@@ -15,10 +14,6 @@ import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
 
 interface IPassPeriodButton extends IBaseMaintenanceButton {
   period?: string;
@@ -70,12 +65,13 @@ const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }
     });
   };
   return (
-    <StyledButton
+    <Button
       text={t("buttons.pass_period")}
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
       onPress={handleClick}
+      className="w-full"
     />
   );
 };

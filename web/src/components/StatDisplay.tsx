@@ -1,64 +1,7 @@
 import React from "react";
-import styled, { useTheme, css } from "styled-components";
 
-const Container = styled.div<{ isSmallDisplay: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  ${({ isSmallDisplay }) =>
-    isSmallDisplay
-      ? css`
-          width: 151px;
-        `
-      : css`
-          max-width: 196px;
-        `}
-`;
-
-const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string; isSmallDisplay: boolean }>`
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${({ backgroundColor }) => backgroundColor};
-  svg {
-    fill: ${({ iconColor }) => iconColor};
-  }
-
-  ${({ isSmallDisplay }) =>
-    isSmallDisplay
-      ? css`
-          height: 32px;
-          width: 32px;
-          svg {
-            height: 20px;
-          }
-        `
-      : css`
-          height: 48px;
-          width: 48px;
-        `}
-`;
-
-const TextContainer = styled.div<{ isSmallDisplay: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ isSmallDisplay }) => (isSmallDisplay ? "3px" : "8px")};
-`;
-
-const StyledTitle = styled.label`
-  font-size: 14px;
-`;
-
-const StyledValue = styled.label<{ isSmallDisplay: boolean }>`
-  font-size: ${({ isSmallDisplay }) => (isSmallDisplay ? "16px" : "24px")};
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledUSDValue = styled.label<{ isSmallDisplay: boolean }>`
-  font-size: ${({ isSmallDisplay }) => (isSmallDisplay ? "12px" : "14px")};
-`;
+import useTheme from "hooks/useTheme";
+import { cn } from "utils/cn";
 
 const createPair = (iconColor: string, backgroundColor: string) => ({
   iconColor,
@@ -93,14 +36,29 @@ const StatDisplay: React.FC<IStatDisplay> = ({
   };
 
   return (
-    <Container {...{ isSmallDisplay }} {...props}>
-      <SVGContainer {...{ ...COLORS[color], isSmallDisplay }}>{<Icon />}</SVGContainer>
-      <TextContainer {...{ isSmallDisplay }}>
-        <StyledTitle>{title}</StyledTitle>
-        <StyledValue {...{ isSmallDisplay }}>{text}</StyledValue>
-        <StyledUSDValue {...{ isSmallDisplay }}>{subtext}</StyledUSDValue>
-      </TextContainer>
-    </Container>
+    <div className={cn("flex items-center gap-2", isSmallDisplay ? "w-[151px]" : "max-w-[196px]")} {...props}>
+      <div
+        className={cn(
+          "flex items-center justify-center rounded-full [&_svg]:fill-current",
+          isSmallDisplay ? "size-8 [&_svg]:h-5" : "size-12"
+        )}
+        style={{ color: COLORS[color].iconColor, backgroundColor: COLORS[color].backgroundColor }}
+      >
+        <Icon />
+      </div>
+      <div className={cn("flex flex-col", isSmallDisplay ? "gap-[3px]" : "gap-2")}>
+        <label className="text-[14px]">{title}</label>
+        <label
+          className={cn(
+            "font-semibold text-klerosUIComponentsPrimaryText",
+            isSmallDisplay ? "text-[16px]" : "text-[24px]"
+          )}
+        >
+          {text}
+        </label>
+        <label className={isSmallDisplay ? "text-[12px]" : "text-[14px]"}>{subtext}</label>
+      </div>
+    </div>
   );
 };
 
