@@ -10,6 +10,9 @@ import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { getDisputeRequestParamsFromTxn } from "utils/getDisputeRequestParamsFromTxn";
 import { isUndefined } from "utils/isUndefined";
 
+// React Aria resets uncommitted input when this object's identity changes.
+const NUMBER_FORMAT_OPTIONS = { useGrouping: false };
+
 const presets = [
   {
     title: "Dispute Resolver - Compensation Claim",
@@ -74,7 +77,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
         <NumberField
           aria-label="Chain ID"
           inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}
-          formatOptions={{ useGrouping: false }}
+          formatOptions={NUMBER_FORMAT_OPTIONS}
           className="w-[120px]"
           value={chainId}
           placeholder="Enter chain Id"

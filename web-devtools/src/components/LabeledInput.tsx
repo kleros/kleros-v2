@@ -4,6 +4,9 @@ import { Checkbox, NumberField, TextField } from "@kleros/ui-components-library"
 
 import { cn } from "utils/cn";
 
+// React Aria resets uncommitted input when this object's identity changes.
+const NUMBER_FORMAT_OPTIONS = { useGrouping: false };
+
 type CheckboxInputProps = Omit<React.ComponentProps<typeof Checkbox>, "label"> & { inputType: "checkbox" };
 type TextInputProps = Omit<React.ComponentProps<typeof TextField>, "label" | "type"> & {
   inputType?: "field";
@@ -25,7 +28,7 @@ const LabeledInput: React.FC<LabeledInputProps> = (props) => {
     const { label, inputType: inputTypeIgnored, type: typeIgnored, ...numberProps } = props;
     input = (
       <NumberField
-        formatOptions={{ useGrouping: false }}
+        formatOptions={NUMBER_FORMAT_OPTIONS}
         {...numberProps}
         aria-label={label}
         inputProps={{ className: "[font-family:Arial] text-[13.3333px] [line-height:normal]" }}

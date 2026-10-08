@@ -32,6 +32,11 @@ const UnsubscribeButton = ({ className, ...props }: React.ComponentPropsWithoutR
   />
 );
 
+// Remount the confirmation control so focus does not carry over from the initial unsubscribe action.
+const ConfirmUnsubscribeButton = (props: React.ComponentPropsWithoutRef<typeof Button>) => (
+  <UnsubscribeButton {...props} />
+);
+
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { t } = useTranslation();
   const [emailInput, setEmailInput] = useState<string>("");
@@ -168,12 +173,11 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
               onPress={() => setIsConfirmingUnsubscribe(false)}
               isDisabled={isDeletingUser}
             />
-            <UnsubscribeButton
+            <ConfirmUnsubscribeButton
               text={t("buttons.confirm_unsubscribe")}
               onPress={handleConfirmUnsubscribe}
               isDisabled={isFetchingUser || isDeletingUser}
               isLoading={isDeletingUser}
-              className="[&_.button-text]:text-klerosUIComponentsWhite! [&_p]:text-klerosUIComponentsWhite!"
             />
           </>
         ) : (

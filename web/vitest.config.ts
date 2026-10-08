@@ -1,8 +1,19 @@
+import { fileURLToPath } from "node:url";
+
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
+  resolve: {
+    // Resolve workspace mocks without requiring ignored library build output.
+    alias: [
+      {
+        find: /^@kleros\/kleros-app$/,
+        replacement: fileURLToPath(new URL("../kleros-app/src/lib/index.ts", import.meta.url)),
+      },
+    ],
+  },
   test: {
     globals: true,
     environment: "jsdom",
