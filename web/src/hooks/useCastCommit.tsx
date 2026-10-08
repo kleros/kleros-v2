@@ -54,7 +54,7 @@ export function useCastCommit(onSuccess?: () => void) {
 
       const result = await wrapWithToast(executeTxn, publicClient);
       if (result.status && result.result) {
-        markJurorActionSubmitted(account, params.disputeId, "commit", result.result.blockNumber);
+        markJurorActionSubmitted(account, params.disputeId, "commit", params.voteIds, result.result.blockNumber);
       }
 
       return result;

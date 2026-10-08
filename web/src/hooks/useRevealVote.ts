@@ -59,7 +59,7 @@ export function useRevealVote(onSuccess?: () => void) {
         removeCommitData(key);
       }
       if (result.status && result.result) {
-        markJurorActionSubmitted(account, params.disputeId, "reveal", result.result.blockNumber);
+        markJurorActionSubmitted(account, params.disputeId, "reveal", params.voteIds, result.result.blockNumber);
       }
 
       return result;

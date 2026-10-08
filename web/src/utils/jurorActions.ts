@@ -22,8 +22,8 @@ export interface JurorAction {
   periodStartBlock: bigint;
   /** Nominal end of the current period, in unix seconds. The juror can still act until the period is passed. */
   deadline: number;
-  /** Draws waiting for this action, i.e. the juror's votes in the case. */
-  voteCount: number;
+  /** Vote IDs of the juror's draws in the case waiting for this action. Once submitted, the ones sent. */
+  voteIds: string[];
   /** Under 24h left, or overdue. */
   isUrgent: boolean;
   isOverdue: boolean;
@@ -71,7 +71,7 @@ export const getJurorActions = (
     const key = `${currentRound.id}-${kind}`;
     const action = actions.get(key);
     if (action) {
-      action.voteCount++;
+      action.voteIds.push(draw.voteIDNum);
       continue;
     }
 
@@ -85,7 +85,7 @@ export const getJurorActions = (
       courtName: dispute.court.name,
       periodStartBlock: BigInt(dispute.lastPeriodChangeBlockNumber),
       deadline,
-      voteCount: 1,
+      voteIds: [draw.voteIDNum],
       isUrgent: deadline - now < URGENT_THRESHOLD,
       isOverdue: now >= deadline,
       isSubmitted: false,
@@ -95,19 +95,29 @@ export const getJurorActions = (
   return [...actions.values()].sort((a, b) => a.deadline - b.deadline || Number(a.disputeId) - Number(b.disputeId));
 };
 
+/** A commit, vote or reveal sent from this app, maybe not indexed yet. */
+export interface JurorActionSubmission {
+  /** Block that included the transaction. */
+  block: bigint;
+  voteIds: readonly string[];
+}
+
 /**
- * Flags the actions submitted during their current period, older submissions belong to a previous round.
- * Submitted actions go last: the juror has nothing left to do there.
+ * Removes the votes submitted during the action's current period (older submissions belong to a previous round), and
+ * flags the actions with no vote left as submitted. Those go last: the juror has nothing left to do there.
  */
 export const applySubmissions = (
   actions: readonly JurorAction[],
-  getSubmittedBlock: (action: JurorAction) => bigint | undefined
+  getSubmission: (action: JurorAction) => JurorActionSubmission | undefined
 ): JurorAction[] => {
   const flagged = actions.map((action) => {
-    const submittedBlock = getSubmittedBlock(action);
-    return submittedBlock !== undefined && submittedBlock >= action.periodStartBlock
-      ? { ...action, isSubmitted: true }
-      : action;
+    const submission = getSubmission(action);
+    if (!submission || submission.block < action.periodStartBlock) return action;
+
+    const submittedIds = new Set(submission.voteIds);
+    const voteIds = action.voteIds.filter((voteId) => !submittedIds.has(voteId));
+    if (voteIds.length === action.voteIds.length) return action;
+    return voteIds.length > 0 ? { ...action, voteIds } : { ...action, isSubmitted: true };
   });
   return [...flagged.filter(({ isSubmitted }) => !isSubmitted), ...flagged.filter(({ isSubmitted }) => isSubmitted)];
 };

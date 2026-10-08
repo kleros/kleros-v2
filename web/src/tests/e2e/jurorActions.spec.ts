@@ -64,6 +64,7 @@ const lastPeriodChange = ({ period, endsIn }: CaseFixture) =>
 const toDraws = (fixture: CaseFixture) =>
   Array.from({ length: fixture.draws ?? 1 }, (_, voteId) => ({
     id: `${fixture.id}-0-${voteId}`,
+    voteIDNum: `${voteId}`,
     round: { id: `${fixture.id}-0` },
     dispute: {
       id: fixture.id,
@@ -323,7 +324,7 @@ test.describe("Juror actions", () => {
         window.localStorage.setItem("jurorActionSubmissions", JSON.stringify({ [key]: submission }));
         window.dispatchEvent(new StorageEvent("storage", { key: "jurorActionSubmissions" }));
       },
-      { key: `${ALICE}-15-commit`, submission: { block: "150", at: NOW - 60 } }
+      { key: `${ALICE}-15-commit`, submission: { block: "150", voteIds: ["0", "1", "2"], at: NOW - 60 } }
     );
     const confirming = page.getByRole("dialog", { name: "Confirming your vote" });
     await expect(confirming).toContainText("Submitted, confirming…");
@@ -339,7 +340,7 @@ test.describe("Juror actions", () => {
     await page.addInitScript(
       ({ key, submission }) =>
         window.localStorage.setItem("jurorActionSubmissions", JSON.stringify({ [key]: submission })),
-      { key: `${ALICE}-20-reveal`, submission: { block: "150", at: NOW - 60 } }
+      { key: `${ALICE}-20-reveal`, submission: { block: "150", voteIds: ["0"], at: NOW - 60 } }
     );
     await setup(page, [REVEAL, VOTE]);
     await page.goto("/");
@@ -356,11 +357,28 @@ test.describe("Juror actions", () => {
     );
   });
 
+  test("keeps a case due when only some of its votes were sent", async ({ page, wallet }) => {
+    await page.addInitScript(
+      ({ key, submission }) =>
+        window.localStorage.setItem("jurorActionSubmissions", JSON.stringify({ [key]: submission })),
+      { key: `${ALICE}-15-commit`, submission: { block: "150", voteIds: ["0", "1"], at: NOW - 60 } }
+    );
+    await setup(page, [URGENT_COMMIT]);
+    await page.goto("/");
+    await wallet.connect("alice");
+
+    await expect(indicator(page)).toHaveAccessibleName("1 to vote, 1 urgent");
+    await expect(rows(page).first().getByRole("link", { name: "Commit vote in case #15" })).toBeVisible();
+    await expect(rows(page).first()).not.toContainText("Submitted, confirming…");
+    // 1 of the 3 votes is left, so no vote count shows.
+    await expect(rows(page).first()).not.toContainText("votes");
+  });
+
   test("says it is confirming once everything left was sent", async ({ page, wallet }) => {
     await page.addInitScript(
       ({ key, submission }) =>
         window.localStorage.setItem("jurorActionSubmissions", JSON.stringify({ [key]: submission })),
-      { key: `${ALICE}-20-reveal`, submission: { block: "150", at: NOW - 60 } }
+      { key: `${ALICE}-20-reveal`, submission: { block: "150", voteIds: ["0"], at: NOW - 60 } }
     );
     await setup(page, [REVEAL]);
     await page.goto("/");

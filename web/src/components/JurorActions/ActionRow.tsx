@@ -203,7 +203,7 @@ const ActionRow: React.FC<IActionRow> = ({ action, isPrimary, isCompact, onLinkC
         </TitleLine>
         <Meta>
           <span>{action.courtName || t("misc.unknown_court")}</span>
-          {action.voteCount > 1 ? <span>{t("voting.vote", { count: action.voteCount })}</span> : null}
+          {action.voteIds.length > 1 ? <span>{t("voting.vote", { count: action.voteIds.length })}</span> : null}
         </Meta>
       </CaseInfo>
       {action.isSubmitted ? (

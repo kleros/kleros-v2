@@ -59,6 +59,7 @@ const makeDraw = ({
   voted = false,
 }: DrawOptions = {}): JurorActionDraw => ({
   id: `${disputeId}-${round}-${voteId}`,
+  voteIDNum: `${voteId}`,
   round: { id: `${disputeId}-${round}` },
   dispute: {
     id: disputeId,
@@ -97,7 +98,7 @@ describe("getJurorActions", () => {
       courtName: "General Court",
       periodStartBlock: PERIOD_START_BLOCK,
       deadline: NOW - HOUR + 2 * DAY,
-      voteCount: 1,
+      voteIds: ["0"],
       isUrgent: false,
       isOverdue: false,
       isSubmitted: false,
@@ -158,16 +159,16 @@ describe("getJurorActions", () => {
     expect(getActions([endingIn(0)])[0]).toMatchObject({ isUrgent: true, isOverdue: true });
   });
 
-  it("merges the draws of a round into one action counting the juror's votes", () => {
+  it("merges the draws of a round into one action listing the juror's votes", () => {
     const draws = [0, 1, 2].map((voteId) => makeDraw({ voteId }));
-    expect(getActions(draws)).toEqual([expect.objectContaining({ key: "1-0-vote", voteCount: 3 })]);
+    expect(getActions(draws)).toEqual([expect.objectContaining({ key: "1-0-vote", voteIds: ["0", "1", "2"] })]);
   });
 
   it("only counts the draws of the current round after an appeal", () => {
     const votedInFirstRound = makeDraw({ round: 0, currentRound: 1, voted: true });
     const redrawn = makeDraw({ round: 1, voteId: 4 });
     expect(getActions([votedInFirstRound, redrawn])).toEqual([
-      expect.objectContaining({ key: "1-1-vote", voteCount: 1 }),
+      expect.objectContaining({ key: "1-1-vote", voteIds: ["4"] }),
     ]);
 
     const notRedrawn = makeDraw({ round: 0, currentRound: 1 });
@@ -195,22 +196,42 @@ describe("getJurorActions", () => {
 
 describe("applySubmissions", () => {
   const [action] = getActions([makeDraw()]);
+  const submitted = (block: bigint, voteIds = ["0"]) => ({ block, voteIds });
 
   it("flags actions submitted during their current period", () => {
-    expect(applySubmissions([action], () => PERIOD_START_BLOCK)[0].isSubmitted).toBe(true);
-    expect(applySubmissions([action], () => PERIOD_START_BLOCK + 50n)[0].isSubmitted).toBe(true);
+    expect(applySubmissions([action], () => submitted(PERIOD_START_BLOCK))[0].isSubmitted).toBe(true);
+    expect(applySubmissions([action], () => submitted(PERIOD_START_BLOCK + 50n))[0].isSubmitted).toBe(true);
     expect(applySubmissions([action], () => undefined)[0].isSubmitted).toBe(false);
   });
 
   it("ignores submissions made before the current period started", () => {
-    expect(applySubmissions([action], () => PERIOD_START_BLOCK - 1n)[0].isSubmitted).toBe(false);
+    expect(applySubmissions([action], () => submitted(PERIOD_START_BLOCK - 1n))[0].isSubmitted).toBe(false);
+  });
+
+  it("keeps an action due for the votes a submission did not cover", () => {
+    const voteIds = Array.from({ length: 1002 }, (_, voteId) => voteId);
+    const firstThousand = submitted(PERIOD_START_BLOCK, voteIds.slice(0, 1000).map(String));
+
+    // Not indexed yet: the subgraph still lists every draw as waiting.
+    const notIndexed = getActions(voteIds.map((voteId) => makeDraw({ voteId })));
+    expect(applySubmissions(notIndexed, () => firstThousand)).toEqual([
+      expect.objectContaining({ voteIds: ["1000", "1001"], isSubmitted: false }),
+    ]);
+
+    // Indexed: only the two draws left are waiting, and the submission doesn't cover them.
+    const indexed = getActions(voteIds.map((voteId) => makeDraw({ voteId, voted: voteId < 1000 })));
+    expect(applySubmissions(indexed, () => firstThousand)).toEqual([
+      expect.objectContaining({ voteIds: ["1000", "1001"], isSubmitted: false }),
+    ]);
   });
 
   it("moves submitted actions after the due ones", () => {
     const actions = getActions(
       [1, 2, 3].map((id) => makeDraw({ disputeId: `${id}`, lastPeriodChange: NOW - id * HOUR }))
     );
-    const flagged = applySubmissions(actions, ({ disputeId }) => (disputeId === "3" ? PERIOD_START_BLOCK : undefined));
+    const flagged = applySubmissions(actions, ({ disputeId }) =>
+      disputeId === "3" ? submitted(PERIOD_START_BLOCK) : undefined
+    );
     expect(flagged.map(({ disputeId, isSubmitted }) => `${disputeId}:${isSubmitted}`)).toEqual([
       "2:false",
       "1:false",

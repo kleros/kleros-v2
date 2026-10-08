@@ -27,7 +27,7 @@ export const useJurorActions = () => {
     if (!address || !draws) return undefined;
     return applySubmissions(getJurorActions(draws, getRules, now), ({ disputeId, kind }) => {
       const submission = submissions[getSubmissionKey(address, disputeId, kind)];
-      return submission ? BigInt(submission.block) : undefined;
+      return submission ? { block: BigInt(submission.block), voteIds: submission.voteIds } : undefined;
     });
   }, [address, draws, now, submissions]);
 

@@ -21,6 +21,7 @@ const jurorActionDrawsQuery = graphql(`
       where: { juror: $juror, round_: { isCurrentRound: true }, dispute_: { ruled: false, period_in: [commit, vote] } }
     ) {
       id
+      voteIDNum
       round {
         id
       }

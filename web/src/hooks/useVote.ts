@@ -39,7 +39,7 @@ export function useVote(onSuccess?: () => void) {
 
       const result = await wrapWithToast(executeTxn, publicClient);
       if (result.status && result.result) {
-        markJurorActionSubmitted(account, params.disputeId, "vote", result.result.blockNumber);
+        markJurorActionSubmitted(account, params.disputeId, "vote", params.voteIds, result.result.blockNumber);
       }
 
       return result;
