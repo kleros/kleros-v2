@@ -20,15 +20,23 @@ import { SqliteJournal } from "./journal/sqliteJournal";
 import { JsonLogger } from "./logger/logger";
 import { LogOnlyNotifier, PlatformNotifier } from "./notify/notifier";
 import { SlackProvider } from "./notify/slack";
+import {
+  closeOperation,
+  closeOperationJson,
+  CloseOperationRefused,
+  parseCloseOperationArgs,
+} from "./operations/closeOperation";
 import { reconcile } from "./reconcile/reconcile";
 import { Redactor, secretEnvValues } from "./redact";
 
-export const COMMANDS = ["start", "status", "reconcile"] as const;
+export const COMMANDS = ["start", "status", "reconcile", "close-operation"] as const;
 export type Command = (typeof COMMANDS)[number];
 
 export interface PlatformOverrides {
-  /** Where `status` and `reconcile` print their JSON (default: stdout). */
+  /** Where `status`, `reconcile` and `close-operation` print their JSON (default: stdout). */
   stdout?: (text: string) => void;
+  /** Where a refused `close-operation` prints its reason (default: stderr). */
+  stderr?: (text: string) => void;
   /** Where JSON log lines go (default: stderr). */
   logWrite?: (line: string) => void;
   /** Per-chain transport instead of HTTP to the configured RPC URL (tests). */
@@ -81,7 +89,108 @@ export async function buildPlatform(
   overrides: PlatformOverrides = {}
 ): Promise<PlatformHandle> {
   const command = parseCommand(argv);
-  return command === "status" ? buildStatusPlatform(env, overrides) : buildRunningPlatform(env, command, overrides);
+  if (command === "status") return buildStatusPlatform(env, overrides);
+  if (command === "close-operation") return buildOperatorPlatform(env, overrides);
+  return buildRunningPlatform(env, command, overrides);
+}
+
+/**
+ * `close-operation`: the journal for writing under the ownership fence (so it refuses to run beside a `start`
+ * instance, like `reconcile`), the notifier when Slack is configured, and no chain: it needs neither the key nor
+ * any RPC variable. Inert placeholders fill the rest of `CorePorts`, as for `status`.
+ */
+function buildOperatorPlatform(env: NodeJS.ProcessEnv, overrides: PlatformOverrides): PlatformHandle {
+  const { config, secrets } = loadConfig(env, { requireSecrets: false });
+  const settings = config.platform;
+  const redactor = redactorFor(config, env, secrets);
+  const redact = redactor.text;
+  const logger = new JsonLogger({ redact, write: overrides.logWrite });
+  const clock = overrides.clock ?? systemClock;
+  if (settings.journalPath !== ":memory:") mkdirSync(dirname(settings.journalPath), { recursive: true });
+  const journal = SqliteJournal.open(
+    settings.journalPath,
+    {
+      instanceId: randomUUID(),
+      pid: process.pid,
+      startedAt: new Date(),
+      staleAfterMs: settings.ownership.staleAfterMs,
+    },
+    { redactor },
+    { acquire: false }
+  );
+  const fetch = createTimedFetch(settings.http.timeoutMs, overrides.fetch);
+  const slack = settings.notifications.providers.slack;
+  const notifier = new PlatformNotifier({
+    journal,
+    clock,
+    logger: logger.child({ component: "notifier" }),
+    redact,
+    providers: [
+      new SlackProvider(
+        slack.enabled && secrets.slackWebhookUrl !== null,
+        slack.minSeverity,
+        secrets.slackWebhookUrl,
+        config.topology,
+        fetch
+      ),
+    ],
+    minSeverity: settings.notifications.minSeverity,
+    dedupWindowSeconds: settings.notifications.dedupWindowSeconds,
+    forgetHit: (dedupKey, at) => journal.forgetNotifyHit(dedupKey, at),
+  });
+  const signer = secrets.privateKey ? privateKeyToAccount(secrets.privateKey).address : zeroAddress;
+  const ports: CorePorts = {
+    config,
+    logger,
+    clock,
+    journal,
+    chains: inertChainClients(config.topology),
+    executor: inertExecutor(signer),
+    notifier,
+    signer,
+    fetch,
+  };
+  const stdout = overrides.stdout ?? ((text: string) => void process.stdout.write(text));
+  const stderr = overrides.stderr ?? ((text: string) => void process.stderr.write(text));
+  return {
+    command: "close-operation",
+    ports,
+    stop: () => undefined,
+    healthPort: () => null,
+    async run(_loops, runArgv) {
+      if (parseCommand(runArgv) !== "close-operation") throw new Error("this platform was created for close-operation");
+      try {
+        const args = parseCloseOperationArgs(runArgv.slice(1));
+        journal.acquire();
+        const result = await closeOperation(journal, args, clock.now());
+        logger.info("operation closed by the operator", {
+          operationId: result.operation.id,
+          status: result.operation.status,
+          note: args.note,
+          childrenLeft: result.children.map((c) => c.id),
+        });
+        await notifier.notify({
+          severity: "info",
+          title: `Operation ${result.operation.id} closed by the operator as ${result.operation.status}`,
+          body:
+            `${result.operation.kind} "${result.operation.description}" left attention` +
+            (args.note ? `: ${args.note}` : "."),
+          dedupKey: `operation-closed:${result.operation.id}:${result.operation.updatedAt.getTime()}`,
+          operationId: result.operation.id,
+          ...(result.operation.pairId ? { pairId: result.operation.pairId } : {}),
+          ...(result.operation.routeId ? { routeId: result.operation.routeId } : {}),
+        });
+        stdout(`${closeOperationJson(result)}\n`);
+        return 0;
+      } catch (error) {
+        if (!(error instanceof CloseOperationRefused)) throw error;
+        stderr(`close-operation: ${error.message}\n`);
+        return 2;
+      } finally {
+        await journal.close();
+      }
+    },
+  };
 }
 
 function buildStatusPlatform(env: NodeJS.ProcessEnv, overrides: PlatformOverrides): PlatformHandle {
