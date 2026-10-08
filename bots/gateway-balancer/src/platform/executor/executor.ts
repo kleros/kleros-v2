@@ -219,7 +219,7 @@ export class PlatformExecutor implements TxExecutor {
     if (record.status === "prepared" || record.nonce === null || record.signedRaw === null) {
       await this.deps.journal.updateTransaction(record.idempotencyKey, {
         status: "failed",
-        error: `${detail}; interrupted before signing ${revertSuffix(null)}`,
+        error: `${ABORTED} ${detail}; interrupted before signing ${revertSuffix(null)}`,
       });
       return true;
     }
@@ -494,8 +494,9 @@ export class PlatformExecutor implements TxExecutor {
     if (final) return { kind: "final", outcome: final };
     const { journal } = this.deps;
     if (record.status === "prepared" || record.hash === null || record.signedRaw === null || record.nonce === null) {
-      // Interrupted before signing (a crash inside submit): nothing can be on chain.
-      const error = `interrupted before signing ${revertSuffix(null)}`;
+      // Interrupted before signing (a crash inside submit): nothing can be on chain, so the loops see it as an
+      // abort, never as a contract rejection ([L65]).
+      const error = `${ABORTED} interrupted before signing ${revertSuffix(null)}`;
       await journal.updateTransaction(record.idempotencyKey, { status: "failed", error });
       return { kind: "final", outcome: { status: "failed", error } };
     }

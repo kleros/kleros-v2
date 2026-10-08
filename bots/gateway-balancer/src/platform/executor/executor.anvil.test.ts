@@ -585,8 +585,12 @@ describe("PlatformExecutor on a chain removed from the topology", () => {
       error: `chain ${REMOVED} is not configured`,
     });
     expect((await h.journal.getTransaction(broadcast.key))?.status).toBe("unknown");
-    // Nothing was signed for the prepared one: it is failed and its operation stays open for its loop.
-    expect((await h.journal.getTransaction(prepared.key))?.status).toBe("failed");
+    // Nothing was signed for the prepared one: it is failed with the aborted: marker (never a contract rejection)
+    // and its operation stays open for its loop.
+    expect(await h.journal.getTransaction(prepared.key)).toMatchObject({
+      status: "failed",
+      error: `aborted: chain ${REMOVED} is not configured; interrupted before signing revertData=none`,
+    });
     expect(report.attention.sort()).toEqual([signed.operationId, broadcast.operationId].sort());
     expect((await h.journal.getOperation(signed.operationId))?.status).toBe("attention");
     expect((await h.journal.getOperation(prepared.operationId))?.status).toBe("open");
@@ -1077,6 +1081,37 @@ function scripted(delayMs = 3_000): Scripted {
 /** `eth_call` at a block number (the executor's replay of an on-chain revert), not the `latest` simulation. */
 const isReplay = (method: string, params: unknown[]) => method === "eth_call" && params[1] !== "latest";
 const ABORTED_FORM = /^aborted: .* revertData=none$/;
+
+describe("PlatformExecutor on a record interrupted before signing", () => {
+  it("fails a prepared record a crash left with the aborted: form in recover() and resolve()", async () => {
+    const h = harness();
+    const k = key();
+    await h.journal.recordTransaction({
+      idempotencyKey: k.idempotencyKey,
+      operationId: k.operationId,
+      chainId: CHAIN_ID,
+      from: SIGNER,
+      to: RECIPIENT,
+      value: 1n,
+      data: null,
+      nonce: null,
+      hash: null,
+      signedRaw: null,
+      status: "prepared",
+      error: null,
+      replacedByHash: null,
+      blockNumber: null,
+    });
+    const before = await nonce("pending");
+    expect(await h.executor.recover()).toEqual({ resolved: 1, rebroadcast: 0, unknown: [] });
+    const record = await h.journal.getTransaction(k.idempotencyKey);
+    expect(record).toMatchObject({ status: "failed", nonce: null, hash: null, signedRaw: null });
+    expect(record?.error).toMatch(ABORTED_FORM);
+    expect(record?.error).toBe("aborted: interrupted before signing revertData=none");
+    expect(await h.executor.resolve(k.idempotencyKey)).toEqual({ status: "failed", error: record?.error });
+    expect(await nonce("pending")).toBe(before);
+  });
+});
 const EMPTY_REVERTER: Address = "0x00000000000000000000000000000000000000ed";
 
 describe("PlatformExecutor bounded submit (L53, L57)", () => {
