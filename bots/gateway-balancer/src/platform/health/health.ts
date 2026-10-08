@@ -13,6 +13,7 @@ export const OBSERVATION_GROUPS = [
   "in-transit",
   "transfer-delta",
   "gas",
+  "ledger",
   "suspended",
 ] as const;
 
@@ -20,7 +21,7 @@ const NON_FINAL: TxStatus[] = ["prepared", "signed", "broadcast", "unknown"];
 
 export interface StatusSnapshot {
   generatedAt: string;
-  /** `attention` when any operation needs the operator. */
+  /** `attention` when any operation needs the operator or the ledger audit found the ledger over the chain. */
   status: "ok" | "attention";
   observations: Record<
     (typeof OBSERVATION_GROUPS)[number] | "other",
@@ -103,12 +104,18 @@ export async function collectStatus(journal: Journal, now: Date): Promise<Status
   }));
   return {
     generatedAt: now.toISOString(),
-    status: attention.length ? "attention" : "ok",
+    status: attention.length || ledgerOver(observations.ledger) ? "attention" : "ok",
     observations,
     holdings,
     operations: { open, attention },
     transactions,
   };
+}
+
+function ledgerOver(ledger: Array<{ value: JsonValue }>): boolean {
+  return ledger.some(
+    (o) => typeof o.value === "object" && o.value !== null && "state" in o.value && o.value.state === "over"
+  );
 }
 
 /** JSON with bigints as decimal strings. */

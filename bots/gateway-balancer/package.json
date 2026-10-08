@@ -12,6 +12,7 @@
     "status": "tsx src/main.ts status",
     "reconcile": "tsx src/main.ts reconcile",
     "close-operation": "tsx src/main.ts close-operation",
+    "correct-ledger": "tsx src/main.ts correct-ledger",
     "lifi-probe": "tsx src/lifi/probe.ts",
     "test": "vitest run",
     "check-types": "tsc --noEmit",

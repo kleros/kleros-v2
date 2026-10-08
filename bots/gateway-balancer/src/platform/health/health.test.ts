@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { FakeJournal } from "../../testing/fakeJournal";
 import { FakeLogger } from "../../testing/fakeLogger";
 import { buildPlatform } from "../index";
 import { SqliteJournal } from "../journal/sqliteJournal";
@@ -35,6 +36,7 @@ beforeAll(async () => {
     ["in-transit:op-1", { amount: 7n }],
     ["transfer-delta:op-1", { deltaWei: -3n }],
     ["gas:42161", { reserveWei: 10n ** 17n, low: false }],
+    ["ledger:42161:native", { ledgerEoa: 1n, onChain: 2n, state: "ok" }],
     ["suspended:refill:arc-arbitrum", { reason: `limit hit talking to ${RPC}` }],
     ["misc", "unrelated"],
   ];
@@ -106,6 +108,16 @@ describe("health", () => {
         amount: "100000000000000000000",
       },
     ]);
+  });
+
+  it("reports attention when the ledger audit found the ledger over the chain, with no attention", async () => {
+    const fake = new FakeJournal(() => NOW);
+    await fake.recordObservation("ledger:8453:native", { state: "ok" }, NOW);
+    expect((await collectStatus(fake, NOW)).status).toBe("ok");
+    await fake.recordObservation("ledger:8453:0xabc", { state: "untracked" }, NOW);
+    expect((await collectStatus(fake, NOW)).status).toBe("ok");
+    await fake.recordObservation("ledger:8453:native", { state: "over" }, NOW);
+    expect((await collectStatus(fake, NOW)).status).toBe("attention");
   });
 
   it("serves GET /healthz as JSON and 404 elsewhere", async () => {

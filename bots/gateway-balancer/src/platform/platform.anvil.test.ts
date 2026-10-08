@@ -181,15 +181,17 @@ describe("createPlatform close-operation", () => {
       SLACK_WEBHOOK_URL: env.SLACK_WEBHOOK_URL,
     };
     const errors: string[] = [];
-    const run = async (argv: string[]) => {
-      const platform = await buildPlatform(operatorEnv, ["close-operation"], {
+    const command = async (name: "close-operation" | "correct-ledger", argv: string[]) => {
+      const platform = await buildPlatform(operatorEnv, [name], {
         fetch: slackFetch,
         logWrite: (line) => logs.push(line),
         stdout: (text) => printed.push(text),
         stderr: (text) => errors.push(text),
       });
-      return platform.run([], ["close-operation", ...argv]);
+      return platform.run([], [name, ...argv]);
     };
+    const run = (argv: string[]) => command("close-operation", argv);
+    const claimKey = "fg:arc-arbitrum:arbitration:5042002:native";
 
     // Seed: one operation in attention with a holding, one open child, one open sibling.
     mkdirSync(dirname(journalPath), { recursive: true });
@@ -210,6 +212,13 @@ describe("createPlatform close-operation", () => {
       amount: 777n,
       operationId: stuck.id,
       reason: "seed",
+    });
+    // The withdrawal that went unknown still holds its claim on the pool.
+    const claim = await seed.ledger.claim({
+      key: claimKey,
+      amount: 900n,
+      operationId: stuck.id,
+      onchainAvailable: 1000n,
     });
     const child = await seed.createOperation({
       kind: "transfer",
@@ -235,20 +244,30 @@ describe("createPlatform close-operation", () => {
     expect(await run([stuck.id, "--as", "nope"])).toBe(2);
     expect(printed).toEqual([]);
 
-    expect(await run([stuck.id, "--as", "failed", "--note", "reverted at 0xabc; nothing moved"])).toBe(0);
+    // A debit over the holding is refused before anything is written.
+    expect(await run([stuck.id, "--as", "failed", "--debit", "arbitration:arc-arbitrum@42161:native=778"])).toBe(2);
+    expect(errors.join("")).toMatch(/cannot debit 778 from arbitration:arc-arbitrum on chain 42161/);
+    expect(printed).toEqual([]);
+
+    const closeArgv = ["--as", "failed", "--debit", "arbitration:arc-arbitrum@42161:native=77"];
+    expect(await run([stuck.id, ...closeArgv, "--note", "reverted at 0xabc; nothing moved"])).toBe(0);
     const output = JSON.parse(printed.join("")) as {
       operation: { id: string; status: string; lastError: string };
+      corrections: Array<{ direction: string; amount: string }>;
+      releasedClaims: Array<{ id: string; amount: string }>;
       holdings: Array<{ chainId: number; amount: string }>;
       children: Array<{ id: string }>;
     };
+    expect(output.corrections).toEqual([expect.objectContaining({ direction: "debit", amount: "77" })]);
+    expect(output.releasedClaims).toEqual([{ id: claim.id, key: claimKey, amount: "900" }]);
     expect(output.operation).toMatchObject({ id: stuck.id, status: "failed" });
     expect(output.operation.lastError).toMatch(
       /^closed by the operator as failed at .*: reverted at 0xabc; nothing moved \(was: tx 0xabc unknown\)$/
     );
-    expect(output.holdings).toEqual([expect.objectContaining({ chainId: 42161, amount: "777" })]);
+    expect(output.holdings).toEqual([expect.objectContaining({ chainId: 42161, amount: "700" })]);
     expect(output.children.map((c) => c.id)).toEqual([child.id]);
     expect(posted).toHaveLength(1);
-    expect(posted[0]).toContain(`Operation ${stuck.id} closed by the operator as failed`);
+    expect(posted[0]).toContain(`Operation ${stuck.id} closed by the operator as failed with 1 ledger correction`);
     expect(logs.join("")).toContain("operation closed by the operator");
 
     // Persisted, the ownership released, the ledger and the child untouched; a second close is refused.
@@ -256,12 +275,27 @@ describe("createPlatform close-operation", () => {
     expect((await reader.getOperation(stuck.id))?.status).toBe("failed");
     expect((await reader.getOperation(child.id))?.status).toBe("open");
     expect(await reader.ledger.holdings({ scope: { kind: "arbitration", pairId: "arc-arbitrum" } })).toEqual([
-      expect.objectContaining({ amount: 777n }),
+      expect.objectContaining({ amount: 700n }),
     ]);
+    expect(await reader.ledger.openClaims(claimKey)).toEqual([]);
     expect(reader.owner()).toBeUndefined();
     await reader.close();
     expect(await run([stuck.id, "--as", "completed"])).toBe(2);
     expect(errors.join("")).toMatch(new RegExp(`operation ${stuck.id} is failed, not attention`));
+
+    // The withdrawal lands after all: correct-ledger credits it to the closed operation's scope.
+    printed.length = 0;
+    const late = ["--credit", "arbitration:arc-arbitrum@42161:native=900", "--note", "0xabc landed in block 99"];
+    expect(await command("correct-ledger", [stuck.id, ...late])).toBe(0);
+    expect(JSON.parse(printed.join(""))).toMatchObject({
+      operation: { id: stuck.id, status: "failed" },
+      holdings: [expect.objectContaining({ amount: "1600" })],
+    });
+    expect(posted.at(-1)).toContain(
+      `Ledger corrected by the operator for operation ${stuck.id} with 1 ledger correction`
+    );
+    expect(await command("correct-ledger", [child.id, ...late])).toBe(2);
+    expect(errors.join("")).toMatch(new RegExp(`operation ${child.id} is open; correct-ledger is for`));
     for (const secret of Object.values(env).filter((v) => v.includes("FAKEKEY"))) {
       expect(logs.join("") + printed.join("") + errors.join("")).not.toContain(secret);
     }

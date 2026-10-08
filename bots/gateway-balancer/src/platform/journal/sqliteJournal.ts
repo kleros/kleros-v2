@@ -687,6 +687,22 @@ class SqliteLedger implements Ledger {
     return this.openClaimsSync(key);
   }
 
+  async openClaimsOf(operationId: OperationId): Promise<Claim[]> {
+    return this.journal
+      .all(
+        "SELECT id, key, amount, operation_id, created_at FROM claims " +
+          "WHERE operation_id = ? AND state = 'open' ORDER BY seq",
+        operationId
+      )
+      .map((r) => ({
+        id: String(r.id),
+        key: String(r.key),
+        amount: BigInt(String(r.amount)),
+        operationId: String(r.operation_id),
+        createdAt: new Date(String(r.created_at)),
+      }));
+  }
+
   async credit(entry: HoldingEntry): Promise<void> {
     if (entry.amount <= 0n) throw new Error("credit: amount must be positive");
     this.journal.immediate(() => this.insertEntry(entry, entry.amount));

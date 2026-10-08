@@ -151,6 +151,23 @@ export function describeJournalContract(name: string, make: () => Journal | Prom
       await expect(journal.ledger.releaseClaim("nope")).rejects.toBeInstanceOf(UnknownRecord);
     });
 
+    it("lists an operation's open claims on every key, never a released or settled one", async () => {
+      const usdc = "fg:usdc-home:bridging:1001:native";
+      const eth = "fg:eth-home:arbitration:1002:native";
+      const a = await journal.ledger.claim({ key: usdc, amount: 10n, operationId: "op-x", onchainAvailable: 100n });
+      const b = await journal.ledger.claim({ key: eth, amount: 20n, operationId: "op-x", onchainAvailable: 100n });
+      const c = await journal.ledger.claim({ key: eth, amount: 30n, operationId: "op-x", onchainAvailable: 100n });
+      await journal.ledger.claim({ key: usdc, amount: 5n, operationId: "op-y", onchainAvailable: 100n });
+      await journal.ledger.settleClaim(c.id, 30n);
+      expect((await journal.ledger.openClaimsOf("op-x")).map((claim) => [claim.id, claim.key, claim.amount])).toEqual([
+        [a.id, usdc, 10n],
+        [b.id, eth, 20n],
+      ]);
+      await journal.ledger.releaseClaim(a.id);
+      expect((await journal.ledger.openClaimsOf("op-x")).map((claim) => claim.id)).toEqual([b.id]);
+      expect(await journal.ledger.openClaimsOf("op-none")).toEqual([]);
+    });
+
     it("keeps holdings apart by scope, chain, asset and location; a debit never crosses scopes", async () => {
       const base = { chainId: 1003, asset: "native" as const, operationId: "op-a" };
       await journal.ledger.credit({ ...base, scope: arbitration, location: "eoa", amount: 100n, reason: "received" });

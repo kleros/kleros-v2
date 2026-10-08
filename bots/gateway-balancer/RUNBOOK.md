@@ -171,28 +171,49 @@ Each step raises its own notifications; if any operation reaches `attention`, st
 Each notification names its action; the README ("Operator actions") and the lane READMEs have the detail. The ones
 that stop the bot's own progress:
 
-| Notification                                                                       | What it means                                                                             | What to do                                                                                                                               |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `Out of operator gas on <chain>` (critical)                                        | The executor refused to sign; nothing was sent.                                           | Send native token to the EOA. The loop retries on its next tick.                                                                         |
-| `Transaction stuck on <chain> at nonce <n>`                                        | Unconfirmed past `executor.stuckAfterMs`; later submits on that chain wait.               | README, "Stuck transaction procedure": wait out the fee spike or cancel at that nonce with a 0-value self-transfer from the EOA.         |
-| `Operation <id> needs attention` (critical)                                        | A transaction is `unknown` or `replaced`, or a transfer step could not finish.            | Check the hashes on the explorer, correct the ledger to the chain, then close the operation (below). The bot never retries it by itself. |
-| `LI.FI continuation swap abandoned: intermediate token left in the EOA` (critical) | A bridged intermediate token sits on the destination chain and the bot could not swap it. | Swap it by hand from the EOA; the ledger already holds it at `eoa`. Resuming the operation does not swap it.                             |
-| `Balancer instance lost journal ownership`                                         | Another instance took the journal.                                                        | Stop the extra instance; start one.                                                                                                      |
-| `Low gas reserve on <chain>` (warning)                                             | Below `gas.minimumReserveWei`.                                                            | Top up before it becomes a refusal.                                                                                                      |
+| Notification                                                                       | What it means                                                                             | What to do                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Out of operator gas on <chain>` (critical)                                        | The executor refused to sign; nothing was sent.                                           | Send native token to the EOA. The loop retries on its next tick.                                                                                                                        |
+| `Transaction stuck on <chain> at nonce <n>`                                        | Unconfirmed past `executor.stuckAfterMs`; later submits on that chain wait.               | README, "Stuck transaction procedure": wait out the fee spike or cancel at that nonce with a 0-value self-transfer from the EOA.                                                        |
+| `Operation <id> needs attention` (critical)                                        | A transaction is `unknown` or `replaced`, or a transfer step could not finish.            | Check the hashes on the explorer, then close the operation with the corrections that match the chain (below). The bot never retries it by itself.                                       |
+| `LI.FI continuation swap abandoned: intermediate token left in the EOA` (critical) | A bridged intermediate token sits on the destination chain and the bot could not swap it. | Swap it by hand from the EOA, then close the transfer as `completed` with `--debit` of the token and `--credit` of what the swap gave (below). Resuming the operation does not swap it. |
+| `Ledger holds more <asset> than the EOA on <chain>` (critical)                     | Funds left the EOA without the ledger (a hand transaction, a hand swap).                  | Find the transaction; debit the scope that lost them with `close-operation` or `correct-ledger` (below). Native: the chain is blocked until fixed.                                      |
+| `<asset> in the EOA that no scope holds on <chain>` (warning)                      | Tokens arrived that no scope holds, with no operation open.                               | Credit them to the operation they belong to with `correct-ledger`, or move them out by hand.                                                                                            |
+| `Balancer instance lost journal ownership`                                         | Another instance took the journal.                                                        | Stop the extra instance; start one.                                                                                                                                                     |
+| `Low gas reserve on <chain>` (warning)                                             | Below `gas.minimumReserveWei`.                                                            | Top up before it becomes a refusal.                                                                                                                                                     |
 
-**Closing an operation in attention.** Decide from the explorer what moved, then, with the bot stopped (the command
-takes journal ownership like `reconcile`):
+**Closing an operation in attention.** With the bot stopped (both commands take journal ownership like `reconcile`):
+
+1. Decide from the explorer what moved. Make sure nothing of the operation can still land: a pending transaction at
+   a free nonce must be cancelled first (README, "Stuck transaction procedure").
+2. Compare with what `status` shows under `holdings` for the operation's scopes. Each difference is one correction,
+   `<scope>@<chainId>:<asset>[:eoa|in-transit]=<amount in wei>`, on one of the operation's own scopes:
+   `--credit` for funds the chain shows and the ledger lacks, `--debit` for the opposite.
+3. Close it:
 
 ```sh
-yarn workspace @kleros/gateway-balancer-bot close-operation <id> --as failed --note "tx 0x… reverted, nothing moved"
+yarn workspace @kleros/gateway-balancer-bot close-operation <id> --as failed \
+  --credit "arbitration:base-arbitrum@8453:native=1500000000000000" --note "withdrawal 0x… executed, credit was lost"
 ```
 
-Use `--as completed` when the funds did move as planned. The command refuses an operation that is not in `attention`
-and prints the closed record, what its scopes still hold in the ledger and any child operation left open (a refill's
-transfer has its own id and its own decision). The ledger is never changed by the close: when the chain disagrees
-with what it prints, write down the difference; there is no ledger edit command. Then `reconcile` and `start`. In
-Docker: `docker compose stop`, `docker compose run --rm gateway-balancer close-operation <id> --as failed --note "…"`,
-`docker compose start`.
+Use `--as completed` when the funds moved as planned, and no correction when the ledger already matches. The command
+validates every correction before writing any (a debit never exceeds its holding), releases the operation's open
+withdrawal claims, and prints the record, the corrections, the released claims, what the scopes now hold, any child
+operation left open and a parent still in `attention` (close a transfer first, then its refill or funding operation).
+Then `reconcile` and `start`. On the next `gas.intervalMs` the ledger audit compares the ledger with the chain again:
+`status` shows `ledger:*` with `state: "ok"` when it matches. In Docker: `docker compose stop`,
+`docker compose run --rm gateway-balancer close-operation …`, `docker compose start`.
+
+**A released continuation token swapped by hand.** The transfer is in `attention` with the token at `eoa` (or
+`in-transit`) under its scope. After the hand swap, close it as `completed` with `--debit` of the token and `--credit`
+of the native amount the swap delivered, on the same scope.
+
+**A correction after the close.** When the audit raises `ledger-over` or `ledger-untracked` later (a transaction that
+landed after its operation was closed), apply the correction to that closed operation:
+
+```sh
+yarn workspace @kleros/gateway-balancer-bot correct-ledger <id> --credit "<spec>" --note "0x… landed in block …"
+```
 
 **Notifications after a crash.** A dedup key recorded right before a crash can suppress the next occurrence for the
 rest of `notifications.dedupWindowSeconds`. After any restart, read `status` rather than waiting for a notification.
@@ -204,9 +225,11 @@ rest of `notifications.dedupWindowSeconds`. After any restart, read `status` rat
   since signed transactions: the nonces and idempotency keys would be reused.
 - **Upgrade.** `docker compose build`, `docker compose run --rm gateway-balancer reconcile` with the new image, then
   `up -d`. Reconciliation on start resolves every non-final transaction before any loop ticks.
-- **Key rotation.** Stop the bot with no open operation (`status`: `operations.open` empty). Move every holding the
-  ledger lists, and the gas float, from the old EOA to the new one by hand. Start the bot with the new key against a
-  fresh journal: the old journal's ledger and transaction records belong to the old signer, and the new instance would
-  not see its holdings. Keep the old journal as the record of what moved.
+- **Key rotation.** Keep the journal: the ledger's holdings belong to scopes, not to a key, and a fresh journal would
+  lose every one of them (the moved fee funds would look like operator gas). Stop the bot with no open operation and
+  no non-final transaction (`status`: `operations.open` and `transactions` empty). Move every amount the ledger lists
+  at `eoa`, per chain and asset, and the gas float from the old EOA to the new one by hand. Start the bot with the new
+  key on the same journal; the ledger audit then checks the new EOA against the ledger on its first run, and a
+  `ledger-over` critical means something was not moved.
 - **Secrets.** `.env` is read by compose only, `chmod 600`, never in the image. Rotating an RPC URL or the webhook is
   a restart; nothing is persisted from them (they are redacted from logs and the journal).
