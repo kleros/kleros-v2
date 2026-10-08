@@ -185,6 +185,8 @@ export interface Ledger {
   /** The withdrawal confirmed; the claim is closed with the amount actually taken. */
   settleClaim(claimId: string, actualAmount: bigint): Promise<void>;
   openClaims(key: string): Promise<Claim[]>;
+  /** The open claims an operation holds, on every key (what an operator's close must release). */
+  openClaimsOf(operationId: OperationId): Promise<Claim[]>;
 
   credit(entry: HoldingEntry): Promise<void>;
   /** Throws `InsufficientHolding` when the scope/chain/asset/location holds less than `amount`. */

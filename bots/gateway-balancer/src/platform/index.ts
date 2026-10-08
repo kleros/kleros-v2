@@ -14,6 +14,7 @@ import { PlatformExecutor, type ExecutorChain } from "./executor/executor";
 import { ViemExecutorRpc } from "./executor/rpc";
 import { createTimedFetch } from "./fetch";
 import { createGasMonitor } from "./gas/gasMonitor";
+import { createLedgerAudit } from "./ledger/audit";
 import { collectStatus, startHealthServer, statusJson, type HealthServer } from "./health/health";
 import { inertChainClients, inertExecutor } from "./inert";
 import { SqliteJournal } from "./journal/sqliteJournal";
@@ -24,18 +25,20 @@ import {
   closeOperation,
   closeOperationJson,
   CloseOperationRefused,
+  correctLedger,
   parseCloseOperationArgs,
+  parseCorrectLedgerArgs,
 } from "./operations/closeOperation";
 import { reconcile } from "./reconcile/reconcile";
 import { Redactor, secretEnvValues } from "./redact";
 
-export const COMMANDS = ["start", "status", "reconcile", "close-operation"] as const;
+export const COMMANDS = ["start", "status", "reconcile", "close-operation", "correct-ledger"] as const;
 export type Command = (typeof COMMANDS)[number];
 
 export interface PlatformOverrides {
-  /** Where `status`, `reconcile` and `close-operation` print their JSON (default: stdout). */
+  /** Where `status`, `reconcile`, `close-operation` and `correct-ledger` print their JSON (default: stdout). */
   stdout?: (text: string) => void;
-  /** Where a refused `close-operation` prints its reason (default: stderr). */
+  /** Where a refused `close-operation` or `correct-ledger` prints its reason (default: stderr). */
   stderr?: (text: string) => void;
   /** Where JSON log lines go (default: stderr). */
   logWrite?: (line: string) => void;
@@ -90,16 +93,21 @@ export async function buildPlatform(
 ): Promise<PlatformHandle> {
   const command = parseCommand(argv);
   if (command === "status") return buildStatusPlatform(env, overrides);
-  if (command === "close-operation") return buildOperatorPlatform(env, overrides);
+  if (command === "close-operation" || command === "correct-ledger")
+    return buildOperatorPlatform(env, command, overrides);
   return buildRunningPlatform(env, command, overrides);
 }
 
 /**
- * `close-operation`: the journal for writing under the ownership fence (so it refuses to run beside a `start`
- * instance, like `reconcile`), the notifier when Slack is configured, and no chain: it needs neither the key nor
- * any RPC variable. Inert placeholders fill the rest of `CorePorts`, as for `status`.
+ * `close-operation` and `correct-ledger`: the journal for writing under the ownership fence (so they refuse to run
+ * beside a `start` instance, like `reconcile`), the notifier when Slack is configured, and no chain: they need
+ * neither the key nor any RPC variable. Inert placeholders fill the rest of `CorePorts`, as for `status`.
  */
-function buildOperatorPlatform(env: NodeJS.ProcessEnv, overrides: PlatformOverrides): PlatformHandle {
+function buildOperatorPlatform(
+  env: NodeJS.ProcessEnv,
+  command: "close-operation" | "correct-ledger",
+  overrides: PlatformOverrides
+): PlatformHandle {
   const { config, secrets } = loadConfig(env, { requireSecrets: false });
   const settings = config.platform;
   const redactor = redactorFor(config, env, secrets);
@@ -152,39 +160,49 @@ function buildOperatorPlatform(env: NodeJS.ProcessEnv, overrides: PlatformOverri
   };
   const stdout = overrides.stdout ?? ((text: string) => void process.stdout.write(text));
   const stderr = overrides.stderr ?? ((text: string) => void process.stderr.write(text));
+  const chainIds = new Set(config.topology.chains.map((c) => c.id));
+  const corrected = (n: number) => (n ? ` with ${n} ledger correction${n === 1 ? "" : "s"}` : "");
   return {
-    command: "close-operation",
+    command,
     ports,
     stop: () => undefined,
     healthPort: () => null,
     async run(_loops, runArgv) {
-      if (parseCommand(runArgv) !== "close-operation") throw new Error("this platform was created for close-operation");
+      if (parseCommand(runArgv) !== command) throw new Error(`this platform was created for ${command}`);
       try {
-        const args = parseCloseOperationArgs(runArgv.slice(1));
+        const argv = runArgv.slice(1);
+        const closing = command === "close-operation";
+        const args = closing ? parseCloseOperationArgs(argv) : parseCorrectLedgerArgs(argv);
         journal.acquire();
-        const result = await closeOperation(journal, args, clock.now());
-        logger.info("operation closed by the operator", {
-          operationId: result.operation.id,
-          status: result.operation.status,
+        const result = closing
+          ? await closeOperation(journal, args as ReturnType<typeof parseCloseOperationArgs>, clock.now(), chainIds)
+          : await correctLedger(journal, args, clock.now(), chainIds);
+        const op = result.operation;
+        logger.info(closing ? "operation closed by the operator" : "ledger corrected by the operator", {
+          operationId: op.id,
+          status: op.status,
           note: args.note,
+          corrections: result.corrections.length,
+          releasedClaims: result.releasedClaims.map((c) => c.id),
           childrenLeft: result.children.map((c) => c.id),
         });
         await notifier.notify({
           severity: "info",
-          title: `Operation ${result.operation.id} closed by the operator as ${result.operation.status}`,
+          title: closing
+            ? `Operation ${op.id} closed by the operator as ${op.status}${corrected(result.corrections.length)}`
+            : `Ledger corrected by the operator for operation ${op.id}${corrected(result.corrections.length)}`,
           body:
-            `${result.operation.kind} "${result.operation.description}" left attention` +
-            (args.note ? `: ${args.note}` : "."),
-          dedupKey: `operation-closed:${result.operation.id}:${result.operation.updatedAt.getTime()}`,
-          operationId: result.operation.id,
-          ...(result.operation.pairId ? { pairId: result.operation.pairId } : {}),
-          ...(result.operation.routeId ? { routeId: result.operation.routeId } : {}),
+            `${op.kind} "${op.description}"${closing ? " left attention" : ""}` + (args.note ? `: ${args.note}` : "."),
+          dedupKey: `operation-${closing ? "closed" : "corrected"}:${op.id}:${clock.now().getTime()}`,
+          operationId: op.id,
+          ...(op.pairId ? { pairId: op.pairId } : {}),
+          ...(op.routeId ? { routeId: op.routeId } : {}),
         });
         stdout(`${closeOperationJson(result)}\n`);
         return 0;
       } catch (error) {
         if (!(error instanceof CloseOperationRefused)) throw error;
-        stderr(`close-operation: ${error.message}\n`);
+        stderr(`${command}: ${error.message}\n`);
         return 2;
       } finally {
         await journal.close();
@@ -379,12 +397,25 @@ async function buildRunningPlatform(
         minimumFor: (chainId) =>
           settings.gas.minimumReserveWei[String(chainId)] ?? settings.gas.defaultMinimumReserveWei,
       });
-      const scheduler = new Scheduler([...loops, gasMonitor], {
+      const ledgerAudit = createLedgerAudit({
+        topology: config.topology,
+        chains,
+        reserveRpc: new Map([...executorChains].map(([id, chain]) => [id, chain.rpc])),
+        journal,
+        notifier,
+        logger: logger.child({ component: "ledger-audit" }),
+        signer: account.address,
+      });
+      const scheduler = new Scheduler([...loops, gasMonitor, ledgerAudit], {
         clock,
         logger: logger.child({ component: "scheduler" }),
         signal: shutdown.signal,
         intervalFor: intervalResolver(
-          { ...settings.schedule.intervalsMs, [gasMonitor.id]: settings.gas.intervalMs },
+          {
+            ...settings.schedule.intervalsMs,
+            [gasMonitor.id]: settings.gas.intervalMs,
+            [ledgerAudit.id]: settings.gas.intervalMs,
+          },
           settings.schedule.defaultIntervalMs
         ),
         suspendedIntervalMs: settings.schedule.suspendedIntervalMs,

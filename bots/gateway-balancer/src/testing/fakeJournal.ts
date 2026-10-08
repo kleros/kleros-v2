@@ -95,6 +95,12 @@ export class FakeLedger implements Ledger {
     return [...this.claims.values()].filter((c) => c.key === key && c.state === "open").map((c) => this.copyClaim(c));
   }
 
+  async openClaimsOf(operationId: OperationId): Promise<Claim[]> {
+    return [...this.claims.values()]
+      .filter((c) => c.operationId === operationId && c.state === "open")
+      .map((c) => this.copyClaim(c));
+  }
+
   async credit(entry: HoldingEntry): Promise<void> {
     if (entry.amount <= 0n) throw new Error("credit: amount must be positive");
     this.entries.push({ ...entry, scope: { ...entry.scope } });
