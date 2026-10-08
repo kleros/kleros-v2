@@ -1,0 +1,39 @@
+# One instance of the gateway balancer bot with a persistent journal. From this directory:
+#
+#   cp .env.example .env            # fill in the secrets; chmod 600 .env
+#   cp config/example.json config/config.json   # then edit it (RUNBOOK.md, "Configuration")
+#   docker compose build
+#   docker compose run --rm gateway-balancer reconcile   # dry start: ownership, recovery, reconciliation, exit
+#   docker compose up -d
+#   docker compose run --rm gateway-balancer status      # read-only, safe beside the running instance
+#
+# The bot is a single-instance process (the journal's owner row refuses a second one), so never scale this service.
+services:
+  gateway-balancer:
+    build:
+      context: ../..
+      dockerfile: bots/gateway-balancer/Dockerfile
+    image: kleros/gateway-balancer-bot:local
+    container_name: gateway-balancer
+    restart: unless-stopped
+    # Secrets only (BALANCER_PRIVATE_KEY, the RPC URLs, the Slack webhook), never committed. GATEWAY_BALANCER_CONFIG
+    # may stay at its default, config/config.json, which the mount below provides.
+    env_file: .env
+    volumes:
+      - journal:/app/bots/gateway-balancer/data
+      - ./config/config.json:/app/bots/gateway-balancer/config/config.json:ro
+    # Above schedule.stopTimeoutMs (60 s by default): shutdown aborts the in-flight confirmation wait at once and
+    # waits for the tick to finish before the journal is closed. A hard kill is safe for funds but leaves work for
+    # the next start's reconciliation.
+    stop_grace_period: 75s
+    # /healthz stays on the container's loopback (see the Dockerfile); uncomment to publish it on the host only.
+    # ports:
+    #   - "127.0.0.1:8080:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "10"
+
+volumes:
+  journal:
