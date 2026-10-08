@@ -100,7 +100,6 @@ describe("getJurorActions", () => {
       deadline: NOW - HOUR + 2 * DAY,
       voteIds: ["0"],
       isUrgent: false,
-      isOverdue: false,
       isSubmitted: false,
     });
     expect(summarize([makeDraw({ period: "commit", hiddenVotes: true, commited: true })])).toEqual([]);
@@ -149,14 +148,14 @@ describe("getJurorActions", () => {
 
   it("keeps an overdue action, since the juror can act until the period is passed", () => {
     const [action] = getActions([makeDraw({ period: "vote", lastPeriodChange: NOW - 4 * DAY })]);
-    expect(action).toMatchObject({ kind: "vote", deadline: NOW - DAY, isOverdue: true, isUrgent: true });
+    expect(action).toMatchObject({ kind: "vote", deadline: NOW - DAY, isUrgent: true });
   });
 
   it("flags actions with less than 24 hours left as urgent", () => {
     const endingIn = (seconds: number) => makeDraw({ lastPeriodChange: NOW + seconds - 3 * DAY });
-    expect(getActions([endingIn(DAY + 1)])[0]).toMatchObject({ isUrgent: false, isOverdue: false });
-    expect(getActions([endingIn(DAY - 1)])[0]).toMatchObject({ isUrgent: true, isOverdue: false });
-    expect(getActions([endingIn(0)])[0]).toMatchObject({ isUrgent: true, isOverdue: true });
+    expect(getActions([endingIn(DAY + 1)])[0]).toMatchObject({ isUrgent: false });
+    expect(getActions([endingIn(DAY - 1)])[0]).toMatchObject({ isUrgent: true });
+    expect(getActions([endingIn(0)])[0]).toMatchObject({ isUrgent: true });
   });
 
   it("merges the draws of a round into one action listing the juror's votes", () => {

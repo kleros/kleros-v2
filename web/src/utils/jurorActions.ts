@@ -29,7 +29,6 @@ export interface JurorAction {
   voteIds: string[];
   /** Under 24h left, or overdue. */
   isUrgent: boolean;
-  isOverdue: boolean;
   /** Sent in this session, waiting for the subgraph to index it. */
   isSubmitted: boolean;
 }
@@ -90,7 +89,6 @@ export const getJurorActions = (
       deadline,
       voteIds: [draw.voteIDNum],
       isUrgent: deadline - now < URGENT_THRESHOLD,
-      isOverdue: now >= deadline,
       isSubmitted: false,
     });
   }
