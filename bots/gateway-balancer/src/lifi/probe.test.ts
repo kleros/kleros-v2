@@ -20,6 +20,20 @@ async function probe(config = mainnetConfig()) {
 }
 
 describe("lifi-probe", () => {
+  it("bounds every LI.FI call by the platform HTTP timeout: a hung answer fails the class, never stalls", async () => {
+    const config = mainnetConfig();
+    config.platform.http.timeoutMs = 20;
+    const hung: typeof globalThis.fetch = (_input, init) =>
+      new Promise((_resolve, reject) => init?.signal?.addEventListener("abort", () => reject(init.signal!.reason)));
+    const lines: string[] = [];
+    const code = await runProbe({ config, fetch: hung, signer: SIGNER, out: (line) => lines.push(line) });
+    expect(code).toBe(1);
+    expect(lines.filter((l) => l.startsWith("tools: unavailable"))).toHaveLength(1);
+    const verdicts = lines.filter((l) => l.startsWith("verdict:"));
+    expect(verdicts).toHaveLength(4);
+    for (const verdict of verdicts) expect(verdict).toMatch(/^verdict: ERROR .*(timed out|TimeoutError|timeout)/i);
+  });
+
   it("prints quote, tools, fees, minimum output and one verdict per class; exit 0 when all approved", async () => {
     const { code, lines, verdicts, fetch } = await probe();
     expect(lines.filter((l) => l.startsWith("== "))).toEqual([

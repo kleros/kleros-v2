@@ -186,6 +186,51 @@ describe("planFunding", () => {
     );
   });
 
+  it("re-probes at a tenth, a hundredth and a thousandth when the share-sized probe has no route", async () => {
+    const h = harness();
+    // Base ETH reporter short, a 50,000 USDC pool: LI.FI has no route above 1,000 USDC (liquidity), so the
+    // share-sized probe carries no rate. The smaller probes find one and the need-sized quote follows.
+    h.funding.balances.set(ROUTES.ethForeign, 19n * COST.eth); // 81 messages short = 0.0162 ETH = 40.5 USDC
+    h.funding.balances.set(ROUTES.ethHome, 100n * COST.eth);
+    h.treasuries.get("eth-home")!.setBalance(ASSETS.baseUsdc, 0n, parseUnits("50000", 6));
+    h.routeProvider.quotes.unshift({
+      match: (request) => request.amount > parseUnits("1000", 6),
+      result: { kind: "no-route", reason: "no liquidity" },
+    });
+    const plan = expectFund(await planFunding(h.plannerDeps("eth-home"), h.route(ROUTES.ethForeign)));
+    const need = 81n * COST.eth;
+    expect(h.routeProvider.requests.map((r) => r.amount)).toEqual([
+      parseUnits("50000", 6),
+      parseUnits("5000", 6),
+      parseUnits("500", 6),
+      parseUnits("40.5", 6),
+    ]);
+    expect(plan.legs).toEqual([
+      expect.objectContaining({
+        asset: ASSETS.baseUsdc,
+        claimAmount: parseUnits("40.5", 6),
+        transfer: true,
+        quote: expect.objectContaining({ inputAmount: parseUnits("40.5", 6), estimatedOutput: need }),
+      }),
+    ]);
+
+    // No route at any probe: the asset is skipped after the bounded probes, the route defers.
+    const dry = harness();
+    dry.funding.balances.set(ROUTES.ethForeign, 0n);
+    dry.funding.balances.set(ROUTES.ethHome, 100n * COST.eth);
+    dry.treasuries.get("eth-home")!.setBalance(ASSETS.baseUsdc, 0n, parseUnits("50000", 6));
+    dry.routeProvider.quotes.unshift({ match: () => true, result: { kind: "no-route", reason: "no liquidity" } });
+    expect(await planFunding(dry.plannerDeps("eth-home"), dry.route(ROUTES.ethForeign))).toEqual(
+      expect.objectContaining({ kind: "deferred", short: true })
+    );
+    expect(dry.routeProvider.requests.map((r) => r.amount)).toEqual([
+      parseUnits("50000", 6),
+      parseUnits("5000", 6),
+      parseUnits("500", 6),
+      parseUnits("50", 6),
+    ]);
+  });
+
   it("counts a sibling's in-flight withdrawal once: three equal routes, one with an open operation", async () => {
     const third = {
       id: "eth-home->third",

@@ -79,8 +79,10 @@ Each funding operation is journaled before its first claim and goes through thes
    `estimatedOutput` is persisted in the operation payload. That quote's input is the route's need, not its whole
    share: the share is quoted first only as a rate probe (a probe the policy rejects still carries its rate), the
    input is reduced to the need at that rate and quoted again, so a small top-up is never refused by the
-   per-transfer or daily limit a share-sized quote would exceed. Same-unit claims (Base ETH for Arbitrum ETH) need no
-   quote.
+   per-transfer or daily limit a share-sized quote would exceed. A share-sized probe LI.FI has no route for (an
+   amount past the route's liquidity) carries no rate: the probe is repeated at a tenth, a hundredth and a thousandth
+   of the share, and the asset is skipped for this tick only when none of them finds a route. Same-unit claims (Base
+   ETH for Arbitrum ETH) need no quote.
 5. **Fund.** The operation computes `min(holding, target - balance)` and persists it in the `debiting` marker. It
    debits that amount, writes the `funding` marker, then sends the native transfer (`fund` step). The amount sent
    is exactly the persisted one, never the whole holding. When the funding `failed` or `reverted`, nothing reached

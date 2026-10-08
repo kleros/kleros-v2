@@ -80,6 +80,11 @@ interface Suspension {
 
 const MAX_STEPS_PER_TICK = 16;
 
+/** A submit `failed` before signing (shutdown, an expired wait budget, a crash; decisions [L61], [L65]). */
+export function isAborted(error: string): boolean {
+  return error.startsWith("aborted:");
+}
+
 function json(value: unknown): JsonValue {
   return value as JsonValue;
 }
@@ -567,7 +572,7 @@ export class RefillLoop implements Loop {
       case "pending":
         return { kind: "wait", summary: `withdrawal of ${item.asset.symbol} pending` };
       case "failed": {
-        if (outcome.error.startsWith("aborted:")) {
+        if (isAborted(outcome.error)) {
           // Shutdown or an expired wait budget before signing (decisions [L61]): not a contract rejection. The claim
           // stays, and the next tick retries under a new attempt key; no skip, no notification, no suspension.
           state.attempt += 1;

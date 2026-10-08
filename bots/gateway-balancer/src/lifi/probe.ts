@@ -12,6 +12,7 @@ import { pathToFileURL } from "node:url";
 import { formatUnits, getAddress, parseUnits } from "viem";
 import { appConfigSchema, type AppConfig } from "../config/schema";
 import { NATIVE, type Address, type Asset } from "../domain";
+import { createTimedFetch } from "../platform/fetch";
 import type { PriceOracle, PriceResult, RouteRequest } from "../ports";
 import { LifiClient } from "./client";
 import type { RouteClass } from "./config";
@@ -106,7 +107,9 @@ export interface ProbeOptions {
 }
 
 export async function runProbe({ config, fetch, signer, out }: ProbeOptions): Promise<number> {
-  const client = new LifiClient({ fetch, config: config.lifi, chains: config.topology.chains });
+  // The platform's HTTP timeout applies to every LI.FI call, so a hung answer never stalls the probe.
+  const timedFetch = createTimedFetch(config.platform.http.timeoutMs, fetch);
+  const client = new LifiClient({ fetch: timedFetch, config: config.lifi, chains: config.topology.chains });
   const lifi = config.lifi;
   out(`LI.FI probe (quote only, never signs) against ${lifi.endpoint} as ${signer}`);
   out(

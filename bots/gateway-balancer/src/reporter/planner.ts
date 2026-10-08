@@ -252,6 +252,9 @@ function ceilDiv(a: bigint, b: bigint): bigint {
  * exceeds the remaining need, the input is reduced to the need at the probe's rate and quoted again; that quote,
  * which must pass the policy, is the one persisted and the claim is sized from.
  */
+/** Smaller rate probes tried after a share-sized probe LI.FI has no route for (a tenth, a hundredth, a thousandth). */
+const NO_ROUTE_PROBE_RETRIES = 3;
+
 async function sizeCrossAsset(
   deps: PlannerDeps,
   ctx: RouteContext,
@@ -272,7 +275,15 @@ async function sizeCrossAsset(
       purpose: "reporter",
     });
   const available = share + holdingAmount;
-  const probe = await quoteFor(available);
+  // The share is quoted first only as a rate probe. A probe LI.FI has no route for (an amount past the route's
+  // liquidity) carries no rate, so smaller probes follow at a tenth, a hundredth and a thousandth of the share: a
+  // need-sized top-up is not skipped because the share-sized probe had no route.
+  let probe = await quoteFor(available);
+  for (let amount = available / 10n, tries = 0; probe.kind === "no-route" && tries < NO_ROUTE_PROBE_RETRIES; tries++) {
+    if (amount <= 0n) break;
+    probe = await quoteFor(amount);
+    amount /= 10n;
+  }
   const rate = probe.kind === "no-route" ? undefined : probe.quote;
   if (!rate || rate.estimatedOutput <= 0n || rate.inputAmount <= 0n) return null;
   let accepted = probe.kind === "quote" ? probe.quote : undefined;
