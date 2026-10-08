@@ -180,14 +180,19 @@ that stop the bot's own progress:
 | `Balancer instance lost journal ownership`                                         | Another instance took the journal.                                                        | Stop the extra instance; start one.                                                                                                      |
 | `Low gas reserve on <chain>` (warning)                                             | Below `gas.minimumReserveWei`.                                                            | Top up before it becomes a refusal.                                                                                                      |
 
-**Closing an operation in attention.** There is no command for this yet. Stop the bot, then on the journal:
+**Closing an operation in attention.** Decide from the explorer what moved, then, with the bot stopped (the command
+takes journal ownership like `reconcile`):
 
 ```sh
-sqlite3 data/journal.sqlite "UPDATE operations SET status = 'failed', record = json_set(record, '\$.status', 'failed') WHERE id = '<id>';"
+yarn workspace @kleros/gateway-balancer-bot close-operation <id> --as failed --note "tx 0x… reverted, nothing moved"
 ```
 
-Use `'completed'` when the funds did move as planned. Correct the ledger first if the chain disagrees with it; the
-ledger has no edit command either, so write down what you changed. Then `reconcile` and `start`.
+Use `--as completed` when the funds did move as planned. The command refuses an operation that is not in `attention`
+and prints the closed record, what its scopes still hold in the ledger and any child operation left open (a refill's
+transfer has its own id and its own decision). The ledger is never changed by the close: when the chain disagrees
+with what it prints, write down the difference; there is no ledger edit command. Then `reconcile` and `start`. In
+Docker: `docker compose stop`, `docker compose run --rm gateway-balancer close-operation <id> --as failed --note "…"`,
+`docker compose start`.
 
 **Notifications after a crash.** A dedup key recorded right before a crash can suppress the next occurrence for the
 rest of `notifications.dedupWindowSeconds`. After any restart, read `status` rather than waiting for a notification.

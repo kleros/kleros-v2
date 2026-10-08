@@ -1,6 +1,6 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { http } from "viem";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Loop } from "../domain";
@@ -158,5 +158,112 @@ describe("createPlatform start and reconcile", () => {
     expect(await reader.listNotifications()).toEqual([]);
     expect(reader.owner()?.instanceId).toBe("someone-else");
     await reader.close();
+  });
+});
+
+describe("createPlatform close-operation", () => {
+  const ownership = () => ({ instanceId: "seed", pid: process.pid, startedAt: new Date(), staleAfterMs: 60_000 });
+
+  it("closes one attention operation under ownership, prints it, notifies, and refuses the rest", async () => {
+    const posted: string[] = [];
+    const slackFetch: typeof globalThis.fetch = async (_input, init) => {
+      posted.push(String(init?.body));
+      return new Response("ok", { status: 200 });
+    };
+    const { journalPath, env, logs, printed } = setup(
+      "close",
+      { notifications: { providers: { slack: { enabled: true } } } },
+      slackFetch
+    );
+    // No key and no RPC variable: the command needs neither.
+    const operatorEnv = {
+      GATEWAY_BALANCER_CONFIG: env.GATEWAY_BALANCER_CONFIG,
+      SLACK_WEBHOOK_URL: env.SLACK_WEBHOOK_URL,
+    };
+    const errors: string[] = [];
+    const run = async (argv: string[]) => {
+      const platform = await buildPlatform(operatorEnv, ["close-operation"], {
+        fetch: slackFetch,
+        logWrite: (line) => logs.push(line),
+        stdout: (text) => printed.push(text),
+        stderr: (text) => errors.push(text),
+      });
+      return platform.run([], ["close-operation", ...argv]);
+    };
+
+    // Seed: one operation in attention with a holding, one open child, one open sibling.
+    mkdirSync(dirname(journalPath), { recursive: true });
+    const seed = SqliteJournal.open(journalPath, ownership(), { redactor: new Redactor([]) });
+    const stuck = await seed.createOperation({
+      kind: "refill",
+      description: "refill arc-arbitrum",
+      pairId: "arc-arbitrum",
+      scopes: [{ kind: "arbitration", pairId: "arc-arbitrum" }],
+      payload: null,
+    });
+    await seed.updateOperation(stuck.id, { status: "attention", step: "deposit", lastError: "tx 0xabc unknown" });
+    await seed.ledger.credit({
+      scope: { kind: "arbitration", pairId: "arc-arbitrum" },
+      chainId: 42161,
+      asset: "native",
+      location: "eoa",
+      amount: 777n,
+      operationId: stuck.id,
+      reason: "seed",
+    });
+    const child = await seed.createOperation({
+      kind: "transfer",
+      description: "bridge",
+      parentId: stuck.id,
+      scopes: [{ kind: "arbitration", pairId: "arc-arbitrum" }],
+      payload: null,
+    });
+    const sibling = await seed.createOperation({
+      kind: "rate-update",
+      description: "rate",
+      scopes: [],
+      payload: null,
+    });
+
+    // While the seed instance owns the journal, the command is refused like `reconcile`.
+    await expect(run([stuck.id, "--as", "failed"])).rejects.toBeInstanceOf(OwnershipConflict);
+    await seed.close();
+
+    expect(await run([sibling.id, "--as", "failed"])).toBe(2);
+    expect(errors.join("")).toMatch(new RegExp(`operation ${sibling.id} is open, not attention`));
+    expect(await run(["op-404", "--as", "completed"])).toBe(2);
+    expect(await run([stuck.id, "--as", "nope"])).toBe(2);
+    expect(printed).toEqual([]);
+
+    expect(await run([stuck.id, "--as", "failed", "--note", "reverted at 0xabc; nothing moved"])).toBe(0);
+    const output = JSON.parse(printed.join("")) as {
+      operation: { id: string; status: string; lastError: string };
+      holdings: Array<{ chainId: number; amount: string }>;
+      children: Array<{ id: string }>;
+    };
+    expect(output.operation).toMatchObject({ id: stuck.id, status: "failed" });
+    expect(output.operation.lastError).toMatch(
+      /^closed by the operator as failed at .*: reverted at 0xabc; nothing moved \(was: tx 0xabc unknown\)$/
+    );
+    expect(output.holdings).toEqual([expect.objectContaining({ chainId: 42161, amount: "777" })]);
+    expect(output.children.map((c) => c.id)).toEqual([child.id]);
+    expect(posted).toHaveLength(1);
+    expect(posted[0]).toContain(`Operation ${stuck.id} closed by the operator as failed`);
+    expect(logs.join("")).toContain("operation closed by the operator");
+
+    // Persisted, the ownership released, the ledger and the child untouched; a second close is refused.
+    const reader = SqliteJournal.openReadOnly(journalPath, { redactor: new Redactor([]) });
+    expect((await reader.getOperation(stuck.id))?.status).toBe("failed");
+    expect((await reader.getOperation(child.id))?.status).toBe("open");
+    expect(await reader.ledger.holdings({ scope: { kind: "arbitration", pairId: "arc-arbitrum" } })).toEqual([
+      expect.objectContaining({ amount: 777n }),
+    ]);
+    expect(reader.owner()).toBeUndefined();
+    await reader.close();
+    expect(await run([stuck.id, "--as", "completed"])).toBe(2);
+    expect(errors.join("")).toMatch(new RegExp(`operation ${stuck.id} is failed, not attention`));
+    for (const secret of Object.values(env).filter((v) => v.includes("FAKEKEY"))) {
+      expect(logs.join("") + printed.join("") + errors.join("")).not.toContain(secret);
+    }
   });
 });

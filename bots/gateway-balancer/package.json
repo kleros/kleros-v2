@@ -11,6 +11,7 @@
     "start": "tsx src/main.ts start",
     "status": "tsx src/main.ts status",
     "reconcile": "tsx src/main.ts reconcile",
+    "close-operation": "tsx src/main.ts close-operation",
     "lifi-probe": "tsx src/lifi/probe.ts",
     "test": "vitest run",
     "check-types": "tsc --noEmit",
