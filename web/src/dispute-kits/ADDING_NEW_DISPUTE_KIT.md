@@ -42,10 +42,12 @@ Add the entry. Reuse existing components where possible:
   VotingComponent: ClassicVotingComponent,
   AppealComponent: ClassicAppealComponent,
   disputeKitAbi: disputeKitYourNewKitAbi,
-  hasAutomaticVoteReveal: false,
+  jurorActions: { hasAutomaticVoteReveal: false },
   featureSets: [[Features.ClassicVote, Features.YourNewFeature]],
 },
 ```
+
+`jurorActions` decides which pending commit/vote/reveal the juror is alerted about (Home banner and header indicator, see `utils/jurorActions.ts`). Set `hasAutomaticVoteReveal: true` when the kit reveals committed votes itself (e.g. Shutter), so jurors are never asked to reveal.
 
 ### 3. Features (if new) — `types.ts` + `disputeFeature.ts`
 
@@ -78,7 +80,7 @@ Add a data source block in `subgraph/core/subgraph.template.yaml`. This is separ
 
 Adding a new enum value triggers compile errors in:
 
-- `DISPUTE_KIT_REGISTRY` — missing entry
+- `DISPUTE_KIT_REGISTRY` — missing entry (including its `jurorActions`)
 - `DisputeKitDataMap` — missing key
 - `DisputeKitDataEncoder` — missing key
 - `resolveInitialFeatureSet` — unhandled case

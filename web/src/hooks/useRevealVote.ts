@@ -12,6 +12,7 @@ import { errorToast, wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
+import { markJurorActionSubmitted } from "./useJurorActionSubmissions";
 import useSigningAccount from "./useSigningAccount";
 
 type RevealVoteMutation = {
@@ -57,6 +58,9 @@ export function useRevealVote(onSuccess?: () => void) {
         const key = getVoteKey(params.disputeId, params.roundIndex, params.voteIds);
         removeCommitData(key);
       }
+      if (result.status && result.result) {
+        markJurorActionSubmitted(account, params.disputeId, "reveal", result.result.blockNumber);
+      }
 
       return result;
     },
@@ -64,6 +68,7 @@ export function useRevealVote(onSuccess?: () => void) {
       if (!res.status) return;
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: ["useDrawQuery"] });
+      queryClient.invalidateQueries({ queryKey: ["useJurorActionDraws"] });
     },
     onError: (err: unknown) => {
       console.error(err);

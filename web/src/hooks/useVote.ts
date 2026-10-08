@@ -8,6 +8,8 @@ import { errorToast, wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
+import { markJurorActionSubmitted } from "./useJurorActionSubmissions";
+
 type VoteMutation = VoteParams;
 export function useVote(onSuccess?: () => void) {
   const queryClient = useQueryClient();
@@ -36,6 +38,9 @@ export function useVote(onSuccess?: () => void) {
       const executeTxn = () => executeVote(params, { chain, account, walletClient });
 
       const result = await wrapWithToast(executeTxn, publicClient);
+      if (result.status && result.result) {
+        markJurorActionSubmitted(account, params.disputeId, "vote", result.result.blockNumber);
+      }
 
       return result;
     },
@@ -43,6 +48,7 @@ export function useVote(onSuccess?: () => void) {
       if (!res.status) return;
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: ["useDrawQuery"] });
+      queryClient.invalidateQueries({ queryKey: ["useJurorActionDraws"] });
     },
     onError: (err: unknown) => {
       console.error(err);

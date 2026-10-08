@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 import { DropdownCascader, DropdownSelect } from "@kleros/ui-components-library";
 
+import { SrOnly } from "components/SrOnly";
+
 /**
  * TODO(ui-components-library): delete these wrappers and pass `aria-label` directly once
  * kleros/ui-components-library#96 ships.
@@ -12,19 +14,6 @@ import { DropdownCascader, DropdownSelect } from "@kleros/ui-components-library"
  * `aria-label`. Workaround: pass `aria-labelledby` (which the spread does forward) pointing to a
  * visually-hidden span; per ARIA, labelledby wins.
  */
-
-// Clip technique keeps the node in the accessibility tree (display: none would remove it).
-const SrOnly = styled.span`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-`;
 
 // display: contents so the wrapper doesn't break a parent flex/grid layout.
 const Wrapper = styled.div`
