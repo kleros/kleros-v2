@@ -115,7 +115,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
           date={finalDate ? formatDate(finalDate, false, i18n.language) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
-          automaticVoteReveal={disputeKitInfo.jurorActions.hasAutomaticVoteReveal}
+          automaticVoteReveal={disputeKitInfo.hasAutomaticVoteReveal}
         />
       )}
       {userWasDrawn && isCommitOrVotePeriod && !voted && !isUndefined(arbitrable) ? (

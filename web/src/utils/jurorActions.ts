@@ -2,11 +2,14 @@ import { Periods } from "consts/periods";
 
 import type { JurorActionDraw } from "queries/useJurorActionDraws";
 
-import type { JurorActionRules } from "src/dispute-kits/types";
+import type { DisputeKitConfig } from "src/dispute-kits/types";
 
 import { getPeriodDeadline } from "./getPeriodDeadline";
 
 export type JurorActionKind = "commit" | "vote" | "reveal";
+
+/** The dispute kit settings that decide what a drawn juror has to do themselves. */
+export type JurorActionRules = Pick<DisputeKitConfig, "hasAutomaticVoteReveal">;
 
 export interface JurorAction {
   /** Stable across refetches. A re-draw in a later round is a new action. */

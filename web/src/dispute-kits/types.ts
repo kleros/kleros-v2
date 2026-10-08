@@ -49,12 +49,6 @@ export enum Features {
 /** Group of features (like radio buttons per category) */
 export type FeatureGroups = Record<Group, Features[]>;
 
-/** What a drawn juror has to do themselves in this kit. Drives the juror action alerts. */
-export interface JurorActionRules {
-  /** The kit reveals committed votes itself (e.g. Shutter), so the juror never has a reveal to do. */
-  hasAutomaticVoteReveal: boolean;
-}
-
 export interface DisputeKitConfig<TAbi extends Abi = Abi> {
   id: DisputeKits;
   displayName: string;
@@ -65,7 +59,7 @@ export interface DisputeKitConfig<TAbi extends Abi = Abi> {
   VotingComponent: React.FC<DisputeKitVotingProps>;
   AppealComponent: React.FC<DisputeKitAppealProps>;
   disputeKitAbi: TAbi;
-  jurorActions: JurorActionRules;
+  hasAutomaticVoteReveal: boolean;
   /**
    * The feature sets this kit supports.
    * Each array represents a valid configuration, and has to be 1:1,

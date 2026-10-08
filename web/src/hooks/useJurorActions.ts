@@ -11,8 +11,6 @@ import { useJurorActionDraws } from "queries/useJurorActionDraws";
 
 import { getDisputeKitConfigByKitId } from "src/dispute-kits";
 
-const getRules = (disputeKitId: string) => getDisputeKitConfigByKitId(disputeKitId)?.jurorActions;
-
 /**
  * The commits, votes and reveals the connected juror can do right now, soonest deadline first.
  * The header indicator, its list and the Home banner all render this, so they always agree.
@@ -25,7 +23,7 @@ export const useJurorActions = () => {
 
   const actions = useMemo(() => {
     if (!address || !draws) return undefined;
-    return applySubmissions(getJurorActions(draws, getRules, now), ({ disputeId, kind }) => {
+    return applySubmissions(getJurorActions(draws, getDisputeKitConfigByKitId, now), ({ disputeId, kind }) => {
       const submission = submissions[getSubmissionKey(address, disputeId, kind)];
       return submission ? { block: BigInt(submission.block), voteIds: submission.voteIds } : undefined;
     });

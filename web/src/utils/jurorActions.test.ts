@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import type { JurorActionDraw } from "queries/useJurorActionDraws";
 
-import type { JurorActionRules } from "src/dispute-kits/types";
 import type { Period } from "src/graphql/graphql";
 
 import {
@@ -12,6 +11,7 @@ import {
   getJurorActions,
   isDismissed,
   type JurorAction,
+  type JurorActionRules,
 } from "./jurorActions";
 
 const NOW = 1_800_000_000;

@@ -37,7 +37,7 @@ export const DISPUTE_KIT_REGISTRY = {
     VotingComponent: ClassicVotingComponent,
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitClassicAbi,
-    jurorActions: { hasAutomaticVoteReveal: false },
+    hasAutomaticVoteReveal: false,
     featureSets: [[Features.ClassicVote, Features.ClassicEligibility]],
   },
   [DisputeKits.Shutter]: {
@@ -48,7 +48,7 @@ export const DISPUTE_KIT_REGISTRY = {
     VotingComponent: ShutterVotingComponent,
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitShutterAbi,
-    jurorActions: { hasAutomaticVoteReveal: true },
+    hasAutomaticVoteReveal: true,
     featureSets: [[Features.ShieldedVote, Features.ClassicEligibility]],
   },
   [DisputeKits.Gated]: {
@@ -59,7 +59,7 @@ export const DISPUTE_KIT_REGISTRY = {
     VotingComponent: ClassicVotingComponent,
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitGatedAbi,
-    jurorActions: { hasAutomaticVoteReveal: false },
+    hasAutomaticVoteReveal: false,
     // strictly keep the common feature in front and in order.
     featureSets: [
       [Features.ClassicVote, Features.GatedErc20],
@@ -74,7 +74,7 @@ export const DISPUTE_KIT_REGISTRY = {
     VotingComponent: ShutterVotingComponent,
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitGatedShutterAbi,
-    jurorActions: { hasAutomaticVoteReveal: true },
+    hasAutomaticVoteReveal: true,
     featureSets: [
       [Features.ShieldedVote, Features.GatedErc20],
       [Features.ShieldedVote, Features.GatedErc1155],
@@ -88,7 +88,7 @@ export const DISPUTE_KIT_REGISTRY = {
     VotingComponent: ClassicVotingComponent,
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitGatedArgentinaConsumerProtectionAbi,
-    jurorActions: { hasAutomaticVoteReveal: false },
+    hasAutomaticVoteReveal: false,
     featureSets: [[Features.ClassicVote, Features.ArgentinaConsumerProtection]],
   },
   [DisputeKits.ClassicUniversity]: {
@@ -99,7 +99,7 @@ export const DISPUTE_KIT_REGISTRY = {
     VotingComponent: ClassicVotingComponent,
     AppealComponent: ClassicAppealComponent,
     disputeKitAbi: disputeKitClassicUniversityAbi,
-    jurorActions: { hasAutomaticVoteReveal: false },
+    hasAutomaticVoteReveal: false,
     featureSets: [[Features.UniversityVote, Features.ClassicEligibility]],
   },
 } satisfies Record<DisputeKits, DisputeKitConfig>;
