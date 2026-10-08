@@ -871,7 +871,8 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
         if (newCourtID != dispute.courtID) {
             emit CourtJump(_disputeID, extraRoundID, dispute.courtID, newCourtID);
         }
-
+        // TODO: forking kit logic.
+        // TODO: handle arbitration fees in case of Forking.
         dispute.courtID = newCourtID;
         dispute.period = Period.evidence;
         dispute.lastPeriodChange = block.timestamp;
@@ -1196,6 +1197,7 @@ contract KlerosCore is IArbitratorV2, Initializable, UUPSProxiable {
             // Court jump but not to the Forking court
             return courts[newCourtID].feeForJuror * nbVotesAfterAppeal;
         }
+        // TODO: forbid appeals once in Forking court.
         return NON_PAYABLE_AMOUNT; // Jumping to the Forking Court is not supported yet.
     }
 

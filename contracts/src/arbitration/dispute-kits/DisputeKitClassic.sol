@@ -491,6 +491,7 @@ contract DisputeKitClassic is IDisputeKit, Initializable, UUPSProxiable {
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         (uint256 finalRuling, , ) = core.currentRuling(_coreDisputeID);
+        // TODO: check if the final court is forking and if it is force the tie distribution for the last round.
 
         for (uint256 i = 0; i < dispute.rounds.length; i++) {
             Round storage round = dispute.rounds[i];
