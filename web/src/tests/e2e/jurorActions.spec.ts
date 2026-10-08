@@ -3,7 +3,7 @@ import { privateKeyToAddress } from "viem/accounts";
 
 import { expect, test } from "./fixtures";
 import { ACCOUNT_PKEYS } from "./utils";
-import { mockSubgraph } from "./utils/mockSubgraph";
+import { isSubgraphUrl, mockSubgraph } from "./utils/mockSubgraph";
 
 const NOW = Date.UTC(2026, 9, 8, 12) / 1000;
 const HOUR = 60 * 60;
@@ -393,12 +393,9 @@ test.describe("Juror actions", () => {
   test("offers to retry when the actions fail to load", async ({ page, wallet }) => {
     await setup(page, [URGENT_COMMIT]);
     let isSubgraphDown = true;
-    await page.route(
-      (url) => url.hostname.endsWith("thegraph.com") || url.pathname.includes("/subgraphs/"),
-      async (route) => {
-        return isSubgraphDown && isDrawsRequest(route.request()) ? route.fulfill({ status: 500 }) : route.fallback();
-      }
-    );
+    await page.route(isSubgraphUrl, async (route) => {
+      return isSubgraphDown && isDrawsRequest(route.request()) ? route.fulfill({ status: 500 }) : route.fallback();
+    });
     await page.goto("/");
     await wallet.connect("alice");
 

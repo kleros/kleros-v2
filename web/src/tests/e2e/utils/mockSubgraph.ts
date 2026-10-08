@@ -26,7 +26,8 @@ const toValue = (node: ValueNode, variables: Variables): unknown => {
 };
 
 // Core and dispute template registry subgraphs, on a local graph node or The Graph's gateway and studio.
-const isSubgraphUrl = (url: URL) => url.pathname.includes("/subgraphs/") || url.hostname.endsWith("thegraph.com");
+export const isSubgraphUrl = (url: URL) =>
+  url.pathname.includes("/subgraphs/") || url.hostname.endsWith(".thegraph.com");
 
 /**
  * Serves the app's subgraph queries from `resolvers`, so tests don't need a graph node.
