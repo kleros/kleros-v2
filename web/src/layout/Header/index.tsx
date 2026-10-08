@@ -9,6 +9,7 @@ import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import DesktopHeader from "./DesktopHeader";
+import JurorActionsAnnouncer from "./JurorActionsAnnouncer";
 import MobileHeader from "./MobileHeader";
 
 const Container = styled.div`
@@ -74,6 +75,7 @@ const Header: React.FC = () => {
         <DesktopHeader />
         <MobileHeader />
       </HeaderContainer>
+      <JurorActionsAnnouncer />
     </Container>
   );
 };

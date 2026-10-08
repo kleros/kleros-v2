@@ -11,6 +11,7 @@ import { errorToast, wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
+import { markJurorActionSubmitted } from "./useJurorActionSubmissions";
 import useSigningAccount from "./useSigningAccount";
 
 type CommitVoteParams = PartialBy<CommitParams, "salt">;
@@ -52,6 +53,9 @@ export function useCastCommit(onSuccess?: () => void) {
       const executeTxn = () => executeCommit(executeParams, { chain, account, walletClient });
 
       const result = await wrapWithToast(executeTxn, publicClient);
+      if (result.status && result.result) {
+        markJurorActionSubmitted(account, params.disputeId, "commit", params.voteIds, result.result.blockNumber);
+      }
 
       return result;
     },
@@ -59,6 +63,7 @@ export function useCastCommit(onSuccess?: () => void) {
       if (!res.status) return;
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: ["useDrawQuery"] });
+      queryClient.invalidateQueries({ queryKey: ["useJurorActionDraws"] });
     },
     onError: (err: unknown) => {
       console.error(err);

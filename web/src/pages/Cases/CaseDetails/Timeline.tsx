@@ -12,6 +12,7 @@ import { useCountdownContext, useFundingContext } from "hooks/useClassicAppealCo
 import { useCountdown } from "hooks/useCountdown";
 import useIsDesktop from "hooks/useIsDesktop";
 import { secondsToDayHourMinute } from "utils/date";
+import { getPeriodDeadline } from "utils/getPeriodDeadline";
 
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -122,11 +123,9 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
     t("timeline.executed"),
   ];
 
-  const deadlineCurrentPeriod = getDeadline(
-    currentPeriodIndex,
-    dispute?.lastPeriodChange,
-    dispute?.currentRound.timesPerPeriod
-  );
+  // 0 when there is no deadline (execution), so the countdown resolves and the steps stop loading.
+  const deadlineCurrentPeriod =
+    getPeriodDeadline(currentPeriodIndex, dispute?.lastPeriodChange, dispute?.currentRound.timesPerPeriod) ?? 0;
 
   const countdown = useCountdown(deadlineCurrentPeriod);
   const getSubitems = (index: number): string[] | React.ReactNode[] => {
@@ -155,19 +154,6 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentPeriodIndex
       },
     ];
   });
-};
-
-export const getDeadline = (
-  currentPeriodIndex: number,
-  lastPeriodChange?: string,
-  timesPerPeriod?: string[]
-): number | undefined => {
-  if (lastPeriodChange && timesPerPeriod && currentPeriodIndex < timesPerPeriod.length) {
-    const parsedLastPeriodChange = parseInt(lastPeriodChange, 10);
-    const parsedTimeCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex]);
-    return parsedLastPeriodChange + parsedTimeCurrentPeriod;
-  }
-  return 0;
 };
 
 export default Timeline;

@@ -47,6 +47,8 @@ Add the entry. Reuse existing components where possible:
 },
 ```
 
+Set `hasAutomaticVoteReveal: true` when the kit reveals committed votes itself (e.g. Shutter): jurors are then never alerted to reveal (Home banner and header indicator, see `utils/jurorActions.ts`).
+
 ### 3. Features (if new) — `types.ts` + `disputeFeature.ts`
 
 Add to `Features` enum in `types.ts`, then to the relevant group in `disputeFeature.ts`.

@@ -10,7 +10,7 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
@@ -26,13 +26,18 @@ import Onboarding from "components/Popup/MiniGuides/Onboarding";
 import RankedVoting from "components/Popup/MiniGuides/RankedVoting";
 import Staking from "components/Popup/MiniGuides/Staking";
 
+import JurorActionsIndicator from "./JurorActionsIndicator";
 import Logo from "./Logo";
 import DappList from "./navbar/DappList";
 import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
+import { PopupAnchor, PopupAnchorInner } from "./PopupAnchor";
 
+// Equal side tracks keep the nav centered; a wider side pushes it over instead of overlapping it.
+// Content too wide for the header (e.g. the switch network button in a narrow window) spills into both side
+// paddings, not past the right edge of the page.
 const Container = styled.div`
   display: none;
   position: absolute;
@@ -40,9 +45,10 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
       width: 100%;
       position: relative;
     `
@@ -57,14 +63,12 @@ const LeftSide = styled.div`
 
 const MiddleSide = styled.div`
   display: flex;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  white-space: nowrap;
 `;
 
 const RightSide = styled.div`
   display: flex;
+  justify-self: end;
   gap: ${responsiveSize(4, 8)};
 
   margin-left: 8px;
@@ -88,30 +92,6 @@ const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain
     color: ${({ theme }) => theme.white};
     cursor: pointer;
   }
-`;
-
-// Landscape-only: mirrors HeaderContainer so popups anchor to the header's content box, not
-// the viewport. Two elements: the popups' absolute left/right: 0 resolve against the padding
-// box, so the padding here can't inset them — the inner relative div marks the content edge.
-// Below landscape only the hash-driven popups (e.g. #notifications) reach here, and they
-// center themselves; staying inert lets their top/left percentages resolve against the Overlay.
-const PopupAnchor = styled.div`
-  ${landscapeStyle(
-    () => css`
-      width: 100%;
-      max-width: ${MAX_WIDTH_LANDSCAPE};
-      margin: 0 auto;
-      padding: 0 ${responsiveSize(0, 132)};
-    `
-  )}
-`;
-
-const PopupAnchorInner = styled.div`
-  ${landscapeStyle(
-    () => css`
-      position: relative;
-    `
-  )}
 `;
 
 const DesktopHeader: React.FC = () => {
@@ -197,6 +177,7 @@ const DesktopHeader: React.FC = () => {
         </MiddleSide>
 
         <RightSide>
+          <JurorActionsIndicator />
           <ConnectWalletContainer
             {...{ isConnected, isDefaultChain }}
             onClick={isConnected && isDefaultChain ? () => navigate("/profile/stakes/1") : undefined}
