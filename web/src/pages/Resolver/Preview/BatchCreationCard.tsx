@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useDebounce } from "react-use";
@@ -9,119 +8,23 @@ import { Card, Switch } from "@kleros/ui-components-library";
 import { CoinIds } from "consts/coingecko";
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
+import { cn } from "utils/cn";
 import { formatETH, formatUnitsWei, formatUSD } from "utils/format";
 
 import { isUndefined } from "src/utils";
-
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Divider } from "components/Divider";
 import PlusMinusField from "components/PlusMinusField";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-const Container = styled(Card)`
-  width: 100%;
-  height: fit-content;
-`;
-
-const TopContent = styled.div`
-  width: 100%;
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding: 16px;
-
-  span::before {
-    background-color: ${({ theme }) => theme.whiteBackground} !important;
-  }
-  ${landscapeStyle(
-    () => css`
-      padding: 0px 32px;
-    `
-  )}
-`;
-
-const BottomContent = styled.div`
-  width: 100%;
-  min-height: 64px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: start;
-  gap: 16px;
-  padding: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      justify-content: space-between;
-      padding: 16px 32px;
-    `
-  )}
-`;
-
-const NumberDisplayContainer = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  ${landscapeStyle(
-    () => css`
-      gap: 32px;
-    `
-  )}
-`;
-
-const NumberDisplay = styled.div`
-  min-width: 64px;
-  min-height: 64px;
-  background-color: ${({ theme }) => theme.lightBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 3px;
-  font-size: 32px;
-  color: ${({ theme }) => theme.primaryBlue};
-  text-align: center;
-  align-content: center;
-`;
-
-const Label = styled.p`
-  padding: 0;
-  margin: 0;
-  font-size: 16px;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const Value = styled(Label)`
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledPlusMinusField = styled(PlusMinusField)`
-  margin: 0;
-  path {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-`;
-
-const StyledP = styled.p`
-  padding: 0;
-  margin: 0;
-  font-size: 16px;
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const InfosContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
-
-const Info = styled.div`
-  display: flex;
-  gap: 8px;
-`;
+const Label = React.forwardRef<React.ElementRef<"p">, React.ComponentPropsWithoutRef<"p">>(function Label(
+  { className, ...props },
+  ref
+) {
+  return (
+    <p {...props} ref={ref} className={cn("p-0 m-0 text-[16px] text-klerosUIComponentsSecondaryText", className)} />
+  );
+});
 
 const BatchCreationCard: React.FC = () => {
   const { t } = useTranslation();
@@ -134,42 +37,51 @@ const BatchCreationCard: React.FC = () => {
   const coinPrice = !isUndefined(pricesData) ? pricesData[CoinIds.ETH]?.price : undefined;
 
   return (
-    <Container>
-      <TopContent>
+    <Card className="w-full h-fit">
+      <div className="w-full min-h-[64px] flex items-center flex-wrap gap-4 p-4 [&_span::before]:bg-klerosUIComponentsWhiteBackground! lg:p-[0px_32px]">
         <Switch
           aria-label={t("case_creation.create_multiple_cases")}
           isSelected={isBatchCreation}
           onChange={() => setIsBatchCreation(!isBatchCreation)}
         />
         <WithHelpTooltip tooltipMsg={t("case_creation.batch_cases_tooltip")}>
-          <StyledP>{t("case_creation.create_multiple_cases")}</StyledP>
+          <p className="p-0 m-0 text-[16px] text-klerosUIComponentsPrimaryText">
+            {t("case_creation.create_multiple_cases")}
+          </p>
         </WithHelpTooltip>
-      </TopContent>
+      </div>
       {isBatchCreation ? (
         <>
           <Divider />
-          <BottomContent>
-            <NumberDisplayContainer>
-              <NumberDisplay>{localBatchSize}</NumberDisplay>
-              <StyledPlusMinusField
+          <div className="w-full min-h-[64px] flex flex-wrap items-center justify-start gap-4 p-4 lg:justify-between lg:p-[16px_32px]">
+            <div className="flex items-center flex-wrap gap-4 lg:gap-8">
+              <div className="min-w-[64px] min-h-[64px] bg-klerosUIComponentsLightBackground border border-solid border-klerosUIComponentsStroke rounded-[3px] text-[32px] text-klerosUIComponentsPrimaryBlue text-center [align-content:center]">
+                {localBatchSize}
+              </div>
+              <PlusMinusField
                 minValue={2}
                 currentValue={localBatchSize}
                 updateValue={(val) => setLocalBatchSize(val)}
+                className="m-0 [&_path]:fill-klerosUIComponentsWhiteBackground"
               />
               <Label>({t("case_creation.number_of_cases_to_be_created")})</Label>
-            </NumberDisplayContainer>
-            <InfosContainer>
-              <Info>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex gap-2">
                 <Label>{t("case_creation.jurors_per_case")}</Label>
-                <Value>{disputeData.numberOfJurors}</Value>
-              </Info>
-              <Info>
+                <Label className="font-semibold text-klerosUIComponentsPrimaryText">{disputeData.numberOfJurors}</Label>
+              </div>
+              <div className="flex gap-2">
                 <Label>{t("case_creation.total")}</Label>
-                <Value>{(disputeData.numberOfJurors ?? 0) * localBatchSize}</Value>
-              </Info>
-              <Info>
+                <Label className="font-semibold text-klerosUIComponentsPrimaryText">
+                  {(disputeData.numberOfJurors ?? 0) * localBatchSize}
+                </Label>
+              </div>
+              <div className="flex gap-2">
                 <Label>{t("case_creation.total_cost")}</Label>
-                <Value>{formatETH(BigInt(disputeData.arbitrationCost ?? 0) * BigInt(localBatchSize))} ETH </Value>
+                <Label className="font-semibold text-klerosUIComponentsPrimaryText">
+                  {formatETH(BigInt(disputeData.arbitrationCost ?? 0) * BigInt(localBatchSize))} ETH{" "}
+                </Label>
                 {!isUndefined(coinPrice) ? (
                   <Label>
                     ~
@@ -179,12 +91,12 @@ const BatchCreationCard: React.FC = () => {
                     )}
                   </Label>
                 ) : null}
-              </Info>
-            </InfosContainer>
-          </BottomContent>
+              </div>
+            </div>
+          </div>
         </>
       ) : null}
-    </Container>
+    </Card>
   );
 };
 

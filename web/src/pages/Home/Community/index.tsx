@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -7,70 +6,23 @@ import { Card } from "@kleros/ui-components-library";
 
 import { section } from "consts/community-elements";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { Element } from "./Element";
-
-const Container = styled.div`
-  margin-top: ${responsiveSize(28, 48)};
-
-  h1 {
-    margin-bottom: ${responsiveSize(12, 24)};
-    font-size: ${responsiveSize(20, 24)};
-  }
-`;
-
-const StyledCard = styled(Card)`
-  display: flex;
-  width: 100%;
-  height: auto;
-  gap: 12px;
-  flex-direction: column;
-  flex-wrap: wrap;
-  padding: 16px;
-  align-items: flex-start;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 24px 32px;
-    `
-  )}
-`;
-
-const ThreeElementContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      justify-content: space-between;
-      gap: 48px;
-    `
-  )}
-`;
 
 const Community = () => {
   const { t } = useTranslation();
 
   return (
-    <Container>
+    <div className="mt-[calc(28px_+_(48_-_28)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_h1]:mb-[calc(12px_+_(24_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_h1]:text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
       <h1>{t("misc.community")}</h1>
-      <StyledCard>
-        <ThreeElementContainer>
+      <Card className="flex w-full h-auto gap-3 flex-col flex-wrap p-4 items-start lg:flex-row lg:justify-between lg:gap-5 lg:p-[24px_32px]">
+        <div className="flex flex-col items-start gap-3 lg:flex-row lg:justify-between lg:gap-12">
           {section.slice(0, 3).map((element) => (
             <Element key={element.title} {...element} />
           ))}
-        </ThreeElementContainer>
+        </div>
         <Element {...section[3]} />
-      </StyledCard>
-    </Container>
+      </Card>
+    </div>
   );
 };
 

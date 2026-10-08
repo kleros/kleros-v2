@@ -1,20 +1,11 @@
 import React from "react";
-import styled from "styled-components";
 
 import { Address } from "viem";
 
 import { VotingHistoryQuery } from "src/graphql/graphql";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import DisputeTimeline from "./DisputeTimeline";
 import FinalDecision from "./FinalDecision";
-
-const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${responsiveSize(16, 24)};
-`;
 
 interface IVerdict {
   arbitrable?: Address;
@@ -23,10 +14,10 @@ interface IVerdict {
 
 const Verdict: React.FC<IVerdict> = ({ arbitrable, votingHistory }) => {
   return (
-    <Container>
+    <div className="flex flex-wrap gap-[calc(16px_+_(24_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
       <FinalDecision {...{ votingHistory, arbitrable }} />
       <DisputeTimeline {...{ arbitrable }} />
-    </Container>
+    </div>
   );
 };
 

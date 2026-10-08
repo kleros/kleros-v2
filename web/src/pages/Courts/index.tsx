@@ -1,35 +1,17 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import CourtDetails from "./CourtDetails";
-
-const Container = styled.div`
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBackground};
-  padding: 32px 16px 40px;
-  max-width: ${MAX_WIDTH_LANDSCAPE};
-  margin: 0 auto;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 48px ${responsiveSize(0, 132)} 60px;
-    `
-  )}
-`;
 
 const Courts: React.FC = () => {
   return (
-    <Container>
+    <div className="w-full bg-klerosUIComponentsLightBackground p-[32px_16px_40px] max-w-[1400px] m-[0_auto] lg:p-[48px_calc(0px_+_(132_-_0)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_60px]">
       <Routes>
         <Route path="/:id/*" element={<CourtDetails />} />
         <Route path="*" element={<Navigate to="1" replace />} />
       </Routes>
-    </Container>
+    </div>
   );
 };
 

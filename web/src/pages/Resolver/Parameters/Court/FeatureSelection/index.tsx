@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -25,25 +24,6 @@ import { isUndefined } from "src/utils";
 import { FeatureUIs } from "components/DisputeFeatures/Features";
 import { GroupsUI } from "components/DisputeFeatures/GroupsUI";
 
-const Container = styled(Card)`
-  width: 100%;
-  height: auto;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  margin-top: 16px;
-`;
-
-const SubTitle = styled.p`
-  font-size: 18px;
-  color: ${({ theme }) => theme.secondaryBlue};
-  padding: 0;
-  margin: 0;
-`;
-
-const Separator = styled.hr`
-  width: 100%;
-`;
 const FeatureSelection: React.FC = () => {
   const { t } = useTranslation();
   const {
@@ -144,8 +124,8 @@ const FeatureSelection: React.FC = () => {
   }
 
   return (
-    <Container>
-      <SubTitle>{t("resolver.features_in_this_court")}</SubTitle>
+    <Card className="w-full h-auto p-8 flex flex-col mt-4">
+      <p className="text-[18px] text-klerosUIComponentsSecondaryBlue p-0 m-0">{t("resolver.features_in_this_court")}</p>
 
       {Object.entries(courtGroups).map(([groupName, features], index) => {
         const GroupComponent = GroupsUI[groupName as Group];
@@ -170,11 +150,11 @@ const FeatureSelection: React.FC = () => {
                 })}
               </CustomRadio>
             </GroupComponent>
-            {index !== Object.entries(courtGroups).length - 1 ? <Separator /> : null}
+            {index !== Object.entries(courtGroups).length - 1 ? <hr className="w-full" /> : null}
           </Fragment>
         );
       })}
-    </Container>
+    </Card>
   );
 };
 

@@ -1,13 +1,12 @@
 import React from "react";
-import styled from "styled-components";
 
 import ClosedCircle from "svgs/icons/close-circle.svg";
 
-export const StyledClosedCircle = styled(ClosedCircle)`
-  path {
-    fill: ${({ theme }) => theme.error};
-  }
-`;
+import { cn } from "utils/cn";
+
+export const StyledClosedCircle = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof ClosedCircle>) => (
+  <ClosedCircle {...props} className={cn("[&_path]:fill-klerosUIComponentsError", className)} />
+);
 
 const ClosedCircleIcon: React.FC = () => {
   return <StyledClosedCircle />;

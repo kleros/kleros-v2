@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -13,40 +12,10 @@ import { useRootPath, decodeURIFilter } from "utils/uri";
 
 import { OrderDirection } from "src/graphql/graphql";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { SkeletonVoteCard } from "components/StyledSkeleton";
 
 import StatsAndFilters from "./StatsAndFilters";
 import VoteCard from "./VoteCard";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: ${responsiveSize(24, 32)};
-  gap: 20px;
-`;
-
-const StyledTitle = styled.h1`
-  margin-bottom: 0;
-  font-size: ${responsiveSize(20, 24)};
-`;
-
-const StyledPagination = styled(StandardPagination)`
-  margin-top: 24px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const VotesCardContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const NoVotesLabel = styled.label`
-  font-size: ${responsiveSize(14, 16)};
-`;
 
 export type GroupedDraw = UserDraw & { voteCount: number };
 
@@ -139,28 +108,37 @@ const Votes: React.FC<IVotes> = ({ searchParamAddress }) => {
   };
 
   return (
-    <Container>
-      <StyledTitle>{t("profile.votes")}</StyledTitle>
+    <div className="flex flex-col mt-[calc(24px_+_(32_-_24)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] gap-5">
+      <h1 className="mb-0 text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+        {t("profile.votes")}
+      </h1>
       <StatsAndFilters totalVotes={totalVotes} votesPending={votesPending} resolvedVotes={resolvedVotes} />
       {isLoadingVotes ? (
-        <VotesCardContainer>
+        <div className="flex flex-col gap-2">
           {[...Array(5)].map((_, i) => (
             <SkeletonVoteCard key={i} />
           ))}
-        </VotesCardContainer>
+        </div>
       ) : votes.length > 0 ? (
         <>
-          <VotesCardContainer>
+          <div className="flex flex-col gap-2">
             {votes.map((vote) => (
               <VoteCard key={vote.id} vote={vote} />
             ))}
-          </VotesCardContainer>
-          <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+          </div>
+          <StandardPagination
+            currentPage={currentPage}
+            numPages={totalPages}
+            callback={handlePageChange}
+            className="mt-6 ml-auto mr-auto"
+          />
         </>
       ) : (
-        <NoVotesLabel>{t("profile.no_votes_found")}</NoVotesLabel>
+        <label className="text-[calc(14px_+_(16_-_14)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("profile.no_votes_found")}
+        </label>
       )}
-    </Container>
+    </div>
   );
 };
 

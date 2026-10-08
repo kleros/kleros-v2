@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -17,46 +16,9 @@ import { isUndefined } from "utils/index";
 import { DisputeKits } from "src/dispute-kits";
 import { prepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  ${landscapeStyle(
-    () => css`
-      padding-bottom: 79px;
-    `
-  )}
-`;
-
-const StyledField = styled(NumberField)`
-  width: 290px;
-  margin-bottom: ${responsiveSize(20, 48)};
-`;
-
-const StyledDisplay = styled(DisplaySmall)`
-  width: 290px;
-  margin-bottom: ${responsiveSize(20, 48)};
-
-  h2 {
-    margin: 0;
-    ::after {
-      content: "ETH";
-      margin-left: 4px;
-    }
-  }
-
-  path {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
 
 const Jurors: React.FC = () => {
   const { t } = useTranslation();
@@ -94,9 +56,9 @@ const Jurors: React.FC = () => {
   useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
   return (
-    <Container>
+    <div className="flex flex-col items-center lg:pb-19.75">
       <Header text={t("headers.select_number_of_jurors")} />
-      <StyledField
+      <NumberField
         aria-label={t("aria_labels.number_of_jurors")}
         placeholder={t("forms.placeholders.select_the_number_of_jurors")}
         value={disputeData.numberOfJurors ?? NaN}
@@ -106,10 +68,18 @@ const Jurors: React.FC = () => {
         onChange={handleJurorsWrite}
         formatOptions={{ useGrouping: false, maximumFractionDigits: 0 }}
         minValue={1}
+        className="w-[290px] mb-[calc(20px_+_(48_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
       />
-      <StyledDisplay text={arbitrationFee} Icon={ETH} label={t("forms.labels.arbitration_cost")} />
+      <DisplaySmall
+        text={arbitrationFee}
+        Icon={ETH}
+        label={t("forms.labels.arbitration_cost")}
+        className={
+          'w-[290px] mb-[calc(20px_+_(48_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_h2]:m-0 [&_h2::after]:[content:"ETH"] [&_h2::after]:ml-1 [&_path]:fill-klerosUIComponentsSecondaryPurple'
+        }
+      />
       <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/voting-options" />
-    </Container>
+    </div>
   );
 };
 export default Jurors;

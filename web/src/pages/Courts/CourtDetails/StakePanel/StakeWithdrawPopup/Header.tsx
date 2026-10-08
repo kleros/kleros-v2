@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -10,6 +9,7 @@ import { useAccount } from "wagmi";
 import Check from "svgs/icons/check-circle-outline.svg";
 
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
+import { cn } from "utils/cn";
 import { commify } from "utils/commify";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
@@ -21,44 +21,12 @@ import WithHelpTooltip from "components/WithHelpTooltip";
 import QuantityToSimulate, { Quantity, TextWithTooltipContainer } from "../Simulator/QuantityToSimulate";
 import { ActionType } from "../StakeWithdrawButton";
 
-const StakingMsgContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  align-items: center;
-`;
-
-const StakingMsg = styled.h1`
-  font-weight: 400;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-`;
-
-const StakingAmount = styled(StakingMsg)`
-  font-weight: 600;
-  color: ${({ theme }) => theme.secondaryPurple};
-  text-align: center;
-`;
-
-const CheckIcon = styled(Check)`
-  path {
-    fill: ${({ theme }) => theme.success};
-  }
-  width: 80px;
-  height: 80px;
-`;
-
-const CourtName = styled.label`
-  margin-bottom: 15px;
-`;
-
-const QuantityContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-`;
+const StakingMsg = React.forwardRef<React.ElementRef<"h1">, React.ComponentPropsWithoutRef<"h1">>(function StakingMsg(
+  { className, ...props },
+  ref
+) {
+  return <h1 {...props} ref={ref} className={cn("font-normal m-0 p-0 text-center", className)} />;
+});
 
 interface IHeader {
   action: ActionType;
@@ -93,22 +61,24 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   }, [isSuccess, isWithdraw, t]);
 
   return (
-    <StakingMsgContainer>
-      {isSuccess ? <CheckIcon /> : null}
+    <div className="flex flex-col gap-2.25 items-center">
+      {isSuccess ? <Check className="[&_path]:fill-klerosUIComponentsSuccess w-[80px] h-[80px]" /> : null}
       <StakingMsg>{stakingMessage}</StakingMsg>
-      <StakingAmount>{commify(amount)} PNK</StakingAmount>
+      <StakingMsg className="font-semibold text-klerosUIComponentsSecondaryPurple text-center">
+        {commify(amount)} PNK
+      </StakingMsg>
       {courtDetails?.court?.name ? (
-        <CourtName>{t("staking.on_court", { court: courtDetails.court.name })}</CourtName>
+        <label className="mb-3.75">{t("staking.on_court", { court: courtDetails.court.name })}</label>
       ) : null}
       {isSuccess ? (
-        <QuantityContainer>
+        <div className="flex items-center justify-center gap-2">
           <Quantity>{effectiveStakeDisplay}</Quantity>
           <TextWithTooltipContainer>
             <WithHelpTooltip tooltipMsg={t("staking.stake_confirmed_tooltip")}>
               {t("staking.current_stake")}
             </WithHelpTooltip>
           </TextWithTooltipContainer>{" "}
-        </QuantityContainer>
+        </div>
       ) : (
         <QuantityToSimulate
           {...{
@@ -119,7 +89,7 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
           }}
         />
       )}
-    </StakingMsgContainer>
+    </div>
   );
 };
 

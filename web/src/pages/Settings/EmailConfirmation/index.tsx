@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styled, { css, DefaultTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
@@ -12,85 +11,10 @@ import CheckIcon from "svgs/icons/check-circle-outline.svg";
 import WarningIcon from "svgs/icons/warning-outline.svg";
 import InvalidIcon from "svgs/label-icons/minus-circle.svg";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { cn } from "utils/cn";
 
 import Loader from "components/Loader";
 import ScrollTop from "components/ScrollTop";
-
-const Container = styled.div`
-  display: flex;
-  width: 100%;
-  gap: 48px 16px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-top: 80px;
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      justify-content: space-between;
-    `
-  )}
-`;
-
-const InfoWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  align-items: center;
-  flex: 1;
-  ${landscapeStyle(
-    () => css`
-      align-items: start;
-    `
-  )}
-`;
-
-const textCss = css`
-  margin: 0;
-  text-align: center;
-  white-space: pre-line;
-
-  ${landscapeStyle(
-    () => css`
-      text-align: left;
-    `
-  )}
-`;
-
-const Header = styled.h1<{ fontColor: string }>`
-  ${textCss}
-  ${({ fontColor }) => css`
-    color: ${({ theme }) => theme[fontColor as keyof DefaultTheme]};
-  `};
-`;
-
-const Subtitle = styled.h3`
-  ${textCss}
-  max-width: 735px;
-`;
-
-const HeaderIconContainer = styled.div<{ iconColor: string }>`
-  svg {
-    width: 64px;
-    height: 64px;
-    ${({ iconColor }) => css`
-      path {
-        fill: ${({ theme }) => theme[iconColor as keyof DefaultTheme]};
-      }
-    `}
-  }
-`;
-
-const IconContainer = styled.div`
-  svg {
-    width: 250px;
-    height: 250px;
-    path {
-      fill: ${({ theme }) => theme.whiteBackground};
-    }
-  }
-`;
 
 const EmailConfirmation: React.FC = () => {
   const { confirmEmail } = useAtlasProvider();
@@ -160,29 +84,37 @@ const EmailConfirmation: React.FC = () => {
     return messageConfigs.expired;
   }, [address, token, isError, isConfirmed, isTokenInvalid, t]);
 
+  const statusClasses = {
+    primaryText: "text-klerosUIComponentsPrimaryText",
+    error: "text-klerosUIComponentsError",
+    success: "text-klerosUIComponentsSuccess",
+    warning: "text-klerosUIComponentsWarning",
+  };
+  const statusClassName = statusClasses[color as keyof typeof statusClasses];
+
   return (
-    <Container>
+    <div className="flex w-full gap-x-4 gap-y-12 flex-col justify-center items-center mt-20 lg:flex-row lg:justify-between">
       {isConfirming ? (
         <Loader width={"148px"} height={"148px"} />
       ) : (
         <>
-          <InfoWrapper>
-            <HeaderIconContainer iconColor={color}>
+          <div className="flex flex-col gap-8 items-center flex-1 lg:items-start">
+            <div className={cn("[&_svg]:w-16 [&_svg]:h-16 [&_svg_path]:fill-current", statusClassName)}>
               <Icon />
-            </HeaderIconContainer>
-            <Header fontColor={color}>{headerMsg}</Header>
-            <Subtitle>{subtitleMsg}</Subtitle>
+            </div>
+            <h1 className={cn("m-0 text-center whitespace-pre-line lg:text-left", statusClassName)}>{headerMsg}</h1>
+            <h3 className="m-0 text-center whitespace-pre-line lg:text-left max-w-[735px]">{subtitleMsg}</h3>
             <Link to={buttonTo}>
               <Button text={buttonMsg} />
             </Link>
-          </InfoWrapper>
-          <IconContainer>
+          </div>
+          <div className="[&_svg]:w-[250px] [&_svg]:h-[250px] [&_svg_path]:fill-klerosUIComponentsWhiteBackground">
             <Icon />
-          </IconContainer>
+          </div>
         </>
       )}
       <ScrollTop />
-    </Container>
+    </div>
   );
 };
 

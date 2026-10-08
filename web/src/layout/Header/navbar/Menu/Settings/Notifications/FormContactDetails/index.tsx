@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useAccount } from "wagmi";
@@ -8,13 +7,11 @@ import { useAtlasProvider } from "@kleros/kleros-app";
 import { AlertMessage, Button } from "@kleros/ui-components-library";
 
 import { EMAIL_REGEX } from "consts/index";
+import { cn } from "utils/cn";
 import { timeLeftUntil } from "utils/date";
 import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
-
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { responsiveSize } from "styles/responsiveSize";
 
 import InfoCard from "components/InfoCard";
 
@@ -23,58 +20,17 @@ import { ISettings } from "../../../../index";
 import EmailVerificationInfo from "./EmailVerificationInfo";
 import FormContact from "./FormContact";
 
-const FormContainer = styled.form`
-  width: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 0 ${responsiveSize(12, 32, 300)};
-  padding-bottom: 16px;
-  gap: 16px;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row-reverse;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px;
-`;
-
-const FormContactContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const StyledInfoCard = styled(InfoCard)`
-  width: fit-content;
-  font-size: 14px;
-  margin-bottom: 8px;
-  word-wrap: break-word;
-`;
-
-const UnsubscribeButton = styled(Button)`
-  ${hoverShortTransitionTiming}
-  background-color: ${({ theme }) => theme.error};
-  border: 1px solid ${({ theme }) => theme.error};
-
-  .button-text,
-  p {
-    color: ${({ theme }) => theme.white} !important;
-  }
-
-  &:hover {
-    opacity: 75%;
-    background: ${({ theme }) => theme.error} !important;
-  }
-`;
-
-const ConfirmUnsubscribeButton = styled(UnsubscribeButton)`
-  .button-text,
-  p {
-    color: ${({ theme }) => theme.white} !important;
-  }
-`;
+const UnsubscribeButton = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof Button>) => (
+  <Button
+    {...props}
+    className={cn(
+      "[transition:0.1s] bg-klerosUIComponentsError border border-solid border-klerosUIComponentsError",
+      "[&_.button-text]:text-klerosUIComponentsWhite! [&_p]:text-klerosUIComponentsWhite!",
+      "[&:hover]:[opacity:75%] [&:hover]:[background:var(--klerosUIComponentsError)]!",
+      className
+    )}
+  />
+);
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { t } = useTranslation();
@@ -170,8 +126,14 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   };
 
   return (
-    <FormContainer onSubmit={handleSubmit}>
-      <FormContactContainer>
+    <form
+      onSubmit={handleSubmit}
+      className={cn(
+        "w-full relative flex flex-col",
+        "p-[0_calc(12px_+_(32_-_12)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))] pb-4 gap-4"
+      )}
+    >
+      <div className="flex flex-col">
         <FormContact
           contactLabel={t("forms.labels.email")}
           contactPlaceholder={t("forms.placeholders.email_example")}
@@ -183,9 +145,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           isEditing={isEditingEmail}
           isDisabled={!isEmailUpdateable}
         />
-      </FormContactContainer>
+      </div>
       {!isEmailUpdateable && user?.emailUpdateableAt ? (
-        <StyledInfoCard msg={t("notifications.update_email_again", { time: timeLeftUntil(user.emailUpdateableAt) })} />
+        <InfoCard
+          msg={t("notifications.update_email_again", { time: timeLeftUntil(user.emailUpdateableAt) })}
+          className="w-fit text-[14px] mb-2 [word-wrap:break-word]"
+        />
       ) : null}
       {isConfirmingUnsubscribe ? (
         <AlertMessage
@@ -194,7 +159,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           variant="warning"
         />
       ) : null}
-      <ButtonContainer>
+      <div className="flex [flex-direction:row-reverse] flex-wrap justify-between gap-2">
         {isConfirmingUnsubscribe ? (
           <>
             <Button
@@ -203,11 +168,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
               onPress={() => setIsConfirmingUnsubscribe(false)}
               isDisabled={isDeletingUser}
             />
-            <ConfirmUnsubscribeButton
+            <UnsubscribeButton
               text={t("buttons.confirm_unsubscribe")}
               onPress={handleConfirmUnsubscribe}
               isDisabled={isFetchingUser || isDeletingUser}
               isLoading={isDeletingUser}
+              className="[&_.button-text]:text-klerosUIComponentsWhite! [&_p]:text-klerosUIComponentsWhite!"
             />
           </>
         ) : (
@@ -235,9 +201,9 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
             ) : null}
           </>
         )}
-      </ButtonContainer>
+      </div>
       <EmailVerificationInfo toggleIsSettingsOpen={toggleIsSettingsOpen} />
-    </FormContainer>
+    </form>
   );
 };
 

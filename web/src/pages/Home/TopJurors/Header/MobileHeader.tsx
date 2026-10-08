@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -7,34 +6,8 @@ import { useToggle } from "react-use";
 
 import { decodeURIFilter } from "utils/uri";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
-
-const Container = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBlue};
-  padding: 16px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  border-bottom: none;
-  flex-wrap: wrap;
-
-  ${landscapeStyle(
-    () => css`
-      display: none;
-      padding: 16px 24px;
-    `
-  )}
-`;
-
-const StyledLabel = styled.label`
-  font-size: 16px;
-`;
 
 export const MobileHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -43,13 +16,13 @@ export const MobileHeader: React.FC = () => {
   const { id: searchValue } = decodeURIFilter(filter ?? "all");
 
   return (
-    <Container>
-      <StyledLabel>{!searchValue ? t("juror_levels.ranking") : t("juror_levels.jurors")}</StyledLabel>
+    <div className="flex justify-between w-full bg-klerosUIComponentsLightBlue p-4 border border-solid border-klerosUIComponentsStroke [border-top-left-radius:3px] [border-top-right-radius:3px] border-b-0 flex-wrap lg:hidden lg:p-[16px_24px]">
+      <label className="text-[16px]">{!searchValue ? t("juror_levels.ranking") : t("juror_levels.jurors")}</label>
       <HowItWorks
         isMiniGuideOpen={isJurorLevelsMiniGuideOpen}
         toggleMiniGuide={toggleJurorLevelsMiniGuide}
         MiniGuideComponent={JurorLevels}
       />
-    </Container>
+    </div>
   );
 };

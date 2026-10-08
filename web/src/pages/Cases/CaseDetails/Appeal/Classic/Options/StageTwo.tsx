@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -15,17 +14,6 @@ import { isUndefined } from "utils/index";
 
 import OptionCard from "../../OptionCard";
 import StageExplainer from "../StageExplainer";
-
-const Container = styled.div`
-  margin: 24px 0;
-`;
-
-const OptionsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 12px;
-`;
 
 interface IStageTwo {
   setAmount: (val: string) => void;
@@ -46,13 +34,17 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
   }, [winnerRequiredFunding, choice]);
 
   return (
-    <Container>
+    <div className="m-[24px_0]">
       {!isUndefined(choice) && !isUndefined(fundedChoices) ? (
         <>
           {fundedChoices.length > 0 && !choice.funded ? (
             <>
               <StageExplainer stage={2} countdown={winnerSideCountdown} />
-              <OptionsGrid role="list" aria-label={t("appeal.which_option_to_fund")}>
+              <div
+                role="list"
+                aria-label={t("appeal.which_option_to_fund")}
+                className="grid [grid-template-columns:repeat(auto-fit,_minmax(250px,_1fr))] gap-4 mt-3"
+              >
                 <OptionCard
                   value={choice.id}
                   text={choice.title}
@@ -61,7 +53,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
                   required={winnerRequiredFunding!}
                   selectable={false}
                 />
-              </OptionsGrid>
+              </div>
             </>
           ) : (
             <label>{t("appeal.no_losing_option_funded")}</label>
@@ -70,7 +62,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
       ) : (
         <Skeleton height={140} />
       )}
-    </Container>
+    </div>
   );
 };
 

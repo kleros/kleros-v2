@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
@@ -13,10 +12,6 @@ import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
 
 interface IExecuteRulingButton extends IBaseMaintenanceButton {
   period?: string;
@@ -57,7 +52,14 @@ const ExecuteRulingButton: React.FC<IExecuteRulingButton> = ({ id, setIsOpen, pe
     });
   };
   return (
-    <StyledButton text={t("buttons.rule")} small isLoading={isLoading} isDisabled={isDisabled} onPress={handleClick} />
+    <Button
+      text={t("buttons.rule")}
+      small
+      isLoading={isLoading}
+      isDisabled={isDisabled}
+      onPress={handleClick}
+      className="w-full"
+    />
   );
 };
 

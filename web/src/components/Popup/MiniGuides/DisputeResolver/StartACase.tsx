@@ -1,55 +1,49 @@
 import React from "react";
-import styled from "styled-components";
 
 import StartACaseSvg from "svgs/mini-guides/dispute-resolver/start-a-case.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledStartACaseSvg = styled(StartACaseSvg)`
-  [class$="rect-1"],
-  [class$="path-1"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="rect-2"],
-  [class$="circle-2"],
-  [class$="circle-3"],
-  [class$="circle-4"],
-  [class$="path-12"],
-  [class$="path-13"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
-  [class$="circle-1"],
-  [class$="path-11"] {
-    stroke: ${({ theme }) => theme.primaryBlue};
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="circle-2"],
-  [class$="circle-3"],
-  [class$="circle-4"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="path-2"],
-  [class$="path-18"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-  [class$="path-3"],
-  [class$="path-5"],
-  [class$="path-6"],
-  [class$="path-7"],
-  [class$="path-8"],
-  [class$="path-9"],
-  [class$="path-10"],
-  [class$="path-15"],
-  [class$="path-17"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-  [class$="path-4"],
-  [class$="path-14"],
-  [class$="path-16"] {
-    fill: ${({ theme }) => theme.stroke};
-  }
-`;
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-const StartACase: React.FC = () => <StyledImage as={StyledStartACaseSvg} />;
+const StyledStartACaseSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof StartACaseSvg>) => (
+  <StartACaseSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="circle-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="circle-3"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="circle-4"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="path-12"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="path-13"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="circle-1"]]:stroke-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="circle-1"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-11"]]:stroke-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-11"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="circle-2"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="circle-3"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="circle-4"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-18"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-9"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-10"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-15"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-17"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsStroke',
+      '[&_[class$="path-14"]]:fill-klerosUIComponentsStroke',
+      '[&_[class$="path-16"]]:fill-klerosUIComponentsStroke',
+      className
+    )}
+  />
+);
+
+const StartACase: React.FC = () => <StyledStartACaseSvg className={miniGuideImageClassName} />;
 
 export default StartACase;

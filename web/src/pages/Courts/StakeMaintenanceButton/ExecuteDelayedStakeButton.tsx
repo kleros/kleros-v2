@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { usePublicClient } from "wagmi";
@@ -19,10 +18,6 @@ import { isUndefined } from "src/utils";
 import { Phases } from "components/Phase";
 
 import { IBaseStakeMaintenanceButton } from ".";
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
 
 type IExecuteStakeDelayedButton = IBaseStakeMaintenanceButton;
 
@@ -72,12 +67,13 @@ const ExecuteDelayedStakeButton: React.FC<IExecuteStakeDelayedButton> = ({ setIs
     );
   };
   return (
-    <StyledButton
+    <Button
       text={t("buttons.execute_delayed_stakes")}
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
       onPress={handleClick}
+      className="w-full"
     />
   );
 };

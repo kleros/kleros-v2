@@ -1,0 +1,1 @@
+export const BREAKPOINT_LANDSCAPE = 900;

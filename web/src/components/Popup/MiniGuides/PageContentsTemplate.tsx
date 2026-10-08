@@ -1,55 +1,30 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import MainStructureTemplate from "./MainStructureTemplate";
 
-export const ParagraphsContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
+export const ParagraphsContainer = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(
+  function ParagraphsContainer({ className, ...props }, ref) {
+    return <div {...props} ref={ref} className={cn("flex gap-4.5 flex-col", className)} />;
+  }
+);
 
-export const Title = styled.h1`
-  margin-bottom: 0;
-`;
+export const Title = React.forwardRef<React.ElementRef<"h1">, React.ComponentPropsWithoutRef<"h1">>(function Title(
+  { className, ...props },
+  ref
+) {
+  return <h1 {...props} ref={ref} className={cn("mb-0", className)} />;
+});
 
-export const LeftContentContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
+export const LeftContentContainer = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(
+  function LeftContentContainer({ className, ...props }, ref) {
+    return <div {...props} ref={ref} className={cn("flex gap-4.5 flex-col", className)} />;
+  }
+);
 
-export const StyledImage = styled.div`
-  width: ${responsiveSize(260, 460)};
-
-  ${landscapeStyle(
-    () => css`
-      width: 389px;
-    `
-  )}
-`;
-
-const LinksContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryBlue};
-  margin: 0;
-  cursor: pointer;
-`;
-
-const StyledParagraph = styled.p`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 18px;
-  color: ${({ theme }) => theme.secondaryText};
-  margin: 0;
-`;
+export const miniGuideImageClassName =
+  "w-[calc(260px_+_(460_-_260)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] lg:w-[389px]";
 
 const processNewLineInParagraph = (paragraph: string) => {
   return paragraph.split("\n").map((text, index) => (
@@ -76,22 +51,31 @@ const LeftContent: React.FC<{
       <Title>{title}</Title>
       <ParagraphsContainer>
         {paragraphs.map((paragraph) => (
-          <StyledParagraph key={paragraph}>{processNewLineInParagraph(paragraph)}</StyledParagraph>
+          <p
+            key={paragraph}
+            className="font-normal text-[14px] leading-[18px] text-klerosUIComponentsSecondaryText m-0"
+          >
+            {processNewLineInParagraph(paragraph)}
+          </p>
         ))}
       </ParagraphsContainer>
       {links && links.length > 0 && toggleSubMiniGuide ? (
-        <LinksContainer>
+        <div className="flex flex-col">
           {links.map((link, index) => {
             const isObject = typeof link === "object";
             const linkId = isObject ? link.id : link.split(". ")[1] || link;
             const linkText = isObject ? link.text : link;
             return (
-              <StyledLabel key={index} onClick={() => toggleSubMiniGuide(linkId)}>
+              <label
+                key={index}
+                onClick={() => toggleSubMiniGuide(linkId)}
+                className="text-klerosUIComponentsPrimaryBlue m-0 cursor-pointer"
+              >
                 {linkText}
-              </StyledLabel>
+              </label>
             );
           })}
-        </LinksContainer>
+        </div>
       ) : null}
     </LeftContentContainer>
   );

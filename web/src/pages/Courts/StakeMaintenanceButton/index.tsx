@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+
+import { cn } from "utils/cn";
 
 import DottedMenuButton from "components/DottedMenuButton";
 import { EnsureChain } from "components/EnsureChain";
@@ -8,34 +9,6 @@ import Phase from "components/Phase";
 
 import ExecuteDelayedStakeButton from "./ExecuteDelayedStakeButton";
 import PassPhaseButton from "./PassPhaseButton";
-
-const Container = styled.div`
-  width: 36px;
-  height: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-`;
-
-const PopupContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  height: fit-content;
-  overflow-y: auto;
-  z-index: 31;
-  padding: 27px;
-  gap: 16px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border-radius: 3px;
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
-
-  bottom: 0;
-  left: 0;
-  transform: translate(-100%, 100%);
-`;
 
 export interface IBaseStakeMaintenanceButton {
   setIsOpen: (open: boolean) => void;
@@ -54,11 +27,11 @@ const StakeMaintenanceButtons: React.FC<IStakeMaintenanceButtons> = ({ className
 
   const toggle = () => setIsOpen((prevValue) => !prevValue);
   return (
-    <Container {...{ className }}>
+    <div {...{ className }} className={cn("w-[36px] h-[36px] flex justify-center items-center relative", className)}>
       {isOpen ? (
         <>
           <Overlay onClick={() => setIsOpen(false)} />
-          <PopupContainer>
+          <div className="flex flex-col absolute h-fit overflow-y-auto z-31 p-6.75 gap-4 border border-solid border-klerosUIComponentsStroke bg-klerosUIComponentsWhiteBackground rounded-[3px] [box-shadow:0px_2px_3px_rgba(0,_0,_0,_0.06)] bottom-0 left-0 [transform:translate(-100%,_100%)]">
             <EnsureChain>
               <>
                 <Phase />
@@ -66,11 +39,11 @@ const StakeMaintenanceButtons: React.FC<IStakeMaintenanceButtons> = ({ className
                 <ExecuteDelayedStakeButton {...{ setIsOpen }} />
               </>
             </EnsureChain>
-          </PopupContainer>
+          </div>
         </>
       ) : null}
       <DottedMenuButton {...{ toggle }} displayRipple={false} />
-    </Container>
+    </div>
   );
 };
 

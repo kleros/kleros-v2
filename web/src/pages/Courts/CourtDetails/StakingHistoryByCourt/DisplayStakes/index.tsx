@@ -1,17 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Hash } from "viem";
 
 import { useStakingEventsByCourt } from "hooks/useStakingEventsByCourt";
+import { cn } from "utils/cn";
 import { findCourtNameById } from "utils/findCourtNameById";
 import { isUndefined } from "utils/index";
 
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-
-import { responsiveSize } from "styles/responsiveSize";
 
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 import { ListContainer as BaseListContainer } from "pages/Home/TopJurors";
@@ -19,24 +17,9 @@ import { ListContainer as BaseListContainer } from "pages/Home/TopJurors";
 import Header from "./Header";
 import StakeEventCard from "./StakeEventCard";
 
-const ListContainer = styled(BaseListContainer)`
-  overflow: visible;
-`;
-
-const CardsWrapper = styled.div`
-  max-height: 520px;
-  overflow-y: hidden;
-
-  &:hover {
-    overflow-y: auto;
-  }
-`;
-
-const StyledLabel = styled.label`
-  display: flex;
-  font-size: 16px;
-  margin-top: ${responsiveSize(12, 20)};
-`;
+const ListContainer = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof BaseListContainer>) => (
+  <BaseListContainer {...props} className={cn("overflow-visible", className)} />
+);
 
 const PER_PAGE = 30;
 
@@ -154,11 +137,13 @@ const DisplayStakes: React.FC = () => {
   return (
     <>
       {!isUndefined(stakes) && stakes.length === 0 && !isFetching ? (
-        <StyledLabel>{t("profile.no_stakes_found")}</StyledLabel>
+        <label className="flex text-[16px] mt-[calc(12px_+_(20_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("profile.no_stakes_found")}
+        </label>
       ) : (
         <ListContainer>
           <Header />
-          <CardsWrapper>
+          <div className="max-h-[520px] overflow-y-hidden [&:hover]:overflow-y-auto">
             {stakes.map((s) => (
               <StakeEventCard
                 key={s.id}
@@ -173,7 +158,7 @@ const DisplayStakes: React.FC = () => {
             ))}
             {isFetching && [...Array(3)].map((_, i) => <SkeletonDisputeListItem key={`s-${i}`} />)}
             <div ref={sentinelRef} />
-          </CardsWrapper>
+          </div>
         </ListContainer>
       )}
     </>

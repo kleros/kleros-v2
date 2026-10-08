@@ -1,11 +1,15 @@
-import styled from "styled-components";
+import React from "react";
 
-export const ErrorButtonMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: center;
-  margin: 12px;
-  color: ${({ theme }) => theme.error};
-  font-size: 14px;
-`;
+import { cn } from "utils/cn";
+
+export const ErrorButtonMessage = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(
+  function ErrorButtonMessage({ className, ...props }, ref) {
+    return (
+      <div
+        {...props}
+        ref={ref}
+        className={cn("flex items-center gap-1 justify-center m-3 text-klerosUIComponentsError text-[14px]", className)}
+      />
+    );
+  }
+);

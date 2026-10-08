@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
@@ -9,55 +8,8 @@ import KlerosLogo from "svgs/icons/kleros.svg";
 
 import { REFETCH_INTERVAL } from "consts/index";
 import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
-
-import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const StyledKlerosLogo = styled(KlerosLogo)`
-  width: 14px;
-  height: 14px;
-`;
-
-const StyledTitle = styled.div`
-  display: flex;
-  margin-bottom: ${responsiveSize(16, 32, 300)};
-  margin-left: ${responsiveSize(8, 44, 300)};
-  margin-right: ${responsiveSize(8, 44, 300)};
-  color: ${({ theme }) => theme.secondaryText};
-  text-align: center;
-`;
-
-const AmountStakedOrWithdrawnContainer = styled.div`
-  font-size: 24px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.secondaryPurple};
-  margin-bottom: ${responsiveSize(0, 4, 300)};
-`;
-
-const TotalStakeContainer = styled.div`
-  display: flex;
-  font-size: 14px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: ${responsiveSize(8, 32, 300)};
-`;
-
-const MyStakeContainer = styled.div`
-  display: flex;
-  margin: 0px ${responsiveSize(4, 8, 300)};
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const AmountContainer = styled.div`
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-`;
 
 interface IStakeWithdraw {
   pnkStaked: string;
@@ -88,17 +40,46 @@ const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake
   });
 
   return (
-    <Container>
-      <StyledTitle>{t(isStake ? "popups.stake_success" : "popups.unstake_success", { courtName })}</StyledTitle>
-      <AmountStakedOrWithdrawnContainer>
+    <div className="flex flex-col items-center">
+      <div
+        className={cn(
+          "flex mb-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+          "ml-[calc(8px_+_(44_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+          "mr-[calc(8px_+_(44_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+          "text-klerosUIComponentsSecondaryText text-center"
+        )}
+      >
+        {t(isStake ? "popups.stake_success" : "popups.unstake_success", { courtName })}
+      </div>
+      <div
+        className={cn(
+          "text-[24px] font-semibold text-klerosUIComponentsSecondaryPurple",
+          "mb-[calc(0px_+_(4_-_0)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]"
+        )}
+      >
         <AmountStakedOrWithdrawn pnkStaked={pnkStaked} isStake={isStake} />
-      </AmountStakedOrWithdrawnContainer>
+      </div>
 
-      <TotalStakeContainer>
-        <StyledKlerosLogo /> <MyStakeContainer>{t("forms.labels.my_stake")}:</MyStakeContainer>{" "}
-        <AmountContainer>{`${formatUnits(jurorBalance?.[2] ?? BigInt(0), 18)} PNK`} </AmountContainer>
-      </TotalStakeContainer>
-    </Container>
+      <div
+        className={cn(
+          "flex text-[14px] items-center justify-center",
+          "mb-[calc(8px_+_(32_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]"
+        )}
+      >
+        <KlerosLogo className="w-[14px] h-[14px]" />{" "}
+        <div
+          className={cn(
+            "flex m-[0px_calc(4px_+_(8_-_4)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+            "text-klerosUIComponentsSecondaryText"
+          )}
+        >
+          {t("forms.labels.my_stake")}:
+        </div>{" "}
+        <div className="font-semibold text-klerosUIComponentsPrimaryText">
+          {`${formatUnits(jurorBalance?.[2] ?? BigInt(0), 18)} PNK`}{" "}
+        </div>
+      </div>
+    </div>
   );
 };
 export default StakeWithdraw;

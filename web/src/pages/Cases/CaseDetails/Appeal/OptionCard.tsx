@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useMeasure } from "react-use";
@@ -9,67 +8,8 @@ import { Card, LinearProgress, CustomRadioItem, RadioIndicator } from "@kleros/u
 
 import Gavel from "svgs/icons/gavel.svg";
 
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
-
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-
-const StyledItem = styled(CustomRadioItem)`
-  width: 100%;
-`;
-
-const StyledCard = styled(Card)`
-  ${hoverShortTransitionTiming}
-  width: 100%;
-  padding: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 24px;
-    `
-  )}
-`;
-
-const WinnerLabel = styled.label<{ winner: boolean }>`
-  color: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
-  svg {
-    width: 12px;
-    margin-right: 8px;
-    fill: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
-  }
-`;
-
-const TopContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  height: 50%;
-`;
-
-const TextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  min-width: 0;
-`;
-
-const BlockLabel = styled.label`
-  display: block;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-`;
-
-const LabelContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`;
-
-const ProgressContainer = styled.div`
-  width: 100%;
-`;
 
 interface IOptionCard {
   /** The option id; used as the radio group value when `selectable` is true. */
@@ -96,24 +36,31 @@ const CardBody: React.FC<{
   role?: string;
   t: (key: string) => string;
 }> = ({ text, fundingLabel, progress, width, winner, innerRef, rightSlot, role, t }) => (
-  <StyledCard hover role={role}>
-    <TopContainer>
-      <TextContainer>
-        <BlockLabel>{text}</BlockLabel>
-        <WinnerLabel winner={winner}>
+  <Card hover role={role} className="[transition:0.1s] w-full p-4 lg:p-6">
+    <div className="flex justify-between h-[50%]">
+      <div className="flex flex-col grow min-w-0">
+        <label className="block font-semibold overflow-hidden [text-overflow:ellipsis] whitespace-nowrap max-w-full">
+          {text}
+        </label>
+        <label
+          className={cn(
+            "[&_svg]:w-3 [&_svg]:mr-2 [&_svg]:fill-current",
+            winner ? "text-klerosUIComponentsSuccess" : "text-klerosUIComponentsWarning"
+          )}
+        >
           <Gavel />
           {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
-        </WinnerLabel>
-      </TextContainer>
+        </label>
+      </div>
       {rightSlot}
-    </TopContainer>
-    <LabelContainer>
+    </div>
+    <div className="w-full flex justify-center">
       <label>{fundingLabel}</label>
-    </LabelContainer>
-    <ProgressContainer ref={innerRef}>
+    </div>
+    <div ref={innerRef} className="w-full">
       <LinearProgress value={progress} width={width} />
-    </ProgressContainer>
-  </StyledCard>
+    </div>
+  </Card>
 );
 
 const OptionCard: React.FC<IOptionCard> = ({
@@ -155,7 +102,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   }
 
   return (
-    <StyledItem value={value} isDisabled={!canBeSelected}>
+    <CustomRadioItem value={value} isDisabled={!canBeSelected} className="w-full">
       {(rp) => (
         <CardBody
           text={text}
@@ -168,7 +115,7 @@ const OptionCard: React.FC<IOptionCard> = ({
           t={t}
         />
       )}
-    </StyledItem>
+    </CustomRadioItem>
   );
 };
 

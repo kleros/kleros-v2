@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -7,20 +6,9 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type { SelectItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { LabeledDropdownSelect } from "components/LabeledDropdown";
 
 import Stats, { IStats } from "./Stats";
-
-const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: ${responsiveSize(12, 13)};
-  margin-bottom: ${responsiveSize(16, 32)};
-  justify-content: space-between;
-`;
 
 const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
   const { t } = useTranslation();
@@ -36,7 +24,7 @@ const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
   };
 
   return (
-    <Container>
+    <div className="flex flex-wrap gap-2 mt-[calc(12px_+_(13_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] mb-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] justify-between">
       <Stats {...{ totalJurors }} />
       <LabeledDropdownSelect
         ariaLabel={t("aria_labels.sort_order")}
@@ -49,7 +37,7 @@ const StatsAndFilters: React.FC<IStats> = ({ totalJurors }) => {
         defaultSelectedKey={order}
         callback={handleOrderChange}
       />
-    </Container>
+    </div>
   );
 };
 

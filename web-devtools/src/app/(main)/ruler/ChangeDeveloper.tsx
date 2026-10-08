@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { type Address, isAddress } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
@@ -15,23 +14,6 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const StyledLabel = styled.label`
-  word-wrap: break-word;
-`;
 
 const ChangeDeveloper: React.FC = () => {
   const { isConnected, chainId } = useAccount();
@@ -77,19 +59,19 @@ const ChangeDeveloper: React.FC = () => {
     [changeRulerConfig, isError, isLoading, isChanging, arbitrable, isValid, isConnected, chainId]
   );
   return (
-    <Container>
+    <div className="flex w-full flex-col gap-8">
       <Header text="Developer" tooltipMsg="Address of the current ruler of the selected arbitrable" />
-      <InputContainer>
-        <StyledLabel>Current Developer : {currentDeveloper ?? "None"}</StyledLabel>
+      <div className="flex flex-col gap-4">
+        <label className="break-words">Current Developer : {currentDeveloper ?? "None"}</label>
         <LabeledInput
           label="New Developer"
-          onChange={(e) => setNewDeveloper(e.target.value)}
+          onChange={setNewDeveloper}
           message={isValid ? "" : "Invalid Address"}
-          variant={isValid ? "" : "error"}
+          variant={isValid ? undefined : "error"}
         />
-      </InputContainer>
-      <Button text="Update" onClick={handleClick} isLoading={isLoading || isChanging} disabled={isDisabled} />
-    </Container>
+      </div>
+      <Button text="Update" onClick={handleClick} isLoading={isLoading || isChanging} isDisabled={isDisabled} />
+    </div>
   );
 };
 

@@ -1,9 +1,9 @@
-import styled from "styled-components";
+import React from "react";
 
 import { Link } from "react-router-dom";
 
-export const InternalLink = styled(Link)`
-  :hover {
-    color: ${({ theme }) => theme.secondaryBlue} !important;
-  }
-`;
+import { cn } from "utils/cn";
+
+export const InternalLink = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof Link>) => (
+  <Link {...props} className={cn("[&:hover]:text-klerosUIComponentsSecondaryBlue!", className)} />
+);

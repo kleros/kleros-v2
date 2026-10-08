@@ -1,5 +1,4 @@
 import React, { useCallback, useId, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -23,22 +22,6 @@ import { ErrorButtonMessage } from "components/ErrorButtonMessage";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 
 import EthAmountField from "../EthAmountField";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-`;
-
-const StyledButton = styled(Button)`
-  margin: auto;
-  margin-top: 4px;
-`;
-
-const StyledLabel = styled.label`
-  align-self: flex-start;
-`;
 
 const useNeedFund = () => {
   const { loserSideCountdown } = useCountdownContext();
@@ -112,8 +95,10 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
   }, [fundAppeal, disputeId, selectedOption, parsedAmount, disputeKitId]);
 
   return needFund ? (
-    <Container>
-      <StyledLabel id={labelId}>{t("appeal.how_much_eth_contribute")}</StyledLabel>
+    <div className="flex flex-col items-center gap-2">
+      <label id={labelId} className="self-start">
+        {t("appeal.how_much_eth_contribute")}
+      </label>
       <EthAmountField
         key={fieldKey}
         inputRef={inputRef}
@@ -129,11 +114,12 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
       />
       <EnsureChain>
         <div>
-          <StyledButton
+          <Button
             isDisabled={isFundDisabled}
             isLoading={isPending && !insufficientBalance}
             text={isDisconnected ? t("buttons.connect_to_fund") : t("buttons.fund")}
             onPress={handleAppeal}
+            className="m-auto mt-1"
           />
           {insufficientBalance && (
             <ErrorButtonMessage>
@@ -142,7 +128,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
           )}
         </div>
       </EnsureChain>
-    </Container>
+    </div>
   ) : null;
 };
 

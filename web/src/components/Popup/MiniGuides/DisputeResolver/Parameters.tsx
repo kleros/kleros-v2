@@ -1,43 +1,36 @@
 import React from "react";
-import styled from "styled-components";
 
 import ParametersSvg from "svgs/mini-guides/dispute-resolver/parameters.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledParametersSvg = styled(ParametersSvg)`
-  [class$="rect-1"],
-  [class$="rect-3"],
-  [class$="rect-7"],
-  [class$="path-3"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="rect-2"],
-  [class$="rect-6"],
-  [class$="rect-8"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
-  [class$="rect-4"] {
-    stroke: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="rect-5"],
-  [class$="path-2"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="path-1"],
-  [class$="path-4"],
-  [class$="path-7"],
-  [class$="path-8"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-  [class$="path-5"] {
-    fill: ${({ theme }) => theme.stroke};
-  }
-  [class$="path-6"] {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-const Parameters: React.FC = () => <StyledImage as={StyledParametersSvg} />;
+const StyledParametersSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof ParametersSvg>) => (
+  <ParametersSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-7"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-6"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-8"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-4"]]:stroke-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsStroke',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsSecondaryPurple',
+      className
+    )}
+  />
+);
+
+const Parameters: React.FC = () => <StyledParametersSvg className={miniGuideImageClassName} />;
 
 export default Parameters;

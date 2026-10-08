@@ -1,83 +1,8 @@
 import React from "react";
-import styled, { css, keyframes } from "styled-components";
 
 import DottedMenu from "svgs/icons/dotted-menu.svg";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
-const ripple = keyframes`
-     0% {
-      opacity: 0;
-      transform: scale3d(0.5, 0.5, 1);
-    }
-     10% {
-      opacity: 0.5;
-      transform: scale3d(0.75, 0.75, 1);
-    }
-
-    100% {
-      opacity: 0;
-      transform: scale3d(1.75, 1.75, 1);
-    }
-`;
-
-const ring = (duration: string, delay: string) => css`
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(50%);
-  content: "";
-  height: 100%;
-  width: 100%;
-  border: 3px solid ${({ theme }) => theme.primaryBlue};
-  border-radius: 100%;
-  animation-name: ${ripple};
-  animation-duration: ${duration};
-  animation-delay: ${delay};
-  animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(0.65, 0, 0.34, 1);
-  z-index: 0;
-`;
-
-const Container = styled.div<{ displayRipple: boolean }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-  ${({ displayRipple }) =>
-    displayRipple &&
-    css`
-      &::after {
-        ${ring("3s", "0s")}
-      }
-      &::before {
-        ${ring("3s", "0.5s")}
-      }
-    `}
-`;
-
-const ButtonContainer = styled.div`
-  ${hoverShortTransitionTiming}
-  border-radius: 50%;
-  z-index: 1;
-  background-color: ${({ theme }) => theme.lightBackground};
-
-  :hover {
-    background-color: ${({ theme }) => theme.lightGrey};
-    svg {
-      fill: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
-
-const StyledDottedMenu = styled(DottedMenu)`
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-  fill: ${({ theme }) => theme.primaryBlue};
-`;
+import { cn } from "utils/cn";
 
 interface IMenuButton {
   toggle: () => void;
@@ -85,14 +10,24 @@ interface IMenuButton {
   className?: string;
 }
 
-const DottedMenuButton: React.FC<IMenuButton> = ({ toggle, displayRipple, className }) => {
-  return (
-    <Container {...{ displayRipple, className }}>
-      <ButtonContainer className="button-container">
-        <StyledDottedMenu onClick={toggle} className="menu-icon" />
-      </ButtonContainer>
-    </Container>
-  );
-};
+const DottedMenuButton: React.FC<IMenuButton> = ({ toggle, displayRipple, className }) => (
+  <div
+    className={cn(
+      "flex size-9 items-center justify-center",
+      displayRipple &&
+        "before:absolute before:top-0 before:left-0 before:z-0 before:size-full before:rounded-full before:border-[3px] before:border-klerosUIComponentsPrimaryBlue before:opacity-0 before:content-[''] before:animate-[kleros-ripple_3s_cubic-bezier(0.65,0,0.34,1)_0.5s_infinite] after:absolute after:top-0 after:left-0 after:z-0 after:size-full after:rounded-full after:border-[3px] after:border-klerosUIComponentsPrimaryBlue after:opacity-0 after:content-[''] after:animate-[kleros-ripple_3s_cubic-bezier(0.65,0,0.34,1)_infinite]",
+      className
+    )}
+  >
+    <div
+      className={cn(
+        "button-container z-[1] rounded-full bg-klerosUIComponentsLightBackground [transition:0.1s]",
+        "hover:bg-klerosUIComponentsLightGrey hover:[&_svg]:fill-klerosUIComponentsSecondaryBlue"
+      )}
+    >
+      <DottedMenu onClick={toggle} className="menu-icon size-full cursor-pointer fill-klerosUIComponentsPrimaryBlue" />
+    </div>
+  </div>
+);
 
 export default DottedMenuButton;

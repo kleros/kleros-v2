@@ -1,6 +1,5 @@
 "use client";
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useAccount, usePublicClient } from "wagmi";
 
@@ -22,20 +21,6 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-`;
-
-const SelectContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  justify-content: space-around;
-  flex-wrap: wrap;
-`;
 
 const ManualRuling: React.FC = () => {
   const { isConnected, chainId } = useAccount();
@@ -102,7 +87,7 @@ const ManualRuling: React.FC = () => {
   }, [publicClient, executeConfig, manualModeConfig, arbitrableSettings, changeToManualMode, executeRuling]);
 
   return (
-    <Container>
+    <div className="flex w-full flex-col gap-8">
       <Header
         text="Manual Ruling"
         tooltipMsg={
@@ -110,30 +95,35 @@ const ManualRuling: React.FC = () => {
           "This operation will change the ruling mode to Manual, if the ruling mode is not Manual"
         }
       />
-      <SelectContainer>
+      <div className="flex flex-wrap justify-around gap-4">
         <LabeledInput
           label="Dispute ID"
           type="number"
           value={disputeId}
-          onChange={(e) => setDisputeId(Number(e.target.value))}
+          onChange={(value) => setDisputeId(Number.isNaN(value) ? 0 : value)}
         />
 
-        <LabeledInput label="Ruling" type="number" value={ruling} onChange={(e) => setRuling(Number(e.target.value))} />
-        <LabeledInput label="Tie" inputType="checkbox" checked={tie} onChange={() => setTie((prev) => !prev)} />
+        <LabeledInput
+          label="Ruling"
+          type="number"
+          value={ruling}
+          onChange={(value) => setRuling(Number.isNaN(value) ? 0 : value)}
+        />
+        <LabeledInput label="Tie" inputType="checkbox" isSelected={tie} onChange={() => setTie((prev) => !prev)} />
         <LabeledInput
           label="Overridden"
           inputType="checkbox"
-          checked={overridden}
+          isSelected={overridden}
           onChange={() => setOverridden((prev) => !prev)}
         />
-      </SelectContainer>
+      </div>
       <Button
         text="Rule"
         onClick={handleRuling}
         isLoading={isLoadingExecuteConfig || isSending}
-        disabled={isDisabled || isError || isSending || isLoadingExecuteConfig}
+        isDisabled={isDisabled || isError || isSending || isLoadingExecuteConfig}
       />
-    </Container>
+    </div>
   );
 };
 

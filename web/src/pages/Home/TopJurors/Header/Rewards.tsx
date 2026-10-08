@@ -1,48 +1,24 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import useIsDesktop from "hooks/useIsDesktop";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import WithHelpTooltip from "components/WithHelpTooltip";
-
-const Container = styled.div<{ shortLabel: string; longLabel: string }>`
-  --label-long: "${({ longLabel }) => longLabel}";
-
-  display: flex;
-  color: ${({ theme }) => theme.secondaryText};
-  gap: 0px;
-
-  font-size: 12px !important;
-  &::before {
-    content: "${({ shortLabel }) => shortLabel}";
-  }
-
-  ${landscapeStyle(
-    () => css`
-      font-size: 14px !important;
-      justify-content: center;
-      &::before {
-        content: var(--label-long);
-      }
-    `
-  )}
-`;
 
 const Rewards: React.FC = () => {
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
 
   return (
-    <Container shortLabel={t("juror_levels.rewards")} longLabel={t("juror_levels.total_rewards")}>
+    <div className="flex text-klerosUIComponentsSecondaryText gap-0 text-[12px]! lg:text-[14px]! lg:justify-center">
+      <span className="lg:hidden">{t("juror_levels.rewards")}</span>
+      <span className="hidden lg:inline">{t("juror_levels.total_rewards")}</span>
       <WithHelpTooltip
         place={isDesktop ? "top" : "right"}
         tooltipMsg={t("juror_levels.total_rewards_tooltip")}
       ></WithHelpTooltip>
-    </Container>
+    </div>
   );
 };
 

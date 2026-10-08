@@ -1,53 +1,32 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { Address } from "viem";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { DEFAULT_CHAIN } from "consts/chains";
+import { cn } from "utils/cn";
 
-import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
+import { AddressOrName, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
 import NewTabIcon from "components/StyledIcons/NewTabIcon";
 
-const Container = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-
-  label {
-    font-size: 16px;
-  }
-
-  canvas {
-    width: 20px;
-    height: 20px;
-    border-radius: 10%;
-  }
-`;
-
-export const ReStyledArrowLink = styled(StyledArrowLink)<{ smallDisplay?: boolean }>`
-  label {
-    cursor: pointer;
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-
-  :hover {
-    label {
-      color: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-
-  ${({ smallDisplay }) =>
-    smallDisplay &&
-    `
-    > svg {
-      height: 14.5px;
-      width: 14.5px;
-    }
-  `}
-`;
+export const ReStyledArrowLink = React.forwardRef<
+  HTMLAnchorElement,
+  React.ComponentProps<typeof StyledArrowLink> & { smallDisplay?: boolean }
+>(({ smallDisplay, className, ...props }, ref) => (
+  <StyledArrowLink
+    ref={ref}
+    {...props}
+    className={cn(
+      "[&_label]:cursor-pointer [&_label]:text-klerosUIComponentsPrimaryBlue",
+      "hover:[&_label]:text-klerosUIComponentsSecondaryBlue",
+      smallDisplay && "[&>svg]:size-[14.5px]",
+      className
+    )}
+  />
+));
+ReStyledArrowLink.displayName = "ReStyledArrowLink";
 
 interface IJurorLink {
   address: string;
@@ -62,7 +41,7 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, small
   }, [address]);
 
   return (
-    <Container>
+    <div className="flex items-center gap-2 [&_label]:text-[16px] [&_canvas]:size-5 [&_canvas]:rounded-[10%]">
       <IdenticonOrAvatar address={address as Address} />
       <ReStyledArrowLink
         {...{ smallDisplay }}
@@ -73,7 +52,7 @@ const JurorLink: React.FC<IJurorLink> = ({ address, isInternalLink = true, small
         <AddressOrName address={address as Address} smallDisplay={smallDisplay} />
         {isInternalLink ? <ArrowIcon /> : <NewTabIcon />}
       </ReStyledArrowLink>
-    </Container>
+    </div>
   );
 };
 

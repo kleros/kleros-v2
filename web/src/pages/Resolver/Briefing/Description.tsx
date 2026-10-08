@@ -1,31 +1,13 @@
 import React, { useRef, useEffect } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import MarkdownEditor from "components/MarkdownEditor";
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const MarkdownEditorContainer = styled.div`
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
-`;
 
 const Description: React.FC = () => {
   const { t } = useTranslation();
@@ -49,18 +31,18 @@ const Description: React.FC = () => {
   }, []);
 
   return (
-    <Container ref={containerRef}>
+    <div ref={containerRef} className="flex flex-col items-center">
       <Header text={t("headers.describe_the_case")} />
-      <MarkdownEditorContainer>
+      <div className="lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))]">
         <MarkdownEditor
           value={disputeData.description}
           onChange={handleWrite}
           placeholder={t("forms.placeholders.bob_hired_alice")}
           showMessage={false}
         />
-      </MarkdownEditorContainer>
+      </div>
       <NavigationButtons prevRoute="/resolver/title" nextRoute="/resolver/court" />
-    </Container>
+    </div>
   );
 };
 

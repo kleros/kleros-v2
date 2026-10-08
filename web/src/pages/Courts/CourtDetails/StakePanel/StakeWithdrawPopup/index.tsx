@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css, keyframes } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -9,9 +8,6 @@ import Close from "svgs/icons/close.svg";
 
 import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { Divider } from "components/Divider";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
@@ -19,92 +15,6 @@ import { Overlay } from "components/Overlay";
 import { ActionType } from "../StakeWithdrawButton";
 
 import Header from "./Header";
-
-const animation = keyframes`
-  0%{
-    transform: translate(-50%,-47%);
-    opacity: 0;
-  }
-  100%{
-    transform: translate(-50%,-50%);
-    opacity: 1;
-  };
-`;
-
-const Container = styled.div`
-  display: flex;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-height: 80vh;
-  overflow-y: auto;
-  position: relative;
-
-  z-index: 10;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 86vw;
-  max-width: 600px;
-  border-radius: 7px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  background-color: ${({ theme }) => theme.whiteBackground};
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
-  padding: 8px;
-
-  animation: ${animation} 200ms ease-in;
-
-  svg {
-    visibility: visible;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      overflow-y: hidden;
-      width: ${responsiveSize(300, 600)};
-    `
-  )}
-`;
-
-const InnerContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-self: center;
-  gap: 24px;
-  padding: 16px 24px 24px;
-`;
-
-const StyledButton = styled(LightButton)`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border: none !important;
-  padding: 4px !important;
-  border-radius: 7px !important;
-  height: fit-content !important;
-  .button-svg {
-    margin: 0;
-    path {
-      fill: ${({ theme }) => theme.stroke};
-    }
-  }
-`;
-
-const AlertContainer = styled.div`
-  margin-top: 24px;
-
-  h2 {
-    margin: 0;
-  }
-`;
-
-const StyledTimeline = styled(CustomTimeline)`
-  h2 {
-    margin: 0;
-  }
-`;
 
 interface IStakeWithdrawPopup {
   action: ActionType;
@@ -119,23 +29,31 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
 
   return (
     <Overlay onClick={closePopup}>
-      <Container onClick={(e) => e.stopPropagation()}>
-        <StyledButton Icon={Close} text="" onPress={closePopup} />
-        <InnerContainer>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex top-[50%] left-[50%] [transform:translate(-50%,_-50%)] max-h-[80vh] overflow-y-auto relative z-10 flex-col items-center justify-center w-[86vw] max-w-[600px] rounded-[7px] border border-solid border-klerosUIComponentsStroke bg-klerosUIComponentsWhiteBackground [box-shadow:0px_2px_3px_rgba(0,_0,_0,_0.06)] p-2 [animation:stake-popup-enter_200ms_ease-in] [&_svg]:visible lg:overflow-y-hidden lg:w-[calc(300px_+_(600_-_300)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
+      >
+        <LightButton
+          Icon={Close}
+          text=""
+          onPress={closePopup}
+          className="absolute top-[8px] right-[8px] border-0! p-1! rounded-[7px]! h-fit! [&_.button-svg]:m-0 [&_.button-svg_path]:fill-klerosUIComponentsStroke"
+        />
+        <div className="w-full flex flex-col self-center gap-6 p-[16px_24px_24px]">
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
-          {steps && <StyledTimeline items={steps} />}
+          {steps && <CustomTimeline items={steps} className="[&_h2]:m-0" />}
           {isSuccess && action === ActionType.stake ? (
-            <AlertContainer>
+            <div className="mt-6 [&_h2]:m-0">
               <AlertMessage
                 title={t("alerts.hey_avoid_missing_case")}
                 msg={t("alerts.subscribe_to_notifications")}
                 variant="info"
               />
-            </AlertContainer>
+            </div>
           ) : null}
-        </InnerContainer>
-      </Container>
+        </div>
+      </div>
     </Overlay>
   );
 };

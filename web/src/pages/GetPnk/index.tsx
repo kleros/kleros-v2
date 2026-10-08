@@ -1,10 +1,6 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { isProductionDeployment } from "consts/index";
-
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import ClaimPnkButton from "components/ClaimPnkButton";
 import HeroImage from "components/HeroImage";
@@ -12,37 +8,14 @@ import ScrollTop from "components/ScrollTop";
 
 import { Widget } from "./Widget";
 
-const Wrapper = styled.div`
-  width: 100%;
-`;
-
-const Container = styled.div`
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBackground};
-  padding: 16px 16px 40px;
-  max-width: ${MAX_WIDTH_LANDSCAPE};
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 16px ${responsiveSize(0, 132)} 60px;
-    `
-  )}
-`;
-
 const GetPnk: React.FC = () => (
-  <Wrapper>
+  <div className="w-full">
     <HeroImage />
-    <Container>
+    <div className="w-full bg-klerosUIComponentsLightBackground p-[16px_16px_40px] max-w-[1400px] m-[0_auto] flex flex-col items-center justify-center gap-6 lg:p-[16px_calc(0px_+_(132_-_0)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_60px]">
       {!isProductionDeployment() && <ClaimPnkButton />}
       <Widget />
-    </Container>
+    </div>
     <ScrollTop />
-  </Wrapper>
+  </div>
 );
 export default GetPnk;

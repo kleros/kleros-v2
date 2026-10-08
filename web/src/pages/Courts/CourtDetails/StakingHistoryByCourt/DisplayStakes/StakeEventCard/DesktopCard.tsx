@@ -1,102 +1,26 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { Hash } from "viem";
 
+import { cn } from "utils/cn";
 import { formatDateWithTime } from "utils/date";
 import { formatPNK } from "utils/format";
 import { getTxnExplorerLink } from "utils/index";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { InternalLink } from "components/InternalLink";
 import JurorLink from "components/JurorLink";
 
-const Container = styled.div`
-  ${hoverShortTransitionTiming}
-  display: none;
-  width: 100%;
-  min-width: 100%;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top: none;
-  align-items: center;
-  padding: 16px 20px;
-  gap: 12px;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-    `
-  )}
-
-  :hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
+const StyledLabel = React.forwardRef<React.ElementRef<"label">, React.ComponentPropsWithoutRef<"label">>(
+  function StyledLabel({ className, ...props }, ref) {
+    return (
+      <label
+        {...props}
+        ref={ref}
+        className={cn("text-[14px] text-klerosUIComponentsPrimaryText shrink-0", className)}
+      />
+    );
   }
-`;
-
-const JurorContainer = styled.div`
-  flex: 1;
-  min-width: 150px;
-  overflow: hidden;
-`;
-
-const StyledLabel = styled.label`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  flex-shrink: 0;
-`;
-
-const StakeLabel = styled(StyledLabel)`
-  width: 80px;
-  text-align: right;
-`;
-
-const CourtLabelContainer = styled.div`
-  width: 120px;
-  text-align: right;
-  flex-shrink: 0;
-`;
-
-const CourtLink = styled(InternalLink)`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  cursor: pointer;
-  text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  :hover {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-`;
-
-const CourtText = styled.span`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const DateLabelContainer = styled.div`
-  width: 120px;
-  text-align: right;
-  flex-shrink: 0;
-`;
-
-const DateLink = styled.a`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  cursor: pointer;
-  text-decoration: none;
-
-  :hover {
-    text-decoration: underline;
-  }
-`;
+);
 
 interface IDesktopCard {
   address: string;
@@ -125,26 +49,40 @@ const DesktopCard: React.FC<IDesktopCard> = ({
   const isCurrentCourt = currentCourtId === courtId;
 
   return (
-    <Container>
-      <JurorContainer>
+    <div className="[transition:0.1s] hidden w-full min-w-[100%] bg-klerosUIComponentsWhiteBackground border border-solid border-klerosUIComponentsStroke border-t-0 items-center p-[16px_20px] gap-3 lg:flex [&:hover]:[background-color:color-mix(in_srgb,_var(--klerosUIComponentsLightGrey)_73.33333333333333%,_transparent)]">
+      <div className="flex-1 min-w-[150px] overflow-hidden">
         <JurorLink address={address} smallDisplay />
-      </JurorContainer>
-      <StakeLabel>{formatPNK(BigInt(stake))}</StakeLabel>
-      <CourtLabelContainer>
+      </div>
+      <StyledLabel className="w-[80px] text-right">{formatPNK(BigInt(stake))}</StyledLabel>
+      <div className="w-[120px] text-right shrink-0">
         {isCurrentCourt ? (
-          <CourtText title={courtName}>{truncateCourtName(courtName)}</CourtText>
-        ) : (
-          <CourtLink to={`/courts/${courtId}`} title={courtName}>
+          <span
+            title={courtName}
+            className="text-[14px] text-klerosUIComponentsPrimaryText overflow-hidden [text-overflow:ellipsis] whitespace-nowrap"
+          >
             {truncateCourtName(courtName)}
-          </CourtLink>
+          </span>
+        ) : (
+          <InternalLink
+            to={`/courts/${courtId}`}
+            title={courtName}
+            className="text-[14px] text-klerosUIComponentsPrimaryText cursor-pointer no-underline overflow-hidden [text-overflow:ellipsis] whitespace-nowrap [&:hover]:text-klerosUIComponentsPrimaryBlue"
+          >
+            {truncateCourtName(courtName)}
+          </InternalLink>
         )}
-      </CourtLabelContainer>
-      <DateLabelContainer>
-        <DateLink href={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
+      </div>
+      <div className="w-[120px] text-right shrink-0">
+        <a
+          href={getTxnExplorerLink(transactionHash)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[14px] text-klerosUIComponentsPrimaryText cursor-pointer no-underline [&:hover]:underline"
+        >
           {formatDateWithTime(timestamp)}
-        </DateLink>
-      </DateLabelContainer>
-    </Container>
+        </a>
+      </div>
+    </div>
   );
 };
 

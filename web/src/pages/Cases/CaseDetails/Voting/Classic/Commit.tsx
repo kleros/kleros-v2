@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -15,11 +14,6 @@ import { isUndefined } from "src/utils";
 import { PartialBy } from "src/utils/types";
 
 import OptionsContainer from "../OptionsContainer";
-
-const Container = styled.div`
-  width: 100%;
-  height: auto;
-`;
 
 interface ICommit {
   arbitrable: Address;
@@ -58,11 +52,11 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, disputeKitI
   );
 
   return id ? (
-    <Container>
+    <div className="w-full h-auto">
       <OptionsContainer
         {...{ arbitrable, handleSelection: handleCommit, confirmHint: t("voting.justification_at_reveal") }}
       />
-    </Container>
+    </div>
   ) : null;
 };
 

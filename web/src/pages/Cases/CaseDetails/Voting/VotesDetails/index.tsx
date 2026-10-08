@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Hash } from "viem";
@@ -12,104 +11,11 @@ import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { getTxnExplorerLink, isUndefined } from "utils/index";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { ExternalLink } from "components/ExternalLink";
 import InfoCard from "components/InfoCard";
 import MarkdownRenderer from "components/MarkdownRenderer";
 
 import AccordionTitle from "./AccordionTitle";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const StyledAccordion = styled(CustomAccordion)`
-  width: 100%;
-  /* Override the library accordion's defaults (max-width, per-item margin,
-   * trigger and body padding) so it fills the width and matches the sibling vote cards. */
-  max-width: none;
-
-  > div {
-    margin: 4px 0;
-  }
-
-  [id="expand-button"] {
-    padding: 16px !important;
-  }
-
-  [id="body-wrapper"] {
-    padding: 12px 8px 8px !important;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      [id="expand-button"] {
-        padding: 12px 16px !important;
-      }
-      [id="body-wrapper"] {
-        padding: 12px 16px 8px !important;
-      }
-    `
-  )}
-`;
-
-const StyledCard = styled(Card)`
-  ${hoverShortTransitionTiming}
-  width: 100%;
-  height: auto;
-  padding: 16px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  margin: 4px 0;
-
-  :hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      padding: 12px 16px;
-    `
-  )}
-`;
-
-const AccordionContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const VotedText = styled.label`
-  color: ${({ theme }) => theme.secondaryText};
-  font-size: 16px;
-`;
-
-const VotedLabel = styled.span`
-  color: ${({ theme }) => theme.primaryText};
-  margin-right: 4px;
-`;
-
-const JustificationContainer = styled.div`
-  line-height: 1.25;
-`;
-
-const JustificationLabel = styled.span`
-  color: ${({ theme }) => theme.primaryText};
-  font-size: 16px;
-  margin-right: 4px;
-`;
-
-const SecondaryTextLabel = styled.label`
-  color: ${({ theme }) => theme.secondaryText};
-  font-size: 16px;
-  flex: 1;
-`;
-
-const StyledInfoCard = styled(InfoCard)`
-  margin-top: 18.5px;
-`;
 
 const AccordionContent: React.FC<{
   choice?: string;
@@ -125,28 +31,30 @@ const AccordionContent: React.FC<{
   }, [transactionHash]);
 
   return (
-    <AccordionContentContainer>
+    <div className="flex flex-col gap-3">
       {!isUndefined(choice) && (
-        <VotedText dir="auto">
-          <VotedLabel>{t("misc.voted")}</VotedLabel>
+        <label dir="auto" className="text-klerosUIComponentsSecondaryText text-[16px]">
+          <span className="text-klerosUIComponentsPrimaryText mr-1">{t("misc.voted")}</span>
           {getVoteChoice(choice, answers)}
-        </VotedText>
+        </label>
       )}
 
       {justification ? (
-        <JustificationContainer dir="auto">
-          <JustificationLabel>{t("misc.justification")}</JustificationLabel>
+        <div dir="auto" className="leading-[1.25]">
+          <span className="text-klerosUIComponentsPrimaryText text-[16px] mr-1">{t("misc.justification")}</span>
           <MarkdownRenderer content={justification} />
-        </JustificationContainer>
+        </div>
       ) : (
-        <SecondaryTextLabel>{t("voting.no_justification_provided")}</SecondaryTextLabel>
+        <label className="text-klerosUIComponentsSecondaryText text-[16px] flex-1">
+          {t("voting.no_justification_provided")}
+        </label>
       )}
       {!isUndefined(timestamp) && !isUndefined(transactionExplorerLink) && (
         <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
           {formatDate(Number(timestamp), true, i18n.language)}
         </ExternalLink>
       )}
-    </AccordionContentContainer>
+    </div>
   );
 };
 
@@ -199,15 +107,23 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
 
   return (
     <>
-      {drawnJurors.length === 0 ? <StyledInfoCard msg={t("alerts.jurors_not_drawn_yet")} /> : null}
-      <Container>
+      {drawnJurors.length === 0 ? <InfoCard msg={t("alerts.jurors_not_drawn_yet")} className="mt-[18.5px]" /> : null}
+      <div className="flex flex-col">
         {accordionItems.length > 0 ? (
-          <StyledAccordion items={accordionItems as unknown as CustomAccordionItem[]} />
+          <CustomAccordion
+            items={accordionItems as unknown as CustomAccordionItem[]}
+            className={
+              'w-full max-w-[none] [&_>_div]:m-[4px_0] [&_[id="expand-button"]]:p-4! [&_[id="body-wrapper"]]:p-[12px_8px_8px]! lg:[&_[id="expand-button"]]:p-[12px_16px]! lg:[&_[id="body-wrapper"]]:p-[12px_16px_8px]!'
+            }
+          />
         ) : null}
         {drawnJurors.map(
           (drawnJuror) =>
             isUndefined(drawnJuror.vote?.justification?.choice) && (
-              <StyledCard key={drawnJuror.juror.id}>
+              <Card
+                key={drawnJuror.juror.id}
+                className="[transition:0.1s] w-full h-auto p-4 border border-solid border-klerosUIComponentsStroke m-[4px_0] [&:hover]:[background-color:color-mix(in_srgb,_var(--klerosUIComponentsLightGrey)_73.33333333333333%,_transparent)] lg:p-[12px_16px]"
+              >
                 <AccordionTitle
                   juror={drawnJuror.juror.id}
                   voteCount={drawnJuror.voteCount}
@@ -217,10 +133,10 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
                   hiddenVotes={hiddenVotes}
                   commited={Boolean(drawnJuror.vote?.commited)}
                 />
-              </StyledCard>
+              </Card>
             )
         )}
-      </Container>
+      </div>
     </>
   );
 };

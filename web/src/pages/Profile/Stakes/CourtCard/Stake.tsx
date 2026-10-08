@@ -1,18 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 
 import { formatUnits } from "viem";
 
 import NumberDisplay from "components/NumberDisplay";
-
-const StyledLabel = styled.label`
-  display: flex;
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-  font-size: 16px;
-  align-items: center;
-  gap: 4px;
-`;
 
 interface IStake {
   stake: bigint;
@@ -22,9 +12,9 @@ const Stake: React.FC<IStake> = ({ stake }) => {
   const formattedStake = formatUnits(stake, 18);
 
   return (
-    <StyledLabel>
+    <label className="flex font-semibold text-klerosUIComponentsPrimaryText text-[16px] items-center gap-1">
       <NumberDisplay value={formattedStake} unit="PNK" />
-    </StyledLabel>
+    </label>
   );
 };
 export default Stake;

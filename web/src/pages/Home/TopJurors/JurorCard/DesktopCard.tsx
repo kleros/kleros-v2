@@ -1,10 +1,9 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { Address } from "viem";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
+import { cn } from "utils/cn";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 import JurorLink from "components/JurorLink";
@@ -14,33 +13,6 @@ import JurorLevel from "./JurorLevel";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
 import Score from "./Score";
-
-const Container = styled.div<{ renderRank?: boolean }>`
-  ${hoverShortTransitionTiming}
-  display: none;
-  width: 100%;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top: none;
-  align-items: center;
-  padding: 15.55px 32px;
-
-  ${({ renderRank }) =>
-    landscapeStyle(
-      () => css`
-        display: grid;
-        grid-template-columns: ${renderRank
-          ? // eslint-disable-next-line max-len
-            `min-content minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`
-          : `minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`};
-        column-gap: ${responsiveSize(12, 24, 900)};
-      `
-    )}
-
-  :hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
-  }
-`;
 
 interface IDesktopCard {
   rank?: number;
@@ -60,14 +32,22 @@ const DesktopCard: React.FC<IDesktopCard> = ({
   const renderRank = !!rank;
 
   return (
-    <Container renderRank={renderRank}>
+    <div
+      className={cn(
+        "[transition:0.1s] hidden w-full bg-klerosUIComponentsWhiteBackground border border-klerosUIComponentsStroke border-t-0 items-center px-8 py-[15.55px] lg:grid hover:bg-klerosUIComponentsLightGrey/[0.7333]",
+        renderRank
+          ? "lg:grid-cols-[min-content_minmax(160px,1fr)_minmax(60px,1fr)_minmax(80px,0.8fr)_minmax(180px,1.5fr)_minmax(100px,1fr)]"
+          : "lg:grid-cols-[minmax(160px,1fr)_minmax(60px,1fr)_minmax(80px,0.8fr)_minmax(180px,1.5fr)_minmax(100px,1fr)]"
+      )}
+      style={{ columnGap: responsiveSize(12, 24, 900) }}
+    >
       {renderRank && <Rank rank={rank} />}
       <JurorLink address={address} />
       <Score coherenceScore={coherenceScore} />
       <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
       <Rewards address={address} />
       <JurorLevel coherenceScore={Number(coherenceScore)} />
-    </Container>
+    </div>
   );
 };
 

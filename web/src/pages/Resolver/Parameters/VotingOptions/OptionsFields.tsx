@@ -1,45 +1,11 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import { Answer, useNewDisputeContext } from "context/NewDisputeContext";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import LabeledInput from "components/LabeledInput";
 import PlusMinusField from "components/PlusMinusField";
-
-const OptionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 48px;
-  width: 84vw;
-
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  ${landscapeStyle(
-    () => css`
-      display: grid;
-      grid-template-columns: 160px auto;
-    `
-  )}
-`;
-const StyledPlusMinusField = styled(PlusMinusField)`
-  align-self: start;
-  margin: 32px 0px 48px;
-`;
 
 const OptionsFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
@@ -61,9 +27,9 @@ const OptionsFields: React.FC = () => {
   };
   return (
     <>
-      <OptionsContainer>
+      <div className="flex flex-col gap-12 w-[84vw] lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))]">
         {disputeData.answers.map((answer, index) => (
-          <InputContainer key={answer.id}>
+          <div key={answer.id} className="flex flex-col gap-6 w-full lg:grid lg:[grid-template-columns:160px_auto]">
             <LabeledInput
               label={t("forms.labels.voting_option_number", { number: index + 1 })}
               placeholder={t("forms.placeholders.pay_dai_example")}
@@ -76,10 +42,15 @@ const OptionsFields: React.FC = () => {
               value={answer.description ?? ""}
               onChange={(value) => handleOptionWrite("description", index, value)}
             />
-          </InputContainer>
+          </div>
         ))}
-      </OptionsContainer>
-      <StyledPlusMinusField currentValue={disputeData.answers?.length ?? 2} updateValue={updateOptions} minValue={2} />
+      </div>
+      <PlusMinusField
+        currentValue={disputeData.answers?.length ?? 2}
+        updateValue={updateOptions}
+        minValue={2}
+        className="[align-self:start] m-[32px_0px_48px]"
+      />
     </>
   );
 };

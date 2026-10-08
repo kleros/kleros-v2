@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { Trans, useTranslation } from "react-i18next";
 
@@ -10,33 +9,6 @@ import HourglassIcon from "svgs/icons/hourglass.svg";
 import { useOptionsContext } from "hooks/useClassicAppealContext";
 import { secondsToDayHourMinute } from "utils/date";
 import { isUndefined } from "utils/index";
-
-const StyledBox = styled(Box)`
-  border-radius: 3px;
-  margin: 24px 0;
-  height: auto;
-  width: 100%;
-  padding: 16px 24px;
-  & > div > p {
-    display: block;
-    margin-bottom: 4px;
-  }
-`;
-
-const CountdownLabel = styled.label`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid ${({ theme }) => theme.secondaryPurple};
-  color: ${({ theme }) => theme.primaryText};
-  gap: 8px;
-  & > svg {
-    width: 14px;
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
 
 interface IStageExplainer {
   countdown: number | undefined;
@@ -81,17 +53,17 @@ const StageTwoExplanation: React.FC = () => {
 const StageExplainer: React.FC<IStageExplainer> = ({ countdown, stage }) => {
   const { t } = useTranslation();
   return (
-    <StyledBox>
-      <CountdownLabel>
+    <Box className="rounded-[3px] m-[24px_0] h-auto w-full p-[16px_24px] [&_>_div_>_p]:block [&_>_div_>_p]:mb-1">
+      <label className="flex items-center justify-center pb-3 mb-3 [border-bottom:1px_solid_var(--klerosUIComponentsSecondaryPurple)] text-klerosUIComponentsPrimaryText gap-2 [&_>_svg]:w-[14px] [&_>_svg]:fill-klerosUIComponentsSecondaryPurple">
         {!isUndefined(countdown) ? (
           <>
             <HourglassIcon />
             {countdown > 0 ? secondsToDayHourMinute(countdown) : <span>{t("appeal.times_up")}</span>}
           </>
         ) : null}
-      </CountdownLabel>
+      </label>
       {stage === 1 ? <StageOneExplanation /> : <StageTwoExplanation />}
-    </StyledBox>
+    </Box>
   );
 };
 

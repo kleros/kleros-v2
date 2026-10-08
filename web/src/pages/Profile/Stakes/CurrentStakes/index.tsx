@@ -1,27 +1,14 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
 import { JurorStakeDetailsQuery } from "src/graphql/graphql";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import CourtCard from "../CourtCard";
 import { CourtCardsContainer } from "../index";
 
 import Header from "./Header";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-`;
-
-const NoCurrentStakesLabel = styled.label`
-  font-size: ${responsiveSize(14, 16)};
-`;
 
 interface ICurrentStakes {
   totalAvailableStake: bigint | undefined;
@@ -41,10 +28,12 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
   const isStaked = stakedCourts && stakedCourts.length > 0;
 
   return (
-    <Container>
+    <div className="flex flex-col flex-wrap">
       <Header {...{ totalAvailableStake, lockedStake }} />
       {!isStaked && !isCurrentStakeLoading ? (
-        <NoCurrentStakesLabel>{t("profile.no_stakes_found")}</NoCurrentStakesLabel>
+        <label className="text-[calc(14px_+_(16_-_14)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("profile.no_stakes_found")}
+        </label>
       ) : isCurrentStakeLoading ? (
         <Skeleton />
       ) : null}
@@ -55,7 +44,7 @@ const CurrentStakes: React.FC<ICurrentStakes> = ({
           ))}
         </CourtCardsContainer>
       ) : null}
-    </Container>
+    </div>
   );
 };
 export default CurrentStakes;

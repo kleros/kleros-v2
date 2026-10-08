@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -7,9 +6,6 @@ import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
 import { useAtlasProvider } from "@kleros/kleros-app";
-
-import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
 import EnsureAuth from "components/EnsureAuth";
@@ -30,71 +26,6 @@ import Policy from "./Policy";
 import Preview from "./Preview";
 import Timeline from "./Timeline";
 
-const Wrapper = styled.div`
-  width: 100%;
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBackground};
-  padding: ${responsiveSize(24, 32)};
-  padding-top: ${responsiveSize(24, 28)};
-  padding-bottom: ${responsiveSize(76, 96)};
-  max-width: ${MAX_WIDTH_LANDSCAPE};
-  margin: 0 auto;
-`;
-
-const ConnectWalletContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledEnsureAuth = styled(EnsureAuth)`
-  align-self: center;
-`;
-
-const HowItWorksAndTimeline = styled.div`
-  display: none;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      flex-direction: column;
-      position: absolute;
-      left: 2%;
-      gap: 40px;
-    `
-  )}
-`;
-
-const MiddleContentContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  position: relative;
-`;
-
-const Heading = styled.h1`
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.primaryText};
-  text-align: center;
-`;
-
-const Paragraph = styled.p`
-  padding: 0;
-  margin: 0;
-  font-size: 16px;
-  text-align: center;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
 const DisputeResolver: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -104,27 +35,31 @@ const DisputeResolver: React.FC = () => {
   const isPreviewPage = location.pathname.includes("/preview");
 
   return (
-    <Wrapper>
+    <div className="w-full">
       <HeroImage />
-      <Container>
+      <div className="flex flex-col gap-8 w-full bg-klerosUIComponentsLightBackground p-[calc(24px_+_(32_-_24)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] pt-[calc(24px_+_(28_-_24)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] pb-[calc(76px_+_(96_-_76)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] max-w-[1400px] m-[0_auto]">
         {!isConnected || !isVerified ? (
           <>
-            <Heading>{t("resolver.justice_as_service")}</Heading>
-            <Paragraph>{t("resolver.send_disputes_get_decisions")}</Paragraph>
+            <h1 className="m-0 text-[24px] font-semibold text-klerosUIComponentsPrimaryText text-center">
+              {t("resolver.justice_as_service")}
+            </h1>
+            <p className="p-0 m-0 text-[16px] text-center text-klerosUIComponentsSecondaryText">
+              {t("resolver.send_disputes_get_decisions")}
+            </p>
           </>
         ) : null}
         {isConnected ? (
-          <StyledEnsureAuth buttonText={t("wallet.sign_in_to_start")}>
-            <MiddleContentContainer>
+          <EnsureAuth buttonText={t("wallet.sign_in_to_start")} className="self-center">
+            <div className="flex justify-center relative">
               {isConnected && !isPreviewPage ? (
-                <HowItWorksAndTimeline>
+                <div className="hidden lg:flex lg:flex-col lg:absolute lg:left-[2%] lg:gap-10">
                   <HowItWorks
                     isMiniGuideOpen={isDisputeResolverMiniGuideOpen}
                     toggleMiniGuide={toggleDisputeResolverMiniGuide}
                     MiniGuideComponent={Resolver}
                   />
                   <Timeline />
-                </HowItWorksAndTimeline>
+                </div>
               ) : null}
               <Routes>
                 <Route index element={<Navigate to="create" replace />} />
@@ -139,18 +74,18 @@ const DisputeResolver: React.FC = () => {
                 <Route path="/policy/*" element={<Policy />} />
                 <Route path="/preview/*" element={<Preview />} />
               </Routes>
-            </MiddleContentContainer>
-          </StyledEnsureAuth>
+            </div>
+          </EnsureAuth>
         ) : (
-          <ConnectWalletContainer>
+          <div className="flex flex-col items-center text-center text-klerosUIComponentsPrimaryText">
             {t("resolver.to_create_dispute_connect")}
             <hr />
             <ConnectWallet />
-          </ConnectWalletContainer>
+          </div>
         )}
-      </Container>
+      </div>
       <ScrollTop />
-    </Wrapper>
+    </div>
   );
 };
 

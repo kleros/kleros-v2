@@ -1,9 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useAccount, usePublicClient } from "wagmi";
 
-import { Button, Radio } from "@kleros/ui-components-library";
+import { Button, Radio as RadioGroup } from "@kleros/ui-components-library";
 
 import { RULING_MODE } from "consts";
 
@@ -23,30 +22,6 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-`;
-
-const SelectContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 16px;
-`;
-
-const AutomaticPresetInputsContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  justify-content: space-around;
-  flex-wrap: wrap;
-`;
-
-const StyledLabel = styled.label``;
 
 const RulingModes: React.FC = () => {
   const { isConnected, chainId } = useAccount();
@@ -212,73 +187,60 @@ const RulingModes: React.FC = () => {
   ]);
 
   return (
-    <Container>
+    <div className="flex w-full flex-col gap-8">
       <Header
         text="Ruling Mode"
         tooltipMsg="Current Ruling mode of the arbitrator. Learn more about ruling modes here."
       />
-      <StyledLabel>
+      <label>
         Current mode: <small>{getRulingModeText(arbitrableSettings?.rulingMode)}</small>
-      </StyledLabel>
-      <SelectContainer>
-        <Radio
+      </label>
+      <div className="flex w-full flex-col flex-wrap gap-4">
+        <RadioGroup
+          aria-label="Ruling mode"
+          className="gap-4 [&_label]:leading-[18px] [&_label>span]:top-0"
           small
-          label="Manual"
-          checked={rulingMode === RULING_MODE.Manual}
-          onChange={() => {
-            setRulingMode(RULING_MODE.Manual);
-          }}
-        />
-        <Radio
-          small
-          label="Random Preset"
-          defaultChecked={arbitrableSettings?.rulingMode === RULING_MODE.AutomaticRandom}
-          checked={rulingMode === RULING_MODE.AutomaticRandom}
-          onChange={() => {
-            setRulingMode(RULING_MODE.AutomaticRandom);
-          }}
-        />
-        <Radio
-          small
-          label="Automatic Preset"
-          checked={rulingMode === RULING_MODE.AutomaticPreset}
-          onChange={() => {
-            setRulingMode(RULING_MODE.AutomaticPreset);
-          }}
+          value={rulingMode.toString()}
+          onChange={(value) => setRulingMode(Number(value) as RULING_MODE)}
+          options={[
+            { value: RULING_MODE.Manual.toString(), label: "Manual" },
+            { value: RULING_MODE.AutomaticRandom.toString(), label: "Random Preset" },
+            { value: RULING_MODE.AutomaticPreset.toString(), label: "Automatic Preset" },
+          ]}
         />
         {rulingMode === RULING_MODE.AutomaticPreset && (
-          <AutomaticPresetInputsContainer>
+          <div className="flex flex-wrap justify-around gap-4">
             <LabeledInput
               label="Ruling"
               type="number"
               value={ruling}
-              onChange={(e) => setRuling(Number(e.target.value))}
-              disabled={rulingMode !== RULING_MODE.AutomaticPreset}
+              onChange={(value) => setRuling(Number.isNaN(value) ? 0 : value)}
+              isDisabled={rulingMode !== RULING_MODE.AutomaticPreset}
             />
             <LabeledInput
               label="Tie"
               inputType="checkbox"
-              checked={tie}
+              isSelected={tie}
               onChange={() => setTie((prev) => !prev)}
-              disabled={rulingMode !== RULING_MODE.AutomaticPreset}
+              isDisabled={rulingMode !== RULING_MODE.AutomaticPreset}
             />
             <LabeledInput
               label="Overridden"
               inputType="checkbox"
-              checked={overridden}
+              isSelected={overridden}
               onChange={() => setOverridden((prev) => !prev)}
-              disabled={rulingMode !== RULING_MODE.AutomaticPreset}
+              isDisabled={rulingMode !== RULING_MODE.AutomaticPreset}
             />
-          </AutomaticPresetInputsContainer>
+          </div>
         )}
-      </SelectContainer>
+      </div>
       <Button
         text="Update"
         onClick={handleUpdate}
         isLoading={isLoading || isSending}
-        disabled={isDisabled || isSending}
+        isDisabled={isDisabled || isSending}
       />
-    </Container>
+    </div>
   );
 };
 

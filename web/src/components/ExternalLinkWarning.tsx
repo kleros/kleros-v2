@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
@@ -8,133 +7,20 @@ import { Button } from "@kleros/ui-components-library";
 
 import WarningIcon from "svgs/icons/warning-outline.svg";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { cn } from "utils/cn";
 
-const StyledModal = styled(Modal)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  margin-right: -50%;
-  transform: translate(-50%, -50%);
-  height: auto;
-  max-height: 90vh;
-  width: min(90%, 480px);
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  padding: 32px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 10002;
-  overflow-y: auto;
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10001;
-`;
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-`;
-
-const StyledWarningIcon = styled(WarningIcon)`
-  width: 24px;
-  height: 24px;
-  fill: ${({ theme }) => theme.warning};
-`;
-
-const Title = styled.h3`
-  color: ${({ theme }) => theme.primaryText};
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0;
-`;
-
-const Message = styled.p`
-  color: ${({ theme }) => theme.primaryText};
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 0 0 16px 0;
-`;
-
-const UrlSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 16px 0;
-`;
-
-const UrlBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const UrlLabel = styled.small`
-  color: ${({ theme }) => theme.secondaryText};
-  font-weight: 600;
-`;
-
-const UrlContainer = styled.div`
-  background-color: ${({ theme }) => theme.lightGrey};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 4px;
-  padding: 12px;
-  word-break: break-all;
-`;
-
-const Url = styled.code`
-  color: ${({ theme }) => theme.secondaryText};
-  font-size: 13px;
-  font-family: monospace;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 24px;
-
-  ${landscapeStyle(
-    () => css`
-      justify-content: flex-end;
-    `
-  )}
-`;
-
-const CancelButton = styled(Button)`
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
-
-  p {
-    color: ${({ theme }) => theme.primaryText} !important;
-  }
-
-  &:hover {
-    background-color: ${({ theme }) => theme.mediumBlue};
-  }
-`;
-
-const ConfirmButton = styled(Button)`
-  background-color: ${({ theme }) => theme.warning};
-  color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.warning};
-
-  &:hover {
-    background-color: ${({ theme }) => theme.warning}BB;
-  }
-`;
+const Overlay = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(function Overlay(
+  { className, ...props },
+  ref
+) {
+  return (
+    <div
+      {...props}
+      ref={ref}
+      className={cn("fixed top-0 left-0 right-0 bottom-0 [background-color:rgba(0,_0,_0,_0.5)] z-10001", className)}
+    />
+  );
+});
 
 interface IExternalLinkWarning {
   isOpen: boolean;
@@ -155,7 +41,7 @@ const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <StyledModal
+    <Modal
       isOpen={isOpen}
       onRequestClose={onCancel}
       overlayElement={(props, contentElement) => <Overlay {...props}>{contentElement}</Overlay>}
@@ -163,30 +49,59 @@ const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({
       role="dialog"
       aria-labelledby="external-link-title"
       aria-describedby="external-link-description"
+      className={cn(
+        "absolute top-[50%] left-[50%] right-auto bottom-auto mr-[-50%] [transform:translate(-50%,_-50%)]",
+        "h-auto max-h-[90vh] w-[min(90%,_480px)] border border-solid border-klerosUIComponentsStroke",
+        "rounded-[8px] bg-klerosUIComponentsWhiteBackground p-8 [box-shadow:0_4px_16px_rgba(0,_0,_0,_0.1)]",
+        "z-10002 overflow-y-auto"
+      )}
     >
-      <Header>
-        <StyledWarningIcon />
-        <Title id="external-link-title">{t("popups.external_link_warning")}</Title>
-      </Header>
+      <div className="flex items-center gap-3 mb-4">
+        <WarningIcon className="w-[24px] h-[24px] fill-klerosUIComponentsWarning" />
+        <h3 id="external-link-title" className="text-klerosUIComponentsPrimaryText text-[18px] font-semibold m-0">
+          {t("popups.external_link_warning")}
+        </h3>
+      </div>
 
-      <Message id="external-link-description">{t("popups.external_link_message")}</Message>
+      <p
+        id="external-link-description"
+        className="text-klerosUIComponentsPrimaryText text-[14px] leading-[1.5] m-[0_0_16px_0]"
+      >
+        {t("popups.external_link_message")}
+      </p>
 
-      <UrlSection>
-        <UrlBlock>
-          <UrlLabel>{t("popups.original_url")}</UrlLabel>
-          <UrlContainer>
-            <Url>{originalUrl}</Url>
-          </UrlContainer>
-        </UrlBlock>
-        <UrlBlock>
-          <UrlLabel>{t("popups.destination_url_sanitized")}</UrlLabel>
-          <UrlContainer>
-            <Url>{sanitizedUrl}</Url>
-          </UrlContainer>
-        </UrlBlock>
-      </UrlSection>
+      <div className="flex flex-col gap-4 m-[16px_0]">
+        <div className="flex flex-col gap-1">
+          <small className="text-klerosUIComponentsSecondaryText font-semibold">{t("popups.original_url")}</small>
+          <div
+            className={cn(
+              "bg-klerosUIComponentsLightGrey border border-solid border-klerosUIComponentsStroke rounded-[4px] p-3",
+              "break-all"
+            )}
+          >
+            <code className="text-klerosUIComponentsSecondaryText text-[13px] [font-family:monospace]">
+              {originalUrl}
+            </code>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <small className="text-klerosUIComponentsSecondaryText font-semibold">
+            {t("popups.destination_url_sanitized")}
+          </small>
+          <div
+            className={cn(
+              "bg-klerosUIComponentsLightGrey border border-solid border-klerosUIComponentsStroke rounded-[4px] p-3",
+              "break-all"
+            )}
+          >
+            <code className="text-klerosUIComponentsSecondaryText text-[13px] [font-family:monospace]">
+              {sanitizedUrl}
+            </code>
+          </div>
+        </div>
+      </div>
 
-      <Message>
+      <p className="text-klerosUIComponentsPrimaryText text-[14px] leading-[1.5] m-[0_0_16px_0]">
         <strong>{t("popups.safety_tips")}</strong>
         <br />
         {t("popups.verify_domain")}
@@ -194,13 +109,28 @@ const ExternalLinkWarning: React.FC<IExternalLinkWarning> = ({
         {t("popups.check_suspicious")}
         <br />
         {t("popups.trust_destination")}
-      </Message>
+      </p>
 
-      <ButtonContainer>
-        <CancelButton text={t("buttons.cancel")} onPress={onCancel} />
-        <ConfirmButton text={t("buttons.continue_to_external_site")} onPress={onConfirm} />
-      </ButtonContainer>
-    </StyledModal>
+      <div className="flex gap-3 justify-center flex-wrap mt-6 lg:justify-end">
+        <Button
+          text={t("buttons.cancel")}
+          onPress={onCancel}
+          className={cn(
+            "bg-klerosUIComponentsWhiteBackground border border-solid border-klerosUIComponentsStroke",
+            "[&_p]:text-klerosUIComponentsPrimaryText! [&:hover]:bg-klerosUIComponentsMediumBlue"
+          )}
+        />
+        <Button
+          text={t("buttons.continue_to_external_site")}
+          onPress={onConfirm}
+          className={cn(
+            "bg-klerosUIComponentsWarning text-klerosUIComponentsWhiteBackground",
+            "border border-solid border-klerosUIComponentsWarning",
+            "[&:hover]:[background-color:color-mix(in_srgb,_var(--klerosUIComponentsWarning)_73.33333333333333%,_transparent)]"
+          )}
+        />
+      </div>
+    </Modal>
   );
 };
 

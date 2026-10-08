@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useAccount, usePublicClient } from "wagmi";
@@ -17,10 +16,6 @@ import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
-
-const StyledButton = styled(Button)`
-  width: 100%;
-`;
 
 interface IDistributeRewards extends IBaseMaintenanceButton {
   roundIndex?: string;
@@ -89,12 +84,13 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
     });
   };
   return (
-    <StyledButton
+    <Button
       text={t("buttons.juror_rewards")}
       small
       isLoading={isLoading}
       isDisabled={isDisabled}
       onPress={handleClick}
+      className="w-full"
     />
   );
 };

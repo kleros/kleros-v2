@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -12,28 +11,9 @@ import { findCourtNameById } from "utils/findCourtNameById";
 
 import { useCourtTree } from "queries/useCourtTree";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import CourtCard from "./CourtCard";
 
 import { CourtCardsContainer } from "./index";
-
-const Container = styled.div``;
-
-const StyledPagination = styled(StandardPagination)`
-  margin-top: 24px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const StyledTitle = styled.h1`
-  font-size: ${responsiveSize(20, 24)};
-  margin-bottom: 20px;
-`;
-
-const NoHistoryLabel = styled.label`
-  font-size: ${responsiveSize(14, 16)};
-`;
 
 interface IStakingHistory {
   searchParamAddress: `0x${string}`;
@@ -65,11 +45,15 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
   };
 
   return (
-    <Container>
-      <StyledTitle>{t("profile.staking_history")}</StyledTitle>
+    <div>
+      <h1 className="text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] mb-5">
+        {t("profile.staking_history")}
+      </h1>
       <CourtCardsContainer>
         {!isLoadingStakingHistory && totalNumberStakingEvents === 0 ? (
-          <NoHistoryLabel>{t("profile.no_history_found")}</NoHistoryLabel>
+          <label className="text-[calc(14px_+_(16_-_14)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+            {t("profile.no_history_found")}
+          </label>
         ) : isLoadingStakingHistory || isLoadingCourtTree ? (
           Array.from({ length: 5 }).map((_, index) => <Skeleton height={64} key={index} />)
         ) : (
@@ -89,12 +73,17 @@ const StakingHistory: React.FC<IStakingHistory> = ({ searchParamAddress }) => {
               );
             })}
             {totalPages > 1 && (
-              <StyledPagination currentPage={currentPage} numPages={totalPages} callback={handlePageChange} />
+              <StandardPagination
+                currentPage={currentPage}
+                numPages={totalPages}
+                callback={handlePageChange}
+                className="mt-6 ml-auto mr-auto"
+              />
             )}
           </>
         )}
       </CourtCardsContainer>
-    </Container>
+    </div>
   );
 };
 

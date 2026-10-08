@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -12,8 +11,6 @@ export enum Phases {
   generating,
   drawing,
 }
-
-const StyledLabel = styled.label``;
 
 const Phase: React.FC<{ className?: string }> = ({ className }) => {
   const { t } = useTranslation();
@@ -35,7 +32,7 @@ const Phase: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <>
       {isUndefined(phase) ? null : (
-        <StyledLabel {...{ className }}>{t("phase.label", { phase: getPhaseLabel(phase) })}</StyledLabel>
+        <label className={className}>{t("phase.label", { phase: getPhaseLabel(phase) })}</label>
       )}
     </>
   );

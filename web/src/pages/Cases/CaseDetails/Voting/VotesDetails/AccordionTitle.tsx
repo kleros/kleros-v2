@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css, DefaultTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -7,51 +6,8 @@ import { Answer } from "context/NewDisputeContext";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { InternalLink } from "components/InternalLink";
 import JurorLink from "components/JurorLink";
-
-const TitleContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 11px;
-  flex-wrap: wrap;
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-    `
-  )}
-`;
-
-const AddressContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
-
-const StyledLabel = styled.label<{ variant?: string }>`
-  color: ${({ theme, variant }) => (variant ? theme[variant as keyof DefaultTheme] : theme.primaryText)};
-  font-size: 16px;
-`;
-
-const StyledSmall = styled.small`
-  font-size: 16px;
-`;
-
-const StyledInternalLink = styled(InternalLink)`
-  display: flex;
-
-  :hover {
-    label {
-      cursor: pointer;
-      color: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
 
 const VoteStatus: React.FC<{
   choice?: string;
@@ -65,20 +21,30 @@ const VoteStatus: React.FC<{
 
   if (hiddenVotes) {
     if (!commited && (isActiveRound ? ["vote", "appeal", "execution"].includes(period) : true))
-      return <StyledLabel>{t("voting.did_not_commit_vote")}</StyledLabel>;
+      return (
+        <label className="text-[16px] text-klerosUIComponentsPrimaryText">{t("voting.did_not_commit_vote")}</label>
+      );
 
     if (["evidence", "commit"].includes(period))
-      return <StyledLabel>{commited ? t("voting.vote_committed") : t("voting.pending_vote_commitment")}</StyledLabel>;
+      return (
+        <label className="text-[16px] text-klerosUIComponentsPrimaryText">
+          {commited ? t("voting.vote_committed") : t("voting.pending_vote_commitment")}
+        </label>
+      );
   }
 
   // not voted
   if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true))
-    return <StyledLabel>{t("voting.did_not_vote")}</StyledLabel>;
+    return <label className="text-[16px] text-klerosUIComponentsPrimaryText">{t("voting.did_not_vote")}</label>;
 
   return (
-    <StyledLabel>
-      {isUndefined(choice) ? t("voting.pending_vote") : <StyledSmall>{getVoteChoice(choice, answers)}</StyledSmall>}
-    </StyledLabel>
+    <label className="text-[16px] text-klerosUIComponentsPrimaryText">
+      {isUndefined(choice) ? (
+        t("voting.pending_vote")
+      ) : (
+        <small className="text-[16px]">{getVoteChoice(choice, answers)}</small>
+      )}
+    </label>
   );
 };
 
@@ -96,15 +62,20 @@ const AccordionTitle: React.FC<{
   const profileLink = `/profile/stakes/1?address=${juror}`;
 
   return (
-    <TitleContainer>
-      <AddressContainer>
-        <StyledInternalLink to={profileLink}>
+    <div className="flex flex-col [align-items:start] gap-2.75 flex-wrap lg:flex-row lg:items-center lg:gap-3">
+      <div className="flex gap-2 items-center">
+        <InternalLink
+          to={profileLink}
+          className="flex [&:hover_label]:cursor-pointer [&:hover_label]:text-klerosUIComponentsSecondaryBlue"
+        >
           <JurorLink address={juror} />
-        </StyledInternalLink>
-      </AddressContainer>
+        </InternalLink>
+      </div>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
-      <StyledLabel variant="secondaryPurple">{t("voting.vote", { count: voteCount })}</StyledLabel>
-    </TitleContainer>
+      <label className="text-[16px] text-klerosUIComponentsSecondaryPurple">
+        {t("voting.vote", { count: voteCount })}
+      </label>
+    </div>
   );
 };
 

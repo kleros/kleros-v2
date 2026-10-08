@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -20,64 +19,10 @@ import { getLocalRounds } from "utils/getLocalRounds";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { Divider } from "../Divider";
 import { StyledArrowLink } from "../StyledArrowLink";
 
 import AnswerDisplay from "./Answer";
-
-const Container = styled.div`
-  width: 100%;
-`;
-
-const JuryContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px 7px;
-  flex-wrap: wrap;
-
-  h3 {
-    line-height: 21px;
-    margin-bottom: 0px;
-  }
-
-  > div {
-    flex: 1;
-  }
-`;
-
-const VerdictContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const JuryDecisionTag = styled.small`
-  font-weight: 400;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const StyledDivider = styled(Divider)`
-  margin: 16px 0 0;
-
-  ${landscapeStyle(
-    () => css`
-      margin: 24px 0 0;
-    `
-  )}
-`;
-
-const ReStyledArrowLink = styled(StyledArrowLink)`
-  font-size: 14px;
-
-  > svg {
-    height: 15px;
-    width: 15px;
-  }
-`;
 
 interface IFinalDecision {
   arbitrable?: Address;
@@ -111,38 +56,45 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
   }, [t, wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes, isDisconnected]);
 
   return (
-    <Container>
-      <VerdictContainer>
+    <div className="w-full">
+      <div className="flex flex-row items-center flex-wrap gap-2">
         {ruled && (
-          <JuryContainer>
-            <JuryDecisionTag>{t("voting.jury_decided_in_favor")}</JuryDecisionTag>
+          <div className="flex items-center gap-[5px_7px] flex-wrap [&_h3]:leading-[21px] [&_h3]:mb-0 [&>div]:flex-1">
+            <small className="font-normal text-klerosUIComponentsSecondaryText">
+              {t("voting.jury_decided_in_favor")}
+            </small>
             {isLoadingCurrentRuling ? (
               <Skeleton height={14} width={60} />
             ) : (
               <AnswerDisplay {...{ answer, currentRuling }} />
             )}
-          </JuryContainer>
+          </div>
         )}
         {!ruled && periodIndex > 1 && BigInt(localRounds?.[localRounds.length - 1]?.totalVoted ?? "0") > 0n && (
-          <JuryContainer>
-            <JuryDecisionTag>{t("voting.this_option_winning")}</JuryDecisionTag>
+          <div className="flex items-center gap-[5px_7px] flex-wrap [&_h3]:leading-[21px] [&_h3]:mb-0 [&>div]:flex-1">
+            <small className="font-normal text-klerosUIComponentsSecondaryText">
+              {t("voting.this_option_winning")}
+            </small>
             {isLoadingCurrentRuling ? (
               <Skeleton height={14} width={60} />
             ) : (
               <AnswerDisplay {...{ answer, currentRuling }} />
             )}
-          </JuryContainer>
+          </div>
         )}
         {isLoading && !isDisconnected ? (
           <Skeleton width={250} height={20} />
         ) : (
-          <ReStyledArrowLink to={`/cases/${id?.toString()}/voting`}>
+          <StyledArrowLink
+            to={`/cases/${id?.toString()}/voting`}
+            className="text-[14px] [&>svg]:h-[15px] [&>svg]:w-[15px]"
+          >
             {buttonText} <ArrowIcon />
-          </ReStyledArrowLink>
+          </StyledArrowLink>
         )}
-      </VerdictContainer>
-      <StyledDivider />
-    </Container>
+      </div>
+      <Divider className="m-[16px_0_0] lg:m-[24px_0_0]" />
+    </div>
   );
 };
 

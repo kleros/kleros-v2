@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -8,8 +7,7 @@ import { Button } from "@kleros/ui-components-library";
 
 import CloseIcon from "svgs/icons/close.svg";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import { Overlay } from "components/Overlay";
 
@@ -23,97 +21,18 @@ import DisputeCreatedExtraInfo from "./ExtraInfo/DisputeCreatedExtraInfo";
 import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
 import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 
-const Header = styled.h1`
-  display: flex;
-  margin: ${responsiveSize(12, 32)} ${responsiveSize(8, 12)} ${responsiveSize(12, 24)};
-  text-align: center;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32.68px;
-`;
-
-const IconContainer = styled.div`
-  width: ${responsiveSize(150, 228)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    display: inline-block;
-    width: ${responsiveSize(150, 228)};
-    height: ${responsiveSize(150, 228)};
-  }
-`;
-
-const StyledButton = styled(Button)`
-  margin: ${responsiveSize(16, 32)};
-`;
-
-const Container = styled.div`
-  display: flex;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-height: 80vh;
-  overflow-y: auto;
-
-  z-index: 10;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 86vw;
-  max-width: 600px;
-  border-radius: 3px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  background-color: ${({ theme }) => theme.whiteBackground};
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
-
-  svg {
-    visibility: visible;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      overflow-y: hidden;
-      width: ${responsiveSize(300, 600)};
-    `
-  )}
-`;
-
-const VoteDescriptionContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: ${responsiveSize(16, 32)};
-  margin-left: ${responsiveSize(8, 32)};
-  margin-right: ${responsiveSize(8, 32)};
-  color: ${({ theme }) => theme.secondaryText};
-  text-align: center;
-  line-height: 21.8px;
-`;
-
-const SVGContainer = styled.div`
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  width: 100%;
-  cursor: pointer;
-  position: absolute;
-  top: 18px;
-  right: 24px;
-  svg {
-    width: 18px;
-    height: 18px;
-    fill: ${({ theme }) => theme.stroke};
-  }
-`;
-
-export const VoteDescriptionEmphasizedDate = styled.span`
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 21.8px;
-  color: ${({ theme }) => theme.primaryText};
-`;
+export const VoteDescriptionEmphasizedDate = React.forwardRef<
+  React.ElementRef<"span">,
+  React.ComponentPropsWithoutRef<"span">
+>(function VoteDescriptionEmphasizedDate({ className, ...props }, ref) {
+  return (
+    <span
+      {...props}
+      ref={ref}
+      className={cn("text-[16px] font-normal leading-[21.8px] text-klerosUIComponentsPrimaryText", className)}
+    />
+  );
+});
 
 export enum PopupType {
   STAKE_WITHDRAW = "STAKE_WITHDRAW",
@@ -203,18 +122,32 @@ const Popup: React.FC<PopupProps & IPopup> = ({
     case PopupType.VOTE_WITHOUT_COMMIT: {
       const { date } = props as IVoteWithoutCommit;
       PopupComponent = (
-        <VoteDescriptionContainer>
+        <div
+          className={cn(
+            "flex flex-col mb-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "ml-[calc(8px_+_(32_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "mr-[calc(8px_+_(32_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "text-klerosUIComponentsSecondaryText text-center leading-[21.8px]"
+          )}
+        >
           <VoteWithoutCommit date={date} />
-        </VoteDescriptionContainer>
+        </div>
       );
       break;
     }
     case PopupType.VOTE_WITH_COMMIT: {
       const { date } = props as IVoteWithCommit;
       PopupComponent = (
-        <VoteDescriptionContainer>
+        <div
+          className={cn(
+            "flex flex-col mb-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "ml-[calc(8px_+_(32_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "mr-[calc(8px_+_(32_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "text-klerosUIComponentsSecondaryText text-center leading-[21.8px]"
+          )}
+        >
           <VoteWithCommit {...{ date, automaticVoteReveal }} />
-        </VoteDescriptionContainer>
+        </div>
       );
       break;
     }
@@ -246,24 +179,54 @@ const Popup: React.FC<PopupProps & IPopup> = ({
 
   return (
     <Overlay onClick={closePopup}>
-      <Container ref={containerRef} onClick={(e) => e.stopPropagation()}>
-        {popupType === PopupType.SWAP_SUCCESS && (
-          <SVGContainer>
-            <CloseIcon onClick={() => setIsOpen(false)} />
-          </SVGContainer>
+      <div
+        ref={containerRef}
+        onClick={(e) => e.stopPropagation()}
+        className={cn(
+          "flex fixed top-[50%] left-[50%] [transform:translate(-50%,_-50%)] max-h-[80vh] overflow-y-auto z-10",
+          "flex-col items-center justify-center w-[86vw] max-w-[600px] rounded-[3px]",
+          "border border-solid border-klerosUIComponentsStroke bg-klerosUIComponentsWhiteBackground",
+          "[box-shadow:0px_2px_3px_rgba(0,_0,_0,_0.06)] [&_svg]:visible lg:overflow-y-hidden",
+          "lg:w-[calc(300px_+_(600_-_300)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
         )}
-        <Header>{title}</Header>
+      >
+        {popupType === PopupType.SWAP_SUCCESS && (
+          <div
+            className={cn(
+              "flex justify-end items-center w-full cursor-pointer absolute top-[18px] right-[24px] [&_svg]:w-[18px]",
+              "[&_svg]:h-[18px] [&_svg]:fill-klerosUIComponentsStroke"
+            )}
+          >
+            <CloseIcon onClick={() => setIsOpen(false)} />
+          </div>
+        )}
+        <h1
+          className={cn(
+            "flex",
+            "m-[calc(12px_+_(32_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_calc(8px_+_(12_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))_calc(12px_+_(24_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+            "text-center text-[24px] font-semibold leading-[32.68px]"
+          )}
+        >
+          {title}
+        </h1>
         {PopupComponent}
         {Icon && (
-          <IconContainer>
+          <div
+            className={cn(
+              "w-[calc(150px_+_(228_-_150)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] flex items-center",
+              "justify-center [&_svg]:inline-block",
+              "[&_svg]:w-[calc(150px_+_(228_-_150)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+              "[&_svg]:h-[calc(150px_+_(228_-_150)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
+            )}
+          >
             <Icon />
-          </IconContainer>
+          </div>
         )}
         {popupType === PopupType.STAKE_WITHDRAW && <StakeWithdrawExtraInfo />}
         {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo {...{ automaticVoteReveal }} />}
         {popupType === PopupType.DISPUTE_CREATED && <DisputeCreatedExtraInfo />}
         {popupType !== PopupType.SWAP_SUCCESS && (
-          <StyledButton
+          <Button
             variant="secondary"
             text={popupType === PopupType.DISPUTE_CREATED ? t("popups.check_the_case") : t("buttons.close")}
             onPress={() => {
@@ -273,9 +236,10 @@ const Popup: React.FC<PopupProps & IPopup> = ({
                 navigate(`/cases/${disputeId}`);
               }
             }}
+            className="m-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]"
           />
         )}
-      </Container>
+      </div>
     </Overlay>
   );
 };

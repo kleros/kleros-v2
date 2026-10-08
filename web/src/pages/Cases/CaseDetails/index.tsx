@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Route, Routes, useParams, Navigate } from "react-router-dom";
@@ -13,8 +12,6 @@ import { VotingContextProvider } from "hooks/useVotingContext";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import CaseStarButton from "components/CaseStarButton";
 import ScrollTop from "components/ScrollTop";
 
@@ -25,32 +22,6 @@ import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
-
-const Container = styled.div``;
-
-const StyledCard = styled(Card)`
-  width: 100%;
-  height: auto;
-  min-height: 100px;
-  border-radius: 0 0 3px 3px;
-`;
-
-const HeaderContainer = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  margin-top: -2px;
-  margin-bottom: ${responsiveSize(16, 32)};
-`;
-
-const Header = styled.h1`
-  display: flex;
-  font-size: ${responsiveSize(20, 24)};
-  align-items: center;
-  flex: 1;
-  gap: ${responsiveSize(8, 12)};
-  margin: 0;
-`;
 
 const CaseDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -63,17 +34,17 @@ const CaseDetails: React.FC = () => {
   return (
     <VotingContextProvider>
       <ClassicAppealProvider>
-        <Container>
-          <HeaderContainer>
-            <Header>
+        <div>
+          <div className="w-full flex items-center -mt-0.5 mb-[calc(16px_+_(32_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+            <h1 className="flex text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] items-center flex-1 gap-[calc(8px_+_(12_-_8)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] m-0">
               {t("misc.case")} #{id} {id ? <CaseStarButton id={id} /> : null}
-            </Header>
+            </h1>
 
             <MaintenanceButtons />
-          </HeaderContainer>
+          </div>
           <Timeline {...{ currentPeriodIndex, dispute }} />
           <Tabs />
-          <StyledCard>
+          <Card className="w-full h-auto min-h-[100px] rounded-[0_0_3px_3px]">
             <Routes>
               <Route
                 path="overview"
@@ -86,9 +57,9 @@ const CaseDetails: React.FC = () => {
               <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
               <Route path="*" element={<Navigate to="overview" replace />} />
             </Routes>
-          </StyledCard>
+          </Card>
           <ScrollTop />
-        </Container>
+        </div>
       </ClassicAppealProvider>
     </VotingContextProvider>
   );

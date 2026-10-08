@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import React from "react";
 
 import { TFunction } from "i18next";
 
@@ -12,6 +12,7 @@ import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import VoteStake from "svgs/icons/vote-stake.svg";
 
+import { cn } from "utils/cn";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 
 import { CourtDetailsQuery } from "queries/useCourtDetails";
@@ -27,17 +28,17 @@ interface IStat {
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
-const StyledEthereumVoteIcon = styled(EthereumVoteIcon)`
-  height: 32px !important;
-`;
+const StyledEthereumVoteIcon: IStat["icon"] = ({ className, ...props }) => (
+  <EthereumVoteIcon {...props} className={cn("h-[32px]!", className)} />
+);
 
-const StyledJurorIcon = styled(JurorIcon)`
-  height: 15px !important;
-`;
+const StyledJurorIcon: IStat["icon"] = ({ className, ...props }) => (
+  <JurorIcon {...props} className={cn("h-[15px]!", className)} />
+);
 
-const StyledBalanceWithHourglassIcon = styled(BalanceWithHourglassIcon)`
-  height: 32px !important;
-`;
+const StyledBalanceWithHourglassIcon: IStat["icon"] = ({ className, ...props }) => (
+  <BalanceWithHourglassIcon {...props} className={cn("h-[32px]!", className)} />
+);
 
 export const getStats = (t: TFunction): IStat[] => [
   {

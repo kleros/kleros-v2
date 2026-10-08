@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -21,24 +20,6 @@ import InfoCard from "components/InfoCard";
 import MarkdownEditor from "components/MarkdownEditor";
 import MarkdownRenderer from "components/MarkdownRenderer";
 
-const Container = styled.div`
-  width: 100%;
-  height: auto;
-`;
-
-const StyledInfoCard = styled(InfoCard)`
-  margin: 16px 0;
-`;
-
-const StyledButton = styled(Button)`
-  margin: 16px auto;
-`;
-
-const StyledEnsureChain = styled(EnsureChain)`
-  margin: 8px auto;
-`;
-
-const MarkdownWrapper = styled.div``;
 interface IReveal {
   arbitrable?: Address;
   voteIDs: string[];
@@ -91,29 +72,30 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   ]);
 
   return (
-    <Container>
+    <div className="w-full h-auto">
       {isUndefined(commit) ? (
-        <StyledInfoCard msg={t("voting.failed_to_commit")} />
+        <InfoCard msg={t("voting.failed_to_commit")} className="m-[16px_0]" />
       ) : isRevealPeriod ? (
         <>
-          <MarkdownWrapper dir="auto">
+          <div dir="auto">
             <MarkdownRenderer content={disputeDetails?.question ?? ""} />
-          </MarkdownWrapper>
+          </div>
           <MarkdownEditor value={justification} onChange={setJustification} />
-          <StyledEnsureChain>
-            <StyledButton
+          <EnsureChain className="m-[8px_auto]">
+            <Button
               variant="secondary"
               text={t("buttons.justify_and_reveal")}
               isDisabled={isPending || isUndefined(disputeDetails)}
               isLoading={isPending}
               onPress={handleReveal}
+              className="m-[16px_auto]"
             />
-          </StyledEnsureChain>
+          </EnsureChain>
         </>
       ) : (
-        <StyledInfoCard msg={t("voting.vote_successfully_committed")} />
+        <InfoCard msg={t("voting.vote_successfully_committed")} className="m-[16px_0]" />
       )}
-    </Container>
+    </div>
   );
 };
 

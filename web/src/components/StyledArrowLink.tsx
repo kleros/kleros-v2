@@ -1,27 +1,21 @@
-import styled from "styled-components";
+import React from "react";
 
 import { Link } from "react-router-dom";
 
-export const StyledArrowLink = styled(Link)`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 16px;
+import { cn } from "utils/cn";
 
-  > svg {
-    height: 16px;
-    width: 16px;
-
-    path {
-      fill: ${({ theme }) => theme.primaryBlue};
-    }
-  }
-
-  &:hover {
-    color: ${({ theme }) => theme.secondaryBlue};
-    svg path {
-      transition: fill 0.1s;
-      fill: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
+export const StyledArrowLink = React.forwardRef<HTMLAnchorElement, React.ComponentPropsWithoutRef<typeof Link>>(
+  ({ className, ...props }, ref) => (
+    <Link
+      ref={ref}
+      {...props}
+      className={cn(
+        "flex gap-2 items-center text-[16px] [&>svg]:h-[16px] [&>svg]:w-[16px]",
+        "[&>svg_path]:fill-klerosUIComponentsPrimaryBlue [&:hover]:text-klerosUIComponentsSecondaryBlue",
+        "[&:hover_svg_path]:[transition:fill_0.1s] [&:hover_svg_path]:fill-klerosUIComponentsSecondaryBlue",
+        className
+      )}
+    />
+  )
+);
+StyledArrowLink.displayName = "StyledArrowLink";

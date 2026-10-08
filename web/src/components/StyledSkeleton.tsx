@@ -1,57 +1,27 @@
 import React from "react";
-import styled from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
-export const StyledSkeleton = styled(Skeleton)`
-  z-index: 0;
-`;
-
-const SkeletonDisputeCardContainer = styled.div`
-  width: 100%;
-`;
-
-const StyledSkeletonDisputeCard = styled(Skeleton)`
-  height: ${responsiveSize(270, 296)};
-`;
-
-const StyledSkeletonDisputeListItem = styled(Skeleton)`
-  height: 62px;
-`;
-
-const StyledSkeletonDisputeListRow = styled(Skeleton)`
-  height: 86px;
-`;
-
-const StyledSkeletonVoteCard = styled(Skeleton)`
-  height: 64px;
-`;
-
-const StyledSkeletonEvidenceContainer = styled.div`
-  width: 100%;
-  span {
-    width: 100%;
-    height: 146px;
-    display: flex;
-  }
-`;
-
-export const SkeletonDisputeCard = () => (
-  <SkeletonDisputeCardContainer>
-    <StyledSkeletonDisputeCard />
-  </SkeletonDisputeCardContainer>
+export const StyledSkeleton = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof Skeleton>) => (
+  <Skeleton {...props} className={cn("z-0", className)} />
 );
 
-export const SkeletonDisputeListItem = () => <StyledSkeletonDisputeListItem />;
+export const SkeletonDisputeCard = () => (
+  <div className="w-full">
+    <Skeleton className="h-[calc(270px_+_(296_-_270)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]" />
+  </div>
+);
 
-export const SkeletonDisputeListRow = () => <StyledSkeletonDisputeListRow />;
+export const SkeletonDisputeListItem = () => <Skeleton className="h-[62px]" />;
 
-export const SkeletonVoteCard = () => <StyledSkeletonVoteCard />;
+export const SkeletonDisputeListRow = () => <Skeleton className="h-[86px]" />;
+
+export const SkeletonVoteCard = () => <Skeleton className="h-[64px]" />;
 
 export const SkeletonEvidenceCard = () => (
-  <StyledSkeletonEvidenceContainer>
+  <div className="w-full [&_span]:w-full [&_span]:h-[146px] [&_span]:flex">
     <Skeleton />
-  </StyledSkeletonEvidenceContainer>
+  </div>
 );

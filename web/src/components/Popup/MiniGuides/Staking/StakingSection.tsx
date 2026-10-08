@@ -1,53 +1,36 @@
 import React from "react";
-import styled from "styled-components";
 
 import StakingSectionSvg from "svgs/mini-guides/staking/staking-section.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledStakingSectionSvg = styled(StakingSectionSvg)`
-  [class$="rect-1"],
-  [class$="path-2"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-  [class$="rect-2"],
-  [class$="rect-3"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
+const StyledStakingSectionSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof StakingSectionSvg>) => (
+  <StakingSectionSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-3"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsWhite [&_[class$="rect-6"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-9"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-10"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsSecondaryPurple',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsSecondaryPurple',
+      className
+    )}
+  />
+);
 
-  [class$="rect-3"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-
-  [class$="rect-4"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-
-  [class$="rect-5"],
-  [class$="rect-6"] {
-    fill: ${({ theme }) => theme.white};
-  }
-
-  [class$="path-1"],
-  [class$="path-6"],
-  [class$="path-9"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-
-  [class$="path-3"],
-  [class$="path-4"],
-  [class$="path-7"],
-  [class$="path-10"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-
-  [class$="path-5"],
-  [class$="path-8"] {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const StakingSection: React.FC = () => <StyledImage as={StyledStakingSectionSvg} />;
+const StakingSection: React.FC = () => <StyledStakingSectionSvg className={miniGuideImageClassName} />;
 
 export default StakingSection;

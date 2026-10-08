@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -12,13 +11,6 @@ import Appeal from "components/Popup/MiniGuides/Appeal";
 import OptionCard from "./OptionCard";
 
 import { AppealHeader, StyledTitle } from "./index";
-
-const OptionsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 12px;
-`;
 
 interface IAppealHistory {
   isAppealMiniGuideOpen: boolean;
@@ -40,7 +32,11 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
           MiniGuideComponent={Appeal}
         />
       </AppealHeader>
-      <OptionsGrid role="list" aria-label={t("appeal.appeal_results_last_round")}>
+      <div
+        role="list"
+        aria-label={t("appeal.appeal_results_last_round")}
+        className="grid [grid-template-columns:repeat(auto-fit,_minmax(250px,_1fr))] gap-4 mt-3"
+      >
         {options?.map((option) => (
           <OptionCard
             key={option.id}
@@ -52,7 +48,7 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
             selectable={false}
           />
         ))}
-      </OptionsGrid>
+      </div>
     </div>
   ) : (
     <Skeleton />

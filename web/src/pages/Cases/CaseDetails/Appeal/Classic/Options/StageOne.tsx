@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -17,17 +16,6 @@ import { isUndefined } from "utils/index";
 import OptionCard from "../../OptionCard";
 import StageExplainer from "../StageExplainer";
 
-const Container = styled.div`
-  margin: 24px 0;
-`;
-
-const OptionsGroup = styled(CustomRadio)`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 12px;
-`;
-
 interface IStageOne {
   setAmount: (val: string) => void;
 }
@@ -40,11 +28,11 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
 
   return (
-    <Container>
+    <div className="m-[24px_0]">
       <StageExplainer countdown={loserSideCountdown} stage={1} />
       <label>{t("appeal.which_option_to_fund")}</label>
       {!isUndefined(winnerRequiredFunding) && !isUndefined(loserRequiredFunding) ? (
-        <OptionsGroup
+        <CustomRadio
           aria-label={t("appeal.which_option_to_fund")}
           value={selectedOption?.id ?? null}
           onChange={(id) => {
@@ -53,6 +41,7 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
             setSelectedOption(option);
             setAmount(formatUnitsWei(option.id === winningChoice ? winnerRequiredFunding : loserRequiredFunding));
           }}
+          className="grid [grid-template-columns:repeat(auto-fit,_minmax(250px,_1fr))] gap-4 mt-3"
         >
           {options?.map((option) => (
             <OptionCard
@@ -65,9 +54,9 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
               canBeSelected={!option?.funded}
             />
           ))}
-        </OptionsGroup>
+        </CustomRadio>
       ) : null}
-    </Container>
+    </div>
   );
 };
 

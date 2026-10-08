@@ -1,264 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
 
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 
+import { cn } from "utils/cn";
 import { isExternalLink } from "utils/linkUtils";
 import { sanitizeHref } from "utils/urlValidation";
 
 import ExternalLinkWarning from "components/ExternalLinkWarning";
-
-const MarkdownContainer = styled.div`
-  font-size: 16px;
-  line-height: 1.6;
-
-  *,
-  ** {
-    font-size: 16px;
-  }
-
-  /* The ui-components-library's Tailwind preflight zeroes margins and removes list
-     markers globally; restore the browser defaults for authored content. */
-  p,
-  ul,
-  ol,
-  pre {
-    margin: 1em 0;
-  }
-
-  li > ul,
-  li > ol {
-    margin: 0;
-  }
-
-  hr {
-    margin: 0.5em 0;
-  }
-
-  ul {
-    list-style: disc;
-  }
-
-  ol {
-    list-style: decimal;
-  }
-
-  a {
-    pointer-events: none;
-    cursor: pointer;
-    position: relative;
-
-    &::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: auto;
-      cursor: pointer;
-    }
-  }
-
-  pre {
-    background-color: ${({ theme }) => theme.lightBackground};
-    border-radius: 8px;
-    padding: 16px;
-    overflow-x: auto;
-  }
-
-  code {
-    background-color: ${({ theme }) => theme.lightBackground};
-    padding: 2px 4px;
-    border-radius: 4px;
-    font-family: "Fira Code", monospace;
-  }
-
-  pre code {
-    background-color: transparent;
-    padding: 0;
-  }
-
-  blockquote {
-    border-left: 4px solid ${({ theme }) => theme.primaryBlue};
-    margin: 16px 0;
-    padding-left: 16px;
-    color: ${({ theme }) => theme.secondaryText};
-  }
-
-  ul,
-  ol {
-    padding-left: 20px;
-  }
-
-  input[type="checkbox"] {
-    margin-right: 8px;
-    margin-top: 4px;
-    accent-color: ${({ theme }) => theme.primaryBlue};
-    cursor: default;
-    vertical-align: top;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: ${({ theme }) => theme.primaryText};
-    margin: 16px 0 8px 0;
-    line-height: 1.3;
-  }
-
-  h1 {
-    font-size: 2em;
-    font-weight: 700;
-  }
-
-  h2 {
-    font-size: 1.5em;
-    font-weight: 600;
-  }
-
-  h3 {
-    font-size: 1.25em;
-    font-weight: 600;
-  }
-
-  h4 {
-    font-size: 1.125em;
-    font-weight: 600;
-  }
-
-  h5 {
-    font-size: 1em;
-    font-weight: 600;
-  }
-
-  h6 {
-    font-size: 0.875em;
-    font-weight: 600;
-  }
-
-  pre {
-    color: ${({ theme }) => theme.primaryText};
-  }
-
-  pre code {
-    color: inherit;
-  }
-
-  code {
-    color: ${({ theme }) => theme.primaryText};
-  }
-
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 16px 0;
-    border: 1px solid ${({ theme }) => theme.stroke};
-  }
-
-  th,
-  td {
-    border: 1px solid ${({ theme }) => theme.stroke};
-    padding: 8px 12px;
-    text-align: left;
-  }
-
-  th {
-    background-color: ${({ theme }) => theme.lightBackground};
-    color: ${({ theme }) => theme.primaryText};
-    font-weight: 600;
-  }
-
-  td {
-    color: ${({ theme }) => theme.primaryText};
-  }
-
-  tbody tr:nth-child(even) {
-    background-color: ${({ theme }) => theme.lightGrey};
-  }
-
-  details {
-    border: 1px solid ${({ theme }) => theme.stroke};
-    border-radius: 8px;
-    padding: 8px 12px;
-    margin: 16px 0;
-    background-color: ${({ theme }) => theme.lightBackground};
-  }
-
-  summary {
-    font-weight: 600;
-    cursor: pointer;
-    color: ${({ theme }) => theme.primaryText};
-    padding: 4px 0;
-    outline: none;
-  }
-
-  summary:hover {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-
-  details[open] summary {
-    margin-bottom: 8px;
-    border-bottom: 1px solid ${({ theme }) => theme.stroke};
-    padding-bottom: 8px;
-  }
-
-  u {
-    text-decoration: underline;
-    text-decoration-color: ${({ theme }) => theme.primaryText};
-  }
-
-  del,
-  s {
-    text-decoration: line-through;
-    text-decoration-color: ${({ theme }) => theme.secondaryText};
-  }
-
-  mark {
-    background-color: ${({ theme }) => theme.warning};
-    color: ${({ theme }) => theme.primaryText};
-    padding: 2px 4px;
-    border-radius: 2px;
-  }
-
-  sub,
-  sup {
-    font-size: 0.75em;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
-  }
-
-  sup {
-    top: -0.5em;
-  }
-
-  sub {
-    bottom: -0.25em;
-  }
-
-  kbd {
-    background-color: ${({ theme }) => theme.lightBackground};
-    border: 1px solid ${({ theme }) => theme.stroke};
-    border-radius: 4px;
-    box-shadow: 0 1px 1px ${({ theme }) => theme.stroke};
-    color: ${({ theme }) => theme.primaryText};
-    font-family: "Fira Code", monospace;
-    font-size: 0.875em;
-    padding: 2px 6px;
-  }
-
-  abbr {
-    text-decoration: underline dotted;
-    cursor: help;
-  }
-`;
 
 interface IMarkdownRenderer {
   content: string;
@@ -329,7 +80,67 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
 
   return (
     <>
-      <MarkdownContainer ref={containerRef} className={className} role="region" aria-label="Markdown content">
+      <div
+        ref={containerRef}
+        role="region"
+        aria-label="Markdown content"
+        className={cn(
+          "text-[16px] leading-[1.6] [&_p]:m-[1em_0] [&_ul]:m-[1em_0]",
+          "[&_ol]:m-[1em_0] [&_pre]:m-[1em_0] [&_li_>_ul]:m-0 [&_li_>_ol]:m-0 [&_hr]:m-[0.5em_0]",
+          "[&_ul]:[list-style:disc] [&_ol]:[list-style:decimal] [&_a]:pointer-events-none [&_a]:cursor-pointer",
+          '[&_a]:relative [&_a::after]:[content:""] [&_a::after]:absolute [&_a::after]:top-0 [&_a::after]:left-0',
+          "[&_a::after]:w-full [&_a::after]:h-full [&_a::after]:[pointer-events:auto]",
+          "[&_a::after]:cursor-pointer [&_pre]:bg-klerosUIComponentsLightBackground [&_pre]:rounded-[8px]",
+          "[&_pre]:p-4 [&_pre]:overflow-x-auto [&_code]:bg-klerosUIComponentsLightBackground",
+          '[&_code]:p-[2px_4px] [&_code]:rounded-[4px] [&_code]:[font-family:"Fira_Code",_monospace]',
+          "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
+          "[&_blockquote]:[border-left:4px_solid_var(--klerosUIComponentsPrimaryBlue)] [&_blockquote]:m-[16px_0]",
+          "[&_blockquote]:pl-4 [&_blockquote]:text-klerosUIComponentsSecondaryText [&_ul]:pl-5 [&_ol]:pl-5",
+          '[&_input[type="checkbox"]]:mr-2 [&_input[type="checkbox"]]:mt-1',
+          '[&_input[type="checkbox"]]:[accent-color:var(--klerosUIComponentsPrimaryBlue)]',
+          '[&_input[type="checkbox"]]:cursor-default [&_input[type="checkbox"]]:[vertical-align:top]',
+          "[&_h1]:text-klerosUIComponentsPrimaryText [&_h1]:m-[16px_0_8px_0]",
+          "[&_h2]:text-klerosUIComponentsPrimaryText [&_h2]:m-[16px_0_8px_0]",
+          "[&_h3]:text-klerosUIComponentsPrimaryText [&_h3]:m-[16px_0_8px_0]",
+          "[&_h4]:text-klerosUIComponentsPrimaryText [&_h4]:m-[16px_0_8px_0]",
+          "[&_h5]:text-klerosUIComponentsPrimaryText [&_h5]:m-[16px_0_8px_0]",
+          "[&_h6]:text-klerosUIComponentsPrimaryText [&_h6]:m-[16px_0_8px_0]",
+          "[&_h1]:text-[2em]/[1.3] [&_h1]:font-bold [&_h2]:text-[1.5em]/[1.3] [&_h2]:font-semibold [&_h3]:text-[1.25em]/[1.3]",
+          "[&_h3]:font-semibold [&_h4]:text-[1.125em]/[1.3] [&_h4]:font-semibold [&_h5]:text-[1em]/[1.3]",
+          "[&_h5]:font-semibold [&_h6]:text-[0.875em]/[1.3] [&_h6]:font-semibold",
+          "[&_pre]:text-klerosUIComponentsPrimaryText [&_pre_code]:text-inherit",
+          "[&_code]:text-klerosUIComponentsPrimaryText [&_table]:[border-collapse:collapse] [&_table]:w-full",
+          "[&_table]:m-[16px_0] [&_table]:border [&_table]:border-solid [&_table]:border-klerosUIComponentsStroke",
+          "[&_th]:border [&_th]:border-solid [&_th]:border-klerosUIComponentsStroke [&_th]:p-[8px_12px] [&_th]:text-left",
+          "[&_td]:border [&_td]:border-solid [&_td]:border-klerosUIComponentsStroke [&_td]:p-[8px_12px] [&_td]:text-left",
+          "[&_th]:bg-klerosUIComponentsLightBackground [&_th]:text-klerosUIComponentsPrimaryText",
+          "[&_th]:font-semibold [&_td]:text-klerosUIComponentsPrimaryText",
+          "[&_tbody_tr:nth-child(even)]:bg-klerosUIComponentsLightGrey",
+          "[&_details]:border [&_details]:border-solid [&_details]:border-klerosUIComponentsStroke [&_details]:rounded-[8px]",
+          "[&_details]:p-[8px_12px] [&_details]:m-[16px_0] [&_details]:bg-klerosUIComponentsLightBackground",
+          "[&_summary]:font-semibold [&_summary]:cursor-pointer [&_summary]:text-klerosUIComponentsPrimaryText",
+          "[&_summary]:p-[4px_0] [&_summary]:outline-none [&_summary:hover]:text-klerosUIComponentsPrimaryBlue",
+          "[&_details[open]_summary]:mb-2",
+          "[&_details[open]_summary]:[border-bottom:1px_solid_var(--klerosUIComponentsStroke)]",
+          "[&_details[open]_summary]:pb-2 [&_u]:underline",
+          "[&_u]:[text-decoration-color:var(--klerosUIComponentsPrimaryText)]",
+          "[&_del]:line-through",
+          "[&_del]:[text-decoration-color:var(--klerosUIComponentsSecondaryText)]",
+          "[&_s]:line-through",
+          "[&_s]:[text-decoration-color:var(--klerosUIComponentsSecondaryText)]",
+          "[&_mark]:bg-klerosUIComponentsWarning [&_mark]:text-klerosUIComponentsPrimaryText",
+          "[&_mark]:p-[2px_4px] [&_mark]:rounded-[2px] [&_sub]:text-[0.75em] [&_sub]:leading-0 [&_sub]:relative",
+          "[&_sub]:[vertical-align:baseline] [&_sup]:text-[0.75em] [&_sup]:leading-0 [&_sup]:relative",
+          "[&_sup]:[vertical-align:baseline] [&_sup]:top-[-0.5em] [&_sub]:bottom-[-0.25em]",
+          "[&_kbd]:bg-klerosUIComponentsLightBackground",
+          "[&_kbd]:border [&_kbd]:border-solid [&_kbd]:border-klerosUIComponentsStroke [&_kbd]:rounded-[4px]",
+          "[&_kbd]:[box-shadow:0_1px_1px_var(--klerosUIComponentsStroke)]",
+          '[&_kbd]:text-klerosUIComponentsPrimaryText [&_kbd]:[font-family:"Fira_Code",_monospace]',
+          "[&_kbd]:text-[0.875em] [&_kbd]:p-[2px_6px] [&_abbr]:[text-decoration:underline_dotted]",
+          "[&_abbr]:[cursor:help]",
+          className
+        )}
+      >
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[
@@ -421,7 +232,7 @@ const MarkdownRenderer: React.FC<IMarkdownRenderer> = ({ content, className }) =
         >
           {content}
         </ReactMarkdown>
-      </MarkdownContainer>
+      </div>
       <ExternalLinkWarning
         isOpen={isWarningOpen}
         sanitizedUrl={pendingSanitizedUrl}

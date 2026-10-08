@@ -1,52 +1,21 @@
-"use-client";
+"use client";
 import React from "react";
-import styled, { css } from "styled-components";
 
 import KlerosDevtoolsLogo from "svgs/header/devtools-logo.svg";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import Explore from "./navbar/Explore";
-
-const Container = styled.div`
-  display: none;
-  position: absolute;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      position: relative;
-    `
-  )};
-`;
-
-const LeftSide = styled.div`
-  display: flex;
-`;
-
-const MiddleSide = styled.div`
-  display: flex;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  color: ${({ theme }) => theme.klerosUIComponentsWhite} !important;
-`;
 
 const DesktopHeader: React.FC = () => {
   return (
     <>
-      <Container>
-        <LeftSide>
+      <div className="absolute hidden lg:relative lg:flex lg:w-full lg:items-center lg:justify-between">
+        <div className="flex">
           <KlerosDevtoolsLogo />
-        </LeftSide>
-        <MiddleSide>
+        </div>
+        <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 text-white!">
           <Explore />
-        </MiddleSide>
-      </Container>
+        </div>
+      </div>
     </>
   );
 };

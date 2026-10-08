@@ -1,57 +1,12 @@
 import React, { useMemo } from "react";
-import styled, { Theme, css, useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import { Periods } from "consts/periods";
+import useTheme from "hooks/useTheme";
+import { cn } from "utils/cn";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
-interface IContainer {
-  frontColor: string;
-  backgroundColor: string;
-}
-
-const Container = styled.div<IContainer>`
-  height: 45px;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: space-between;
-  padding: 0 16px;
-  flex-shrink: 0;
-  border-top: 5px solid ${({ frontColor }) => frontColor};
-  background-color: ${({ backgroundColor }) => backgroundColor};
-
-  ${landscapeStyle(
-    () => css`
-      padding: 0 24px;
-    `
-  )}
-`;
-
-const StyledLabel = styled.label<{ frontColor: string; withDot?: boolean }>`
-  display: flex;
-  align-items: center;
-  color: ${({ frontColor }) => frontColor};
-  ${({ withDot, frontColor }) =>
-    withDot
-      ? css`
-          ::before {
-            content: "";
-            display: inline-block;
-            height: 8px;
-            width: 8px;
-            border-radius: 50%;
-            margin-right: 8px;
-            background-color: ${frontColor};
-            flex-shrink: 0;
-          }
-        `
-      : null}
-`;
+import { type Theme } from "styles/themes";
 
 export interface IPeriodBanner {
   id: number;
@@ -91,12 +46,26 @@ const PeriodBanner: React.FC<IPeriodBanner> = ({ id, period }) => {
   const { t } = useTranslation();
   const [frontColor, backgroundColor] = useMemo(() => getPeriodColors(period, theme), [theme, period]);
   return (
-    <Container {...{ frontColor, backgroundColor }}>
-      <StyledLabel frontColor={frontColor} withDot>
+    <div
+      className={cn(
+        "flex h-[45px] shrink-0 items-center justify-between gap-2 rounded-t-[3px] border-t-[5px] border-solid",
+        "px-4 lg:px-6"
+      )}
+      style={{ borderTopColor: frontColor, backgroundColor }}
+    >
+      <label
+        className={cn(
+          "flex items-center before:mr-2 before:inline-block before:size-2 before:shrink-0 before:rounded-full",
+          "before:bg-current before:content-['']"
+        )}
+        style={{ color: frontColor }}
+      >
         {getPeriodLabel(period, true, t)}
-      </StyledLabel>
-      <StyledLabel frontColor={frontColor}>#{id}</StyledLabel>
-    </Container>
+      </label>
+      <label className="flex items-center" style={{ color: frontColor }}>
+        #{id}
+      </label>
+    </div>
   );
 };
 

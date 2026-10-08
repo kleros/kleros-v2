@@ -1,26 +1,17 @@
-import styled from "styled-components";
+import React from "react";
 
 import { BigNumberField } from "@kleros/ui-components-library";
 
-const EthAmountField = styled(BigNumberField)`
-  width: 100%;
+import { cn } from "utils/cn";
 
-  /* Symmetric padding keeps the centered value clear of the suffix and the library's
-     hover-revealed steppers, which sit in the rightmost 26px. */
-  input {
-    text-align: center;
-    padding-inline: 64px;
-  }
-
-  & .input-wrapper::after {
-    content: "ETH";
-    position: absolute;
-    right: 32px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: ${({ theme }) => theme.primaryText};
-    pointer-events: none;
-  }
-`;
+const EthAmountField = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof BigNumberField>) => (
+  <BigNumberField
+    {...props}
+    className={cn(
+      'w-full [&_input]:text-center [&_input]:[padding-inline:64px] [&_.input-wrapper::after]:[content:"ETH"] [&_.input-wrapper::after]:absolute [&_.input-wrapper::after]:right-[32px] [&_.input-wrapper::after]:top-[50%] [&_.input-wrapper::after]:[transform:translateY(-50%)] [&_.input-wrapper::after]:text-klerosUIComponentsPrimaryText [&_.input-wrapper::after]:pointer-events-none',
+      className
+    )}
+  />
+);
 
 export default EthAmountField;

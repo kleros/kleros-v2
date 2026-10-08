@@ -1,0 +1,253 @@
+@layer properties, theme, base, components, utilities;
+
+@import "tailwindcss" source(".");
+@import "react-loading-skeleton/dist/skeleton.css" layer(base);
+@import "react-toastify/dist/ReactToastify.css" layer(base);
+@import "@kleros/ui-components-library/theme.css";
+@import "./styles/base-elements.css";
+@import "./styles/mdx-editor.css";
+
+@source ".";
+@source "../../node_modules/@kleros/ui-components-library/dist";
+@source "../node_modules/@kleros/ui-components-library/dist";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --breakpoint-lg: 56.25rem;
+  --font-sans: "Open Sans", sans-serif;
+  --color-klerosUIComponentsWhite: var(--klerosUIComponentsWhite);
+  --color-klerosUIComponentsBlack: var(--klerosUIComponentsBlack);
+  --color-klerosUIComponentsDarkPurple: var(--klerosUIComponentsDarkPurple);
+  --color-klerosUIComponentsVioletPurple: var(--klerosUIComponentsVioletPurple);
+  --color-klerosUIComponentsLavenderPurple: var(--klerosUIComponentsLavenderPurple);
+  --color-klerosUIComponentsWhiteLowOpacitySubtle: var(--klerosUIComponentsWhiteLowOpacitySubtle);
+  --color-klerosUIComponentsWhiteLowOpacityStrong: var(--klerosUIComponentsWhiteLowOpacityStrong);
+  --color-klerosUIComponentsBlackLowOpacity: var(--klerosUIComponentsBlackLowOpacity);
+  --color-klerosUIComponentsSkeletonBackground: var(--klerosUIComponentsSkeletonBackground);
+  --color-klerosUIComponentsSkeletonHighlight: var(--klerosUIComponentsSkeletonHighlight);
+  --color-klerosUIComponentsPaleCyan: var(--klerosUIComponentsPaleCyan);
+  --color-klerosUIComponentsLimeGreen: var(--klerosUIComponentsLimeGreen);
+}
+
+:root {
+  --klerosUIComponentsWhite: #ffffff;
+  --klerosUIComponentsBlack: #000000;
+  --klerosUIComponentsDarkPurple: #220050;
+  --klerosUIComponentsVioletPurple: #6a1dcd;
+  --klerosUIComponentsLavenderPurple: #bb72ff;
+  --klerosUIComponentsWhiteLowOpacitySubtle: #ffffff0d;
+  --klerosUIComponentsWhiteLowOpacityStrong: #ffffff26;
+  --klerosUIComponentsBlackLowOpacity: #00000080;
+  --klerosUIComponentsSkeletonBackground: #ebebeb;
+  --klerosUIComponentsSkeletonHighlight: #f5f5f5;
+  --klerosUIComponentsPaleCyan: #acffff;
+  --klerosUIComponentsLimeGreen: #f3ffd9;
+}
+
+:root.dark {
+  --klerosUIComponentsWhiteLowOpacitySubtle: #ffffff0f;
+  --klerosUIComponentsWhiteLowOpacityStrong: #ffffff24;
+  --klerosUIComponentsSkeletonBackground: #3a2270;
+  --klerosUIComponentsSkeletonHighlight: #3e307c;
+}
+
+@layer base {
+  :root {
+    --toastify-color-info: var(--klerosUIComponentsPrimaryBlue);
+    --toastify-color-success: var(--klerosUIComponentsSuccess);
+    --toastify-color-warning: var(--klerosUIComponentsWarning);
+    --toastify-color-error: var(--klerosUIComponentsError);
+  }
+
+  .react-loading-skeleton {
+    z-index: 0;
+    --base-color: var(--klerosUIComponentsSkeletonBackground);
+    --highlight-color: var(--klerosUIComponentsSkeletonHighlight);
+  }
+
+  body {
+    font-family: "Open Sans", sans-serif;
+    margin: 0px;
+    background-color: var(--klerosUIComponentsLightBlue);
+  }
+
+  html {
+    box-sizing: border-box;
+  }
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  .ReactModal__Overlay {
+    background-color: #1b003fcc !important;
+    z-index: 10000;
+  }
+
+  /* Base element typography lives in styles/base-elements.css (see there). */
+
+  hr {
+    opacity: 1;
+    border: 1px solid var(--klerosUIComponentsStroke);
+  }
+
+  svg,
+  img {
+    display: inline-block;
+    vertical-align: middle;
+    visibility: visible;
+  }
+
+  .os-theme-dark {
+    --os-handle-bg: var(--klerosUIComponentsVioletPurple);
+    --os-handle-bg-hover: var(--klerosUIComponentsSecondaryPurple);
+    --os-handle-bg-active: var(--klerosUIComponentsLavenderPurple);
+  }
+
+  /* @cyntler/react-doc-viewer injects a canvas to load pdf, this is alters the height of body tag, so set to hidden */
+  .hiddenCanvasElement {
+    display: none;
+  }
+
+  [class*="Toastify__toast-container"] {
+    top: unset;
+    padding-top: 20px !important;
+  }
+}
+
+/* Preserve the application input typography over the UI library's text utilities. */
+input,
+textarea {
+  font-size: 14px;
+}
+
+textarea {
+  font-family: "Open Sans";
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--klerosUIComponentsVioletPurple);
+    border-radius: 10px;
+    transition:
+      opacity 0.15s,
+      background-color 0.15s,
+      border-color 0.15s,
+      width 0.15s;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--klerosUIComponentsSecondaryPurple);
+  }
+  &::-webkit-scrollbar-thumb:active {
+    background-color: var(--klerosUIComponentsLavenderPurple);
+  }
+
+  /* firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--klerosUIComponentsVioletPurple) transparent;
+}
+
+/* Controlled Tabs selection: override the UI library underline state. */
+.tabs-selected-underline {
+  [role="tab"] {
+    border-bottom-color: var(--klerosUIComponentsStroke);
+    span {
+      color: var(--klerosUIComponentsPrimaryText);
+    }
+    svg {
+      fill: var(--klerosUIComponentsPrimaryText);
+    }
+  }
+  [role="tab"]:not([data-selected]):not([data-disabled]):hover {
+    border-bottom-color: var(--klerosUIComponentsSecondaryBlue);
+  }
+  [role="tab"][data-selected] {
+    border-bottom-color: var(--klerosUIComponentsPrimaryBlue);
+    span {
+      color: var(--klerosUIComponentsPrimaryBlue);
+    }
+    svg {
+      fill: var(--klerosUIComponentsPrimaryBlue);
+    }
+  }
+  [role="tab"][data-disabled] {
+    span {
+      color: var(--klerosUIComponentsStroke);
+    }
+    svg {
+      fill: var(--klerosUIComponentsStroke);
+    }
+  }
+}
+
+@keyframes kleros-ripple {
+  0% {
+    opacity: 0;
+    transform: scale3d(0.5, 0.5, 1);
+  }
+  10% {
+    opacity: 0.5;
+    transform: scale3d(0.75, 0.75, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale3d(1.75, 1.75, 1);
+  }
+}
+@keyframes maintenance-ripple {
+  0% {
+    opacity: 0;
+    transform: scale3d(0.5, 0.5, 1);
+  }
+  10% {
+    opacity: 0.5;
+    transform: scale3d(0.75, 0.75, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale3d(1.75, 1.75, 1);
+  }
+}
+@keyframes kleros-breathing {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+@keyframes kleros-rotating {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes stake-popup-enter {
+  0% {
+    transform: translate(-50%, -47%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}

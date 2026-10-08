@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -7,9 +6,9 @@ import { useToggle } from "react-use";
 
 import RankingIcon from "svgs/icons/ranking.svg";
 
+import { cn } from "utils/cn";
 import { decodeURIFilter } from "utils/uri";
 
-import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
@@ -19,45 +18,6 @@ import Coherence from "./Coherence";
 import Rewards from "./Rewards";
 import Score from "./Score";
 
-const Container = styled.div<{ renderIcon?: boolean }>`
-  display: none;
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBlue};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  border-bottom: 1px solid ${({ theme }) => theme.stroke};
-  padding: 18.6px 32px;
-
-  ${({ renderIcon }) =>
-    landscapeStyle(
-      () => css`
-        display: grid;
-        grid-template-columns: ${renderIcon
-          ? // eslint-disable-next-line max-len
-            `min-content minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`
-          : `minmax(160px, 1fr) minmax(60px, 1fr) minmax(80px, 0.8fr) minmax(180px, 1.5fr) minmax(100px, 1fr)`};
-        column-gap: ${responsiveSize(12, 24, 900)};
-        align-items: center;
-      `
-    )}
-`;
-
-const StyledRankingIcon = styled(RankingIcon)`
-  path {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-`;
-
-const StyledLabel = styled.label`
-  font-size: 16px;
-`;
-
-const HowItWorksContainer = styled.div`
-  display: flex;
-  justify-content: end;
-`;
-
 export const DesktopHeader: React.FC = () => {
   const { t } = useTranslation();
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
@@ -66,19 +26,27 @@ export const DesktopHeader: React.FC = () => {
   const renderIcon = !searchValue;
 
   return (
-    <Container renderIcon={renderIcon}>
-      {renderIcon ? <StyledRankingIcon /> : null}
-      <StyledLabel>{t("juror_levels.juror")}</StyledLabel>
+    <div
+      className={cn(
+        "hidden w-full bg-klerosUIComponentsLightBlue border border-klerosUIComponentsStroke rounded-t-[3px] px-8 py-[18.6px] lg:grid lg:items-center",
+        renderIcon
+          ? "lg:grid-cols-[min-content_minmax(160px,1fr)_minmax(60px,1fr)_minmax(80px,0.8fr)_minmax(180px,1.5fr)_minmax(100px,1fr)]"
+          : "lg:grid-cols-[minmax(160px,1fr)_minmax(60px,1fr)_minmax(80px,0.8fr)_minmax(180px,1.5fr)_minmax(100px,1fr)]"
+      )}
+      style={{ columnGap: responsiveSize(12, 24, 900) }}
+    >
+      {renderIcon ? <RankingIcon className="[&_path]:fill-klerosUIComponentsPrimaryText" /> : null}
+      <label className="text-[16px]">{t("juror_levels.juror")}</label>
       <Score />
       <Coherence />
       <Rewards />
-      <HowItWorksContainer>
+      <div className="flex justify-end">
         <HowItWorks
           isMiniGuideOpen={isJurorLevelsMiniGuideOpen}
           toggleMiniGuide={toggleJurorLevelsMiniGuide}
           MiniGuideComponent={JurorLevels}
         />
-      </HowItWorksContainer>
-    </Container>
+      </div>
+    </div>
   );
 };

@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -18,49 +17,7 @@ import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { isUndefined } from "src/utils";
 import type { StepItem } from "src/utils/uiComponentsTypes";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { StyledSkeleton } from "components/StyledSkeleton";
-
-const TimeLineContainer = styled(Box)`
-  width: 100%;
-  height: auto;
-  border-radius: 0px;
-  background-color: transparent;
-`;
-
-const StyledSteps = styled(Steps)`
-  display: flex;
-  justify-content: space-between;
-  width: 89%;
-  margin: auto;
-
-  h2 {
-    font-size: ${responsiveSize(12, 14)};
-  }
-
-  ${landscapeStyle(
-    () => css`
-      width: 98%;
-    `
-  )}
-`;
-
-const AppealBannerContainer = styled.div`
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border-radius: 3px;
-  margin-top: 16px;
-  padding: 12px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-  & > svg {
-    width: 14px;
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
 
 const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
@@ -70,10 +27,15 @@ const Timeline: React.FC<{
   const items = useTimeline(dispute, currentPeriodIndex);
 
   return (
-    <TimeLineContainer>
-      <StyledSteps horizontal items={items as StepItem[]} currentItemIndex={currentItemIndex} />
+    <Box className="w-full h-auto rounded-none bg-transparent">
+      <Steps
+        horizontal
+        items={items as StepItem[]}
+        currentItemIndex={currentItemIndex}
+        className="flex justify-between w-[89%] m-auto [&_h2]:text-[calc(12px_+_(14_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] lg:w-[98%]"
+      />
       {currentPeriodIndex === Periods.appeal ? <AppealBanner /> : null}
-    </TimeLineContainer>
+    </Box>
   );
 };
 
@@ -92,9 +54,9 @@ const AppealBanner: React.FC = () => {
   }, [loserSideCountdown, winnerSideCountdown, fundedChoices, t]);
 
   return text ? (
-    <AppealBannerContainer>
+    <div className="bg-klerosUIComponentsWhiteBackground rounded-[3px] mt-4 p-3 flex gap-2 items-center justify-center [&_>_svg]:w-[14px] [&_>_svg]:fill-klerosUIComponentsSecondaryPurple">
       <HourglassIcon /> <small>{text}</small>
-    </AppealBannerContainer>
+    </div>
   ) : null;
 };
 

@@ -1,50 +1,36 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 
+import { cn } from "utils/cn";
 import { commify } from "utils/commify";
 import { isUndefined } from "utils/index";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0 8px;
-  justify-content: center;
-`;
+export const TextWithTooltipContainer = React.forwardRef<
+  React.ElementRef<"div">,
+  React.ComponentPropsWithoutRef<"div">
+>(function TextWithTooltipContainer({ className, ...props }, ref) {
+  return (
+    <div
+      {...props}
+      ref={ref}
+      className={cn(
+        "text-klerosUIComponentsSecondaryPurple text-[14px] [&_>_div_svg]:fill-klerosUIComponentsSecondaryPurple [&_>_div_svg]:ml-1",
+        className
+      )}
+    />
+  );
+});
 
-export const TextWithTooltipContainer = styled.div`
-  color: ${({ theme }) => theme.secondaryPurple};
-  font-size: 14px;
-
-  > div {
-    svg {
-      fill: ${({ theme }) => theme.secondaryPurple};
-      margin-left: 4px;
-    }
-  }
-`;
-
-export const Quantity = styled.p`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  margin: 0;
-`;
-
-const FinalQuantity = styled(Quantity)`
-  font-weight: 600;
-`;
-
-const StyledMathematicalOperation = styled.p`
-  font-size: 14px;
-  color: ${({ theme }) => theme.secondaryText};
-  margin: 0;
-`;
+export const Quantity = React.forwardRef<React.ElementRef<"p">, React.ComponentPropsWithoutRef<"p">>(function Quantity(
+  { className, ...props },
+  ref
+) {
+  return <p {...props} ref={ref} className={cn("text-[14px] text-klerosUIComponentsPrimaryText m-0", className)} />;
+});
 
 interface IQuantityToSimulate {
   jurorCurrentEffectiveStake: number | undefined;
@@ -91,7 +77,10 @@ const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
   );
 
   return (
-    <Container {...{ className }}>
+    <div
+      {...{ className }}
+      className={cn("flex flex-row items-center flex-wrap gap-[0_8px] justify-center", className)}
+    >
       <Quantity>{effectiveStakeDisplay}</Quantity>
       <TextWithTooltipContainer>
         <WithHelpTooltip
@@ -103,11 +92,11 @@ const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
           {t("staking.current_stake")}
         </WithHelpTooltip>
       </TextWithTooltipContainer>
-      <StyledMathematicalOperation>{isStaking ? "+" : "-"}</StyledMathematicalOperation>
+      <p className="text-[14px] text-klerosUIComponentsSecondaryText m-0">{isStaking ? "+" : "-"}</p>
       <Quantity>{commify(amountToStake)} PNK</Quantity>
-      <StyledMathematicalOperation>=</StyledMathematicalOperation>
-      <FinalQuantity>{finalQuantityDisplay}</FinalQuantity>
-    </Container>
+      <p className="text-[14px] text-klerosUIComponentsSecondaryText m-0">=</p>
+      <Quantity className="font-semibold">{finalQuantityDisplay}</Quantity>
+    </div>
   );
 };
 

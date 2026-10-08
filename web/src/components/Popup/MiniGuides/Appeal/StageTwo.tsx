@@ -1,57 +1,38 @@
 import React from "react";
-import styled from "styled-components";
 
 import StageTwoSvg from "svgs/mini-guides/appeal/stage-two.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledStageTwoSvg = styled(StageTwoSvg)`
-  [class$="rect-1"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-  [class$="rect-2"],
-  [class$="rect-6"] {
-    fill: ${({ theme }) => theme.lightBlue};
-    stroke: ${({ theme }) => theme.mediumBlue};
-  }
+const StyledStageTwoSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof StageTwoSvg>) => (
+  <StageTwoSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:fill-klerosUIComponentsLightBlue',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsMediumBlue',
+      '[&_[class$="rect-6"]]:fill-klerosUIComponentsLightBlue',
+      '[&_[class$="rect-6"]]:stroke-klerosUIComponentsMediumBlue',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsSuccess',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsSuccess',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsSuccess',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsStroke',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="rect-7"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="line-1"]]:stroke-klerosUIComponentsMediumBlue',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsSecondaryPurple',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsSecondaryPurple',
+      className
+    )}
+  />
+);
 
-  [class$="rect-3"],
-  [class$="path-2"],
-  [class$="path-3"] {
-    fill: ${({ theme }) => theme.success};
-  }
-
-  [class$="rect-4"] {
-    fill: ${({ theme }) => theme.stroke};
-  }
-
-  [class$="rect-5"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-
-  [class$="rect-7"] {
-    fill: ${({ theme }) => theme.white};
-  }
-
-  [class$="rect-6"],
-  [class$="line-1"] {
-    stroke: ${({ theme }) => theme.mediumBlue};
-  }
-
-  [class$="path-1"],
-  [class$="path-4"],
-  [class$="path-5"],
-  [class$="path-6"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-
-  [class$="path-7"],
-  [class$="path-8"] {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const StageTwo: React.FC = () => <StyledImage as={StyledStageTwoSvg} />;
+const StageTwo: React.FC = () => <StyledStageTwoSvg className={miniGuideImageClassName} />;
 
 export default StageTwo;

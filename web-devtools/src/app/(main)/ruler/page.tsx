@@ -1,13 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
 import { useAccount } from "wagmi";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import RulerContextProvider from "context/RulerContext";
-
-import { responsiveSize } from "styles/responsiveSize";
+import { cn } from "utils/cn";
 
 import ConnectWallet from "components/ConnectWallet";
 
@@ -16,20 +14,6 @@ import ManualRuling from "./ManualRuling";
 import RulingModes from "./RulingModes";
 import SelectArbitrable from "./SelectArbitrable";
 
-const Container = styled.div`
-  min-height: calc(100vh - 160px);
-  display: flex;
-  flex-direction: column;
-  gap: 48px;
-  margin: 16px 32px;
-  align-items: center;
-  padding: ${responsiveSize(32, 72)} ${responsiveSize(16, 132)} ${responsiveSize(76, 96)};
-`;
-
-const StyledConnectWallet = styled(ConnectWallet)`
-  align-self: flex-start;
-`;
-
 const Ruler: React.FC = () => {
   const { isConnected, chainId } = useAccount();
   const [isClient, setIsClient] = useState(false);
@@ -37,14 +21,21 @@ const Ruler: React.FC = () => {
   useEffect(() => setIsClient(true), []);
   return (
     <RulerContextProvider>
-      <Container>
+      <div
+        className={cn(
+          "mx-8 my-4 flex min-h-[calc(100vh-160px)] flex-col items-center gap-12",
+          "px-[calc(16px+(132-16)*(min(max(100vw,375px),1250px)-375px)/875)]",
+          "pt-[calc(32px+(72-32)*(min(max(100vw,375px),1250px)-375px)/875)]",
+          "pb-[calc(76px+(96-76)*(min(max(100vw,375px),1250px)-375px)/875)]"
+        )}
+      >
         <h1>Ruler</h1>
         <SelectArbitrable />
-        {isClient && (!isConnected || chainId !== DEFAULT_CHAIN) ? <StyledConnectWallet /> : null}
+        {isClient && (!isConnected || chainId !== DEFAULT_CHAIN) ? <ConnectWallet className="self-start" /> : null}
         <RulingModes />
         <ManualRuling />
         <ChangeDeveloper />
-      </Container>
+      </div>
     </RulerContextProvider>
   );
 };

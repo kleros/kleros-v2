@@ -1,77 +1,57 @@
 import React from "react";
-import styled from "styled-components";
 
 import WhatDoINeedSvg from "svgs/mini-guides/onboarding/what-do-i-need.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledWhatDoINeedSvg = styled(WhatDoINeedSvg)`
-  [class$="rect-1"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-  [class$="rect-2"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
+const StyledWhatDoINeedSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof WhatDoINeedSvg>) => (
+  <WhatDoINeedSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsMediumBlue',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsMediumBlue',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsMediumBlue',
+      '[&_[class$="rect-6"]]:fill-klerosUIComponentsMediumPurple',
+      '[&_[class$="rect-7"]]:fill-klerosUIComponentsWhite [&_[class$="rect-8"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="rect-9"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="rect-10"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="rect-11"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="rect-12"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="rect-13"]]:fill-klerosUIComponentsWhite',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-18"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-22"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-10"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-13"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-16"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-17"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-19"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-20"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-21"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-23"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-24"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-25"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-9"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-11"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-12"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-14"]]:fill-klerosUIComponentsSecondaryPurple',
+      '[&_[class$="path-15"]]:fill-klerosUIComponentsSecondaryPurple',
+      className
+    )}
+  />
+);
 
-  [class$="rect-3"],
-  [class$="rect-4"],
-  [class$="rect-5"] {
-    fill: ${({ theme }) => theme.mediumBlue};
-  }
-
-  [class$="rect-6"] {
-    fill: ${({ theme }) => theme.mediumPurple};
-  }
-
-  [class$="rect-7"],
-  [class$="rect-8"],
-  [class$="rect-9"],
-  [class$="rect-10"],
-  [class$="rect-11"],
-  [class$="rect-12"],
-  [class$="rect-13"] {
-    fill: ${({ theme }) => theme.white};
-  }
-
-  [class$="path-1"],
-  [class$="path-18"],
-  [class$="path-22"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-
-  [class$="path-2"],
-  [class$="path-3"],
-  [class$="path-4"],
-  [class$="path-7"],
-  [class$="path-10"],
-  [class$="path-13"],
-  [class$="path-16"],
-  [class$="path-17"],
-  [class$="path-19"],
-  [class$="path-20"],
-  [class$="path-21"],
-  [class$="path-23"],
-  [class$="path-24"],
-  [class$="path-25"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-
-  [class$="path-5"],
-  [class$="path-6"],
-  [class$="path-8"],
-  [class$="path-9"],
-  [class$="path-11"],
-  [class$="path-12"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-
-  [class$="path-14"],
-  [class$="path-15"] {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const WhatDoINeed: React.FC = () => <StyledImage as={StyledWhatDoINeedSvg} />;
+const WhatDoINeed: React.FC = () => <StyledWhatDoINeedSvg className={miniGuideImageClassName} />;
 
 export default WhatDoINeed;

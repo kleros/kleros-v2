@@ -1,35 +1,15 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
-
-import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.div`
-  display: flex;
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBlue};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  padding: 16px 20px;
-  justify-content: space-between;
-  margin-top: ${responsiveSize(12, 16)};
-`;
-
-const StyledLabel = styled.label`
-  font-size: 14px;
-  color: ${({ theme }) => theme.secondaryText};
-`;
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Container>
-      <StyledLabel>{t("misc.juror")}</StyledLabel>
-      <StyledLabel>{t("misc.pnk_staked")}</StyledLabel>
-    </Container>
+    <div className="flex w-full bg-klerosUIComponentsLightBlue border border-solid border-klerosUIComponentsStroke [border-top-left-radius:3px] [border-top-right-radius:3px] p-[16px_20px] justify-between mt-[calc(12px_+_(16_-_12)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+      <label className="text-[14px] text-klerosUIComponentsSecondaryText">{t("misc.juror")}</label>
+      <label className="text-[14px] text-klerosUIComponentsSecondaryText">{t("misc.pnk_staked")}</label>
+    </div>
   );
 };
 

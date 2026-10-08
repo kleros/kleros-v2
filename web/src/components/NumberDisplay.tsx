@@ -1,16 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 
 import { Tooltip } from "@kleros/ui-components-library";
 
 import { commify } from "utils/commify";
-
-const StyledTooltip = styled(Tooltip)`
-  small {
-    font-size: 14px;
-    line-height: 20px;
-  }
-`;
 
 interface INumberDisplay {
   value: string | number;
@@ -48,9 +40,9 @@ const NumberDisplay: React.FC<INumberDisplay> = ({
   const displayValue = isCurrency ? `${displayUnit} ${formattedValue}` : `${formattedValue} ${displayUnit}`;
 
   return (
-    <StyledTooltip small text={tooltipValue} place={place}>
+    <Tooltip small text={tooltipValue} place={place} className="[&_small]:text-[14px] [&_small]:leading-[20px]">
       {displayValue}
-    </StyledTooltip>
+    </Tooltip>
   );
 };
 

@@ -1,13 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
-
-const LinearGradientPath = styled.path<{ gradient: string }>`
-  ${({ gradient }) =>
-    gradient &&
-    css`
-      stroke: url(#${gradient});
-    `}
-`;
 
 interface IGradientTokenIcons {
   icon: string;
@@ -18,8 +9,8 @@ const GradientTokenIcons: React.FC<IGradientTokenIcons> = ({ icon }) => {
     <>
       {icon === "ETH" ? (
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <LinearGradientPath
-            gradient="eth"
+          <path
+            stroke="url(#eth)"
             id="paint0_linear_14360_27088"
             // eslint-disable-next-line max-len
             d="M9.86602 28.0687L22.923 36.0836V47.1905L9.86602 28.0687ZM23.423 36.0836L36.4799 28.0687L23.423 47.1905V36.0836ZM23.423 16.428V0.930308L36.666 23.7911L23.423 16.428ZM36.8415 24.4607L23.423 32.703V17L36.8415 24.4607ZM22.923 0.929777V16.4279L9.67081 23.7913L22.923 0.929777ZM22.923 32.7032L9.49539 24.4607L22.923 16.9999V32.7032Z"
@@ -33,8 +24,8 @@ const GradientTokenIcons: React.FC<IGradientTokenIcons> = ({ icon }) => {
         </svg>
       ) : (
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <LinearGradientPath
-            gradient="pnk"
+          <path
+            stroke="url(#pnk)"
             fillRule="evenodd"
             clipRule="evenodd"
             // eslint-disable-next-line max-len

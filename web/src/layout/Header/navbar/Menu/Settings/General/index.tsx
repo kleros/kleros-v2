@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useAccount, useDisconnect } from "wagmi";
@@ -14,54 +13,6 @@ import { ISettings } from "../../../index";
 
 import WalletAndProfile from "./WalletAndProfile";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-const StyledChainContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-  :before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: ${({ theme }) => theme.success};
-  }
-  > label {
-    color: ${({ theme }) => theme.success};
-  }
-`;
-
-const StyledButton = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
-`;
-
-const EnsureChainContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  padding-top: 24px;
-  padding-bottom: 20px;
-`;
-
-const UserContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const LanguageSelectorContainer = styled.div`
-  width: 100%;
-  box-sizing: border-box;
-  padding: 24px 16px 0;
-`;
-
 export const DisconnectWalletButton: React.FC = () => {
   const { t } = useTranslation();
   const { disconnect } = useDisconnect();
@@ -73,26 +24,30 @@ const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
   return (
     <>
-      <LanguageSelectorContainer>
+      <div className="w-full box-border p-[24px_16px_0]">
         <LanguageSelector />
-      </LanguageSelectorContainer>
-      <EnsureChainContainer>
+      </div>
+      <div className="flex justify-center pt-6 pb-5">
         <EnsureChain>
-          <Container>
+          <div className="flex flex-col justify-center">
             {address && (
-              <UserContainer>
-                <StyledChainContainer>
+              <div className="flex flex-col gap-4">
+                <div
+                  className={
+                    'flex gap-[0.5rem] justify-center items-center [&:before]:[content:""] [&:before]:w-[8px] [&:before]:h-[8px] [&:before]:rounded-[50%] [&:before]:bg-klerosUIComponentsSuccess [&>label]:text-klerosUIComponentsSuccess'
+                  }
+                >
                   <ChainDisplay />
-                </StyledChainContainer>
+                </div>
                 <WalletAndProfile {...{ toggleIsSettingsOpen }} />
-                <StyledButton>
+                <div className="flex justify-center mt-2">
                   <DisconnectWalletButton />
-                </StyledButton>
-              </UserContainer>
+                </div>
+              </div>
             )}
-          </Container>
+          </div>
         </EnsureChain>
-      </EnsureChainContainer>
+      </div>
     </>
   );
 };

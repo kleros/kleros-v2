@@ -1,43 +1,39 @@
 import React from "react";
-import styled from "styled-components";
 
 import PrivateVotingSvg from "svgs/mini-guides/binary-voting/private-voting.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledPrivateVotingSvg = styled(PrivateVotingSvg)`
-  [class$="rect-1"],
-  [class$="circle-2"],
-  [class$="path-2"],
-  [class$="path-9"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="circle-1"],
-  [class$="circle-3"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-    stroke: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="rect-1"],
-  [class$="circle-2"],
-  [class$="path-4"],
-  [class$="path-8"],
-  [class$="path-11"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
-  [class$="path-1"],
-  [class$="path-7"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-  [class$="path-3"],
-  [class$="path-6"],
-  [class$="path-10"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-  [class$="path-5"] {
-    fill: ${({ theme }) => theme.stroke};
-  }
-`;
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-const PrivateVoting: React.FC = () => <StyledImage as={StyledPrivateVotingSvg} />;
+const StyledPrivateVotingSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof PrivateVotingSvg>) => (
+  <PrivateVotingSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="circle-2"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-9"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="circle-1"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="circle-1"]]:stroke-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="circle-3"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="circle-3"]]:stroke-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="rect-1"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="circle-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="path-4"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="path-8"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="path-11"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-10"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsStroke',
+      className
+    )}
+  />
+);
+
+const PrivateVoting: React.FC = () => <StyledPrivateVotingSvg className={miniGuideImageClassName} />;
 
 export default PrivateVoting;

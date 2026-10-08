@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import styled, { useTheme } from "styled-components";
 
 import {
   Chart as ChartJS,
@@ -14,14 +13,12 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
+
+import { useTheme } from "hooks/useTheme";
 import "chartjs-adapter-moment";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, TimeScale, Tooltip);
 const formatter = new Intl.NumberFormat("en", { notation: "compact" });
-
-const BarContainer = styled.div`
-  height: 220px;
-`;
 
 ChartJS.register(BarElement);
 
@@ -102,7 +99,7 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
   };
 
   return (
-    <BarContainer>
+    <div className="h-[220px]">
       <Bar
         data={{
           labels: sortedData.labels,
@@ -119,7 +116,7 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
         options={options}
         plugins={[ChartDataLabels]}
       />
-    </BarContainer>
+    </div>
   );
 };
 

@@ -1,72 +1,27 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
 import ChartIcon from "svgs/icons/chart.svg";
 import PNKLogo from "svgs/styled/pnk.svg";
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const PNKLogoAndTitle = styled.div`
-  display: flex;
-  gap: 0 12px;
-  align-items: center;
-`;
-
-const StyledChartIcon = styled(ChartIcon)`
-  path {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-`;
-
-const StyledPNKLogo = styled(PNKLogo)`
-  width: 32px;
-  height: 32px;
-  [class$="stop-1"] {
-    stop-color: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="stop-2"] {
-    stop-color: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const Title = styled.p`
-  margin: 0;
-  font-weight: 600;
-`;
-
-const Last30DaysContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
-
-const Last30DaysText = styled.p`
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-`;
-
 const Header: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <Container>
-      <PNKLogoAndTitle>
-        <StyledPNKLogo />
-        <Title>{t("stats.simulator")}</Title>
-      </PNKLogoAndTitle>
-      <Last30DaysContainer>
-        <StyledChartIcon />
-        <Last30DaysText>{t("time_ranges.last_30_days")}</Last30DaysText>
-      </Last30DaysContainer>
-    </Container>
+    <div className="flex items-center justify-between flex-wrap gap-2">
+      <div className="flex gap-[0_12px] items-center">
+        <PNKLogo
+          className={
+            'w-[32px] h-[32px] [&_[class$="stop-1"]]:[stop-color:var(--klerosUIComponentsPrimaryBlue)] [&_[class$="stop-2"]]:[stop-color:var(--klerosUIComponentsSecondaryPurple)]'
+          }
+        />
+        <p className="m-0 font-semibold">{t("stats.simulator")}</p>
+      </div>
+      <div className="flex gap-2 items-center">
+        <ChartIcon className="[&_path]:fill-klerosUIComponentsPrimaryText" />
+        <p className="m-0 text-[14px] font-semibold">{t("time_ranges.last_30_days")}</p>
+      </div>
+    </div>
   );
 };
 export default Header;

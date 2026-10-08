@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 import type { Address } from "viem";
@@ -14,11 +13,6 @@ import { isUndefined } from "src/utils";
 
 import { getDeadline } from "../../Timeline";
 import OptionsContainer from "../OptionsContainer";
-
-const Container = styled.div`
-  width: 100%;
-  height: auto;
-`;
 
 interface ICommit {
   arbitrable: Address;
@@ -81,7 +75,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
   );
 
   return id ? (
-    <Container>
+    <div className="w-full h-auto">
       <OptionsContainer
         {...{
           arbitrable,
@@ -90,7 +84,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
           handleSelection: handleCommit,
         }}
       />
-    </Container>
+    </div>
   ) : null;
 };
 

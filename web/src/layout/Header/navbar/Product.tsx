@@ -1,48 +1,10 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 
+import { cn } from "utils/cn";
+
 import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.a`
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 8px 28px 8px;
-  max-width: 100px;
-  border-radius: 3px;
-  :hover {
-    transition:
-      transform 0.15s,
-      background-color 0.3s;
-    transform: scale(1.02);
-    background-color: ${({ theme }) => theme.lightGrey};
-  }
-  gap: 8px;
-  width: ${responsiveSize(100, 130)};
-  background-color: ${({ theme }) => theme.lightBackground};
-`;
-
-const StyledIcon = styled.svg`
-  width: 48px;
-  height: 48px;
-  color: ${({ theme }) => theme.primaryText};
-`;
-
-const StyledImg = styled.img<{ isLoaded: boolean }>`
-  width: 48px;
-  height: 48px;
-  display: ${({ isLoaded }) => (isLoaded ? "block" : "none")};
-`;
-
-const StyledSmall = styled.small`
-  display: flex;
-  font-weight: 400;
-  line-height: 19px;
-  text-align: center;
-`;
 
 interface IProduct {
   text: string;
@@ -54,17 +16,32 @@ const Product: React.FC<IProduct> = ({ text, url, Icon }) => {
   const [isImgLoaded, setIsImgLoaded] = useState(false);
 
   return (
-    <Container href={url} target="_blank">
+    <a
+      href={url}
+      target="_blank"
+      className={cn(
+        "flex max-w-[100px] cursor-pointer flex-col items-center gap-2 rounded-[3px]",
+        "bg-klerosUIComponentsLightBackground px-2 pt-4 pb-7 hover:scale-[1.02]",
+        "hover:bg-klerosUIComponentsLightGrey hover:[transition:transform_0.15s,background-color_0.3s]"
+      )}
+      style={{ width: responsiveSize(100, 130) }}
+      rel="noreferrer"
+    >
       {typeof Icon === "string" ? (
         <>
           {!isImgLoaded ? <Skeleton width={48} height={46} circle /> : null}
-          <StyledImg alt={Icon} src={Icon} isLoaded={isImgLoaded} onLoad={() => setIsImgLoaded(true)} />
+          <img
+            className={`size-12 ${isImgLoaded ? "block" : "hidden"}`}
+            alt={Icon}
+            src={Icon}
+            onLoad={() => setIsImgLoaded(true)}
+          />
         </>
       ) : (
-        <StyledIcon as={Icon} />
+        <Icon className="size-12 text-klerosUIComponentsPrimaryText" />
       )}
-      <StyledSmall>{text}</StyledSmall>
-    </Container>
+      <small className="flex text-center leading-[19px] font-normal">{text}</small>
+    </a>
   );
 };
 

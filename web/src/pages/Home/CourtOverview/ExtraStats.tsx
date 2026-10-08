@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -9,31 +8,8 @@ import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
 import type { SelectItem } from "utils/uiComponentsTypes";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 import { LabeledDropdownSelect } from "components/LabeledDropdown";
-
-const StyledCard = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 16px;
-  justify-content: center;
-  align-items: center;
-  margin-top: 12px;
-
-  ${landscapeStyle(
-    () => css`
-      margin-top: 16px;
-      gap: 16px 24px;
-    `
-  )}
-`;
-
-const StyledLabel = styled.label`
-  font-size: 14px;
-  font-weight: 600;
-`;
 
 type HomePageExtraStatsResult = ReturnType<typeof useHomePageExtraStats>;
 
@@ -83,7 +59,7 @@ const ExtraStats = () => {
   };
 
   return (
-    <StyledCard>
+    <div className="flex flex-wrap gap-[12px_16px] justify-center items-center mt-3 lg:mt-4 lg:gap-[16px_24px]">
       <ExtraStatsDisplay
         title={t("stats.activity")}
         content={
@@ -103,7 +79,7 @@ const ExtraStats = () => {
         icon={LawBalance}
       />
       {data.data?.mostDisputedCourt?.numberDisputes === 0 ? (
-        <StyledLabel>{t("stats.no_activity_in_this_period")}</StyledLabel>
+        <label className="text-[14px] font-semibold">{t("stats.no_activity_in_this_period")}</label>
       ) : (
         stats.map(({ title, getCourtId, getText, icon }) => (
           <ExtraStatsDisplay
@@ -114,7 +90,7 @@ const ExtraStats = () => {
           />
         ))
       )}
-    </StyledCard>
+    </div>
   );
 };
 

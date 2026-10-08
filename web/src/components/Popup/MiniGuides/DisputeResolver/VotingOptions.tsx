@@ -1,40 +1,40 @@
 import React from "react";
-import styled from "styled-components";
 
 import VotingOptionsSvg from "svgs/mini-guides/dispute-resolver/voting-options.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledVotingOptionsSvg = styled(VotingOptionsSvg)`
-  [class$="rect-1"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="rect-2"],
-  [class$="rect-3"],
-  [class$="rect-4"],
-  [class$="rect-5"] {
-    stroke: ${({ theme }) => theme.stroke};
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="circle-1"],
-  [class$="circle-2"],
-  [class$="path-8"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-  [class$="path-1"],
-  [class$="path-3"],
-  [class$="path-5"],
-  [class$="path-7"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-  [class$="path-2"],
-  [class$="path-4"],
-  [class$="path-6"],
-  [class$="path-9"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-`;
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-const VotingOptions: React.FC = () => <StyledImage as={StyledVotingOptionsSvg} />;
+const StyledVotingOptionsSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof VotingOptionsSvg>) => (
+  <VotingOptionsSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-2"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-3"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-4"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-5"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="circle-1"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="circle-2"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-9"]]:fill-klerosUIComponentsSecondaryText',
+      className
+    )}
+  />
+);
+
+const VotingOptions: React.FC = () => <StyledVotingOptionsSvg className={miniGuideImageClassName} />;
 
 export default VotingOptions;

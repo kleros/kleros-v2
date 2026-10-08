@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
@@ -16,61 +15,6 @@ import { getFileUploaderMsg, isEmpty } from "src/utils";
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
 import MarkdownEditor from "components/MarkdownEditor";
-
-const StyledModal = styled(Modal)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  margin-right: -50%;
-  transform: translate(-50%, -50%);
-  height: auto;
-  width: 80%;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 3px;
-  background-color: ${({ theme }) => theme.whiteBackground};
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  gap: 16px;
-`;
-
-const EditorContainer = styled.div`
-  width: 100%;
-
-  [class*="contentEditable"] {
-    min-height: 200px;
-  }
-`;
-
-const StyledFileUploader = styled(FileUploader)`
-  width: 100%;
-  margin-bottom: 50px;
-
-  small {
-    font-size: 14px;
-  }
-  /* The library colors the info icon primary blue; match it to the message text. */
-  svg:has(+ [id="dropzone-label"]) {
-    fill: ${({ theme }) => theme.secondaryText};
-    path {
-      fill: ${({ theme }) => theme.secondaryText};
-    }
-  }
-  /* Align the icon to the first line of the message, not its vertical center. */
-  div:has(> [id="dropzone-label"]) {
-    align-items: flex-start;
-  }
-`;
-
-const ButtonArea = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-`;
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
@@ -112,30 +56,39 @@ const SubmitEvidenceModal: React.FC<{
   }, [publicClient, wagmiConfig, walletClient, close, disputeId, file, message, setIsSending, uploadFile, t]);
 
   return (
-    <StyledModal {...{ isOpen }} shouldCloseOnEsc shouldCloseOnOverlayClick onRequestClose={close}>
+    <Modal
+      {...{ isOpen }}
+      shouldCloseOnEsc
+      shouldCloseOnOverlayClick
+      onRequestClose={close}
+      className="absolute top-[50%] left-[50%] right-auto bottom-auto mr-[-50%] [transform:translate(-50%,_-50%)] h-auto w-[80%] border border-solid border-klerosUIComponentsStroke rounded-[3px] bg-klerosUIComponentsWhiteBackground flex flex-col items-center p-4 gap-4"
+    >
       <h1>{t("evidence.submit_new_evidence")}</h1>
-      <EditorContainer>
+      <div className={'w-full [&_[class*="contentEditable"]]:min-h-[200px]'}>
         <MarkdownEditor
           value={message}
           onChange={setMessage}
           placeholder={t("forms.placeholders.describe_evidence")}
           showMessage={false}
         />
-      </EditorContainer>
-      <StyledFileUploader
+      </div>
+      <FileUploader
         callback={(file: File) => setFile(file)}
         msg={getFileUploaderMsg(Roles.Evidence, roleRestrictions, t)}
         variant="info"
+        className={
+          'w-full mb-12.5 [&_small]:text-[14px] [&_svg:has(+_[id="dropzone-label"])]:fill-klerosUIComponentsSecondaryText [&_svg:has(+_[id="dropzone-label"])_path]:fill-klerosUIComponentsSecondaryText [&_div:has(>_[id="dropzone-label"])]:items-start'
+        }
       />
-      <ButtonArea>
+      <div className="w-full flex justify-between">
         <Button variant="secondary" isDisabled={isSending} text={t("buttons.return")} onPress={close} />
         <EnsureChain>
           <EnsureAuth>
             <Button text={t("buttons.submit")} isLoading={isSending} isDisabled={isDisabled} onPress={submitEvidence} />
           </EnsureAuth>
         </EnsureChain>
-      </ButtonArea>
-    </StyledModal>
+      </div>
+    </Modal>
   );
 };
 

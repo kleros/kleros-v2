@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -7,38 +6,9 @@ import { TextField } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  ${landscapeStyle(
-    () => css`
-      padding-bottom: 191px;
-    `
-  )}
-`;
-
-const StyledField = styled(TextField)`
-  width: 84vw;
-  margin-bottom: 74px;
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-      margin-bottom: 64px;
-    `
-  )}
-  > span {
-    margin-top: 16px;
-  }
-`;
 
 const Category: React.FC = () => {
   const { t } = useTranslation();
@@ -59,9 +29,9 @@ const Category: React.FC = () => {
   }, []);
 
   return (
-    <Container ref={containerRef}>
+    <div ref={containerRef} className="flex flex-col items-center lg:pb-47.75">
       <Header text={t("headers.choose_a_category")} />
-      <StyledField
+      <TextField
         aria-label={t("aria_labels.case_category")}
         inputProps={{ dir: "auto" }}
         onChange={handleWrite}
@@ -69,9 +39,10 @@ const Category: React.FC = () => {
         placeholder={t("forms.placeholders.freelance_example")}
         variant="info"
         message={t("forms.messages.type_category_tag")}
+        className="w-[84vw] mb-18.5 lg:w-[calc(442px_+_(700_-_442)_*_(min(max(100vw,_900px),_1250px)_-_900px)_/_(350))] lg:mb-16 [&_>_span]:mt-4"
       />
       <NavigationButtons prevRoute="/resolver/court" nextRoute="/resolver/jurors" />
-    </Container>
+    </div>
   );
 };
 

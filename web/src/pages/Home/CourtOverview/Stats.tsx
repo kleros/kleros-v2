@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -19,25 +18,8 @@ import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
-
-const StyledCard = styled(Card)`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  width: auto;
-  height: fit-content;
-  gap: 16px 8px;
-  padding: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      padding: 24px;
-    `
-  )}
-`;
 
 export const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints): string =>
   src.length > 0 ? (src.at(-1)?.[stat] ?? "0") : "0";
@@ -101,7 +83,7 @@ const Stats = () => {
   ];
 
   return (
-    <StyledCard>
+    <Card className="grid [grid-template-columns:repeat(auto-fit,_minmax(120px,_1fr))] w-auto h-fit gap-[16px_8px] p-4 lg:p-6">
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
         const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
 
@@ -115,7 +97,7 @@ const Stats = () => {
           />
         );
       })}
-    </StyledCard>
+    </Card>
   );
 };
 

@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
 import { isAddress } from "viem";
@@ -7,79 +6,8 @@ import { normalize } from "viem/ens";
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from "wagmi";
 
 import { getChain } from "consts/chains";
+import { cn } from "utils/cn";
 import { shortenAddress } from "utils/shortenAddress";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-
-const Container = styled.button`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: auto;
-  gap: 8px;
-  background-color: ${({ theme }) => theme.lightGrey};
-  border-radius: 300px;
-  padding: 0 12px;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.1s;
-  &:hover {
-    background-color: ${({ theme }) => theme.stroke};
-  }
-
-  ${landscapeStyle(
-    () => css`
-      gap: 0px;
-      background-color: ${({ theme }) => theme.whiteLowOpacitySubtle};
-      &:hover {
-        background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
-        label {
-          color: ${({ theme }) => theme.white} !important;
-          transition: color 0.2s;
-        }
-      }
-    `
-  )}
-`;
-
-const AccountContainer = styled.div`
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-  width: fit-content;
-  gap: 12px;
-
-  > label {
-    font-size: 14px;
-    font-weight: 400;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      > label {
-        color: ${({ theme }) => theme.white}CC !important;
-      }
-    `
-  )}
-`;
-
-const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`
-  align-items: center;
-  width: ${({ size }) => size + "px"} !important;
-  height: ${({ size }) => size + "px"} !important;
-`;
-
-const StyledAvatar = styled.img<{ size: `${number}` }>`
-  align-items: center;
-  object-fit: cover;
-  border-radius: 50%;
-  width: ${({ size }) => size + "px"};
-  height: ${({ size }) => size + "px"};
-`;
-
-const StyledSmallLabel = styled.label`
-  font-size: 14px !important;
-`;
 
 interface IIdenticonOrAvatar {
   size?: `${number}`;
@@ -100,9 +28,14 @@ export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "20", a
   });
 
   return avatar ? (
-    <StyledAvatar src={avatar} alt="avatar" size={size} />
+    <img
+      className="items-center rounded-full object-cover"
+      src={avatar}
+      alt="avatar"
+      style={{ width: `${size}px`, height: `${size}px` }}
+    />
   ) : (
-    <StyledIdenticon size={size} string={address} />
+    <Identicon className="items-center" size={Number(size)} string={address} />
   );
 };
 
@@ -122,7 +55,7 @@ export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress, 
 
   const content = data ?? (isAddress(address!) ? shortenAddress(address) : address);
 
-  return smallDisplay ? <StyledSmallLabel>{content}</StyledSmallLabel> : <label>{content}</label>;
+  return smallDisplay ? <label className="text-[14px]!">{content}</label> : <label>{content}</label>;
 };
 
 export const ChainDisplay: React.FC = () => {
@@ -134,12 +67,26 @@ export const ChainDisplay: React.FC = () => {
 const AccountDisplay: React.FC = () => {
   const { address } = useAccount();
   return (
-    <Container aria-label={address}>
-      <AccountContainer>
+    <button
+      className={cn(
+        "flex h-auto cursor-pointer flex-row items-center gap-2 rounded-[300px] border-0",
+        "bg-klerosUIComponentsLightGrey px-3 py-0 [transition:background-color_0.1s]",
+        "hover:bg-klerosUIComponentsStroke lg:gap-0 lg:bg-klerosUIComponentsWhiteLowOpacitySubtle",
+        "lg:hover:bg-klerosUIComponentsWhiteLowOpacityStrong lg:hover:[&_label]:text-white!",
+        "lg:hover:[&_label]:[transition:color_0.2s]"
+      )}
+      aria-label={address}
+    >
+      <div
+        className={cn(
+          "flex min-h-8 w-fit items-center gap-3 [&>label]:text-[14px] [&>label]:font-normal",
+          "lg:[&>label]:text-[#ffffffcc]!"
+        )}
+      >
         <IdenticonOrAvatar size="20" />
         <AddressOrName />
-      </AccountContainer>
-    </Container>
+      </div>
+    </button>
   );
 };
 

@@ -1,11 +1,11 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Address } from "viem";
 
 import { Card as _Card } from "@kleros/ui-components-library";
 
+import { cn } from "utils/cn";
 import { getUserLevelData } from "utils/userLevelCalculation";
 
 import { useUserQuery, userFragment } from "queries/useUser";
@@ -18,18 +18,9 @@ import BottomContent from "./BottomContent";
 import Header from "./Header";
 import TopContent from "./TopContent";
 
-const Container = styled.div``;
-
-const Card = styled(_Card)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  gap: 24px;
-  width: 100%;
-  height: auto;
-  padding: 24px;
-`;
+const Card = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof _Card>) => (
+  <_Card {...props} className={cn("flex flex-col justify-center gap-6 w-full h-auto p-6", className)} />
+);
 
 interface IJurorCard {
   searchParamAddress: Address;
@@ -46,7 +37,7 @@ const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
   const userLevelData = getUserLevelData(coherenceScore);
 
   return (
-    <Container>
+    <div>
       <Header
         levelTitle={t(userLevelData.titleKey)}
         levelNumber={userLevelData.level}
@@ -57,7 +48,7 @@ const JurorCard: React.FC<IJurorCard> = ({ searchParamAddress }) => {
         <Divider />
         <BottomContent {...{ userLevelData, totalCoherentVotes, totalResolvedVotes, searchParamAddress }} />
       </Card>
-    </Container>
+    </div>
   );
 };
 

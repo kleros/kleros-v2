@@ -1,26 +1,25 @@
 import React from "react";
-import styled from "styled-components";
 
 import HowItWorksSvg from "svgs/mini-guides/onboarding/how-it-works.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledHowItWorksSvg = styled(HowItWorksSvg)`
-  [class$="rect-1"],
-  [class$="rect-3"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-  [class$="path-1"],
-  [class$="path-2"] {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
+const StyledHowItWorksSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof HowItWorksSvg>) => (
+  <HowItWorksSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsSecondaryPurple',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsSecondaryPurple',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      className
+    )}
+  />
+);
 
-  [class$="rect-2"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
-`;
-
-const HowItWorks: React.FC = () => <StyledImage as={StyledHowItWorksSvg} />;
+const HowItWorks: React.FC = () => <StyledHowItWorksSvg className={miniGuideImageClassName} />;
 
 export default HowItWorks;

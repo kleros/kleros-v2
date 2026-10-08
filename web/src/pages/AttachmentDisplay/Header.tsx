@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -8,62 +7,6 @@ import { Button } from "@kleros/ui-components-library";
 
 import Arrow from "svgs/icons/arrow-left.svg";
 import PaperClip from "svgs/icons/paperclip.svg";
-
-import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const TitleContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-`;
-
-const Title = styled.h1`
-  margin: 0px;
-  font-size: ${responsiveSize(20, 24)};
-`;
-
-const StyledPaperClip = styled(PaperClip)`
-  width: ${responsiveSize(16, 24)};
-  height: ${responsiveSize(16, 24)};
-  path {
-    fill: ${({ theme }) => theme.secondaryPurple}B0;
-  }
-`;
-
-const StyledButton = styled(Button)`
-  background-color: transparent;
-  padding: 0;
-  .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-    font-weight: 400;
-  }
-  .button-svg {
-    path {
-      fill: ${({ theme }) => theme.primaryBlue};
-    }
-  }
-  :focus,
-  :hover {
-    background-color: transparent;
-    .button-svg {
-      path {
-        fill: ${({ theme }) => theme.secondaryBlue};
-      }
-    }
-    .button-text {
-      color: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-`;
 
 const Header: React.FC<{ title: string }> = ({ title }) => {
   const { t } = useTranslation();
@@ -85,13 +28,20 @@ const Header: React.FC<{ title: string }> = ({ title }) => {
   };
 
   return (
-    <Container>
-      <TitleContainer>
-        <StyledPaperClip />
-        <Title>{title}</Title>
-      </TitleContainer>
-      <StyledButton text={t("buttons.return")} Icon={Arrow} onPress={handleReturn} />
-    </Container>
+    <div className="w-full flex justify-between items-center mb-4">
+      <div className="flex flex-row items-center gap-2">
+        <PaperClip className="w-[calc(16px_+_(24_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] h-[calc(16px_+_(24_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] [&_path]:[fill:color-mix(in_srgb,_var(--klerosUIComponentsSecondaryPurple)_69.01960784313725%,_transparent)]" />
+        <h1 className="m-0 text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {title}
+        </h1>
+      </div>
+      <Button
+        text={t("buttons.return")}
+        Icon={Arrow}
+        onPress={handleReturn}
+        className="bg-transparent p-0 [&_.button-text]:text-klerosUIComponentsPrimaryBlue [&_.button-text]:font-normal [&_.button-svg_path]:fill-klerosUIComponentsPrimaryBlue [&:focus]:bg-transparent [&:focus_.button-svg_path]:fill-klerosUIComponentsSecondaryBlue [&:focus_.button-text]:text-klerosUIComponentsSecondaryBlue [&:hover]:bg-transparent [&:hover_.button-svg_path]:fill-klerosUIComponentsSecondaryBlue [&:hover_.button-text]:text-klerosUIComponentsSecondaryBlue"
+      />
+    </div>
   );
 };
 

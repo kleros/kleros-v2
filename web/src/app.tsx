@@ -4,11 +4,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Route } from "react-router-dom";
 
-import "react-loading-skeleton/dist/skeleton.css";
-import "react-toastify/dist/ReactToastify.css";
 import "@kleros/ui-components-library/style.css";
-import "@kleros/ui-components-library/theme.css";
-import "./styles/base-elements.css";
+import "./global.css";
 import "./i18n";
 
 import AtlasProvider from "context/AtlasProvider";
@@ -17,7 +14,7 @@ import IsListProvider from "context/IsListProvider";
 import { LanguageProvider } from "context/LanguageProvider";
 import { NewDisputeProvider } from "context/NewDisputeContext";
 import QueryClientProvider from "context/QueryClientProvider";
-import StyledComponentsProvider from "context/StyledComponentsProvider";
+import ThemeProvider from "context/ThemeProvider";
 const Home = lazy(() => import("./pages/Home"));
 const Cases = lazy(() => import("./pages/Cases"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -42,7 +39,7 @@ const PageNotFound: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <StyledComponentsProvider>
+    <ThemeProvider>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Web3Provider>
           <QueryClientProvider>
@@ -136,7 +133,7 @@ const App: React.FC = () => {
           </QueryClientProvider>
         </Web3Provider>
       </ErrorBoundary>
-    </StyledComponentsProvider>
+    </ThemeProvider>
   );
 };
 

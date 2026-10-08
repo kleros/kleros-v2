@@ -1,72 +1,37 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
 
 import {
-  MDXEditor,
-  type MDXEditorMethods,
-  type MDXEditorProps,
-  headingsPlugin,
-  listsPlugin,
-  quotePlugin,
-  thematicBreakPlugin,
-  markdownShortcutPlugin,
-  linkPlugin,
-  linkDialogPlugin,
-  tablePlugin,
+  BlockTypeSelect,
+  BoldItalicUnderlineToggles,
   codeBlockPlugin,
   codeMirrorPlugin,
+  CreateLink,
+  headingsPlugin,
+  InsertCodeBlock,
+  InsertTable,
+  linkDialogPlugin,
+  linkPlugin,
+  listsPlugin,
+  ListsToggle,
+  markdownShortcutPlugin,
+  MDXEditor,
+  quotePlugin,
+  Separator,
+  tablePlugin,
+  thematicBreakPlugin,
   toolbarPlugin,
   UndoRedo,
-  BoldItalicUnderlineToggles,
-  ListsToggle,
-  CreateLink,
-  InsertTable,
-  InsertCodeBlock,
-  BlockTypeSelect,
-  Separator,
+  type MDXEditorMethods,
+  type MDXEditorProps,
 } from "@mdxeditor/editor";
 import { useTranslation } from "react-i18next";
 
 import InfoIcon from "svgs/icons/info-circle.svg";
 
+import { cn } from "utils/cn";
 import { isValidUrl } from "utils/urlValidation";
 
-import { MDXEditorContainer, MDXEditorGlobalStyles } from "styles/mdxEditorTheme";
-
 import "@mdxeditor/editor/style.css";
-
-const Container = styled(MDXEditorContainer)<{ isEmpty: boolean }>``;
-
-const MessageContainer = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-top: 8px;
-`;
-
-const MessageText = styled.small`
-  font-size: 14px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.secondaryText};
-  hyphens: auto;
-  line-height: 1.4;
-`;
-
-const StyledInfoIcon = styled(InfoIcon)`
-  width: 16px;
-  height: 16px;
-  fill: ${({ theme }) => theme.secondaryText} !important;
-  flex-shrink: 0;
-  margin-top: 2px;
-
-  path {
-    fill: ${({ theme }) => theme.secondaryText} !important;
-  }
-
-  * {
-    fill: ${({ theme }) => theme.secondaryText} !important;
-  }
-`;
 
 interface IMarkdownEditor {
   value: string;
@@ -147,16 +112,22 @@ const MarkdownEditor: React.FC<IMarkdownEditor> = ({ value, onChange, placeholde
 
   return (
     <>
-      <MDXEditorGlobalStyles />
-      <Container isEmpty={isEmpty} onClick={handleContainerClick} role="region" aria-label="Markdown editor">
+      <div className="mdx-editor-container" onClick={handleContainerClick} role="region" aria-label="Markdown editor">
         <MDXEditor ref={editorRef} {...editorProps} aria-label="Rich text editor for markdown content" />
         {showMessage && (
-          <MessageContainer>
-            <StyledInfoIcon />
-            <MessageText>{t("voting.justification_message")}</MessageText>
-          </MessageContainer>
+          <div className="flex items-start gap-2 mt-2">
+            <InfoIcon
+              className={cn(
+                "w-[16px] h-[16px] fill-klerosUIComponentsSecondaryText! shrink-0 mt-0.5",
+                "[&_path]:fill-klerosUIComponentsSecondaryText! [&_*]:fill-klerosUIComponentsSecondaryText!"
+              )}
+            />
+            <small className="text-[14px] font-normal text-klerosUIComponentsSecondaryText [hyphens:auto] leading-[1.4]">
+              {t("voting.justification_message")}
+            </small>
+          </div>
         )}
-      </Container>
+      </div>
     </>
   );
 };

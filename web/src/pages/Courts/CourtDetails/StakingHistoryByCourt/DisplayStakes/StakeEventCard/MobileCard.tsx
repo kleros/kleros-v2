@@ -1,5 +1,4 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { Hash } from "viem";
@@ -8,87 +7,8 @@ import { formatDateWithTime } from "utils/date";
 import { formatPNK } from "utils/format";
 import { getTxnExplorerLink } from "utils/index";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { InternalLink } from "components/InternalLink";
 import JurorLink from "components/JurorLink";
-
-const Container = styled.div`
-  ${hoverShortTransitionTiming}
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-top: none;
-  padding: 12px 16px;
-  gap: 12px;
-
-  ${landscapeStyle(
-    () => css`
-      display: none;
-    `
-  )}
-
-  :hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-`;
-
-const Label = styled.span`
-  font-size: 12px;
-  color: ${({ theme }) => theme.secondaryText};
-  font-weight: 400;
-`;
-
-const Value = styled.span`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  font-weight: 400;
-  text-align: right;
-`;
-
-const CourtLink = styled(InternalLink)`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  cursor: pointer;
-  text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
-  text-align: right;
-`;
-
-const CourtText = styled.span`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
-  text-align: right;
-`;
-
-const DateLink = styled.a`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primaryText};
-  cursor: pointer;
-  text-decoration: none;
-  text-align: right;
-
-  :hover {
-    text-decoration: underline;
-  }
-`;
 
 interface IMobileCard {
   address: string;
@@ -113,29 +33,45 @@ const MobileCard: React.FC<IMobileCard> = ({
   const isCurrentCourt = currentCourtId === courtId;
 
   return (
-    <Container>
+    <div className="[transition:0.1s] flex flex-col w-full bg-klerosUIComponentsWhiteBackground border border-solid border-klerosUIComponentsStroke border-t-0 p-[12px_16px] gap-3 lg:hidden [&:hover]:[background-color:color-mix(in_srgb,_var(--klerosUIComponentsLightGrey)_73.33333333333333%,_transparent)]">
       <JurorLink address={address} />
-      <Row>
-        <Label>{t("misc.pnk_staked")}</Label>
-        <Value>{formatPNK(BigInt(stake))}</Value>
-      </Row>
-      <Row>
-        <Label>{t("profile.court")}</Label>
+      <div className="flex justify-between items-center gap-2">
+        <span className="text-[12px] text-klerosUIComponentsSecondaryText font-normal">{t("misc.pnk_staked")}</span>
+        <span className="text-[14px] text-klerosUIComponentsPrimaryText font-normal text-right">
+          {formatPNK(BigInt(stake))}
+        </span>
+      </div>
+      <div className="flex justify-between items-center gap-2">
+        <span className="text-[12px] text-klerosUIComponentsSecondaryText font-normal">{t("profile.court")}</span>
         {isCurrentCourt ? (
-          <CourtText title={courtName}>{courtName}</CourtText>
-        ) : (
-          <CourtLink to={`/courts/${courtId}`} title={courtName}>
+          <span
+            title={courtName}
+            className="text-[14px] text-klerosUIComponentsPrimaryText overflow-hidden [text-overflow:ellipsis] whitespace-nowrap max-w-[200px] text-right"
+          >
             {courtName}
-          </CourtLink>
+          </span>
+        ) : (
+          <InternalLink
+            to={`/courts/${courtId}`}
+            title={courtName}
+            className="text-[14px] text-klerosUIComponentsPrimaryText cursor-pointer no-underline overflow-hidden [text-overflow:ellipsis] whitespace-nowrap max-w-[200px] text-right"
+          >
+            {courtName}
+          </InternalLink>
         )}
-      </Row>
-      <Row>
-        <Label>{t("profile.date")}</Label>
-        <DateLink href={getTxnExplorerLink(transactionHash)} target="_blank" rel="noopener noreferrer">
+      </div>
+      <div className="flex justify-between items-center gap-2">
+        <span className="text-[12px] text-klerosUIComponentsSecondaryText font-normal">{t("profile.date")}</span>
+        <a
+          href={getTxnExplorerLink(transactionHash)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[14px] text-klerosUIComponentsPrimaryText cursor-pointer no-underline text-right [&:hover]:underline"
+        >
           {formatDateWithTime(timestamp)}
-        </DateLink>
-      </Row>
-    </Container>
+        </a>
+      </div>
+    </div>
   );
 };
 

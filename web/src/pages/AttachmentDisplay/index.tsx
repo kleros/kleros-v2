@@ -1,12 +1,9 @@
 import React, { lazy, Suspense } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 import { getAllowedAttachmentUrl } from "utils/urlValidation";
-
-import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 
 import { ExternalLink } from "components/ExternalLink";
 import Loader from "components/Loader";
@@ -15,61 +12,6 @@ import NewTabIcon from "components/StyledIcons/NewTabIcon";
 import Header from "./Header";
 
 const FileViewer = lazy(() => import("@kleros/ui-components-library").then((m) => ({ default: m.FileViewer })));
-
-const Container = styled.div`
-  width: 100%;
-  background-color: ${({ theme }) => theme.lightBackground};
-  padding: calc(24px + (136 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-top: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: calc(76px + (96 - 76) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  max-width: ${MAX_WIDTH_LANDSCAPE};
-  margin: 0 auto;
-`;
-
-const AttachmentContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const LoaderContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`;
-
-const StyledExternalLink = styled(ExternalLink)`
-  display: flex;
-  align-items: center;
-  align-self: flex-end;
-  gap: 8px;
-`;
-
-const UrlBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const UrlLabel = styled.small`
-  color: ${({ theme }) => theme.secondaryText};
-  font-weight: 600;
-`;
-
-const UrlContainer = styled.div`
-  background-color: ${({ theme }) => theme.lightGrey};
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 4px;
-  padding: 12px;
-  word-break: break-all;
-`;
-
-const Url = styled.code`
-  color: ${({ theme }) => theme.secondaryText};
-  font-size: 13px;
-  font-family: monospace;
-`;
 
 const AttachmentDisplay: React.FC = () => {
   const { t } = useTranslation();
@@ -80,19 +22,19 @@ const AttachmentDisplay: React.FC = () => {
   const titleKey = searchParams.get("title");
   const title = titleKey ? t(titleKey) : t("misc.attachment");
   return (
-    <Container>
-      <AttachmentContainer>
+    <div className="w-full bg-klerosUIComponentsLightBackground p-[calc(24px_+_(136_-_24)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_875)] pt-[calc(32px_+_(48_-_32)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_875)] pb-[calc(76px_+_(96_-_76)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_875)] max-w-[1400px] m-[0_auto]">
+      <div className="w-full flex flex-col gap-2">
         <Header {...{ title }} />
         {safeUrl ? (
           <>
-            <StyledExternalLink to={safeUrl} rel="noreferrer" target="_blank">
+            <ExternalLink to={safeUrl} rel="noreferrer" target="_blank" className="flex items-center self-end gap-2">
               {t("misc.open_in_new_tab")} <NewTabIcon />
-            </StyledExternalLink>
+            </ExternalLink>
             <Suspense
               fallback={
-                <LoaderContainer>
+                <div className="w-full flex justify-center">
                   <Loader width={"48px"} height={"48px"} />
-                </LoaderContainer>
+                </div>
               }
             >
               <FileViewer url={safeUrl} />
@@ -101,15 +43,15 @@ const AttachmentDisplay: React.FC = () => {
         ) : null}
 
         {url && !safeUrl ? (
-          <UrlBlock>
-            <UrlLabel>{t("errors.invalid_link")}</UrlLabel>
-            <UrlContainer>
-              <Url>{url}</Url>
-            </UrlContainer>
-          </UrlBlock>
+          <div className="flex flex-col gap-1">
+            <small className="text-klerosUIComponentsSecondaryText font-semibold">{t("errors.invalid_link")}</small>
+            <div className="bg-klerosUIComponentsLightGrey border border-solid border-klerosUIComponentsStroke rounded-[4px] p-3 break-all">
+              <code className="text-klerosUIComponentsSecondaryText text-[13px] [font-family:monospace]">{url}</code>
+            </div>
+          </div>
         ) : null}
-      </AttachmentContainer>
-    </Container>
+      </div>
+    </div>
   );
 };
 

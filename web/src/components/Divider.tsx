@@ -1,10 +1,16 @@
-import styled from "styled-components";
+import React from "react";
 
-export const Divider = styled.hr`
-  display: flex;
-  width: 100%;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: 0;
-`;
+import { cn } from "utils/cn";
+
+export const Divider = React.forwardRef<React.ElementRef<"hr">, React.ComponentPropsWithoutRef<"hr">>(function Divider(
+  { className, ...props },
+  ref
+) {
+  return (
+    <hr
+      {...props}
+      ref={ref}
+      className={cn("flex w-full border-0 h-[1px] bg-klerosUIComponentsStroke m-0", className)}
+    />
+  );
+});

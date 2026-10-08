@@ -1,51 +1,18 @@
 import React from "react";
-import styled from "styled-components";
 
+import { cn } from "utils/cn";
 import { isUndefined } from "utils/index";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import { InternalLink } from "./InternalLink";
 
-const Container = styled.div`
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-`;
-
-const TitleContainer = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-const SVGContainer = styled.div`
-  display: flex;
-  height: 14px;
-  width: 14px;
-  align-items: center;
-  justify-content: center;
-  svg {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-`;
-
-const ContentContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  text-align: center;
-`;
-
-const StyledInternalLink = styled(InternalLink)`
-  font-weight: 600;
-`;
-
-const StyledExtraStatTitleSkeleton = styled(StyledSkeleton)`
-  width: 100px;
-`;
+const Container = React.forwardRef<React.ElementRef<"div">, React.ComponentPropsWithoutRef<"div">>(function Container(
+  { className, ...props },
+  ref
+) {
+  return <div {...props} ref={ref} className={cn("flex gap-2 justify-center items-center flex-wrap", className)} />;
+});
 
 export interface IExtraStatsDisplay {
   title: string;
@@ -58,19 +25,21 @@ export interface IExtraStatsDisplay {
 const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, courtId, text, content, icon: Icon, ...props }) => {
   return (
     <Container {...props}>
-      <TitleContainer>
-        <SVGContainer>{<Icon />}</SVGContainer>
+      <div className="flex gap-2">
+        <div className="flex h-[14px] w-[14px] items-center justify-center [&_svg]:fill-klerosUIComponentsSecondaryPurple">
+          {<Icon />}
+        </div>
         <label>{title}:</label>
-      </TitleContainer>
-      <ContentContainer>
+      </div>
+      <div className="flex items-center gap-2 flex-wrap text-center">
         {content ? (
           content
         ) : (
-          <StyledInternalLink to={`/courts/${courtId?.toString()}`}>
-            {!isUndefined(text) ? text : <StyledExtraStatTitleSkeleton />}
-          </StyledInternalLink>
+          <InternalLink to={`/courts/${courtId?.toString()}`} className="font-semibold">
+            {!isUndefined(text) ? text : <StyledSkeleton className="w-[100px]" />}
+          </InternalLink>
         )}
-      </ContentContainer>
+      </div>
     </Container>
   );
 };

@@ -1,50 +1,40 @@
 import React from "react";
-import styled from "styled-components";
 
 import NotificationsSvg from "svgs/mini-guides/staking/notifications.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledNotificationsSvg = styled(NotificationsSvg)`
-  [class$="rect-1"],
-  [class$="rect-5"],
-  [class$="rect-6"],
-  [class$="path-5"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-  [class$="rect-2"],
-  [class$="line-1"],
-  [class$="rect-3"],
-  [class$="rect-5"],
-  [class$="rect-6"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
+const StyledNotificationsSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof NotificationsSvg>) => (
+  <NotificationsSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-6"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="line-1"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-3"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-5"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-6"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="rect-7"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="line-2"]]:stroke-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-9"]]:fill-klerosUIComponentsPrimaryText',
+      className
+    )}
+  />
+);
 
-  [class$="rect-4"],
-  [class$="rect-7"],
-  [class$="path-7"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-
-  [class$="line-2"] {
-    stroke: ${({ theme }) => theme.primaryBlue};
-  }
-
-  [class$="path-1"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-
-  [class$="path-2"],
-  [class$="path-3"],
-  [class$="path-4"],
-  [class$="path-6"],
-  [class$="path-8"],
-  [class$="path-9"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-`;
-
-const Notifications: React.FC = () => <StyledImage as={StyledNotificationsSvg} />;
+const Notifications: React.FC = () => <StyledNotificationsSvg className={miniGuideImageClassName} />;
 
 export default Notifications;

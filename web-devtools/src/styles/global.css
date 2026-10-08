@@ -1,0 +1,176 @@
+@layer properties, theme, base, components, utilities;
+
+@import "tailwindcss" source("../");
+@import "@kleros/ui-components-library/theme.css";
+@import "react-loading-skeleton/dist/skeleton.css" layer(base);
+@import "react-toastify/dist/ReactToastify.css" layer(base);
+
+@source "../../../node_modules/@kleros/ui-components-library/dist";
+@source "../../node_modules/@kleros/ui-components-library/dist";
+
+@theme {
+  --breakpoint-lg: 56.25rem;
+  --font-sans: "Open Sans", sans-serif;
+}
+
+@layer base {
+  :root {
+    --klerosUIComponentsSkeletonBackground: #ebebeb;
+    --klerosUIComponentsSkeletonHighlight: #f5f5f5;
+    --klerosUIComponentsVioletPurple: #6a1dcd;
+    --klerosUIComponentsLavenderPurple: #bb72ff;
+    --klerosUIComponentsWhite: #ffffff;
+  }
+
+  :root {
+    --toastify-color-info: var(--klerosUIComponentsPrimaryBlue);
+    --toastify-color-success: var(--klerosUIComponentsSuccess);
+    --toastify-color-warning: var(--klerosUIComponentsWarning);
+    --toastify-color-error: var(--klerosUIComponentsError);
+  }
+
+  .react-loading-skeleton {
+    z-index: 0;
+    --base-color: var(--klerosUIComponentsSkeletonBackground);
+    --highlight-color: var(--klerosUIComponentsSkeletonHighlight);
+  }
+
+  body {
+    font-family: "Open Sans", sans-serif;
+    line-height: normal;
+    margin: 0px;
+    background-color: var(--klerosUIComponentsLightBackground);
+  }
+
+  html {
+    box-sizing: border-box;
+  }
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  .ReactModal__Overlay {
+    background-color: #1b003fcc !important;
+  }
+
+  h1 {
+    margin: 0 0 16px 0;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 32px;
+    color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  h2 {
+    margin: 0 0 16px 0;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 32px;
+    color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  /* Library controls rely on Tailwind's zero paragraph margins. */
+  p:not([class*="klerosUIComponents"]) {
+    margin: 1em 0;
+  }
+
+  p {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  textarea {
+    font-family: "Open Sans";
+    font-size: 14px;
+  }
+
+  small {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  label {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--klerosUIComponentsSecondaryText);
+  }
+
+  a {
+    font-weight: 400;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--klerosUIComponentsPrimaryBlue);
+  }
+
+  hr {
+    margin: 0.5em auto;
+    opacity: 1;
+    border: 1px solid var(--klerosUIComponentsStroke);
+  }
+
+  svg,
+  img {
+    display: inline-block;
+    vertical-align: middle;
+    visibility: visible;
+  }
+
+  ul,
+  ol {
+    margin: 1em 0;
+    padding-left: 40px;
+    list-style: revert;
+  }
+
+  li {
+    color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  .os-theme-dark {
+    --os-handle-bg: var(--klerosUIComponentsVioletPurple);
+    --os-handle-bg-hover: var(--klerosUIComponentsSecondaryPurple);
+    --os-handle-bg-active: var(--klerosUIComponentsLavenderPurple);
+  }
+}
+
+@layer components {
+  .json-editor {
+    --text-color: var(--klerosUIComponentsPrimaryText);
+    --jse-text-readonly: var(--klerosUIComponentsPrimaryText);
+    --jse-theme-color: var(--klerosUIComponentsPrimaryPurple);
+    --jse-background-color: var(--klerosUIComponentsWhiteBackground);
+    --jse-panel-background: var(--klerosUIComponentsHoveredShadow);
+    --jse-theme-color-highlight: var(--klerosUIComponentsLightPurple);
+    --jse-value-color-string: var(--klerosUIComponentsPrimaryText);
+    --jse-value-color-number: var(--klerosUIComponentsPrimaryBlue);
+    --jse-value-color-null: var(--klerosUIComponentsError);
+    --jse-main-border: 1px solid var(--klerosUIComponentsStroke);
+    --jse-key-color: var(--klerosUIComponentsTint);
+    --jse-value-color: var(--klerosUIComponentsSuccess);
+    --jse-delimiter-color: var(--klerosUIComponentsPrimaryText);
+  }
+
+  .json-editor .cm-gutter-lint {
+    width: 0.6em;
+  }
+}

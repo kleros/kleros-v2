@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
@@ -16,53 +15,12 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 import { useVotingHistory } from "queries/useVotingHistory";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
-import { responsiveSize } from "styles/responsiveSize";
-
 import HowItWorks from "components/HowItWorks";
 import MarkdownRenderer from "components/MarkdownRenderer";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 
 import PendingVotesBox from "./PendingVotesBox";
 import VotesAccordion from "./VotesDetails";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${responsiveSize(16, 24)};
-`;
-
-const StyledTabs = styled(Tabs)`
-  ${tabsSelectedUnderline}
-  width: 100%;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-`;
-
-const StyledTitle = styled.h1`
-  margin-bottom: 0;
-  font-size: ${responsiveSize(18, 24)};
-`;
-const MarkdownWrapper = styled.div``;
-const StyledMarkdownRenderer = styled(MarkdownRenderer)`
-  max-width: inherit;
-  word-wrap: break-word;
-  p {
-    margin: 0;
-  }
-`;
-
-const TabsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
   const { t } = useTranslation();
@@ -85,30 +43,38 @@ const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = (
 
   const isHiddenVotes = Boolean(votingHistory?.dispute?.rounds[currentTab].hiddenVotes);
   return (
-    <Container>
-      <Header>
-        <StyledTitle>{t("voting.voting_history")}</StyledTitle>
+    <div className="flex flex-col gap-[calc(16px_+_(24_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+      <div className="flex flex-row flex-wrap items-center justify-between gap-4">
+        <h1 className="mb-0 text-[calc(18px_+_(24_-_18)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+          {t("voting.voting_history")}
+        </h1>
         <HowItWorks
           isMiniGuideOpen={isBinaryVotingMiniGuideOpen}
           toggleMiniGuide={toggleBinaryVotingMiniGuide}
           MiniGuideComponent={BinaryVoting}
         />
-      </Header>
+      </div>
       {rounds && localRounds && disputeDetails ? (
         <>
           {isQuestion && (
             <>
               {disputeDetails.question ? (
-                <MarkdownWrapper dir="auto">
-                  <StyledMarkdownRenderer content={disputeDetails.question} />
-                </MarkdownWrapper>
+                <div dir="auto">
+                  <MarkdownRenderer
+                    content={disputeDetails.question}
+                    className="max-w-[inherit] [word-wrap:break-word] [&_p]:m-0"
+                  />
+                </div>
               ) : (
-                <StyledMarkdownRenderer content={isError ? t("errors.rpc_error") : t("errors.invalid_dispute_data")} />
+                <MarkdownRenderer
+                  content={isError ? t("errors.rpc_error") : t("errors.invalid_dispute_data")}
+                  className="max-w-[inherit] [word-wrap:break-word] [&_p]:m-0"
+                />
               )}
             </>
           )}
-          <TabsContainer>
-            <StyledTabs
+          <div className="flex flex-col">
+            <Tabs
               selectedKey={currentTab}
               items={rounds.map((_, i) => ({
                 id: i,
@@ -117,6 +83,7 @@ const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = (
                 content: null,
               }))}
               callback={(_key, value) => setCurrentTab(value)}
+              className={"tabs-selected-underline w-full"}
             />
             <PendingVotesBox
               current={Number(localRounds?.[currentTab]?.totalVoted)}
@@ -130,12 +97,12 @@ const VotingHistory: React.FC<{ arbitrable?: Address; isQuestion: boolean }> = (
               isActiveRound={localRounds?.length - 1 === currentTab}
               hiddenVotes={isHiddenVotes}
             />
-          </TabsContainer>
+          </div>
         </>
       ) : (
         <Skeleton height={140} />
       )}
-    </Container>
+    </div>
   );
 };
 

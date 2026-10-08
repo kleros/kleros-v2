@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -15,14 +14,6 @@ import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 
 import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
-
-const Container = styled.div`
-  width: 100%;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
-`;
 
 interface IReveal {
   arbitrable?: Address;
@@ -78,7 +69,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitId, commit, a
   ]);
 
   return (
-    <Container>
+    <div className="w-full h-auto flex justify-center mt-4">
       <Button
         text={t("buttons.reveal_your_vote")}
         onPress={handleReveal}
@@ -86,7 +77,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitId, commit, a
         isLoading={isPending}
       />
       {/* TODO: if justification is not stored, show input for it */}
-    </Container>
+    </div>
   );
 };
 

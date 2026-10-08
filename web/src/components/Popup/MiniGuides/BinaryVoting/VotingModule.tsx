@@ -1,41 +1,31 @@
 import React from "react";
-import styled from "styled-components";
 
 import VotingModuleSvg from "svgs/mini-guides/binary-voting/voting-module.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledVotingModuleSvg = styled(VotingModuleSvg)`
-  [class$="rect-1"],
-  [class$="rect-4"],
-  [class$="path-1"],
-  [class$="path-2"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-  [class$="rect-2"],
-  [class$="rect-3"],
-  [class$="path-4"] {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
+const StyledVotingModuleSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof VotingModuleSvg>) => (
+  <VotingModuleSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryBlue',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsLightBlue',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="rect-1"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-5"]]:stroke-klerosUIComponentsPrimaryBlue',
+      className
+    )}
+  />
+);
 
-  [class$="path-3"] {
-    fill: ${({ theme }) => theme.lightBlue};
-  }
-
-  [class$="path-5"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-
-  [class$="rect-1"] {
-    stroke: ${({ theme }) => theme.stroke};
-  }
-
-  [class$="rect-5"] {
-    stroke: ${({ theme }) => theme.primaryBlue};
-  }
-`;
-
-const VotingModule: React.FC = () => <StyledImage as={StyledVotingModuleSvg} />;
+const VotingModule: React.FC = () => <StyledVotingModuleSvg className={miniGuideImageClassName} />;
 
 export default VotingModule;

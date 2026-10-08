@@ -1,49 +1,6 @@
 import React from "react";
-import styled, { css } from "styled-components";
-
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import { InternalLink } from "components/InternalLink";
-
-const Container = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: row;
-  gap: 8px 16px;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
-  ${landscapeStyle(
-    () => css`
-      justify-content: flex-start;
-      width: 100%;
-      overflow: hidden;
-    `
-  )}
-`;
-
-const CourtLink = styled(InternalLink)`
-  font-size: 14px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.primaryBlue};
-  text-decoration: none;
-  cursor: pointer;
-  height: 100%;
-
-  ${landscapeStyle(
-    () => css`
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: block;
-    `
-  )}
-
-  :hover {
-    color: ${({ theme }) => theme.secondaryBlue};
-  }
-`;
 
 interface ICourtName {
   name: string;
@@ -52,9 +9,14 @@ interface ICourtName {
 
 const CourtName: React.FC<ICourtName> = ({ name, courtId }) => {
   return (
-    <Container>
-      <CourtLink to={`/courts/${courtId}`}>{name}</CourtLink>
-    </Container>
+    <div className="flex w-full flex-row gap-[8px_16px] items-center justify-between flex-wrap lg:justify-start lg:w-full lg:overflow-hidden">
+      <InternalLink
+        to={`/courts/${courtId}`}
+        className="text-[14px] font-normal text-klerosUIComponentsPrimaryBlue no-underline cursor-pointer h-full lg:overflow-hidden lg:[text-overflow:ellipsis] lg:whitespace-nowrap lg:block [&:hover]:text-klerosUIComponentsSecondaryBlue"
+      >
+        {name}
+      </InternalLink>
+    </div>
   );
 };
 export default CourtName;

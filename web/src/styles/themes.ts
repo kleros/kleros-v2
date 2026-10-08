@@ -93,3 +93,6 @@ export const darkTheme = {
   paleCyan: "#ACFFFF",
   limeGreen: "#F3FFD9",
 };
+
+/** Resolved colors for canvas charts and third-party widget configuration. */
+export type Theme = typeof lightTheme;

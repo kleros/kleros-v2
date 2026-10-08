@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -9,15 +8,12 @@ import { Card } from "@kleros/ui-components-library";
 
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
+import { cn } from "utils/cn";
 import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 
 import { type Evidence } from "src/graphql/graphql";
 import { getTxnExplorerLink, isUndefined } from "src/utils";
-
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import JurorLink from "components/JurorLink";
 
@@ -25,168 +21,13 @@ import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
 import MarkdownRenderer from "./MarkdownRenderer";
 
-const StyledCard = styled(Card)`
-  width: 100%;
-  height: auto;
-`;
-
-const TopContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  gap: 4px;
-  overflow-wrap: break-word;
-
-  > * {
-    overflow-wrap: break-word;
-    margin: 0;
-  }
-  p {
-    margin: 0;
-  }
-  h3 {
-    display: inline-block;
-    margin: 0;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      padding: 20px 24px;
-    `
-  )}
-`;
-
-const IndexAndName = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
-`;
-
-const Index = styled.p`
-  display: inline-block;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const ReactMarkdownWrapper = styled.div``;
-
-const BottomShade = styled.div`
-  background-color: ${({ theme }) => theme.lightBlue};
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  > * {
-    flex-basis: 1;
-    flex-shrink: 0;
-    margin: 0;
-  }
-
-  ${landscapeStyle(
-    () => css`
-      padding: 12px 24px;
-    `
-  )}
-`;
-
-const BottomLeftContent = styled.div`
-  display: flex;
-  gap: 8px;
-  flex-direction: column;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 0 12px;
-
-      & > *:not(:last-child) {
-        margin-bottom: 0;
-      }
-    `
-  )}
-`;
-
-const ExternalLinkHoverStyle = css`
-  :hover {
-    text-decoration: underline;
-    color: ${({ theme }) => theme.primaryBlue};
-    cursor: pointer;
-  }
-  :hover {
-    label {
-      text-decoration: underline;
-      color: ${({ theme }) => theme.primaryBlue};
-      cursor: pointer;
-    }
-  }
-`;
-
-const StyledExternalLink = styled(ExternalLink)`
-  ${ExternalLinkHoverStyle}
-`;
-
-const DesktopText = styled.span`
-  display: none;
-  ${landscapeStyle(
-    () => css`
-      display: inline;
-    `
-  )}
-`;
-
-const MobileText = styled.span`
-  ${landscapeStyle(
-    () => css`
-      display: none;
-    `
-  )}
-`;
-
-const StyledInternalLink = styled(InternalLink)`
-  ${hoverShortTransitionTiming}
-  display: flex;
-  gap: ${responsiveSize(5, 6)};
-  > svg {
-    width: 16px;
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-
-  :hover svg {
-    fill: ${({ theme }) => theme.secondaryBlue};
-  }
-`;
-
-const FileLinkContainer = styled.div`
-  margin-left: auto;
-`;
-
-const StyledJurorInternalLink = styled(InternalLink)`
-  label {
-    color: ${({ theme }) => theme.primaryText};
-  }
-
-  :hover {
-    label {
-      cursor: pointer;
-      color: ${({ theme }) => theme.secondaryBlue};
-    }
-  }
-
-  svg {
-    display: none;
-  }
-`;
-
 const AttachedFileText: React.FC = () => {
   const { t } = useTranslation();
 
   return (
     <>
-      <DesktopText>{t("misc.view_attached_file")}</DesktopText>
-      <MobileText>{t("misc.file")}</MobileText>
+      <span className="hidden lg:[display:inline]">{t("misc.view_attached_file")}</span>
+      <span className="lg:hidden">{t("misc.file")}</span>
     </>
   );
 };
@@ -218,45 +59,83 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   }, [transactionHash]);
 
   return (
-    <StyledCard>
-      <TopContent dir="auto">
-        <IndexAndName>
-          {isUndefined(index) ? null : <Index>#{index}. </Index>}
-          <h3>{name}</h3>
-        </IndexAndName>
-        {name && description ? (
-          <ReactMarkdownWrapper dir="auto">
-            <MarkdownRenderer content={description} />
-          </ReactMarkdownWrapper>
-        ) : (
-          <ReactMarkdownWrapper dir="auto">
-            <MarkdownRenderer content={evidence} />
-          </ReactMarkdownWrapper>
+    <Card className="w-full h-auto">
+      <div
+        dir="auto"
+        className={cn(
+          "flex flex-col p-4 gap-1 [overflow-wrap:break-word] [&>*]:[overflow-wrap:break-word] [&>*]:m-0",
+          "[&&_p]:m-0 [&_h3]:inline-block [&&_h3]:m-0 lg:p-[20px_24px]"
         )}
-      </TopContent>
-      <BottomShade>
-        <BottomLeftContent>
+      >
+        <div className="flex flex-row items-center gap-1.25">
+          {isUndefined(index) ? null : <p className="inline-block text-klerosUIComponentsSecondaryText">#{index}. </p>}
+          <h3>{name}</h3>
+        </div>
+        {name && description ? (
+          <div dir="auto">
+            <MarkdownRenderer content={description} />
+          </div>
+        ) : (
+          <div dir="auto">
+            <MarkdownRenderer content={evidence} />
+          </div>
+        )}
+      </div>
+      <div
+        className={cn(
+          "bg-klerosUIComponentsLightBlue flex flex-wrap items-center justify-between p-4 [&>*]:[flex-basis:1]",
+          "[&>*]:shrink-0 [&>*]:m-0 lg:p-[12px_24px]"
+        )}
+      >
+        <div
+          className={cn(
+            "flex gap-2 flex-col lg:flex-row lg:items-center lg:justify-center lg:gap-[0_12px]",
+            "lg:[&>*:not(:last-child)]:mb-0"
+          )}
+        >
           {isUndefined(sender) ? null : (
-            <StyledJurorInternalLink to={profileLink}>
+            <InternalLink
+              to={profileLink}
+              className={cn(
+                "[&_label]:text-klerosUIComponentsPrimaryText [&:hover_label]:cursor-pointer",
+                "[&:hover_label]:text-klerosUIComponentsSecondaryBlue [&_svg]:hidden"
+              )}
+            >
               <JurorLink address={sender} />
-            </StyledJurorInternalLink>
+            </InternalLink>
           )}
           {isUndefined(timestamp) || isUndefined(transactionExplorerLink) ? null : (
-            <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+            <ExternalLink
+              to={transactionExplorerLink}
+              rel="noopener noreferrer"
+              target="_blank"
+              className={cn(
+                "[&:hover]:underline [&:hover]:text-klerosUIComponentsPrimaryBlue [&:hover]:cursor-pointer",
+                "[&:hover_label]:underline [&:hover_label]:text-klerosUIComponentsPrimaryBlue",
+                "[&:hover_label]:cursor-pointer"
+              )}
+            >
               <label>{formatDate(Number(timestamp), true, i18n.language)}</label>
-            </StyledExternalLink>
+            </ExternalLink>
           )}
-        </BottomLeftContent>
+        </div>
         {fileURI && fileURI !== "-" ? (
-          <FileLinkContainer>
-            <StyledInternalLink to={`/attachment/?disputeId=${id}&title=misc.evidence_file&url=${getIpfsUrl(fileURI)}`}>
+          <div className="ml-auto">
+            <InternalLink
+              to={`/attachment/?disputeId=${id}&title=misc.evidence_file&url=${getIpfsUrl(fileURI)}`}
+              className={cn(
+                "[transition:0.1s] flex gap-[calc(5px_+_(6_-_5)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]",
+                "[&>svg]:w-[16px] [&>svg]:fill-klerosUIComponentsPrimaryBlue",
+                "[&:hover_svg]:fill-klerosUIComponentsSecondaryBlue"
+              )}
+            >
               <AttachmentIcon />
               <AttachedFileText />
-            </StyledInternalLink>
-          </FileLinkContainer>
+            </InternalLink>
+          </div>
         ) : null}
-      </BottomShade>
-    </StyledCard>
+      </div>
+    </Card>
   );
 };
 

@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useToggle } from "react-use";
@@ -7,46 +6,10 @@ import { Address } from "viem";
 
 import XIcon from "svgs/socialmedia/x.svg";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { ExternalLink } from "components/ExternalLink";
 import HowItWorks from "components/HowItWorks";
 import JurorsLeaderboardButton from "components/JurorsLeaderboardButton";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: ${responsiveSize(16, 24)};
-  gap: 12px;
-`;
-
-const StyledTitle = styled.h1`
-  margin-bottom: 0;
-  font-size: ${responsiveSize(20, 24)};
-`;
-
-const LinksContainer = styled.div`
-  display: flex;
-  color: ${({ theme }) => theme.primaryBlue};
-  align-items: center;
-  gap: 8px ${responsiveSize(20, 24)};
-  flex-wrap: wrap;
-`;
-
-const StyledXIcon = styled(XIcon)`
-  width: 16px;
-  height: 16px;
-  fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledLink = styled(ExternalLink)`
-  display: flex;
-  gap: 8px;
-`;
 
 interface IHeader {
   levelTitle: string;
@@ -78,9 +41,11 @@ const Header: React.FC<IHeader> = ({
   const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xPostText)}`;
 
   return (
-    <Container>
-      <StyledTitle>{t("profile.juror_profile")}</StyledTitle>
-      <LinksContainer>
+    <div className="flex flex-row justify-between items-center flex-wrap mb-[calc(16px_+_(24_-_16)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] gap-3">
+      <h1 className="mb-0 text-[calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))]">
+        {t("profile.juror_profile")}
+      </h1>
+      <div className="flex text-klerosUIComponentsPrimaryBlue items-center gap-[8px_calc(20px_+_(24_-_20)_*_(min(max(100vw,_375px),_1250px)_-_375px)_/_(875))] flex-wrap">
         <JurorsLeaderboardButton />
         <HowItWorks
           isMiniGuideOpen={isJurorLevelsMiniGuideOpen}
@@ -88,12 +53,13 @@ const Header: React.FC<IHeader> = ({
           MiniGuideComponent={JurorLevels}
         />
         {totalResolvedVotes > 0 && !searchParamAddress ? (
-          <StyledLink to={xShareUrl} target="_blank" rel="noreferrer">
-            <StyledXIcon /> <span>{t("profile.share_juror_score")}</span>
-          </StyledLink>
+          <ExternalLink to={xShareUrl} target="_blank" rel="noreferrer" className="flex gap-2">
+            <XIcon className="w-[16px] h-[16px] fill-klerosUIComponentsPrimaryBlue" />{" "}
+            <span>{t("profile.share_juror_score")}</span>
+          </ExternalLink>
         ) : null}
-      </LinksContainer>
-    </Container>
+      </div>
+    </div>
   );
 };
 

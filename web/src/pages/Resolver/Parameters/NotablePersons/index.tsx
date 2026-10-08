@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
@@ -12,16 +11,6 @@ import Header from "pages/Resolver/Header";
 import NavigationButtons from "../../NavigationButtons";
 
 import PersonFields from "./PersonFields";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const StyledPlusMinusField = styled(PlusMinusField)`
-  align-self: start;
-`;
 
 const NotablePersons: React.FC = () => {
   const { t } = useTranslation();
@@ -40,16 +29,17 @@ const NotablePersons: React.FC = () => {
   };
 
   return (
-    <Container>
+    <div className="flex flex-col items-center">
       <Header text={t("headers.notable_persons")} />
       <PersonFields />
-      <StyledPlusMinusField
+      <PlusMinusField
         currentValue={disputeData.aliasesArray?.length ?? 2}
         updateValue={updateNumberOfAliases}
         minValue={1}
+        className="[align-self:start]"
       />
       <NavigationButtons prevRoute="/resolver/voting-options" nextRoute="/resolver/policy" />
-    </Container>
+    </div>
   );
 };
 export default NotablePersons;

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import styled, { DefaultTheme, useTheme } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -18,12 +17,15 @@ import {
 } from "hooks/contracts/generated";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { usePnkData } from "hooks/usePNKData";
+import { useTheme } from "hooks/useTheme";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
 import { refetchWithRetry } from "utils/refecthWithRetry";
 import type { CustomTimelineItem } from "utils/uiComponentsTypes";
 
 import { useCourtDetails } from "queries/useCourtDetails";
+
+import type { Theme } from "styles/themes";
 
 import { EnsureChain } from "components/EnsureChain";
 
@@ -35,12 +37,6 @@ export enum ActionType {
   stake = "stake",
   withdraw = "withdraw",
 }
-
-const Container = styled.div`
-  display: flex;
-  gap: 8px;
-  flex-direction: column;
-`;
 
 type Steps = [CustomTimelineItem, ...CustomTimelineItem[]];
 interface IActionButton {
@@ -137,12 +133,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       if (signal.aborted) return;
       const isWithdraw = action === ActionType.withdraw;
       const requestData = config?.request ?? setStakeConfig?.request;
-      const commonArgs: [string, DefaultTheme, (key: string) => string, Hash | undefined] = [
-        amount,
-        theme,
-        t,
-        approvalHash,
-      ];
+      const commonArgs: [string, Theme, (key: string) => string, Hash | undefined] = [amount, theme, t, approvalHash];
 
       if (requestData && publicClient) {
         updatePopupState(
@@ -207,7 +198,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     setIsPopupOpen(true);
     controllerRef.current = new AbortController();
     const signal = controllerRef.current.signal;
-    const commonArgs: [string, DefaultTheme, (key: string) => string] = [amount, theme, t];
+    const commonArgs: [string, Theme, (key: string) => string] = [amount, theme, t];
 
     if (isAllowance && increaseAllowanceConfig && publicClient) {
       updatePopupState(signal, getStakeSteps(StakeSteps.ApproveInitiate, ...commonArgs));
@@ -313,7 +304,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 
   return (
     <EnsureChain>
-      <Container>
+      <div className="flex gap-2 flex-col">
         <Button
           data-testId="stake-withdraw-button"
           text={isStaking ? t("buttons.stake") : t("buttons.withdraw")}
@@ -322,7 +313,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           onPress={handleClick}
         />
         {isPopupOpen && <StakeWithdrawPopup {...{ action, closePopup, amount, steps: popupStepsState, isSuccess }} />}
-      </Container>
+      </div>
     </EnsureChain>
   );
 };

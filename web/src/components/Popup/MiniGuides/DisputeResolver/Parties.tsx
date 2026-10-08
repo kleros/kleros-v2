@@ -1,36 +1,39 @@
 import React from "react";
-import styled from "styled-components";
 
 import PartiesSvg from "svgs/mini-guides/dispute-resolver/parties.svg";
 
-import { StyledImage } from "../PageContentsTemplate";
+import { cn } from "utils/cn";
 
-const StyledPartiesSvg = styled(PartiesSvg)`
-  [class$="rect-1"] {
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="rect-2"],
-  [class$="rect-3"],
-  [class$="rect-4"],
-  [class$="rect-5"],
-  [class$="rect-6"] {
-    stroke: ${({ theme }) => theme.stroke};
-    fill: ${({ theme }) => theme.whiteBackground};
-  }
-  [class$="path-1"],
-  [class$="path-3"],
-  [class$="path-5"],
-  [class$="path-7"] {
-    fill: ${({ theme }) => theme.secondaryText};
-  }
-  [class$="path-2"],
-  [class$="path-4"],
-  [class$="path-6"],
-  [class$="path-8"] {
-    fill: ${({ theme }) => theme.primaryText};
-  }
-`;
+import { miniGuideImageClassName } from "../PageContentsTemplate";
 
-const Parties: React.FC = () => <StyledImage as={StyledPartiesSvg} />;
+const StyledPartiesSvg = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof PartiesSvg>) => (
+  <PartiesSvg
+    {...props}
+    className={cn(
+      '[&_[class$="rect-1"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-2"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-2"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-3"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-3"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-4"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-4"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-5"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-5"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="rect-6"]]:stroke-klerosUIComponentsStroke',
+      '[&_[class$="rect-6"]]:fill-klerosUIComponentsWhiteBackground',
+      '[&_[class$="path-1"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-3"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-5"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-7"]]:fill-klerosUIComponentsSecondaryText',
+      '[&_[class$="path-2"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-4"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-6"]]:fill-klerosUIComponentsPrimaryText',
+      '[&_[class$="path-8"]]:fill-klerosUIComponentsPrimaryText',
+      className
+    )}
+  />
+);
+
+const Parties: React.FC = () => <StyledPartiesSvg className={miniGuideImageClassName} />;
 
 export default Parties;

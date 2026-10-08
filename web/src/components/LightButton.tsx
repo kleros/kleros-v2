@@ -1,40 +1,8 @@
 import React from "react";
-import styled, { css } from "styled-components";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-import { landscapeStyle } from "styles/landscapeStyle";
-
-const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
-  ${hoverShortTransitionTiming}
-  background-color: transparent;
-  padding: 8px !important;
-  border-radius: 7px;
-  .button-text {
-    color: ${({ theme }) => theme.primaryText};
-    font-weight: 400;
-  }
-  .button-svg {
-    fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.secondaryText : `${theme.white}BF`)} !important;
-  }
-
-  &:hover {
-    .button-svg {
-      fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.primaryText : `${theme.white}`)} !important;
-    }
-    background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
-  }
-
-  ${landscapeStyle(
-    () => css`
-      padding: 8px !important;
-      .button-svg {
-        margin-right: 0;
-      }
-    `
-  )}
-`;
+import { cn } from "utils/cn";
 
 interface ILightButton {
   text: string;
@@ -46,7 +14,21 @@ interface ILightButton {
 }
 
 const LightButton: React.FC<ILightButton> = ({ text, Icon, onPress, disabled, className, isMobileNavbar }) => (
-  <StyledButton variant="primary" small isDisabled={disabled} {...{ text, Icon, onPress, className, isMobileNavbar }} />
+  <Button
+    variant="primary"
+    small
+    isDisabled={disabled}
+    {...{ text, Icon, onPress }}
+    className={cn(
+      "rounded-[7px] bg-transparent p-2! [transition:0.1s]",
+      "hover:bg-[var(--klerosUIComponentsWhiteLowOpacityStrong)] [&_.button-text]:font-normal",
+      "[&_.button-text]:text-klerosUIComponentsPrimaryText lg:[&_.button-svg]:mr-0",
+      isMobileNavbar
+        ? "[&_.button-svg]:fill-klerosUIComponentsSecondaryText! hover:[&_.button-svg]:fill-klerosUIComponentsPrimaryText!"
+        : "[&_.button-svg]:fill-[#ffffffbf]! hover:[&_.button-svg]:fill-white!",
+      className
+    )}
+  />
 );
 
 export default LightButton;

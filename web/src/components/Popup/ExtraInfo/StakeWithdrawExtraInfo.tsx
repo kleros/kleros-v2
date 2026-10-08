@@ -1,22 +1,23 @@
 import React from "react";
-import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.div`
-  display: flex;
-  color: ${({ theme }) => theme.secondaryText};
-  text-align: center;
-  margin-top: ${responsiveSize(8, 24, 300)};
-  margin-right: ${responsiveSize(8, 44, 300)};
-  margin-left: ${responsiveSize(8, 44, 300)};
-`;
+import { cn } from "utils/cn";
 
 const StakeWithdrawExtraInfo: React.FC = () => {
   const { t } = useTranslation();
 
-  return <Container>{t("popups.subscribe_notifications_drawn")}</Container>;
+  return (
+    <div
+      className={cn(
+        "flex text-klerosUIComponentsSecondaryText text-center",
+        "mt-[calc(8px_+_(24_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+        "mr-[calc(8px_+_(44_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]",
+        "ml-[calc(8px_+_(44_-_8)_*_(min(max(100vw,_300px),_1250px)_-_300px)_/_(950))]"
+      )}
+    >
+      {t("popups.subscribe_notifications_drawn")}
+    </div>
+  );
 };
 export default StakeWithdrawExtraInfo;
