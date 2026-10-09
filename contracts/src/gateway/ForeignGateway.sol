@@ -30,7 +30,16 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         address arbitrable;
         bool relayed; // Sent to the home chain by `relayDispute`.
         IERC20 feeToken; // NATIVE_CURRENCY or an accepted ERC20.
-        uint256 paid; // In `feeToken` units.
+        uint256 feesForJurors; // The fees paid minus `feesForBridging`, in `feeToken` units. Overpayment counts as juror fees.
+        uint256 feesForBridging; // The bridging cost of the dispute's oracles at creation, in `feeToken` units.
+    }
+
+    /// @dev Fees collected and withdrawn in one fee token. Only ever increase; available = total - withdrawn.
+    struct FeeBalance {
+        uint256 totalFeesForJurors; // Total juror fees collected.
+        uint256 totalFeesForBridging; // Total bridging fees collected.
+        uint256 sumJurorFeesWithdrawn; // Total juror fees withdrawn.
+        uint256 sumBridgingFeesWithdrawn; // Total bridging fees withdrawn.
     }
 
     struct CurrencyRate {
@@ -73,8 +82,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     event KeeperGuardrailsChanged(uint256 _maxChangeBps, uint256 _cooldown);
     event OracleBridgingCostSet(uint256 indexed _oracleID, uint256 _bridgingCost);
     event KeeperChanged(address indexed _keeper);
-    event NativeWithdrawn(address indexed _to, uint256 _amount);
-    event TokenWithdrawn(IERC20 indexed _token, address indexed _to, uint256 _amount);
+    event FeesWithdrawn(address indexed _to, uint256 _jurorFeeAmount, uint256 _bridgingFeeAmount, IERC20 _feeToken);
     event DisputeRelayed(bytes32 indexed _disputeHash, uint256 indexed _messageId);
 
     // ************************************* //
@@ -104,6 +112,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     uint256 public keeperCooldown; // Min delay between two keeper updates of the same value, in seconds.
     mapping(bytes32 valueKey => uint256) public lastKeeperUpdate; // Timestamp of the last keeper update of a value.
     mapping(uint256 oracleID => uint256) public oracleBridgingCost; // Round trip (dispute + ruling leg) through this oracle, in native currency.
+    mapping(IERC20 feeToken => FeeBalance) public feeBalances; // Fees collected and withdrawn per fee token, NATIVE_CURRENCY for native.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -310,22 +319,25 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     // *             Keeper                * //
     // ************************************* //
 
-    /// @dev Withdraws native currency held by the gateway to the keeper.
-    /// @param _amount The amount to withdraw.
-    function withdrawNative(uint256 _amount) external onlyByGovernorOrKeeper {
+    /// @dev Withdraws collected fees to the keeper, up to the fees available in each category.
+    /// @param _feeToken The fee token, NATIVE_CURRENCY for native.
+    /// @param _jurorFeeAmount The amount of juror fees to withdraw.
+    /// @param _bridgingFeeAmount The amount of bridging fees to withdraw.
+    function withdrawFees(
+        IERC20 _feeToken,
+        uint256 _jurorFeeAmount,
+        uint256 _bridgingFeeAmount
+    ) external onlyByGovernorOrKeeper {
         if (keeper == address(0)) revert KeeperNotSet();
-        (bool success, ) = keeper.call{value: _amount}("");
-        if (!success) revert TransferFailed();
-        emit NativeWithdrawn(keeper, _amount);
-    }
-
-    /// @dev Withdraws an ERC20 token held by the gateway to the keeper.
-    /// @param _token The token to withdraw.
-    /// @param _amount The amount to withdraw.
-    function withdrawToken(IERC20 _token, uint256 _amount) external onlyByGovernorOrKeeper {
-        if (keeper == address(0)) revert KeeperNotSet();
-        if (!_token.safeTransfer(keeper, _amount)) revert TransferFailed();
-        emit TokenWithdrawn(_token, keeper, _amount);
+        FeeBalance storage balance = feeBalances[_feeToken];
+        if (_jurorFeeAmount > balance.totalFeesForJurors - balance.sumJurorFeesWithdrawn) revert InsufficientFees();
+        if (_bridgingFeeAmount > balance.totalFeesForBridging - balance.sumBridgingFeesWithdrawn) {
+            revert InsufficientFees();
+        }
+        balance.sumJurorFeesWithdrawn += _jurorFeeAmount;
+        balance.sumBridgingFeesWithdrawn += _bridgingFeeAmount;
+        _transferFeeToken(_feeToken, keeper, _jurorFeeAmount + _bridgingFeeAmount);
+        emit FeesWithdrawn(keeper, _jurorFeeAmount, _bridgingFeeAmount, _feeToken);
     }
 
     // ************************************* //
@@ -512,6 +524,20 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
     }
 
+    /// @dev Gets the fees available for withdrawal in a fee token.
+    /// @param _feeToken The fee token, NATIVE_CURRENCY for native.
+    /// @return total The sum of `jurorFees` and `bridgingFees`.
+    /// @return jurorFees The juror fees collected and not withdrawn.
+    /// @return bridgingFees The bridging fees collected and not withdrawn.
+    function availableFees(
+        IERC20 _feeToken
+    ) external view returns (uint256 total, uint256 jurorFees, uint256 bridgingFees) {
+        FeeBalance storage balance = feeBalances[_feeToken];
+        jurorFees = balance.totalFeesForJurors - balance.sumJurorFeesWithdrawn;
+        bridgingFees = balance.totalFeesForBridging - balance.sumBridgingFeesWithdrawn;
+        total = jurorFees + bridgingFees;
+    }
+
     /// @dev Gets the selection used by `createDispute` calls that do not select oracles.
     /// @return selection The default oracle selection.
     function getDefaultOracles() external view returns (OracleSelection memory selection) {
@@ -671,6 +697,15 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     ) internal returns (uint256 disputeID) {
         _validateSelection(_oracleIDs, _threshold);
 
+        // `_paid` covers juror fees plus bridging cost, and the conversion rounds down, so this never exceeds `_paid`.
+        uint256 feesForBridging = _feeToken == NATIVE_CURRENCY
+            ? bridgingCost(_oracleIDs)
+            : convertEthToTokenAmount(_feeToken, bridgingCost(_oracleIDs));
+        uint256 feesForJurors = _paid - feesForBridging;
+        FeeBalance storage balance = feeBalances[_feeToken];
+        balance.totalFeesForJurors += feesForJurors;
+        balance.totalFeesForBridging += feesForBridging;
+
         disputeID = localDisputeID++;
         bytes32 disputeHash = _computeDisputeHash(msg.sender, disputeID, _choices, _extraData);
 
@@ -680,11 +715,25 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
             arbitrable: msg.sender,
             relayed: false,
             feeToken: _feeToken,
-            paid: _paid
+            feesForJurors: feesForJurors,
+            feesForBridging: feesForBridging
         });
         disputeOracles[disputeHash] = OracleSelection({oracleIDs: _oracleIDs, threshold: _threshold});
 
         emit CrossChainDisputeOutgoing(msg.sender, disputeID, _choices, _extraData);
+    }
+
+    /// @dev Transfers native currency or an ERC20, as KlerosCore does.
+    /// @param _feeToken The token to transfer (NATIVE_CURRENCY for native).
+    /// @param _recipient The recipient address.
+    /// @param _amount The amount to transfer.
+    function _transferFeeToken(IERC20 _feeToken, address _recipient, uint256 _amount) internal {
+        if (_feeToken == NATIVE_CURRENCY) {
+            (bool success, ) = _recipient.call{value: _amount}("");
+            if (!success) revert TransferFailed();
+        } else {
+            if (!_feeToken.safeTransfer(_recipient, _amount)) revert TransferFailed();
+        }
     }
 
     /// @dev Expands a selection into the index-aligned arrays Yaho expects for the dispute leg.
@@ -793,4 +842,5 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     error DuplicateOracle(uint256 _oracleID);
     error TokenNotAccepted();
     error TransferFailed();
+    error InsufficientFees();
 }
