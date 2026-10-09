@@ -216,7 +216,8 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
         // The first parameter of relayRule() `_messageSender` is missing from the encoding below
         // because Vea takes care of inserting it for security reasons.
-        bytes4 methodSelector = IForeignGateway.relayRule.selector;
+        // TODO(veashi): replaced by a Yaho dispatch of abi.encode(disputeHash, ruling) to ForeignGateway.onMessage.
+        bytes4 methodSelector = bytes4(keccak256("relayRule(address,bytes32,uint256,address)"));
         bytes memory data = abi.encode(disputeHash, _ruling, relayedData.relayer);
         veaInbox.sendMessage(foreignGateway, methodSelector, data);
     }
