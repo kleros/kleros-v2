@@ -16,7 +16,8 @@
     "lifi-probe": "tsx src/lifi/probe.ts",
     "test": "vitest run",
     "check-types": "tsc --noEmit",
-    "check-style": "eslint . --no-error-on-unmatched-pattern && prettier --check \"src/**/*.ts\""
+    "check-style": "eslint . --no-error-on-unmatched-pattern && prettier --check \"src/**/*.ts\"",
+    "export-contracts": "node scripts/export-contracts.mjs"
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "dependencies": {
