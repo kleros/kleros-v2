@@ -2,8 +2,13 @@ import type { Address, Asset, ChainId, ForeignFeeCategory, PairId, TxRequest } f
 import type {
   ForeignGatewayBalance,
   ForeignGatewayRate,
+  ForeignGatewayRates,
   ForeignGatewayTreasury,
+  GatewayRateRejection,
+  GatewayRateTarget,
+  GatewayRateValue,
   HomeGatewayFunding,
+  KeeperGuardrails,
   RateRejection,
 } from "../ports";
 
@@ -59,6 +64,7 @@ export class FakeHomeGatewayFunding implements HomeGatewayFunding {
   }
 }
 
+/** @deprecated Fake of the deprecated `ForeignGatewayRate`; use `FakeForeignGatewayRates`. */
 export class FakeForeignGatewayRate implements ForeignGatewayRate {
   rateE18 = 0n;
   updatedAt: Date | null = null;
@@ -82,6 +88,49 @@ export class FakeForeignGatewayRate implements ForeignGatewayRate {
 
   classifyRejection(error: unknown): RateRejection {
     const tagged = error as { rejection?: RateRejection } | null;
+    return tagged?.rejection ?? this.rejection;
+  }
+}
+
+function targetId(target: GatewayRateTarget): string {
+  return target.kind === "homeNative" ? "homeNative" : `token:${target.asset.address.toLowerCase()}`;
+}
+
+/** In-memory `ForeignGatewayRates`: set values per target, record updates, tag errors with `{ rejection }`. */
+export class FakeForeignGatewayRates implements ForeignGatewayRates {
+  guardrailValues: KeeperGuardrails = { maxChangeBps: 500n, cooldownSeconds: 3600n };
+  rejection: GatewayRateRejection = "unknown";
+  readonly updates: Array<{ target: GatewayRateTarget; value: bigint }> = [];
+  private readonly values = new Map<string, GatewayRateValue>();
+
+  constructor(
+    readonly pairId: PairId,
+    readonly chainId: ChainId,
+    readonly address: Address
+  ) {}
+
+  setValue(target: GatewayRateTarget, value: bigint, decimals: number, lastKeeperUpdate: Date | null = null): void {
+    this.values.set(targetId(target), { value, decimals, lastKeeperUpdate });
+  }
+
+  async guardrails(): Promise<KeeperGuardrails> {
+    return { ...this.guardrailValues };
+  }
+
+  async current(target: GatewayRateTarget): Promise<GatewayRateValue> {
+    const entry = this.values.get(targetId(target));
+    if (!entry) throw new Error(`FakeForeignGatewayRates: no value set for ${targetId(target)}`);
+    const { lastKeeperUpdate } = entry;
+    return { ...entry, lastKeeperUpdate: lastKeeperUpdate ? new Date(lastKeeperUpdate.getTime()) : null };
+  }
+
+  async updateTx(target: GatewayRateTarget, value: bigint): Promise<TxRequest> {
+    this.updates.push({ target: target.kind === "token" ? { ...target, asset: { ...target.asset } } : target, value });
+    return { chainId: this.chainId, to: this.address, data: "0x7a7e", value: 0n };
+  }
+
+  classifyRejection(error: unknown): GatewayRateRejection {
+    const tagged = error as { rejection?: GatewayRateRejection } | null;
     return tagged?.rejection ?? this.rejection;
   }
 }
