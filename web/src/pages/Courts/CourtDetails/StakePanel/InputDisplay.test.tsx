@@ -14,6 +14,7 @@ import {
   sortitionModuleAddress,
 } from "hooks/contracts/generated";
 
+import { aCourtDetails } from "src/test/builders";
 import type { ReadMock } from "src/test/msw/rpc";
 import { server } from "src/test/msw/server";
 import { subgraphHandler } from "src/test/msw/subgraph";
@@ -50,7 +51,7 @@ const Harness: React.FC<{ action: ActionType }> = ({ action }) => {
 };
 
 const renderStakePanel = (action: ActionType, wallet: Wallet, minStake = pnk("200")) => {
-  server.use(subgraphHandler({ court: () => ({ id: "1", name: "General", minStake: minStake.toString() }) }).handler);
+  server.use(subgraphHandler({ court: () => aCourtDetails({ minStake: minStake.toString() }) }).handler);
   return renderWithProviders(<Harness action={action} />, {
     route: "/courts/1/stake",
     path: "/courts/:id/*",

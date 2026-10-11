@@ -7,20 +7,17 @@ import { describe, it, expect } from "vitest";
 import IsListProvider from "context/IsListProvider";
 import { encodeURIFilter } from "utils/uri";
 
-import type { CounterQuery, CourtDetailsQuery, Dispute_Filter } from "src/graphql/graphql";
+import type { Dispute_Filter } from "src/graphql/graphql";
 import { Period } from "src/graphql/graphql";
+import { aCounter, aCourtDetails } from "src/test/builders";
 import { server } from "src/test/msw/server";
 import { subgraphHandler } from "src/test/msw/subgraph";
 import { renderWithProviders } from "src/test/renderWithProviders";
 
 import CasesFetcher, { calculateStats } from "./CasesFetcher";
 
-const counter = { id: "0", cases: "40", casesRuled: "25", casesAppealing: "3" } as NonNullable<CounterQuery["counter"]>;
-const court = {
-  numberDisputes: "12",
-  numberClosedDisputes: "5",
-  numberAppealingDisputes: "1",
-} as NonNullable<CourtDetailsQuery["court"]>;
+const counter = aCounter();
+const court = aCourtDetails();
 
 describe("calculateStats", () => {
   it.each<[string, Dispute_Filter, { totalCases: number; ruledCases: number }]>([

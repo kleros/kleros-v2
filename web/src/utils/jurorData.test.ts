@@ -5,6 +5,8 @@ import { CoinIds } from "consts/coingecko";
 
 import type { UserQuery } from "queries/useUser";
 
+import { aShift, aUserQuery } from "src/test/builders";
+
 import { getDrawnJurorsWithCount } from "./getDrawnJurorsWithCount";
 import { calculateTotalJurorReward, getFormattedRewards } from "./jurorRewardConfig";
 import { validateAddress } from "./validateAddressOrEns";
@@ -42,7 +44,7 @@ describe("getDrawnJurorsWithCount", () => {
 });
 
 const userWithShifts = (shifts: { pnkAmount: string; ethAmount: string }[]) =>
-  ({ user: { shifts } }) as unknown as UserQuery;
+  aUserQuery({ shifts: shifts.map((shift) => aShift(shift)) });
 
 describe("juror rewards", () => {
   const data = userWithShifts([
