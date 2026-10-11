@@ -46,7 +46,12 @@ interface ILightButton {
 }
 
 const LightButton: React.FC<ILightButton> = ({ text, Icon, onClick, disabled, className, isMobileNavbar }) => (
-  <StyledButton variant="primary" small {...{ text, Icon, onClick, disabled, className, isMobileNavbar }} />
+  <StyledButton
+    variant="primary"
+    small
+    aria-label={text || undefined}
+    {...{ text, Icon, onClick, disabled, className, isMobileNavbar }}
+  />
 );
 
 export default LightButton;

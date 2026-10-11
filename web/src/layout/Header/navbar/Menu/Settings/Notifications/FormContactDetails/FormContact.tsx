@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useMemo, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useMemo, useEffect, useId } from "react";
 import styled from "styled-components";
 
 import { Field } from "@kleros/ui-components-library";
@@ -41,6 +41,7 @@ const FormContact: React.FC<IForm> = ({
   isEditing,
   isDisabled,
 }) => {
+  const inputId = useId();
   useEffect(() => {
     setContactIsValid(validator.test(contactInput));
   }, [contactInput, setContactIsValid, validator]);
@@ -59,8 +60,9 @@ const FormContact: React.FC<IForm> = ({
 
   return (
     <>
-      <StyledLabel>{contactLabel}</StyledLabel>
+      <StyledLabel htmlFor={inputId}>{contactLabel}</StyledLabel>
       <StyledField
+        id={inputId}
         dir="auto"
         variant={fieldVariant}
         value={contactInput}
