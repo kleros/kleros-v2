@@ -26,6 +26,9 @@
     "check-types": "tsc --noEmit -p tsconfig.check.json",
     "start": "vite dev src/",
     "build": "yarn clean && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "release:patch": "scripts/publish.sh patch",
     "release:minor": "scripts/publish.sh minor",
     "release:major": "scripts/publish.sh major"

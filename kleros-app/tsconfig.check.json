@@ -5,5 +5,9 @@
  */
 {
   "extends": "./tsconfig.json",
-  "include": ["src/**/*", "**/*.ts", "**/*.tsx"]
+  "compilerOptions": {
+    "rootDir": "."
+  },
+  "include": ["src/**/*", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }
