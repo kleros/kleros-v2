@@ -13,8 +13,8 @@ permissions:
 jobs:
   sonarcloud:
     permissions:
-      contents: read  # for actions/checkout to fetch code
-      pull-requests: read  # for SonarSource/sonarcloud-github-action to determine which PR to decorate
+      contents: read # for actions/checkout to fetch code
+      pull-requests: read # for SonarSource/sonarcloud-github-action to determine which PR to decorate
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
@@ -25,10 +25,10 @@ jobs:
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@9f9bba2c7aaf7a55eac26abbac906c3021d211b2 # master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

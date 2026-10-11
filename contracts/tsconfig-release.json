@@ -3,12 +3,7 @@
   "compilerOptions": {
     "declaration": true
   },
-  "include": [
-    "./typechain-types",
-    "./deployments"
-  ],
-  "exclude": [
-    "./scripts/**/console*.ts"
-  ],
+  "include": ["./typechain-types", "./deployments"],
+  "exclude": ["./scripts/**/console*.ts"],
   "files": []
 }

@@ -36,17 +36,13 @@ const relayCreateDispute = async (blockHash, foreignDisputeID) => {
         {
           value: fee,
           ...options,
-        },
+        }
       )
     ).wait();
     console.log("txID: %s", tx?.transactionHash);
 
     disputeID = (
-      await core.queryFilter(
-        core.filters.DisputeCreation(),
-        tx.blockNumber,
-        tx.blockNumber,
-      )
+      await core.queryFilter(core.filters.DisputeCreation(), tx.blockNumber, tx.blockNumber)
     )[0].args._disputeID.toNumber();
     console.log("Using disputeID %d from now", disputeID);
   } catch (e) {
@@ -58,11 +54,7 @@ const relayCreateDispute = async (blockHash, foreignDisputeID) => {
   } finally {
     if (tx) {
       const filter = core.filters.DisputeCreation();
-      const logs = await core.queryFilter(
-        filter,
-        tx.blockNumber,
-        tx.blockNumber,
-      );
+      const logs = await core.queryFilter(filter, tx.blockNumber, tx.blockNumber);
       console.log("DisputeID: %s", logs[0]?.args?._disputeID);
     }
   }
@@ -82,7 +74,7 @@ const createDisputeOnResolver = async () => {
         {
           value: feeForJuror.mul(nbOfJurors),
           ...options,
-        },
+        }
       )
     ).wait();
     console.log("txID: %s", tx?.transactionHash);
@@ -95,11 +87,7 @@ const createDisputeOnResolver = async () => {
   } finally {
     if (tx) {
       const filter = core.filters.DisputeCreation();
-      const logs = await core.queryFilter(
-        filter,
-        tx.blockNumber,
-        tx.blockNumber,
-      );
+      const logs = await core.queryFilter(filter, tx.blockNumber, tx.blockNumber);
       console.log("DisputeID: %s", logs[0]?.args?._disputeID);
     }
   }
@@ -195,19 +183,10 @@ const executeRuling = async () => {
     console.log("Ruled? %s", dispute.ruled);
 
     const ruling = await core.currentRuling(disputeID);
-    console.log(
-      "Ruling: %d, Tied? %s, Overridden? %s",
-      ruling.ruling,
-      ruling.tied,
-      ruling.overridden,
-    );
+    console.log("Ruling: %d, Tied? %s, Overridden? %s", ruling.ruling, ruling.tied, ruling.overridden);
 
     const filter = sender.filters.MessageReceived();
-    const logs = await sender.queryFilter(
-      filter,
-      tx?.blockNumber,
-      tx?.blockNumber,
-    );
+    const logs = await sender.queryFilter(filter, tx?.blockNumber, tx?.blockNumber);
     console.log("MessageReceived: %O", logs[0]?.args);
   }
 };
@@ -216,10 +195,7 @@ const toVoting = async () => {
   console.log("Running for disputeID %d", disputeID);
   let ready;
   try {
-    ready = await passPhaseCore()
-      .then(passPhaseDk)
-      .then(passPhaseDk)
-      .then(isRngReady);
+    ready = await passPhaseCore().then(passPhaseDk).then(passPhaseDk).then(isRngReady);
   } catch (e) {
     ready = false;
   }
@@ -235,9 +211,7 @@ const toVoting = async () => {
 const epochPeriod = await sender.epochPeriod();
 
 const epochID = async () => {
-  return Math.floor(
-    (await ethers.provider.getBlock("latest")).timestamp / epochPeriod,
-  );
+  return Math.floor((await ethers.provider.getBlock("latest")).timestamp / epochPeriod);
 };
 
 const anyBatchToSend = async () => {
@@ -258,11 +232,7 @@ const sendBatch = async () => {
     }
   } finally {
     const filter = sender.filters.BatchOutgoing();
-    const logs = await sender.queryFilter(
-      filter,
-      tx.blockNumber,
-      tx.blockNumber,
-    );
+    const logs = await sender.queryFilter(filter, tx.blockNumber, tx.blockNumber);
     console.log("BatchOutgoing: %O", logs[0]?.args);
   }
 };

@@ -46,13 +46,13 @@ flowchart TB
 
 ## What to use when
 
-| You are building…       | Use                         | Import path                                                         |
-| ----------------------- | --------------------------- | ------------------------------------------------------------------- |
-| Subgraph                | JSON                        | `@kleros/kleros-v2-contracts/deployments/<network>/KlerosCore.json` |
-| React + viem / wagmi    | viem configs                | `@kleros/kleros-v2-contracts/viem`                                  |
-| React + ethers          | typechain factory + address | `@kleros/kleros-v2-contracts/ethers` (or import factory directly, do note that factory does not include address, those have to be provided separately to the factory)    |
-| Single ABI in a bundler | JSON                        | `@kleros/kleros-v2-contracts/deployments/.../Foo.json`              |
-| Solidity project        | `.sol` sources              | `@kleros/kleros-v2-contracts/contracts/.../Foo.sol`                 |
+| You are building…       | Use                         | Import path                                                                                                                                                           |
+| ----------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Subgraph                | JSON                        | `@kleros/kleros-v2-contracts/deployments/<network>/KlerosCore.json`                                                                                                   |
+| React + viem / wagmi    | viem configs                | `@kleros/kleros-v2-contracts/viem`                                                                                                                                    |
+| React + ethers          | typechain factory + address | `@kleros/kleros-v2-contracts/ethers` (or import factory directly, do note that factory does not include address, those have to be provided separately to the factory) |
+| Single ABI in a bundler | JSON                        | `@kleros/kleros-v2-contracts/deployments/.../Foo.json`                                                                                                                |
+| Solidity project        | `.sol` sources              | `@kleros/kleros-v2-contracts/contracts/.../Foo.sol`                                                                                                                   |
 
 **Avoid** importing from `@kleros/kleros-v2-contracts/deployments` (the root barrel) unless you need everything at once, it pulls in all networks and typechain.
 

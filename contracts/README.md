@@ -24,6 +24,7 @@ While pinned, `deploy` and `populate:*` only run on `hardhat` / `localhost`; use
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh` or `./scripts/populateReadme.sh`.
 
 ### V2 Mainnet
+
 #### Arbitrum One
 
 - [BlockHashRNG](https://arbiscan.io/address/0x39D123fc4cFD24EA5bB76195f9ecFE1f0DF35b0B)
@@ -49,6 +50,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [TransactionBatcher](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
 
 ### V2 Testnet
+
 #### Arbitrum Sepolia
 
 - [BlockHashRNG](https://sepolia.arbiscan.io/address/0x0298a3EFa6Faf90865725E2b48Cf0F66e5d52754)
@@ -93,6 +95,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [xKlerosLiquidV2](https://gnosis-chiado.blockscout.com/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
 
 ### V2 Devnet (unstable)
+
 #### Arbitrum Sepolia
 
 - [ChainlinkRNG](https://sepolia.arbiscan.io/address/0x579ec660B26Fa388674D8900C92aCFE01C1383cB)
@@ -304,11 +307,11 @@ Key points:
 
 #### Config files
 
-| Environment | Courts config | Policies manifest |
-|---|---|---|
-| Devnet | `config/courts.v2.devnet.json` | `config/policies.v2.devnet.json` |
-| Testnet | `config/courts.v2.testnet.json` | `config/policies.v2.testnet.json` |
-| Mainnet | `config/courts.v2.mainnet.json` | `config/policies.v2.mainnet.json` |
+| Environment | Courts config                   | Policies manifest                 |
+| ----------- | ------------------------------- | --------------------------------- |
+| Devnet      | `config/courts.v2.devnet.json`  | `config/policies.v2.devnet.json`  |
+| Testnet     | `config/courts.v2.testnet.json` | `config/policies.v2.testnet.json` |
+| Mainnet     | `config/courts.v2.mainnet.json` | `config/policies.v2.mainnet.json` |
 
 Format specifications:
 

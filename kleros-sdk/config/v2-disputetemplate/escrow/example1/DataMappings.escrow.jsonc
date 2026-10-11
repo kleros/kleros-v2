@@ -10,25 +10,11 @@
         "_transactionID": "[FROM EXTERNAL DISPUTE ID]"
       }
     },
-    "seek": [
-      "transactionUri",
-      "buyer",
-      "seller",
-      "amount",
-      "asset",
-      "deadline"
-    ],
-    "populate": [
-      "_transactionUri",
-      "_buyer",
-      "_seller",
-      "_amount",
-      "_asset",
-      "_deadline"
-    ]
+    "seek": ["transactionUri", "buyer", "seller", "amount", "asset", "deadline"],
+    "populate": ["_transactionUri", "_buyer", "_seller", "_amount", "_asset", "_deadline"]
   },
   {
-    "type":"fetch/ipfsJson",
+    "type": "fetch/ipfsJson",
     "todo": "get title, description, extraDescriptionUri from _transactionUri"
   }
 ]
