@@ -2,6 +2,7 @@ import type { Answer, DisputeDetails } from "@kleros/kleros-sdk";
 
 import type { ClassicAppealQuery } from "queries/useClassicAppealQuery";
 import type { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import type { DrawQuery } from "queries/useDrawQuery";
 
 import { Period } from "src/graphql/graphql";
 
@@ -45,6 +46,16 @@ export const aDisputeDetails = (overrides: Partial<DisputeDetailsDispute> = {}):
   templateId: "1",
   rulingTimestamp: null,
   rulingTransactionHash: null,
+  ...overrides,
+});
+
+type Draw = DrawQuery["draws"][number];
+
+/** A draw of the connected juror, open (not hidden) vote not yet cast. */
+export const aDraw = (overrides: Partial<Draw> = {}): Draw => ({
+  __typename: "Draw",
+  voteIDNum: "0",
+  vote: { __typename: "ClassicVote", commited: false, commit: null },
   ...overrides,
 });
 
