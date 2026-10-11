@@ -84,10 +84,18 @@ jobs:
         run: yarn workspaces foreach -Apv --exclude kleros-v2 --exclude @kleros/kleros-v2-web-devtools run check-types
       - name: Lint
         run: yarn workspaces foreach -Apv --exclude kleros-v2 --exclude @kleros/kleros-v2-web-devtools run check-style
-      - name: Unit tests
-        run: yarn workspaces foreach -Apv --include @kleros/kleros-sdk --include @kleros/kleros-app --include @kleros/kleros-v2-web run test
+      - name: Unit tests with coverage thresholds
+        run: yarn workspaces foreach -Apv --include @kleros/kleros-sdk --include @kleros/kleros-app --include @kleros/kleros-v2-web run test:coverage
         env:
           CI: true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: unit-test-results
+          path: |
+            */test-results/
+            */coverage/
+          retention-days: 7
 
   web-e2e:
     name: web e2e (mocked)
