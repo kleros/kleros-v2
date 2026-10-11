@@ -15,7 +15,7 @@ import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/grap
 import CasesDisplay from "components/CasesDisplay";
 import ScrollTop from "components/ScrollTop";
 
-const calculateStats = (
+export const calculateStats = (
   isCourtFilter: boolean,
   courtData: CourtDetailsQuery["court"],
   counters: CounterQuery["counter"],
