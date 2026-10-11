@@ -14,6 +14,7 @@ import StyledComponentsProvider from "context/StyledComponentsProvider";
 import { MOCK_ACCOUNT_1 } from "./mocks";
 import { rpcHandler, TEST_RPC_URL, type ReadMock } from "./msw/rpc";
 import { server } from "./msw/server";
+import { activeQueryClients } from "./queryClients";
 
 /** arbitrumSepolia (the devnet DEFAULT_CHAIN) with its RPC pointed at the MSW handler. */
 export const testChain = {
@@ -47,6 +48,7 @@ export const createProviders = ({
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { retry: false } },
   });
+  activeQueryClients.add(queryClient);
   const rpc = rpcHandler({ reads, receiptStatus, chainId: testChain.id, accounts: account ? [account] : [] });
   server.use(rpc.handler);
 

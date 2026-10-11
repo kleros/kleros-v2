@@ -1,9 +1,10 @@
-import { cleanup } from "@testing-library/react";
-import { vi, beforeAll, beforeEach, afterEach, afterAll } from "vitest";
+import { cleanup, waitFor } from "@testing-library/react";
+import { vi, beforeAll, beforeEach, afterEach, afterAll, expect } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
 import "./i18n";
 import { server } from "./msw/server";
+import { activeQueryClients } from "./queryClients";
 
 // The Reown modal hooks throw unless config/wagmi ran createAppKit; tests use the wagmi mock connector instead.
 vi.mock("@reown/appkit/react", async (importOriginal) => ({
@@ -54,8 +55,14 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-afterEach(() => {
+afterEach(async () => {
   cleanup();
+  // Batched subgraph queries outlive unmount; let them land on this test's handlers, not the next test's.
+  for (const client of activeQueryClients) {
+    await waitFor(() => expect(client.isFetching() + client.isMutating()).toBe(0));
+    client.clear();
+  }
+  activeQueryClients.clear();
   server.resetHandlers();
 });
 

@@ -53,7 +53,14 @@ export default defineConfig({
         "src/**/*.d.ts",
       ],
       reporter: ["text-summary", "json-summary", "html", "lcov"],
-      thresholds: {},
+      // Floors on logic folders at what the suite reaches; no global gate on UI. Raise them as tests land.
+      thresholds: {
+        "src/actions/**": { statements: 99, branches: 97, functions: 100, lines: 99 },
+        "src/dispute-kits/**": { statements: 98, branches: 95, functions: 100, lines: 97 },
+        "src/utils/**": { statements: 81, branches: 85, functions: 85, lines: 80 },
+        "src/hooks/**": { statements: 63, branches: 57, functions: 56, lines: 63 },
+        "src/consts/**": { statements: 56, branches: 48, functions: 31, lines: 58 },
+      },
     },
   },
 });
