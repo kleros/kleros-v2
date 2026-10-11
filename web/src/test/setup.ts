@@ -5,6 +5,13 @@ import "@testing-library/jest-dom/vitest";
 import "./i18n";
 import { server } from "./msw/server";
 
+// The Reown modal hooks throw unless config/wagmi ran createAppKit; tests use the wagmi mock connector instead.
+vi.mock("@reown/appkit/react", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@reown/appkit/react")>()),
+  useAppKit: () => ({ open: vi.fn(), close: vi.fn() }),
+  useAppKitState: () => ({ open: false, loading: false, initialized: true }),
+}));
+
 // In-memory localStorage so tests can assert on persisted values without jsdom's origin quirks.
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
