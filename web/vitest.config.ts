@@ -6,6 +6,9 @@ import { defineConfig } from "vitest/config";
 
 import { TEST_ENV } from "./src/test/env";
 
+// Pinned before workers spawn so local-time date formatting is the same on every machine.
+process.env.TZ = "UTC";
+
 export default defineConfig({
   plugins: [
     svgr({
