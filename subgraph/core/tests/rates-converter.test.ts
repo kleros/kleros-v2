@@ -1,7 +1,7 @@
 import { assert, describe, test, clearStore, afterEach } from "matchstick-as/assembly/index";
 import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { handleNewCurrencyRate } from "../src/RatesConverter";
-import { createNewCurrencyRateEvent } from "./rates-converter-utils";
+import { createNewCurrencyRateEvent } from "./utils/events";
 
 const TOKEN_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678";
 
