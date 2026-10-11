@@ -14,7 +14,7 @@ import { useClassicAppealQuery } from "queries/useClassicAppealQuery";
 import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
 
 import { getDisputeKitConfigByKitId } from "src/dispute-kits";
-import { Period } from "src/graphql/graphql";
+import { DisputeMaintenanceQuery, Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
@@ -46,37 +46,10 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
     [localRounds]
   );
 
-  const filteredContributions = useMemo(() => {
-    const deDuplicatedContributions = [
-      ...new Set(maintenanceData?.contributions.filter((contribution) => !contribution.rewardWithdrawn)),
-    ];
-
-    return deDuplicatedContributions;
-  }, [maintenanceData]);
-
   useEffect(() => {
     if (isUndefined(id) || isUndefined(roundIndex)) return;
-
-    const argsArr: TransactionBatcherConfig = [];
-
-    for (const contribution of filteredContributions) {
-      // localDispute.id format: "disputeKitID-coreDisputeID"
-      const disputeKitID = contribution.localRound?.localDispute?.id?.split("-")[0];
-      if (isUndefined(disputeKitID)) continue;
-
-      const config = getDisputeKitConfigByKitId(disputeKitID);
-      if (isUndefined(config)) continue;
-
-      argsArr.push({
-        abi: config.disputeKitAbi,
-        address: config.address,
-        functionName: "withdrawFeesAndRewards",
-        args: [BigInt(id), contribution.contributor.id, BigInt(contribution.choice)],
-      });
-    }
-
-    setContractConfigs(argsArr);
-  }, [id, roundIndex, filteredContributions]);
+    setContractConfigs(getWithdrawFeesConfigs(id, maintenanceData?.contributions));
+  }, [id, roundIndex, maintenanceData]);
 
   const {
     executeBatch,
@@ -111,6 +84,33 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
       onClick={handleClick}
     />
   );
+};
+
+type Contribution = DisputeMaintenanceQuery["contributions"][number];
+
+/** One withdrawFeesAndRewards call per unwithdrawn contribution, on the dispute kit that holds it. */
+export const getWithdrawFeesConfigs = (id: string, contributions: Contribution[] = []): TransactionBatcherConfig => {
+  const deDuplicatedContributions = [...new Set(contributions.filter((contribution) => !contribution.rewardWithdrawn))];
+
+  const argsArr: TransactionBatcherConfig = [];
+
+  for (const contribution of deDuplicatedContributions) {
+    // localDispute.id format: "disputeKitID-coreDisputeID"
+    const disputeKitID = contribution.localRound?.localDispute?.id?.split("-")[0];
+    if (isUndefined(disputeKitID)) continue;
+
+    const config = getDisputeKitConfigByKitId(disputeKitID);
+    if (isUndefined(config)) continue;
+
+    argsArr.push({
+      abi: config.disputeKitAbi,
+      address: config.address,
+      functionName: "withdrawFeesAndRewards",
+      args: [BigInt(id), contribution.contributor.id, BigInt(contribution.choice)],
+    });
+  }
+
+  return argsArr;
 };
 
 export default WithdrawAppealFees;
