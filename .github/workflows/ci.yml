@@ -85,7 +85,7 @@ jobs:
       - name: Lint
         run: yarn workspaces foreach -Apv --exclude kleros-v2 --exclude @kleros/kleros-v2-web-devtools run check-style
       - name: Unit tests with coverage thresholds
-        run: yarn workspaces foreach -Apv --include @kleros/kleros-sdk --include @kleros/kleros-app --include @kleros/kleros-v2-web run test:coverage
+        run: yarn workspaces foreach -Apv --include @kleros/kleros-sdk --include @kleros/kleros-app --include @kleros/kleros-v2-web run test --coverage
         env:
           CI: true
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
