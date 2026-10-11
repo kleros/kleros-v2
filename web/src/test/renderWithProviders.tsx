@@ -30,6 +30,8 @@ export interface ProviderOptions {
   account?: Address | null;
   /** Contract reads answered by the JSON-RPC mock. */
   reads?: ReadMock[];
+  /** Receipt status for transactions sent through the mock wallet. */
+  receiptStatus?: "success" | "reverted";
   /** Extra providers mounted inside the router, outermost first. */
   providers?: React.ComponentType<{ children: ReactNode }>[];
 }
@@ -39,12 +41,13 @@ export const createProviders = ({
   path = "*",
   account = MOCK_ACCOUNT_1,
   reads = [],
+  receiptStatus,
   providers = [],
 }: ProviderOptions = {}) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { retry: false } },
   });
-  const rpc = rpcHandler({ reads, chainId: testChain.id, accounts: account ? [account] : [] });
+  const rpc = rpcHandler({ reads, receiptStatus, chainId: testChain.id, accounts: account ? [account] : [] });
   server.use(rpc.handler);
 
   const config = createConfig({
@@ -75,7 +78,7 @@ export const createProviders = ({
     );
   };
 
-  return { Wrapper, queryClient, config, rpcCalls: rpc.calls };
+  return { Wrapper, queryClient, config, rpcCalls: rpc.calls, sentTransactions: rpc.sent };
 };
 
 /** The only way a component test renders: fresh QueryClient, mock wallet, router, theme, batcher. */
@@ -89,7 +92,7 @@ export function renderHookWithProviders<Result, Props>(
   hook: (props: Props) => Result,
   options: ProviderOptions & Omit<RenderHookOptions<Props>, "wrapper"> = {}
 ) {
-  const { route, path, account, reads, providers, ...hookOptions } = options;
-  const { Wrapper, ...rest } = createProviders({ route, path, account, reads, providers });
+  const { route, path, account, reads, receiptStatus, providers, ...hookOptions } = options;
+  const { Wrapper, ...rest } = createProviders({ route, path, account, reads, receiptStatus, providers });
   return { ...rest, ...renderHook(hook, { wrapper: Wrapper, ...hookOptions }) };
 }
