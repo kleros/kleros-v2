@@ -1,11 +1,11 @@
-import { RefuseToArbitrateAnswer } from "@kleros/kleros-sdk";
-
 import { expect, test } from "./fixtures";
 import { DISPUTE_SCENARIOS, passToPhase, setupCase, setupStake, SortitionPhase } from "./utils";
 import { executeRulingForDispute, drawJurors, passPeriod } from "./utils/dispute";
 
+const REFUSE_TO_ARBITRATE = "Refuse to Arbitrate / Invalid";
+
 // TODO: add support for DK specific flow and support for hiddenVotes
-test.describe("Voting tests", () => {
+test.describe("Voting tests", { tag: "@local-stack" }, () => {
   let disputeId: bigint | null = null;
 
   test.beforeEach(async ({ page, wallet, hardhat, time }) => {
@@ -47,7 +47,7 @@ test.describe("Voting tests", () => {
     // checking that options are available
     await expect(page.getByRole("button", { name: optionOneName })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("button", { name: optionTwoName })).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole("button", { name: RefuseToArbitrateAnswer.title })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("button", { name: REFUSE_TO_ARBITRATE })).toBeVisible({ timeout: 30_000 });
 
     await page.getByRole("button", { name: optionOneName }).click();
 

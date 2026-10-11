@@ -1,10 +1,10 @@
 import { getContract } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
+import { ACCOUNT_PKEYS } from "../../utils/accounts";
 import type { HardhatClient } from "../fixtures/hardhat";
 import type { TimeFixture } from "../fixtures/time";
 
-import { ACCOUNT_PKEYS } from "./accounts";
 import { sortitionModuleContractConfig } from "./contracts";
 
 import { ONE_MINUTE } from ".";

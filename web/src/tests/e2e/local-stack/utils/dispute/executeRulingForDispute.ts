@@ -1,7 +1,7 @@
 import { privateKeyToAccount } from "viem/accounts";
 
+import { ACCOUNT_PKEYS } from "../../../utils/accounts";
 import { HardhatClient } from "../../fixtures";
-import { ACCOUNT_PKEYS } from "../accounts";
 import { klerosCoreContractConfig } from "../contracts";
 
 /** Enforces the ruling for a dispute */

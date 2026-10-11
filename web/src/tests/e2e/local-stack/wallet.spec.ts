@@ -2,7 +2,7 @@ import { UserRejectedRequestError } from "viem";
 
 import { expect, test } from "./fixtures";
 
-test.describe("Wallet tests", () => {
+test.describe("Wallet tests", { tag: "@local-stack" }, () => {
   test("should connect wallet", async ({ page, wallet }) => {
     await page.goto("/");
 

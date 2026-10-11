@@ -1,8 +1,8 @@
 import { Address, getContract } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
+import { ACCOUNT_PKEYS } from "../../../utils/accounts";
 import type { HardhatClient } from "../../fixtures/hardhat";
-import { ACCOUNT_PKEYS } from "../accounts";
 import { klerosCoreContractConfig } from "../contracts";
 
 /**

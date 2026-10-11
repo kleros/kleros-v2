@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 
-test.describe("Stake tests", () => {
+test.describe("Stake tests", { tag: "@local-stack" }, () => {
   test("should set stake by alice", async ({ page, wallet }) => {
     await page.goto("/");
     // note that alice being the first account and deployer already has the PNK

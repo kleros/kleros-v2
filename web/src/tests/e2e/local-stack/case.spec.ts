@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 
-test.describe("Case tests", () => {
+test.describe("Case tests", { tag: "@local-stack" }, () => {
   test("should create a case", async ({ page, wallet }) => {
     await page.goto("/");
     await wallet.connect("alice");

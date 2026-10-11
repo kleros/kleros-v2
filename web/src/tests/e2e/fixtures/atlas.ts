@@ -1,121 +1,125 @@
-import { test as base } from "@playwright/test";
-import { Hex, recoverMessageAddress } from "viem";
+import type { Route } from "@playwright/test";
+import { recoverMessageAddress, type Hex } from "viem";
 
-import { MOCK_IPFS_HASH } from "../utils/dispute";
 import { createTestJwt } from "../utils/jwt";
 
-// mocking atlas apis
-export const test = base.extend<{
-  mockAtlas: () => Promise<void>;
-}>({
-  mockAtlas: [
-    async ({ page }, use) => {
-      await page.route("*/**/graphql", async (route, request) => {
-        const body = request.postDataJSON();
-        const operation = body?.operationName;
+import { test as networkTest } from "./network";
 
-        // GetNonce
-        if (operation === "GetNonce") {
-          return route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              data: {
-                nonce: "0x1234567890",
-              },
-            }),
-          });
-        }
+const ATLAS = "https://atlas.e2e.test";
 
-        // Login
-        if (operation === "Login") {
-          const signature = body.variables.signature! as Hex;
-          const message = body.variables.message! as string;
-          const address = await recoverMessageAddress({ message, signature });
+export const ATLAS_ROLES = [
+  {
+    name: "Evidence",
+    restriction: { maxSize: 20971520, allowedMimeTypes: ["application/pdf", "image/png", "text/plain"] },
+  },
+  { name: "Policy", restriction: { maxSize: 10485760, allowedMimeTypes: ["application/pdf", "text/markdown"] } },
+  { name: "Generic", restriction: { maxSize: 409600, allowedMimeTypes: ["application/pdf", "image/png"] } },
+];
 
-          const accessToken = await createTestJwt({
-            address,
-          });
+export type AtlasUser = { email: string; isEmailVerified: boolean; emailUpdateableAt: string | null };
 
-          return route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              data: {
-                login: {
-                  accessToken,
+export type AtlasOperation = { operationName: string; variables: Record<string, any> };
+
+export type StakingEvent = { address: string; courtId: string; amount: string; timestamp: string; txHash: Hex };
+
+export type AtlasFixture = {
+  /** The signed-up user returned by GetUser; null means the address has no account yet. */
+  user: AtlasUser | null;
+  subscribed: boolean;
+  /** Rows returned by GetStakingEvents (court staking history). */
+  stakingEvents: StakingEvent[];
+  /** Evidence ids moderators flagged as spam, for every evidence group. */
+  spamEvidenceIds: string[];
+  /** CID the IPFS upload endpoint returns. */
+  uploadCid: string;
+  /** Every GraphQL operation the app sent, in order. */
+  operations: AtlasOperation[];
+  uploads: number;
+};
+
+/** Atlas is not batched, so operations are keyed on operationName (unlike the subgraph). */
+export const test = networkTest.extend<{ atlas: AtlasFixture }>({
+  atlas: [
+    async ({ page, network }, use) => {
+      const atlas: AtlasFixture = {
+        user: null,
+        subscribed: false,
+        stakingEvents: [],
+        spamEvidenceIds: [],
+        uploadCid: "/ipfs/QmE2eUpload/file.json",
+        operations: [],
+        uploads: 0,
+      };
+
+      const answer = async (route: Route) => {
+        const { operationName, variables = {} } = route.request().postDataJSON();
+        atlas.operations.push({ operationName, variables });
+        switch (operationName) {
+          case "GetNonce":
+            return route.fulfill({ json: { data: { nonce: "e2eNonce00000001" } } });
+          case "Login": {
+            const address = await recoverMessageAddress({
+              message: variables.message,
+              signature: variables.signature as Hex,
+            });
+            return route.fulfill({ json: { data: { login: { accessToken: await createTestJwt({ address }) } } } });
+          }
+          case "Roles":
+            return route.fulfill({ json: { data: { roles: ATLAS_ROLES } } });
+          case "GetUser":
+            return atlas.user
+              ? route.fulfill({ json: { data: { user: atlas.user } } })
+              : route.fulfill({ json: { data: null, errors: [{ message: "User not found" }] } });
+          case "isSubscribed":
+            return route.fulfill({ json: { data: { isSubscribed: atlas.subscribed } } });
+          case "AddUser":
+            atlas.user = { email: variables.settings.email, isEmailVerified: false, emailUpdateableAt: null };
+            return route.fulfill({ json: { data: { addUser: true } } });
+          case "UpdateEmail":
+            atlas.user = { email: variables.newEmail, isEmailVerified: false, emailUpdateableAt: null };
+            return route.fulfill({ json: { data: { updateEmail: true } } });
+          case "ConfirmEmail":
+            return route.fulfill({
+              json: { data: { confirmEmail: { isConfirmed: true, isTokenExpired: false, isTokenInvalid: false } } },
+            });
+          case "SpamEvidences":
+            return route.fulfill({
+              json: { data: { courtv2EvidenceSpamsByGroupId: { evidenceIds: atlas.spamEvidenceIds } } },
+            });
+          case "GetStakingEvents":
+            return route.fulfill({
+              json: {
+                data: {
+                  userStakingEventsV2: {
+                    count: atlas.stakingEvents.length,
+                    items: atlas.stakingEvents.map((e, i) => ({
+                      item: {
+                        id: `stake-${i}`,
+                        blockHash: e.txHash,
+                        transactionHash: e.txHash,
+                        blockTimestamp: e.timestamp,
+                        network: { chainId: 421614 },
+                        args: { _address: e.address, _courtID: e.courtId, _amount: e.amount },
+                      },
+                    })),
+                  },
                 },
               },
-            }),
-          });
+            });
+          default:
+            network.unhandled.push(`Atlas operation ${operationName}`);
+            return route.fulfill({ status: 400, json: { errors: [{ message: `e2e: unmocked ${operationName}` }] } });
         }
+      };
 
-        // Roles / restrictions
-        if (operation === "Roles") {
-          return route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              data: {
-                roles: [
-                  {
-                    name: "Evidence",
-                    restriction: {
-                      maxSize: 20971520,
-                      allowedMimeTypes: [
-                        "video/mp4",
-                        "image/jpeg",
-                        "image/png",
-                        "image/jpg",
-                        "image/bmp",
-                        "image/gif",
-                        "image/tiff",
-                        "image/webp",
-                        "application/pdf",
-                        "text/csv",
-                        "text/html",
-                        "text/plain",
-                      ],
-                    },
-                  },
-                  {
-                    name: "Policy",
-                    restriction: {
-                      maxSize: 10485760,
-                      allowedMimeTypes: ["application/pdf", "text/markdown"],
-                    },
-                  },
-                  {
-                    name: "Generic",
-                    restriction: {
-                      maxSize: 409600,
-                      allowedMimeTypes: ["video/x-msvideo", "application/pdf", "image/png"],
-                    },
-                  },
-                ],
-              },
-            }),
-          });
-        }
-
-        // Default fallback
-        return route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ data: {} }),
-        });
+      await page.route(`${ATLAS}/graphql`, answer);
+      await page.route(`${ATLAS}/ipfs/file`, (route) => {
+        atlas.uploads += 1;
+        return route.fulfill({ contentType: "text/plain", body: atlas.uploadCid });
       });
 
-      /* ---------------- IPFS upload ---------------- */
-      await page.route("**/ipfs/file", async (route) => {
-        return route.fulfill({
-          status: 200,
-          contentType: "text/plain",
-          body: MOCK_IPFS_HASH,
-        });
-      });
-      await use(async () => {});
+      await use(atlas);
     },
-    { auto: true },
+    { auto: true, box: true },
   ],
 });

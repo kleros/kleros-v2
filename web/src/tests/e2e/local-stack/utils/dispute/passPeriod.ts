@@ -1,8 +1,8 @@
 import { privateKeyToAccount } from "viem/accounts";
 
+import { ACCOUNT_PKEYS } from "../../../utils/accounts";
 import { TimeFixture } from "../../fixtures";
 import type { HardhatClient } from "../../fixtures/hardhat";
-import { ACCOUNT_PKEYS } from "../accounts";
 import { klerosCoreContractConfig } from "../contracts";
 
 import { getDisputeInfo } from ".";

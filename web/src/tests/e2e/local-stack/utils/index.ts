@@ -1,6 +1,6 @@
 import { hardhat } from "viem/chains";
 
-export { ACCOUNT_PKEYS, type AccountKey } from "./accounts";
+export { ACCOUNT_PKEYS, type AccountKey } from "../../utils/accounts";
 
 export const ONE_THOUSAND_PNK = 1000n;
 export const PNK_DECIMALS = 18;
