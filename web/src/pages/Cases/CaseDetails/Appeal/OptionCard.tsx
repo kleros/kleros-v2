@@ -107,7 +107,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   }, [funding, required, t]);
 
   return (
-    <StyledCard hover {...props} {...{ canBeSelected, ref }}>
+    <StyledCard hover data-testid="appeal-option-card" {...props} {...{ canBeSelected, ref }}>
       <TopContainer>
         <TextContainer>
           <BlockLabel>{text}</BlockLabel>
