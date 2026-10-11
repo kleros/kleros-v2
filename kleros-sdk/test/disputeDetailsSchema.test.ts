@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
-import {
+import DisputeDetailsSchema, {
   ethAddressSchema,
   ensNameSchema,
   ethAddressOrEnsNameSchema,
+  isHexAddress,
+  isHexId,
+  isMultiaddr,
   TxHashSchema,
 } from "../src/dataMappings/utils/disputeDetailsSchema";
+import { aDispute } from "./fixtures/disputeDetails";
 
 describe("Dispute Details Schema", () => {
-  it("snapshot", () => {
-    expect({ foo: "bar" }).toMatchSnapshot();
-  });
-
   const validAddresses = [
     "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", // checksummed
     "0xD8DA6BF26964AF9D7EED9E03E53415D37AA96045", // uppercase
@@ -128,7 +128,105 @@ describe("Dispute Details Schema", () => {
     });
   });
 
-  describe.skip("disputeDetailsSchema", () => {
-    // TODO: add tests
+  describe("isMultiaddr", () => {
+    it.each([
+      "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/policy.pdf",
+      "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M",
+      "/dns4/example.com/tcp/443",
+      "ipfs://QmHash/policy.pdf",
+    ])("accepts %s", (uri) => {
+      expect(isMultiaddr(uri)).toBe(true);
+    });
+
+    it.each(["", "/ipfs", "ipfs://QmHash", "https://example.com/policy.pdf", "javascript:alert(1)", "/http/x"])(
+      "rejects %j",
+      (uri) => {
+        expect(isMultiaddr(uri)).toBe(false);
+      }
+    );
+  });
+
+  describe("isHexAddress / isHexId", () => {
+    it.each([
+      { fn: isHexAddress, value: validAddresses[0], expected: true },
+      { fn: isHexAddress, value: "0x1234", expected: false },
+      { fn: isHexId, value: "0x1", expected: true },
+      { fn: isHexId, value: `0x${"f".repeat(64)}`, expected: true },
+      { fn: isHexId, value: `0x${"f".repeat(65)}`, expected: false },
+      { fn: isHexId, value: "0x", expected: false },
+    ])("$fn.name($value) = $expected", ({ fn, value, expected }) => {
+      expect(fn(value)).toBe(expected);
+    });
+  });
+
+  describe("DisputeDetailsSchema", () => {
+    const evidence = {
+      name: "Exhibit A",
+      description: "A receipt",
+      transactionHash: validTxnHashes[0],
+      sender: "vitalik.eth",
+      timestamp: 1700000000,
+    };
+
+    it.each([
+      { name: "minimal", details: aDispute() },
+      {
+        name: "all optional fields",
+        details: aDispute({
+          attachment: { label: "Terms", uri: "/ipfs/QmX/terms.pdf" },
+          frontendUrl: "https://example.com",
+          metadata: { anything: [1, 2] },
+          category: "General",
+          lang: "en_US",
+          specification: "KIP001",
+          aliases: { Buyer: validAddresses[0], Seller: "vitalik.eth" },
+          extraEvidences: [evidence],
+        }),
+      },
+      {
+        name: "reserved answer flag",
+        details: aDispute({ answers: [{ id: "0x1", title: "A", description: "", reserved: true }] }),
+      },
+    ])("accepts $name", ({ details }) => {
+      expect(DisputeDetailsSchema.safeParse(details).success).toBe(true);
+    });
+
+    it("defaults extraEvidences to an empty array", () => {
+      expect(DisputeDetailsSchema.parse(aDispute()).extraEvidences).toEqual([]);
+    });
+
+    it.each([
+      { name: "missing title", details: aDispute({ title: undefined }), path: "title" },
+      { name: "missing version", details: aDispute({ version: undefined }), path: "version" },
+      { name: "numeric chain id", details: aDispute({ arbitratorChainID: 421614 }), path: "arbitratorChainID" },
+      {
+        name: "invalid arbitrator address",
+        details: aDispute({ arbitratorAddress: "0x1234" }),
+        path: "arbitratorAddress",
+      },
+      { name: "https policy URI", details: aDispute({ policyURI: "https://example.com/p.pdf" }), path: "policyURI" },
+      {
+        name: "decimal answer id",
+        details: aDispute({ answers: [{ id: "1", title: "A", description: "" }] }),
+        path: "answers",
+      },
+      {
+        name: "answer without description",
+        details: aDispute({ answers: [{ id: "0x1", title: "A" }] }),
+        path: "answers",
+      },
+      { name: "invalid alias", details: aDispute({ aliases: { Buyer: "not-an-address" } }), path: "aliases" },
+      {
+        name: "evidence with a bad transaction hash",
+        details: aDispute({ extraEvidences: [{ ...evidence, transactionHash: "0x1234" }] }),
+        path: "extraEvidences",
+      },
+      { name: "attachment without uri", details: aDispute({ attachment: { label: "x" } }), path: "attachment" },
+    ])("rejects $name", ({ details, path }) => {
+      const result = DisputeDetailsSchema.safeParse(details);
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0].path[0]).toBe(path);
+    });
   });
 });

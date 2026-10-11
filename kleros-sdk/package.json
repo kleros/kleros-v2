@@ -11,7 +11,7 @@
   "module": "./lib/src/index.js",
   "files": [
     "lib/**/*",
-    "!lib/**/test/*"
+    "!lib/**/test/**"
   ],
   "type": "commonjs",
   "volta": {
@@ -26,7 +26,9 @@
     "check-style": "eslint 'src/**/*.{ts,tsx}'",
     "check-types": "tsc --noEmit",
     "build": "yarn clean && tsc",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "release:patch": "scripts/publish.sh patch",
