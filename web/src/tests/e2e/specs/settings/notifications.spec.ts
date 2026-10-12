@@ -6,7 +6,7 @@ test.describe("notification settings", () => {
     await wallet.connect("alice");
 
     await page.getByRole("button", { name: "Settings" }).click();
-    await page.getByRole("button", { name: "Notifications" }).click();
+    await page.getByRole("tab", { name: "Notifications" }).click();
     await page.getByRole("button", { name: "Sign In" }).click();
     await page.getByRole("textbox", { name: /Email/ }).fill("juror@example.com");
     await page.getByRole("button", { name: "Save" }).click();
@@ -22,7 +22,7 @@ test.describe("notification settings", () => {
     await wallet.connect("alice");
 
     await page.getByRole("button", { name: "Settings" }).click();
-    await page.getByRole("button", { name: "Notifications" }).click();
+    await page.getByRole("tab", { name: "Notifications" }).click();
     await page.getByRole("button", { name: "Sign In" }).click();
     await page.getByRole("textbox", { name: /Email/ }).fill("not-an-email");
 

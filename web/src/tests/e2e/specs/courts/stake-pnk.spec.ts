@@ -5,11 +5,8 @@ import { klerosCore, pnk } from "../../contracts";
 import { expect, test } from "../../fixtures";
 import { Revert } from "../../mocks/rpc/server";
 
-// NumberInputField swaps a read-only input for an editable one on focus.
 const typeAmount = async (page: Page, amount: string) => {
-  const input = page.getByRole("textbox", { name: "Amount to stake" });
-  await input.click();
-  await input.fill(amount);
+  await page.getByRole("spinbutton", { name: "Amount to stake" }).fill(amount);
 };
 
 test.describe("staking in a court", () => {

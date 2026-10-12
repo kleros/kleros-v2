@@ -12,7 +12,7 @@ test.describe("dispute resolver", () => {
     await expect(page.getByText("Create a case", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Next" }).click();
 
-    await page.getByTestId("resolver-title-input").fill("Late delivery refund");
+    await page.getByRole("textbox", { name: "Case title" }).fill("Late delivery refund");
     await page.getByRole("button", { name: "Next" }).click();
 
     await page.getByLabel("editable markdown").fill("The buyer asks for a refund.");
@@ -24,17 +24,18 @@ test.describe("dispute resolver", () => {
     await expect(page.getByRole("radio", { name: "All the jurors in this court" })).toBeChecked();
     await page.getByRole("button", { name: "Next" }).click();
 
-    await page.getByRole("textbox", { name: "eg. Freelance" }).fill("Freelance");
+    await page.getByRole("textbox", { name: "Case category" }).fill("Freelance");
     await page.getByRole("button", { name: "Next" }).click();
 
     // Number of jurors keeps its default.
     await page.getByRole("button", { name: "Next" }).click();
 
-    await page.getByRole("textbox", { name: "eg. How much should Alice" }).fill("Should the buyer be refunded?");
-    await page.getByRole("textbox", { name: "eg. Pay 150 DAI" }).first().fill("Refund");
-    await page.getByRole("textbox", { name: "Description for Option 1" }).fill("Refund the buyer");
-    await page.getByRole("textbox", { name: "eg. Pay 150 DAI" }).nth(1).fill("No refund");
-    await page.getByRole("textbox", { name: "Description for Option 2" }).fill("Pay the seller");
+    await page.getByRole("textbox", { name: "Question" }).fill("Should the buyer be refunded?");
+    // Both description fields are labelled "Option Description"; the placeholder tells them apart.
+    await page.getByRole("textbox", { name: "Voting Option 1" }).fill("Refund");
+    await page.getByPlaceholder("Description for Option 1").fill("Refund the buyer");
+    await page.getByRole("textbox", { name: "Voting Option 2" }).fill("No refund");
+    await page.getByPlaceholder("Description for Option 2").fill("Pay the seller");
     await page.getByRole("button", { name: "Next" }).click();
 
     // Notable persons are optional.

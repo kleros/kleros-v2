@@ -1,9 +1,15 @@
+import type { Page } from "@playwright/test";
+
 import type { Round } from "src/graphql/graphql";
 
 import type { Fake } from "../../builders/types";
 import { disputeKitClassic } from "../../contracts";
 import { expect, test } from "../../fixtures";
 import { ALICE, drawJuror } from "../../mocks/subgraph/world";
+
+// Each option's Tooltip trigger is a div[role="button"] with the same name, so match the real <button>.
+const voteOption = (page: Page, name: string) =>
+  page.getByRole("button", { name, exact: true }).and(page.locator("button"));
 
 test.describe("voting as a drawn juror", () => {
   test("casts a public vote with a justification", async ({ page, wallet, rpc, subgraph }) => {
@@ -13,7 +19,7 @@ test.describe("voting as a drawn juror", () => {
     await wallet.connect("alice");
 
     await page.getByRole("textbox", { name: "editable markdown" }).fill("The seller delivered on time.");
-    await page.getByRole("button", { name: "Yes", exact: true }).click();
+    await voteOption(page, "Yes").click();
     await expect(page.getByRole("heading", { name: "Confirm your vote" })).toBeVisible();
     await page.getByRole("button", { name: "Confirm vote" }).click();
 
@@ -31,7 +37,7 @@ test.describe("voting as a drawn juror", () => {
     await page.goto("/#/cases/2/voting");
     await wallet.connect("alice");
 
-    await page.getByRole("button", { name: "No", exact: true }).click();
+    await voteOption(page, "No").click();
     await page.getByRole("button", { name: "Confirm vote" }).click();
 
     await expect(page.getByText("Thanks for voting")).toBeVisible();
@@ -45,6 +51,6 @@ test.describe("voting as a drawn juror", () => {
     await wallet.connect("alice");
 
     await expect(page.getByText("You were not drawn in current round.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Yes", exact: true })).toBeHidden();
+    await expect(voteOption(page, "Yes")).toBeHidden();
   });
 });

@@ -14,7 +14,7 @@ test.describe("case evidence", () => {
     await expect(page.getByText("Delivery receipt")).toBeVisible();
     await expect(page.getByText("Chat log")).toBeVisible();
 
-    await page.getByRole("textbox", { name: /Search evidence/ }).fill("delay");
+    await page.getByRole("searchbox", { name: /Search evidence/ }).fill("delay");
 
     await expect(page.getByText("Chat log")).toBeVisible();
     await expect(page.getByText("Delivery receipt")).toBeHidden();

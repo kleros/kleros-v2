@@ -36,7 +36,7 @@ test.describe("case overview across periods", () => {
       await expect(page.getByRole("heading", { name: `Case ${id} title` })).toBeVisible();
       await expect(page.getByText(status, { exact: true })).toBeVisible();
       await expect(page.getByText(detail).first()).toBeVisible();
-      const appeal = page.getByRole("button", { name: "Appeal", exact: true });
+      const appeal = page.getByRole("tab", { name: "Appeal", exact: true });
       if (appealTab) await expect(appeal).toBeEnabled();
       else await expect(appeal).toBeDisabled();
     });
@@ -45,15 +45,15 @@ test.describe("case overview across periods", () => {
   test("switches between the case tabs", async ({ page }) => {
     await page.goto("/#/cases/4/overview");
 
-    await page.getByRole("button", { name: "Evidence", exact: true }).click();
+    await page.getByRole("tab", { name: "Evidence", exact: true }).click();
     await expect(page).toHaveURL(/#\/cases\/4\/evidence$/);
     await expect(page.getByText("There is no evidence submitted yet")).toBeVisible();
 
-    await page.getByRole("button", { name: "Votes", exact: true }).click();
+    await page.getByRole("tab", { name: "Votes", exact: true }).click();
     await expect(page).toHaveURL(/#\/cases\/4\/voting$/);
     await expect(page.getByRole("heading", { name: "Voting History" })).toBeVisible();
 
-    await page.getByRole("button", { name: "Appeal", exact: true }).click();
+    await page.getByRole("tab", { name: "Appeal", exact: true }).click();
     await expect(page).toHaveURL(/#\/cases\/4\/appeal$/);
     await expect(page.getByRole("heading", { name: "Appeal crowdfunding" })).toBeVisible();
   });

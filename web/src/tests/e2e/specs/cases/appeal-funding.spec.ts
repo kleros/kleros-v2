@@ -39,7 +39,8 @@ test.describe("appeal crowdfunding", () => {
     await wallet.connect("alice");
 
     await page.getByText("Yes", { exact: true }).click();
-    await expect(page.getByRole("spinbutton", { name: "Amount to fund" })).toHaveValue("0.02");
+    await expect(page.getByRole("radio", { name: /^Yes Jury decision/ })).toBeChecked();
+    await expect(page.getByRole("spinbutton", { name: "How much ETH do you want to contribute?" })).toHaveValue("0.02");
     await page.getByRole("button", { name: "Fund", exact: true }).click();
 
     await expect(page.getByText("Thanks for funding the appeal")).toBeVisible();
