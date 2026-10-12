@@ -1,4 +1,4 @@
-# kleros-app — agent guide
+# kleros-app: agent guide
 
 ## Commands (from the repo root)
 

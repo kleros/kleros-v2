@@ -1,4 +1,4 @@
-# kleros-v2 — agent guide
+# kleros-v2: agent guide
 
 Kleros Court v2 monorepo: Solidity contracts, The Graph subgraphs, the court web app and its supporting packages. Yarn 4 workspaces (`nodeLinker: node-modules`), Node 20 (`.nvmrc`).
 

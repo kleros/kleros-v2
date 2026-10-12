@@ -1,4 +1,4 @@
-# web — agent guide
+# web: agent guide
 
 Court app: Vite 5, React 18, HashRouter, wagmi v2 + Reown AppKit, react-query, graphql-request, styled-components.
 

@@ -14,6 +14,6 @@ cd "$(git rev-parse --show-toplevel)"
 
 # Prettier refuses symlinks passed explicitly; submodule paths would make it descend into vendored code.
 git ls-files -z --cached --others --exclude-standard \
-  | grep -zv '^contracts/lib/' \
+  | grep -zv -e '^contracts/lib/' -e '^\.claude/' \
   | while IFS= read -r -d '' f; do [ -L "$f" ] || printf '%s\0' "$f"; done \
   | xargs -0 yarn prettier "$flag" --ignore-unknown --log-level warn --config prettier-config/.prettierrc.js
