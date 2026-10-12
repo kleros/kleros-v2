@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import styled, { useTheme, css } from "styled-components";
 
 const Container = styled.div<{ isSmallDisplay: boolean }>`
@@ -84,6 +84,7 @@ const StatDisplay: React.FC<IStatDisplay> = ({
   ...props
 }) => {
   const theme = useTheme();
+  const titleId = useId();
   const COLORS = {
     red: createPair(theme.error, theme.errorLight),
     orange: createPair(theme.warning, theme.warningLight),
@@ -93,10 +94,10 @@ const StatDisplay: React.FC<IStatDisplay> = ({
   };
 
   return (
-    <Container {...{ isSmallDisplay }} {...props}>
+    <Container role="group" aria-labelledby={titleId} {...{ isSmallDisplay }} {...props}>
       <SVGContainer {...{ ...COLORS[color], isSmallDisplay }}>{<Icon />}</SVGContainer>
       <TextContainer {...{ isSmallDisplay }}>
-        <StyledTitle>{title}</StyledTitle>
+        <StyledTitle id={titleId}>{title}</StyledTitle>
         <StyledValue {...{ isSmallDisplay }}>{text}</StyledValue>
         <StyledUSDValue {...{ isSmallDisplay }}>{subtext}</StyledUSDValue>
       </TextContainer>

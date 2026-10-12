@@ -25,19 +25,10 @@ const createDispute = async () => {
   const feeForJuror = await gateway.arbitrationCost(extraData);
   let tx;
   try {
-    tx = await (
-      await weth.increaseAllowance(arbitrable.address, feeForJuror, options)
-    ).wait();
+    tx = await (await weth.increaseAllowance(arbitrable.address, feeForJuror, options)).wait();
     console.log("txID increateAllowance: %s", tx?.transactionHash);
     tx = await (
-      await arbitrable.createDispute(
-        choices,
-        extraData,
-        metaEvidenceID,
-        evidenceID,
-        feeForJuror,
-        options,
-      )
+      await arbitrable.createDispute(choices, extraData, metaEvidenceID, evidenceID, feeForJuror, options)
     ).wait();
     console.log("txID createDispute: %s", tx?.transactionHash);
   } catch (e) {
@@ -49,11 +40,7 @@ const createDispute = async () => {
   } finally {
     if (tx) {
       let filter = gateway.filters.DisputeCreation();
-      let logs = await gateway.queryFilter(
-        filter,
-        tx.blockNumber,
-        tx.blockNumber,
-      );
+      let logs = await gateway.queryFilter(filter, tx.blockNumber, tx.blockNumber);
       console.log("Gateway DisputeID: %s", logs[0]?.args?._disputeID);
 
       filter = gateway.filters.OutgoingDispute();
@@ -66,9 +53,7 @@ const createDispute = async () => {
 const epochPeriod = await receiver.epochPeriod();
 
 const epochID = async () => {
-  return Math.floor(
-    (await ethers.provider.getBlock("latest")).timestamp / epochPeriod,
-  );
+  return Math.floor((await ethers.provider.getBlock("latest")).timestamp / epochPeriod);
 };
 
 const claim = async (epoch, merkleRoot) => {
@@ -103,11 +88,7 @@ const verifyBatch = async (epoch) => {
     }
   } finally {
     const filter = receiver.filters.BatchVerified();
-    const logs = await receiver.queryFilter(
-      filter,
-      tx?.blockNumber,
-      tx?.blockNumber,
-    );
+    const logs = await receiver.queryFilter(filter, tx?.blockNumber, tx?.blockNumber);
     console.log("BatchVerified: %O", logs[0]?.args);
   }
 };
@@ -115,9 +96,7 @@ const verifyBatch = async (epoch) => {
 const verifyAndRelay = async (epoch, message) => {
   let tx;
   try {
-    tx = await (
-      await receiver.verifyAndRelayMessage(epoch, [], message, options)
-    ).wait();
+    tx = await (await receiver.verifyAndRelayMessage(epoch, [], message, options)).wait();
     console.log("txID: %s", tx?.transactionHash);
   } catch (e) {
     if (typeof e === "string") {
@@ -127,19 +106,11 @@ const verifyAndRelay = async (epoch, message) => {
     }
   } finally {
     let filter = receiver.filters.MessageRelayed();
-    let logs = await receiver.queryFilter(
-      filter,
-      tx?.blockNumber,
-      tx?.blockNumber,
-    );
+    let logs = await receiver.queryFilter(filter, tx?.blockNumber, tx?.blockNumber);
     console.log("MessageRelayed: %O", logs[0]?.args);
 
     filter = arbitrable.filters.Ruling();
-    logs = await arbitrable.queryFilter(
-      filter,
-      tx?.blockNumber,
-      tx?.blockNumber,
-    );
+    logs = await arbitrable.queryFilter(filter, tx?.blockNumber, tx?.blockNumber);
     console.log("Ruling: %O", logs[0]?.args);
   }
 };

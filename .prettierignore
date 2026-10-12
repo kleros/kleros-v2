@@ -1,0 +1,26 @@
+# Generated or vendored output that nested .gitignore files exclude but a root `prettier .` would still read.
+contracts/lib/
+contracts/typechain-types/
+contracts/artifacts/
+contracts/cache_hardhat/
+contracts/deployments/**/solcInputs/
+contracts/deployments/localhost/
+**/dist/
+**/lib-esm/
+kleros-sdk/lib/
+web/src/graphql/
+web/src/hooks/contracts/generated.ts
+web-devtools/src/graphql-generated/
+web-devtools/src/hooks/contracts/generated.ts
+web-devtools/.next/
+subgraph/**/generated/
+subgraph/**/build/
+services/graph-node/data/
+**/playwright-report/
+**/test-results/
+.yarn/
+
+# Mustache template, not valid JSON until rendered.
+kleros-sdk/config/v2-disputetemplate/reality/NewDisputeTemplate.reality.jsonc
+# Prettier output is not stable for a comment after the root object.
+kleros-sdk/config/v2-disputetemplate/simple/example/NewDispute.simple.jsonc

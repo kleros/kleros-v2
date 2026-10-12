@@ -11,7 +11,7 @@
   "module": "./lib/src/index.js",
   "files": [
     "lib/**/*",
-    "!lib/**/test/*"
+    "!lib/**/test/**"
   ],
   "type": "commonjs",
   "volta": {
@@ -26,7 +26,9 @@
     "check-style": "eslint 'src/**/*.{ts,tsx}'",
     "check-types": "tsc --noEmit",
     "build": "yarn clean && tsc",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "release:patch": "scripts/publish.sh patch",
@@ -38,14 +40,16 @@
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@types/mustache": "^4.2.5",
     "@types/node": "^20.19.24",
-    "@vitest/ui": "^1.6.1",
+    "@vitest/coverage-v8": "4.0.17",
+    "@vitest/ui": "4.0.17",
     "eslint": "^9.15.0",
     "mocha": "^10.8.2",
+    "msw": "^2.15.0",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "viem": "^2.24.1",
-    "vitest": "^1.6.1"
+    "vitest": "4.0.17"
   },
   "dependencies": {
     "@reality.eth/reality-eth-lib": "^3.4.32",

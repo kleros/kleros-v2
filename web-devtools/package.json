@@ -22,7 +22,7 @@
     "generate:gql": "graphql-codegen",
     "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate",
     "check-style": "eslint 'src/**/*.{ts,tsx}'",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit --incremental false"
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {

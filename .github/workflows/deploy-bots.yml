@@ -1,6 +1,6 @@
 on: [workflow_dispatch]
 
-permissions:  # added using https://github.com/step-security/secure-workflows
+permissions: # added using https://github.com/step-security/secure-workflows
   contents: read
 
 jobs:
@@ -20,12 +20,12 @@ jobs:
           aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_KEY }}
           aws-region: us-east-2
-      
-      # sam build 
+
+      # sam build
       - run: sam build --use-container
         working-directory: bots
 
-      # Run Unit tests- Specify unit tests here 
+      # Run Unit tests- Specify unit tests here
 
       # sam deploy
       - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name kleros-v2-bots --s3-bucket kleros-v2-bots --capabilities CAPABILITY_IAM --region us-east-2

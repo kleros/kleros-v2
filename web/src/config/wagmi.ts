@@ -53,8 +53,20 @@ export const appKit = createAppKit({
   },
 });
 
-export const createMockAdapter = async (addressOrPrivateKey: Address | Hex, features?: MockParameters["features"]) => {
+export const createMockAdapter = async (
+  addressOrPrivateKey: Address | Hex,
+  features?: MockParameters["features"],
+  connectChainId?: number
+) => {
   const address = isAddress(addressOrPrivateKey) ? addressOrPrivateKey : privateKeyToAddress(addressOrPrivateKey);
+  const mockConnector = mock({ accounts: [address], features });
+  // e2e: connect on `connectChainId` instead of the network AppKit requests, to exercise wrong-network states.
+  const connector: typeof mockConnector = connectChainId
+    ? (config) => {
+        const instance = mockConnector(config);
+        return { ...instance, connect: (params) => instance.connect({ ...params, chainId: connectChainId }) };
+      }
+    : mockConnector;
 
   // if on hardhat, allow sending txn from this address too.
   // This can be later used to impersonate signable account on mainnet fork too
@@ -71,7 +83,7 @@ export const createMockAdapter = async (addressOrPrivateKey: Address | Hex, feat
   //     });
   //   }
   return new WagmiAdapter({
-    connectors: [mock({ accounts: [address], features })],
+    connectors: [connector],
     networks: chains,
     projectId,
     transports,

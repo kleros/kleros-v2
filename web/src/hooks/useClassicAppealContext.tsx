@@ -122,7 +122,7 @@ export const useSelectedOptionContext = () => useContext(SelectedOptionContext);
 export const useFundingContext = () => useContext(FundingContext);
 export const useOptionsContext = () => useContext(OptionsContext);
 
-const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
+export const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
   if (!dispute) return undefined;
 
   const period = dispute.period;
@@ -139,7 +139,7 @@ const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
   return getLocalRounds(dispute.disputeKitDispute)[adjustedRoundIndex];
 };
 
-const getOptions = (dispute?: DisputeDetails, classicDispute?: ClassicAppealQuery["dispute"]) => {
+export const getOptions = (dispute?: DisputeDetails, classicDispute?: ClassicAppealQuery["dispute"]) => {
   if (!dispute || Object.keys(dispute).length === 0) return [];
   const currentLocalRound = getCurrentLocalRound(classicDispute);
   const classicAnswers = currentLocalRound?.answers;
@@ -157,12 +157,12 @@ const getOptions = (dispute?: DisputeDetails, classicDispute?: ClassicAppealQuer
   return options;
 };
 
-const getFundedChoices = (dispute?: ClassicAppealQuery["dispute"]) => {
+export const getFundedChoices = (dispute?: ClassicAppealQuery["dispute"]) => {
   const currentLocalRound = getCurrentLocalRound(dispute);
   return currentLocalRound?.fundedChoices;
 };
 
-const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
+export const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
   const currentLocalRound = getCurrentLocalRound(dispute);
   return currentLocalRound?.winningChoice;
 };
@@ -172,7 +172,7 @@ export const getRequiredFunding = (appealCost = 0n, stake_multiplier = 0n): bigi
 
 function useLoserSideCountdown(lastPeriodChange = "0", appealPeriodDuration = "0", loserTimeMultiplier = "0") {
   const deadline = useMemo(
-    () => getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier),
+    () => getLoserSideDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier),
     [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]
   );
   return useCountdown(deadline);
@@ -180,13 +180,20 @@ function useLoserSideCountdown(lastPeriodChange = "0", appealPeriodDuration = "0
 
 function useWinnerSideCountdown(lastPeriodChange = "0", appealPeriodDuration = "0") {
   const deadline = useMemo(
-    () => Number(BigInt(lastPeriodChange) + BigInt(appealPeriodDuration)),
+    () => getWinnerSideDeadline(lastPeriodChange, appealPeriodDuration),
     [lastPeriodChange, appealPeriodDuration]
   );
   return useCountdown(deadline);
 }
 
-const getDeadline = (lastPeriodChange: string, appealPeriodDuration: string, loserTimeMultiplier: string): number => {
+export const getWinnerSideDeadline = (lastPeriodChange: string, appealPeriodDuration: string): number =>
+  Number(BigInt(lastPeriodChange) + BigInt(appealPeriodDuration));
+
+export const getLoserSideDeadline = (
+  lastPeriodChange: string,
+  appealPeriodDuration: string,
+  loserTimeMultiplier: string
+): number => {
   const parsedLastPeriodChange = BigInt(lastPeriodChange);
   const parsedAppealPeriodDuration = BigInt(appealPeriodDuration);
   const parsedLoserTimeMultiplier = BigInt(loserTimeMultiplier);

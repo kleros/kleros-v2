@@ -1,84 +1,65 @@
 import { defineConfig, devices } from "@playwright/test";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+const isCI = !!process.env.CI;
+const MOCKED_PORT = 4173;
+const LOCAL_STACK_URL = "http://localhost:5173";
+const isLocalStackRun = process.argv.some((arg) => arg.includes("local-stack"));
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
-  testDir: "./src/tests",
-  /* Run tests in files in parallel */
-  fullyParallel: false,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: "html",
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
-
-    // TODO: make configurable, in case we want to point the test at other deployments in future
-    baseURL: "http://localhost:5173/#",
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "on-first-retry",
-
-    // Use english by default on all tests
-    locale: "en-US",
+  testDir: "./src/tests/e2e",
+  fullyParallel: true,
+  forbidOnly: isCI,
+  failOnFlakyTests: isCI,
+  retries: isCI ? 1 : 0,
+  workers: isCI ? 2 : undefined,
+  reporter: isCI
+    ? [["list"], ["junit", { outputFile: "test-results/junit.xml" }], ["html", { open: "never" }], ["github"]]
+    : [["line"], ["json", { outputFile: "test-results/results.json" }], ["html", { open: "never" }]],
+  expect: {
+    timeout: 10_000,
+    toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: "disabled", caret: "hide" },
   },
-
-  /* Configure projects for major browsers */
+  // Visual baselines are rendered on Linux (Playwright docker image) only; see specs/visual/README.md.
+  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}-{projectName}-{platform}{ext}",
+  use: {
+    locale: "en-US",
+    timezoneId: "UTC",
+    trace: "retain-on-failure",
+    video: "retain-on-failure",
+    screenshot: "only-on-failure",
+    serviceWorkers: "block",
+  },
   projects: [
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      name: "mocked",
+      testIgnore: ["**/local-stack/**"],
+      grepInvert: /@local-stack|@visual/,
+      use: { ...devices["Desktop Chrome"], baseURL: `http://localhost:${MOCKED_PORT}/#` },
     },
-
-    // {
-    //   name: "firefox",
-    //   use: { ...devices["Desktop Firefox"] },
-    // },
-
-    // {
-    //   name: "webkit",
-    //   use: { ...devices["Desktop Safari"] },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    {
+      name: "visual",
+      testIgnore: ["**/local-stack/**"],
+      grep: /@visual/,
+      use: { ...devices["Desktop Chrome"], baseURL: `http://localhost:${MOCKED_PORT}/#` },
+    },
+    {
+      // Needs `yarn local-stack` running (hardhat, graph-node, web on :5173); never run in PR CI.
+      name: "local-stack",
+      testMatch: ["**/local-stack/**/*.spec.ts"],
+      grep: /@local-stack/,
+      workers: 1,
+      fullyParallel: false,
+      use: { ...devices["Desktop Chrome"], baseURL: `${LOCAL_STACK_URL}/#` },
+    },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  webServer: isLocalStackRun
+    ? undefined
+    : {
+        command: "yarn e2e:serve",
+        url: `http://localhost:${MOCKED_PORT}`,
+        reuseExistingServer: !isCI,
+        timeout: 300_000,
+        stdout: "ignore",
+        stderr: "pipe",
+      },
 });

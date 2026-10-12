@@ -47,7 +47,7 @@
     "linguoAssignedPrice": "81670000000000000000",
     "linguoMinimumPrice": "0",
     "linguoMaximumPrice": "500000000000000000000",
-    
+
     // https://github.com/kleros/linguo-script/blob/master/src/index.js#L31-L44
     "linguoRequester": "0xabc996a233895be74a66f451f1019ca97342aaaa",
     "linguoTranslator": "0xbcd996a233895be74a66f451f1019ca97342bbbb",

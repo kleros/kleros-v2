@@ -3,51 +3,21 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~*": [
-        "./*"
-      ],
-      "src*": [
-        "./src*"
-      ],
-      "utils*": [
-        "./src/utils*"
-      ],
-      "actions*": [
-        "./src/actions*"
-      ],
-      "assets*": [
-        "./src/assets*"
-      ],
-      "components*": [
-        "./src/components*"
-      ],
-      "connectors*": [
-        "./src/connectors*"
-      ],
-      "context*": [
-        "./src/context*"
-      ],
-      "layout*": [
-        "./src/layout*"
-      ],
-      "consts*": [
-        "./src/consts*"
-      ],
-      "hooks*": [
-        "./src/hooks*"
-      ],
-      "queries*": [
-        "./src/hooks/queries*"
-      ],
-      "pages*": [
-        "./src/pages*"
-      ],
-      "styles*": [
-        "./src/styles*"
-      ],
-      "svgs*": [
-        "./src/assets/svgs*"
-      ]
+      "~*": ["./*"],
+      "src*": ["./src*"],
+      "utils*": ["./src/utils*"],
+      "actions*": ["./src/actions*"],
+      "assets*": ["./src/assets*"],
+      "components*": ["./src/components*"],
+      "connectors*": ["./src/connectors*"],
+      "context*": ["./src/context*"],
+      "layout*": ["./src/layout*"],
+      "consts*": ["./src/consts*"],
+      "hooks*": ["./src/hooks*"],
+      "queries*": ["./src/hooks/queries*"],
+      "pages*": ["./src/pages*"],
+      "styles*": ["./src/styles*"],
+      "svgs*": ["./src/assets/svgs*"]
     },
     "rootDir": "src",
     "outDir": "build/dist",
@@ -68,15 +38,9 @@
     "noImplicitAny": true,
     "resolveJsonModule": true,
     "target": "ES2020",
-    "types": [
-      "vite/client",
-      "vite-plugin-svgr/client"
-    ]
+    "types": ["vite/client", "vite-plugin-svgr/client"]
   },
-  "include": [
-    "src/**/*",
-    "global.d.ts"
-  ],
+  "include": ["src/**/*", "global.d.ts"],
   "exclude": [
     "node_modules",
     "build",

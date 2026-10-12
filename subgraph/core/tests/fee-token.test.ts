@@ -292,3 +292,41 @@ describe("FeeToken - convertTokenAmountToEth", () => {
     assert.bigIntEquals(originalEth, recoveredEth);
   });
 });
+
+describe("FeeToken - conversion edge cases", () => {
+  afterEach(() => {
+    clearStore();
+  });
+
+  test(
+    "KNOWN BUG: convertTokenAmountToEth handles 18 rate decimals",
+    () => {
+      const tokenAddress = Address.fromString(TOKEN_ADDRESS);
+      const klerosCoreAddr = Address.fromString(KLEROS_CORE_ADDRESS);
+      const ratesConverterAddr = Address.fromString(RATES_CONVERTER_ADDRESS);
+
+      // 1:1 rate with 18 decimals; 10 ** 18 does not fit in an i32.
+      const oneToOne = BigInt.fromString("1000000000000000000");
+      mockRatesConverterCalls(klerosCoreAddr, ratesConverterAddr, tokenAddress, oneToOne, 18);
+
+      const ethAmount = convertTokenAmountToEth(tokenAddress, BigInt.fromI32(1000), klerosCoreAddr);
+      assert.bigIntEquals(BigInt.fromI32(1000), ethAmount);
+    },
+    true
+  );
+
+  test(
+    "KNOWN BUG: convertEthToTokenAmount returns 0 instead of aborting when the rate is 0",
+    () => {
+      const tokenAddress = Address.fromString(TOKEN_ADDRESS);
+      const klerosCoreAddr = Address.fromString(KLEROS_CORE_ADDRESS);
+      const ratesConverterAddr = Address.fromString(RATES_CONVERTER_ADDRESS);
+
+      mockRatesConverterCalls(klerosCoreAddr, ratesConverterAddr, tokenAddress, BigInt.zero(), 6);
+
+      const tokenAmount = convertEthToTokenAmount(tokenAddress, BigInt.fromI32(1000), klerosCoreAddr);
+      assert.bigIntEquals(BigInt.zero(), tokenAmount);
+    },
+    true
+  );
+});

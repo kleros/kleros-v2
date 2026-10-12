@@ -43,6 +43,8 @@
     "lint-staged": "^13.3.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
+    "prettier": "^3.3.3",
+    "prettier-plugin-solidity": "^1.4.1",
     "process": "^0.11.10",
     "string_decoder": "^1.3.0"
   },
@@ -98,7 +100,12 @@
     "build:web-devtools:ci": "yarn workspaces focus @kleros/kleros-v2-web-devtools && yarn workspaces foreach -Ap --include contracts run build && yarn workspace @kleros/kleros-v2-contracts run build:all && yarn workspace @kleros/kleros-v2-web-devtools build-netlify",
     "build:contract-docs": "forge doc --build --out contracts/dist",
     "start:contract-docs": "forge doc --serve",
-    "check-types": "yarn workspaces foreach -A -v run check-types"
+    "ci:prepare": "scripts/ci-prepare.sh",
+    "check-types": "yarn workspaces foreach -Apv --exclude kleros-v2 run check-types",
+    "check-style": "yarn workspaces foreach -Apv --exclude kleros-v2 run check-style",
+    "test": "yarn workspaces foreach -Apv --include @kleros/kleros-sdk --include @kleros/kleros-app --include @kleros/kleros-v2-web --include @kleros/kleros-v2-subgraph run test",
+    "format": "scripts/format.sh write",
+    "format:check": "scripts/format.sh check"
   },
   "alias": {
     "process": "process/browser.js",

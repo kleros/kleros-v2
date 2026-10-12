@@ -12,16 +12,6 @@
     "noEmit": false,
     "declaration": true
   },
-  "include": [
-    "src",
-    "test"
-  ],
-  "exclude": [
-    "build",
-    "dist",
-    "lib",
-    "node_modules",
-    "scripts",
-    "webpack"
-  ]
+  "include": ["src", "test"],
+  "exclude": ["build", "dist", "lib", "node_modules", "scripts", "webpack"]
 }

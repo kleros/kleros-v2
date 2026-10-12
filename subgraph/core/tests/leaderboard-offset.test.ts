@@ -1,6 +1,7 @@
 import { assert, test, describe, clearStore, beforeEach } from "matchstick-as/assembly/index";
 import { BigInt, Address } from "@graphprotocol/graph-ts";
-import { createOffsetEvent, createUser } from "./leaderboard-offset-utils";
+import { createOffsetEvent } from "./utils/events";
+import { seedUser } from "./utils/entities";
 import { handleLeaderboardOffset } from "../src/LeaderboardOffset";
 
 const address = Address.fromString("0x0000000000000000000000000000000000000001");
@@ -11,21 +12,21 @@ describe("Handle leaderboard offset", () => {
   });
 
   test("Should add a positive offset to the user's leaderboard score", () => {
-    const user = createUser(address);
+    const user = seedUser(address);
     const event = createOffsetEvent(address, BigInt.fromI32(100));
     handleLeaderboardOffset(event);
     assert.fieldEquals("User", user.id, "leaderboardOffset", "100");
   });
 
   test("Should add a negative offset to the user's leaderboard score", () => {
-    const user = createUser(address);
+    const user = seedUser(address);
     const event = createOffsetEvent(address, BigInt.fromI32(-100));
     handleLeaderboardOffset(event);
     assert.fieldEquals("User", user.id, "leaderboardOffset", "-100");
   });
 
   test("Should recompute coherence score properly", () => {
-    const user = createUser(address);
+    const user = seedUser(address);
     user.totalCoherentVotes = BigInt.fromI32(50);
     user.totalResolvedVotes = BigInt.fromI32(80);
     user.save();
@@ -34,5 +35,10 @@ describe("Handle leaderboard offset", () => {
     assert.fieldEquals("User", user.id, "leaderboardOffset", "20");
     assert.fieldEquals("User", user.id, "totalCoherentVotes", "70");
     assert.fieldEquals("User", user.id, "coherenceScore", "78");
+  });
+
+  test("Should ignore an offset for an unknown user", () => {
+    handleLeaderboardOffset(createOffsetEvent(address, BigInt.fromI32(5)));
+    assert.entityCount("User", 0);
   });
 });

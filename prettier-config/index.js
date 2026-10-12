@@ -11,6 +11,20 @@ module.exports = {
       },
     },
     {
+      // json-stringify rejects comments.
+      files: ["tsconfig*.json"],
+      options: {
+        parser: "json",
+      },
+    },
+    {
+      // Dispute templates get pasted into strict JSON parsers.
+      files: ["*.jsonc"],
+      options: {
+        trailingComma: "none",
+      },
+    },
+    {
       files: ["*.sol"],
       options: {
         parser: "solidity-parse",
@@ -19,7 +33,6 @@ module.exports = {
         useTabs: false,
         singleQuote: false,
         bracketSpacing: false,
-        explicitTypes: "preserve",
       },
     },
   ],

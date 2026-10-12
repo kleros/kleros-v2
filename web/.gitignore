@@ -42,3 +42,7 @@ yarn-error.log*
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+/dist-e2e
+# Visual baselines are Linux-only (scripts/e2e-visual.sh)
+/src/tests/e2e/__screenshots__/**/*-darwin.png
+/src/tests/e2e/__screenshots__/**/*-win32.png

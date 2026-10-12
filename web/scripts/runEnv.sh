@@ -10,11 +10,11 @@ shift
 commands="$*"
 
 if [[ -z "$deployment" ]]; then
-    echo "usage: $(basename "$0") <local|devnet|testnet|mainnet>"
+    echo "usage: $(basename "$0") <local|devnet|testnet|mainnet|e2e>"
     exit 1
 fi
 
-valid_deployments=("local" "devnet" "testnet" "mainnet")
+valid_deployments=("local" "devnet" "testnet" "mainnet" "e2e")
 if [[ ! " ${valid_deployments[*]} " =~ ${deployment} ]]; then
     echo "Invalid deployment option. Please choose either: ${valid_deployments[*]}."
     exit 1

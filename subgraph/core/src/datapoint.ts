@@ -28,7 +28,10 @@ function updateDataPoint(delta: BigInt, timestamp: BigInt, variable: string): vo
   }
   const dayID = timestamp.toI32() / 86400;
   const dayStartTimestamp = dayID * 86400;
+  // graph-node fills a missing `id` from the store key; matchstick rejects the entity without it.
+  newCounter.set("id", Value.fromString(dayStartTimestamp.toString()));
   store.set("Counter", dayStartTimestamp.toString(), newCounter);
+  newCounter.set("id", Value.fromString("0"));
   store.set("Counter", "0", newCounter);
 }
 
@@ -112,8 +115,8 @@ export function updateCourtCumulativeMetric(courtId: string, delta: BigInt, time
   currentCounter.save();
 
   // Update daily snapshot
-  let dayID = timestamp.toI32() / 86400; // Seconds to days
-  let dayStartTimestamp = dayID * 86400;
+  const dayID = timestamp.toI32() / 86400; // Seconds to days
+  const dayStartTimestamp = dayID * 86400;
   let dailyCounter = CourtCounter.load(courtId + "-" + dayStartTimestamp.toString());
   if (!dailyCounter) {
     dailyCounter = new CourtCounter(courtId + "-" + dayStartTimestamp.toString());
@@ -149,8 +152,8 @@ export function updateCourtStateVariable(courtId: string, newValue: BigInt, time
   }
 
   // Update daily snapshot
-  let dayID = timestamp.toI32() / 86400;
-  let dayStartTimestamp = dayID * 86400;
+  const dayID = timestamp.toI32() / 86400;
+  const dayStartTimestamp = dayID * 86400;
   let dailyCounter = CourtCounter.load(courtId + "-" + dayStartTimestamp.toString());
   if (!dailyCounter) {
     dailyCounter = new CourtCounter(courtId + "-" + dayStartTimestamp.toString());
