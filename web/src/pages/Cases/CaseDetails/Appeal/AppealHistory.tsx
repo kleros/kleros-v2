@@ -13,7 +13,7 @@ import OptionCard from "./OptionCard";
 
 import { AppealHeader, StyledTitle } from "./index";
 
-const OptionsContainer = styled.div`
+const OptionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
@@ -40,18 +40,19 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
           MiniGuideComponent={Appeal}
         />
       </AppealHeader>
-      <OptionsContainer>
+      <OptionsGrid role="list" aria-label={t("appeal.appeal_results_last_round")}>
         {options?.map((option) => (
           <OptionCard
             key={option.id}
+            value={option.id}
             text={option.title}
             winner={option.id === winningChoice}
             funding={BigInt(option.paidFee ?? 0)}
             required={fundedChoices?.includes(option.id) ? BigInt(option.paidFee ?? 0) : undefined}
-            canBeSelected={false}
+            selectable={false}
           />
         ))}
-      </OptionsContainer>
+      </OptionsGrid>
     </div>
   ) : (
     <Skeleton />

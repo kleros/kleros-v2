@@ -130,8 +130,18 @@ const DesktopHeader: React.FC = () => {
   const navigate = useNavigate();
   const { isConnected, chainId } = useAccount();
   const isDefaultChain = chainId === DEFAULT_CHAIN.id;
+  // Under HashRouter the app URL is `/#/<path>#notifications`; Atlas emails link to `/#/#notifications`.
+  const hasNotificationsPath = location.hash.includes("#notifications");
+  // Closing Settings from the popup goes through here so the hash never outlives it
+  // (it would reopen the popup on the next hash change). The gear button only toggles
+  // after click-away has already run this.
+  const closeSettings = useCallback(() => {
+    toggleIsSettingsOpen(false);
+    // `search` is passed explicitly: a partial `To` resolves it to "" otherwise.
+    if (hasNotificationsPath) navigate({ search: location.search, hash: "" }, { replace: true });
+  }, [toggleIsSettingsOpen, hasNotificationsPath, navigate, location.search]);
   const initializeFragmentURL = useCallback(() => {
-    const hashIncludes = (hash: MiniguideHashesType | "#notifications") => location.hash.includes(hash);
+    const hashIncludes = (hash: MiniguideHashesType) => location.hash.includes(hash);
     const hasJurorLevelsMiniGuidePath = hashIncludes("#jurorlevels-miniguide");
     const hasAppealMiniGuidePath = hashIncludes("#appeal-miniguide");
     const hasBinaryVotingMiniGuidePath = hashIncludes("#binaryvoting-miniguide");
@@ -139,7 +149,6 @@ const DesktopHeader: React.FC = () => {
     const hasRankedVotingMiniGuidePath = hashIncludes("#rankedvoting-miniguide");
     const hasStakingMiniGuidePath = hashIncludes("#staking-miniguide");
     const hasOnboardingMiniGuidePath = hashIncludes("#onboarding-miniguide");
-    const hasNotificationsPath = hashIncludes("#notifications");
     toggleIsJurorLevelsMiniGuideOpen(hasJurorLevelsMiniGuidePath);
     toggleIsAppealMiniGuideOpen(hasAppealMiniGuidePath);
     toggleIsBinaryVotingMiniGuideOpen(hasBinaryVotingMiniGuidePath);
@@ -160,6 +169,7 @@ const DesktopHeader: React.FC = () => {
     toggleIsOnboardingMiniGuidesOpen,
     toggleIsSettingsOpen,
     location.hash,
+    hasNotificationsPath,
   ]);
 
   useEffect(initializeFragmentURL, [initializeFragmentURL]);
@@ -173,7 +183,7 @@ const DesktopHeader: React.FC = () => {
           <LightButtonContainer>
             <LightButton
               text=""
-              onClick={() => {
+              onPress={() => {
                 toggleIsDappListOpen();
               }}
               Icon={StyledKlerosSolutionsIcon}
@@ -203,7 +213,7 @@ const DesktopHeader: React.FC = () => {
               <PopupAnchorInner>
                 {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
                 {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-                {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
+                {isSettingsOpen && <Settings toggleIsSettingsOpen={closeSettings} {...{ initialTab }} />}
               </PopupAnchorInner>
             </PopupAnchor>
           </Overlay>

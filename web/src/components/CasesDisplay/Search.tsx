@@ -6,15 +6,18 @@ import Skeleton from "react-loading-skeleton";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 
-import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
+import { Searchbar } from "@kleros/ui-components-library";
 
 import { isEmpty, isUndefined } from "utils/index";
+import type { CascaderItem } from "utils/uiComponentsTypes";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { rootCourtToItems, useCourtTree } from "queries/useCourtTree";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { LabeledDropdownCascader } from "components/LabeledDropdown";
 
 const Container = styled.div`
   display: flex;
@@ -76,10 +79,10 @@ const Search: React.FC = () => {
   );
 
   const { data: courtTreeData } = useCourtTree();
-  const items = useMemo(() => {
+  const items = useMemo<CascaderItem[] | undefined>(() => {
     if (!isUndefined(courtTreeData?.court)) {
       const courts = [rootCourtToItems(courtTreeData.court, "id")];
-      courts.push({ label: t("filters.all_courts"), value: "all" });
+      courts.push({ label: t("filters.all_courts"), itemValue: "all", id: "all" });
       return courts;
     }
     return undefined;
@@ -88,12 +91,14 @@ const Search: React.FC = () => {
   return (
     <Container>
       {items ? (
-        <DropdownCascader
+        <LabeledDropdownCascader
+          ariaLabel={t("aria_labels.select_court")}
           items={items}
           placeholder={t("forms.placeholders.select_court")}
-          onSelect={(value) => {
+          callback={(item) => {
             const { court: _, ...filterWithoutCourt } = decodedFilter;
-            const newFilter = value === "all" ? filterWithoutCourt : { ...decodedFilter, court: value.toString() };
+            const newFilter =
+              item.itemValue === "all" ? filterWithoutCourt : { ...decodedFilter, court: item.itemValue.toString() };
             navigate(`${location}/${page}/${order}/${encodeURIFilter(newFilter)}?${searchParams.toString()}`);
           }}
         />
@@ -104,9 +109,10 @@ const Search: React.FC = () => {
         <StyledSearchbar
           dir="auto"
           type="text"
+          aria-label={t("forms.placeholders.search_by_id")}
           placeholder={t("forms.placeholders.search_by_id")}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={setSearch}
         />
       </SearchBarContainer>
     </Container>

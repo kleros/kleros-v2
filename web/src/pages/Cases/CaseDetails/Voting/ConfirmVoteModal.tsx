@@ -123,8 +123,8 @@ const ConfirmVoteModal: React.FC<IConfirmVoteModal> = ({
       {isUndefined(justification) && hint ? <Description>{hint}</Description> : null}
 
       <ButtonArea>
-        <Button variant="secondary" text={t("buttons.cancel")} onClick={onCancel} />
-        <Button text={t("buttons.confirm_vote")} onClick={onConfirm} />
+        <Button variant="secondary" text={t("buttons.cancel")} onPress={onCancel} />
+        <Button text={t("buttons.confirm_vote")} onPress={onConfirm} />
       </ButtonArea>
     </StyledModal>
   );

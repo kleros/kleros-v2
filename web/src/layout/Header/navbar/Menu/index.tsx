@@ -64,27 +64,27 @@ const Menu: React.FC<ISettings & IHelp & IMenu> = ({ toggleIsHelpOpen, toggleIsS
     {
       text: t("menu.settings"),
       Icon: SettingsIcon,
-      onClick: () => toggleIsSettingsOpen(),
+      onPress: () => toggleIsSettingsOpen(),
     },
     {
       text: t("menu.help"),
       Icon: HelpIcon,
-      onClick: () => {
+      onPress: () => {
         toggleIsHelpOpen();
       },
     },
     {
       text: isLightTheme ? t("menu.dark_mode") : t("menu.light_mode"),
       Icon: isLightTheme ? DarkModeIcon : LightModeIcon,
-      onClick: () => toggleTheme(),
+      onPress: () => toggleTheme(),
     },
   ];
 
   return (
     <Container>
-      {buttons.map(({ text, Icon, onClick }) => (
+      {buttons.map(({ text, Icon, onPress }) => (
         <ButtonContainer key={text}>
-          <LightButton {...{ text, onClick, Icon, isMobileNavbar }} />
+          <LightButton {...{ text, onPress, Icon, isMobileNavbar }} />
         </ButtonContainer>
       ))}
     </Container>

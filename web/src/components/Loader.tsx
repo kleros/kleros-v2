@@ -22,7 +22,7 @@ const breathing = keyframes`
 
 const StyledKlerosIcon = styled(KlerosIcon)`
   path {
-    fill: ${({ theme }) => theme.klerosUIComponentsStroke};
+    fill: ${({ theme }) => theme.stroke};
   }
   animation: ${breathing} 2s ease-out infinite normal;
 `;

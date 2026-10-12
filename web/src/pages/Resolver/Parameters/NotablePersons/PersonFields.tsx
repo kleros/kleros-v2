@@ -79,16 +79,15 @@ const PersonFields: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAliasesWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const key = parseInt(event.target.id.replace(/\D/g, ""), 10) - 1;
+  const handleAliasesWrite = (key: number, field: "name" | "address", value: string) => {
     const aliases = disputeData.aliasesArray;
     if (isUndefined(aliases)) return;
 
-    aliases[key] = { ...aliases[key], [event.target.name]: event.target.value };
+    aliases[key] = { ...aliases[key], [field]: value };
     setDisputeData({ ...disputeData, aliasesArray: aliases });
 
     //since resolving ens is async, we update asynchronously too with debounce
-    if (event.target.name === "address") debounceValidateAddress(event.target.value, key);
+    if (field === "address") debounceValidateAddress(value, key);
   };
 
   const showError = (alias: AliasArray) => {
@@ -100,20 +99,18 @@ const PersonFields: React.FC = () => {
       {disputeData.aliasesArray?.map((alias, index) => (
         <AliasContainer key={alias?.id}>
           <LabeledInput
-            name="name"
             label={t("forms.labels.person_number", { number: index + 1 })}
             placeholder={t("forms.placeholders.alice_developer_example")}
             value={alias.name}
-            onChange={handleAliasesWrite}
+            onChange={(value) => handleAliasesWrite(index, "name", value)}
           />
           <LabeledInput
-            name="address"
             label={t("forms.labels.person_address", { index: index + 1 })}
-            variant={showError(alias) ? "error" : ""}
+            variant={showError(alias) ? "error" : undefined}
             message={showError(alias) ? t("forms.messages.invalid_address_or_ens") : ""}
             placeholder={t("forms.placeholders.alice_eth_example")}
             value={alias.address}
-            onChange={handleAliasesWrite}
+            onChange={(value) => handleAliasesWrite(index, "address", value)}
           />
         </AliasContainer>
       ))}

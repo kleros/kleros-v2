@@ -4,12 +4,12 @@ import styled from "styled-components";
 import { Address } from "viem";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
-import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import { StyledArrowLink } from "components/StyledArrowLink";
+import NewTabIcon from "components/StyledIcons/NewTabIcon";
 
 const Container = styled.div`
   display: flex;

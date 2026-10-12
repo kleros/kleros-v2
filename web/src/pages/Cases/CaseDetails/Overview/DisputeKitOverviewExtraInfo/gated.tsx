@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
-import NewTabIcon from "svgs/icons/new-tab.svg";
-
 import { useGatedTokenInfo } from "hooks/useGatedTokenInfo";
 import { shortenAddress } from "utils/shortenAddress";
 
@@ -14,6 +12,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { Divider } from "components/Divider";
 import { ExternalLink } from "components/ExternalLink";
+import NewTabIcon from "components/StyledIcons/NewTabIcon";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import WithHelpTooltip from "components/WithHelpTooltip";
 
@@ -119,9 +118,6 @@ const TokenSymbolLabel = styled.span`
 
 const StyledNewTabIcon = styled(NewTabIcon)`
   margin-bottom: 4px;
-  path {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
   :hover {
     path {
       fill: ${({ theme }) => theme.secondaryBlue};

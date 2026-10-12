@@ -39,6 +39,8 @@ export default defineConfig({
     unstubGlobals: true,
     reporters: process.env.CI ? ["default", "junit"] : ["default"],
     outputFile: { junit: "test-results/junit.xml" },
+    // The library's entry imports its stylesheet; let Vite process it instead of Node.
+    server: { deps: { inline: ["@kleros/ui-components-library"] } },
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],

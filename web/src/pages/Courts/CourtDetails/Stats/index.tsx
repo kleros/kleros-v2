@@ -35,7 +35,7 @@ const StyledAccordion = styled(Accordion)`
   > * > div > div {
     padding: 0 8px 8px;
   }
-  [class*="accordion-item"] {
+  > div {
     margin: 0;
   }
 

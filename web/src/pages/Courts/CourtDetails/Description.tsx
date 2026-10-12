@@ -8,6 +8,8 @@ import { Tabs } from "@kleros/ui-components-library";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
+import { tabsSelectedUnderline } from "styles/commonStyles";
+
 import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -56,6 +58,7 @@ const StyledMarkdownRenderer = styled(MarkdownRenderer)`
 `;
 
 const StyledTabs = styled(Tabs)`
+  ${tabsSelectedUnderline}
   width: 100%;
   > * {
     display: flex;
@@ -104,11 +107,17 @@ const Description: React.FC = () => {
   ];
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
-  const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
 
-  const handleTabChange = (i: number) => {
-    navigate(`${TABS[i].path}${suffix}`);
-  };
+  const tabItems = filteredTabs.map(({ text, path }) => ({
+    id: path,
+    text,
+    value: path,
+    content: null,
+  }));
+
+  const activePath = filteredTabs.some(({ path }) => path === currentPathName)
+    ? currentPathName
+    : filteredTabs[0]?.path;
   useEffect(() => {
     if (currentPathName && !filteredTabs.map((t) => t.path).includes(currentPathName) && filteredTabs.length > 0) {
       navigate(`${filteredTabs[0].path}${suffix}`, { replace: true });
@@ -116,7 +125,7 @@ const Description: React.FC = () => {
   }, [policy, currentPathName, filteredTabs, navigate, suffix]);
   return policy ? (
     <Container id="description">
-      <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
+      <StyledTabs selectedKey={activePath} items={tabItems} callback={(key) => navigate(`${String(key)}${suffix}`)} />
       <TextContainer>
         <Routes>
           <Route path="purpose" element={formatMarkdown(policy?.purpose)} />

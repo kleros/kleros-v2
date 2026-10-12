@@ -3,9 +3,11 @@ import styled, { css, keyframes } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { _TimelineItem1, AlertMessage, CustomTimeline } from "@kleros/ui-components-library";
+import { AlertMessage, CustomTimeline } from "@kleros/ui-components-library";
 
 import Close from "svgs/icons/close.svg";
+
+import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -92,13 +94,23 @@ const StyledButton = styled(LightButton)`
 
 const AlertContainer = styled.div`
   margin-top: 24px;
+
+  h2 {
+    margin: 0;
+  }
+`;
+
+const StyledTimeline = styled(CustomTimeline)`
+  h2 {
+    margin: 0;
+  }
 `;
 
 interface IStakeWithdrawPopup {
   action: ActionType;
   amount: string;
   closePopup: () => void;
-  steps?: [_TimelineItem1, ..._TimelineItem1[]];
+  steps?: [CustomTimelineItem, ...CustomTimelineItem[]];
   isSuccess: boolean;
 }
 
@@ -108,11 +120,11 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
   return (
     <Overlay onClick={closePopup}>
       <Container onClick={(e) => e.stopPropagation()}>
-        <StyledButton Icon={Close} text="" onClick={closePopup} />
+        <StyledButton Icon={Close} text="" onPress={closePopup} />
         <InnerContainer>
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
-          {steps && <CustomTimeline items={steps} />}
+          {steps && <StyledTimeline items={steps} />}
           {isSuccess && action === ActionType.stake ? (
             <AlertContainer>
               <AlertMessage

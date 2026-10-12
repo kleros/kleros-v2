@@ -24,7 +24,9 @@ const ITERATIONS_COOLDOWN_PERIOD = 10 * 1000; // 10 seconds
 const DRAW_PROBE_GAS_LIMIT = { gasLimit: 50_000_000 };
 const MAX_TX_GAS_LIMIT = 25_000_000n; // Max gas per tx enforced by the provider
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
-const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
+// Resolved lazily: reading it at module scope makes the module unimportable (and therefore
+// untestable) whenever SUBGRAPH_URL is unset.
+const getSubgraphUrl = () => env.require("SUBGRAPH_URL");
 const MAX_JURORS_PER_DISPUTE = 1000; // Skip disputes with more than this number of jurors
 const DISPUTES_TO_SKIP = env
   .optional("DISPUTES_TO_SKIP", "")
@@ -82,21 +84,47 @@ enum Period {
   EXECUTION = "execution",
 }
 
-enum Phase {
+export enum Phase {
   STAKING = "staking",
   GENERATING = "generating",
   DRAWING = "drawing",
 }
 const PHASES = Object.values(Phase);
 
-const getDisputeKit = async (
-  coreDisputeId: string,
-  coreRoundId: string
-): Promise<{
+/** Whether `threshold` seconds have elapsed since `lastPhaseChange`. Inclusive, to match the
+ * `>=` boundary used by SortitionModule.passPhase(). */
+export const hasElapsed = (blockTime: bigint, lastPhaseChange: bigint, threshold: bigint): boolean =>
+  blockTime - lastPhaseChange >= threshold;
+
+/** Phase-aware entry gate for the drawing workflow.
+ *  - Already in generating or drawing (advanced by an external actor, or resumed after a keeper
+ *    restart mid-cycle): enter directly. minStakingTime only governs the staking -> generating
+ *    transition; generating -> drawing only requires RNG readiness.
+ *  - In staking: require minStakingTime to have elapsed before advancing. */
+export const shouldEnterDrawingBlock = ({
+  phase,
+  disputesNeedingJurors,
+  minStakingTimePassed,
+}: {
+  phase: Phase;
+  disputesNeedingJurors: number;
+  minStakingTimePassed: boolean;
+}): boolean => disputesNeedingJurors > 0 && (phase !== Phase.STAKING || minStakingTimePassed);
+
+type ResolvedDisputeKit = {
   disputeKit: DisputeKitClassic | DisputeKitShutter | DisputeKitGated | DisputeKitGatedShutter;
   localDisputeId: bigint;
   localRoundId: bigint;
-}> => {
+};
+
+/** Resolution of a core dispute/round pair to its dispute kit. Injectable so the consumers of
+ * this step can be unit-tested without a deployed set of contracts. */
+export type DisputeKitResolver = (coreDisputeId: string, coreRoundId: string) => Promise<ResolvedDisputeKit>;
+
+export const getDisputeKit: DisputeKitResolver = async (
+  coreDisputeId: string,
+  coreRoundId: string
+): Promise<ResolvedDisputeKit> => {
   const { core, disputeKitClassic, disputeKitShutter, disputeKitGated, disputeKitGatedShutter } = await getContracts();
   const round = await core.getRoundInfo(coreDisputeId, coreRoundId);
   const disputeKitAddress = await core.disputeKits(round.disputeKitID);
@@ -137,7 +165,7 @@ const getNonFinalDisputes = async (): Promise<Dispute[]> => {
   `;
   // TODO: use a local graph node if chainId is HARDHAT
   type Disputes = { disputes: Dispute[] };
-  const { disputes } = await request<Disputes>(SUBGRAPH_URL, query);
+  const { disputes } = await request<Disputes>(getSubgraphUrl(), query);
   return disputes;
 };
 
@@ -162,7 +190,7 @@ const getAppealContributions = async (disputeId: string): Promise<Contribution[]
   const variables = { disputeId };
   type AppealContributions = { contributions: Contribution[] };
   // TODO: use a local graph node if chainId is HARDHAT
-  const { contributions } = await request<AppealContributions>(SUBGRAPH_URL, query, variables);
+  const { contributions } = await request<AppealContributions>(getSubgraphUrl(), query, variables);
   return contributions;
 };
 
@@ -179,7 +207,7 @@ const getDisputesWithUnexecutedRuling = async (): Promise<Dispute[]> => {
   `;
   // TODO: use a local graph node if chainId is HARDHAT
   type Disputes = { disputes: Dispute[] };
-  const { disputes } = await request<Disputes>(SUBGRAPH_URL, query);
+  const { disputes } = await request<Disputes>(getSubgraphUrl(), query);
   return disputes;
 };
 
@@ -204,7 +232,7 @@ const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]>
   type Contributions = {
     classicContributions: { coreDispute: Dispute }[];
   };
-  const { classicContributions } = await request<Contributions>(SUBGRAPH_URL, query);
+  const { classicContributions } = await request<Contributions>(getSubgraphUrl(), query);
   const disputes = classicContributions
     .filter((contribution) => contribution.coreDispute.period === "execution")
     .map((dispute) => dispute.coreDispute);
@@ -233,7 +261,7 @@ const getUnstakedJurors = async (disputeId: string): Promise<string[]> => {
       };
     };
   };
-  const { dispute } = await request<UnstakedJurors>(SUBGRAPH_URL, query, {
+  const { dispute } = await request<UnstakedJurors>(getSubgraphUrl(), query, {
     disputeId,
   });
   if (!dispute || !dispute.currentRound) {
@@ -471,19 +499,23 @@ const withdrawLeftoverPNK = async (juror: string) => {
   return success;
 };
 
-const withdrawAppealContribution = async (
+export const withdrawAppealContribution = async (
   coreDisputeId: string,
   coreRoundId: string,
-  contribution: Contribution
+  contribution: Contribution,
+  resolveDisputeKit: DisputeKitResolver = getDisputeKit
 ): Promise<boolean> => {
-  const { disputeKit, localDisputeId, localRoundId } = await getDisputeKit(coreDisputeId, coreRoundId);
+  // withdrawFeesAndRewards resolves the local dispute internally and sums over all rounds,
+  // so it must receive the core dispute ID and the contribution's choice. The round ID is
+  // only used here to find the dispute kit handling that round. See issue #2586.
+  const { disputeKit } = await resolveDisputeKit(coreDisputeId, coreRoundId);
   let success = false;
   let amountWithdrawn = 0n;
   try {
     amountWithdrawn = await disputeKit.withdrawFeesAndRewards.staticCall(
-      localDisputeId,
+      coreDisputeId,
       contribution.contributor.id,
-      localRoundId
+      contribution.choice
     );
   } catch {
     logger.warn(
@@ -506,14 +538,14 @@ const withdrawAppealContribution = async (
     );
     const gas =
       ((await disputeKit.withdrawFeesAndRewards.estimateGas(
-        localDisputeId,
+        coreDisputeId,
         contribution.contributor.id,
-        localRoundId
+        contribution.choice
       )) *
         150n) /
       100n; // 50% extra gas
     const tx = await (
-      await disputeKit.withdrawFeesAndRewards(localDisputeId, contribution.contributor.id, localRoundId, {
+      await disputeKit.withdrawFeesAndRewards(coreDisputeId, contribution.contributor.id, contribution.choice, {
         gasLimit: gas,
       })
     ).wait();
@@ -635,7 +667,7 @@ async function main() {
     const minStakingTime = await sortition.minStakingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange > minStakingTime;
+      return hasElapsed(toBigInt(blockTime), lastPhaseChange, minStakingTime);
     });
   };
 
@@ -643,7 +675,7 @@ async function main() {
     const maxDrawingTime = await sortition.maxDrawingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return toBigInt(blockTime) - lastPhaseChange > maxDrawingTime;
+      return hasElapsed(toBigInt(blockTime), lastPhaseChange, maxDrawingTime);
     });
   };
 
@@ -708,7 +740,14 @@ async function main() {
   }
 
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
-  if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
+
+  const enterDrawingBlock = shouldEnterDrawingBlock({
+    phase: PHASES[getNumber(await sortition.phase())],
+    disputesNeedingJurors: disputesWithoutJurors.length,
+    minStakingTimePassed: await hasMinStakingTimePassed(),
+  });
+
+  if (enterDrawingBlock) {
     // ----------------------------------------------- //
     //                DRAWING ATTEMPT                  //
     // ----------------------------------------------- //
@@ -726,6 +765,14 @@ async function main() {
       await passPhase();
     }
     if (await isPhaseDrawing()) {
+      // Actual jurors newly drawn across the run, measured via getMissingJurors() deltas —
+      // NOT the requested `drawIterations` count. drawJurors() returns true once its transaction
+      // confirms, regardless of how many jurors it actually drew (its pre-flight probe checks a
+      // much larger simulated horizon than the real batch it submits), so counting requested
+      // iterations would let a fully-stalled run (transactions confirm, nobody gets drawn)
+      // silently suppress the stall warning below.
+      let actualJurorsDrawn = 0;
+      let drawAttempts = 0;
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       for (const dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
@@ -739,17 +786,43 @@ async function main() {
         }
         do {
           const drawIterations = Math.min(MAX_DRAW_ITERATIONS, getNumber(numberOfMissingJurors));
+          if (drawIterations === 0) {
+            // Dispute was fully drawn externally (e.g. another keeper instance) between the
+            // pre-loop snapshot and this iteration. Nothing left to draw; avoid a wasted
+            // drawJurors(dispute, 0) call and the misleading "Failed to draw jurors" log it
+            // would otherwise produce.
+            break;
+          }
           logger.info(
             `Drawing ${drawIterations} out of ${numberOfMissingJurors} jurors needed for dispute #${dispute.id}`
           );
+          drawAttempts++;
           if (!(await drawJurors(dispute, drawIterations))) {
             logger.error(`Failed to draw jurors for dispute #${dispute.id}, skipping it`);
             break;
           }
           await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
           maxDrawingTimePassed = await hasMaxDrawingTimePassed();
+          const missingBefore = numberOfMissingJurors;
           numberOfMissingJurors = await getMissingJurors(dispute);
+          actualJurorsDrawn += getNumber(missingBefore) - getNumber(numberOfMissingJurors);
         } while (!(numberOfMissingJurors === 0n) && !maxDrawingTimePassed);
+      }
+      // Warn if draws were attempted but none landed while disputes still need jurors. This
+      // indicates a stall (no eligible jurors staked, RNG issue, or all draws failing). Runs that
+      // attempted nothing (max drawing time already passed, all disputes skipped) are not stalls.
+      // Re-query which disputes are still unresolved rather than trusting the pre-loop snapshot.
+      if (drawAttempts > 0 && actualJurorsDrawn === 0 && disputesWithoutJurors.length > 0) {
+        const stillPending = await filterAsync(disputesWithoutJurors, async (dispute) => {
+          return !(await isDisputeFullyDrawn(dispute));
+        });
+        if (stillPending.length > 0) {
+          const pendingIds = stillPending.map((d) => d.id).join(", ");
+          logger.warn(
+            `Drawing phase run completed with zero jurors drawn after ${drawAttempts} attempt(s) ` +
+              `for ${stillPending.length} dispute(s) still needing jurors: [${pendingIds}]`
+          );
+        }
       }
       // At this point, either all disputes are fully drawn or max drawing time has passed
     }
@@ -883,12 +956,15 @@ async function main() {
   await shutdown();
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(() => {
-    logger.flush();
-  });
+// Guarded so that importing this module does not run the bot, mirroring keeperBotShutter.ts.
+if (require.main === module) {
+  main()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    })
+    .finally(() => {
+      logger.flush();
+    });
+}

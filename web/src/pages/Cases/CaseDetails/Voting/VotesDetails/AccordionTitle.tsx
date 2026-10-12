@@ -43,6 +43,8 @@ const StyledSmall = styled.small`
 `;
 
 const StyledInternalLink = styled(InternalLink)`
+  display: flex;
+
   :hover {
     label {
       cursor: pointer;

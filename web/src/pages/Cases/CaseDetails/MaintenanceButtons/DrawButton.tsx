@@ -117,7 +117,13 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
         </StyledLabel>
       ) : null}
       {isUniversity && canDraw ? <SetJurorsButton {...{ id, disputeKitAddress }} /> : null}
-      <StyledButton text={t("buttons.draw")} small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
+      <StyledButton
+        text={t("buttons.draw")}
+        small
+        isLoading={isLoading}
+        isDisabled={isDisabled}
+        onPress={handleClick}
+      />
     </>
   );
 };

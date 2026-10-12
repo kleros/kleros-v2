@@ -36,6 +36,7 @@ const FormContainer = styled.form`
 const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row-reverse;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px;
 `;
@@ -199,27 +200,22 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
             <Button
               text={t("buttons.cancel")}
               variant="secondary"
-              onClick={(event) => {
-                event.preventDefault();
-                setIsConfirmingUnsubscribe(false);
-              }}
-              disabled={isDeletingUser}
+              onPress={() => setIsConfirmingUnsubscribe(false)}
+              isDisabled={isDeletingUser}
             />
             <ConfirmUnsubscribeButton
               text={t("buttons.confirm_unsubscribe")}
-              onClick={(event) => {
-                event.preventDefault();
-                handleConfirmUnsubscribe();
-              }}
-              disabled={isFetchingUser || isDeletingUser}
+              onPress={handleConfirmUnsubscribe}
+              isDisabled={isFetchingUser || isDeletingUser}
               isLoading={isDeletingUser}
             />
           </>
         ) : (
           <>
             <Button
+              type="submit"
               text={t("buttons.save")}
-              disabled={
+              isDisabled={
                 !isEditingEmail ||
                 !emailIsValid ||
                 isAddingUser ||
@@ -233,11 +229,8 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
               <UnsubscribeButton
                 variant="secondary"
                 text={t("buttons.unsubscribe")}
-                onClick={(event) => {
-                  event.preventDefault();
-                  setIsConfirmingUnsubscribe(true);
-                }}
-                disabled={isFetchingUser || isDeletingUser}
+                onPress={() => setIsConfirmingUnsubscribe(true)}
+                isDisabled={isFetchingUser || isDeletingUser}
               />
             ) : null}
           </>

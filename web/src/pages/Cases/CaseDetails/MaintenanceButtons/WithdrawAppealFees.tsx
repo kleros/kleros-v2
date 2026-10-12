@@ -35,21 +35,27 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
   const [contractConfigs, setContractConfigs] = useState<TransactionBatcherConfig>();
   const publicClient = usePublicClient();
 
-  const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
-  const { data: appealData } = useClassicAppealQuery(id);
+  const { data: maintenanceData, isLoading: isLoadingMaintenance } = useDisputeMaintenanceQuery(id);
+  const { data: appealData, isLoading: isLoadingAppeal } = useClassicAppealQuery(id);
 
   const localRounds = useMemo(() => getLocalRounds(appealData?.dispute?.disputeKitDispute), [appealData]);
 
-  const feeDispersed = useMemo(
+  const withdrawableContributions = useMemo(
+    () => maintenanceData?.contributions.filter((contribution) => !contribution.rewardWithdrawn) ?? [],
+    [maintenanceData]
+  );
+
+  const nothingToWithdraw = useMemo(
     () =>
-      localRounds ? localRounds.slice(0, localRounds.length - 1).every((round) => round.appealFeesDispersed) : false,
-    [localRounds]
+      withdrawableContributions.length === 0 ||
+      (localRounds.length > 0 && localRounds.every((round) => round.appealFeesDispersed)),
+    [withdrawableContributions, localRounds]
   );
 
   useEffect(() => {
     if (isUndefined(id) || isUndefined(roundIndex)) return;
-    setContractConfigs(getWithdrawFeesConfigs(id, maintenanceData?.contributions));
-  }, [id, roundIndex, maintenanceData]);
+    setContractConfigs(getWithdrawFeesConfigs(id, withdrawableContributions));
+  }, [id, roundIndex, withdrawableContributions]);
 
   const {
     executeBatch,
@@ -57,13 +63,16 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
     isLoading: isLoadingConfig,
     isError,
   } = useTransactionBatcher(contractConfigs, {
-    enabled: !isUndefined(period) && period === Period.Execution && Boolean(ruled) && !feeDispersed,
+    enabled: !isUndefined(period) && period === Period.Execution && Boolean(ruled) && !nothingToWithdraw,
   });
 
-  const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
+  const isLoading = useMemo(
+    () => isLoadingConfig || isLoadingMaintenance || isLoadingAppeal || isSending,
+    [isLoadingConfig, isLoadingMaintenance, isLoadingAppeal, isSending]
+  );
   const isDisabled = useMemo(
-    () => isUndefined(id) || isError || isLoading || period !== Period.Execution || feeDispersed || !ruled,
-    [id, isError, isLoading, period, feeDispersed, ruled]
+    () => isUndefined(id) || isError || isLoading || period !== Period.Execution || nothingToWithdraw || !ruled,
+    [id, isError, isLoading, period, nothingToWithdraw, ruled]
   );
 
   const handleClick = () => {
@@ -80,8 +89,8 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
       text={t("buttons.appeal_rewards")}
       small
       isLoading={isLoading}
-      disabled={isDisabled}
-      onClick={handleClick}
+      isDisabled={isDisabled}
+      onPress={handleClick}
     />
   );
 };
@@ -90,11 +99,10 @@ type Contribution = DisputeMaintenanceQuery["contributions"][number];
 
 /** One withdrawFeesAndRewards call per unwithdrawn contribution, on the dispute kit that holds it. */
 export const getWithdrawFeesConfigs = (id: string, contributions: Contribution[] = []): TransactionBatcherConfig => {
-  const deDuplicatedContributions = [...new Set(contributions.filter((contribution) => !contribution.rewardWithdrawn))];
-
   const argsArr: TransactionBatcherConfig = [];
 
-  for (const contribution of deDuplicatedContributions) {
+  for (const contribution of contributions) {
+    if (contribution.rewardWithdrawn) continue;
     // localDispute.id format: "disputeKitID-coreDisputeID"
     const disputeKitID = contribution.localRound?.localDispute?.id?.split("-")[0];
     if (isUndefined(disputeKitID)) continue;

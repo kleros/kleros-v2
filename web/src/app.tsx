@@ -6,6 +6,9 @@ import { Route } from "react-router-dom";
 
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
+import "@kleros/ui-components-library/style.css";
+import "@kleros/ui-components-library/theme.css";
+import "./styles/base-elements.css";
 import "./i18n";
 
 import AtlasProvider from "context/AtlasProvider";

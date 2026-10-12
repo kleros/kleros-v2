@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { DisplaySmall, Field } from "@kleros/ui-components-library";
+import { DisplaySmall, NumberField } from "@kleros/ui-components-library";
 
 import ETH from "svgs/icons/eth.svg";
 
@@ -36,7 +36,7 @@ const Container = styled.div`
   )}
 `;
 
-const StyledField = styled(Field)`
+const StyledField = styled(NumberField)`
   width: 290px;
   margin-bottom: ${responsiveSize(20, 48)};
 `;
@@ -45,9 +45,12 @@ const StyledDisplay = styled(DisplaySmall)`
   width: 290px;
   margin-bottom: ${responsiveSize(20, 48)};
 
-  h2::after {
-    content: "ETH";
-    margin-left: 4px;
+  h2 {
+    margin: 0;
+    ::after {
+      content: "ETH";
+      margin-left: 4px;
+    }
   }
 
   path {
@@ -76,27 +79,33 @@ const Jurors: React.FC = () => {
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 18);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
-
-  const handleJurorsWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value.replace(/\D/g, ""), 10);
-    if (isUndefined(value) || isNaN(value)) {
-      setDisputeData({ ...disputeData, numberOfJurors: 0 });
-    } else {
-      setDisputeData({ ...disputeData, numberOfJurors: value });
-    }
+  const handleJurorsWrite = (value: number | string) => {
+    const parsed = typeof value === "string" ? Number.parseInt(value, 10) : value;
+    const isValid = Number.isInteger(parsed) && parsed >= 1;
+    // While typing, only valid counts are applied: pushing NaN back as `value` would make
+    // react-aria blank the input. On commit (blur/Enter) react-aria has already clamped, and an
+    // empty field arrives as NaN, which clears the count.
+    if (typeof value === "string" && !isValid) return;
+    const numberOfJurors = isValid ? parsed : undefined;
+    if (numberOfJurors !== disputeData.numberOfJurors) setDisputeData({ ...disputeData, numberOfJurors });
   };
 
-  const noOfVotes = Number.isNaN(disputeData.numberOfJurors) ? "" : disputeData.numberOfJurors;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
   return (
     <Container>
       <Header text={t("headers.select_number_of_jurors")} />
       <StyledField
+        aria-label={t("aria_labels.number_of_jurors")}
         placeholder={t("forms.placeholders.select_the_number_of_jurors")}
-        value={noOfVotes}
+        value={disputeData.numberOfJurors ?? NaN}
+        // react-aria's NumberField commits `onChange` on blur/Enter; the arbitration cost
+        // should follow every keystroke, so also read the raw input.
+        inputProps={{ onChange: (event) => handleJurorsWrite(event.currentTarget.value) }}
         onChange={handleJurorsWrite}
+        formatOptions={{ useGrouping: false, maximumFractionDigits: 0 }}
+        minValue={1}
       />
       <StyledDisplay text={arbitrationFee} Icon={ETH} label={t("forms.labels.arbitration_cost")} />
       <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/voting-options" />

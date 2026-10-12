@@ -125,7 +125,7 @@ const Evidence: React.FC<IEvidence> = ({ arbitrable }) => {
   return (
     <Container ref={ref}>
       <EvidenceSearch {...{ search, setSearch }} />
-      <ScrollButton small Icon={DownArrow} text={t("buttons.scroll_to_latest")} onClick={scrollToLatest} />
+      <ScrollButton small Icon={DownArrow} text={t("buttons.scroll_to_latest")} onPress={scrollToLatest} />
       {!isUndefined(arbitrableEvidences) && arbitrableEvidences.length > 0 ? (
         <>
           {arbitrableEvidences.map(({ name, description, fileURI, sender, timestamp, transactionHash }, index) => (

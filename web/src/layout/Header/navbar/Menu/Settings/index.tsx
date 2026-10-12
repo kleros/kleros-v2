@@ -1,12 +1,12 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
 import { useClickAway } from "react-use";
 
 import { Tabs } from "@kleros/ui-components-library";
 
+import { tabsSelectedUnderline } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -50,54 +50,45 @@ const StyledSettingsText = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  padding: 0 ${responsiveSize(8, 32, 300)};
+  ${tabsSelectedUnderline}
   width: 86vw;
   max-width: 660px;
   align-self: center;
   ${landscapeStyle(
     () => css`
-      width: ${responsiveSize(300, 424, 300)};
+      width: ${responsiveSize(300, 500, 300)};
     `
   )}
+
+  /* Only the tab list is inset; each panel sets its own horizontal padding. */
+  > [role="tablist"] {
+    padding: 0 ${responsiveSize(8, 32, 300)};
+  }
 `;
 
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
   const { t } = useTranslation();
-  const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
   const containerRef = useRef(null);
-  const location = useLocation();
-  const navigate = useNavigate();
-  useClickAway(containerRef, () => {
-    toggleIsSettingsOpen();
-    if (location.hash.includes("#notifications")) navigate("#", { replace: true });
-  });
+  const [currentTab, setCurrentTab] = useState<number>(initialTab ?? 0);
+  useClickAway(containerRef, toggleIsSettingsOpen);
 
-  const TABS = [
-    {
-      text: t("menu.general"),
-      value: 0,
-    },
-    {
-      text: t("menu.notifications"),
-      value: 1,
-    },
-  ];
+  const TABS = useMemo(
+    () => [
+      { id: 0, text: t("menu.general"), value: 0, content: <General {...{ toggleIsSettingsOpen }} /> },
+      {
+        id: 1,
+        text: t("menu.notifications"),
+        value: 1,
+        content: <NotificationSettings {...{ toggleIsSettingsOpen }} />,
+      },
+    ],
+    [t, toggleIsSettingsOpen]
+  );
 
   return (
     <Container ref={containerRef}>
       <StyledSettingsText>{t("menu.settings")}</StyledSettingsText>
-      <StyledTabs
-        currentValue={currentTab}
-        items={TABS}
-        callback={(n: number) => {
-          setCurrentTab(n);
-        }}
-      />
-      {currentTab === 0 ? (
-        <General {...{ toggleIsSettingsOpen }} />
-      ) : (
-        <NotificationSettings {...{ toggleIsSettingsOpen }} />
-      )}
+      <StyledTabs selectedKey={currentTab} items={TABS} callback={(_key, value) => setCurrentTab(value)} />
     </Container>
   );
 };

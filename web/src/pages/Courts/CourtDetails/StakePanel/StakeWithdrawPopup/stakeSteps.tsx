@@ -1,9 +1,11 @@
 import React from "react";
 import styled, { DefaultTheme } from "styled-components";
 
-import { _TimelineItem1, StateProp } from "@kleros/ui-components-library";
-
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
+
+import { commify } from "utils/commify";
+
+import type { CustomTimelineItem } from "src/utils/uiComponentsTypes";
 
 import Spinner from "components/Spinner";
 import TxnHash from "components/TxnHash";
@@ -34,12 +36,12 @@ export enum StakeSteps {
 const createApprovalSteps = (
   theme: DefaultTheme,
   variant: string,
-  state: StateProp["state"],
+  state: CustomTimelineItem["state"],
   amount: string,
   hash: `0x${string}` | undefined,
   error: any,
   t: (key: string) => string
-): [_TimelineItem1, ..._TimelineItem1[]] => {
+): [CustomTimelineItem, ...CustomTimelineItem[]] => {
   const party = () => {
     if (variant === "refused") return hash ? <TxnHash hash={hash} variant="error" /> : <></>;
     return state === "loading" ? (
@@ -55,7 +57,6 @@ const createApprovalSteps = (
     {
       title: t("wallet.approve_in_wallet"),
       subtitle: error ? (error?.shortMessage ?? error?.message) : t("wallet.pnk_spending"),
-      rightSided: true,
       variant,
       state,
       party: party(),
@@ -63,9 +64,8 @@ const createApprovalSteps = (
     {
       title: t("wallet.stake_in_wallet"),
       subtitle: "",
-      rightSided: true,
       variant: theme.secondaryPurple,
-      party: <StyledLabel>{amount} PNK</StyledLabel>,
+      party: <StyledLabel>{commify(amount)} PNK</StyledLabel>,
       state: "disabled",
     },
   ];
@@ -74,19 +74,19 @@ const createApprovalSteps = (
 const createStakeSteps = (
   theme: DefaultTheme,
   variant: string,
-  state: StateProp["state"],
+  state: CustomTimelineItem["state"],
   amount: string,
   approvalHash: `0x${string}` | undefined,
   stakeHash: `0x${string}` | undefined,
   error: any,
   isStake: boolean,
   t: (key: string) => string
-): [_TimelineItem1, ..._TimelineItem1[]] => {
+): [CustomTimelineItem, ...CustomTimelineItem[]] => {
   const party = () => {
     if (["refused", "accepted"].includes(variant))
       return stakeHash ? <TxnHash hash={stakeHash} variant={variant === "refused" ? "error" : "success"} /> : <></>;
     return state === "loading" ? (
-      <StyledLabel>{amount} PNK</StyledLabel>
+      <StyledLabel>{commify(amount)} PNK</StyledLabel>
     ) : (
       <PartyContainer>
         {stakeHash && <TxnHash hash={stakeHash} variant="pending" />}
@@ -99,7 +99,6 @@ const createStakeSteps = (
         {
           title: t("wallet.approve_in_wallet"),
           subtitle: t("wallet.pnk_spending"),
-          rightSided: true,
           variant: theme.success,
           party: approvalHash ? <TxnHash hash={approvalHash} variant="success" /> : <></>,
           Icon: CheckIcon,
@@ -107,7 +106,6 @@ const createStakeSteps = (
         {
           title: t("wallet.stake_in_wallet"),
           subtitle: error ? (error?.shortMessage ?? error?.message) : "",
-          rightSided: true,
           variant,
           state,
           party: party(),
@@ -118,7 +116,6 @@ const createStakeSteps = (
         {
           title: t("wallet.unstake_in_wallet"),
           subtitle: error ? (error?.shortMessage ?? error?.message) : "",
-          rightSided: true,
           variant,
           state,
           party: party(),
@@ -135,7 +132,7 @@ export const getStakeSteps = (
   approvalHash?: `0x${string}`,
   stakeHash?: `0x${string}`,
   error?: any
-): [_TimelineItem1, ..._TimelineItem1[]] => {
+): [CustomTimelineItem, ...CustomTimelineItem[]] => {
   switch (stepType) {
     case StakeSteps.ApproveInitiate:
       return createApprovalSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, error, t);

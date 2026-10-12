@@ -58,6 +58,18 @@ const StyledFileUploader = styled(FileUploader)`
   small {
     white-space: pre-line;
     text-align: start;
+    font-size: 14px;
+  }
+  /* The library colors the info icon primary blue; match it to the message text. */
+  svg:has(+ [id="dropzone-label"]) {
+    fill: ${({ theme }) => theme.secondaryText};
+    path {
+      fill: ${({ theme }) => theme.secondaryText};
+    }
+  }
+  /* Align the icon to the first line of the message, not its vertical center. */
+  div:has(> [id="dropzone-label"]) {
+    align-items: flex-start;
   }
 `;
 
