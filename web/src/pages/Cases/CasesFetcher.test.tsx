@@ -96,7 +96,7 @@ describe("CasesFetcher", () => {
     await screen.findByText("No cases found");
 
     await user.click(screen.getByRole("button", { name: /Closed/ }));
-    await user.click(screen.getByText("Appeal"));
+    await user.click(screen.getByRole("option", { name: "Appeal" }));
 
     expect(url()).toBe(`/cases/display/1/desc/${JSON.stringify({ court: "2", period: "appeal" })}?q=1`);
   });
@@ -106,7 +106,7 @@ describe("CasesFetcher", () => {
     await screen.findByText("No cases found");
 
     await user.click(screen.getByRole("button", { name: /Newest/ }));
-    await user.click(screen.getByText("Oldest"));
+    await user.click(screen.getByRole("option", { name: "Oldest" }));
 
     // An unfiltered list is re-encoded as "{}" rather than "all"; both decode to no filter.
     expect(url()).toMatch(/^\/cases\/display\/1\/asc\/(all|\{\})\??$/);

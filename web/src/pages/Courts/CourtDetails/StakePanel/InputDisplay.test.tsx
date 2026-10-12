@@ -71,7 +71,7 @@ describe("StakePanel InputDisplay", () => {
     expect(await screen.findByText("Available 1,234 PNK")).toBeInTheDocument();
     await user.click(screen.getByText("Stake all"));
 
-    expect(screen.getByPlaceholderText("Amount to stake")).toHaveValue("1,234");
+    expect(screen.getByRole("spinbutton", { name: "Amount to stake" })).toHaveAttribute("aria-valuenow", "1234");
   });
 
   it("refuses to stake more than the wallet holds", async () => {

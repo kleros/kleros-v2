@@ -100,10 +100,22 @@ const renderOptions = () => {
   return { ...rendered, setAmount };
 };
 
-const card = (title: string) =>
-  screen.getAllByTestId("appeal-option-card").find((el) => within(el).queryByText(title, { selector: "label" }))!;
-const cardTitles = () =>
-  screen.getAllByTestId("appeal-option-card").map((el) => el.querySelector("label")?.textContent);
+const QUESTION = "Which option do you want to fund?";
+// Stage one renders each card as the label of a radio; stage two as a plain list item.
+const cards = (): HTMLElement[] => {
+  const group = screen.queryByRole("radiogroup", { name: QUESTION });
+  if (!group) return within(screen.getByRole("list", { name: QUESTION })).getAllByRole("listitem");
+  return within(group)
+    .getAllByRole("radio")
+    .map((radio) => (radio as HTMLInputElement).labels![0]);
+};
+const cardTitle = (el: HTMLElement) => el.querySelector("label")?.textContent;
+const card = (title: string) => cards().find((el) => cardTitle(el) === title)!;
+const cardTitles = () => cards().map(cardTitle);
+const radio = (title: string) =>
+  within(screen.getByRole("radiogroup", { name: QUESTION })).getByRole("radio", {
+    name: new RegExp(`^${title} Jury decision`),
+  });
 
 describe("Classic appeal funding options", () => {
   beforeEach(() => {
@@ -148,7 +160,7 @@ describe("Classic appeal funding options", () => {
       expect(setAmount).toHaveBeenLastCalledWith(formatEther(WINNER_REQUIRED));
     });
 
-    it("marks a fully funded option and hides its selector", async () => {
+    it("marks a fully funded option and disables its selector", async () => {
       serveDispute(60, {
         winningChoice: "1",
         answers: [aClassicAnswer({ answerId: "2", paidFee: LOSER_REQUIRED.toString(), funded: true })],
@@ -157,19 +169,21 @@ describe("Classic appeal funding options", () => {
       await screen.findByText("No");
 
       expect(within(card("No")).getByText("Fully funded!")).toBeInTheDocument();
-      expect(card("No").querySelector("input")).toBeNull();
-      expect(card("Yes").querySelector("input")).not.toBeNull();
+      expect(radio("No")).toBeDisabled();
+      expect(radio("Yes")).toBeEnabled();
     });
-    it.fails("KNOWN BUG: a fully funded option is still selectable and prefills a contribution", async () => {
+    it("does not select or prefill a fully funded option when clicked", async () => {
       serveDispute(60, {
         winningChoice: "1",
         answers: [aClassicAnswer({ answerId: "2", paidFee: LOSER_REQUIRED.toString(), funded: true })],
       });
       const { user, setAmount } = renderOptions();
       await screen.findByText("No", { selector: "label" });
+      setAmount.mockClear();
 
       await user.click(card("No"));
 
+      expect(radio("No")).not.toBeChecked();
       expect(setAmount).not.toHaveBeenCalled();
     });
   });

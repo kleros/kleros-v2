@@ -39,14 +39,26 @@ const renderOptions = (handleSelection = vi.fn().mockResolvedValue(undefined)) =
 
 const dialog = () => screen.getByRole("dialog", { name: "Confirm your vote" });
 
+// Each option's Tooltip trigger is a div[role="button"] with the same name; the option is the <button> inside it.
+const options = (name: string) => screen.queryAllByRole("button", { name }).filter((el) => el.tagName === "BUTTON");
+const option = (name: string) => {
+  const matches = options(name);
+  expect(matches).toHaveLength(1);
+  return matches[0];
+};
+const findOption = async (name: string) => {
+  await screen.findAllByRole("button", { name });
+  return option(name);
+};
+
 describe("Voting options", () => {
   it("lists the template answers, with Refuse to Arbitrate set apart", async () => {
     serveTemplate();
     renderOptions();
 
-    expect(await screen.findByRole("button", { name: "Yes" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "No" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Refuse to Arbitrate / Invalid" })).toBeInTheDocument();
+    expect(await findOption("Yes")).toBeInTheDocument();
+    expect(option("No")).toBeInTheDocument();
+    expect(option("Refuse to Arbitrate / Invalid")).toBeInTheDocument();
     expect(screen.getByText("Should the buyer be refunded?")).toBeInTheDocument();
   });
 
@@ -54,7 +66,7 @@ describe("Voting options", () => {
     serveTemplate();
     const { user, handleSelection } = renderOptions();
 
-    await user.click(await screen.findByRole("button", { name: "No" }));
+    await user.click(await findOption("No"));
     expect(within(dialog()).getByText("No")).toBeInTheDocument();
     expect(handleSelection).not.toHaveBeenCalled();
 
@@ -68,7 +80,7 @@ describe("Voting options", () => {
     serveTemplate();
     const { user, handleSelection } = renderOptions();
 
-    await user.click(await screen.findByRole("button", { name: "Refuse to Arbitrate / Invalid" }));
+    await user.click(await findOption("Refuse to Arbitrate / Invalid"));
     await user.click(within(dialog()).getByRole("button", { name: "Confirm vote" }));
 
     expect(handleSelection).toHaveBeenCalledWith(0n);
@@ -78,7 +90,7 @@ describe("Voting options", () => {
     serveTemplate();
     const { user, handleSelection } = renderOptions();
 
-    await user.click(await screen.findByRole("button", { name: "Yes" }));
+    await user.click(await findOption("Yes"));
     await user.click(within(dialog()).getByRole("button", { name: "Cancel" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
@@ -92,14 +104,14 @@ describe("Voting options", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const { user } = renderOptions(handleSelection);
 
-    await user.click(await screen.findByRole("button", { name: "Yes" }));
+    await user.click(await findOption("Yes"));
     await user.click(within(dialog()).getByRole("button", { name: "Confirm vote" }));
 
-    expect(screen.getByRole("button", { name: "No" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Refuse to Arbitrate / Invalid" })).toBeDisabled();
+    expect(option("No")).toBeDisabled();
+    expect(option("Refuse to Arbitrate / Invalid")).toBeDisabled();
 
     reject(new Error("User rejected the request."));
-    await waitFor(() => expect(screen.getByRole("button", { name: "No" })).toBeEnabled());
+    await waitFor(() => expect(option("No")).toBeEnabled());
   });
 
   it("replaces a template 0x0 answer with the standard Refuse to Arbitrate option", async () => {
@@ -109,10 +121,10 @@ describe("Voting options", () => {
     ]);
     const { user, handleSelection } = renderOptions();
 
-    await user.click(await screen.findByRole("button", { name: "Refuse to Arbitrate / Invalid" }));
+    await user.click(await findOption("Refuse to Arbitrate / Invalid"));
     await user.click(within(dialog()).getByRole("button", { name: "Confirm vote" }));
 
     expect(handleSelection).toHaveBeenCalledWith(0n);
-    expect(screen.queryByRole("button", { name: "ignored" })).not.toBeInTheDocument();
+    expect(options("ignored")).toHaveLength(0);
   });
 });
