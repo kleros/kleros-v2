@@ -17,7 +17,7 @@ Each package with tests has its own `AGENTS.md`; read it before working in that 
 
 ```bash
 yarn install --immutable
-yarn ci:prepare            # contracts compile + dist, kleros-app build, web codegen (devnet; needs network)
+yarn ci:prepare            # contracts compile + dist, kleros-app and kleros-sdk builds, web codegen (devnet; needs network)
 yarn check-types           # every workspace
 yarn check-style           # eslint, every workspace
 yarn test                  # unit tests: kleros-sdk, kleros-app, web, subgraph
