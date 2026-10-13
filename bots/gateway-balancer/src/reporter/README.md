@@ -12,7 +12,7 @@ suspended (critical notification) until it gets one.
 | Field                                                                     | Default       | Meaning                                                                                                                                                                                 |
 | ------------------------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `lowWaterMessages`                                                        | `20`          | A route is topped up when its reporter holds less than this many messages.                                                                                                              |
-| `targetMessages`                                                          | `100`         | A top-up brings the reporter up to this many messages, never past it. Must exceed `lowWaterMessages`.                                                                                   |
+| `targetMessages`                                                          | `100`         | A top-up brings the reporter up to this many messages, never past it. Must exceed `lowWaterMessages`. Keep it small on pre-audit reporters (see Operator advice).                       |
 | `minTopUpMessages`                                                        | `5`           | Economic minimum: a top-up worth fewer messages is deferred.                                                                                                                            |
 | `maxAmbiguousDeferrals`                                                   | `5`           | An operation whose transfer keeps deferring with an ambiguous reason goes to `attention` after this many consecutive deferrals (see Transfer deferrals).                                |
 | `ambiguousDeferralMaxAgeMinutes`                                          | `60`          | ...or once the first of those deferrals is this old, whichever comes first.                                                                                                             |
@@ -22,27 +22,77 @@ suspended (critical notification) until it gets one.
 `lowWater = costPerMessage × lowWaterMessages`, `target = costPerMessage × targetMessages`, both in the reporter
 chain's smallest native unit. The cost per message is configured in v1 (no fee-estimator query).
 
+## Supported reporters
+
+The bot funds the reporters of `@kleros/veashi-sdk@0.1.0`, in the deployed pre-audit-fix build, that pay their
+bridge fees from their own native balance:
+
+| Reporter            | Fee paid from the reporter's balance                                    | Preflight's `feeToken()` read                                   |
+| ------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `CCIPReporter`      | `CCIP_ROUTER.getFee`, in native only while `feeToken` is `0x0`          | Returns `0x0`: passes. Any other address: refused (ERC20 fees). |
+| `LayerZeroReporter` | `endpoint.quote(...).nativeFee`                                         | Reverts; its code has no `feeToken()` selector: passes.         |
+| `AxelarReporter`    | Its owner-set fixed `fee`, paid to the Axelar gas service when non-zero | Reverts; its code has no `feeToken()` selector: passes.         |
+
+These are the SDK's mainnet reporters between Arbitrum (42161) and Base (8453), in both directions. All three have a
+payable `receive()`. Any other contract is funded only if it passes the same preflight; a contract without
+`receive()` (the VeaReporter, Yaho) fails it.
+
+[`reporters.anvil.test.ts`](./reporters.anvil.test.ts) deploys the three reporters from the frozen fixture
+`fixtures/veashi-sdk-0.1.0.json` and runs the preflight and a funding against them on a local anvil. That fixture is
+compiled from the SDK's own sources (the package ships no bytecode). It is equivalent to the deployed mainnet build,
+not byte-identical with it.
+
+### Operator advice: keep `targetMessages` small
+
+A pre-audit reporter's balance pays the fee of every dispatch, and anyone can trigger one through Yaho, or through
+the reporter's own `dispatchBlocks`. The balance cannot be withdrawn. Everything the bot sends to a reporter is spent
+on messages or lost to whoever drains it. Keep `targetMessages` (and the per-route override) small, so a drained
+reporter costs at most `targetMessages × costPerMessage` per refill. Repeated drains are refilled each time with no
+cumulative cap. To stop funding a route, remove its `costPerMessage`: the route is suspended once the updated
+configuration is loaded.
+
 ## Funding mechanism
 
 One mechanism (`fundingMethod: "nativeTransfer"`): a plain native transfer with no calldata to the reporter, accepted
-by the payable `receive()` of the LayerZero, DeBridge and CCIP reporters of `@kleros/veashi-sdk@0.1.0`. No ABI is
-used. Every tick runs a preflight: the route must be in the topology, the address must have code, and an
-`estimateGas` of a 1-wei transfer from the balancer EOA must succeed, and the reporter must not pay its fees in an
-ERC20 token: when `feeToken()` returns a non-zero address (a CCIPReporter configured with an ERC20 `feeToken`) the
-route is refused. A reporter returning the zero address passes. A failed `feeToken()` read is never taken as native
-fees by itself: it passes only when the read **reverts** and the reporter's runtime bytecode cannot dispatch
-`feeToken()` at all (no `PUSH4` of its selector and no `DELEGATECALL`, outside the Solidity metadata trailer), which
-is the LayerZero and DeBridge case. The frozen `ChainClient` port carries only the platform's error message, so a
-revert is recognised by the platform's fixed suffix marker alone (`revertData=0x<hex>` or `revertData=none`, decisions
-[L42]), never by the word "reverted"; any other failure (transport, timeout, empty return data, an unknown error)
-is not a revert. The preflight is
-**unavailable** when the `feeToken()` read fails without reverting, when it reverts on code that has the selector or
-delegates (a proxy), when the code lookup fails, or when the transfer's `estimateGas` fails without reverting. Then
-the tick defers with a `reporter:<route>:preflight-unavailable` warning, starts nothing, submits no funding, and
-leaves the suspension state as it was; the next tick retries. Only an `estimateGas` that reverts refuses the route.
-The `feeToken()` fragment in `adapter.ts` is marked pending with its assumed signature. A VeaReporter (no
-`receive()`) fails the transfer simulation. A failing preflight suspends that route only, with a critical
-notification.
+by its payable `receive()`. Every tick runs a preflight: the route must be in the topology, the address must have
+code, an `estimateGas` of a 1-wei transfer from the balancer EOA must succeed, and the reporter must not pay its fees
+in an ERC20 token. When `feeToken()` returns a non-zero address (a CCIPReporter configured with an ERC20 `feeToken`),
+the route is refused. A reporter returning the zero address passes.
+
+A failed `feeToken()` read is never taken as native fees by itself. It passes only when the read **reverts** and the
+reporter's runtime bytecode cannot dispatch `feeToken()` at all: no `PUSH4` of its selector and no `DELEGATECALL`,
+outside the Solidity metadata trailer. That is the LayerZero and Axelar case. The frozen `ChainClient` port carries
+only the platform's error message, so a revert is recognised by the platform's fixed suffix marker alone
+(`revertData=0x<hex>` or `revertData=none`, decisions [L42]), never by the word "reverted". Any other failure
+(transport, timeout, empty return data, an unknown error) is not a revert.
+
+The preflight is **unavailable** when:
+
+- the `feeToken()` read fails without reverting;
+- it reverts on code that has the selector or delegates (a proxy);
+- the code lookup fails;
+- the transfer's `estimateGas` fails without reverting.
+
+Then the tick defers with a `reporter:<route>:preflight-unavailable` warning, starts nothing, submits no funding, and
+leaves the suspension state as it was; the next tick retries. Only an `estimateGas` that reverts refuses the route. A
+failing preflight suspends that route only, with a critical notification.
+
+**The `feeToken()` ABI.** `adapter.ts` reads the `feeToken()` entry from
+[`ccipReporterFeeToken.json`](./ccipReporterFeeToken.json), copied verbatim from `CCIPReporter.abi` in
+`fixtures/veashi-sdk-0.1.0.json`; `adapter.test.ts` asserts that the entry and the selector the adapter encodes
+(`0x647846a5`) equal the fixture's. The adapter does not import `@kleros/veashi-sdk`: the SDK's root requires its
+TypeChain factories, which load `ethers`, a module the bot does not declare. The JSON sits under `src` because the
+Docker image copies only `src` and `config`.
+
+**A route that stays `preflight-unavailable` on mainnet.** A persistent
+`preflight of route <route> unavailable: feeToken() of reporter <address> could not be read (its code has the selector)`
+or `(its code delegates)` means the deployed bytecode differs from what the bytecode scan expects. Either it carries
+the `feeToken()` selector (or a `DELEGATECALL`) yet reverts the read, or it is a proxy. The anvil test proves the scan
+only against the fixture build. The route is then never funded, with only a deduplicated warning, and the next
+dispatch that includes it reverts the whole `createDispute` once its balance runs out. Before launch, the
+RUNBOOK's "Mainnet launch" checklist requires the bot's `status` preflight to show **all six** SDK routes accepted.
+If one shows this symptom, inspect the reporter's code (`cast code`) and its `feeToken()` read (`cast call`), and do
+not launch with that route selected.
 
 Suspension and preflight are evaluated **before** an open operation advances, so a reporter that turned ERC20-fee,
 lost its code or became unavailable while a bridge was in flight is never funded natively. Sourcing (claim,
@@ -141,6 +191,6 @@ An operation in `attention` no longer counts in its pair's pool and suspends its
 | `reporter:<route>:transfer-failed`         | warning  | A conversion or bridge failed. The funds stay a `bridging:<route>` holding on the foreign chain.                                                                                                                                                                                                                                                                                                             | None. The next operation moves them as a holding leg.                                                                                                                                                                                                                |
 | `reporter:<route>:transfer-deferred:<op>`  | warning  | A conversion or bridge did not start for a transient reason (price, route, signing policy). Retried every tick.                                                                                                                                                                                                                                                                                              | None while transient. Check LI.FI routes and price sources if it persists.                                                                                                                                                                                           |
 | `reporter:<route>:transfer-ambiguous:<op>` | warning  | A transfer deferred with `insufficient-holding:` or an unknown reason. The operation goes to `attention` past the bound.                                                                                                                                                                                                                                                                                     | Reconcile the route's bridging holding on the foreign chain against the EOA balance; credit the withdrawal if it is missing.                                                                                                                                         |
-| `reporter:<route>:preflight-unavailable`   | warning  | The preflight could not be evaluated (code lookup or `feeToken()` read failed on a reporter that can answer it). Nothing new starts; retried every tick.                                                                                                                                                                                                                                                     | Check the RPC of the reporter's chain if it persists, and verify the reporter pays native fees.                                                                                                                                                                      |
+| `reporter:<route>:preflight-unavailable`   | warning  | The preflight could not be evaluated (code lookup or `feeToken()` read failed on a reporter that can answer it). Nothing new starts; retried every tick.                                                                                                                                                                                                                                                     | Check the RPC of the reporter's chain if it persists, and verify the reporter pays native fees. When the reason says `its code has the selector` or `its code delegates`, see "A route that stays `preflight-unavailable`".                                          |
 | `reporter:<route>:funding-blocked:<op>`    | warning  | The route was suspended when its open operation was ready to fund. The operation closed before its debit; its sourced funds stay in `bridging:<route>`. A resume past the debit credits it back (`funding-not-submitted`).                                                                                                                                                                                   | Fix the suspension cause; the next operation funds the reporter from the holding.                                                                                                                                                                                    |
 | `reporter:<route>:funded:<op>`             | info     | A top-up confirmed.                                                                                                                                                                                                                                                                                                                                                                                          | None.                                                                                                                                                                                                                                                                |

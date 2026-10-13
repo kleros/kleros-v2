@@ -1,0 +1,16 @@
+{
+  "_source": "The feeToken() entry of CCIPReporter.abi in bots/gateway-balancer/fixtures/veashi-sdk-0.1.0.json (@kleros/veashi-sdk 0.1.0, contracts/adapters/chainlink/CCIPReporter.sol). Copied verbatim; adapter.test.ts checks it against the fixture.",
+  "feeToken": {
+    "type": "function",
+    "name": "feeToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  }
+}

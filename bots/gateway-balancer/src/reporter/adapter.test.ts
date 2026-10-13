@@ -1,7 +1,17 @@
+import { encodeFunctionData, toFunctionSelector, type Abi, type AbiFunction } from "viem";
 import { describe, expect, it } from "vitest";
 import type { ReporterRoute } from "../config/schema";
-import { EXAMPLE_ADDRESSES, EXAMPLE_CHAINS, FAKE_SIGNER, makeFakePorts } from "../testing";
-import { NativeTransferReporterFunding, PreflightUnavailable, feeTokenDispatch, isRevert } from "./adapter";
+import { EXAMPLE_ADDRESSES, EXAMPLE_CHAINS, FAKE_SIGNER, makeFakePorts, type ReadCall } from "../testing";
+import {
+  FEE_TOKEN_ENTRY,
+  FEE_TOKEN_SELECTOR,
+  NativeTransferReporterFunding,
+  PreflightUnavailable,
+  feeTokenDispatch,
+  isRevert,
+} from "./adapter";
+import ccipReporterFeeToken from "./ccipReporterFeeToken.json" with { type: "json" };
+import { sdkContract } from "./sdkFixture";
 
 /** `PUSH4 feeToken()` as in a Solidity dispatcher, then a Solidity CBOR metadata trailer. */
 const FEE_TOKEN_DISPATCHER = "0x63647846a5146100" as const;
@@ -20,7 +30,7 @@ function setup() {
   return { ports, funding, route, chain };
 }
 
-/** A LayerZero or DeBridge reporter: no `feeToken()`, so the read reverts. */
+/** A LayerZero or Axelar reporter: no `feeToken()`, so the read reverts. */
 function revertFeeToken(chain: ReturnType<typeof setup>["chain"]) {
   chain.onRead(
     (call) => call.functionName === "feeToken",
@@ -29,6 +39,44 @@ function revertFeeToken(chain: ReturnType<typeof setup>["chain"]) {
     }
   );
 }
+
+describe("feeToken() ABI of the SDK's CCIPReporter", () => {
+  const fixtureEntry = sdkContract("CCIPReporter").abi.find(
+    (entry): entry is AbiFunction => entry.type === "function" && entry.name === "feeToken"
+  );
+
+  it("is the CCIPReporter.abi entry of the SDK fixture, verbatim", () => {
+    expect(fixtureEntry).toBeDefined();
+    expect(ccipReporterFeeToken.feeToken).toEqual(fixtureEntry);
+    expect(FEE_TOKEN_ENTRY).toEqual(fixtureEntry);
+  });
+
+  it("encodes the fixture's selector in the adapter's read and in its bytecode scan", async () => {
+    const selector = toFunctionSelector(fixtureEntry!);
+    expect(selector).toBe("0x647846a5");
+    expect(`0x${FEE_TOKEN_SELECTOR}`).toBe(selector);
+
+    const { funding, route, chain } = setup();
+    chain.setCode(route.reporter);
+    chain.estimate = () => 21_000n;
+    const encoded: string[] = [];
+    chain.onRead(
+      (call) => call.functionName === "feeToken",
+      (call: ReadCall) => {
+        encoded.push(encodeFunctionData({ abi: call.abi as Abi, functionName: call.functionName }));
+        return "0x0000000000000000000000000000000000000000";
+      }
+    );
+    expect(await funding.preflight(route)).toEqual({ ok: true, reasons: [] });
+    expect(encoded).toEqual([selector]);
+  });
+
+  it("scans the SDK reporters' runtime code: CCIP has the selector, LayerZero and Axelar cannot answer", () => {
+    expect(feeTokenDispatch(sdkContract("CCIPReporter").deployedBytecode)).toBe("selector");
+    expect(feeTokenDispatch(sdkContract("LayerZeroReporter").deployedBytecode)).toBe("absent");
+    expect(feeTokenDispatch(sdkContract("AxelarReporter").deployedBytecode)).toBe("absent");
+  });
+});
 
 describe("NativeTransferReporterFunding", () => {
   it("reads the reporter's native balance on its chain", async () => {

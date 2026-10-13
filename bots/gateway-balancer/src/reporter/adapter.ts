@@ -1,18 +1,32 @@
-import { parseAbi, toFunctionSelector, zeroAddress } from "viem";
+import { toFunctionSelector, zeroAddress, type Abi, type AbiFunction } from "viem";
 import type { ReporterRoute, Topology } from "../config/schema";
 import type { Address, Hex, TxRequest } from "../domain";
 import type { ChainClient, ChainClients, ReporterFunding, ReporterPreflight } from "../ports";
+import ccipReporterFeeToken from "./ccipReporterFeeToken.json" with { type: "json" };
 
 /** The value simulated by the preflight; the reporter's `receive()` must accept any positive amount. */
 const PREFLIGHT_VALUE = 1n;
 
 /**
- * PENDING (assumed signature): the CCIPReporter of `@kleros/veashi-sdk@0.1.0` exposes the token it pays CCIP fees
- * in; the zero address means native fees. Reporters without the function (LayerZero, DeBridge) revert the read.
- * Swap in the final fragment here once the SDK publishes its ABI.
+ * The `feeToken()` entry of the CCIPReporter ABI of `@kleros/veashi-sdk@0.1.0`, taken from the SDK-compiled fixture
+ * (`ccipReporterFeeToken.json`): the token the reporter pays CCIP fees in, the zero address meaning native fees. The
+ * LayerZero and Axelar reporters have no such function and revert the read. The SDK is not imported: its root
+ * requires its TypeChain factories, which load `ethers`, a module the bot does not declare. Checked at load so a
+ * wrong entry fails at startup, never as a silent "native" verdict.
  */
-const FEE_TOKEN_ABI = parseAbi(["function feeToken() view returns (address)"]);
-export const FEE_TOKEN_SELECTOR = toFunctionSelector("feeToken()").slice(2).toLowerCase();
+export const FEE_TOKEN_ENTRY = ccipReporterFeeToken.feeToken as AbiFunction;
+if (
+  FEE_TOKEN_ENTRY.type !== "function" ||
+  FEE_TOKEN_ENTRY.name !== "feeToken" ||
+  FEE_TOKEN_ENTRY.inputs.length !== 0 ||
+  FEE_TOKEN_ENTRY.outputs.length !== 1 ||
+  FEE_TOKEN_ENTRY.outputs[0]?.type !== "address" ||
+  FEE_TOKEN_ENTRY.stateMutability !== "view"
+) {
+  throw new Error("ccipReporterFeeToken.json does not hold the CCIPReporter feeToken() view returning an address");
+}
+const FEE_TOKEN_ABI: Abi = [FEE_TOKEN_ENTRY];
+export const FEE_TOKEN_SELECTOR = toFunctionSelector(FEE_TOKEN_ENTRY).slice(2).toLowerCase();
 
 const PUSH1 = 0x60;
 const PUSH4 = 0x63;
@@ -87,9 +101,9 @@ export function isRevert(error: unknown): boolean {
 }
 
 /**
- * Funding of the LayerZero, DeBridge and CCIP reporters of `@kleros/veashi-sdk@0.1.0` through their payable
- * `receive()`: a plain native transfer with no calldata. No ABI is involved; the VeaReporter has no `receive()` and
- * is never a target, which the preflight's transfer simulation catches.
+ * Funding of the CCIP (native fees), LayerZero and Axelar reporters of `@kleros/veashi-sdk@0.1.0` through their
+ * payable `receive()`: a plain native transfer with no calldata. A contract without `receive()` (the VeaReporter) is
+ * never a target, which the preflight's transfer simulation catches.
  */
 export class NativeTransferReporterFunding implements ReporterFunding {
   constructor(
@@ -151,7 +165,7 @@ export class NativeTransferReporterFunding implements ReporterFunding {
 
   /**
    * The ERC20 fee token a CCIP reporter requires, or `null` for native fees: a zero `feeToken()`, or a read that
-   * reverts on bytecode that cannot dispatch `feeToken()` at all (LayerZero, DeBridge). Any other failed read (a
+   * reverts on bytecode that cannot dispatch `feeToken()` at all (LayerZero, Axelar). Any other failed read (a
    * transport or unknown error, or a revert of a reporter whose code has the selector or delegates) is never taken as
    * native: it throws `PreflightUnavailable` (decisions [L30]).
    */
