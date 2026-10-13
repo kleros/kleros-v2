@@ -11,10 +11,13 @@ import {IYaho} from "@kleros/veashi-sdk/contracts/interfaces/IYaho.sol";
 import {IReporter} from "@kleros/veashi-sdk/contracts/interfaces/IReporter.sol";
 import {IAdapter} from "@kleros/veashi-sdk/contracts/interfaces/IAdapter.sol";
 import {IJushin} from "@kleros/veashi-sdk/contracts/interfaces/IJushin.sol";
+import {VouchedDispatcher} from "./VouchedDispatcher.sol";
 
 /// Foreign Gateway
 /// Counterpart of `HomeGateway`
-contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializable {
+/// Dispatches disputes through `VouchedDispatcher`: the reporters, whose dispatcher this gateway is, pay only for a
+/// message it vouches for. `VouchedDispatcher` adds a transient variable only, so the storage layout is unchanged.
+contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializable, VouchedDispatcher {
     using SafeERC20 for IERC20;
 
     string public constant override version = "0.8.0";
@@ -77,6 +80,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         IAdapter _inboundAdapter
     );
     event OracleEnabled(uint256 indexed _oracleID, bool _enabled);
+    event OracleReporterSet(uint256 indexed _oracleID, IReporter _reporter);
     event DefaultOraclesSet(uint256[] _oracleIDs, uint256 _threshold);
     event HomeNativeRateChanged(uint256 _homeNativeRate);
     event KeeperGuardrailsChanged(uint256 _maxChangeBps, uint256 _cooldown);
@@ -204,6 +208,8 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     }
 
     /// @dev Changes the home gateway.
+    /// Only call it when no dispute is open (not enforced on-chain): a relayed dispute's ruling comes from the old
+    /// home gateway and is rejected, and a dispute not yet relayed is sent to the new one.
     /// @param _homeGateway The address of the new home gateway.
     function changeHomeGateway(address _homeGateway) external {
         if (governor != msg.sender) revert GovernorOnly();
@@ -237,15 +243,20 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     }
 
     /// @dev Changes the Yaho used to dispatch disputes to the home chain.
+    /// Only call it when no dispute is open (not enforced on-chain): a dispute not yet relayed is dispatched through
+    /// the new Yaho, which the home chain's Yaru and the oracles' reporters must already accept.
     /// @param _yaho The address of the new Yaho.
     function changeYaho(IYaho _yaho) external onlyByGovernor {
-        revert NotImplemented();
+        yaho = _yaho;
+        emit YahoChanged(_yaho);
     }
 
     /// @dev Changes the Yaru allowed to deliver rulings through `onMessage`.
+    /// Only call it when no dispute is open (not enforced on-chain): a ruling the old Yaru still executes is rejected.
     /// @param _yaru The address of the new Yaru.
     function changeYaru(address _yaru) external onlyByGovernor {
-        revert NotImplemented();
+        yaru = _yaru;
+        emit YaruChanged(_yaru);
     }
 
     /// @dev Whitelists a new oracle. The HomeGateway must register the ruling-leg half under the same ID.
@@ -261,19 +272,42 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         oracleID = _addOracle(_outboundReporter, _outboundAdapter, _inboundAdapter);
     }
 
-    /// @dev Enables or disables an oracle for future selections.
+    /// @dev Enables or disables an oracle for future selections. Existing disputes keep their snapshot.
+    /// An oracle in the default selection cannot be disabled: set a new default first.
     /// @param _oracleID The ID of the oracle.
     /// @param _enabled Whether the oracle can be selected.
     function setOracleEnabled(uint256 _oracleID, bool _enabled) external onlyByGovernor {
-        revert NotImplemented();
+        if (_oracleID >= oracleCount) revert UnknownOracle(_oracleID);
+        if (!_enabled) {
+            uint256[] storage defaultIDs = defaultOracles.oracleIDs;
+            for (uint256 i = 0; i < defaultIDs.length; i++) {
+                if (defaultIDs[i] == _oracleID) revert OracleInDefaultSelection(_oracleID);
+            }
+        }
+        oracles[_oracleID].enabled = _enabled;
+        emit OracleEnabled(_oracleID, _enabled);
+    }
+
+    /// @dev Replaces the dispute-leg reporter of an oracle, or mutes it with `address(0)`, which Yaho skips.
+    /// A dispute is dispatched with the reporters set at dispatch time. The HomeGateway checks only adapters,
+    /// so the snapshot of an existing dispute stays valid. The reporter is not checked against `yaho`.
+    /// Muting keeps a dispute deliverable only if its other selected oracles still meet its threshold, or if this
+    /// oracle's adapter reads Yaho itself (a light client). Otherwise replace the reporter: a dispute relayed while
+    /// muted never reaches the home chain, and it cannot be relayed again.
+    /// @param _oracleID The ID of the oracle.
+    /// @param _reporter The new reporter, `address(0)` to mute it.
+    function setOracleReporter(uint256 _oracleID, IReporter _reporter) external onlyByGovernor {
+        if (_oracleID >= oracleCount) revert UnknownOracle(_oracleID);
+        oracles[_oracleID].outboundReporter = _reporter;
+        emit OracleReporterSet(_oracleID, _reporter);
     }
 
     /// @dev Sets the bridging cost charged for an oracle, covering both legs.
+    /// Allowed for a disabled oracle: its cost applies again once it is enabled again.
     /// @param _oracleID The ID of the oracle.
     /// @param _bridgingCost The round-trip cost in native currency.
     function setOracleBridgingCost(uint256 _oracleID, uint256 _bridgingCost) external onlyByGovernorOrKeeper {
-        // What will happen here if the oracle is diabled?
-        if (_oracleID >= oracleCount) revert OracleNotEnabled(_oracleID);
+        if (_oracleID >= oracleCount) revert UnknownOracle(_oracleID);
         _checkKeeperUpdate(
             keccak256(abi.encode("oracleBridgingCost", _oracleID)),
             oracleBridgingCost[_oracleID],
@@ -284,9 +318,11 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     }
 
     /// @dev Changes the supported fee tokens.
+    /// An accepted token must be a contract: NATIVE_CURRENCY and addresses without code revert. Disabling always works.
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
     function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByGovernor {
+        if (_accepted && address(_feeToken).code.length == 0) revert InvalidFeeToken();
         currencyRates[_feeToken].feePaymentAccepted = _accepted;
         emit AcceptedFeeToken(_feeToken, _accepted);
     }
@@ -345,6 +381,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     // ************************************* //
 
     /// @inheritdoc IForeignGateway
+    /// @dev Dispatched through `_dispatchVouched`, so the selected reporters agree to pay for the message.
     function relayDispute(
         uint256 _foreignDisputeID,
         uint256 _choices,
@@ -376,14 +413,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         );
 
         (IReporter[] memory reporters, IAdapter[] memory adapters) = _outboundOracles(selection);
-        (messageId, ) = yaho.dispatchMessageToAdapters(
-            homeChainID,
-            selection.threshold,
-            homeGateway,
-            data,
-            reporters,
-            adapters
-        );
+        (messageId, ) = _dispatchVouched(homeChainID, selection.threshold, homeGateway, data, reporters, adapters);
         emit DisputeRelayed(disputeHash, messageId);
     }
 
@@ -679,7 +709,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     }
 
     /// @dev Creates a dispute and snapshots its oracle selection. Fees must already be checked or collected.
-    /// The selection is validated on every call, so a default that includes a since-disabled oracle reverts.
+    /// The selection is validated on every call. The default one never holds a disabled oracle (`setOracleEnabled`).
     /// @param _choices The number of choices.
     /// @param _extraData The extra data for the arbitrator.
     /// @param _oracleIDs The IDs of the oracles used on both legs.
@@ -797,22 +827,40 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
             );
     }
 
+    /// @dev The Yaho `_dispatchVouched` dispatches through.
+    function _yaho() internal view override returns (address) {
+        return address(yaho);
+    }
+
+    /// @dev Resolves the court and number of jurors as KlerosCore does: extraData shorter than 64 bytes and the
+    /// forking court resolve to the general court, and 0 jurors to DEFAULT_NB_OF_JURORS.
+    /// Unlike KlerosCore, which falls back to the general court, a court without a mirrored `feeForJuror` reverts,
+    /// the general court included, so the fee charged here is always one KlerosCore charges. A court word that does
+    /// not fit in uint96 reverts too, with `type(uint96).max`: KlerosCore reverts or falls back on it, depending on
+    /// its low bits.
+    /// @param _extraData The extra data for the arbitrator.
+    /// @return courtID The court ID.
+    /// @return minJurors The minimum number of jurors.
     function extraDataToCourtIDMinJurors(
         bytes memory _extraData
     ) internal view returns (uint96 courtID, uint256 minJurors) {
         // Note that here we ignore DisputeKitID
         if (_extraData.length >= 64) {
+            uint256 courtWord;
             assembly ("memory-safe") {
                 // solium-disable-line security/no-inline-assembly
-                courtID := mload(add(_extraData, 0x20))
+                courtWord := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
-            if (feeForJuror[courtID] == 0) courtID = 0;
+            if (courtWord > type(uint96).max) revert CourtNotSupported(type(uint96).max);
+            courtID = uint96(courtWord);
+            if (courtID == FORKING_COURT) courtID = GENERAL_COURT;
             if (minJurors == 0) minJurors = DEFAULT_NB_OF_JURORS;
         } else {
-            courtID = 0;
+            courtID = GENERAL_COURT;
             minJurors = DEFAULT_NB_OF_JURORS;
         }
+        if (feeForJuror[courtID] == 0) revert CourtNotSupported(courtID);
     }
 
     // ************************************* //
@@ -834,7 +882,6 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     error KeeperCooldownActive();
     error KeeperChangeTooLarge();
     error KeeperCannotChangeDecimals();
-    error NotImplemented();
     error InvalidThreshold();
     error InvalidOracle();
     error AdapterAlreadyUsed();
@@ -843,4 +890,8 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     error TokenNotAccepted();
     error TransferFailed();
     error InsufficientFees();
+    error UnknownOracle(uint256 _oracleID);
+    error OracleInDefaultSelection(uint256 _oracleID);
+    error CourtNotSupported(uint96 _courtID);
+    error InvalidFeeToken();
 }
