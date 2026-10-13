@@ -6972,6 +6972,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
+    "@kleros/veashi-sdk": "npm:^0.1.0"
     "@types/node": "npm:^22.13.0"
     dotenv: "npm:^16.4.5"
     eslint: "npm:^9.15.0"
