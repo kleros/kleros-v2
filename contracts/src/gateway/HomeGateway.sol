@@ -11,10 +11,13 @@ import {IYaho} from "@kleros/veashi-sdk/contracts/interfaces/IYaho.sol";
 import {IReporter} from "@kleros/veashi-sdk/contracts/interfaces/IReporter.sol";
 import {IAdapter} from "@kleros/veashi-sdk/contracts/interfaces/IAdapter.sol";
 import {IJushin} from "@kleros/veashi-sdk/contracts/interfaces/IJushin.sol";
+import {VouchedDispatcher} from "./VouchedDispatcher.sol";
 
 /// Home Gateway
 /// Counterpart of `ForeignGateway`
-contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
+/// Dispatches rulings through `VouchedDispatcher`: the reporters, whose dispatcher this gateway is, pay only for a
+/// message it vouches for. `VouchedDispatcher` adds a transient variable only, so the storage layout is unchanged.
+contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, VouchedDispatcher {
     string public constant override version = "0.8.0";
 
     // ************************************* //
@@ -51,6 +54,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
         IAdapter _outboundAdapter,
         IAdapter _inboundAdapter
     );
+    event OracleReporterSet(uint256 indexed _oracleID, IReporter _reporter);
     event Funded(address indexed _from, uint256 _amount);
     event Withdrawn(address indexed _to, uint256 _amount);
 
@@ -141,18 +145,24 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
     }
 
     /// @dev Changes the arbitrator.
+    /// Only call it when no dispute is open (not enforced on-chain): `rule` accepts only the current arbitrator, so a
+    /// dispute created on the old one could never be ruled.
     /// @param _arbitrator The address of the new arbitrator.
     function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
         arbitrator = _arbitrator;
     }
 
     /// @dev Changes the foreign gateway.
+    /// Only call it when no dispute is open (not enforced on-chain): a dispute still sent by the old foreign gateway is
+    /// rejected, and the ruling of a received dispute is sent to the new one, which does not know it.
     /// @param _foreignGateway The address of the new foreign gateway.
     function changeForeignGateway(address _foreignGateway) external onlyByGovernor {
         foreignGateway = _foreignGateway;
     }
 
     /// @dev Changes the Yaho used to dispatch rulings to the foreign chain.
+    /// Only call it when no dispute is open (not enforced on-chain): a ruling not yet dispatched goes through the new
+    /// Yaho, which the foreign chain's Yaru and the oracles' reporters must already accept.
     /// @param _yaho The address of the new Yaho.
     function changeYaho(IYaho _yaho) external onlyByGovernor {
         yaho = _yaho;
@@ -160,6 +170,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
     }
 
     /// @dev Changes the Yaru allowed to deliver disputes through `onMessage`.
+    /// Only call it when no dispute is open (not enforced on-chain): a dispute the old Yaru still executes is rejected.
     /// @param _yaru The address of the new Yaru.
     function changeYaru(address _yaru) external onlyByGovernor {
         yaru = _yaru;
@@ -177,6 +188,20 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
         IAdapter _inboundAdapter
     ) external onlyByGovernor returns (uint256 oracleID) {
         oracleID = _addOracle(_outboundReporter, _outboundAdapter, _inboundAdapter);
+    }
+
+    /// @dev Replaces the ruling-leg reporter of an oracle, or mutes it with `address(0)`, which Yaho skips.
+    /// A ruling is dispatched with the reporters set at dispatch time. The ForeignGateway checks only adapters,
+    /// so the oracles of a received dispute stay valid. The reporter is not checked against `yaho`.
+    /// Muting keeps a ruling deliverable only if the dispute's other selected oracles still meet its threshold, or if
+    /// this oracle's adapter reads Yaho itself (a light client). Otherwise replace the reporter: a ruling dispatched
+    /// while muted never reaches the foreign chain, and it cannot be dispatched again.
+    /// @param _oracleID The ID of the oracle.
+    /// @param _reporter The new reporter, `address(0)` to mute it.
+    function setOracleReporter(uint256 _oracleID, IReporter _reporter) external onlyByGovernor {
+        if (_oracleID >= oracleCount) revert UnknownOracle(_oracleID);
+        oracles[_oracleID].outboundReporter = _reporter;
+        emit OracleReporterSet(_oracleID, _reporter);
     }
 
     /// @dev Withdraws native currency held by the gateway.
@@ -258,8 +283,9 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
     // TEST: Core contract can handle the reverts and retry is possible if not this will be a two transaction revert.
     /// @inheritdoc IArbitrableV2
     /// @dev Sends the ruling to the ForeignGateway through Yaho, `abi.encode(disputeHash, ruling)`, over the oracles
-    /// selected on the foreign chain, in the same order. Reporters pay the bridge fees from their own balances,
-    /// a reporter revert reverts the arbitrator's ruling execution, which can be retried.
+    /// selected on the foreign chain, in the same order. Reporters pay the bridge fees from their own balances for a
+    /// message dispatched through `_dispatchVouched` only. A reporter revert reverts the arbitrator's ruling execution,
+    /// which can be retried, after the governor replaces or mutes the reporter if needed (`setOracleReporter`).
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
 
@@ -276,7 +302,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
             adapters[i] = oracle.outboundAdapter;
         }
 
-        (uint256 messageId, ) = yaho.dispatchMessageToAdapters(
+        (uint256 messageId, ) = _dispatchVouched(
             foreignChainID,
             receivedDispute.threshold,
             foreignGateway,
@@ -306,6 +332,11 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
+
+    /// @dev The Yaho `_dispatchVouched` dispatches through.
+    function _yaho() internal view override returns (address) {
+        return address(yaho);
+    }
 
     /// @dev Registers an oracle. A zero reporter is allowed for adapters that verify Yaho's events themselves.
     /// @param _outboundReporter The ruling-leg reporter on this chain.
@@ -371,4 +402,5 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable {
     error InvalidOracle();
     error AdapterAlreadyUsed();
     error TransferFailed();
+    error UnknownOracle(uint256 _oracleID);
 }
