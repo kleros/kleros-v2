@@ -112,6 +112,15 @@ secrets come from `.env` through compose only and are never in the image. `RUNBO
 what must exist outside the bot, how to assemble the configuration, the launch gates of specification section 13,
 the gas float, the first watched transfers, and what to do when the bot asks for you.
 
+**Mainnet launch.** [RUNBOOK.md, section 10 "Mainnet launch"](RUNBOOK.md#10-mainnet-launch) goes from the Veashi
+gateway deploy (`contracts/deploy/1x-veashi-*.ts`, Base and Arbitrum) to the first ruling: the pre-deploy `cast call`
+checklist, the parameters to review, the deploy commands, the read-back, funding, the test scenarios and the risks of
+the pre-audit reporters. Its configuration is generated, never hand-written: `src/mainnet/cli.ts` reads the deploy
+output and the `@kleros/veashi-sdk` getters and writes the uncommitted `config/mainnet.json`
+(`config/mainnet.example.json` is its output for a recorded deploy). Launch prerequisite: an external Hashi executor
+(the vea `relayer-cli`) for 8453→42161 and 42161→8453; the bot does not execute Hashi messages and nothing arrives
+without it.
+
 ## Health
 
 `GET /healthz` (and `status`) return JSON read from the journal only. The endpoint is unauthenticated: it serves journal state only, never a key, RPC URL or webhook, but that state (balances, operations, addresses) is still operational detail, so it binds to `127.0.0.1` by default and the load refuses a non-loopback `health.host` unless `health.allowNonLoopback` is `true`. Expose it beyond the host only on a private network or behind your own authenticating proxy.

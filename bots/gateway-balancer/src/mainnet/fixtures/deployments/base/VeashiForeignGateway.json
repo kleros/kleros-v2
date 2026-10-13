@@ -1,0 +1,8 @@
+{
+  "address": "0x237FeF06261e45F39192f81B84F86e7Fb9d7Fedd",
+  "abi": [],
+  "transactionHash": "0x1fa7a2266a23b4b232eb8419d0f81e405a382991ba84556d6ac04f6ba3013f75",
+  "numDeployments": 1,
+  "implementation": "0xc4d5f244465950f7dfcA9bdb80883E6Ac4915C3e",
+  "execute": { "methodName": "initialize", "args": [] }
+}

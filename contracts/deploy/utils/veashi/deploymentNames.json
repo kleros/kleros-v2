@@ -1,0 +1,6 @@
+{
+  "foreignGateway": "VeashiForeignGateway",
+  "homeGateway": "VeashiHomeGateway",
+  "ruler": "VeashiKlerosCoreRuler",
+  "lightbulb": "VeashiGatewayLightbulb"
+}

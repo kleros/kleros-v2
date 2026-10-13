@@ -245,6 +245,22 @@ const config: HardhatUserConfig = {
         },
       },
     },
+    base: {
+      // Foreign chain of the Veashi gateways (deploy/1x-veashi-*.ts). No companion network: the Veashi scripts read
+      // deployments/arbitrum directly, so `--reset` here never deletes another network's deployments.
+      chainId: 8453,
+      url: process.env.BASE_RPC ?? `https://base-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: true,
+      saveDeployments: true,
+      tags: ["production", "foreign"],
+      verify: {
+        etherscan: {
+          apiUrl: "https://api.etherscan.io/v2/api",
+          apiKey: process.env.ETHERSCAN_API_KEY,
+        },
+      },
+    },
     gnosischain: {
       chainId: 100,
       url: `https://rpc.gnosis.gateway.fm`,
