@@ -51,8 +51,21 @@ describe("refill planner", () => {
 
   it("parses an empty section with the defaults", () => {
     const parsed = refillConfigSchema.parse({});
-    expect(parsed).toMatchObject({ lowWaterCases: 20, targetCases: 100, depositMethod: "function" });
+    expect(parsed).toMatchObject({ lowWaterCases: 20, targetCases: 100, depositMethod: "nativeTransfer" });
     expect(parsed.referenceCaseCostEth).toBeUndefined();
+  });
+
+  it("accepts only nativeTransfer as depositMethod and names the key otherwise", () => {
+    expect(refillConfigSchema.parse({ depositMethod: "nativeTransfer" }).depositMethod).toBe("nativeTransfer");
+    const top = refillConfigSchema.safeParse({ depositMethod: "function" });
+    expect(top.success).toBe(false);
+    if (!top.success) expect(top.error.issues[0]).toMatchObject({ path: ["depositMethod"] });
+    const pair = refillConfigSchema.safeParse({ pairs: { "eth-home": { depositMethod: "function" } } });
+    expect(pair.success).toBe(false);
+    if (!pair.success) {
+      expect(pair.error.issues[0]!.path).toEqual(["pairs", "eth-home", "depositMethod"]);
+      expect(pair.error.issues[0]!.message).toMatch(/depositMethod/);
+    }
   });
 
   it("triggers strictly below 20 reference cases and not at or above", () => {

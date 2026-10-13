@@ -8,6 +8,8 @@ Three independent responsibilities, each a loop per pair or route:
 2. **Reporter funding.** Keep every configured Veashi reporter funded in its chain's native gas token from the ForeignGateway's bridging fees, independently of the HomeGateway refills.
 3. **Exchange-rate maintenance.** Propose a ForeignGateway currency-rate update when the median of several price sources moves by at least the configured threshold; the contract enforces its own guardrails.
 
+**Gateway requirements.** The balancer EOA must be the `keeper` of every pair's ForeignGateway: `withdrawFees(token, jurorFeeAmount, bridgingFeeAmount)` is callable by the governor or the keeper and always pays `keeper()`. The bot reads balances with `availableFees(token)` (`arbitration` is the juror fees, `bridging` the bridging fees; the native asset is the zero address) and refuses to build a withdrawal when `keeper()` is not its own address, so a wrong keeper shows as a failing refill or reporter step, not as funds sent elsewhere. It never calls a governor function. A HomeGateway is funded by a plain native transfer to its `receive()`; it has no deposit function and no keeper role (`refill.depositMethod` accepts only `nativeTransfer`).
+
 ## Layout
 
 - `src/domain`: shared value types (assets, amounts, accounting scopes, operations, loops).

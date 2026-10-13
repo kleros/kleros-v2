@@ -46,17 +46,24 @@
   "maxSpreadBps": 200,
   "freshnessSeconds": 3600,
   "updateTriggerBps": 500,
-  "cooldownSeconds": 3600,
+  "settleBps": 50,
   "rejectionRetrySeconds": 3600,
   "rejectionsBeforeCritical": 3,
   "priceMissesBeforeWarning": 3,
   "priceUnavailableCriticalSeconds": 21600,
   "pairs": {
     "arc-arbitrum": {
-      "quoteSymbol": "USD"
+      "quoteSymbol": "USDC",
+      "targets": [
+        "homeNative"
+      ]
     },
     "base-arbitrum": {
-      "quoteSymbol": "USD"
+      "targets": [
+        {
+          "token": "USDC"
+        }
+      ]
     }
   }
 }

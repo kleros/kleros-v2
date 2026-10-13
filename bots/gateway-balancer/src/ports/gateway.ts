@@ -32,23 +32,6 @@ export interface HomeGatewayFunding {
   depositTx(amount: bigint): Promise<TxRequest>;
 }
 
-/** @deprecated Replaced by `GatewayRateRejection`; removed with `ForeignGatewayRate`. */
-export type RateRejection = "cooldown" | "max-change" | "out-of-bounds" | "unauthorized" | "unknown";
-
-/**
- * @deprecated Replaced by `ForeignGatewayRates`, which matches the deployed ForeignGateway.
- *
- * The ForeignGateway's currency rate: units of the pair's `rateCurrency` per 1 ETH, scaled to 1e18
- * (3000 USD/ETH is 3000e18). The adapter converts to and from the contract's own scale.
- */
-export interface ForeignGatewayRate {
-  readonly pairId: PairId;
-  currentRate(): Promise<{ rateE18: bigint; updatedAt: Date | null }>;
-  updateRateTx(rateE18: bigint): Promise<TxRequest>;
-  /** Maps a revert (custom error, reason string) to the contract guardrail it hit. */
-  classifyRejection(error: unknown): RateRejection;
-}
-
 /**
  * A ForeignGateway value the keeper maintains from market prices.
  * - `homeNative`: `homeNativeRate`, foreign native currency per 1 unit of home native currency (Arbitrum ETH),

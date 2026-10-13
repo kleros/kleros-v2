@@ -4,7 +4,10 @@ import { z } from "zod";
 /** A non-negative decimal amount in whole units ("0.003" ETH, "25" USDC); parsed with the asset's decimals. */
 const decimalAmount = z.string().regex(/^\d+(\.\d+)?$/, 'expected a decimal amount such as "0.003"');
 
-const depositMethodSchema = z.enum(["function", "nativeTransfer"]);
+/** The HomeGateway is funded by a plain native transfer; it has no deposit function. `"function"` is rejected. */
+const depositMethodSchema = z.literal("nativeTransfer", {
+  errorMap: () => ({ message: 'depositMethod must be "nativeTransfer" (the HomeGateway has no deposit function)' }),
+});
 
 const pairOverrideSchema = z.object({
   enabled: z.boolean().optional(),
@@ -29,8 +32,8 @@ export const refillConfigSchema = z
     /** Nominal capacity; a sweep that cannot reach it is a partial refill and notifies. */
     targetCases: z.number().int().positive().default(100),
     economicMinimums: z.record(decimalAmount).default({ ETH: "0.002", USDC: "5" }),
-    /** How the HomeGateway is funded: the pending fragment's payable function, or a plain native transfer. */
-    depositMethod: depositMethodSchema.default("function"),
+    /** How the HomeGateway is funded: a plain native transfer to its `receive()`, the only method. */
+    depositMethod: depositMethodSchema.default("nativeTransfer"),
     /**
      * An ambiguous `Transfers` deferral (`insufficient-holding:` or an unrecognised reason, decisions [L20]) is
      * retried at most this many consecutive times before the operation goes to `attention`.

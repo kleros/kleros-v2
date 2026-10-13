@@ -1,12 +1,11 @@
 import type { CreateGatewayAdapters, ForeignGatewayTreasury, HomeGatewayFunding } from "../ports";
-import { pairRefillSettings } from "../refill/config";
 import { ForeignGatewayTreasuryAdapter } from "./foreignGateway";
 import { HomeGatewayFundingAdapter } from "./homeGateway";
 
 export { ForeignGatewayTreasuryAdapter } from "./foreignGateway";
 export { HomeGatewayFundingAdapter, unwrapTx, type DepositMethod } from "./homeGateway";
 
-/** Refill lane: ForeignGateway treasury and HomeGateway funding adapters over the pending ABI fragments. */
+/** Refill lane: ForeignGateway treasury and HomeGateway funding adapters over the compiled contracts. */
 export const createGatewayAdapters: CreateGatewayAdapters = (ports) => {
   const treasuries = new Map<string, ForeignGatewayTreasury>();
   const homeGateways = new Map<string, HomeGatewayFunding>();
@@ -18,8 +17,7 @@ export const createGatewayAdapters: CreateGatewayAdapters = (ports) => {
       pair.id,
       new ForeignGatewayTreasuryAdapter(pair.id, foreign, pair.foreignGateway, pair.collectedAssets, ports.signer)
     );
-    const { depositMethod } = pairRefillSettings(ports.config.refill, pair.id);
-    homeGateways.set(pair.id, new HomeGatewayFundingAdapter(pair.id, home, pair.homeGateway, depositMethod));
+    homeGateways.set(pair.id, new HomeGatewayFundingAdapter(pair.id, home, pair.homeGateway));
   }
   return { treasuries, homeGateways };
 };

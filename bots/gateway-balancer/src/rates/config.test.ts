@@ -50,6 +50,7 @@ describe("ratesConfigSchema", () => {
       providers: [],
       minSources: 3,
       updateTriggerBps: 500,
+      settleBps: 50,
       pairs: {},
     });
     expect(ratesConfigSchema.parse(undefined).providers).toEqual([]);
@@ -59,6 +60,22 @@ describe("ratesConfigSchema", () => {
     const example = JSON.parse(readFileSync(new URL("./example-config.json", import.meta.url), "utf8")) as unknown;
     const config = ratesConfigSchema.parse(example);
     expect(config.providers.map((p) => p.id)).toEqual(["chainlink", "chainlink", "coingecko"]);
+    expect(config.pairs).toMatchObject({
+      "arc-arbitrum": { targets: ["homeNative"] },
+      "base-arbitrum": { targets: [{ token: "USDC" }] },
+    });
+  });
+
+  it("takes pair targets and a settleBps beside updateTriggerBps; the bot keeps no cooldown of its own", () => {
+    const config = ratesConfigSchema.parse({
+      settleBps: 25,
+      pairs: { p: { targets: ["homeNative", { token: "USDC" }] } },
+    });
+    expect(config).toMatchObject({ updateTriggerBps: 500, settleBps: 25 });
+    expect(config.pairs.p!.targets).toEqual(["homeNative", { token: "USDC" }]);
+    expect(ratesConfigSchema.safeParse({ cooldownSeconds: 3600 }).success).toBe(false);
+    expect(ratesConfigSchema.safeParse({ pairs: { p: {} } }).success).toBe(false);
+    expect(ratesConfigSchema.safeParse({ pairs: { p: { targets: ["token"] } } }).success).toBe(false);
   });
 
   it("gives every example Chainlink feed its own freshness, USDC/USD at least its 24 h heartbeat plus margin", () => {

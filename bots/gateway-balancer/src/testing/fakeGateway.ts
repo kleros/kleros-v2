@@ -1,7 +1,6 @@
 import type { Address, Asset, ChainId, ForeignFeeCategory, PairId, TxRequest } from "../domain";
 import type {
   ForeignGatewayBalance,
-  ForeignGatewayRate,
   ForeignGatewayRates,
   ForeignGatewayTreasury,
   GatewayRateRejection,
@@ -9,7 +8,6 @@ import type {
   GatewayRateValue,
   HomeGatewayFunding,
   KeeperGuardrails,
-  RateRejection,
 } from "../ports";
 
 export class FakeForeignGatewayTreasury implements ForeignGatewayTreasury {
@@ -61,34 +59,6 @@ export class FakeHomeGatewayFunding implements HomeGatewayFunding {
   async depositTx(amount: bigint): Promise<TxRequest> {
     this.deposits.push(amount);
     return { chainId: this.chainId, to: this.address, value: amount };
-  }
-}
-
-/** @deprecated Fake of the deprecated `ForeignGatewayRate`; use `FakeForeignGatewayRates`. */
-export class FakeForeignGatewayRate implements ForeignGatewayRate {
-  rateE18 = 0n;
-  updatedAt: Date | null = null;
-  rejection: RateRejection = "unknown";
-  readonly updates: bigint[] = [];
-
-  constructor(
-    readonly pairId: PairId,
-    readonly chainId: ChainId,
-    readonly address: Address
-  ) {}
-
-  async currentRate(): Promise<{ rateE18: bigint; updatedAt: Date | null }> {
-    return { rateE18: this.rateE18, updatedAt: this.updatedAt ? new Date(this.updatedAt.getTime()) : null };
-  }
-
-  async updateRateTx(rateE18: bigint): Promise<TxRequest> {
-    this.updates.push(rateE18);
-    return { chainId: this.chainId, to: this.address, data: "0x7a7e", value: 0n };
-  }
-
-  classifyRejection(error: unknown): RateRejection {
-    const tagged = error as { rejection?: RateRejection } | null;
-    return tagged?.rejection ?? this.rejection;
   }
 }
 

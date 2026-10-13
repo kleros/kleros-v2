@@ -1,22 +1,17 @@
 import { encodeFunctionData } from "viem";
 import type { Address, PairId, TxRequest } from "../domain";
 import type { ChainClient, HomeGatewayFunding } from "../ports";
-import { HOME_GATEWAY_FUNDING_ABI } from "./abi/homeGateway";
 import { WRAPPED_NATIVE_ABI } from "./abi/weth";
 
-/**
- * `function`: the pending fragment's payable deposit; `nativeTransfer`: value with empty calldata (only for a
- * gateway whose `receive()` is verified).
- */
-export type DepositMethod = "function" | "nativeTransfer";
+/** The HomeGateway is funded by a plain native transfer to its `receive()`: value with empty calldata. */
+export type DepositMethod = "nativeTransfer";
 
 /** The HomeGateway's native balance and its native-only deposit. */
 export class HomeGatewayFundingAdapter implements HomeGatewayFunding {
   constructor(
     readonly pairId: PairId,
     private readonly chain: ChainClient,
-    private readonly address: Address,
-    private readonly depositMethod: DepositMethod = "function"
+    private readonly address: Address
   ) {}
 
   async availableNative(): Promise<bigint> {
@@ -25,11 +20,7 @@ export class HomeGatewayFundingAdapter implements HomeGatewayFunding {
 
   async depositTx(amount: bigint): Promise<TxRequest> {
     if (amount <= 0n) throw new Error("deposit amount must be positive");
-    const request: TxRequest = { chainId: this.chain.chainId, to: this.address, value: amount };
-    if (this.depositMethod === "function") {
-      request.data = encodeFunctionData({ abi: HOME_GATEWAY_FUNDING_ABI, functionName: "depositNative" });
-    }
-    return request;
+    return { chainId: this.chain.chainId, to: this.address, value: amount };
   }
 }
 

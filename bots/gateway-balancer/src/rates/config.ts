@@ -80,6 +80,10 @@ const coingeckoProviderSchema = z
 /** The provider seam: one entry per source; an unknown `id` is a configuration error. Pyth is deferred. */
 export const priceProviderConfigSchema = z.discriminatedUnion("id", [chainlinkProviderSchema, coingeckoProviderSchema]);
 
+const rateTargetSchema = z.union([z.literal("homeNative"), z.object({ token: z.string().min(1) }).strict()]);
+
+export type RateTargetConfig = z.infer<typeof rateTargetSchema>;
+
 const pairRatesSchema = z
   .object({
     /**
@@ -87,6 +91,12 @@ const pairRatesSchema = z
      * other symbol (e.g. "USDC") divides ETH/USD by that symbol's USD price.
      */
     quoteSymbol: symbol.optional(),
+    /**
+     * The values the keeper maintains on this pair's ForeignGateway, one loop each: `"homeNative"`
+     * (`homeNativeRate`) or `{ "token": "<symbol>" }`, a non-native symbol of the pair's `collectedAssets`
+     * (`currencyRates(token)`). Checked against the topology by `createRatesLoops`.
+     */
+    targets: z.array(rateTargetSchema).min(1),
   })
   .strict();
 
@@ -104,9 +114,12 @@ export const ratesConfigSchema = z
     freshnessSeconds: z.number().int().positive().default(3600),
     /** Propose an update when the market rate differs from the current rate by at least this. */
     updateTriggerBps: z.number().int().min(1).max(10_000).default(500),
-    /** Wait after a `cooldown` rejection before the next attempt (set to the contract's minimum interval). */
-    cooldownSeconds: z.number().int().positive().default(3600),
-    /** Wait after any other rejection (`max-change`, `out-of-bounds`, `unauthorized`, `unknown`). */
+    /**
+     * Once a value is at least `updateTriggerBps` from the market, keep stepping until the remaining distance is
+     * under this, so a move that needs several steps does not stop short.
+     */
+    settleBps: z.number().int().min(1).max(10_000).default(50),
+    /** Wait after a rejection the next cycle cannot fix (`decimals`, `invalid-rate`, `unauthorized`, `unknown`). */
     rejectionRetrySeconds: z.number().int().positive().default(3600),
     /** Consecutive rejections of one pair before one `critical`. */
     rejectionsBeforeCritical: z.number().int().min(1).default(3),

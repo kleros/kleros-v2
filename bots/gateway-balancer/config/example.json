@@ -1,5 +1,5 @@
 {
-  "_comment": "Non-secret configuration. Addresses are placeholders until the Veashi gateway deployment is final; the Arc chain id is the testnet id cited in the specification and must be replaced by the verified mainnet id.",
+  "_comment": "Non-secret configuration. Addresses are placeholders until the Veashi gateway deployment is final; the Arc chain id is the testnet id cited in the specification and must be replaced by the verified mainnet id. The balancer EOA must be the `keeper` of every pair's ForeignGateway: withdrawFees always pays keeper(), so the bot refuses to build a withdrawal otherwise. The HomeGateway is funded by a plain native transfer.",
   "topology": {
     "chains": [
       { "id": 42161, "name": "arbitrum", "rpcUrlEnv": "ARBITRUM_RPC_URL", "nativeSymbol": "ETH", "wrappedNative": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", "confirmations": 3, "explorerTxUrl": "https://arbiscan.io/tx/{hash}" },
@@ -37,7 +37,7 @@
     ]
   },
   "platform": {},
-  "refill": {},
+  "refill": { "depositMethod": "nativeTransfer" },
   "lifi": {},
   "reporter": {},
   "rates": {}

@@ -1,16 +1,18 @@
 # Rates lane (`src/rates`)
 
-Maintains the ForeignGateway currency rate of every pair with a `rateCurrency` (v1 scope: the currency rate only;
-bridging costs stay with governance). Two parts:
+Maintains the keeper-maintained rates of a pair's ForeignGateway: `homeNativeRate` and a token's
+`currencyRates` (v1 scope: those two; juror fees and oracle bridging costs are not maintained). Two parts:
 
 - **Price oracle** (`createPriceOracle`): asks every enabled provider for a symbol's USD price, drops stale and
   failed observations, requires fresh observations from `minSources` independent source families, takes the median
   of the family values and refuses with `disagreement` when any observation is more than `maxSpreadBps` from it. No symbol is assumed pegged: USDC is aggregated like ETH.
-- **Rate loops** (`createRatesLoops`, ids `rate:<pairId>`): propose the market rate when it differs from the
-  contract's rate by at least `updateTriggerBps`, and handle the contract's rejections without retry storms.
+- **Rate loops** (`createRatesLoops`, ids `rate:<pairId>:<target>`): one loop per pair and target named in
+  `rates.pairs.<pairId>.targets`. Each cycle steps the contract's value toward the market in moves the contract's
+  guardrails accept.
 
-The contract owns every guardrail (25 percent maximum change, minimum interval, bounds). The bot only classifies
-the rejection; it never clamps or adjusts a price to pass, and never calls a pause or governance function.
+The contract owns the guardrails: `keeperMaxChangeBps` and `keeperCooldown`, which the governor can change at any
+time, so the loop reads both every cycle. The bot never clamps a market price into a band of its own and has no
+step limit in its configuration; it never calls a governor function (`changeKeeperGuardrails`, `changeKeeper`...).
 
 ## Configuration (`rates` section)
 
@@ -28,12 +30,21 @@ configuration errors.
 | `maxSpreadBps`                    | `200`                     | Refuse with `disagreement` when an observation is further than this from the median.              |
 | `freshnessSeconds`                | `3600`                    | Default age limit of an observation; each provider, and each Chainlink feed, may override it.     |
 | `updateTriggerBps`                | `500`                     | Propose an update when `abs(market - current) / current` is at least this (floored bps).          |
-| `cooldownSeconds`                 | `3600`                    | Wait after a `cooldown` rejection. Set it to the contract's minimum update interval.              |
-| `rejectionRetrySeconds`           | `3600`                    | Wait after any other rejection (`max-change`, `out-of-bounds`, `unauthorized`, `unknown`).        |
+| `settleBps`                       | `50`                      | After a value was `updateTriggerBps` away, keep stepping until the distance is under this.        |
+| `rejectionRetrySeconds`           | `3600`                    | Wait after a rejection the next cycle cannot fix (`decimals`, `invalid-rate`, `unauthorized`, `unknown`). |
 | `rejectionsBeforeCritical`        | `3`                       | Consecutive rejections of one operation before one `critical`.                                    |
 | `priceMissesBeforeWarning`        | `3`                       | Consecutive ticks without a price before one `warning`.                                           |
 | `priceUnavailableCriticalSeconds` | `21600`                   | A price unavailable longer than this raises one `critical`.                                       |
-| `pairs.<pairId>.quoteSymbol`      | the pair's `rateCurrency` | Symbol the rate is quoted in (see rate semantics).                                                |
+| `pairs.<pairId>.targets`          | required, at least one    | `"homeNative"` and/or `{ "token": "<symbol>" }` (below). No target, no loop.                      |
+| `pairs.<pairId>.quoteSymbol`      | the pair's `rateCurrency` | Symbol the `homeNative` rate is quoted in (see rate semantics).                                   |
+
+### Targets
+
+Targets come only from `rates.pairs.<pairId>.targets`, never from the topology: with `"rates": {}` there are no
+loops. `"homeNative"` is `homeNativeRate`. `{ "token": "USDC" }` names a symbol of the pair's `collectedAssets`
+(`currencyRates(token)`); an unknown symbol, a native asset or a target listed twice is a configuration error naming
+`rates.pairs.<pairId>.targets`, raised when the loops are created (the topology is not visible to the section's
+schema). Arc: `homeNative`. Base: the USDC token; its `homeNativeRate` stays 1e18 and has no loop.
 
 ### Providers
 
@@ -78,67 +89,82 @@ families, short of the default `minSources` 3. Launch needs a third independent 
 provider seam for it). Lowering `minSources` to 2 is possible but is the operator's explicit decision: with two
 families a disagreement refuses the price rather than outvoting the bad source (specification 6.1).
 
-## Rate semantics
+## Units
 
-`rateE18` is units of the quote symbol per 1 ETH, scaled to 1e18. The quote symbol is
-`rates.pairs.<pairId>.quoteSymbol`, else the pair's `rateCurrency`:
+- `homeNative`: foreign native currency (18 decimals) per 1 ETH at 18 decimals. The market value is
+  `ETH/USD / quote/USD x 1e18`; the quote is `rates.pairs.<pairId>.quoteSymbol`, else the pair's `rateCurrency`
+  (`USD` uses ETH/USD as is; another symbol divides by that symbol's USD median, so a depeg moves the rate). On Arc
+  (native USDC, `quoteSymbol` `USDC` as in the example) it is USDC per ETH.
+- `token`: KlerosCore's encoding. `rateInEth / 10^rateDecimals` is the token's price in ETH times
+  `10^(18 - token decimals)`, i.e. wei per smallest token unit. Base USDC (6 decimals) at ETH 3000 USD and USDC 1 USD
+  is `rateInEth` 333333333 with `rateDecimals` 0. The value **rises when ETH falls**. The loop keeps the stored
+  `rateDecimals` (only the governor changes them) and refuses a `rateInEth` above `2^64 - 1` before submission.
 
-- `USD`: the rate is the ETH/USD median as is (the example topology's choice for both pairs).
-- any other symbol, e.g. `USDC`: the rate is ETH/USD divided by that symbol's USD median, so a USDC depeg moves
-  the rate. Use it when the ForeignGateway charges in USDC and should track USDC rather than the dollar.
+## Stepping
 
-The adapter converts 1e18 to the contract's scale (`RATE_DECIMALS`, floored) and back.
+Each cycle reads `keeperMaxChangeBps`, `keeperCooldown`, the value and `lastKeeperUpdate(key)` (keys
+`keccak256(abi.encode("homeNativeRate"))` and `keccak256(abi.encode("currencyRate", token))`; `0` means never
+updated). The next value is the market value clamped so that `|next - current| * 10000 <= current * maxChangeBps`
+holds exactly in integers, and it is proposed no earlier than `lastKeeperUpdate + cooldown` (the bot's clock against
+the chain's timestamp; a few seconds of skew show up as a `cooldown` rejection and are retried on the next cycle).
 
-## Pending ABI
-
-`abi/foreignGatewayRate.ts` holds every assumed signature in one place, marked PENDING: the `currencyRate()` view,
-`updateCurrencyRate(uint256)`, `RATE_DECIMALS` and the custom errors with the guardrail each stands for
-(`RateUpdateCooldown` → `cooldown`, `RateChangeTooLarge` → `max-change`, `RateOutOfBounds` → `out-of-bounds`,
-`RateUpdaterUnauthorized` → `unauthorized`). Swap in the final ABI by editing that file alone.
-
-`classifyRejection` reads only the executor's fixed suffix (`revertData=0x<hex>` or `revertData=none` at the end
-of `failed.error` or `reverted.reason`), decodes the bytes with viem `decodeErrorResult` against the fragment and
-maps the error name. Anything else (`none`, a foreign selector, a malformed string) is `unknown`. Free text is
-never parsed.
+- A move starts when the market is at least `updateTriggerBps` from the value; the loop then keeps stepping on later
+  cycles until the distance is under `settleBps`, so a 7 % move with a 5 % step limit does not stop 2 % short.
+- A value of 0 cannot be moved by the keeper (the contract's change check is relative): one notification (until the value is non-zero again), nothing
+  submitted; the governor sets the initial value.
 
 ## Loop behaviour
 
-Per tick, for a pair with no open operation: read ETH (and the quote symbol), record `price:<symbol>`, read the
-contract rate, record `rate:<pairId>` (market, current, change in bps, price-miss counters), and when the change is
-at least the trigger journal a `rate-update` operation (scope `gas` of the foreign chain), persist attempt 1 and
-submit the update under `op:<id>:step:update:<attempt>`. The executor only ever receives that transaction.
+Per tick, for a target with no open operation: read the guardrails and the value, price ETH (and the quote symbol or
+the token), record `price:<symbol>` and `rate:<pairId>:<target>` (market, current, change in bps, price-miss
+counters), and when a step is due and past the cooldown journal a `rate-update` operation (payload `target`, scope
+`gas` of the foreign chain), persist attempt 1 and submit under `op:<id>:step:update:<attempt>`. The executor only
+ever receives that transaction. Operations, observations, suspension markers and dedup keys are per target, so two
+targets of one pair never share state.
 
-- `confirmed`: the operation completes. `pending`: it waits; later ticks call `resolve`, never resubmit.
-- Rejection (`failed` simulation or `reverted`): the operation stays open in step `deferred` until the wait passes
-  (`cooldownSeconds` for `cooldown`, `rejectionRetrySeconds` otherwise). After it, the loop re-reads the market:
-  back within the trigger closes the operation (`superseded`), else the next attempt proposes the **current market
-  rate, unadjusted**, under a new key.
+- `confirmed`: the operation completes; the next cycle steps again if the value is still more than `settleBps` away.
+- `pending`: it waits; later ticks call `resolve`, never resubmit.
+- `cooldown` or `max-change` rejection (`failed` simulation or `reverted`): the next cycle re-reads the guardrails,
+  the value and `lastKeeperUpdate` and computes the step again. The same value from the same reads (guardrails, value, last update) is not
+  resubmitted at once: it is held back `rejectionRetrySeconds` and re-evaluated. A `max-change` step stays held
+  until a read changes; a `cooldown` step (typically clock skew, which no read shows) is held once, then
+  resubmitted, so the rejection is counted and the critical can fire. `max-change` warns once; `cooldown` is only logged. Both count towards `rejectionsBeforeCritical`.
+- `decimals`, `invalid-rate`, `unauthorized`, `unknown`: notify, and wait `rejectionRetrySeconds`.
 - `failed` with an `error` starting with `aborted:` (shutdown or an expired wait budget before signing, decisions
   [L57]/[L61]) is not a rejection: nothing was signed, so the next tick retries under a new attempt key with no
   wait, no rejection counted and no notification.
-- `replaced` or `unknown`: the operation goes to `attention`; the loop then suspends (`suspended:rate:<pairId>`)
-  and proposes nothing for that pair until the operator resolves the operation.
+- `replaced` or `unknown`: the operation goes to `attention`; the loop then suspends (`suspended:rate:<pairId>:<target>`)
+  and proposes nothing for that target until the operator resolves the operation.
 - A crash after the attempt is persisted resubmits under the same key (the executor never re-sends); a crash
   between the intent and the first attempt closes that operation as `failed` (nothing was sent).
 
 ## Notifications and operator actions
 
-| Dedup key                                | Severity | When                                                                   | Operator action                                                                                                          |
-| ---------------------------------------- | -------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `rate:<pair>:price-unavailable`          | warning  | `priceMissesBeforeWarning` consecutive ticks without a price           | Check providers: feed addresses, heartbeats/freshness, CoinGecko key and rate limit, `maxSpreadBps`.                     |
-| `rate:<pair>:price-unavailable-critical` | critical | No price for longer than `priceUnavailableCriticalSeconds`             | Restore a provider or enable another source; the contract keeps the last accepted rate.                                  |
-| `rate:<pair>:max-change`                 | warning  | Contract refused a change above its maximum                            | None if the market moved fast (later updates catch up within the limit); otherwise check the sources.                    |
-| `rate:<pair>:out-of-bounds`              | warning  | Market rate outside the contract's bounds                              | Check the sources; if the market really is outside, the bounds are governance's decision.                                |
-| `rate:<pair>:unauthorized`               | critical | Contract refused the caller                                            | Grant the balancer EOA the rate-updater role, or fix the configured ForeignGateway address.                              |
-| `rate:<pair>:unknown-rejection`          | warning  | Unclassified failure (`revertData=none`, foreign error)                | Check the gateway address, the gas reserve, the RPC; the ABI fragment may be outdated.                                   |
-| `rate:<pair>:rejected`                   | critical | `rejectionsBeforeCritical` consecutive rejections (once per operation) | Investigate; the gateway keeps charging with the stale rate.                                                             |
-| `rate:<pair>:attention:<op>`             | warning  | `replaced` or `unknown` outcome                                        | Check the transaction and the contract's rate, then mark the operation completed or failed.                              |
-| `suspended:rate:<pair>`                  | warning  | Suspended behind an `attention` operation                              | Same as above; the loop clears its suspension by itself once no `attention` operation remains. A restart clears nothing. |
+Dedup keys are `rate:<pair>:<target>:<suffix>`.
 
-A `cooldown` rejection is expected and only logged; it counts towards `rejectionsBeforeCritical`.
+| Suffix                     | Severity | When                                                                   | Operator action                                                                     |
+| -------------------------- | -------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `price-unavailable`        | warning  | `priceMissesBeforeWarning` consecutive ticks without a price           | Check providers: feed addresses, heartbeats/freshness, CoinGecko key, `maxSpreadBps`. |
+| `price-unavailable-critical` | critical | No price for longer than `priceUnavailableCriticalSeconds`           | Restore a provider or enable another source; the contract keeps the last value.     |
+| `max-change`               | warning  | The contract refused a step (limit changed or value moved meanwhile)   | None if the governor changed the limit; otherwise check the bot's arithmetic.       |
+| `decimals`                 | warning  | `KeeperCannotChangeDecimals`                                           | Only the governor changes `rateDecimals`; the next attempt keeps the stored value.  |
+| `invalid-rate`             | warning  | `InvalidRate` (zero `homeNativeRate`)                                  | Check the price sources.                                                            |
+| `unauthorized`             | critical | `GovernorOrKeeperOnly`                                                 | Make the balancer EOA the gateway's keeper, or fix the configured address.          |
+| `unknown-rejection`        | warning  | Unclassified failure (`revertData=none`, foreign error)                | Check the gateway address, the gas reserve and the RPC.                             |
+| `rejected`                 | critical | `rejectionsBeforeCritical` consecutive rejections (once per operation) | Investigate; the gateway keeps charging with the stale rate.                        |
+| `zero-value`               | warning  | The value is 0                                                         | The governor sets an initial value.                                                 |
+| `no-step`                  | warning  | `keeperMaxChangeBps` allows no change from the value                   | Governance sets the value or raises the limit.                                      |
+| `market-out-of-range`      | warning  | The market value is 0 or a `rateInEth` above `2^64 - 1`                | Check the sources and the stored `rateDecimals`.                                    |
+| `attention:<op>`           | warning  | `replaced` or `unknown` outcome                                        | Check the transaction and the value, then mark the operation completed or failed.   |
+
+`suspended:rate:<pair>:<target>` (warning) is raised while an `attention` operation exists; the loop clears its
+suspension by itself once none remains. A restart clears nothing.
 
 ## Tests
 
-`providers/chainlink.test.ts`, `providers/coingecko.test.ts`, `aggregator.test.ts`, `gatewayRate.test.ts`,
-`loop.test.ts`, `config.test.ts`; all on fakes and fixtures, no network. `fixtures/coingecko-simple-price.json` is
-the operator's recording of the public keyless endpoint from 2026-10-06 (see `fixtures/README.md`).
+`providers/chainlink.test.ts`, `providers/coingecko.test.ts`, `aggregator.test.ts`, `gatewayRates.test.ts`
+(adapter on `FakeChainClient`), `loop.test.ts` (stepping against a simulation of the contract's checks),
+`config.test.ts`; all on fakes and fixtures, no network. `gatewayRates.anvil.test.ts` deploys a ForeignGateway proxy
+from `src/contracts/bytecode.json` on a local Anvil (governor and keeper are different accounts) and runs the loops
+through the real executor. `fixtures/coingecko-simple-price.json` is the operator's recording of the public keyless
+endpoint from 2026-10-06 (see `fixtures/README.md`).
