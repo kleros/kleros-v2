@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { expect } from "chai";
-import { deployments, ethers } from "hardhat";
+import { deployments, ethers, network } from "hardhat";
 import hre from "hardhat";
 import {
   ForeignGateway__factory,
@@ -116,6 +116,23 @@ describe("Veashi deploy scripts (in-process hardhat, stand-in parameters)", func
           homeGateway: await home.getAddress(),
         })
       ).to.deep.equal([]);
+    });
+
+    it("a re-run of step 3 keeps the USDC rate the keeper (the bot) has moved since", async () => {
+      const { foreign } = await contracts();
+      const usdc = MAINNET_DEFAULTS.usdc.address;
+      await network.provider.send("hardhat_impersonateAccount", [standIn.keeper]);
+      await network.provider.send("hardhat_setBalance", [standIn.keeper, ethers.toQuantity(ethers.parseEther("1"))]);
+      const keeper = await ethers.getSigner(standIn.keeper);
+      const moved = (MAINNET_DEFAULTS.usdc.rateInEth * 104n) / 100n; // one step inside the 5% guardrail
+      await foreign.connect(keeper).changeCurrencyRates(usdc, moved, MAINNET_DEFAULTS.usdc.rateDecimals);
+      await network.provider.send("hardhat_stopImpersonatingAccount", [standIn.keeper]);
+
+      await configureVeashiForeignGateway(hre);
+
+      const rate = await foreign.currencyRates(usdc);
+      expect(rate.rateInEth).to.equal(moved);
+      expect(rate.rateDecimals).to.equal(MAINNET_DEFAULTS.usdc.rateDecimals);
     });
 
     it("mirrors the ForeignGateway's oracles on the HomeGateway: same IDs, inbound and outbound swapped", async () => {

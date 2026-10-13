@@ -393,8 +393,9 @@ yarn etherscan-verify --network base && yarn etherscan-verify --network arbitrum
 
 Between step 1 and step 3 the ForeignGateway charges nothing (no juror fee, no bridging cost) and relays to the zero
 address: do not announce it, and run step 3 right after step 2. Steps are idempotent: a re-run skips what is already
-set. `initialize` is final (`changeYaho`, `changeYaru` and `setOracleEnabled` revert `NotImplemented`): a wrong Yaho,
-Yaru or oracle means a new ForeignGateway.
+set. The USDC rate parameter is only the initial rate: once the bot (the keeper) has moved it, a re-run of step 3 keeps
+the gateway's rate and prints the difference instead of resetting it. `initialize` is final (`changeYaho`, `changeYaru`
+and `setOracleEnabled` revert `NotImplemented`): a wrong Yaho, Yaru or oracle means a new ForeignGateway.
 
 ### 10.6 Read-back
 

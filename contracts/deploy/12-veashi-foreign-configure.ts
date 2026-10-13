@@ -21,6 +21,8 @@ import {
 // court, the bridging cost of every oracle, accept USDC at a non-zero rate, then read both gateways back.
 // Needs deployments/arbitrum/VeashiHomeGateway.json from step 2 and the arbitrum RPC (ARBITRUM_RPC) for the read-back.
 // Every call is made by the governor (the deployer) and skipped when the value is already set: re-running is safe.
+// The USDC rate is the exception: the keeper (the bot) maintains it after launch, so the parameter is only its initial
+// value, set while the rate is still 0; a re-run keeps whatever rate the gateway holds and only reports the difference.
 
 const SCRIPT = "12-veashi-foreign-configure";
 
@@ -61,10 +63,19 @@ const configureVeashiForeignGateway: DeployFunction = async (hre: HardhatRuntime
       gateway.changeAcceptedFeeTokens(p.usdc.address, true)
     );
   }
-  if (usdc.rateInEth !== p.usdc.rateInEth || Number(usdc.rateDecimals) !== p.usdc.rateDecimals) {
+  if (usdc.rateInEth === 0n) {
     await send(
       `changeCurrencyRates(${p.usdc.address}, ${p.usdc.rateInEth}, ${p.usdc.rateDecimals})`,
       gateway.changeCurrencyRates(p.usdc.address, p.usdc.rateInEth, p.usdc.rateDecimals)
+    );
+  } else if (usdc.rateInEth !== p.usdc.rateInEth || Number(usdc.rateDecimals) !== p.usdc.rateDecimals) {
+    console.log(
+      "Veashi %s: keeping the USDC rate %s/10^%s the gateway holds (keeper-maintained); the parameter %s/10^%s is the initial rate only",
+      SCRIPT,
+      usdc.rateInEth,
+      usdc.rateDecimals,
+      p.usdc.rateInEth,
+      p.usdc.rateDecimals
     );
   }
 

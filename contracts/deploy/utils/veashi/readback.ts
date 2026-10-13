@@ -157,9 +157,10 @@ export function foreignProblems(
     )
   );
   check(s.usdc.accepted, `USDC ${p.usdc.address} is not accepted`);
+  // The keeper (the bot) moves the USDC rate after launch: the parameter is only its initial value.
   check(
-    s.usdc.rateInEth === p.usdc.rateInEth && s.usdc.rateDecimals === BigInt(p.usdc.rateDecimals),
-    `USDC rate ${s.usdc.rateInEth}/10^${s.usdc.rateDecimals}, expected ${p.usdc.rateInEth}/10^${p.usdc.rateDecimals}`
+    s.usdc.rateInEth > 0n && s.usdc.rateDecimals === BigInt(p.usdc.rateDecimals),
+    `USDC rate ${s.usdc.rateInEth}/10^${s.usdc.rateDecimals}, expected a non-zero rate with ${p.usdc.rateDecimals} decimals`
   );
   check(s.homeNativeRate === p.homeNativeRate, `homeNativeRate ${s.homeNativeRate}, expected ${p.homeNativeRate}`);
   return problems;
