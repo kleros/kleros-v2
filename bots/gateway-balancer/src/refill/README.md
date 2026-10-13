@@ -49,7 +49,7 @@ A `replaced`, `reverted` or `unknown` deposit or withdrawal is `attention`, neve
 | `lowWaterCases` | 20 | Trigger strictly below this many cases of available native ETH. |
 | `targetCases` | 100 | Nominal capacity. A sweep expected to stay under it is a *partial refill*: it proceeds and notifies. |
 | `economicMinimums` | `{ "ETH": "0.002", "USDC": "5" }` | Per collected-asset symbol, whole units: smaller withdrawable amounts are deferred. |
-| `depositMethod` | `"function"` | `function`: the HomeGateway's payable deposit in `src/gateway/abi/homeGateway.ts` (pending). `nativeTransfer`: value with empty calldata, only for a gateway whose `receive()` is verified. |
+| `depositMethod` | `"nativeTransfer"` | The only accepted value: the HomeGateway is funded by a plain native transfer to its `receive()` (it has no deposit function). Any other value is a configuration error. |
 | `maxAmbiguousDeferrals` | 10 | An ambiguous transfer deferral (`insufficient-holding:` or an unrecognised reason) is retried at most this many consecutive times, then the operation is `attention`. |
 | `ambiguousDeferralMaxAgeSeconds` | 3600 | ...or for at most this long after the first such deferral, whichever comes first. |
 | `pairs.<pairId>` | `{}` | Per-pair overrides of every field above, plus `enabled` (default `true`). |
