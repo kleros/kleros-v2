@@ -33,9 +33,12 @@ const COOLDOWN_SECONDS = 3600;
 const governor = privateKeyToAccount(ANVIL_ACCOUNTS[0]!.privateKey);
 const keeper = privateKeyToAccount(ANVIL_ACCOUNTS[1]!.privateKey);
 
+/** Total `evm_increaseTime` applied to the chain so far: a new clock starts in lockstep with it. */
+let chainOffsetMs = 0;
+
 /** Wall clock shifted in lockstep with the chain: `evm_increaseTime` moves the chain, this moves the bot's view. */
 class OffsetClock implements Clock {
-  offsetMs = 0;
+  offsetMs = chainOffsetMs;
   now(): Date {
     return new Date(Date.now() + this.offsetMs);
   }
@@ -120,81 +123,102 @@ afterAll(async () => {
   await anvil.stop();
 });
 
-async function advanceChain(clock: OffsetClock, seconds: number): Promise<void> {
+/** Moves anvil's time only; `advanceChain` also moves the bot's clock with it. */
+async function advanceChainOnly(seconds: number): Promise<void> {
   await anvil.rpc("evm_increaseTime", [seconds]);
   await anvil.rpc("evm_mine");
+  chainOffsetMs += seconds * 1000;
+}
+
+async function advanceChain(clock: OffsetClock, seconds: number): Promise<void> {
+  await advanceChainOnly(seconds);
   clock.offsetMs += seconds * 1000;
+}
+
+/** The two loops (homeNative, the TestERC20's currencyRates) run as the keeper through the real executor. */
+function harness() {
+  const clock = new OffsetClock();
+  const journal = new FakeJournal(() => clock.now());
+  const notifier = new FakeNotifier();
+  const redact = new Redactor([anvil.url]).text;
+  const transport = http(anvil.url, { retryCount: 0 });
+  const inner = new PlatformExecutor({
+    account: keeper,
+    chains: new Map([
+      [
+        CHAIN_ID,
+        { chainId: CHAIN_ID, name: "anvil", confirmations: 1, rpc: new ViemExecutorRpc(transport, redact, CHAIN_ID) },
+      ],
+    ]),
+    journal,
+    clock,
+    logger: new FakeLogger(),
+    notifier,
+    redact,
+    signal: new AbortController().signal,
+    options: {
+      waitMs: 5_000,
+      pollIntervalMs: 50,
+      stuckAfterMs: 3_600_000,
+      baseFeeMultiplier: 2,
+      gasLimitBufferPercent: 20,
+      replayMaxAttempts: 5,
+      replayMaxAgeMs: 600_000,
+    },
+  });
+  const executor = new CountingExecutor(inner);
+  const chain = new ViemChainClient(CHAIN_ID, transport, redact);
+  const rates = new ForeignGatewayRatesAdapter("anvil-pair", CHAIN_ID, gateway, chain);
+
+  const usdc: Asset = { chainId: CHAIN_ID, address: token, symbol: "USDC", decimals: 6 };
+  const pair: PairConfig = {
+    id: "anvil-pair",
+    foreignChainId: CHAIN_ID,
+    foreignGateway: gateway,
+    homeChainId: 42161,
+    homeGateway: "0x00000000000000000000000000000000000000d1",
+    collectedAssets: [{ chainId: CHAIN_ID, address: "native", symbol: "ETH", decimals: 18 }, usdc],
+    rateCurrency: "USD",
+  };
+  const config = ratesConfigSchema.parse({});
+  const oracle = new FakePriceOracle().set("ETH", 3_000n * E18).set("USDC", E18);
+  const ports = { journal, executor, notifier, logger: new FakeLogger(), clock };
+  const loops = [
+    new RateLoop(ports, { pair, rates, target: { kind: "homeNative" }, priceOracle: oracle, config }),
+    new RateLoop(ports, { pair, rates, target: { kind: "token", asset: usdc }, priceOracle: oracle, config }),
+  ];
+  const cycle = async () =>
+    (await Promise.all(loops.map((loop) => loop.tick({ now: clock.now(), signal: new AbortController().signal })))).map(
+      (r) => r.status
+    );
+  return { clock, journal, notifier, executor, rates, cycle };
+}
+
+async function read(): Promise<{ home: bigint; token: bigint }> {
+  return {
+    home: await publicClient.readContract({ address: gateway, abi: foreignGatewayAbi, functionName: "homeNativeRate" }),
+    token: (
+      await publicClient.readContract({
+        address: gateway,
+        abi: foreignGatewayAbi,
+        functionName: "currencyRates",
+        args: [token],
+      })
+    )[1],
+  };
+}
+
+/** The keeper's nonce (pending included) and balance: what a broadcast transaction would change. */
+async function keeperAccount(): Promise<{ nonce: number; balance: bigint }> {
+  return {
+    nonce: await publicClient.getTransactionCount({ address: keeper.address, blockTag: "pending" }),
+    balance: await publicClient.getBalance({ address: keeper.address }),
+  };
 }
 
 describe("rate loops against a ForeignGateway on anvil", () => {
   it("moves each rate by one allowed step per cooldown, as the keeper", async () => {
-    const clock = new OffsetClock();
-    const journal = new FakeJournal(() => clock.now());
-    const notifier = new FakeNotifier();
-    const redact = new Redactor([anvil.url]).text;
-    const transport = http(anvil.url, { retryCount: 0 });
-    const inner = new PlatformExecutor({
-      account: keeper,
-      chains: new Map([
-        [
-          CHAIN_ID,
-          { chainId: CHAIN_ID, name: "anvil", confirmations: 1, rpc: new ViemExecutorRpc(transport, redact, CHAIN_ID) },
-        ],
-      ]),
-      journal,
-      clock,
-      logger: new FakeLogger(),
-      notifier,
-      redact,
-      signal: new AbortController().signal,
-      options: {
-        waitMs: 5_000,
-        pollIntervalMs: 50,
-        stuckAfterMs: 3_600_000,
-        baseFeeMultiplier: 2,
-        gasLimitBufferPercent: 20,
-        replayMaxAttempts: 5,
-        replayMaxAgeMs: 600_000,
-      },
-    });
-    const executor = new CountingExecutor(inner);
-    const chain = new ViemChainClient(CHAIN_ID, transport, redact);
-    const rates = new ForeignGatewayRatesAdapter("anvil-pair", CHAIN_ID, gateway, chain);
-
-    const usdc: Asset = { chainId: CHAIN_ID, address: token, symbol: "USDC", decimals: 6 };
-    const pair: PairConfig = {
-      id: "anvil-pair",
-      foreignChainId: CHAIN_ID,
-      foreignGateway: gateway,
-      homeChainId: 42161,
-      homeGateway: "0x00000000000000000000000000000000000000d1",
-      collectedAssets: [{ chainId: CHAIN_ID, address: "native", symbol: "ETH", decimals: 18 }, usdc],
-      rateCurrency: "USD",
-    };
-    const config = ratesConfigSchema.parse({});
-    const oracle = new FakePriceOracle().set("ETH", 3_000n * E18).set("USDC", E18);
-    const ports = { journal, executor, notifier, logger: new FakeLogger(), clock };
-    const loops = [
-      new RateLoop(ports, { pair, rates, target: { kind: "homeNative" }, priceOracle: oracle, config }),
-      new RateLoop(ports, { pair, rates, target: { kind: "token", asset: usdc }, priceOracle: oracle, config }),
-    ];
-    const cycle = () =>
-      Promise.all(loops.map((loop) => loop.tick({ now: clock.now(), signal: new AbortController().signal })));
-    const read = async () => ({
-      home: await publicClient.readContract({
-        address: gateway,
-        abi: foreignGatewayAbi,
-        functionName: "homeNativeRate",
-      }),
-      token: (
-        await publicClient.readContract({
-          address: gateway,
-          abi: foreignGatewayAbi,
-          functionName: "currencyRates",
-          args: [token],
-        })
-      )[1],
-    });
+    const { clock, notifier, executor, rates, cycle } = harness();
 
     // The guardrails are the contract's, read by the adapter.
     expect(await rates.guardrails()).toEqual({ maxChangeBps: 500n, cooldownSeconds: BigInt(COOLDOWN_SECONDS) });
@@ -203,22 +227,62 @@ describe("rate loops against a ForeignGateway on anvil", () => {
     expect((await rates.current({ kind: "homeNative" })).lastKeeperUpdate).toBeNull();
 
     // Cycle 1: one step each. Home 2500 -> 2625 (+5 %, market 3000); token 400M -> 380M (-5 %, market 333M).
-    expect((await cycle()).map((r) => r.status)).toEqual(["acted", "acted"]);
+    expect(await cycle()).toEqual(["acted", "acted"]);
     expect(executor.requests).toHaveLength(2);
     expect(await read()).toEqual({ home: 2_625n * E18, token: 380_000_000n });
     const afterFirst = await rates.current({ kind: "homeNative" });
     expect(afterFirst.lastKeeperUpdate).not.toBeNull(); // the keeper, not the governor, wrote it
 
     // An immediate second cycle is held by the cooldown: nothing reaches the executor.
-    expect((await cycle()).map((r) => r.status)).toEqual(["deferred", "deferred"]);
+    expect(await cycle()).toEqual(["deferred", "deferred"]);
     expect(executor.requests).toHaveLength(2);
     expect(await read()).toEqual({ home: 2_625n * E18, token: 380_000_000n });
 
     // Past the cooldown on both clocks, the next step lands.
     await advanceChain(clock, COOLDOWN_SECONDS + 1);
-    expect((await cycle()).map((r) => r.status)).toEqual(["acted", "acted"]);
+    expect(await cycle()).toEqual(["acted", "acted"]);
     expect(executor.requests).toHaveLength(4);
     expect(await read()).toEqual({ home: 2_756_250_000_000_000_000_000n, token: 361_000_000n });
     expect(notifier.sent).toEqual([]);
+  }, 120_000);
+
+  it("rejects for cooldown at no cost with the bot's clock ahead of anvil's, lands once anvil passes it", async () => {
+    // Runs after the test above: both values were last updated by the keeper at about anvil's current time.
+    const { clock, journal, notifier, executor, rates, cycle } = harness();
+    const before = await read();
+    const last = (await rates.current({ kind: "homeNative" })).lastKeeperUpdate!;
+    // The bot's clock runs past lastKeeperUpdate + cooldown; anvil's latest block does not.
+    clock.offsetMs += (COOLDOWN_SECONDS + 5) * 1000;
+    const latest = await publicClient.getBlock({ blockTag: "latest" });
+    expect(clock.now().getTime()).toBeGreaterThanOrEqual(last.getTime() + COOLDOWN_SECONDS * 1000);
+    expect(Number(latest.timestamp) * 1000).toBeLessThan(last.getTime() + COOLDOWN_SECONDS * 1000);
+    const account = await keeperAccount();
+
+    // The executor simulates before signing: the rejection reaches the loop as `failed`, nothing is broadcast.
+    expect(await cycle()).toEqual(["deferred", "deferred"]);
+    expect(executor.requests).toHaveLength(2);
+    const ops = await journal.listOperations({ kind: "rate-update", status: "open" });
+    expect(ops.map((op) => op.stepPayload)).toMatchObject([
+      { lastRejection: "cooldown", deferUntil: null },
+      { lastRejection: "cooldown", deferUntil: null },
+    ]);
+    expect(await keeperAccount()).toEqual(account);
+    expect(await read()).toEqual(before);
+
+    // Not held: the next cycle re-reads and submits again, rejected again while anvil's time has not passed.
+    expect(await cycle()).toEqual(["deferred", "deferred"]);
+    expect(executor.requests).toHaveLength(4);
+    expect(await keeperAccount()).toEqual(account);
+
+    // Anvil's time passes the cooldown (the bot's clock stays where it is): the next cycle lands one step each.
+    await advanceChainOnly(COOLDOWN_SECONDS + 5);
+    expect(await cycle()).toEqual(["acted", "acted"]);
+    expect(executor.requests).toHaveLength(6);
+    expect(await read()).toEqual({ home: 2_894_062_500_000_000_000_000n, token: 342_950_000n });
+    expect((await keeperAccount()).nonce).toBe(account.nonce + 2);
+    expect(notifier.sent.map((n) => [n.severity, n.dedupKey])).toEqual([
+      ["warning", "rate:anvil-pair:homeNative:cooldown"],
+      ["warning", "rate:anvil-pair:USDC:cooldown"],
+    ]);
   }, 120_000);
 });

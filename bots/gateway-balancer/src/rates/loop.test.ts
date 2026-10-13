@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { Asset, Loop, TxRequest } from "../domain";
-import type { GatewayRateRejection, GatewayRateTarget, SubmitOptions, SubmitOutcome } from "../ports";
+import type {
+  GatewayRateRejection,
+  GatewayRateTarget,
+  GatewayRateValue,
+  KeeperGuardrails,
+  SubmitOptions,
+  SubmitOutcome,
+} from "../ports";
 import {
   EXAMPLE_ADDRESSES,
   EXAMPLE_CHAINS,
@@ -16,6 +23,7 @@ import { homeNativeValue, RateLoop, stepToward, tokenValue } from "./loop";
 
 const E18 = 10n ** 18n;
 const HOUR = 3_600_000;
+const MINUTE = 60_000;
 const BPS = 10_000n;
 const USDC: Asset = {
   chainId: EXAMPLE_CHAINS.foreignEth,
@@ -27,12 +35,40 @@ const HOME_NATIVE: GatewayRateTarget = { kind: "homeNative" };
 const USDC_TARGET: GatewayRateTarget = { kind: "token", asset: USDC };
 const T0 = new Date("2026-01-01T00:00:00Z");
 
-/** The contract's own checks, for a keeper, over the values the fake port serves. */
+/**
+ * The fake port, counting its reads. `stale` answers model a governor change between the loop's read and its submit:
+ * each queued answer is served once, ahead of the values the contract checks against.
+ */
+class CountingRates extends FakeForeignGatewayRates {
+  guardrailReads = 0;
+  valueReads = 0;
+  readonly staleGuardrails: KeeperGuardrails[] = [];
+  readonly staleValues: GatewayRateValue[] = [];
+
+  override async guardrails(): Promise<KeeperGuardrails> {
+    this.guardrailReads++;
+    return this.staleGuardrails.shift() ?? super.guardrails();
+  }
+
+  override async current(target: GatewayRateTarget): Promise<GatewayRateValue> {
+    this.valueReads++;
+    return this.staleValues.shift() ?? super.current(target);
+  }
+}
+
+type QueuedOutcome = GatewayRateRejection | "aborted";
+
+/**
+ * The contract's own checks, for a keeper, over the values the fake port serves. `chainLagMs` puts the chain's block
+ * time behind the bot's clock; `queue` answers the next submissions with rejections or aborts instead of the checks.
+ */
 class ContractSim {
   private readonly state = new Map<string, { value: bigint; last: Date | null }>();
+  chainLagMs = 0;
+  readonly queue: QueuedOutcome[] = [];
   constructor(
     private readonly ports: FakePorts,
-    readonly rates: FakeForeignGatewayRates
+    readonly rates: CountingRates
   ) {
     ports.executor.script(
       (request, options) => this.scripts.some((x) => x.match(request, options)),
@@ -73,15 +109,27 @@ class ContractSim {
     return this.state.get(this.key(target))!.value;
   }
 
+  /** The governor's write: no guardrail applies and `lastKeeperUpdate` is left as it is. */
+  setByGovernor(target: GatewayRateTarget, value: bigint, decimals: number): void {
+    this.set(target, value, decimals, this.state.get(this.key(target))?.last ?? null);
+  }
+
+  chainNow(): Date {
+    return new Date(this.ports.clock.now().getTime() - this.chainLagMs);
+  }
+
   private apply(): SubmitOutcome {
     const { target, value } = this.rates.updates.at(-1)!;
     const entry = this.state.get(this.key(target))!;
     const { maxChangeBps, cooldownSeconds } = this.rates.guardrailValues;
-    const now = this.ports.clock.now();
+    const now = this.chainNow();
     const reject = (rejection: GatewayRateRejection): SubmitOutcome => {
       this.rates.rejection = rejection;
       return { status: "failed", error: `rejected ${rejection} revertData=none` };
     };
+    const queued = this.queue.shift();
+    if (queued === "aborted") return { status: "failed", error: "aborted: shutdown requested revertData=none" };
+    if (queued) return reject(queued);
     if (entry.last && now.getTime() < entry.last.getTime() + Number(cooldownSeconds) * 1000) return reject("cooldown");
     const change = value > entry.value ? value - entry.value : entry.value - value;
     if (change * BPS > entry.value * maxChangeBps) return reject("max-change");
@@ -94,11 +142,13 @@ class ContractSim {
 interface Setup {
   ports: FakePorts;
   oracle: FakePriceOracle;
-  rates: FakeForeignGatewayRates;
+  rates: CountingRates;
   sim: ContractSim;
   loop: RateLoop;
   tick: () => ReturnType<Loop["tick"]>;
   submitted: () => bigint[];
+  /** A new loop over the same journal, executor and contract: a restart. */
+  restart: () => void;
 }
 
 /** pair `usdc-home` (native USDC) with the `homeNative` target, or `eth-home` (ETH, USDC) with the token target. */
@@ -111,21 +161,43 @@ function setup(
   const ports = makeFakePorts(exampleConfig({ rates: { pairs: {}, ...rates } as never }));
   ports.clock.current = T0;
   const pair = ports.config.topology.pairs.find((p) => p.id === (kind === "homeNative" ? "usdc-home" : "eth-home"))!;
-  const fake = new FakeForeignGatewayRates(pair.id, pair.foreignChainId, pair.foreignGateway);
+  const fake = new CountingRates(pair.id, pair.foreignChainId, pair.foreignGateway);
   const sim = new ContractSim(ports, fake);
   const target = kind === "homeNative" ? HOME_NATIVE : USDC_TARGET;
   sim.set(target, initial, kind === "homeNative" ? 18 : 0, new Date(T0.getTime() - 24 * HOUR));
   const oracle = new FakePriceOracle().set("ETH", eth).set("USDC", E18);
-  const loop = new RateLoop(ports, { pair, rates: fake, target, priceOracle: oracle, config: ports.config.rates });
-  return {
+  const make = () =>
+    new RateLoop(ports, { pair, rates: fake, target, priceOracle: oracle, config: ports.config.rates });
+  const setup: Setup = {
     ports,
     oracle,
     rates: fake,
     sim,
-    loop,
-    tick: () => loop.tick({ now: ports.clock.now(), signal: new AbortController().signal }),
+    loop: make(),
+    tick: () => setup.loop.tick({ now: ports.clock.now(), signal: new AbortController().signal }),
     submitted: () => fake.updates.map((u) => u.value),
+    restart: () => {
+      setup.loop = make();
+    },
   };
+  return setup;
+}
+
+/** The submissions' attempt numbers, from their idempotency keys. */
+function attempts(ports: FakePorts): number[] {
+  return ports.executor.submissions.map((s) => Number(s.options.idempotencyKey.split(":").at(-1)));
+}
+
+async function streakOf(ports: FakePorts, loopId: string) {
+  const key = `rejections:${loopId}`;
+  return (await ports.journal.observations(key)).find((o) => o.key === key)?.value;
+}
+
+/** Ticks once and returns the status with the number of submissions that tick made. */
+async function tickCounted(s: Setup): Promise<{ status: string; submits: number }> {
+  const before = s.ports.executor.submissions.length;
+  const { status } = await s.tick();
+  return { status, submits: s.ports.executor.submissions.length - before };
 }
 
 async function rateOps(ports: FakePorts, pairId: string) {
@@ -178,14 +250,26 @@ describe("createRatesLoops", () => {
     const rates = {
       pairs: {
         "usdc-home": { targets: ["homeNative"] },
-        "eth-home": { targets: ["homeNative", { token: "USDC" }] },
+        "eth-home": { targets: [{ token: "USDC" }] },
       },
     };
     const loops = createRatesLoops(makeFakePorts(exampleConfig({ rates } as never)), { priceOracle });
-    expect(loops.map((l) => l.id)).toEqual([
+    expect(loops.map((l) => l.id)).toEqual(["rate:usdc-home:homeNative", "rate:eth-home:USDC"]);
+  });
+
+  it("refuses homeNative on eth-home, whose foreign and home chains are both ETH-native, naming the key", () => {
+    const rates = { pairs: { "eth-home": { targets: ["homeNative", { token: "USDC" }] } } };
+    const ports = makeFakePorts(exampleConfig({ rates } as never));
+    expect(() => createRatesLoops(ports, { priceOracle })).toThrow(
+      /^rates\.pairs\.eth-home\.targets: homeNative is fixed at 1e18 .* native currency ETH/
+    );
+  });
+
+  it("builds usdc-home's homeNative loop with rateCurrency USD: its native USDC is not the home chain's ETH", () => {
+    const config = exampleConfig({ rates: { pairs: { "usdc-home": { targets: ["homeNative"] } } } } as never);
+    expect(config.topology.pairs.find((p) => p.id === "usdc-home")!.rateCurrency).toBe("USD");
+    expect(createRatesLoops(makeFakePorts(config), { priceOracle }).map((l) => l.id)).toEqual([
       "rate:usdc-home:homeNative",
-      "rate:eth-home:homeNative",
-      "rate:eth-home:USDC",
     ]);
   });
 
@@ -296,57 +380,6 @@ describe("RateLoop stepping", () => {
     ports.clock.advance(HOUR);
     expect((await tick()).status).toBe("acted");
     expect(sim.value(HOME_NATIVE)).toBe(1155n * E18);
-  });
-
-  it("re-reads after a max-change rejection and proposes a smaller step", async () => {
-    const { ports, rates, sim, tick, submitted } = setup("homeNative", 1000n * E18, 1500n * E18);
-    // the loop believes 500 bps; the governor lowered the contract's limit before the update
-    rates.guardrails = async () => ({ maxChangeBps: 500n, cooldownSeconds: 3600n });
-    rates.guardrailValues = { maxChangeBps: 200n, cooldownSeconds: 3600n };
-    expect((await tick()).status).toBe("deferred");
-    expect(submitted()).toEqual([1050n * E18]);
-    const [op] = await rateOps(ports, "usdc-home");
-    expect(op).toMatchObject({ status: "open", step: "deferred", stepPayload: { lastRejection: "max-change" } });
-    rates.guardrails = FakeForeignGatewayRates.prototype.guardrails;
-    expect((await tick()).status).toBe("acted");
-    expect(submitted()).toEqual([1050n * E18, 1020n * E18]);
-    expect(sim.value(HOME_NATIVE)).toBe(1020n * E18);
-    expect(ports.notifier.bySeverity("warning").map((n) => n.dedupKey)).toEqual([
-      "rate:usdc-home:homeNative:max-change",
-    ]);
-  });
-
-  it("does not resubmit a max-change rejected value while nothing changed", async () => {
-    const { ports, rates, tick, submitted } = setup("homeNative", 1000n * E18, 1500n * E18, {
-      rejectionRetrySeconds: 600,
-    });
-    rates.guardrails = async () => ({ maxChangeBps: 500n, cooldownSeconds: 3600n });
-    rates.guardrailValues = { maxChangeBps: 200n, cooldownSeconds: 3600n };
-    expect((await tick()).status).toBe("deferred");
-    expect((await tick()).status).toBe("deferred");
-    ports.clock.advance(11 * 60_000);
-    expect((await tick()).status).toBe("deferred");
-    expect(submitted()).toEqual([1050n * E18]);
-    rates.guardrails = FakeForeignGatewayRates.prototype.guardrails;
-    ports.clock.advance(11 * 60_000);
-    expect((await tick()).status).toBe("acted");
-    expect(submitted()).toEqual([1050n * E18, 1020n * E18]);
-  });
-
-  it("holds a cooldown rejection once with unchanged reads, then resubmits it", async () => {
-    const { ports, rates, sim, tick, submitted } = setup("homeNative", 1000n * E18, 1500n * E18, {
-      rejectionRetrySeconds: 600,
-    });
-    // the chain saw the last update 30 minutes ago; the bot's read puts it 3 hours ago and never changes
-    sim.set(HOME_NATIVE, 1000n * E18, 18, new Date(T0.getTime() - 30 * 60_000));
-    rates.setValue(HOME_NATIVE, 1000n * E18, 18, new Date(T0.getTime() - 3 * HOUR));
-    expect((await tick()).status).toBe("deferred");
-    expect(submitted()).toEqual([1050n * E18]);
-    expect((await tick()).status).toBe("deferred");
-    expect(submitted()).toEqual([1050n * E18]);
-    ports.clock.advance(11 * 60_000);
-    await tick();
-    expect(submitted()).toEqual([1050n * E18, 1050n * E18]);
   });
 
   it("does not submit before lastKeeperUpdate plus the cooldown", async () => {
@@ -461,44 +494,6 @@ describe("RateLoop rejections", () => {
     );
   });
 
-  it("raises one critical after repeated rejections", async () => {
-    const { ports, sim, rates, tick } = setup("homeNative", 2800n * E18, 3000n * E18, { rejectionsBeforeCritical: 3 });
-    sim.script(
-      () => true,
-      () => {
-        rates.rejection = "max-change";
-        return { status: "failed", error: "x revertData=none" };
-      }
-    );
-    // the same step from the same reads is held back, so each rejection needs a changed read (the last update)
-    for (let i = 0; i < 5; i++) {
-      rates.setValue(HOME_NATIVE, 2800n * E18, 18, new Date(T0.getTime() - (24 + i) * HOUR));
-      expect((await tick()).status).toBe("deferred");
-    }
-    const [op] = await rateOps(ports, "usdc-home");
-    expect(ports.notifier.bySeverity("critical").map((n) => n.dedupKey)).toEqual([
-      "rate:usdc-home:homeNative:rejected",
-    ]);
-    expect(ports.executor.submissions.map((s) => s.options.idempotencyKey)).toEqual(
-      [1, 2, 3, 4, 5].map((n) => `op:${op!.id}:step:update:${n}`)
-    );
-  });
-
-  it("retries aborted failures next tick without a rejection or notification", async () => {
-    const { ports, sim, tick } = setup("homeNative", 2800n * E18, 3000n * E18);
-    sim.script(() => ports.executor.submissions.length < 2, {
-      status: "failed",
-      error: "aborted: shutdown revertData=none",
-    });
-    for (let i = 0; i < 2; i++) {
-      expect((await tick()).status).toBe("deferred");
-      const [op] = await rateOps(ports, "usdc-home");
-      expect(op!.stepPayload).toMatchObject({ rejections: 0, deferUntil: null });
-    }
-    expect((await tick()).status).toBe("acted");
-    expect(ports.notifier.sent).toHaveLength(0);
-  });
-
   it("turns a replaced outcome into attention and suspends only that target", async () => {
     const { ports, sim, rates, tick } = setup("homeNative", 2800n * E18, 3000n * E18);
     sim.script(() => rates.updates.length === 1, {
@@ -610,12 +605,305 @@ describe("RateLoop rejections", () => {
   });
 });
 
+describe("RateLoop after a cooldown or max-change rejection ([L1])", () => {
+  const REJECTED = "rate:usdc-home:homeNative:rejected";
+
+  it("with the bot's clock ahead of the chain's, retries a cooldown rejection each tick until it lands", async () => {
+    const s = setup("homeNative", 1000n * E18, 1500n * E18);
+    const { ports, sim, rates } = s;
+    // By the bot's clock the cooldown ended 30 s ago; the chain's latest block is 2 minutes behind that clock.
+    sim.set(HOME_NATIVE, 1000n * E18, 18, new Date(T0.getTime() - HOUR - 30_000));
+    sim.chainLagMs = 2 * MINUTE;
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    const [op] = await rateOps(ports, "usdc-home");
+    expect(op).toMatchObject({
+      status: "open",
+      step: "deferred",
+      stepPayload: { lastRejection: "cooldown", deferUntil: null },
+    });
+    // Nothing is held: the next tick re-reads unchanged values and submits again.
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    expect((await ports.journal.getOperation(op!.id))!.stepPayload).toMatchObject({ deferUntil: null });
+    // The chain's time passes lastKeeperUpdate + cooldown: the step lands.
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    expect(sim.value(HOME_NATIVE)).toBe(1050n * E18);
+    expect(s.submitted()).toEqual([1050n * E18, 1050n * E18, 1050n * E18]);
+    expect(attempts(ports)).toEqual([1, 2, 3]);
+    expect([rates.guardrailReads, rates.valueReads]).toEqual([3, 3]);
+    expect(ports.notifier.sent.map((n) => [n.severity, n.dedupKey])).toEqual([
+      ["warning", "rate:usdc-home:homeNative:cooldown"],
+    ]);
+    expect(await streakOf(ports, s.loop.id)).toEqual({ count: 0, criticalNotified: false, warned: [] });
+  });
+
+  it("retries a cooldown rejection of the first submit on the next tick, from fresh reads", async () => {
+    const s = setup("homeNative", 1000n * E18, 1500n * E18);
+    const { ports, sim, rates } = s;
+    sim.set(HOME_NATIVE, 1000n * E18, 18, new Date(T0.getTime() - HOUR - 15_000));
+    sim.chainLagMs = 45_000;
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    // The governor raised the limit meanwhile: the retry is computed from the new reads, not the rejected step.
+    rates.guardrailValues = { maxChangeBps: 800n, cooldownSeconds: 3600n };
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    expect(s.submitted()).toEqual([1050n * E18, 1080n * E18]);
+    expect(sim.value(HOME_NATIVE)).toBe(1080n * E18);
+    expect([rates.guardrailReads, rates.valueReads]).toEqual([2, 2]);
+    expect(await rateOps(ports, "usdc-home")).toHaveLength(1);
+    expect(attempts(ports)).toEqual([1, 2]);
+  });
+
+  it("retries a cooldown rejection of a continuation step on the next tick, from fresh reads", async () => {
+    const s = setup("homeNative", 1000n * E18, 1500n * E18);
+    const { ports, sim, rates } = s;
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 }); // step 1: 1050, at chain time T0
+    // Step 2 of the move: by the bot's clock the cooldown ended 15 s ago; the chain lags 45 s.
+    sim.chainLagMs = 45_000;
+    ports.clock.advance(HOUR + 15_000);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    // The open operation's next attempt is rejected again, and retried again.
+    ports.clock.advance(10_000);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    // The governor wrote the value meanwhile: the next attempt steps from the value it reads.
+    sim.setByGovernor(HOME_NATIVE, 1100n * E18, 18);
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    expect(s.submitted()).toEqual([1050n * E18, 1_102_500n * 10n ** 15n, 1_102_500n * 10n ** 15n, 1155n * E18]);
+    expect(sim.value(HOME_NATIVE)).toBe(1155n * E18);
+    expect(attempts(ports)).toEqual([1, 1, 2, 3]);
+    expect(rates.valueReads).toBe(4);
+    expect(await rateOps(ports, "usdc-home")).toMatchObject([{ status: "completed" }, { status: "completed" }]);
+  });
+
+  it("after a restart, retries a cooldown rejection of the resumed attempt next tick, from fresh reads", async () => {
+    const s = setup("homeNative", 2800n * E18, 3000n * E18);
+    const { ports, sim, rates } = s;
+    // By the chain's clock the last keeper update was 30 s short of the cooldown when the bot stopped.
+    sim.set(HOME_NATIVE, 2800n * E18, 18, new Date(T0.getTime() - HOUR + 30_000));
+    const op = await ports.journal.createOperation({
+      kind: "rate-update",
+      description: "persisted before the restart",
+      scopes: [{ kind: "gas", chainId: EXAMPLE_CHAINS.foreignUsdc }],
+      pairId: "usdc-home",
+      payload: { target: "homeNative" },
+    });
+    await ports.journal.updateOperation(op.id, {
+      step: "submitting",
+      stepPayload: {
+        attempt: 2,
+        value: 2900n * E18,
+        currentValue: 2800n * E18,
+        hash: null,
+        deferUntil: null,
+        lastRejection: "max-change",
+      },
+    });
+    s.restart();
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    expect((await ports.journal.getOperation(op.id))!.stepPayload).toMatchObject({
+      lastRejection: "cooldown",
+      deferUntil: null,
+    });
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    // The persisted 2900 was submitted under its own key; the retry is recomputed: 2800 + 5 %.
+    expect(s.submitted()).toEqual([2900n * E18, 2940n * E18]);
+    expect(attempts(ports)).toEqual([2, 3]);
+    expect(rates.guardrailReads).toBe(1);
+    expect((await ports.journal.getOperation(op.id))!.status).toBe("completed");
+  });
+
+  it("after a restart, retries a pending attempt that reverted on cooldown next tick, from fresh reads", async () => {
+    const s = setup("homeNative", 2800n * E18, 3000n * E18);
+    const { ports, rates, sim } = s;
+    const op = await ports.journal.createOperation({
+      kind: "rate-update",
+      description: "pending at the restart",
+      scopes: [{ kind: "gas", chainId: EXAMPLE_CHAINS.foreignUsdc }],
+      pairId: "usdc-home",
+      payload: { target: "homeNative" },
+    });
+    await ports.journal.updateOperation(op.id, {
+      step: "pending",
+      stepPayload: {
+        attempt: 1,
+        value: 2940n * E18,
+        currentValue: 2800n * E18,
+        hash: fakeHash("p"),
+        deferUntil: null,
+        lastRejection: null,
+      },
+    });
+    ports.executor.settle(`op:${op.id}:step:update:1`, {
+      status: "reverted",
+      hash: fakeHash("p"),
+      reason: "KeeperCooldownActive() revertData=0x",
+    });
+    rates.rejection = "cooldown";
+    s.restart();
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 0 });
+    expect((await ports.journal.getOperation(op.id))!.stepPayload).toMatchObject({
+      lastRejection: "cooldown",
+      deferUntil: null,
+    });
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    expect(attempts(ports)).toEqual([2]);
+    expect(rates.guardrailReads).toBe(1);
+    expect(sim.value(HOME_NATIVE)).toBe(2940n * E18);
+  });
+
+  it("re-reads the guardrails after a max-change rejection and submits a step inside the new limit", async () => {
+    const s = setup("homeNative", 1000n * E18, 1500n * E18);
+    const { ports, rates, sim } = s;
+    // The governor lowered keeperMaxChangeBps to 200 after the loop read 500.
+    rates.guardrailValues = { maxChangeBps: 200n, cooldownSeconds: 3600n };
+    rates.staleGuardrails.push({ maxChangeBps: 500n, cooldownSeconds: 3600n });
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    const [op] = await rateOps(ports, "usdc-home");
+    expect(op).toMatchObject({
+      status: "open",
+      step: "deferred",
+      stepPayload: { lastRejection: "max-change", deferUntil: null },
+    });
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    expect(s.submitted()).toEqual([1050n * E18, 1020n * E18]);
+    expect(sim.value(HOME_NATIVE)).toBe(1020n * E18);
+    expect(20n * E18 * BPS).toBeLessThanOrEqual(1000n * E18 * 200n); // inside the new limit
+    expect(rates.guardrailReads).toBe(2);
+    expect(ports.notifier.sent.map((n) => n.dedupKey)).toEqual(["rate:usdc-home:homeNative:max-change"]);
+  });
+
+  it("re-reads the value after a max-change rejection caused by a governor write between read and submit", async () => {
+    const s = setup("homeNative", 1000n * E18, 1500n * E18);
+    const { rates, sim } = s;
+    // The loop reads 1000; the governor wrote 980 before the update, so 1050 is a 7 % move.
+    sim.setByGovernor(HOME_NATIVE, 980n * E18, 18);
+    rates.staleValues.push({ value: 1000n * E18, decimals: 18, lastKeeperUpdate: new Date(T0.getTime() - 24 * HOUR) });
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    s.ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    expect(s.submitted()).toEqual([1050n * E18, 1029n * E18]);
+    expect(sim.value(HOME_NATIVE)).toBe(1029n * E18);
+  });
+
+  it("retries a max-change rejection the reads cannot explain once per tick, and goes critical once", async () => {
+    const s = setup("homeNative", 2800n * E18, 3000n * E18, { rejectionsBeforeCritical: 3 });
+    s.sim.queue.push("max-change", "max-change", "max-change", "max-change");
+    for (let i = 0; i < 4; i++) {
+      expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+      s.ports.clock.advance(MINUTE);
+    }
+    expect(s.submitted()).toEqual(Array.from({ length: 4 }, () => 2940n * E18));
+    expect(s.ports.notifier.sent.map((n) => [n.severity, n.dedupKey])).toEqual([
+      ["warning", "rate:usdc-home:homeNative:max-change"],
+      ["critical", REJECTED],
+    ]);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+  });
+
+  it("raises exactly one critical for consecutive mixed rejections; a landed submit resets the count", async () => {
+    const s = setup("homeNative", 2800n * E18, 3000n * E18, {
+      rejectionsBeforeCritical: 3,
+      rejectionRetrySeconds: 600,
+    });
+    const { ports, sim } = s;
+    const critical = () => ports.notifier.bySeverity("critical").map((n) => n.dedupKey);
+    sim.queue.push("cooldown", "max-change", "decimals", "cooldown");
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    expect(critical()).toEqual([]);
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 }); // decimals: the third in a row
+    expect(critical()).toEqual([REJECTED]);
+    ports.clock.advance(600_000);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 }); // a fourth: no second critical
+    expect(critical()).toEqual([REJECTED]);
+    // Below the threshold cooldown and max-change warn once each; at and above it only the critical is raised.
+    expect(ports.notifier.bySeverity("warning").map((n) => n.dedupKey)).toEqual([
+      "rate:usdc-home:homeNative:cooldown",
+      "rate:usdc-home:homeNative:max-change",
+      "rate:usdc-home:homeNative:decimals",
+    ]);
+    expect(await streakOf(ports, s.loop.id)).toMatchObject({ count: 4, criticalNotified: true });
+
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 }); // 2940 lands
+    expect(await streakOf(ports, s.loop.id)).toEqual({ count: 0, criticalNotified: false, warned: [] });
+
+    // A new streak on the next step: two rejections stay under the threshold, the third raises a new critical.
+    sim.queue.push("max-change", "unknown", "cooldown");
+    ports.clock.advance(HOUR);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    expect(critical()).toEqual([REJECTED]);
+    ports.clock.advance(600_000);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    expect(critical()).toEqual([REJECTED, REJECTED]);
+  });
+
+  it("carries the streak across an operation closed because the market came back, until a submit lands", async () => {
+    const s = setup("homeNative", 2800n * E18, 3000n * E18, { rejectionsBeforeCritical: 3 });
+    const { ports, sim, oracle } = s;
+    sim.queue.push("cooldown", "max-change", "cooldown");
+    for (let i = 0; i < 2; i++) {
+      expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+      ports.clock.advance(MINUTE);
+    }
+    oracle.set("ETH", 2805n * E18); // under settleBps: the operation closes, nothing landed
+    expect((await s.tick()).status).toBe("idle");
+    expect(await rateOps(ports, "usdc-home")).toMatchObject([{ status: "completed", step: "superseded" }]);
+    oracle.set("ETH", 3000n * E18);
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 }); // a new operation, third in a row
+    expect(ports.notifier.bySeverity("critical").map((n) => n.dedupKey)).toEqual([REJECTED]);
+  });
+
+  it.each([
+    ["cooldown", MINUTE],
+    ["max-change", MINUTE],
+    ["decimals", 600_000],
+  ] as const)("retries an abort after a %s rejection on the next tick", async (rejection, wait) => {
+    const s = setup("homeNative", 2800n * E18, 3000n * E18, { rejectionRetrySeconds: 600 });
+    const { ports, sim } = s;
+    sim.queue.push(rejection, "aborted");
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 });
+    ports.clock.advance(wait);
+    expect(await tickCounted(s)).toEqual({ status: "deferred", submits: 1 }); // aborted before signing
+    const [op] = await rateOps(ports, "usdc-home");
+    expect(op!.stepPayload).toMatchObject({ deferUntil: null });
+    expect(await streakOf(ports, s.loop.id)).toMatchObject({ count: 1 }); // an abort is not a rejection
+    ports.clock.advance(MINUTE);
+    expect(await tickCounted(s)).toEqual({ status: "acted", submits: 1 });
+    expect(attempts(ports)).toEqual([1, 2, 3]);
+    expect(s.sim.value(HOME_NATIVE)).toBe(2940n * E18);
+  });
+
+  it("retries aborted failures next tick without a rejection or notification", async () => {
+    const { ports, sim, tick, loop } = setup("homeNative", 2800n * E18, 3000n * E18);
+    sim.queue.push("aborted", "aborted");
+    for (let i = 0; i < 2; i++) {
+      expect((await tick()).status).toBe("deferred");
+      const [op] = await rateOps(ports, "usdc-home");
+      expect(op!.stepPayload).toMatchObject({ deferUntil: null, lastRejection: null });
+    }
+    expect((await tick()).status).toBe("acted");
+    expect(ports.notifier.sent).toHaveLength(0);
+    expect(await streakOf(ports, loop.id)).toBeUndefined();
+  });
+});
+
 describe("two targets on one pair", () => {
   it("each loop submits only its own target and survives the other's attention operation", async () => {
     const ports = makeFakePorts(exampleConfig({ rates: { pairs: {} } as never }));
     ports.clock.current = T0;
     const pair = ports.config.topology.pairs.find((p) => p.id === "eth-home")!;
-    const rates = new FakeForeignGatewayRates(pair.id, pair.foreignChainId, pair.foreignGateway);
+    const rates = new CountingRates(pair.id, pair.foreignChainId, pair.foreignGateway);
     const sim = new ContractSim(ports, rates);
     sim.set(HOME_NATIVE, 2800n * E18, 18, new Date(T0.getTime() - 24 * HOUR));
     sim.set(USDC_TARGET, 400_000_000n, 0, new Date(T0.getTime() - 24 * HOUR));

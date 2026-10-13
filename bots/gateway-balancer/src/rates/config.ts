@@ -121,7 +121,7 @@ export const ratesConfigSchema = z
     settleBps: z.number().int().min(1).max(10_000).default(50),
     /** Wait after a rejection the next cycle cannot fix (`decimals`, `invalid-rate`, `unauthorized`, `unknown`). */
     rejectionRetrySeconds: z.number().int().positive().default(3600),
-    /** Consecutive rejections of one pair before one `critical`. */
+    /** Consecutive rejections of one target, of any kind until a submit lands, before one `critical`. */
     rejectionsBeforeCritical: z.number().int().min(1).default(3),
     /** Consecutive ticks without a price before one `warning`. */
     priceMissesBeforeWarning: z.number().int().min(1).default(3),

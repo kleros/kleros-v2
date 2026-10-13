@@ -32,7 +32,7 @@ configuration errors.
 | `updateTriggerBps`                | `500`                     | Propose an update when `abs(market - current) / current` is at least this (floored bps).          |
 | `settleBps`                       | `50`                      | After a value was `updateTriggerBps` away, keep stepping until the distance is under this.        |
 | `rejectionRetrySeconds`           | `3600`                    | Wait after a rejection the next cycle cannot fix (`decimals`, `invalid-rate`, `unauthorized`, `unknown`). |
-| `rejectionsBeforeCritical`        | `3`                       | Consecutive rejections of one operation before one `critical`.                                    |
+| `rejectionsBeforeCritical`        | `3`                       | Consecutive rejections of one target (any kind, until a submit lands) before one `critical`.      |
 | `priceMissesBeforeWarning`        | `3`                       | Consecutive ticks without a price before one `warning`.                                           |
 | `priceUnavailableCriticalSeconds` | `21600`                   | A price unavailable longer than this raises one `critical`.                                       |
 | `pairs.<pairId>.targets`          | required, at least one    | `"homeNative"` and/or `{ "token": "<symbol>" }` (below). No target, no loop.                      |
@@ -44,7 +44,10 @@ Targets come only from `rates.pairs.<pairId>.targets`, never from the topology: 
 loops. `"homeNative"` is `homeNativeRate`. `{ "token": "USDC" }` names a symbol of the pair's `collectedAssets`
 (`currencyRates(token)`); an unknown symbol, a native asset or a target listed twice is a configuration error naming
 `rates.pairs.<pairId>.targets`, raised when the loops are created (the topology is not visible to the section's
-schema). Arc: `homeNative`. Base: the USDC token; its `homeNativeRate` stays 1e18 and has no loop.
+schema). So is `"homeNative"` on a pair whose foreign and home chains have the same `nativeSymbol` (decisions [L2]):
+`homeNativeRate` is then fixed at 1e18, and a loop would price the native currency in the quote (ETH/USD on Base,
+whose `rateCurrency` is `USD`) and ratchet the rate up every cooldown. Arc (USDC-native): `homeNative`. Base
+(ETH-native, like Arbitrum): the USDC token only; its `homeNativeRate` stays 1e18 and has no loop.
 
 ### Providers
 
@@ -105,8 +108,9 @@ families a disagreement refuses the price rather than outvoting the bad source (
 Each cycle reads `keeperMaxChangeBps`, `keeperCooldown`, the value and `lastKeeperUpdate(key)` (keys
 `keccak256(abi.encode("homeNativeRate"))` and `keccak256(abi.encode("currencyRate", token))`; `0` means never
 updated). The next value is the market value clamped so that `|next - current| * 10000 <= current * maxChangeBps`
-holds exactly in integers, and it is proposed no earlier than `lastKeeperUpdate + cooldown` (the bot's clock against
-the chain's timestamp; a few seconds of skew show up as a `cooldown` rejection and are retried on the next cycle).
+holds exactly in integers, and it is proposed no earlier than `lastKeeperUpdate + cooldown` by the bot's clock. That
+check is a pre-filter only: the bot never reads the chain's time. When the bot's clock runs ahead of the chain's latest
+block, the contract rejects the step with `cooldown` and the next cycle retries it (see Loop behaviour).
 
 - A move starts when the market is at least `updateTriggerBps` from the value; the loop then keeps stepping on later
   cycles until the distance is under `settleBps`, so a 7 % move with a 5 % step limit does not stop 2 % short.
@@ -124,15 +128,28 @@ targets of one pair never share state.
 
 - `confirmed`: the operation completes; the next cycle steps again if the value is still more than `settleBps` away.
 - `pending`: it waits; later ticks call `resolve`, never resubmit.
-- `cooldown` or `max-change` rejection (`failed` simulation or `reverted`): the next cycle re-reads the guardrails,
-  the value and `lastKeeperUpdate` and computes the step again. The same value from the same reads (guardrails, value, last update) is not
-  resubmitted at once: it is held back `rejectionRetrySeconds` and re-evaluated. A `max-change` step stays held
-  until a read changes; a `cooldown` step (typically clock skew, which no read shows) is held once, then
-  resubmitted, so the rejection is counted and the critical can fire. `max-change` warns once; `cooldown` is only logged. Both count towards `rejectionsBeforeCritical`.
-- `decimals`, `invalid-rate`, `unauthorized`, `unknown`: notify, and wait `rejectionRetrySeconds`.
+- A tick submits at most once: a rejected value is never resubmitted in the tick that saw the rejection.
+- `cooldown` or `max-change` rejection (`failed` simulation or `reverted`): never held, no `deferUntil` (decisions
+  [L1]). The next tick re-reads the guardrails, the value and `lastKeeperUpdate`, applies the bot-clock pre-filter and
+  computes the step again, under a new attempt key of the same operation. With unchanged reads that is the same value
+  again: a lagging chain clock accepts it once its time passes `lastKeeperUpdate + cooldown`, and every tick until then
+  is one more rejection towards the critical. The executor simulates before signing, so a rejection caught there costs
+  no gas and uses no nonce. This holds for a first submit, for the next attempt of an open operation and for a
+  persisted attempt resubmitted (or a pending one resolved) after a restart.
+- `decimals`, `invalid-rate`, `unauthorized`, `unknown`: notify, and wait `rejectionRetrySeconds` before the next
+  attempt (computed from fresh reads, like every attempt after the first).
+- Consecutive rejections: every rejection of any kind counts, per target, in the `rejections:rate:<pairId>:<target>`
+  observation (journal-backed, so a restart keeps it). Only a landed (`confirmed`) submit resets the count. It is not
+  reset when an operation closes without a landed submit (the market came back within the trigger, or the value is
+  0) or when an attempt is aborted: the next operation continues the count. Below `rejectionsBeforeCritical`, the
+  first `cooldown` and the first `max-change` rejection of the streak each raise one warning; the rejection that
+  reaches the threshold raises the single `rejected` critical of the streak, and later rejections raise no further
+  `cooldown`/`max-change` warning or `rejected` critical until a submit lands. `decimals`, `invalid-rate`,
+  `unauthorized` and `unknown` notify on every rejection, as before (the notifier deduplicates by key within its
+  window).
 - `failed` with an `error` starting with `aborted:` (shutdown or an expired wait budget before signing, decisions
-  [L57]/[L61]) is not a rejection: nothing was signed, so the next tick retries under a new attempt key with no
-  wait, no rejection counted and no notification.
+  [L57]/[L61]) is not a rejection: nothing was signed, so the next tick retries from fresh reads under a new attempt key
+  with no wait, whatever rejection came before, no rejection counted and no notification.
 - `replaced` or `unknown`: the operation goes to `attention`; the loop then suspends (`suspended:rate:<pairId>:<target>`)
   and proposes nothing for that target until the operator resolves the operation.
 - A crash after the attempt is persisted resubmits under the same key (the executor never re-sends); a crash
@@ -146,12 +163,13 @@ Dedup keys are `rate:<pair>:<target>:<suffix>`.
 | -------------------------- | -------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | `price-unavailable`        | warning  | `priceMissesBeforeWarning` consecutive ticks without a price           | Check providers: feed addresses, heartbeats/freshness, CoinGecko key, `maxSpreadBps`. |
 | `price-unavailable-critical` | critical | No price for longer than `priceUnavailableCriticalSeconds`           | Restore a provider or enable another source; the contract keeps the last value.     |
-| `max-change`               | warning  | The contract refused a step (limit changed or value moved meanwhile)   | None if the governor changed the limit; otherwise check the bot's arithmetic.       |
+| `cooldown`                 | warning  | First `cooldown` rejection of a streak, below the critical threshold   | None for seconds of clock skew; otherwise check the host's clock and the RPC.       |
+| `max-change`               | warning  | First `max-change` rejection of a streak, below the critical threshold | None if the governor changed the limit or the value; otherwise check the arithmetic. |
 | `decimals`                 | warning  | `KeeperCannotChangeDecimals`                                           | Only the governor changes `rateDecimals`; the next attempt keeps the stored value.  |
 | `invalid-rate`             | warning  | `InvalidRate` (zero `homeNativeRate`)                                  | Check the price sources.                                                            |
 | `unauthorized`             | critical | `GovernorOrKeeperOnly`                                                 | Make the balancer EOA the gateway's keeper, or fix the configured address.          |
 | `unknown-rejection`        | warning  | Unclassified failure (`revertData=none`, foreign error)                | Check the gateway address, the gas reserve and the RPC.                             |
-| `rejected`                 | critical | `rejectionsBeforeCritical` consecutive rejections (once per operation) | Investigate; the gateway keeps charging with the stale rate.                        |
+| `rejected`                 | critical | `rejectionsBeforeCritical` consecutive rejections (once per streak)    | Investigate; the gateway keeps charging with the stale rate.                        |
 | `zero-value`               | warning  | The value is 0                                                         | The governor sets an initial value.                                                 |
 | `no-step`                  | warning  | `keeperMaxChangeBps` allows no change from the value                   | Governance sets the value or raises the limit.                                      |
 | `market-out-of-range`      | warning  | The market value is 0 or a `rateInEth` above `2^64 - 1`                | Check the sources and the stored `rateDecimals`.                                    |
@@ -164,7 +182,11 @@ suspension by itself once none remains. A restart clears nothing.
 
 `providers/chainlink.test.ts`, `providers/coingecko.test.ts`, `aggregator.test.ts`, `gatewayRates.test.ts`
 (adapter on `FakeChainClient`), `loop.test.ts` (stepping against a simulation of the contract's checks),
-`config.test.ts`; all on fakes and fixtures, no network. `gatewayRates.anvil.test.ts` deploys a ForeignGateway proxy
-from `src/contracts/bytecode.json` on a local Anvil (governor and keeper are different accounts) and runs the loops
-through the real executor. `fixtures/coingecko-simple-price.json` is the operator's recording of the public keyless
+`config.test.ts`; all on fakes and fixtures, no network. `loop.test.ts` models a chain clock lagging the bot's
+(`chainLagMs`) and covers each path that leaves a rejection behind: first submit, the next attempt of an open
+operation, and a resumed or resolved attempt after a restart. `gatewayRates.anvil.test.ts` deploys a ForeignGateway
+proxy from `src/contracts/bytecode.json` on a local Anvil (governor and keeper are different accounts) and runs the
+loops through the real executor: one step per cooldown, then a cycle with the bot's clock ahead of Anvil's latest
+block, rejected `cooldown` in simulation with the keeper's nonce and balance unchanged, which lands once Anvil's time
+passes the cooldown. `fixtures/coingecko-simple-price.json` is the operator's recording of the public keyless
 endpoint from 2026-10-06 (see `fixtures/README.md`).

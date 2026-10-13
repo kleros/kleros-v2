@@ -2,8 +2,9 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import type { ChainClient } from "../ports";
-import { FakeChainClient, FakeClock, FakeLogger } from "../testing";
+import { exampleConfig, FakeChainClient, FakeClock, FakeLogger, FakePriceOracle, makeFakePorts } from "../testing";
 import { feedAddress, ratesConfigSchema, RESERVED_ENV_NAMES } from "./config";
+import { createRatesLoops } from "./index";
 import { AggregatedPriceOracle, buildProviders } from "./oracle";
 
 const NOW_S = 1767225600n; // FakeClock's default time
@@ -119,6 +120,30 @@ describe("ratesConfigSchema", () => {
       expect(composed.error!.issues.map((i) => i.path.join("."))).toEqual(["rates.providers.0.apiKeyEnv"]);
     }
   );
+
+  describe("homeNative targets over the documented Base / Arbitrum / Arc topology ([L2])", () => {
+    const { topology } = JSON.parse(readFileSync(new URL("../../config/example.json", import.meta.url), "utf8")) as {
+      topology: never;
+    };
+    const loops = (pairs: unknown) =>
+      createRatesLoops(makeFakePorts(exampleConfig({ topology, rates: { ...example(), pairs } } as never)), {
+        priceOracle: new FakePriceOracle(),
+      }).map((loop) => loop.id);
+
+    it("builds the example section's loops: Arc's homeNative and Base's USDC token", () => {
+      expect(loops(example().pairs)).toEqual(["rate:arc-arbitrum:homeNative", "rate:base-arbitrum:USDC"]);
+    });
+
+    it("refuses homeNative on Base, ETH-native like Arbitrum, though its rateCurrency is USD", () => {
+      const base = (topology as { pairs: Array<{ id: string; rateCurrency?: string }> }).pairs.find(
+        (pair) => pair.id === "base-arbitrum"
+      );
+      expect(base?.rateCurrency).toBe("USD");
+      expect(() => loops({ "base-arbitrum": { targets: ["homeNative", { token: "USDC" }] } })).toThrow(
+        /^rates\.pairs\.base-arbitrum\.targets: homeNative is fixed at 1e18 /
+      );
+    });
+  });
 
   it("accepts an ordinary apiKeyEnv", () => {
     const config = ratesConfigSchema.parse({ providers: [{ id: "coingecko", apiKeyEnv: "COINGECKO_API_KEY" }] });

@@ -31,11 +31,19 @@ interface UpdateStep {
   hash: string | null;
   /** ISO time before which no new attempt is made (after a rejection the next cycle cannot fix). */
   deferUntil: string | null;
-  rejections: number;
   lastRejection: GatewayRateRejection | null;
+}
+
+/**
+ * The consecutive rejections of one target, carried in the loop's `rejections:rate:<pair>:<target>` observation
+ * across ticks, operations and restarts. Only a landed submit resets it: an operation closed because the market came
+ * back, or a zero value, leaves it as it is.
+ */
+interface RejectionStreak {
+  count: number;
   criticalNotified: boolean;
-  /** What this attempt was computed from: the guardrails and the last keeper update (the value is `currentValue`). */
-  basis: string;
+  /** The `cooldown`/`max-change` warnings already sent during this streak. */
+  warned: GatewayRateRejection[];
 }
 
 /** The price-availability memory, carried in the loop's `rate:<pair>:<target>` observation across ticks. */
@@ -114,7 +122,8 @@ export function updateKey(operationId: string, attempt: number): string {
  * contract's guardrails and the value, and proposes one step toward the aggregated market value: the target clamped
  * so the contract's maximum change holds exactly, no earlier than `lastKeeperUpdate + cooldown`. Once the market is
  * `updateTriggerBps` away it keeps stepping until the distance is under `settleBps`. The bot never clamps a price into
- * a band of its own; every limit is the contract's, read each cycle.
+ * a band of its own; every limit is the contract's, read each cycle. A tick submits at most once: a rejected attempt
+ * is retried by a later tick, from fresh reads.
  */
 export class RateLoop implements Loop {
   readonly id: string;
@@ -232,31 +241,12 @@ export class RateLoop implements Loop {
       return { status: "deferred", summary: `the guardrails allow no step from ${current.value}` };
     }
     if (current.lastKeeperUpdate) {
+      // A pre-filter on the bot's clock only: when it runs ahead of the chain's, the contract rejects the step with
+      // `cooldown` and a later tick retries it from fresh reads.
       const earliest = current.lastKeeperUpdate.getTime() + Number(guardrails.cooldownSeconds) * 1000;
       if (this.now().getTime() < earliest) {
         const at = new Date(earliest).toISOString();
         return { status: "deferred", summary: `cooldown until ${at}; next step ${next} toward ${market.value}` };
-      }
-    }
-    const basis = `${guardrails.maxChangeBps}:${guardrails.cooldownSeconds}:${current.lastKeeperUpdate?.getTime() ?? 0}`;
-    if (open) {
-      // A max-change rejection is fixed by new inputs, not by repeating the step: the same value from the same reads
-      // is held back for rejectionRetrySeconds (a changed guardrail, value or last update proposes again). A cooldown
-      // rejection with unchanged reads is a clock skew that only time cures, so it is held back once (deferUntil is
-      // set by that hold) and then resubmitted, which counts the rejection towards the critical.
-      const rejected = open.stepPayload as unknown as UpdateStep;
-      if (
-        (rejected.lastRejection === "max-change" || (rejected.lastRejection === "cooldown" && !rejected.deferUntil)) &&
-        rejected.value === next &&
-        rejected.currentValue === current.value &&
-        rejected.basis === basis
-      ) {
-        const deferUntil = new Date(this.now().getTime() + config.rejectionRetrySeconds * 1000).toISOString();
-        await journal.updateOperation(open.id, { stepPayload: toJson({ ...rejected, deferUntil }) });
-        return {
-          status: "deferred",
-          summary: `${rejected.lastRejection} rejected ${next} and nothing changed; next attempt after ${deferUntil}`,
-        };
       }
     }
     await this.setSettling(true);
@@ -270,7 +260,6 @@ export class RateLoop implements Loop {
         currentValue: current.value,
         hash: null,
         deferUntil: null,
-        basis,
       };
       const updated = await journal.updateOperation(open.id, { step: "submitting", stepPayload: toJson(step) });
       return this.submit(updated, step);
@@ -289,10 +278,7 @@ export class RateLoop implements Loop {
       currentValue: current.value,
       hash: null,
       deferUntil: null,
-      rejections: 0,
       lastRejection: null,
-      criticalNotified: false,
-      basis,
     };
     const updated = await journal.updateOperation(operation.id, { step: "submitting", stepPayload: toJson(step) });
     return this.submit(updated, step);
@@ -325,6 +311,7 @@ export class RateLoop implements Loop {
           stepPayload: toJson({ ...step, hash: outcome.hash }),
           lastError: null,
         });
+        await this.resetStreak();
         this.ports.logger.info("rate updated", {
           pairId: this.pairId,
           target: this.name,
@@ -373,7 +360,8 @@ export class RateLoop implements Loop {
 
   /**
    * Shutdown or an expired wait budget before signing ([L61]): not a contract rejection. Nothing was signed, so the
-   * next tick retries under a new attempt key, with no rejection counted, no notification and no `deferUntil`.
+   * next tick retries from fresh reads under a new attempt key, with no rejection counted, no notification and no
+   * `deferUntil`, whatever rejection came before; the streak is left as it is.
    */
   private async aborted(operation: Operation, step: UpdateStep, detail: string): Promise<TickResult> {
     const next: UpdateStep = { ...step, hash: null, deferUntil: null };
@@ -394,27 +382,48 @@ export class RateLoop implements Loop {
     hash: `0x${string}` | null
   ): Promise<TickResult> {
     const { config } = this.deps;
-    // A cooldown or max-change rejection is fixed by the next cycle: it re-reads the guardrails, the value and the
-    // last update and computes the step again, so there is nothing to wait for beyond the next tick.
-    // (unless it computes the same value from the same inputs: `tick` then holds it back).
-    const retryNow = rejection === "cooldown" || rejection === "max-change";
-    const deferUntil = retryNow
+    // A cooldown or max-change rejection is never held ([L1]): the next tick re-reads the guardrails, the value and
+    // the last update and computes the step again. Only the rejections those reads cannot fix wait.
+    const retryNextTick = rejection === "cooldown" || rejection === "max-change";
+    const deferUntil = retryNextTick
       ? null
       : new Date(this.now().getTime() + config.rejectionRetrySeconds * 1000).toISOString();
-    const after = deferUntil ? `Next attempt after ${deferUntil}.` : "The next cycle re-reads the guardrails.";
-    const rejections = step.rejections + 1;
+    const after = deferUntil
+      ? `Next attempt after ${deferUntil}.`
+      : "The next cycle re-reads the guardrails and retries.";
+    const streak = await this.streak();
+    const rejections = streak.count + 1;
+    const belowCritical = rejections < config.rejectionsBeforeCritical;
+    const warned = new Set(streak.warned);
     const common = { operationId: operation.id, txHashes: hash ? [hash] : undefined };
     const valueText = `${step.value} (current ${step.currentValue})`;
 
-    if (rejection === "max-change") {
-      await this.notify({
-        severity: "warning",
-        title: `ForeignGateway rejected the ${this.pairId} ${this.name} step: max-change`,
-        body: `The contract refused the step ${valueText}. The bot never adjusts a value to fit a band; ${after}`,
-        dedupKey: `${this.id}:max-change`,
-        action: "None if the governor changed keeperMaxChangeBps or the value; otherwise check the bot's arithmetic.",
-        ...common,
-      });
+    if (rejection === "cooldown") {
+      if (belowCritical && !warned.has(rejection)) {
+        warned.add(rejection);
+        await this.notify({
+          severity: "warning",
+          title: `ForeignGateway rejected the ${this.pairId} ${this.name} step: cooldown`,
+          body:
+            `The contract refused the step ${valueText}: by the chain's clock, keeperCooldown has not passed since ` +
+            `lastKeeperUpdate, though it has by the bot's. ${after}`,
+          dedupKey: `${this.id}:cooldown`,
+          action: "None for a few seconds of clock skew; otherwise check the host's clock and the RPC's latest block.",
+          ...common,
+        });
+      }
+    } else if (rejection === "max-change") {
+      if (belowCritical && !warned.has(rejection)) {
+        warned.add(rejection);
+        await this.notify({
+          severity: "warning",
+          title: `ForeignGateway rejected the ${this.pairId} ${this.name} step: max-change`,
+          body: `The contract refused the step ${valueText}. The bot never adjusts a value to fit a band; ${after}`,
+          dedupKey: `${this.id}:max-change`,
+          action: "None if the governor changed keeperMaxChangeBps or the value; otherwise check the bot's arithmetic.",
+          ...common,
+        });
+      }
     } else if (rejection === "decimals") {
       await this.notify({
         severity: "warning",
@@ -453,8 +462,8 @@ export class RateLoop implements Loop {
       });
     }
 
-    let criticalNotified = step.criticalNotified;
-    if (rejections >= config.rejectionsBeforeCritical && !criticalNotified) {
+    let criticalNotified = streak.criticalNotified;
+    if (!belowCritical && !criticalNotified) {
       criticalNotified = true;
       await this.notify({
         severity: "critical",
@@ -465,16 +474,23 @@ export class RateLoop implements Loop {
         ...common,
       });
     }
+    await this.setStreak({ count: rejections, criticalNotified, warned: [...warned] });
 
-    const next: UpdateStep = { ...step, hash, deferUntil, rejections, lastRejection: rejection, criticalNotified };
+    const next: UpdateStep = { ...step, hash, deferUntil, lastRejection: rejection };
     await this.ports.journal.updateOperation(operation.id, {
       step: "deferred",
       stepPayload: toJson(next),
       lastError: `${rejection}: ${detail}`,
       incrementAttempts: true,
     });
-    this.ports.logger.warn("rate update rejected", { pairId: this.pairId, target: this.name, rejection, deferUntil });
-    return { status: "deferred", summary: `rejected (${rejection}); ${after}` };
+    this.ports.logger.warn("rate update rejected", {
+      pairId: this.pairId,
+      target: this.name,
+      rejection,
+      rejections,
+      deferUntil,
+    });
+    return { status: "deferred", summary: `rejected (${rejection}, ${rejections} in a row); ${after}` };
   }
 
   /** A zero value cannot be moved by the keeper (the change check is relative): the governor must set it. */
@@ -622,6 +638,29 @@ export class RateLoop implements Loop {
     await this.ports.journal.recordObservation(`${prefix}:${this.id}`, { active }, this.now());
   }
 
+  private async streak(): Promise<RejectionStreak> {
+    const key = `rejections:${this.id}`;
+    const found = (await this.ports.journal.observations(key)).find((o) => o.key === key);
+    const value = (found?.value ?? {}) as Partial<RejectionStreak>;
+    return {
+      count: typeof value.count === "number" ? value.count : 0,
+      criticalNotified: value.criticalNotified === true,
+      warned: Array.isArray(value.warned) ? value.warned : [],
+    };
+  }
+
+  private async setStreak(streak: RejectionStreak): Promise<void> {
+    await this.ports.journal.recordObservation(`rejections:${this.id}`, toJson(streak), this.now());
+  }
+
+  /** A landed submit ends the streak: the next rejection counts from one and may warn and go critical again. */
+  private async resetStreak(): Promise<void> {
+    const streak = await this.streak();
+    if (streak.count > 0 || streak.criticalNotified || streak.warned.length > 0) {
+      await this.setStreak({ count: 0, criticalNotified: false, warned: [] });
+    }
+  }
+
   private isSettling(): Promise<boolean> {
     return this.flag("settling");
   }
@@ -652,6 +691,6 @@ export class RateLoop implements Loop {
   }
 }
 
-function toJson(step: UpdateStep): JsonValue {
-  return step as unknown as JsonValue;
+function toJson(value: UpdateStep | RejectionStreak): JsonValue {
+  return value as unknown as JsonValue;
 }
