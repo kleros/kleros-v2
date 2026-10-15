@@ -38,6 +38,12 @@ const TitleSection = styled.div`
   gap: 12px;
 `;
 
+const QuestionAndDescription = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${responsiveSize(16, 24)};
+`;
+
 const ReactMarkdownWrapper = styled.div`
   & p:first-of-type {
     margin: 0;
@@ -160,7 +166,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
         <Divider />
       </TitleSection>
       {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
-        <div>
+        <QuestionAndDescription>
           {disputeDetails?.question?.trim() ? (
             <ReactMarkdownWrapper dir="auto">
               <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
@@ -171,7 +177,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({
               <ReactMarkdown>{disputeDetails.description}</ReactMarkdown>
             </ReactMarkdownWrapper>
           ) : null}
-        </div>
+        </QuestionAndDescription>
       ) : null}
 
       {safeFrontendUrl ? (
