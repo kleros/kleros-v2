@@ -16,7 +16,7 @@ import {VouchedDispatcher} from "./VouchedDispatcher.sol";
 /// Home Gateway
 /// Counterpart of `ForeignGateway`
 /// Dispatches rulings through `VouchedDispatcher`: the reporters, whose dispatcher this gateway is, pay only for a
-/// message it vouches for. `VouchedDispatcher` adds a transient variable only, so the storage layout is unchanged.
+/// message it vouches for. `VouchedDispatcher` keeps its state in an ERC-7201 slot, so the storage layout is unchanged.
 contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, VouchedDispatcher {
     string public constant override version = "0.8.0";
 

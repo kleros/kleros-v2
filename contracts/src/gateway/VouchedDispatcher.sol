@@ -9,14 +9,20 @@ import {IDispatchVoucher} from "./interfaces/IDispatchVoucher.sol";
 
 /// @title VouchedDispatcher
 /// @dev Copied from kleros/vea veashi-contracts/src/VouchedDispatcher.sol (fix/veashi-audit a04190b), with the
-/// imports pointed at the Veashi SDK package. Replace with the SDK's copy once the SDK ships it.
+/// imports pointed at the Veashi SDK package and the transient variable replaced by a fixed storage slot, so it
+/// compiles for EVM versions before Cancun (kleros-v2 targets paris). Replace with the SDK's copy once the SDK ships
+/// one that does the same.
 /// Inherited by gateways: dispatches a message through Hashi's Yaho and, for the length of that call,
 /// vouches for its hash so the reporters (whose dispatcher this contract is) agree to pay for it.
-/// It has no constructor and only a transient variable, which lives outside persistent storage, so an
-/// upgradeable gateway can inherit it without moving its storage layout.
+/// It has no constructor and no declared state variable: the hash lives in an ERC-7201 slot, so an upgradeable
+/// gateway can inherit it without moving its storage layout.
 abstract contract VouchedDispatcher is IDispatchVoucher {
-    /// @dev The hash of the message being dispatched, zero outside a dispatch; cleared at the end of every transaction.
-    bytes32 private transient _dispatchingHash;
+    /// @dev Holds the hash of the message being dispatched, zero outside a dispatch: set before the Yaho call and
+    /// cleared right after it, so a dispatch that reverts leaves it zero too.
+    /// @custom:storage-location erc7201:kleros.storage.VouchedDispatcher
+    // keccak256(abi.encode(uint256(keccak256("kleros.storage.VouchedDispatcher")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant _DISPATCHING_HASH_SLOT =
+        0x526d482aa211ef6c532310be10c350affd8ad93f6ef862b938be5cdbd3ca2300;
 
     error NestedDispatch();
     error UnexpectedMessageId(uint256 messageId, uint256 expectedMessageId);
@@ -26,7 +32,8 @@ abstract contract VouchedDispatcher is IDispatchVoucher {
 
     /// @inheritdoc IDispatchVoucher
     function isDispatching(bytes32 messageHash) external view returns (bool) {
-        return _dispatchingHash != bytes32(0) && _dispatchingHash == messageHash;
+        bytes32 dispatchingHash = _dispatchingHash();
+        return dispatchingHash != bytes32(0) && dispatchingHash == messageHash;
     }
 
     /// @dev Dispatches a message through `Yaho.dispatchMessageToAdapters`, vouching for its hash meanwhile.
@@ -38,7 +45,7 @@ abstract contract VouchedDispatcher is IDispatchVoucher {
         IReporter[] memory reporters,
         IAdapter[] memory adapters
     ) internal returns (uint256 messageId, bytes32[] memory reportersReceipts) {
-        if (_dispatchingHash != bytes32(0)) revert NestedDispatch();
+        if (_dispatchingHash() != bytes32(0)) revert NestedDispatch();
         Yaho yaho = Yaho(_yaho());
 
         // The message exactly as Yaho will build it: Yaho reads `currentNonce` before incrementing it.
@@ -55,7 +62,7 @@ abstract contract VouchedDispatcher is IDispatchVoucher {
         bytes32 messageHash = yaho.calculateMessageHash(message);
         uint256 expectedMessageId = yaho.calculateMessageId(block.chainid, address(yaho), messageHash);
 
-        _dispatchingHash = messageHash;
+        _setDispatchingHash(messageHash);
         (messageId, reportersReceipts) = yaho.dispatchMessageToAdapters(
             targetChainId,
             threshold,
@@ -65,6 +72,22 @@ abstract contract VouchedDispatcher is IDispatchVoucher {
             adapters
         );
         if (messageId != expectedMessageId) revert UnexpectedMessageId(messageId, expectedMessageId);
-        _dispatchingHash = bytes32(0);
+        _setDispatchingHash(bytes32(0));
+    }
+
+    /// @dev The hash of the message being dispatched, zero outside a dispatch.
+    function _dispatchingHash() private view returns (bytes32 messageHash) {
+        bytes32 slot = _DISPATCHING_HASH_SLOT;
+        assembly ("memory-safe") {
+            messageHash := sload(slot)
+        }
+    }
+
+    /// @dev Stores the hash of the message being dispatched.
+    function _setDispatchingHash(bytes32 messageHash) private {
+        bytes32 slot = _DISPATCHING_HASH_SLOT;
+        assembly ("memory-safe") {
+            sstore(slot, messageHash)
+        }
     }
 }

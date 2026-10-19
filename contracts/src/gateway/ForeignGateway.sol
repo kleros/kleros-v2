@@ -16,7 +16,7 @@ import {VouchedDispatcher} from "./VouchedDispatcher.sol";
 /// Foreign Gateway
 /// Counterpart of `HomeGateway`
 /// Dispatches disputes through `VouchedDispatcher`: the reporters, whose dispatcher this gateway is, pay only for a
-/// message it vouches for. `VouchedDispatcher` adds a transient variable only, so the storage layout is unchanged.
+/// message it vouches for. `VouchedDispatcher` keeps its state in an ERC-7201 slot, so the storage layout is unchanged.
 contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializable, VouchedDispatcher {
     using SafeERC20 for IERC20;
 
