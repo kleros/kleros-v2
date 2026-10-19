@@ -14,9 +14,113 @@ import {MessageHashCalculator} from "@kleros/veashi-sdk/contracts/utils/MessageH
 import {Hashi} from "@kleros/veashi-sdk/contracts/Hashi.sol"; // Compiled so the Hardhat fixture can deploy it.
 import {IDispatchVoucher} from "../interfaces/IDispatchVoucher.sol";
 
-// Veashi messaging in one EVM for the Hardhat fixture (deploy/03-veashi-mock.ts), next to the SDK's own Yaho and
-// Hashi: a reporter bridges a message hash by storing it straight into the adapter of the other leg, and Yaru
-// executes a message once enough of its adapters hold its hash.
+// Veashi messaging in one EVM for the Hardhat fixture (deploy/03-veashi-mock.ts), next to the SDK's own Hashi:
+// Yaho dispatches a message to its reporters, a reporter bridges the message hash by storing it straight into the
+// adapter of the other leg, and Yaru executes a message once enough of its adapters hold its hash.
+
+/// @title YahoMock
+/// @dev The SDK's Yaho reduced to `dispatchMessageToAdapters`, the only dispatch the gateways use, with the same
+/// message, hash, ID, event and reporter calls. The SDK contract compiles only with via-IR, and a via-IR override for
+/// it in hardhat.config.ts would make solidity-coverage instrument every contract for via-IR.
+contract YahoMock is MessageIdCalculator, MessageHashCalculator {
+    uint256 public currentNonce;
+
+    error NoReportersGiven();
+    error NoAdaptersGiven();
+    error UnequalArrayLengths(uint256 arrayOne, uint256 arrayTwo);
+    error InvalidThreshold(uint256 threshold, uint256 maxThreshold);
+
+    event MessageDispatched(uint256 indexed messageId, Message message);
+
+    function dispatchMessageToAdapters(
+        uint256 targetChainId,
+        uint256 threshold,
+        address receiver,
+        bytes calldata data,
+        IReporter[] calldata reporters,
+        IAdapter[] calldata adapters
+    ) external payable returns (uint256, bytes32[] memory) {
+        _checkReportersAndAdapters(threshold, reporters, adapters);
+        (uint256 messageId, bytes32 messageHash) = _dispatchMessage(
+            targetChainId,
+            threshold,
+            receiver,
+            data,
+            reporters,
+            adapters
+        );
+        bytes32[] memory reportersReceipts = _dispatchMessageToAdapters(
+            targetChainId,
+            messageId,
+            messageHash,
+            reporters,
+            adapters
+        );
+        return (messageId, reportersReceipts);
+    }
+
+    function _checkReportersAndAdapters(
+        uint256 threshold,
+        IReporter[] calldata reporters,
+        IAdapter[] calldata adapters
+    ) internal pure {
+        if (reporters.length == 0) revert NoReportersGiven();
+        if (adapters.length == 0) revert NoAdaptersGiven();
+        if (reporters.length != adapters.length) revert UnequalArrayLengths(reporters.length, adapters.length);
+        if (threshold > reporters.length || threshold == 0) revert InvalidThreshold(threshold, reporters.length);
+    }
+
+    function _dispatchMessage(
+        uint256 targetChainId,
+        uint256 threshold,
+        address receiver,
+        bytes calldata data,
+        IReporter[] calldata reporters,
+        IAdapter[] calldata adapters
+    ) internal returns (uint256, bytes32) {
+        Message memory message = Message(
+            currentNonce,
+            targetChainId,
+            threshold,
+            msg.sender,
+            receiver,
+            data,
+            reporters,
+            adapters
+        );
+        bytes32 messageHash = calculateMessageHash(message);
+        uint256 messageId = calculateMessageId(block.chainid, address(this), messageHash);
+        unchecked {
+            ++currentNonce;
+        }
+        emit MessageDispatched(messageId, message);
+        return (messageId, messageHash);
+    }
+
+    function _dispatchMessageToAdapters(
+        uint256 targetChainId,
+        uint256 messageId,
+        bytes32 messageHash,
+        IReporter[] memory reporters,
+        IAdapter[] memory adapters
+    ) internal returns (bytes32[] memory reportersReceipts) {
+        uint256[] memory messageIds = new uint256[](1);
+        bytes32[] memory messageHashes = new bytes32[](1);
+        messageIds[0] = messageId;
+        messageHashes[0] = messageHash;
+        reportersReceipts = new bytes32[](reporters.length);
+        for (uint256 i = 0; i < reporters.length; i++) {
+            if (address(reporters[i]) != address(0)) {
+                reportersReceipts[i] = reporters[i].dispatchMessages(
+                    targetChainId,
+                    adapters[i],
+                    messageIds,
+                    messageHashes
+                );
+            }
+        }
+    }
+}
 
 /// @title ReporterMock
 /// @dev Like the audited Veashi reporters, it accepts a message only from its Yaho and only while its dispatcher

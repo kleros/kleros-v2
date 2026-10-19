@@ -11,7 +11,7 @@ import {
   SortitionModule,
   ChainlinkRNG,
   ChainlinkVRFCoordinatorV2Mock,
-  Yaho,
+  YahoMock,
   YaruMock,
 } from "../../typechain-types";
 import { relayMessages } from "../utils/veashi";
@@ -53,8 +53,8 @@ describe("Integration tests", async () => {
   let foreignGateway: ForeignGateway;
   let homeGateway: HomeGateway;
   let lightbulb: GatewayLightbulb;
-  let foreignYaho: Yaho;
-  let homeYaho: Yaho;
+  let foreignYaho: YahoMock;
+  let homeYaho: YahoMock;
   let foreignYaru: YaruMock;
   let homeYaru: YaruMock;
 
@@ -73,8 +73,8 @@ describe("Integration tests", async () => {
     foreignGateway = await ethers.getContract<ForeignGateway>("VeashiForeignGateway");
     homeGateway = await ethers.getContract<HomeGateway>("VeashiHomeGateway");
     lightbulb = await ethers.getContract<GatewayLightbulb>("VeashiGatewayLightbulb");
-    foreignYaho = await ethers.getContract<Yaho>("ForeignYaho");
-    homeYaho = await ethers.getContract<Yaho>("HomeYaho");
+    foreignYaho = await ethers.getContract<YahoMock>("ForeignYaho");
+    homeYaho = await ethers.getContract<YahoMock>("HomeYaho");
     foreignYaru = await ethers.getContract<YaruMock>("ForeignYaru");
     homeYaru = await ethers.getContract<YaruMock>("HomeYaru");
   });

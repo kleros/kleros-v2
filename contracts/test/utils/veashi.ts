@@ -1,5 +1,5 @@
 import { ContractTransactionReceipt, ContractTransactionResponse } from "ethers";
-import { YaruMock, Yaho } from "../../typechain-types";
+import { YahoMock, YaruMock } from "../../typechain-types";
 
 /**
  * Get the messages a Yaho dispatched in a transaction, in order
@@ -7,7 +7,7 @@ import { YaruMock, Yaho } from "../../typechain-types";
  * @param yaho The Yaho of the leg
  * @returns The messages, as Yaru takes them
  */
-export function dispatchedMessages(receipt: ContractTransactionReceipt, yaho: Yaho) {
+export function dispatchedMessages(receipt: ContractTransactionReceipt, yaho: YahoMock) {
   return receipt.logs
     .filter((log) => log.address === yaho.target)
     .map((log) => yaho.interface.parseLog(log))
@@ -38,7 +38,7 @@ export function dispatchedMessages(receipt: ContractTransactionReceipt, yaho: Ya
  */
 export async function relayMessages(
   tx: ContractTransactionResponse,
-  yaho: Yaho,
+  yaho: YahoMock,
   yaru: YaruMock
 ): Promise<ContractTransactionResponse> {
   const receipt = await tx.wait();

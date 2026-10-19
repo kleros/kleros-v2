@@ -1,17 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity ^0.8.28;
 
-import {Yaho} from "@kleros/veashi-sdk/contracts/Yaho.sol";
+import {IYaho} from "@kleros/veashi-sdk/contracts/interfaces/IYaho.sol";
 import {Message} from "@kleros/veashi-sdk/contracts/interfaces/IMessage.sol";
 import {IReporter} from "@kleros/veashi-sdk/contracts/interfaces/IReporter.sol";
 import {IAdapter} from "@kleros/veashi-sdk/contracts/interfaces/IAdapter.sol";
 import {IDispatchVoucher} from "./interfaces/IDispatchVoucher.sol";
 
+/// @dev Yaho's public nonce, which `IYaho` does not declare. Importing the Yaho contract for it would compile Yaho
+/// into every build of a gateway, and Yaho compiles only with via-IR.
+interface IYahoNonce {
+    function currentNonce() external view returns (uint256);
+}
+
 /// @title VouchedDispatcher
 /// @dev Copied from kleros/vea veashi-contracts/src/VouchedDispatcher.sol (fix/veashi-audit a04190b), with the
-/// imports pointed at the Veashi SDK package and the transient variable replaced by a fixed storage slot, so it
-/// compiles for EVM versions before Cancun (kleros-v2 targets paris). Replace with the SDK's copy once the SDK ships
-/// one that does the same.
+/// imports pointed at the Veashi SDK package, Yaho called through its interface, and the transient variable replaced
+/// by a fixed storage slot, so it compiles without via-IR and for EVM versions before Cancun (kleros-v2 targets
+/// paris). Replace with the SDK's copy once the SDK ships one that does the same.
 /// Inherited by gateways: dispatches a message through Hashi's Yaho and, for the length of that call,
 /// vouches for its hash so the reporters (whose dispatcher this contract is) agree to pay for it.
 /// It has no constructor and no declared state variable: the hash lives in an ERC-7201 slot, so an upgradeable
@@ -46,11 +52,11 @@ abstract contract VouchedDispatcher is IDispatchVoucher {
         IAdapter[] memory adapters
     ) internal returns (uint256 messageId, bytes32[] memory reportersReceipts) {
         if (_dispatchingHash() != bytes32(0)) revert NestedDispatch();
-        Yaho yaho = Yaho(_yaho());
+        IYaho yaho = IYaho(_yaho());
 
         // The message exactly as Yaho will build it: Yaho reads `currentNonce` before incrementing it.
         Message memory message = Message(
-            yaho.currentNonce(),
+            IYahoNonce(address(yaho)).currentNonce(),
             targetChainId,
             threshold,
             address(this),

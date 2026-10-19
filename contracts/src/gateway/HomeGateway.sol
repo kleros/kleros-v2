@@ -267,17 +267,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         receivedDispute.threshold = message.threshold;
         receivedDispute.oracleIDs = message.oracleIDs;
 
-        emit DisputeRequest(arbitrator, disputeID, message.externalDisputeID, message.templateId, message.templateUri);
-        emit CrossChainDisputeIncoming(
-            arbitrator,
-            _sourceChainId,
-            message.foreignArbitrable,
-            message.foreignDisputeID,
-            disputeID,
-            message.externalDisputeID,
-            message.templateId,
-            message.templateUri
-        );
+        _emitDisputeIncoming(message, _sourceChainId, disputeID);
         return "";
     }
 
@@ -336,6 +326,35 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     /// @dev The Yaho `_dispatchVouched` dispatches through.
     function _yaho() internal view override returns (address) {
         return address(yaho);
+    }
+
+    /// @dev Emits the events of a dispute received from the ForeignGateway and created on the arbitrator. A separate
+    /// function keeps `onMessage` within the stack limit when compiled without via-IR, as the coverage build is.
+    /// @param _message The dispute message.
+    /// @param _sourceChainId The foreign chain ID.
+    /// @param _disputeID The dispute ID on the arbitrator.
+    function _emitDisputeIncoming(
+        IForeignGateway.DisputeMessage memory _message,
+        uint256 _sourceChainId,
+        uint256 _disputeID
+    ) internal {
+        emit DisputeRequest(
+            arbitrator,
+            _disputeID,
+            _message.externalDisputeID,
+            _message.templateId,
+            _message.templateUri
+        );
+        emit CrossChainDisputeIncoming(
+            arbitrator,
+            _sourceChainId,
+            _message.foreignArbitrable,
+            _message.foreignDisputeID,
+            _disputeID,
+            _message.externalDisputeID,
+            _message.templateId,
+            _message.templateUri
+        );
     }
 
     /// @dev Registers an oracle. A zero reporter is allowed for adapters that verify Yaho's events themselves.

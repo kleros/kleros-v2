@@ -9,7 +9,7 @@ import {
   DisputeKitClassic,
   SortitionModule,
   IncrementalNG,
-  Yaho,
+  YahoMock,
   YaruMock,
 } from "../../typechain-types";
 import { expect } from "chai";
@@ -47,7 +47,7 @@ describe("Draw Benchmark", async () => {
   let pnk: PNK;
   let core: KlerosCore;
   let foreignGateway: ForeignGateway;
-  let foreignYaho: Yaho;
+  let foreignYaho: YahoMock;
   let homeYaru: YaruMock;
   let lightbulbs: Record<number, GatewayLightbulb>; // Opens disputes in its court, by court ID.
   let sortitionModule: SortitionModule;
@@ -70,7 +70,7 @@ describe("Draw Benchmark", async () => {
     pnk = await ethers.getContract<PNK>("PNK");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
     foreignGateway = await ethers.getContract<ForeignGateway>("VeashiForeignGateway");
-    foreignYaho = await ethers.getContract<Yaho>("ForeignYaho");
+    foreignYaho = await ethers.getContract<YahoMock>("ForeignYaho");
     homeYaru = await ethers.getContract<YaruMock>("HomeYaru");
     sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
 

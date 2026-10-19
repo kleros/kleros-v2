@@ -4,7 +4,7 @@ import { KlerosCore__factory } from "../typechain-types";
 import { Courts, ETH, HardhatChain, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
 
-// Both Veashi gateways on the local network, standing for two chains that share chain ID 31337: an SDK Yaho and a
+// Both Veashi gateways on the local network, standing for two chains that share chain ID 31337: a YahoMock and a
 // YaruMock per leg and one SDK Hashi. Each oracle has a ReporterMock on each leg, which stores the message hashes
 // into the AdapterMock of the other leg. A message reaches the other leg once its Yaru executes it, as a relayer
 // would (test/utils/veashi.ts). KlerosCore is the HomeGateway's arbitrator, a GatewayLightbulb the foreign arbitrable.
@@ -25,8 +25,8 @@ const deployVeashiMock: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
   const klerosCore = await deployments.get("KlerosCore");
 
   const hashi = await deploy("Hashi", { from: deployer, log: true });
-  const foreignYaho = await deploy("ForeignYaho", { contract: "Yaho", from: deployer, log: true }); // Dispute leg.
-  const homeYaho = await deploy("HomeYaho", { contract: "Yaho", from: deployer, log: true }); // Ruling leg.
+  const foreignYaho = await deploy("ForeignYaho", { contract: "YahoMock", from: deployer, log: true }); // Dispute leg.
+  const homeYaho = await deploy("HomeYaho", { contract: "YahoMock", from: deployer, log: true }); // Ruling leg.
   // Each chain's Yaru executes the messages of the other chain's Yaho.
   const homeYaru = await deploy("HomeYaru", {
     contract: "YaruMock",
