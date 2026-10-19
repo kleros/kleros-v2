@@ -4,14 +4,17 @@ import { toBigInt, ContractTransactionResponse, HDNodeWallet } from "ethers";
 import {
   PNK,
   KlerosCore,
-  ArbitrableExample,
-  HomeGateway,
+  ForeignGateway,
+  GatewayLightbulb,
   DisputeKitClassic,
   SortitionModule,
   IncrementalNG,
+  YahoMock,
+  YaruMock,
 } from "../../typechain-types";
 import { expect } from "chai";
 import { Courts } from "../../deploy/utils";
+import { relayMessages } from "../utils/veashi";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -40,12 +43,13 @@ describe("Draw Benchmark", async () => {
   }
 
   let deployer: string;
-  let relayer: string;
   let disputeKit: DisputeKitClassic;
   let pnk: PNK;
   let core: KlerosCore;
-  let arbitrable: ArbitrableExample;
-  let homeGateway: HomeGateway;
+  let foreignGateway: ForeignGateway;
+  let foreignYaho: YahoMock;
+  let homeYaru: YaruMock;
+  let lightbulbs: Record<number, GatewayLightbulb>; // Opens disputes in its court, by court ID.
   let sortitionModule: SortitionModule;
   let rng: IncrementalNG;
   let parentCourtMinStake: bigint;
@@ -56,17 +60,18 @@ describe("Draw Benchmark", async () => {
   const abiCoder = ethers.AbiCoder.defaultAbiCoder();
 
   beforeEach("Setup", async () => {
-    ({ deployer, relayer } = await getNamedAccounts());
+    ({ deployer } = await getNamedAccounts());
 
-    await deployments.fixture(["Arbitration", "VeaMock"], {
+    await deployments.fixture(["Arbitration", "VeashiMock"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
     disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
     pnk = await ethers.getContract<PNK>("PNK");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
-    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
-    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
+    foreignGateway = await ethers.getContract<ForeignGateway>("VeashiForeignGateway");
+    foreignYaho = await ethers.getContract<YahoMock>("ForeignYaho");
+    homeYaru = await ethers.getContract<YaruMock>("HomeYaru");
     sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
 
     parentCourtMinStake = await core.courts(Courts.GENERAL).then((court) => court.minStake);
@@ -100,6 +105,19 @@ describe("Draw Benchmark", async () => {
         [1]
       )
       .then((tx) => tx.wait());
+
+    // Mirror the child court on the ForeignGateway, and give each court a lightbulb opening its disputes there.
+    await foreignGateway.changeCourtJurorFee(CHILD_COURT, feeForJuror).then((tx) => tx.wait());
+    lightbulbs = {};
+    for (const courtId of [PARENT_COURT, CHILD_COURT]) {
+      await deployments.deploy(`GatewayLightbulbCourt${courtId}`, {
+        contract: "GatewayLightbulb",
+        from: deployer,
+        args: [foreignGateway.target, abiCoder.encode(["uint256", "uint256", "uint256"], [courtId, 3, 1]), 0, ""], // 3 jurors, DisputeKitClassic
+        log: true,
+      });
+      lightbulbs[courtId] = await ethers.getContract<GatewayLightbulb>(`GatewayLightbulbCourt${courtId}`);
+    }
   });
 
   type CountedDraws = { [address: string]: number };
@@ -140,35 +158,9 @@ describe("Draw Benchmark", async () => {
       await stake(wallet);
     }
 
-    // Create a dispute
-    const tx = await arbitrable["createDispute(string)"]("future of france", {
-      value: arbitrationCost,
-    });
-    await tx.wait();
-    if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
-    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
-    const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
-    if (lastBlock?.hash === null || lastBlock?.hash === undefined) throw new Error("lastBlock is null || undefined");
-
-    // Relayer tx
-    await homeGateway
-      .connect(await ethers.getSigner(relayer))
-      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
-        {
-          foreignBlockHash: lastBlock?.hash,
-          foreignChainID: 31337,
-          foreignArbitrable: arbitrable.target,
-          foreignDisputeID: disputeId,
-          externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
-          templateId: 0,
-          templateUri: "",
-          choices: 2,
-          extraData: `0x000000000000000000000000000000000000000000000000000000000000000${createDisputeCourtId}0000000000000000000000000000000000000000000000000000000000000003`,
-        },
-        { value: arbitrationCost }
-      )
-      .then((tx) => tx.wait());
+    // Create a dispute in the court through the gateways
+    const requestTx = await lightbulbs[createDisputeCourtId]["requestSwitch()"]({ value: arbitrationCost });
+    await relayMessages(requestTx, foreignYaho, homeYaru).then((tx) => tx.wait());
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");

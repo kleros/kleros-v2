@@ -1,28 +1,33 @@
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import {
   PNK,
   KlerosCore,
+  AdapterMock,
   ForeignGateway,
-  ArbitrableExample,
   HomeGateway,
-  VeaMock,
+  GatewayLightbulb,
   DisputeKitClassic,
   SortitionModule,
   ChainlinkRNG,
   ChainlinkVRFCoordinatorV2Mock,
+  YahoMock,
+  YaruMock,
 } from "../../typechain-types";
+import { relayMessages } from "../utils/veashi";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
+// A dispute and its ruling through both Veashi gateways (deploy/03-veashi-mock.ts):
+// GatewayLightbulb → ForeignGateway createDispute + relayDispute → ForeignYaho → reporters → home adapters →
+// HomeYaru → HomeGateway → KlerosCore, then KlerosCore executeRuling → HomeGateway rule → HomeYaho → reporters →
+// foreign adapters → ForeignYaru → ForeignGateway → GatewayLightbulb.
 describe("Integration tests", async () => {
-  const ONE_TENTH_ETH = 10n ** 17n;
-  const ONE_ETH = 10n ** 18n;
-  const ONE_HUNDRED_PNK = 10n ** 20n;
   const ONE_THOUSAND_PNK = 10n ** 21n;
-  const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+  const ONE_HUNDRED_PNK = 10n ** 20n;
+  const CHAIN_ID = 31337;
+  const RULING_ON = 1;
 
   const enum Period {
     evidence, // Evidence can be submitted. This is also when drawing has to take place.
@@ -44,15 +49,18 @@ describe("Integration tests", async () => {
   let disputeKit: DisputeKitClassic;
   let pnk: PNK;
   let core: KlerosCore;
-  let vea: VeaMock;
-  let foreignGateway: ForeignGateway;
-  let arbitrable: ArbitrableExample;
-  let homeGateway: HomeGateway;
   let sortitionModule: SortitionModule;
+  let foreignGateway: ForeignGateway;
+  let homeGateway: HomeGateway;
+  let lightbulb: GatewayLightbulb;
+  let foreignYaho: YahoMock;
+  let homeYaho: YahoMock;
+  let foreignYaru: YaruMock;
+  let homeYaru: YaruMock;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
-    await deployments.fixture(["Arbitration", "VeaMock"], {
+    await deployments.fixture(["Arbitration", "VeashiMock"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
@@ -61,148 +69,173 @@ describe("Integration tests", async () => {
     disputeKit = await ethers.getContract<DisputeKitClassic>("DisputeKitClassic");
     pnk = await ethers.getContract<PNK>("PNK");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
-    vea = await ethers.getContract<VeaMock>("VeaMock");
-    foreignGateway = await ethers.getContract<ForeignGateway>("ForeignGatewayOnEthereum");
-    arbitrable = await ethers.getContract<ArbitrableExample>("ArbitrableExample");
-    homeGateway = await ethers.getContract<HomeGateway>("HomeGatewayToEthereum");
     sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
+    foreignGateway = await ethers.getContract<ForeignGateway>("VeashiForeignGateway");
+    homeGateway = await ethers.getContract<HomeGateway>("VeashiHomeGateway");
+    lightbulb = await ethers.getContract<GatewayLightbulb>("VeashiGatewayLightbulb");
+    foreignYaho = await ethers.getContract<YahoMock>("ForeignYaho");
+    homeYaho = await ethers.getContract<YahoMock>("HomeYaho");
+    foreignYaru = await ethers.getContract<YaruMock>("ForeignYaru");
+    homeYaru = await ethers.getContract<YaruMock>("HomeYaru");
   });
 
-  it("Resolves a dispute on the home chain with no appeal", async () => {
-    const arbitrationCost = ONE_TENTH_ETH * 3n;
-    const [, , relayer] = await ethers.getSigners();
+  it("Resolves a dispute on the home chain with no appeal and rules it on the foreign chain", async () => {
+    const extraData = await lightbulb.arbitratorExtraData();
+    const arbitrationCost = await core["arbitrationCost(bytes)"](extraData);
+    expect(await foreignGateway["arbitrationCost(bytes)"](extraData)).to.equal(arbitrationCost); // No bridging cost set.
+    await stake(ONE_THOUSAND_PNK * 4n);
 
-    await pnk.approve(core.target, ONE_THOUSAND_PNK * 100n);
-
-    await core.setStake(1, ONE_THOUSAND_PNK);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK);
-      expect(result.totalLocked).to.equal(0);
-      logJurorBalance(result);
-    });
-
-    await core.setStake(1, ONE_HUNDRED_PNK * 5n);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK * 5n);
-      expect(result.totalLocked).to.equal(0);
-      logJurorBalance(result);
-    });
-
-    await core.setStake(1, 0);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(0);
-      expect(result.totalLocked).to.equal(0);
-      logJurorBalance(result);
-    });
-
-    await core.setStake(1, ONE_THOUSAND_PNK * 4n);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK * 4n);
-      expect(result.totalLocked).to.equal(0);
-      logJurorBalance(result);
-    });
-    const tx = await arbitrable["createDispute(string)"]("future of france", {
-      value: arbitrationCost,
-    });
-
-    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`)); // get returned value from createDispute()
-    console.log("Dispute Created with disputeId: %d", disputeId);
-    await expect(tx)
+    // Foreign chain: the lightbulb opens the dispute and relays it over the default oracles.
+    const requestTx = await lightbulb["requestSwitch()"]({ value: arbitrationCost });
+    const foreignDisputeID = 1n; // The ForeignGateway counts from 1.
+    const disputeHash = computeDisputeHash(foreignDisputeID, extraData);
+    await expect(requestTx)
       .to.emit(foreignGateway, "CrossChainDisputeOutgoing")
-      .withArgs(anyValue, arbitrable.target, 1, 2, "0x00");
-    await expect(tx)
-      .to.emit(arbitrable, "DisputeRequest")
-      .withArgs(
-        foreignGateway.target,
-        1,
-        46619385602526556702049273755915206310773794210139929511467397410441395547901n,
-        0,
-        ""
-      );
-    if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
-    const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
-    if (lastBlock === null) throw new Error("lastBlock is null");
-    const disputeHash = ethers.solidityPackedKeccak256(
-      ["bytes", "bytes32", "uint256", "address", "uint256", "uint256", "bytes"],
-      [ethers.toUtf8Bytes("createDispute"), lastBlock.hash, 31337, arbitrable.target, disputeId, 2, "0x00"]
-    );
-    console.log("dispute hash: ", disputeHash);
-    if (lastBlock.hash === null) {
-      throw new Error("Block hash is null - cannot calculate dispute hash");
-    }
-    // Relayer tx
-    const tx2 = await homeGateway
-      .connect(relayer)
-      ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
-        {
-          foreignBlockHash: ethers.toBeHex(lastBlock.hash),
-          foreignChainID: 31337,
-          foreignArbitrable: arbitrable.target,
-          foreignDisputeID: disputeId,
-          externalDisputeID: ethers.keccak256(ethers.toUtf8Bytes("future of france")),
-          templateId: 0,
-          templateUri: "",
-          choices: 2,
-          extraData: "0x00",
-        },
-        { value: arbitrationCost }
-      );
-    expect(tx2).to.emit(homeGateway, "DisputeRequest");
-    await tx2.wait();
+      .withArgs(lightbulb.target, foreignDisputeID, 2, extraData);
+    await expect(requestTx).to.emit(foreignGateway, "DisputeRelayed");
+    await expect(requestTx)
+      .to.emit(lightbulb, "DisputeRequest")
+      .withArgs(foreignGateway.target, foreignDisputeID, foreignDisputeID, 0, "");
+    const { oracleIDs, threshold } = await foreignGateway.getDefaultOracles();
+    expect(oracleIDs).to.deep.equal([0n, 1n]);
+    expect(threshold).to.equal(2);
 
-    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
-    await network.provider.send("evm_mine");
+    // Home chain: Yaru executes the dispute message, the HomeGateway pays KlerosCore and records the dispute.
+    const homeBalance = await ethers.provider.getBalance(homeGateway.target);
+    const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
+    await expect(deliveryTx).to.emit(core, "DisputeCreation").withArgs(0, homeGateway.target);
+    await expect(deliveryTx)
+      .to.emit(homeGateway, "CrossChainDisputeIncoming")
+      .withArgs(core.target, CHAIN_ID, lightbulb.target, foreignDisputeID, 0, foreignDisputeID, 0, "");
+    expect(await ethers.provider.getBalance(homeGateway.target)).to.equal(homeBalance - arbitrationCost);
+    expect(await homeGateway.disputeIDtoHash(0)).to.equal(disputeHash);
+    const received = await homeGateway.getReceivedDispute(disputeHash);
+    expect(received.received).to.be.true;
+    expect(received.oracleIDs).to.deep.equal(oracleIDs);
+    expect(received.threshold).to.equal(threshold);
 
-    expect(await sortitionModule.phase()).to.equal(Phase.staking);
-    expect(await sortitionModule.disputesWithoutJurors()).to.equal(1);
-    console.log("KC phase: %d", await sortitionModule.phase());
-
-    await sortitionModule.passPhase(); // Staking -> Generating
-    expect(await sortitionModule.phase()).to.equal(Phase.generating);
-    console.log("KC phase: %d", await sortitionModule.phase());
-    await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
-    await sortitionModule.passPhase(); // Generating -> Drawing
-    expect(await sortitionModule.phase()).to.equal(Phase.drawing);
-    console.log("KC phase: %d", await sortitionModule.phase());
-
-    const tx3 = await core.draw(0, 1000);
-    console.log("draw successful");
-    await tx3.wait();
-
+    await resolveOnCore(0, RULING_ON);
     const roundInfo = await core.getRoundInfo(0, 0);
     expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
     expect(roundInfo.pnkAtStakePerJuror).to.equal(ONE_HUNDRED_PNK * 2n);
     expect(roundInfo.totalFeesForJurors).to.equal(arbitrationCost);
     expect(roundInfo.feeToken).to.equal(ethers.ZeroAddress);
 
-    expect((await core.disputes(0)).period).to.equal(Period.evidence);
+    // Ruling leg: KlerosCore rules, the HomeGateway dispatches the ruling over the same oracles.
+    const rulingTx = await core.executeRuling(0);
+    await expect(rulingTx).to.emit(core, "Ruling").withArgs(homeGateway.target, 0, RULING_ON);
+    await expect(rulingTx).to.emit(homeGateway, "RulingDispatched");
 
-    await core.passPeriod(0);
-    expect((await core.disputes(0)).period).to.equal(Period.vote);
-    await disputeKit.connect(await ethers.getSigner(deployer)).castVote(0, [0, 1, 2], 0, 0, "");
-    await core.passPeriod(0);
+    // Foreign chain: Yaru executes the ruling message, the ForeignGateway rules the lightbulb.
+    const rulingDeliveryTx = await relayMessages(rulingTx, homeYaho, foreignYaru);
+    await expect(rulingDeliveryTx)
+      .to.emit(foreignGateway, "Ruling")
+      .withArgs(lightbulb.target, foreignDisputeID, RULING_ON);
+    await expect(rulingDeliveryTx).to.emit(lightbulb, "LightbulbSwitched").withArgs(deployer, foreignDisputeID, true);
+    expect(await lightbulb.lightbulbIsOn(deployer)).to.be.true;
+    expect((await foreignGateway.disputeHashtoDisputeData(disputeHash)).ruled).to.be.true;
+  });
+
+  it("Charges and carries a dispute over the oracles the arbitrable selects", async () => {
+    const extraData = await lightbulb.arbitratorExtraData();
+    const bridgingCost = ethers.parseEther("0.01");
+    await foreignGateway.setOracleBridgingCost(1, bridgingCost);
+    const jurorFees = await core["arbitrationCost(bytes)"](extraData);
+    const cost = await foreignGateway["arbitrationCost(bytes,uint256[])"](extraData, [1]);
+    expect(cost).to.equal(jurorFees + bridgingCost);
+    await stake(ONE_THOUSAND_PNK * 4n);
+
+    const requestTx = await lightbulb["requestSwitch(uint256[],uint256)"]([1], 1, { value: cost });
+    const disputeHash = computeDisputeHash(1n, extraData);
+    const dispute = await foreignGateway.disputeHashtoDisputeData(disputeHash);
+    expect(dispute.feesForJurors).to.equal(jurorFees);
+    expect(dispute.feesForBridging).to.equal(bridgingCost);
+    expect((await foreignGateway.getDisputeOracles(disputeHash)).oracleIDs).to.deep.equal([1n]);
+
+    // Only oracle 1 reported the dispute, and its threshold of 1 is met.
+    const homeAdapter0 = await ethers.getContract<AdapterMock>("HomeAdapter0");
+    const homeAdapter1 = await ethers.getContract<AdapterMock>("HomeAdapter1");
+    await relayMessages(requestTx, foreignYaho, homeYaru);
+    expect(await homeGateway.disputeHashToHomeID(disputeHash)).to.equal(0);
+    expect((await homeGateway.getReceivedDispute(disputeHash)).oracleIDs).to.deep.equal([1n]);
+    const messageId = (await requestTx.wait())!.logs
+      .filter((log) => log.address === foreignGateway.target)
+      .map((log) => foreignGateway.interface.parseLog(log))
+      .find((event) => event?.name === "DisputeRelayed")!.args._messageId;
+    expect(await homeAdapter1.getHash(CHAIN_ID, messageId)).to.not.equal(ethers.ZeroHash);
+    expect(await homeAdapter0.getHash(CHAIN_ID, messageId)).to.equal(ethers.ZeroHash);
+
+    await resolveOnCore(0, RULING_ON);
+    const rulingTx = await core.executeRuling(0);
+    await expect(relayMessages(rulingTx, homeYaho, foreignYaru))
+      .to.emit(lightbulb, "LightbulbSwitched")
+      .withArgs(deployer, 1, true);
+  });
+
+  it("Executes a dispute only once enough of its oracles reported it", async () => {
+    // Mute oracle 1's dispute-leg reporter: Yaho skips it, so only one of the two adapters gets the hash.
+    await foreignGateway.setOracleReporter(1, ethers.ZeroAddress);
+    const extraData = await lightbulb.arbitratorExtraData();
+    const requestTx = await lightbulb["requestSwitch()"]({
+      value: await foreignGateway["arbitrationCost(bytes)"](extraData),
+    });
+    await expect(relayMessages(requestTx, foreignYaho, homeYaru)).to.be.revertedWithCustomError(
+      homeYaru,
+      "ThresholdNotMet"
+    );
+  });
+
+  it("Executes a message once", async () => {
+    const extraData = await lightbulb.arbitratorExtraData();
+    const requestTx = await lightbulb["requestSwitch()"]({
+      value: await foreignGateway["arbitrationCost(bytes)"](extraData),
+    });
+    await relayMessages(requestTx, foreignYaho, homeYaru);
+    await expect(relayMessages(requestTx, foreignYaho, homeYaru)).to.be.revertedWithCustomError(
+      homeYaru,
+      "MessageIdAlreadyExecuted"
+    );
+  });
+
+  const computeDisputeHash = (foreignDisputeID: bigint, extraData: string) =>
+    ethers.solidityPackedKeccak256(
+      ["string", "uint256", "address", "address", "uint256", "uint256", "bytes"],
+      ["createDispute", CHAIN_ID, foreignGateway.target, lightbulb.target, foreignDisputeID, 2, extraData]
+    );
+
+  const stake = async (amount: bigint) => {
+    await pnk.approve(core.target, amount);
+    await core.setStake(1, amount);
+    const balance = await sortitionModule.getJurorBalance(deployer, 1);
+    expect(balance.totalStaked).to.equal(amount);
+    expect(balance.totalLocked).to.equal(0);
+  };
+
+  // Draws the deployer three times, votes `ruling` and brings the dispute to execution.
+  const resolveOnCore = async (disputeID: number, ruling: number) => {
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
+    await network.provider.send("evm_mine");
+
+    expect(await sortitionModule.phase()).to.equal(Phase.staking);
+    expect(await sortitionModule.disputesWithoutJurors()).to.equal(1);
+    await sortitionModule.passPhase(); // Staking -> Generating
+    expect(await sortitionModule.phase()).to.equal(Phase.generating);
+    await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
+    await sortitionModule.passPhase(); // Generating -> Drawing
+    expect(await sortitionModule.phase()).to.equal(Phase.drawing);
+    await core.draw(disputeID, 1000);
+
+    expect((await core.disputes(disputeID)).period).to.equal(Period.evidence);
+    await core.passPeriod(disputeID);
+    expect((await core.disputes(disputeID)).period).to.equal(Period.vote);
+    await disputeKit.connect(await ethers.getSigner(deployer)).castVote(disputeID, [0, 1, 2], ruling, 0, "");
+    await core.passPeriod(disputeID);
 
     await network.provider.send("evm_increaseTime", [100]); // Wait for the appeal period
     await network.provider.send("evm_mine");
 
-    await core.passPeriod(0);
-    expect((await core.disputes(0)).period).to.equal(Period.execution);
-    expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
-
-    const tx4 = await core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 });
-    console.log("Ruling executed on KlerosCore");
-    expect(tx4).to.emit(core, "Ruling").withArgs(homeGateway.target, 0, 0);
-    expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.target, 1, 0); // The ForeignGateway starts counting disputeID from 1.
-  });
-
-  const mineBlocks = async (n: number) => {
-    for (let index = 0; index < n; index++) {
-      await network.provider.send("evm_mine");
-    }
+    await core.passPeriod(disputeID);
+    expect((await core.disputes(disputeID)).period).to.equal(Period.execution);
+    await core.execute(disputeID, 0, 1000);
   };
 });
-
-const logJurorBalance = async (result: { totalStaked: bigint; totalLocked: bigint }) => {
-  console.log("staked=%s, locked=%s", ethers.formatUnits(result.totalStaked), ethers.formatUnits(result.totalLocked));
-};
