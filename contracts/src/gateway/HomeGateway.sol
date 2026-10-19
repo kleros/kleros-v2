@@ -280,7 +280,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         );
         return "";
     }
-    // TEST: Core contract can handle the reverts and retry is possible if not this will be a two transaction revert.
+
     /// @inheritdoc IArbitrableV2
     /// @dev Sends the ruling to the ForeignGateway through Yaho, `abi.encode(disputeHash, ruling)`, over the oracles
     /// selected on the foreign chain, in the same order. Reporters pay the bridge fees from their own balances for a
