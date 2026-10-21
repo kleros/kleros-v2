@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { isVoteJustificationSufficient, MIN_VOTE_JUSTIFICATION_LENGTH } from "./voteJustification";
+import {
+  getMissingJustificationCharacters,
+  isVoteJustificationSufficient,
+  MIN_VOTE_JUSTIFICATION_LENGTH,
+} from "./voteJustification";
 
 describe("isVoteJustificationSufficient", () => {
   it("requires at least 100 characters", () => {
@@ -22,5 +26,22 @@ describe("isVoteJustificationSufficient", () => {
   it("ignores surrounding whitespace when counting", () => {
     expect(isVoteJustificationSufficient(`   ${"a".repeat(99)}   `)).toBe(false);
     expect(isVoteJustificationSufficient(" ".repeat(200))).toBe(false);
+  });
+});
+
+describe("getMissingJustificationCharacters", () => {
+  it("returns the full minimum for an empty or whitespace-only justification", () => {
+    expect(getMissingJustificationCharacters("")).toBe(100);
+    expect(getMissingJustificationCharacters("   ")).toBe(100);
+  });
+
+  it("returns how many trimmed characters are still missing", () => {
+    expect(getMissingJustificationCharacters(`  ${"a".repeat(40)}  `)).toBe(60);
+    expect(getMissingJustificationCharacters("a".repeat(99))).toBe(1);
+  });
+
+  it("returns zero once the minimum is reached or exceeded", () => {
+    expect(getMissingJustificationCharacters("a".repeat(100))).toBe(0);
+    expect(getMissingJustificationCharacters("a".repeat(250))).toBe(0);
   });
 });
