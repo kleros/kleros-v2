@@ -4,10 +4,11 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitClassicCastCommit } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
+import { useWriteRequest } from "hooks/useWriteRequest";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 
@@ -33,7 +34,8 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
-  const { data: walletClient } = useWalletClient();
+  const writeRequest = useWriteRequest();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
@@ -61,8 +63,8 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       const { request } = await simulateDisputeKitClassicCastCommit(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, commit],
       });
-      if (walletClient && publicClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+      if (publicClient) {
+        await wrapWithToast(async () => await writeRequest(request), publicClient, address).then(({ status }) => {
           setIsOpen(status);
         });
       }
@@ -76,7 +78,8 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       parsedDisputeID,
       publicClient,
       setIsOpen,
-      walletClient,
+      writeRequest,
+      address,
       generateSigningAccount,
       signingAccount,
       refetch,
@@ -85,7 +88,13 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
 
   return id ? (
     <Container>
-      <OptionsContainer {...{ arbitrable, handleSelection: handleCommit }} />
+      <OptionsContainer
+        {...{
+          arbitrable,
+          handleSelection: handleCommit,
+          confirmHint: "You will provide your justification when revealing your vote.",
+        }}
+      />
     </Container>
   ) : null;
 };

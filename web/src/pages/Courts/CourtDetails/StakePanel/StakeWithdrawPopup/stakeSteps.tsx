@@ -60,7 +60,7 @@ const createApprovalSteps = (
       party: party(),
     },
     {
-      title: "Stake in wallet",
+      title: "Register in wallet",
       subtitle: "",
       rightSided: true,
       variant: theme.secondaryPurple,
@@ -103,7 +103,7 @@ const createStakeSteps = (
           Icon: CheckIcon,
         },
         {
-          title: "Stake in wallet",
+          title: "Register in wallet",
           subtitle: error ? (error?.shortMessage ?? error?.message) : "",
           rightSided: true,
           variant,
@@ -114,7 +114,7 @@ const createStakeSteps = (
       ]
     : [
         {
-          title: "Unstake in wallet",
+          title: "Unregister in wallet",
           subtitle: error ? (error?.shortMessage ?? error?.message) : "",
           rightSided: true,
           variant,

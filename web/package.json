@@ -41,6 +41,8 @@
     "build-netlify": "scripts/generateBuildInfo.sh && yarn generate && vite build",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen --require tsconfig-paths/register",
     "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"
@@ -55,6 +57,7 @@
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
+    "@playwright/test": "1.57.0",
     "@types/busboy": "^1.5.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -76,7 +79,8 @@
     "vite": "^5.4.11",
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-plugin-svgr": "^4.3.0",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
     "@bigmi/react": "^0.1.0",
@@ -91,6 +95,8 @@
     "@lifi/wallet-management": "^3.7.1",
     "@lifi/widget": "^3.18.1",
     "@netlify/blobs": "^8.2.0",
+    "@privy-io/react-auth": "3.46.0",
+    "@privy-io/wagmi": "4.0.17",
     "@reown/appkit": "^1.7.1",
     "@reown/appkit-adapter-wagmi": "^1.7.1",
     "@reown/appkit-wallet": "1.7.1",
@@ -98,6 +104,7 @@
     "@sentry/tracing": "^7.120.0",
     "@solana/wallet-adapter-react": "^0.15.36",
     "@solana/web3.js": "^1.98.0",
+    "@stripe/stripe-js": "^1.46.0",
     "@tanstack/react-query": "^5.69.0",
     "@types/react-modal": "^3.16.3",
     "@wagmi/connectors": "^5.7.11",

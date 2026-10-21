@@ -3,7 +3,7 @@ import styled, { DefaultTheme, useTheme } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { type TransactionReceipt } from "viem";
-import { usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 
 import { type _TimelineItem1, Button } from "@kleros/ui-components-library";
 
@@ -11,15 +11,15 @@ import { DEFAULT_CHAIN } from "consts/chains";
 import {
   klerosCoreAddress,
   useSimulateKlerosCoreSetStake,
-  useWriteKlerosCoreSetStake,
   useSimulatePnkIncreaseAllowance,
-  useWritePnkIncreaseAllowance,
 } from "hooks/contracts/generated";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { usePnkData } from "hooks/usePNKData";
+import { useWriteRequest } from "hooks/useWriteRequest";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
 import { refetchWithRetry } from "utils/refecthWithRetry";
+import { isUserOperationReverted } from "utils/userOperation";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
@@ -70,6 +70,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { balance, jurorBalance, allowance, refetchAllowance } = usePnkData({ courtId: id });
   const { data: courtDetails } = useCourtDetails(id);
   const publicClient = usePublicClient();
+  const { address } = useAccount();
 
   const isStaking = action === ActionType.stake;
   const isAllowance = isStaking && !isUndefined(allowance) && allowance < parsedAmount;
@@ -103,7 +104,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     args: [klerosCoreAddress[DEFAULT_CHAIN], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
 
-  const { writeContractAsync: increaseAllowance } = useWritePnkIncreaseAllowance();
+  const writeRequest = useWriteRequest();
 
   const {
     data: setStakeConfig,
@@ -122,7 +123,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
     args: [BigInt(id ?? 0), targetStake],
   });
-  const { writeContractAsync: setStake } = useWriteKlerosCoreSetStake();
 
   const updatePopupState = (signal: AbortSignal, state: Steps) => {
     if (signal.aborted) return;
@@ -142,7 +142,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           getStakeSteps(isWithdraw ? StakeSteps.WithdrawInitiate : StakeSteps.StakeInitiate, ...commonArgs)
         );
 
-        setStake(requestData)
+        writeRequest(requestData)
           .then(async (hash) => {
             if (signal.aborted) return;
             updatePopupState(
@@ -151,7 +151,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
             );
             await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then((res: TransactionReceipt) => {
               if (signal.aborted) return;
-              const status = res.status === "success";
+              const status = res.status === "success" && !isUserOperationReverted(res, address);
               if (status) {
                 updatePopupState(
                   signal,
@@ -192,7 +192,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         );
       }
     },
-    [setStake, setStakeConfig, publicClient, amount, theme, action]
+    [writeRequest, setStakeConfig, publicClient, amount, theme, action, address]
   );
 
   const handleClick = useCallback(() => {
@@ -204,7 +204,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       const commonArgs: [string, DefaultTheme] = [amount, theme];
       updatePopupState(signal, getStakeSteps(StakeSteps.ApproveInitiate, ...commonArgs));
 
-      increaseAllowance(increaseAllowanceConfig.request)
+      writeRequest(increaseAllowanceConfig.request)
         .then(async (hash) => {
           if (signal.aborted) return;
           updatePopupState(signal, getStakeSteps(StakeSteps.ApprovePending, ...commonArgs, hash));
@@ -213,7 +213,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
             .waitForTransactionReceipt({ hash, confirmations: 2 })
             .then(async (res: TransactionReceipt) => {
               if (signal.aborted) return;
-              const status = res.status === "success";
+              const status = res.status === "success" && !isUserOperationReverted(res, address);
               if (status) {
                 await refetchAllowance();
                 const refetchData = await refetchWithRetry(refetchSetStake);
@@ -243,7 +243,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       handleStake(signal);
     }
   }, [
-    increaseAllowance,
+    writeRequest,
     increaseAllowanceConfig,
     handleStake,
     isAllowance,
@@ -253,6 +253,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     refetchAllowance,
     refetchSetStake,
     setIsPopupOpen,
+    address,
   ]);
 
   useEffect(() => {
@@ -305,7 +306,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     <EnsureChain>
       <Container>
         <Button
-          text={isStaking ? "Stake" : "Withdraw"}
+          text={isStaking ? "Register" : "Unregister"}
           isLoading={isPopupOpen || isSimulatingAllowance || isSimulatingSetStake}
           disabled={isDisabled || isSimulatingAllowance || isSimulatingSetStake}
           onClick={handleClick}

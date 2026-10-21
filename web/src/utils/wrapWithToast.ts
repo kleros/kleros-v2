@@ -1,7 +1,8 @@
 import { toast, ToastPosition, Theme } from "react-toastify";
-import { PublicClient, TransactionReceipt } from "viem";
+import { Address, PublicClient, TransactionReceipt } from "viem";
 
 import { parseWagmiError } from "./parseWagmiError";
+import { isUserOperationReverted } from "./userOperation";
 
 export const OPTIONS = {
   position: "top-center" as ToastPosition,
@@ -25,14 +26,15 @@ export const errorToast = (message: string) => toast.error(message, OPTIONS);
 
 export async function wrapWithToast(
   contractWrite: () => Promise<`0x${string}`>,
-  publicClient: PublicClient
+  publicClient: PublicClient,
+  sender?: Address
 ): Promise<WrapWithToastReturnType> {
   toast.info("Transaction initiated", OPTIONS);
   return await contractWrite()
     .then(
       async (hash) =>
         await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then((res: TransactionReceipt) => {
-          const status = res.status === "success";
+          const status = res.status === "success" && !isUserOperationReverted(res, sender);
 
           if (status) toast.success("Transaction mined!", OPTIONS);
           else toast.error("Transaction reverted!", OPTIONS);

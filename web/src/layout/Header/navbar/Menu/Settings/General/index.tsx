@@ -1,12 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
 import { ChainDisplay } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
+import { useLogout } from "hooks/useLogout";
 import WalletAndProfile from "./WalletAndProfile";
 import { ISettings } from "../../../index";
 
@@ -53,8 +54,8 @@ const UserContainer = styled.div`
 `;
 
 export const DisconnectWalletButton: React.FC = () => {
-  const { disconnect } = useDisconnect();
-  return <Button text={`Disconnect`} onClick={() => disconnect()} />;
+  const logout = useLogout();
+  return <Button text={`Disconnect`} onClick={() => logout()} />;
 };
 
 const General: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {

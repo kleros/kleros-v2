@@ -2,9 +2,11 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+import { useAccount, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
+import { useWriteRequest } from "hooks/useWriteRequest";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -28,12 +30,14 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
-  const { data: walletClient } = useWalletClient();
+  const writeRequest = useWriteRequest();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
 
   const handleVote = useCallback(
     async (voteOption: number) => {
+      if (!isVoteJustificationSufficient(justification)) return;
       const { request } = await simulateDisputeKitClassicCastVote(wagmiConfig, {
         args: [
           parsedDisputeID,
@@ -43,8 +47,8 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
           justification,
         ],
       });
-      if (walletClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+      if (publicClient) {
+        await wrapWithToast(async () => await writeRequest(request), publicClient, address).then(({ status }) => {
           setIsOpen(status);
         });
       }
@@ -57,7 +61,8 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
       parsedDisputeID,
       publicClient,
       setIsOpen,
-      walletClient,
+      writeRequest,
+      address,
     ]
   );
 

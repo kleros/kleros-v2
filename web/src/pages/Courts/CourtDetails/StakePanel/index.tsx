@@ -59,11 +59,11 @@ const StakePanel: React.FC<{ courtName: string | undefined }> = ({ courtName }) 
     <Container>
       <StakingArea>
         <TagArea>
-          <Tag text="Stake" active={isActive} onClick={() => handleClick(ActionType.stake)} />
-          <Tag text="Withdraw" active={!isActive} onClick={() => handleClick(ActionType.withdraw)} />
+          <Tag text="Register" active={isActive} onClick={() => handleClick(ActionType.stake)} />
+          <Tag text="Unregister" active={!isActive} onClick={() => handleClick(ActionType.withdraw)} />
         </TagArea>
         <TextArea>
-          <strong>{`${isStaking ? "Stake" : "Withdraw"} PNK`}</strong> {`${isStaking ? "to join the" : "from"}`}{" "}
+          <strong>{`${isStaking ? "Register" : "Unregister"} PNK`}</strong> {`${isStaking ? "to join the" : "from"}`}{" "}
           {courtName}
           {courtName?.toLowerCase().endsWith("court") || courtName?.toLowerCase().startsWith("corte") ? null : " Court"}
         </TextArea>

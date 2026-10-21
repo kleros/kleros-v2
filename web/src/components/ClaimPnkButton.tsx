@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { formatEther } from "viem";
-import { useAccount, useChainId, usePublicClient, useWalletClient, useConfig } from "wagmi";
+import { useAccount, useChainId, usePublicClient, useConfig } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -16,6 +16,7 @@ import {
   useReadPnkFaucetWithdrewAlready,
   pnkFaucetAddress,
 } from "hooks/contracts/generated";
+import { useWriteRequest } from "hooks/useWriteRequest";
 import { formatPNK } from "utils/format";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -42,7 +43,7 @@ const ClaimPnkButton: React.FC = () => {
     args: [faucetAddress],
   });
   const { data: dripAmount } = useReadPnkFaucetAmount();
-  const { data: walletClient } = useWalletClient();
+  const writeRequest = useWriteRequest();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
 
@@ -51,8 +52,8 @@ const ClaimPnkButton: React.FC = () => {
     const { request } = await simulatePnkFaucet(wagmiConfig, {
       functionName: "request",
     });
-    if (walletClient && publicClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
+    if (publicClient) {
+      wrapWithToast(async () => await writeRequest(request), publicClient, address)
         .finally(() => {
           setIsSending(false);
         })

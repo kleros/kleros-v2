@@ -86,11 +86,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
 
   useEffect(() => {
     if (parsedAmount > 0n && balance === 0n && isStaking) {
-      setErrorMsg("You need a non-zero PNK balance to stake");
+      setErrorMsg("You need a non-zero PNK balance to register");
     } else if (isStaking && balance && parsedAmount > balance) {
-      setErrorMsg("Insufficient balance to stake this amount");
+      setErrorMsg("Insufficient balance to register this amount");
     } else if (!isStaking && jurorBalance && parsedAmount > jurorBalance[2]) {
-      setErrorMsg("Insufficient staked amount to withdraw this amount");
+      setErrorMsg("Insufficient registered amount to unregister this amount");
     } else if (
       action === ActionType.stake &&
       courtDetails &&
@@ -114,7 +114,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
             setAmount(amount);
           }}
         >
-          {isStaking ? "Stake" : "Withdraw"} all
+          {isStaking ? "Register" : "Unregister"} all
         </StyledLabel>
       </LabelArea>
       <InputArea>
@@ -124,7 +124,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
             onChange={(e) => {
               setAmount(e);
             }}
-            placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
+            placeholder={isStaking ? "Amount to register" : "Amount to unregister"}
             message={isPopupOpen ? undefined : (errorMsg ?? undefined)}
             variant={!isUndefined(errorMsg) && !isPopupOpen ? "error" : "info"}
             formatter={(number: string) => (number !== "" ? commify(roundNumberDown(Number(number))) : "")}
