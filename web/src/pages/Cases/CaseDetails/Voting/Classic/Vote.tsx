@@ -6,6 +6,7 @@ import { useAccount, usePublicClient, useConfig } from "wagmi";
 
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import { useWriteRequest } from "hooks/useWriteRequest";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -36,6 +37,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
 
   const handleVote = useCallback(
     async (voteOption: number) => {
+      if (!isVoteJustificationSufficient(justification)) return;
       const { request } = await simulateDisputeKitClassicCastVote(wagmiConfig, {
         args: [
           parsedDisputeID,

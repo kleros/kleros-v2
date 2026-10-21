@@ -16,6 +16,7 @@ import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
 import { useWriteRequest } from "hooks/useWriteRequest";
 import { isUndefined } from "utils/index";
+import { isVoteJustificationSufficient } from "utils/voteJustification";
 import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -91,6 +92,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
 
   // Recover the committed choice (and salt) before asking for confirmation.
   const handleOpenConfirm = useCallback(async () => {
+    if (!isVoteJustificationSufficient(justification)) return;
     setIsSending(true);
     try {
       const recovered = isUndefined(storedSaltAndChoice)
@@ -103,12 +105,20 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     } finally {
       setIsSending(false);
     }
-  }, [storedSaltAndChoice, signingAccount, generateSigningAccount, saltKey, disputeDetails?.answers, commit]);
+  }, [
+    justification,
+    storedSaltAndChoice,
+    signingAccount,
+    generateSigningAccount,
+    saltKey,
+    disputeDetails?.answers,
+    commit,
+  ]);
 
   const onCancel = useCallback(() => setPendingReveal(undefined), []);
 
   const handleReveal = useCallback(async () => {
-    if (isUndefined(pendingReveal)) return;
+    if (isUndefined(pendingReveal) || !isVoteJustificationSufficient(justification)) return;
     const { salt, choice } = pendingReveal;
     setPendingReveal(undefined);
     setIsSending(true);
@@ -149,7 +159,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
             <StyledButton
               variant="secondary"
               text="Justify & Reveal"
-              disabled={isSending || isUndefined(disputeDetails)}
+              disabled={isSending || isUndefined(disputeDetails) || !isVoteJustificationSufficient(justification)}
               isLoading={isSending}
               onClick={handleOpenConfirm}
             />
