@@ -1,4 +1,4 @@
-import React, { useId, useRef } from "react";
+import React, { useId } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -102,7 +102,6 @@ const CreationCard: React.FC<ICreationCard> = ({
   const { t } = useTranslation();
   const selected = cardMethod === selectedMethod;
   const disputeIdLabelId = useId();
-  const disputeIdInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <StyledCard hover selected={selected}>
@@ -127,16 +126,10 @@ const CreationCard: React.FC<ICreationCard> = ({
               <Label id={disputeIdLabelId}>{t("forms.labels.enter_cases_id")}</Label>
             </WithHelpTooltip>
             <StyledNumberField
-              inputRef={disputeIdInputRef}
               inputProps={{ "aria-labelledby": disputeIdLabelId }}
               placeholder={t("forms.placeholders.case_id_example")}
               value={disputeID}
-              // TODO(ui-components-library): read `id` directly once the field reports an emptied
-              // input as empty (same issue as useBigNumberFieldReset). It reports 0 today, and 0
-              // is a real dispute, so the raw text tells "cleared" apart from "0".
-              onChange={(id) =>
-                setDisputeID?.(id.isZero() && !disputeIdInputRef.current?.value.trim() ? undefined : id.toString())
-              }
+              onValueChange={(id) => setDisputeID?.(id?.toString())}
               minValue="0"
               isWheelDisabled
               formatOptions={{ groupSeparator: "" }}
