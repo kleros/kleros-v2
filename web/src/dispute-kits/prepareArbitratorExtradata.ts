@@ -13,6 +13,9 @@ export interface GatedDisputeKitData extends BaseDisputeKitData {
   tokenId: string;
 }
 
+/** Whether a token ID can be encoded: a whole number. An empty one is encoded as 0. */
+export const isValidTokenId = (tokenId: string) => /^\d*$/.test(tokenId);
+
 /**
  * Encodes gated dispute kit data
  * @param data Gated dispute kit data
@@ -90,4 +93,18 @@ export const prepareArbitratorExtradata = (
   const encodedDisputeKitData = encoder(disputeKitData);
 
   return concat([extraData, encodedDisputeKitData]);
+};
+
+/**
+ * Same as prepareArbitratorExtradata, but returns undefined for data it can't encode, such as a
+ * draft saved with a token ID that isn't a whole number. For callers that encode while rendering.
+ */
+export const tryPrepareArbitratorExtradata = (
+  ...args: Parameters<typeof prepareArbitratorExtradata>
+): Hex | undefined => {
+  try {
+    return prepareArbitratorExtradata(...args);
+  } catch {
+    return undefined;
+  }
 };

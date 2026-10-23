@@ -1,8 +1,13 @@
-import { concat, encodeAbiParameters, encodePacked } from "viem";
+import { concat, encodeAbiParameters, encodePacked, maxUint256 } from "viem";
 import { describe, expect, it } from "vitest";
 
 import { DisputeKits } from "./disputeKits";
-import { prepareArbitratorExtradata, type GatedDisputeKitData } from "./prepareArbitratorExtradata";
+import {
+  isValidTokenId,
+  prepareArbitratorExtradata,
+  tryPrepareArbitratorExtradata,
+  type GatedDisputeKitData,
+} from "./prepareArbitratorExtradata";
 
 const encodeExpectedClassicExtraData = (courtId: string, noOfVotes: number, disputeKit: DisputeKits) =>
   encodeAbiParameters(
@@ -71,5 +76,36 @@ describe("prepareArbitratorExtradata", () => {
     const result = prepareArbitratorExtradata(COURT_ID, NB_VOTES, DisputeKits.Classic, gatedData);
 
     expect(result).toBe(encodeExpectedClassicExtraData(COURT_ID, NB_VOTES, DisputeKits.Classic));
+  });
+});
+
+describe("isValidTokenId", () => {
+  it.each(["", "0", "42", maxUint256.toString()])("accepts %j", (tokenId) => {
+    expect(isValidTokenId(tokenId)).toBe(true);
+  });
+
+  // what the token ID field stored for ".", ".5" and "1.5" before it read onValueChange
+  it.each(["NaN", "0.5", "1.5", "-1", "1e3", " 1"])("rejects %j", (tokenId) => {
+    expect(isValidTokenId(tokenId)).toBe(false);
+  });
+});
+
+describe("tryPrepareArbitratorExtradata", () => {
+  const gatedData = (tokenId: string): GatedDisputeKitData => ({
+    tokenGate: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+    isERC1155: true,
+    tokenId,
+    isValid: true,
+  });
+
+  it("encodes what prepareArbitratorExtradata encodes", () => {
+    expect(tryPrepareArbitratorExtradata(COURT_ID, NB_VOTES, DisputeKits.Gated, gatedData("7"))).toBe(
+      prepareArbitratorExtradata(COURT_ID, NB_VOTES, DisputeKits.Gated, gatedData("7"))
+    );
+  });
+
+  it.each(["NaN", "1.5"])("returns undefined where prepareArbitratorExtradata throws, for token ID %j", (tokenId) => {
+    expect(() => prepareArbitratorExtradata(COURT_ID, NB_VOTES, DisputeKits.Gated, gatedData(tokenId))).toThrow();
+    expect(tryPrepareArbitratorExtradata(COURT_ID, NB_VOTES, DisputeKits.Gated, gatedData(tokenId))).toBeUndefined();
   });
 });
