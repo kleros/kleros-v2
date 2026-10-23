@@ -2,6 +2,7 @@ import { MAX_BYTE_SIZE } from "../../consts";
 import { RequestError } from "../../errors";
 import { FetchIpfsJsonMapping } from "../utils/actionTypes";
 import { createResultObject } from "../utils/createResultObject";
+import { readJsonWithLimit } from "../utils/readJsonWithLimit";
 
 export const fetchIpfsJsonAction = async (mapping: FetchIpfsJsonMapping) => {
   const { ipfsUri, seek, populate } = mapping;
@@ -33,7 +34,7 @@ export const fetchIpfsJsonAction = async (mapping: FetchIpfsJsonMapping) => {
     throw new RequestError("Fetched data is not JSON", httpUri);
   }
 
-  const data = await response.json();
+  const data = await readJsonWithLimit(response, MAX_BYTE_SIZE, httpUri);
 
   return createResultObject(data, seek, populate);
 };
