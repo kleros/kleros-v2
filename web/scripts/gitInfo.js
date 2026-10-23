@@ -1,9 +1,8 @@
-/* eslint-disable max-len */
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 
-import packageJson from "../package.json" assert { type: "json" };
+import packageJson from "../package.json" with { type: "json" };
 
 const execSyncWrapper = (command) => {
   let stdout = null;
