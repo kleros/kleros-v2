@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useTranslation } from "react-i18next";
 
-import { AlertMessage } from "@kleros/ui-components-library";
+import { AlertMessage, DropdownCascader } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
@@ -12,7 +12,6 @@ import { isUndefined } from "utils/index";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import { LabeledDropdownCascader } from "components/LabeledDropdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import Header from "pages/Resolver/Header";
 
@@ -32,7 +31,7 @@ const Container = styled.div`
   )}
 `;
 
-const StyledDropdownCascader = styled(LabeledDropdownCascader)`
+const StyledDropdownCascader = styled(DropdownCascader)`
   width: 84vw;
   ${landscapeStyle(
     () => css`
@@ -79,7 +78,7 @@ const Court: React.FC = () => {
       <Header text={t("headers.select_court_to_arbitrate")} />
       {items ? (
         <StyledDropdownCascader
-          ariaLabel={t("aria_labels.select_court")}
+          aria-label={t("aria_labels.select_court")}
           items={items}
           callback={(item) => typeof item.itemValue === "string" && handleCourtChange(item.itemValue.split("/").pop()!)}
           placeholder={t("forms.placeholders.select_court")}
