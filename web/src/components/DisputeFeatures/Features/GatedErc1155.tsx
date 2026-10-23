@@ -2,14 +2,14 @@ import React, { Fragment, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
-import { Address } from "viem";
+import { Address, maxUint256 } from "viem";
 
 import { BigNumberField, TextField } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useERC1155Validation } from "hooks/useTokenAddressValidation";
 
-import { GatedDisputeKitData } from "src/dispute-kits/prepareArbitratorExtradata";
+import { GatedDisputeKitData, isValidTokenId } from "src/dispute-kits/prepareArbitratorExtradata";
 import { Features } from "src/dispute-kits/types";
 import { isUndefined } from "src/utils";
 
@@ -44,6 +44,8 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
 
   const tokenGateAddress = gatedData?.tokenGate ?? "";
   const validationEnabled = !isUndefined(tokenGateAddress) && tokenGateAddress.trim() !== "";
+  const tokenId = gatedData?.tokenId ?? "0";
+  const isTokenIdValid = isValidTokenId(tokenId);
 
   const {
     isValidating,
@@ -53,6 +55,9 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
     address: tokenGateAddress,
     enabled: validationEnabled && props.checked,
   });
+
+  // A valid token still needs a token ID that can be encoded.
+  const isDataValid = isValid === true ? isTokenIdValid : isValid;
 
   const [validationMessage, variant] = useMemo<[string | undefined, "info" | "error" | "success"]>(() => {
     if (isValidating) return [`Validating ERC-1155 token...`, "info"];
@@ -78,13 +83,13 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
 
   // Update validation state in dispute context
   useEffect(() => {
-    if (!props.checked || !gatedData || gatedData.isValid === isValid) return;
+    if (!props.checked || !gatedData || gatedData.isValid === isDataValid) return;
 
     setDisputeData({
       ...disputeData,
-      disputeKitData: { ...gatedData, isValid },
+      disputeKitData: { ...gatedData, isValid: isDataValid },
     });
-  }, [isValid, gatedData, disputeData, setDisputeData, props.checked]);
+  }, [isDataValid, gatedData, disputeData, setDisputeData, props.checked]);
 
   const handleTokenAddressChange = (value: string) => {
     if (!gatedData) return;
@@ -127,11 +132,15 @@ const GatedErc1155: React.FC<RadioInput> = (props) => {
           />
           <StyledTokenIdField
             inputProps={{ "aria-label": t("aria_labels.token_id") }}
-            onChange={(tokenId) => handleTokenIdChange(tokenId.toString())}
-            value={gatedData?.tokenId ?? "0"}
+            // "" while the field holds no number, which is encoded as token ID 0
+            onValueChange={(value) => handleTokenIdChange(value?.toString() ?? "")}
+            value={tokenId}
             placeholder={t("forms.placeholders.token_id_example")}
             minValue="0"
+            maxValue={maxUint256.toString()}
             formatOptions={{ groupSeparator: "" }}
+            variant={isTokenIdValid ? undefined : "error"}
+            message={isTokenIdValid ? undefined : t("forms.messages.token_id_must_be_whole_number")}
           />
         </FieldContainer>
       ) : null}

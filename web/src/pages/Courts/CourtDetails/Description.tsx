@@ -8,8 +8,6 @@ import { Tabs } from "@kleros/ui-components-library";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
-
 import MarkdownRenderer from "components/MarkdownRenderer";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -58,7 +56,6 @@ const StyledMarkdownRenderer = styled(MarkdownRenderer)`
 `;
 
 const StyledTabs = styled(Tabs)`
-  ${tabsSelectedUnderline}
   width: 100%;
   > * {
     display: flex;

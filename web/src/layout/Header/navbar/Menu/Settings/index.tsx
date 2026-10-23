@@ -6,7 +6,6 @@ import { useClickAway } from "react-use";
 
 import { Tabs } from "@kleros/ui-components-library";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -50,7 +49,6 @@ const StyledSettingsText = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  ${tabsSelectedUnderline}
   width: 86vw;
   max-width: 660px;
   align-self: center;

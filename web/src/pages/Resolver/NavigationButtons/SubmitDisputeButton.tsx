@@ -20,7 +20,7 @@ import { retrieveDisputeIdFromLogs } from "utils/retrieveDisputeId";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { DisputeKits } from "src/dispute-kits";
-import { prepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
+import { tryPrepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
 
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
@@ -48,6 +48,14 @@ const SubmitDisputeButton: React.FC = () => {
     return userBalance && userBalance.value < arbitrationCost;
   }, [userBalance, disputeData]);
 
+  // undefined for a draft whose dispute kit data can't be encoded, which disables the button
+  const extraData = tryPrepareArbitratorExtradata(
+    disputeData.courtId ?? "1",
+    disputeData.numberOfJurors ?? 3,
+    disputeData.disputeKitId ?? DisputeKits.Classic,
+    disputeData.disputeKitData
+  );
+
   const {
     data: submitCaseConfig,
     error,
@@ -55,19 +63,9 @@ const SubmitDisputeButton: React.FC = () => {
     isError,
   } = useSimulateDisputeResolverCreateDisputeForTemplate({
     query: {
-      enabled: !insufficientBalance && isTemplateValid(disputeTemplate),
+      enabled: !insufficientBalance && isTemplateValid(disputeTemplate) && !isUndefined(extraData),
     },
-    args: [
-      prepareArbitratorExtradata(
-        disputeData.courtId ?? "1",
-        disputeData.numberOfJurors ?? 3,
-        disputeData.disputeKitId ?? DisputeKits.Classic,
-        disputeData.disputeKitData
-      ),
-      JSON.stringify(disputeTemplate),
-      "",
-      BigInt(disputeTemplate.answers.length),
-    ],
+    args: [extraData ?? "0x", JSON.stringify(disputeTemplate), "", BigInt(disputeTemplate.answers.length)],
     value: BigInt(disputeData.arbitrationCost ?? 0),
   });
 
@@ -78,10 +76,11 @@ const SubmitDisputeButton: React.FC = () => {
       isError ||
       isSubmittingCase ||
       !isTemplateValid(disputeTemplate) ||
+      isUndefined(extraData) ||
       isBalanceLoading ||
       insufficientBalance ||
       isLoadingConfig,
-    [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate, isLoadingConfig, isError]
+    [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate, extraData, isLoadingConfig, isError]
   );
 
   const errorMsg = useMemo(() => {

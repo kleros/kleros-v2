@@ -106,6 +106,7 @@
       "you_need_non_zero_pnk": "You need a non-zero PNK balance to stake",
       "min_stake_in_court": "Min Stake in court is: {{amount}} PNK",
       "invalid_dispute": "Invalid dispute",
+      "token_id_must_be_whole_number": "Token ID must be a whole number",
       "allowed_file_types": "Allowed file types: [{{types}}], Max allowed size: {{maxSize}} MB."
     }
   },
