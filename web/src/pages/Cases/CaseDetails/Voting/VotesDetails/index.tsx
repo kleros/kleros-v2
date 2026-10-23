@@ -158,11 +158,6 @@ interface IVotesAccordion {
   hiddenVotes: boolean;
 }
 
-//Current ui-components-library version declares two AccordionItem types.
-//TypeScript resolves to the narrower type, so we get type errors here.
-//Updating to the latest version of the library should allows to simplify this.
-type CustomAccordionItem = React.ComponentProps<typeof CustomAccordion>["items"][number];
-
 const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answers, isActiveRound, hiddenVotes }) => {
   const { t } = useTranslation();
   const accordionItems = useMemo(() => {
@@ -201,9 +196,7 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
     <>
       {drawnJurors.length === 0 ? <StyledInfoCard msg={t("alerts.jurors_not_drawn_yet")} /> : null}
       <Container>
-        {accordionItems.length > 0 ? (
-          <StyledAccordion items={accordionItems as unknown as CustomAccordionItem[]} />
-        ) : null}
+        {accordionItems.length > 0 ? <StyledAccordion items={accordionItems} /> : null}
         {drawnJurors.map(
           (drawnJuror) =>
             isUndefined(drawnJuror.vote?.justification?.choice) && (

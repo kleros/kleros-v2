@@ -35,6 +35,12 @@ const Container = styled.div`
 
 const StyledTimeline = styled(CustomTimeline)`
   width: 100%;
+
+  /* Shrink-wrap the explorer link to its 16px icon, so its title row is as tall as the others. */
+  a {
+    display: flex;
+    align-items: center;
+  }
 `;
 
 const StyledNewTabIcon = styled(NewTabIcon)`
