@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { useTranslation } from "react-i18next";
@@ -36,15 +36,14 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitId, commit, a
   const { t } = useTranslation();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [justification, _setJustification] = useState("");
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
 
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
 
-  // TODO: inspect local storage and ask user to input new justification if they want
+  // Justification is intentionally omitted: resolveRevealInputs falls back to the
+  // commit-time value stored in localStorage.
   const { mutateAsync: revealVote, isPending } = useRevealVote(() => {
     setIsOpen(true);
   });
@@ -58,7 +57,6 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitId, commit, a
         disputeId: parsedDisputeID,
         voteIds: parsedVoteIDs,
         roundIndex: Number(currentRoundIndex),
-        justification,
         disputeKitId,
       },
       context: {
@@ -66,16 +64,7 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitId, commit, a
         answers: disputeDetails?.answers,
       },
     });
-  }, [
-    parsedVoteIDs,
-    justification,
-    currentRoundIndex,
-    revealVote,
-    disputeDetails,
-    commit,
-    disputeKitId,
-    parsedDisputeID,
-  ]);
+  }, [parsedVoteIDs, currentRoundIndex, revealVote, disputeDetails, commit, disputeKitId, parsedDisputeID]);
 
   return (
     <Container>
