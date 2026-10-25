@@ -89,7 +89,7 @@ export function handleVoteCast(event: VoteCast): void {
   justification.localRound = currentLocalRoundID;
   justification.choice = choice;
   justification.reference = event.params._justification;
-  justification.transactionHash = event.transaction.hash.toHexString();
+  justification.transactionHash = event.transaction.hash;
   justification.timestamp = event.block.timestamp;
   justification.save();
 

@@ -1,11 +1,9 @@
-import { Hash } from "viem";
-
 import { VotingHistoryQuery } from "src/graphql/graphql";
 
 type IVotingHistoryRounds = NonNullable<NonNullable<VotingHistoryQuery["dispute"]>["rounds"][number]["drawnJurors"]>;
 export type DrawnJuror = IVotingHistoryRounds[number] & {
   voteCount: number;
-  transactionHash?: Hash;
+  transactionHash?: `0x${string}`;
   timestamp?: string;
 };
 
@@ -21,9 +19,7 @@ export const getDrawnJurorsWithCount = (drawnJurors: IVotingHistoryRounds) =>
           juror: { id: jurorId },
           voteCount: 1,
           vote: current.vote,
-          //once the subgraph schema for ClassicJustification.transactionHash changes from String! to Bytes!
-          //it will automattically resolve to 0xstring and we can remove this cast
-          transactionHash: current.vote?.justification?.transactionHash as Hash | undefined,
+          transactionHash: current.vote?.justification?.transactionHash,
           timestamp: current.vote?.justification?.timestamp,
         });
     return acc;
