@@ -51,6 +51,7 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
                 winner={option.id === winningChoice}
                 funding={BigInt(option.paidFee ?? 0)}
                 required={requiredFunding}
+                funded={option.funded}
                 canBeSelected={!option?.funded}
                 onClick={() => {
                   setSelectedOption(option);

@@ -77,6 +77,7 @@ interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
   text: string;
   funding: bigint;
   required?: bigint;
+  funded?: boolean;
   winner?: boolean;
   selected?: boolean;
   canBeSelected?: boolean;
@@ -86,6 +87,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   text,
   funding,
   required,
+  funded,
   winner,
   selected,
   canBeSelected = true,
@@ -94,7 +96,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   const [ref, { width }] = useMeasure();
   const [fundingLabel, progress] = useMemo(() => {
     if (!isUndefined(required))
-      if (funding >= required) return ["Fully funded!", 100];
+      if (funded) return ["Fully funded!", 100];
       else
         return [
           `${formatEther(funding)} out of ${formatEther(required)} ETH required.`,
@@ -102,7 +104,7 @@ const OptionCard: React.FC<IOptionCard> = ({
         ];
     else if (funding > 0n) return [`Funded with ${formatEther(funding)} ETH.`, 30];
     else return ["0 ETH contributed to this option", 0];
-  }, [funding, required]);
+  }, [funding, required, funded]);
 
   return (
     <StyledCard hover {...props} {...{ canBeSelected, ref }}>

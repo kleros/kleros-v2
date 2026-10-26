@@ -91,7 +91,9 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       },
     ];
 
-    const items = localRounds?.reduce<_TimelineItem1[]>((acc, { winningChoice }, index) => {
+    const items = localRounds?.reduce<_TimelineItem1[]>((acc, { winningChoice, tied }, index) => {
+      // A tied round rules 0 (refuse to arbitrate), as in DisputeKitClassic.currentRuling.
+      const ruling = tied ? "0" : winningChoice;
       const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
       const roundTimeline = rounds?.[index].timeline;
       const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : undefined;
@@ -99,7 +101,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
       acc.push({
         title: `Jury Decision - Round ${index + 1}`,
-        party: isOngoing ? "Voting is ongoing" : getVoteChoice(winningChoice, answers),
+        party: isOngoing ? "Voting is ongoing" : getVoteChoice(ruling, answers),
         subtitle: isOngoing ? "" : `${formatDate(roundTimeline?.[Periods.vote])} / ${rounds?.[index]?.court.name}`,
         rightSided: true,
         variant: theme.secondaryPurple,
@@ -114,7 +116,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           rightSided: true,
           Icon: StyledClosedCircle,
         });
-      } else if (rulingOverride && dispute.currentRuling !== winningChoice) {
+      } else if (rulingOverride && dispute.currentRuling !== ruling) {
         acc.push({
           title: "Won by Appeal",
           party: getVoteChoice(dispute.currentRuling, answers),

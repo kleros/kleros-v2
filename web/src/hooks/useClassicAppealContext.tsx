@@ -157,7 +157,8 @@ const getFundedChoices = (dispute?: ClassicAppealQuery["dispute"]) => {
 
 const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
   const currentLocalRound = getCurrentLocalRound(dispute);
-  return currentLocalRound?.winningChoice;
+  // A tied round rules 0 (refuse to arbitrate), as in DisputeKitClassic.currentRuling.
+  return currentLocalRound?.tied ? "0" : currentLocalRound?.winningChoice;
 };
 
 export const getRequiredFunding = (appealCost = 0n, stake_multiplier = 0n): bigint =>
