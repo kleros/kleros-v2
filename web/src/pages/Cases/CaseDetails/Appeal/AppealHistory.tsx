@@ -49,6 +49,7 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
             winner={option.id === winningChoice}
             funding={BigInt(option.paidFee ?? 0)}
             required={fundedChoices?.includes(option.id) ? BigInt(option.paidFee ?? 0) : undefined}
+            funded={option.funded}
             selectable={false}
           />
         ))}

@@ -77,6 +77,7 @@ interface IOptionCard {
   text: string;
   funding: bigint;
   required?: bigint;
+  funded?: boolean;
   winner?: boolean;
   /** When true, the card is wrapped in a `CustomRadioItem` (must live inside a `CustomRadio`)
    *  and renders a radio indicator. When false, the card is plain and can be rendered anywhere. */
@@ -121,6 +122,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   text,
   funding,
   required,
+  funded,
   winner,
   selectable = true,
   canBeSelected = true,
@@ -129,15 +131,15 @@ const OptionCard: React.FC<IOptionCard> = ({
   const [ref, { width }] = useMeasure<HTMLDivElement>();
   const [fundingLabel, progress] = useMemo(() => {
     if (!isUndefined(required))
-      if (funding >= required) return [t("appeal.fully_funded"), 100];
+      if (funded) return [t("appeal.fully_funded"), 100];
       else
         return [
           t("appeal.funding_progress", { funded: formatEther(funding), required: formatEther(required) }),
-          Number((funding * 100n) / required),
+          required > 0n ? Number((funding * 100n) / required) : 0,
         ];
     else if (funding > 0n) return [t("appeal.funded_with_amount", { amount: formatEther(funding) }), 30];
     else return [t("appeal.no_contributions"), 0];
-  }, [funding, required, t]);
+  }, [funding, required, funded, t]);
 
   if (!selectable) {
     return (

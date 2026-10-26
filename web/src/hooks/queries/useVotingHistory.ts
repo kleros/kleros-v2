@@ -44,6 +44,7 @@ const votingHistoryQuery = graphql(`
         localRounds {
           ... on ClassicRound {
             winningChoice
+            tied
             totalVoted
           }
         }
