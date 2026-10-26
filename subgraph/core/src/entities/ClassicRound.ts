@@ -76,7 +76,7 @@ export function updateCountsAndGetCurrentRuling(
 
   answer.save();
   round.save();
-  return { ruling: round.winningChoice, tied: round.tied };
+  return { ruling: round.tied ? ZERO : round.winningChoice, tied: round.tied };
 }
 
 export function updateChoiceFundingFromContributionEvent(event: Contribution): void {
