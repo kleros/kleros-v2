@@ -18,7 +18,7 @@ import {VouchedDispatcher} from "./VouchedDispatcher.sol";
 /// Dispatches rulings through `VouchedDispatcher`: the reporters, whose dispatcher this gateway is, pay only for a
 /// message it vouches for. `VouchedDispatcher` keeps its state in an ERC-7201 slot, so the storage layout is unchanged.
 contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, VouchedDispatcher {
-    string public constant override version = "0.8.0";
+    string public constant override version = "0.9.0";
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -35,11 +35,12 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
 
     /// @dev A dispute received from the ForeignGateway and the oracles selected for it on the foreign chain.
     /// `received` is never reset: it rejects a duplicate delivery, and it is the only existence marker since
-    /// arbitrator dispute IDs start at 0.
+    /// arbitrator dispute IDs start at 0. `creationFailed` is never reset either, and rejects a duplicate too.
     struct ReceivedDispute {
         bool received; // Created on the arbitrator.
         uint256 threshold;
         uint256[] oracleIDs;
+        bool creationFailed; // Not created on the arbitrator, and the failure was sent back.
     }
 
     // ************************************* //
@@ -57,6 +58,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     event OracleReporterSet(uint256 indexed _oracleID, IReporter _reporter);
     event Funded(address indexed _from, uint256 _amount);
     event Withdrawn(address indexed _to, uint256 _amount);
+    event DisputeCreationFailed(bytes32 indexed _disputeHash, bytes _reason, uint256 _messageId);
 
     // ************************************* //
     // *             Storage               * //
@@ -191,11 +193,11 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     }
 
     /// @dev Replaces the ruling-leg reporter of an oracle, or mutes it with `address(0)`, which Yaho skips.
-    /// A ruling is dispatched with the reporters set at dispatch time. The ForeignGateway checks only adapters,
-    /// so the oracles of a received dispute stay valid. The reporter is not checked against `yaho`.
-    /// Muting keeps a ruling deliverable only if the dispute's other selected oracles still meet its threshold, or if
-    /// this oracle's adapter reads Yaho itself (a light client). Otherwise replace the reporter: a ruling dispatched
-    /// while muted never reaches the foreign chain, and it cannot be dispatched again.
+    /// A ruling or a creation failure is dispatched with the reporters set at dispatch time. The ForeignGateway checks
+    /// only adapters, so the oracles of a received dispute stay valid. The reporter is not checked against `yaho`.
+    /// Muting keeps a ruling or a failure deliverable only if the dispute's other selected oracles still meet its
+    /// threshold, or if this oracle's adapter reads Yaho itself (a light client). Otherwise replace the reporter: one
+    /// dispatched while muted never reaches the foreign chain, and it cannot be dispatched again.
     /// @param _oracleID The ID of the oracle.
     /// @param _reporter The new reporter, `address(0)` to mute it.
     function setOracleReporter(uint256 _oracleID, IReporter _reporter) external onlyByGovernor {
@@ -224,7 +226,8 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
 
     /// @inheritdoc IJushin
     /// @dev Receives a dispute from the ForeignGateway, `_data = abi.encode(IForeignGateway.DisputeMessage)`, and
-    /// creates it on the arbitrator, paying the arbitration cost from the gateway's balance.
+    /// creates it on the arbitrator, paying the arbitration cost from the gateway's balance. A balance below the cost,
+    /// or a revert of `createDispute`, is a creation failure, sent back to the ForeignGateway (`_sendCreationFailure`).
     /// Yaru does not validate the adapter set of a message, so the message must have been verified by exactly the
     /// dispute-leg adapters of the oracles it selects, in order, with the threshold it carries.
     function onMessage(
@@ -255,19 +258,30 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
             )
         );
         ReceivedDispute storage receivedDispute = receivedDisputes[disputeHash];
-        if (receivedDispute.received) revert DisputeAlreadyReceived();
-
-        uint256 cost = arbitrator.arbitrationCost(message.extraData);
-        if (address(this).balance < cost) revert InsufficientFunds(cost, address(this).balance);
-        uint256 disputeID = arbitrator.createDispute{value: cost}(message.choices, message.extraData);
-
-        disputeIDtoHash[disputeID] = disputeHash;
-        disputeHashtoID[disputeHash] = disputeID;
-        receivedDispute.received = true;
+        if (receivedDispute.received || receivedDispute.creationFailed) revert DisputeAlreadyReceived();
         receivedDispute.threshold = message.threshold;
         receivedDispute.oracleIDs = message.oracleIDs;
 
-        _emitDisputeIncoming(message, _sourceChainId, disputeID);
+        uint256 cost = arbitrator.arbitrationCost(message.extraData);
+        if (address(this).balance < cost) {
+            bytes memory reason = abi.encodeWithSelector(InsufficientFunds.selector, cost, address(this).balance);
+            _sendCreationFailure(disputeHash, reason);
+            return "";
+        }
+
+        uint256 gasBefore = gasleft();
+        try arbitrator.createDispute{value: cost}(message.choices, message.extraData) returns (uint256 disputeID) {
+            disputeIDtoHash[disputeID] = disputeHash;
+            disputeHashtoID[disputeHash] = disputeID;
+            receivedDispute.received = true;
+            _emitDisputeIncoming(message, _sourceChainId, disputeID);
+        } catch (bytes memory reason) {
+            // A frame keeps 1/64 of its gas when it calls, and `createDispute` goes 6 frames deep on KlerosCore, so
+            // 1/4 or less left means it may have run out of the gas the executor gave: revert, so no executor can
+            // turn an out-of-gas into a creation failure. Yaru can retry.
+            if (gasleft() <= gasBefore / 4) revert InsufficientGas();
+            _sendCreationFailure(disputeHash, reason);
+        }
         return "";
     }
 
@@ -283,23 +297,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         ReceivedDispute storage receivedDispute = receivedDisputes[disputeHash];
         if (!receivedDispute.received) revert DisputeDoesNotExist();
 
-        uint256 length = receivedDispute.oracleIDs.length;
-        IReporter[] memory reporters = new IReporter[](length);
-        IAdapter[] memory adapters = new IAdapter[](length);
-        for (uint256 i = 0; i < length; i++) {
-            Oracle storage oracle = oracles[receivedDispute.oracleIDs[i]];
-            reporters[i] = oracle.outboundReporter;
-            adapters[i] = oracle.outboundAdapter;
-        }
-
-        (uint256 messageId, ) = _dispatchVouched(
-            foreignChainID,
-            receivedDispute.threshold,
-            foreignGateway,
-            abi.encode(disputeHash, _ruling),
-            reporters,
-            adapters
-        );
+        uint256 messageId = _dispatchToForeignGateway(receivedDispute, abi.encode(disputeHash, _ruling));
         emit RulingDispatched(_disputeID, disputeHash, _ruling, messageId);
     }
 
@@ -326,6 +324,46 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     /// @dev The Yaho `_dispatchVouched` dispatches through.
     function _yaho() internal view override returns (address) {
         return address(yaho);
+    }
+
+    /// @dev Records that the arbitrator did not create a dispute and sends the failure to the ForeignGateway,
+    /// `abi.encode(disputeHash)` (32 bytes, a ruling is 64), as `rule` sends a ruling. A dispatch revert reverts the
+    /// delivery, which Yaru can retry.
+    /// @param _disputeHash The hash of the dispute.
+    /// @param _reason The revert data of `createDispute`, or `InsufficientFunds` for a balance below the cost.
+    function _sendCreationFailure(bytes32 _disputeHash, bytes memory _reason) internal {
+        ReceivedDispute storage receivedDispute = receivedDisputes[_disputeHash];
+        receivedDispute.creationFailed = true;
+        uint256 messageId = _dispatchToForeignGateway(receivedDispute, abi.encode(_disputeHash));
+        emit DisputeCreationFailed(_disputeHash, _reason, messageId);
+    }
+
+    /// @dev Dispatches `_data` to the ForeignGateway through `_dispatchVouched`, over the oracles selected for the
+    /// dispute on the foreign chain, in the same order, with its threshold.
+    /// @param _receivedDispute The received dispute.
+    /// @param _data The message data.
+    /// @return messageId The ID of the dispatched message.
+    function _dispatchToForeignGateway(
+        ReceivedDispute storage _receivedDispute,
+        bytes memory _data
+    ) internal returns (uint256 messageId) {
+        uint256 length = _receivedDispute.oracleIDs.length;
+        IReporter[] memory reporters = new IReporter[](length);
+        IAdapter[] memory adapters = new IAdapter[](length);
+        for (uint256 i = 0; i < length; i++) {
+            Oracle storage oracle = oracles[_receivedDispute.oracleIDs[i]];
+            reporters[i] = oracle.outboundReporter;
+            adapters[i] = oracle.outboundAdapter;
+        }
+
+        (messageId, ) = _dispatchVouched(
+            foreignChainID,
+            _receivedDispute.threshold,
+            foreignGateway,
+            _data,
+            reporters,
+            adapters
+        );
     }
 
     /// @dev Emits the events of a dispute received from the ForeignGateway and created on the arbitrator. A separate
@@ -422,4 +460,5 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     error AdapterAlreadyUsed();
     error TransferFailed();
     error UnknownOracle(uint256 _oracleID);
+    error InsufficientGas();
 }

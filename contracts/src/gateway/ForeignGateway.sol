@@ -3,6 +3,7 @@
 pragma solidity ^0.8.24;
 
 import "./interfaces/IForeignGateway.sol";
+import "./interfaces/IForeignGatewayArbitrable.sol";
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
 import "../libraries/Constants.sol";
@@ -20,7 +21,7 @@ import {VouchedDispatcher} from "./VouchedDispatcher.sol";
 contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializable, VouchedDispatcher {
     using SafeERC20 for IERC20;
 
-    string public constant override version = "0.8.0";
+    string public constant override version = "0.9.0";
     uint256 public constant RATE_PRECISION = 1e18; // Precision of `homeNativeRate`.
 
     // ************************************* //
@@ -29,7 +30,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
 
     struct DisputeData {
         uint248 id;
-        bool ruled;
+        bool ruled; // Ruled, or closed by a creation failure.
         address arbitrable;
         bool relayed; // Sent to the home chain by `relayDispute`.
         IERC20 feeToken; // NATIVE_CURRENCY or an accepted ERC20.
@@ -41,7 +42,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     struct FeeBalance {
         uint256 totalFeesForJurors; // Total juror fees collected.
         uint256 totalFeesForBridging; // Total bridging fees collected.
-        uint256 sumJurorFeesWithdrawn; // Total juror fees withdrawn.
+        uint256 sumJurorFeesWithdrawn; // Total juror fees withdrawn, refunds (`claimRefund`) included.
         uint256 sumBridgingFeesWithdrawn; // Total bridging fees withdrawn.
     }
 
@@ -88,6 +89,14 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     event KeeperChanged(address indexed _keeper);
     event FeesWithdrawn(address indexed _to, uint256 _jurorFeeAmount, uint256 _bridgingFeeAmount, IERC20 _feeToken);
     event DisputeRelayed(bytes32 indexed _disputeHash, uint256 indexed _messageId);
+    event DisputeCreationFailed(
+        IArbitrableV2 indexed _arbitrable,
+        uint256 indexed _disputeID,
+        bytes32 _disputeHash,
+        IERC20 _feeToken,
+        uint256 _amount
+    );
+    event RefundClaimed(uint256 indexed _disputeID, address indexed _beneficiary, IERC20 _feeToken, uint256 _amount);
 
     // ************************************* //
     // *             Storage               * //
@@ -117,6 +126,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     mapping(bytes32 valueKey => uint256) public lastKeeperUpdate; // Timestamp of the last keeper update of a value.
     mapping(uint256 oracleID => uint256) public oracleBridgingCost; // Round trip (dispute + ruling leg) through this oracle, in native currency.
     mapping(IERC20 feeToken => FeeBalance) public feeBalances; // Fees collected and withdrawn per fee token, NATIVE_CURRENCY for native.
+    mapping(uint256 disputeID => bytes32 disputeHash) public pendingRefunds; // Set when the home chain could not create the dispute, cleared by `claimRefund`.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -418,7 +428,10 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     }
 
     /// @inheritdoc IJushin
-    /// @dev Receives a ruling from the HomeGateway, `_data = abi.encode(disputeHash, ruling)`.
+    /// @dev Receives a ruling from the HomeGateway, `_data = abi.encode(disputeHash, ruling)`, or the creation failure
+    /// of a dispute, `_data = abi.encode(disputeHash)`, with the same checks. A failure records the refund of the juror
+    /// fees (`claimRefund`) and calls the arbitrable back with no try, as `rule` is called: a revert leaves the message
+    /// executable. Either one closes the dispute (`ruled`), so neither a ruling nor another failure can follow.
     /// Yaru does not validate the adapter set of a message, so the message must have been verified by
     /// exactly the dispute's ruling-leg adapters, in order, with the dispute's threshold.
     function onMessage(
@@ -433,7 +446,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         if (_sourceChainId != homeChainID) revert WrongSourceChain();
         if (_sender != homeGateway) revert HomeGatewayMessageSenderOnly();
 
-        (bytes32 disputeHash, uint256 ruling) = abi.decode(_data, (bytes32, uint256));
+        bytes32 disputeHash = bytes32(_data[:32]);
         DisputeData storage dispute = disputeHashtoDisputeData[disputeHash];
         if (dispute.id == 0) revert DisputeDoesNotExist();
         if (dispute.ruled) revert CannotRuleTwice();
@@ -441,9 +454,37 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
 
         dispute.ruled = true;
         IArbitrableV2 arbitrable = IArbitrableV2(dispute.arbitrable);
+        if (_data.length == 32) {
+            pendingRefunds[dispute.id] = disputeHash;
+            emit DisputeCreationFailed(arbitrable, dispute.id, disputeHash, dispute.feeToken, dispute.feesForJurors);
+            IForeignGatewayArbitrable(dispute.arbitrable).onDisputeCreationFailed(dispute.id);
+            return "";
+        }
+        (, uint256 ruling) = abi.decode(_data, (bytes32, uint256));
         emit Ruling(arbitrable, dispute.id, ruling);
         arbitrable.rule(dispute.id, ruling);
         return "";
+    }
+
+    /// @dev Pays the juror fees of a dispute the home chain could not create, overpayment included, in its fee token.
+    /// Only the dispute's arbitrable can claim it, once. It counts as a juror fee withdrawal, so it is paid only from
+    /// the fee token's juror fees not withdrawn yet, and reverts with `InsufficientFees` until they cover it again.
+    /// The bridging fees are kept.
+    /// @param _disputeID The local dispute ID.
+    /// @param _beneficiary The recipient of the refund.
+    function claimRefund(uint256 _disputeID, address _beneficiary) external {
+        bytes32 disputeHash = pendingRefunds[_disputeID];
+        if (disputeHash == bytes32(0)) revert NoRefundPending();
+        DisputeData storage dispute = disputeHashtoDisputeData[disputeHash];
+        if (dispute.arbitrable != msg.sender) revert ArbitrableOnly();
+        FeeBalance storage balance = feeBalances[dispute.feeToken];
+        uint256 refund = dispute.feesForJurors;
+        if (refund > balance.totalFeesForJurors - balance.sumJurorFeesWithdrawn) revert InsufficientFees();
+
+        delete pendingRefunds[_disputeID];
+        balance.sumJurorFeesWithdrawn += refund;
+        _transferFeeToken(dispute.feeToken, _beneficiary, refund);
+        emit RefundClaimed(_disputeID, _beneficiary, dispute.feeToken, refund);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -894,4 +935,6 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     error OracleInDefaultSelection(uint256 _oracleID);
     error CourtNotSupported(uint96 _courtID);
     error InvalidFeeToken();
+    error NoRefundPending();
+    error ArbitrableOnly();
 }

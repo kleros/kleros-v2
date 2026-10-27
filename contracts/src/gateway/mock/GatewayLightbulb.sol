@@ -4,14 +4,17 @@ pragma solidity ^0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "../../arbitration/interfaces/IArbitrableV2.sol";
 import {IForeignGateway} from "../interfaces/IForeignGateway.sol";
+import {IForeignGatewayArbitrable} from "../interfaces/IForeignGatewayArbitrable.sol";
+import {ForeignGateway} from "../ForeignGateway.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
 
 /// @title GatewayLightbulb
 /// @dev Test arbitrable for the full cross-chain flow through the gateways. Asking to switch a lightbulb opens a
 /// dispute through the ForeignGateway and relays it to the home chain in the same transaction. The ruling given
 /// on the home chain comes back through the HomeGateway and switches the bulb on (ruling 1) or off (ruling 2).
+/// If the home chain cannot create the dispute, the request is closed and its owner's juror fees can be claimed.
 /// On a testnet, pair it with a KlerosCoreRuler in manual mode as the HomeGateway's arbitrator.
-contract GatewayLightbulb is IArbitrableV2 {
+contract GatewayLightbulb is IForeignGatewayArbitrable {
     using SafeERC20 for IERC20;
 
     // ************************************* //
@@ -35,6 +38,7 @@ contract GatewayLightbulb is IArbitrableV2 {
         uint256 _threshold
     );
     event LightbulbSwitched(address indexed _owner, uint256 indexed _disputeID, bool _isOn);
+    event LightbulbRequestFailed(address indexed _owner, uint256 indexed _disputeID);
 
     // ************************************* //
     // *             Storage               * //
@@ -154,6 +158,24 @@ contract GatewayLightbulb is IArbitrableV2 {
 
         emit Ruling(IArbitratorV2(address(gateway)), _disputeID, _ruling);
         emit LightbulbSwitched(request.owner, _disputeID, lightbulbIsOn[request.owner]);
+    }
+
+    /// @inheritdoc IForeignGatewayArbitrable
+    /// @dev Closes the request without switching the bulb. The owner's juror fees are claimed with `claimRefund`.
+    function onDisputeCreationFailed(uint256 _disputeID) external override {
+        if (msg.sender != address(gateway)) revert GatewayOnly();
+        Request storage request = requests[_disputeID];
+        if (request.owner == address(0)) revert UnknownDispute();
+        if (request.ruled) revert AlreadyRuled();
+
+        request.ruled = true;
+        emit LightbulbRequestFailed(request.owner, _disputeID);
+    }
+
+    /// @dev Claims the juror fees of a request the home chain could not create, for its owner. Anyone can call it.
+    /// @param _disputeID The dispute ID on the ForeignGateway.
+    function claimRefund(uint256 _disputeID) external {
+        ForeignGateway(address(gateway)).claimRefund(_disputeID, requests[_disputeID].owner);
     }
 
     // ************************************* //

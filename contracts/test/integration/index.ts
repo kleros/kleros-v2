@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import {
   PNK,
@@ -194,6 +195,43 @@ describe("Integration tests", async () => {
     await expect(relayMessages(requestTx, foreignYaho, homeYaru)).to.be.revertedWithCustomError(
       homeYaru,
       "MessageIdAlreadyExecuted"
+    );
+  });
+
+  it("Sends back a dispute the home chain cannot create and refunds its juror fees", async () => {
+    const extraData = await lightbulb.arbitratorExtraData();
+    const requestTx = await lightbulb["requestSwitch()"]({
+      value: await foreignGateway["arbitrationCost(bytes)"](extraData),
+    });
+    const foreignDisputeID = 1n;
+    const disputeHash = computeDisputeHash(foreignDisputeID, extraData);
+
+    // Home chain: the HomeGateway cannot pay KlerosCore and dispatches the failure in the same delivery.
+    await homeGateway.withdraw(deployer, await ethers.provider.getBalance(homeGateway.target));
+    const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
+    const insufficientFunds = homeGateway.interface.encodeErrorResult("InsufficientFunds", [
+      await core["arbitrationCost(bytes)"](extraData),
+      0,
+    ]);
+    await expect(deliveryTx)
+      .to.emit(homeGateway, "DisputeCreationFailed")
+      .withArgs(disputeHash, insufficientFunds, anyValue);
+    await expect(deliveryTx).to.not.emit(core, "DisputeCreation");
+    expect((await homeGateway.getReceivedDispute(disputeHash)).creationFailed).to.be.true;
+
+    // Foreign chain: Yaru executes the failure, the ForeignGateway closes the dispute and calls the lightbulb back.
+    const { feesForJurors } = await foreignGateway.disputeHashtoDisputeData(disputeHash);
+    const failureDeliveryTx = await relayMessages(deliveryTx, homeYaho, foreignYaru);
+    await expect(failureDeliveryTx)
+      .to.emit(foreignGateway, "DisputeCreationFailed")
+      .withArgs(lightbulb.target, foreignDisputeID, disputeHash, ethers.ZeroAddress, feesForJurors);
+    await expect(failureDeliveryTx).to.emit(lightbulb, "LightbulbRequestFailed").withArgs(deployer, foreignDisputeID);
+    expect(await lightbulb.lightbulbIsOn(deployer)).to.be.false;
+
+    // The owner gets the juror fees back.
+    await expect(lightbulb.claimRefund(foreignDisputeID)).to.changeEtherBalances(
+      [deployer, foreignGateway],
+      [feesForJurors, -feesForJurors]
     );
   });
 

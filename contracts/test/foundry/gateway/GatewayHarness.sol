@@ -57,6 +57,11 @@ abstract contract GatewayHarness is Test {
     uint256 internal lastRuledDisputeID;
     uint256 internal lastRuling;
 
+    // Creation failures received as the arbitrable of the foreign disputes.
+    uint256 internal creationFailureCount;
+    uint256 internal lastFailedDisputeID;
+    bool internal rejectCreationFailure; // Makes `onDisputeCreationFailed` revert.
+
     function setUp() public virtual {
         foreignYaho = new Yaho();
         homeYaho = new Yaho();
@@ -147,6 +152,14 @@ abstract contract GatewayHarness is Test {
         lastRuling = _ruling;
     }
 
+    /// @dev The arbitrable's side of a foreign dispute the home chain could not create.
+    function onDisputeCreationFailed(uint256 _disputeID) external {
+        require(msg.sender == address(foreignGateway), "Only the ForeignGateway");
+        require(!rejectCreationFailure, "Creation failure rejected");
+        creationFailureCount++;
+        lastFailedDisputeID = _disputeID;
+    }
+
     // ************************************* //
     // *         Dispute helpers           * //
     // ************************************* //
@@ -191,6 +204,27 @@ abstract contract GatewayHarness is Test {
         _deliver(homeYaru, foreignYaho, messageId, message);
         disputeHash = _disputeHash(foreignDisputeID, _extraData);
         assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "home dispute ID");
+    }
+
+    /// @dev Makes the ruler reject the HomeGateway's disputes: in automatic mode it rules them at creation, and `rule`
+    /// reverts since the HomeGateway has not stored the dispute yet.
+    function _breakRuler() internal {
+        ruler.changeRulingModeToAutomaticPreset(IArbitrableV2(address(homeGateway)), 1, false, false);
+    }
+
+    /// @dev Creates and relays a dispute, and delivers it to the HomeGateway, whose arbitrator must reject it. Returns
+    /// the creation failure Yaho dispatched.
+    function _failOnHome(
+        bytes memory _extraData,
+        uint256[] memory _oracleIDs,
+        uint256 _threshold
+    ) internal returns (uint256 foreignDisputeID, bytes32 disputeHash, uint256 messageId, Message memory message) {
+        foreignDisputeID = _createDispute(_extraData, _oracleIDs, _threshold);
+        (uint256 disputeMessageId, Message memory disputeMessage) = _relay(foreignDisputeID, _extraData);
+        disputeHash = _disputeHash(foreignDisputeID, _extraData);
+        vm.recordLogs();
+        _deliver(homeYaru, foreignYaho, disputeMessageId, disputeMessage);
+        (messageId, message) = _dispatchedMessage(homeYaho);
     }
 
     /// @dev Rules a HomeGateway dispute on the ruler and returns the message Yaho dispatched.

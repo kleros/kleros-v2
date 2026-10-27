@@ -12,7 +12,7 @@ import {IAdapter} from "@kleros/veashi-sdk/contracts/interfaces/IAdapter.sol";
 import {Yaho} from "@kleros/veashi-sdk/contracts/Yaho.sol";
 import {Message} from "@kleros/veashi-sdk/contracts/interfaces/IMessage.sol";
 import {IForeignGateway} from "../../src/gateway/interfaces/IForeignGateway.sol";
-import {IArbitratorV2} from "../../src/arbitration/interfaces/IArbitratorV2.sol";
+import {IArbitratorV2, IArbitrableV2} from "../../src/arbitration/interfaces/IArbitratorV2.sol";
 import {GatewayHarness} from "./gateway/GatewayHarness.sol";
 import {VouchingReporter, RevertingReporter, SelfVouchingDispatcher} from "./gateway/Reporters.sol";
 import "../../src/libraries/Constants.sol";
@@ -907,3 +907,306 @@ contract ForeignGatewayReporterTest is GatewayHarness {
 }
 
 contract RejectsNative {}
+
+// ************************************* //
+// *     Dispute creation failure      * //
+// ************************************* //
+
+/// @dev A creation failure from the HomeGateway, `abi.encode(disputeHash)`: it closes the dispute with the
+/// checks of a ruling, calls the arbitrable back (required, no try), and lets it claim the juror fees, paid from the
+/// juror fees not withdrawn yet. Delivered as Yaru would, see `GatewayHarness._deliver`.
+contract ForeignGatewayCreationFailureTest is GatewayHarness {
+    uint256 internal constant BRIDGING_COST_0 = 0.001 ether;
+    uint256 internal constant BRIDGING_COST_1 = 0.002 ether;
+    bytes internal extraData = abi.encode(uint256(MIRRORED_COURT), uint256(3));
+    address internal beneficiary = makeAddr("beneficiary");
+
+    function setUp() public override {
+        super.setUp();
+        vm.startPrank(governor);
+        foreignGateway.setOracleBridgingCost(0, BRIDGING_COST_0);
+        foreignGateway.setOracleBridgingCost(1, BRIDGING_COST_1);
+        vm.stopPrank();
+    }
+
+    function _relayed(uint256[] memory _oracleIDs, uint256 _threshold) internal returns (uint256 id, bytes32 hash) {
+        id = _createDispute(extraData, _oracleIDs, _threshold);
+        _relay(id, extraData);
+        hash = _disputeHash(id, extraData);
+    }
+
+    function _receive(bytes memory _data, uint256 _threshold, IAdapter[] memory _inboundAdapters) internal {
+        vm.prank(foreignYaru);
+        foreignGateway.onMessage(0, block.chainid, address(homeGateway), _threshold, _inboundAdapters, _data);
+    }
+
+    function _fail(bytes32 _hash) internal {
+        _receive(abi.encode(_hash), 1, _oneAdapter(foreignAdapters[0]));
+    }
+
+    function _oneAdapter(IAdapter _adapter) internal pure returns (IAdapter[] memory adapters) {
+        adapters = new IAdapter[](1);
+        adapters[0] = _adapter;
+    }
+
+    function _fees(bytes32 _hash) internal view returns (IERC20 feeToken, uint256 jurorFees, uint256 bridgingFees) {
+        (, , , , feeToken, jurorFees, bridgingFees) = foreignGateway.disputeHashtoDisputeData(_hash);
+    }
+
+    function _available(IERC20 _feeToken) internal view returns (uint256 jurorFees, uint256 bridgingFees) {
+        (, jurorFees, bridgingFees) = foreignGateway.availableFees(_feeToken);
+    }
+
+    // ************************************* //
+    // *          Receive path             * //
+    // ************************************* //
+
+    function test_failure_closesTheDispute_recordsTheRefund_callsBack() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        (, uint256 refund, ) = _fees(hash);
+
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit ForeignGateway.DisputeCreationFailed(IArbitrableV2(address(this)), id, hash, NATIVE_CURRENCY, refund);
+        _fail(hash);
+
+        (, bool ruled, , , , , ) = foreignGateway.disputeHashtoDisputeData(hash);
+        assertTrue(ruled, "closed");
+        assertEq(foreignGateway.pendingRefunds(id), hash, "refund pending");
+        assertEq(creationFailureCount, 1, "called back");
+        assertEq(lastFailedDisputeID, id, "local dispute ID");
+        assertEq(rulingCount, 0, "not ruled");
+    }
+
+    function test_failure_thenRuling_reverts() public {
+        (, bytes32 hash) = _relayed(_ids(0), 1);
+        _fail(hash);
+        vm.expectRevert(ForeignGateway.CannotRuleTwice.selector);
+        _receive(abi.encode(hash, uint256(1)), 1, _oneAdapter(foreignAdapters[0]));
+    }
+
+    function test_ruling_thenFailure_reverts() public {
+        (, bytes32 hash) = _relayed(_ids(0), 1);
+        _receive(abi.encode(hash, uint256(1)), 1, _oneAdapter(foreignAdapters[0]));
+        assertEq(rulingCount, 1, "ruled");
+        vm.expectRevert(ForeignGateway.CannotRuleTwice.selector);
+        _fail(hash);
+        assertEq(creationFailureCount, 0, "not called back");
+    }
+
+    function test_failure_twice_reverts() public {
+        (, bytes32 hash) = _relayed(_ids(0), 1);
+        _fail(hash);
+        vm.expectRevert(ForeignGateway.CannotRuleTwice.selector);
+        _fail(hash);
+    }
+
+    function test_failure_unknownDispute_reverts() public {
+        vm.expectRevert(ForeignGateway.DisputeDoesNotExist.selector);
+        _fail(keccak256("unknown"));
+    }
+
+    function test_failure_wrongAdaptersOrThreshold_reverts() public {
+        (, bytes32 hash) = _relayed(_ids(0, 1), 2);
+        IAdapter[] memory adapters = _adapters(foreignAdapters[0], foreignAdapters[1]);
+        vm.expectRevert(ForeignGateway.UnexpectedAdapters.selector);
+        _receive(abi.encode(hash), 1, adapters);
+        vm.expectRevert(ForeignGateway.UnexpectedAdapters.selector);
+        _receive(abi.encode(hash), 2, _adapters(foreignAdapters[1], foreignAdapters[0]));
+        vm.expectRevert(ForeignGateway.UnexpectedAdapters.selector);
+        _receive(abi.encode(hash), 1, _oneAdapter(foreignAdapters[0]));
+
+        _receive(abi.encode(hash), 2, adapters);
+        assertEq(creationFailureCount, 1, "accepted with the dispute's oracles");
+    }
+
+    function test_failure_wrongSender_reverts() public {
+        (, bytes32 hash) = _relayed(_ids(0), 1);
+        vm.prank(foreignYaru);
+        vm.expectRevert(ForeignGateway.HomeGatewayMessageSenderOnly.selector);
+        foreignGateway.onMessage(0, block.chainid, other, 1, _oneAdapter(foreignAdapters[0]), abi.encode(hash));
+    }
+
+    /// @dev Required callback: a revert reverts the whole delivery, which Yaru then keeps executable.
+    function test_failure_revertingCallback_revertsEverything() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        rejectCreationFailure = true;
+        vm.expectRevert("Creation failure rejected");
+        _fail(hash);
+
+        (, bool ruled, , , , , ) = foreignGateway.disputeHashtoDisputeData(hash);
+        assertFalse(ruled, "still open");
+        assertEq(foreignGateway.pendingRefunds(id), bytes32(0), "no refund");
+
+        rejectCreationFailure = false;
+        _fail(hash);
+        assertEq(creationFailureCount, 1, "delivered once accepted");
+    }
+
+    /// @dev An arbitrable without the callback, like one deployed before it, cannot receive a failure, as an EOA
+    /// cannot receive a ruling today.
+    function test_failure_arbitrableWithoutTheCallback_reverts() public {
+        address noCallback = address(new RejectsNative());
+        vm.deal(noCallback, 1 ether);
+        uint256 cost = foreignGateway.arbitrationCost(extraData, _ids(0));
+        vm.startPrank(noCallback);
+        uint256 id = foreignGateway.createDispute{value: cost}(CHOICES, extraData, _ids(0), 1);
+        foreignGateway.relayDispute(id, CHOICES, extraData, 0, 0, "");
+        vm.stopPrank();
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                "createDispute",
+                block.chainid,
+                address(foreignGateway),
+                noCallback,
+                id,
+                CHOICES,
+                extraData
+            )
+        );
+
+        vm.expectRevert();
+        _fail(hash);
+    }
+
+    // ************************************* //
+    // *             Refund                * //
+    // ************************************* //
+
+    function test_claimRefund_native_paysTheJurorFeesOnce_asAJurorWithdrawal() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        (, uint256 refund, uint256 bridgingFees) = _fees(hash);
+        assertEq(bridgingFees, BRIDGING_COST_0, "bridging fees");
+        _fail(hash);
+        (uint256 jurorBefore, uint256 bridgingBefore) = _available(NATIVE_CURRENCY);
+
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit ForeignGateway.RefundClaimed(id, beneficiary, NATIVE_CURRENCY, refund);
+        foreignGateway.claimRefund(id, beneficiary);
+
+        assertEq(beneficiary.balance, refund, "refund paid");
+        assertEq(address(foreignGateway).balance, bridgingFees, "bridging fees kept");
+        (uint256 jurorAfter, uint256 bridgingAfter) = _available(NATIVE_CURRENCY);
+        assertEq(jurorAfter, jurorBefore - refund, "juror fees");
+        assertEq(bridgingAfter, bridgingBefore, "bridging fees untouched");
+        (, , uint256 sumJurorFeesWithdrawn, uint256 sumBridgingFeesWithdrawn) = foreignGateway.feeBalances(
+            NATIVE_CURRENCY
+        );
+        assertEq(sumJurorFeesWithdrawn, refund, "counted as a juror withdrawal");
+        assertEq(sumBridgingFeesWithdrawn, 0, "bridging counter untouched");
+        assertEq(foreignGateway.pendingRefunds(id), bytes32(0), "claimed");
+
+        vm.expectRevert(ForeignGateway.NoRefundPending.selector);
+        foreignGateway.claimRefund(id, beneficiary);
+
+        vm.prank(keeper);
+        foreignGateway.withdrawFees(NATIVE_CURRENCY, 0, bridgingAfter);
+        assertEq(keeper.balance, bridgingFees, "keeper withdraws every bridging fee");
+    }
+
+    /// @dev The refund is everything paid but the bridging fees, overpayment included.
+    function test_claimRefund_includesTheOverpayment() public {
+        uint256 cost = foreignGateway.arbitrationCost(extraData, _ids(0));
+        uint256 id = foreignGateway.createDispute{value: cost + 1 ether}(CHOICES, extraData, _ids(0), 1);
+        _relay(id, extraData);
+        bytes32 hash = _disputeHash(id, extraData);
+        uint256 refund = cost + 1 ether - BRIDGING_COST_0;
+
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit ForeignGateway.DisputeCreationFailed(IArbitrableV2(address(this)), id, hash, NATIVE_CURRENCY, refund);
+        _fail(hash);
+        foreignGateway.claimRefund(id, beneficiary);
+
+        assertEq(beneficiary.balance, refund, "juror fees and overpayment refunded");
+        assertEq(address(foreignGateway).balance, BRIDGING_COST_0, "bridging fees kept");
+        (uint256 jurorFees, uint256 bridgingFees) = _available(NATIVE_CURRENCY);
+        assertEq(jurorFees, 0, "no juror fees left");
+        assertEq(bridgingFees, BRIDGING_COST_0, "bridging fees untouched");
+    }
+
+    function test_claimRefund_erc20() public {
+        TestERC20 token = new TestERC20("Test", "TST");
+        vm.startPrank(governor);
+        foreignGateway.changeAcceptedFeeTokens(token, true);
+        foreignGateway.changeCurrencyRates(token, 1, 0);
+        vm.stopPrank();
+        token.approve(address(foreignGateway), type(uint256).max);
+        uint256 cost = foreignGateway.arbitrationCost(extraData, _ids(0), token);
+        uint256 id = foreignGateway.createDispute(CHOICES, extraData, _ids(0), 1, token, cost);
+        _relay(id, extraData);
+        bytes32 hash = _disputeHash(id, extraData);
+        (IERC20 feeToken, uint256 refund, uint256 bridgingFees) = _fees(hash);
+        assertEq(address(feeToken), address(token), "fee token");
+
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit ForeignGateway.DisputeCreationFailed(IArbitrableV2(address(this)), id, hash, token, refund);
+        _fail(hash);
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit ForeignGateway.RefundClaimed(id, beneficiary, token, refund);
+        foreignGateway.claimRefund(id, beneficiary);
+
+        assertEq(token.balanceOf(beneficiary), refund, "refund paid in the token");
+        assertEq(token.balanceOf(address(foreignGateway)), bridgingFees, "bridging fees kept");
+        (uint256 jurorFees, uint256 availableBridging) = _available(token);
+        assertEq(jurorFees, 0, "juror fees");
+        assertEq(availableBridging, bridgingFees, "bridging fees untouched");
+        (uint256 nativeJurorFees, ) = _available(NATIVE_CURRENCY);
+        assertEq(nativeJurorFees, 0, "native fees untouched");
+        vm.expectRevert(ForeignGateway.NoRefundPending.selector);
+        foreignGateway.claimRefund(id, beneficiary);
+    }
+
+    function test_claimRefund_onlyTheDisputeArbitrable() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        _fail(hash);
+        vm.prank(other);
+        vm.expectRevert(ForeignGateway.ArbitrableOnly.selector);
+        foreignGateway.claimRefund(id, other);
+    }
+
+    function test_claimRefund_withoutAFailure_reverts() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        vm.expectRevert(ForeignGateway.NoRefundPending.selector);
+        foreignGateway.claimRefund(id, beneficiary);
+        _receive(abi.encode(hash, uint256(1)), 1, _oneAdapter(foreignAdapters[0]));
+        vm.expectRevert(ForeignGateway.NoRefundPending.selector);
+        foreignGateway.claimRefund(id, beneficiary);
+    }
+
+    /// @dev The keeper swept the juror fees: the claim waits for new juror fees in the token, nothing underflows,
+    /// and the bridging fees stay withdrawable.
+    function test_claimRefund_afterAKeeperSweep_waitsForNewJurorFees() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        (, uint256 refund, ) = _fees(hash);
+        (uint256 jurorFees, ) = _available(NATIVE_CURRENCY);
+        vm.prank(keeper);
+        foreignGateway.withdrawFees(NATIVE_CURRENCY, jurorFees, 0);
+        _fail(hash);
+
+        vm.expectRevert(ForeignGateway.InsufficientFees.selector);
+        foreignGateway.claimRefund(id, beneficiary);
+        assertEq(foreignGateway.pendingRefunds(id), hash, "still claimable");
+        (uint256 jurorNow, uint256 bridgingNow) = _available(NATIVE_CURRENCY);
+        assertEq(jurorNow, 0, "no juror fees");
+        assertEq(bridgingNow, BRIDGING_COST_0, "bridging fees");
+
+        _relayed(_ids(0, 1), 1); // New juror fees in the same token.
+        foreignGateway.claimRefund(id, beneficiary);
+        assertEq(beneficiary.balance, refund, "refund paid");
+        (jurorNow, bridgingNow) = _available(NATIVE_CURRENCY);
+        assertEq(jurorNow, 0, "the new juror fees paid the refund");
+        assertEq(bridgingNow, 2 * BRIDGING_COST_0 + BRIDGING_COST_1, "bridging fees untouched");
+        vm.prank(keeper);
+        foreignGateway.withdrawFees(NATIVE_CURRENCY, 0, bridgingNow);
+        assertEq(address(foreignGateway).balance, 0, "every fee accounted for");
+    }
+
+    function test_claimRefund_rejectingBeneficiary_staysClaimable() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        _fail(hash);
+        address rejects = address(new RejectsNative());
+        vm.expectRevert(ForeignGateway.TransferFailed.selector);
+        foreignGateway.claimRefund(id, rejects);
+        assertEq(foreignGateway.pendingRefunds(id), hash, "still claimable");
+        foreignGateway.claimRefund(id, beneficiary);
+    }
+}
