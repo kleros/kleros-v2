@@ -79,6 +79,7 @@ interface IOptionCard {
   required?: bigint;
   funded?: boolean;
   winner?: boolean;
+  isTiedVote?: boolean;
   /** When true, the card is wrapped in a `CustomRadioItem` (must live inside a `CustomRadio`)
    *  and renders a radio indicator. When false, the card is plain and can be rendered anywhere. */
   selectable?: boolean;
@@ -92,11 +93,12 @@ const CardBody: React.FC<{
   progress: number;
   width: number;
   winner: boolean;
+  isTiedVote?: boolean;
   innerRef: (el: HTMLDivElement) => void;
   rightSlot?: React.ReactNode;
   role?: string;
   t: (key: string) => string;
-}> = ({ text, fundingLabel, progress, width, winner, innerRef, rightSlot, role, t }) => (
+}> = ({ text, fundingLabel, progress, width, winner, isTiedVote, innerRef, rightSlot, role, t }) => (
   <StyledCard hover role={role}>
     <TopContainer>
       <TextContainer>
@@ -104,6 +106,7 @@ const CardBody: React.FC<{
         <WinnerLabel winner={winner}>
           <Gavel />
           {t("appeal.jury_decision")} - {winner ? t("appeal.winner") : t("appeal.loser")}
+          {winner && isTiedVote && ` ${t("voting.tied_vote")}`}
         </WinnerLabel>
       </TextContainer>
       {rightSlot}
@@ -124,6 +127,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   required,
   funded,
   winner,
+  isTiedVote,
   selectable = true,
   canBeSelected = true,
 }) => {
@@ -149,6 +153,7 @@ const OptionCard: React.FC<IOptionCard> = ({
         progress={progress}
         width={width}
         winner={!!winner}
+        isTiedVote={isTiedVote}
         innerRef={ref}
         role="listitem"
         t={t}
@@ -165,6 +170,7 @@ const OptionCard: React.FC<IOptionCard> = ({
           progress={progress}
           width={width}
           winner={!!winner}
+          isTiedVote={isTiedVote}
           innerRef={ref}
           rightSlot={canBeSelected ? <RadioIndicator {...rp} /> : null}
           t={t}

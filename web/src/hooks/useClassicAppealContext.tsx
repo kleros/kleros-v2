@@ -10,6 +10,7 @@ import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useCountdown } from "hooks/useCountdown";
 import { getLocalRounds } from "utils/getLocalRounds";
+import { getRuling } from "utils/getRuling";
 import { isUndefined } from "utils/index";
 
 import { useAppealCost } from "queries/useAppealCost";
@@ -39,6 +40,7 @@ const SelectedOptionContext = createContext<ISelectedOptionContext>({
 
 interface IFundingContext {
   winningChoice: string | undefined;
+  isTiedVote: boolean;
   loserRequiredFunding: bigint | undefined;
   winnerRequiredFunding: bigint | undefined;
   fundedChoices: string[] | undefined;
@@ -46,6 +48,7 @@ interface IFundingContext {
 
 const FundingContext = createContext<IFundingContext>({
   winningChoice: undefined,
+  isTiedVote: false,
   loserRequiredFunding: undefined,
   winnerRequiredFunding: undefined,
   fundedChoices: undefined,
@@ -57,7 +60,12 @@ export const ClassicAppealProvider: React.FC<{
   const { id } = useParams();
   const { data } = useClassicAppealQuery(id);
   const dispute = data?.dispute;
-  const winningChoice = getWinningChoice(data?.dispute);
+  const currentLocalRound = getCurrentLocalRound(data?.dispute);
+  const { ruling: winningChoice, isTiedVote } = getRuling(
+    currentLocalRound?.winningChoice,
+    currentLocalRound?.tied,
+    currentLocalRound?.totalVoted
+  );
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
   const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable as Address);
@@ -103,11 +111,12 @@ export const ClassicAppealProvider: React.FC<{
           value={useMemo(
             () => ({
               winningChoice,
+              isTiedVote,
               loserRequiredFunding,
               winnerRequiredFunding,
               fundedChoices,
             }),
-            [winningChoice, loserRequiredFunding, winnerRequiredFunding, fundedChoices]
+            [winningChoice, isTiedVote, loserRequiredFunding, winnerRequiredFunding, fundedChoices]
           )}
         >
           <OptionsContext.Provider value={options}>{children}</OptionsContext.Provider>
@@ -160,12 +169,6 @@ const getOptions = (dispute?: DisputeDetails, classicDispute?: ClassicAppealQuer
 const getFundedChoices = (dispute?: ClassicAppealQuery["dispute"]) => {
   const currentLocalRound = getCurrentLocalRound(dispute);
   return currentLocalRound?.fundedChoices;
-};
-
-const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
-  const currentLocalRound = getCurrentLocalRound(dispute);
-  // A tied round rules 0 (refuse to arbitrate), as in DisputeKitClassic.currentRuling.
-  return currentLocalRound?.tied ? "0" : currentLocalRound?.winningChoice;
 };
 
 export const getRequiredFunding = (appealCost = 0n, stake_multiplier = 0n): bigint =>

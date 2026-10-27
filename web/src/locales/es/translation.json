@@ -191,6 +191,7 @@
     "justification_at_reveal": "Proporcionarás tu justificación al revelar tu voto.",
     "refuse_to_arbitrate": "Rechazar arbitrar",
     "answer_0x": "Respuesta 0x{{ruling}}",
+    "tied_vote": "(votación empatada)",
     "view_vote": "Ver voto",
     "justification_message": "Por favor proporciona una justificación completa de tu decisión. Las explicaciones de calidad son esenciales para las partes involucradas y pueden ser elegibles para compensación adicional de acuerdo con nuestra política de justificación."
   },
