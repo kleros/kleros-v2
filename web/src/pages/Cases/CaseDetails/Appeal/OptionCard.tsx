@@ -100,7 +100,7 @@ const OptionCard: React.FC<IOptionCard> = ({
       else
         return [
           `${formatEther(funding)} out of ${formatEther(required)} ETH required.`,
-          Number((funding * 100n) / required),
+          required > 0n ? Number((funding * 100n) / required) : 0,
         ];
     else if (funding > 0n) return [`Funded with ${formatEther(funding)} ETH.`, 30];
     else return ["0 ETH contributed to this option", 0];
