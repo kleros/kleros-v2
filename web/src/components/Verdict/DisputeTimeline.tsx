@@ -12,6 +12,7 @@ import GavelExecutedIcon from "svgs/icons/gavel-executed.svg";
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { getLocalRounds } from "utils/getLocalRounds";
+import { getRuling } from "utils/getRuling";
 import { getVoteChoice } from "utils/getVoteChoice";
 
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -91,9 +92,8 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       },
     ];
 
-    const items = localRounds?.reduce<_TimelineItem1[]>((acc, { winningChoice, tied }, index) => {
-      // A tied round rules 0 (refuse to arbitrate), as in DisputeKitClassic.currentRuling.
-      const ruling = tied ? "0" : winningChoice;
+    const items = localRounds?.reduce<_TimelineItem1[]>((acc, { winningChoice, tied, totalVoted }, index) => {
+      const { ruling, isTiedVote } = getRuling(winningChoice, tied, totalVoted);
       const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
       const roundTimeline = rounds?.[index].timeline;
       const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : undefined;
@@ -101,7 +101,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
       acc.push({
         title: `Jury Decision - Round ${index + 1}`,
-        party: isOngoing ? "Voting is ongoing" : getVoteChoice(ruling, answers),
+        party: isOngoing ? "Voting is ongoing" : getVoteChoice(ruling, answers) + (isTiedVote ? " (tied vote)" : ""),
         subtitle: isOngoing ? "" : `${formatDate(roundTimeline?.[Periods.vote])} / ${rounds?.[index]?.court.name}`,
         rightSided: true,
         variant: theme.secondaryPurple,

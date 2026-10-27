@@ -79,6 +79,7 @@ interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
   required?: bigint;
   funded?: boolean;
   winner?: boolean;
+  isTiedVote?: boolean;
   selected?: boolean;
   canBeSelected?: boolean;
 }
@@ -89,6 +90,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   required,
   funded,
   winner,
+  isTiedVote,
   selected,
   canBeSelected = true,
   ...props
@@ -114,6 +116,7 @@ const OptionCard: React.FC<IOptionCard> = ({
           <WinnerLabel winner={winner ? true : false}>
             <Gavel />
             Jury decision - {winner ? "Winner" : "Loser"}
+            {winner && isTiedVote && " (tied vote)"}
           </WinnerLabel>
         </TextContainer>
         {canBeSelected && <StyledRadio label="" checked={selected} />}

@@ -26,6 +26,7 @@ const classicAppealQuery = graphql(`
           ... on ClassicRound {
             winningChoice
             tied
+            totalVoted
             answers {
               answerId
               count
