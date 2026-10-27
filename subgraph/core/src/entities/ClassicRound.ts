@@ -68,8 +68,7 @@ export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt, delt
 
   answer.save();
   round.save();
-  // A tied round rules 0 (refuse to arbitrate), as in DisputeKitClassic.currentRuling.
-  return { ruling: round.tied ? ZERO : round.winningChoice, tied: round.tied };
+  return { ruling: round.winningChoice, tied: round.tied };
 }
 
 export function updateChoiceFundingFromContributionEvent(event: Contribution): void {
