@@ -16,7 +16,6 @@ const votingHistoryQuery = graphql(`
       ruled
       rounds {
         nbVotes
-        isCurrentRound
         jurorRewardsDispersed
         hiddenVotes
         court {
@@ -31,7 +30,6 @@ const votingHistoryQuery = graphql(`
           vote {
             ... on ClassicVote {
               commited
-              voted
               justification {
                 transactionHash
                 timestamp
@@ -43,8 +41,12 @@ const votingHistoryQuery = graphql(`
         }
       }
       disputeKitDispute {
+        id
+        currentLocalRoundIndex
+        timestamp
         localRounds {
           ... on ClassicRound {
+            id
             winningChoice
             tied
             totalVoted
