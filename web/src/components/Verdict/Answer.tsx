@@ -4,14 +4,15 @@ import { useTranslation } from "react-i18next";
 
 import { Answer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
-import { AnswerTitle, AnswerTitleAndDescription } from "../DisputePreview/DisputeContext";
+import { AnswerDescription, AnswerTitle, AnswerTitleAndDescription } from "../DisputePreview/DisputeContext";
 
 interface IAnswer {
   answer?: Answer;
   currentRuling: number;
+  isTiedVote?: boolean;
 }
 
-const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
+const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling, isTiedVote }) => {
   const { t } = useTranslation();
 
   return (
@@ -19,6 +20,7 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
       {answer ? (
         <AnswerTitleAndDescription dir="auto">
           <AnswerTitle>{answer.title}</AnswerTitle>
+          {isTiedVote && <AnswerDescription>{` ${t("voting.tied_vote")}`}</AnswerDescription>}
         </AnswerTitleAndDescription>
       ) : (
         <AnswerTitleAndDescription>
@@ -27,6 +29,7 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
           ) : (
             <small>{t("voting.refuse_to_arbitrate")}</small>
           )}
+          {isTiedVote && <AnswerDescription>{` ${t("voting.tied_vote")}`}</AnswerDescription>}
         </AnswerTitleAndDescription>
       )}
     </>
