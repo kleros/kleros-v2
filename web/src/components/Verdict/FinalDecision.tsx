@@ -14,7 +14,6 @@ import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { VotingHistoryQuery } from "hooks/queries/useVotingHistory";
 import { useVotingContext } from "hooks/useVotingContext";
-import { getLocalRounds } from "utils/getLocalRounds";
 import { isTiedVote } from "utils/getRuling";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -89,8 +88,9 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
   const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
-  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
-  const lastRoundTotalVoted = localRounds?.at(localRounds.length - 1)?.totalVoted;
+  // Found by flag, not position: the subgraph sorts rounds by id as text ("318-10" before "318-9").
+  const currentRound = votingHistory?.dispute?.rounds.find((round) => round.isCurrentRound);
+  const currentRoundVotes = currentRound?.drawnJurors.filter(({ vote }) => vote?.voted).length ?? 0;
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
   const { data: currentRulingArray, isLoading: isLoadingCurrentRuling } = useReadKlerosCoreCurrentRuling({
@@ -100,7 +100,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
   });
   const currentRuling = Number(currentRulingArray?.[0] ?? 0);
   // tied (index 1) is false once the ruling is overridden.
-  const tiedVote = isTiedVote(currentRulingArray?.[1], lastRoundTotalVoted);
+  const tiedVote = isTiedVote(currentRulingArray?.[1], currentRoundVotes);
 
   const answer = populatedDisputeData?.answers?.find((answer) => BigInt(answer.id) === BigInt(currentRuling));
   const buttonText = useMemo(() => {
@@ -124,7 +124,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable, votingHistory }) 
             )}
           </JuryContainer>
         )}
-        {!ruled && periodIndex > 1 && lastRoundTotalVoted > 0 && (
+        {!ruled && periodIndex > 1 && currentRoundVotes > 0 && (
           <JuryContainer>
             <JuryDecisionTag>This option is winning:</JuryDecisionTag>
             {isLoadingCurrentRuling ? (
