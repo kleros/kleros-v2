@@ -25,7 +25,7 @@ interface IAppealHistory {
 
 const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide }) => {
   const options = useOptionsContext();
-  const { winningChoice, fundedChoices } = useFundingContext();
+  const { winningChoice, isTiedVote, fundedChoices } = useFundingContext();
 
   return options && options.length > 2 ? (
     <div>
@@ -43,8 +43,10 @@ const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggle
             key={option.id}
             text={option.title}
             winner={option.id === winningChoice}
+            isTiedVote={isTiedVote}
             funding={BigInt(option.paidFee ?? 0)}
             required={fundedChoices?.includes(option.id) ? BigInt(option.paidFee ?? 0) : undefined}
+            funded={option.funded}
             canBeSelected={false}
           />
         ))}

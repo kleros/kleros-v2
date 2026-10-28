@@ -29,7 +29,7 @@ interface IStageOne {
 }
 
 const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
-  const { winningChoice, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
+  const { winningChoice, isTiedVote, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
   const options = useOptionsContext();
   const { loserSideCountdown } = useCountdownContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
@@ -49,8 +49,10 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
                 text={option.title}
                 selected={option.id === selectedOption?.id}
                 winner={option.id === winningChoice}
+                isTiedVote={isTiedVote}
                 funding={BigInt(option.paidFee ?? 0)}
                 required={requiredFunding}
+                funded={option.funded}
                 canBeSelected={!option?.funded}
                 onClick={() => {
                   setSelectedOption(option);
