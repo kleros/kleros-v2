@@ -16,6 +16,7 @@ const votingHistoryQuery = graphql(`
       ruled
       rounds {
         nbVotes
+        isCurrentRound
         jurorRewardsDispersed
         hiddenVotes
         court {
@@ -30,6 +31,7 @@ const votingHistoryQuery = graphql(`
           vote {
             ... on ClassicVote {
               commited
+              voted
               justification {
                 transactionHash
                 timestamp
