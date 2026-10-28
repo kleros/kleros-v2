@@ -96,7 +96,7 @@ describe("DisputeKitClassic", async () => {
 async function deployContracts(): Promise<
   [KlerosCore, DisputeKitClassic, DisputeKitShutter, DisputeKitGated, DisputeKitGatedShutter]
 > {
-  await deployments.fixture(["Arbitration", "VeaMock"], {
+  await deployments.fixture(["Arbitration"], {
     fallbackToGlobal: true,
     keepExistingDeployments: false,
   });

@@ -329,20 +329,6 @@ const config: HardhatUserConfig = {
     project: process.env.TENDERLY_PROJECT !== undefined ? process.env.TENDERLY_PROJECT : "kleros-v2",
     username: process.env.TENDERLY_USERNAME !== undefined ? process.env.TENDERLY_USERNAME : "",
   },
-  external: {
-    // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
-    deployments: {
-      arbitrumSepolia: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia"],
-      arbitrumSepoliaDevnet: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia"],
-      arbitrum: ["../node_modules/@kleros/vea-contracts/deployments/arbitrum"],
-      chiado: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
-      chiadoDevnet: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
-      gnosischain: ["../node_modules/@kleros/vea-contracts/deployments/gnosischain"],
-      sepolia: ["../node_modules/@kleros/vea-contracts/deployments/sepolia"],
-      sepoliaDevnet: ["../node_modules/@kleros/vea-contracts/deployments/sepolia"],
-      mainnet: ["../node_modules/@kleros/vea-contracts/deployments/mainnet"],
-    },
-  },
 };
 
 export default config;

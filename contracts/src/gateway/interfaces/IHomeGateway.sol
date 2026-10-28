@@ -2,11 +2,9 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
 import "../../arbitration/interfaces/IArbitrableV2.sol";
 
-interface IHomeGateway is IArbitrableV2, ISenderGateway {
+interface IHomeGateway is IArbitrableV2 {
     /// @dev To be emitted when a dispute is received from the IForeignGateway.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitrableChainId The chain identifier where the Arbitrable contract is deployed.
@@ -27,30 +25,17 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
         string _templateUri
     );
 
-    // Workaround stack too deep for relayCreateDispute()
-    struct RelayCreateDisputeParams {
-        bytes32 foreignBlockHash;
-        uint256 foreignChainID;
-        address foreignArbitrable;
-        uint256 foreignDisputeID;
-        uint256 externalDisputeID;
-        uint256 templateId;
-        string templateUri;
-        uint256 choices;
-        bytes extraData;
-    }
-
-    /// @dev Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
-    ///      Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-    ///      This function accepts the fees payment in the native currency of the home chain, typically ETH.
-    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
-    function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable;
-
-    /// @dev Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
-    ///      Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-    ///      This function accepts the fees payment in the ERC20 `acceptedFeeToken()`.
-    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
-    function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external;
+    /// @dev To be emitted when a ruling is sent to the IForeignGateway through Yaho.
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _disputeHash The dispute hash shared by both gateways.
+    /// @param _ruling The ruling.
+    /// @param _messageId The Yaho message ID.
+    event RulingDispatched(
+        uint256 indexed _disputeID,
+        bytes32 indexed _disputeHash,
+        uint256 _ruling,
+        uint256 _messageId
+    );
 
     /// @dev Looks up the local home disputeID for a disputeHash
     /// @param _disputeHash dispute hash
@@ -62,7 +47,4 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
 
     /// @return The address of the corresponding foreign gateway.
     function foreignGateway() external view returns (address);
-
-    /// return The fee token.
-    function feeToken() external view returns (IERC20);
 }
