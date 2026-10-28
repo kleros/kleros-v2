@@ -2,22 +2,15 @@
 
 pragma solidity ^0.8.28;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IArbitrableV2} from "../interfaces/IArbitrableV2.sol";
 import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
-import {IRatesConverter} from "../interfaces/IRatesConverter.sol";
-import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
-import {Initializable} from "../../proxy/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import "../../libraries/Constants.sol";
 
 /// @title KlerosCoreRuler
 /// Core arbitrator contract for development and testing purposes.
-contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
-    using SafeERC20 for IERC20;
-
-    string public constant override version = "2.0.0";
-
+contract KlerosCoreRuler is IArbitratorV2, Initializable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -47,7 +40,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     struct Court {
         uint96 parent; // The parent court.
         bool hiddenVotes; // Whether to use commit and reveal or not.
-        uint256[] children; // List of child courts.
         uint256 minStake; // Minimum PNKs needed to stake in the court.
         uint256 alpha; // Basis point of PNKs that are lost when incoherent.
         uint256 feeForJuror; // Arbitration fee paid per juror.
@@ -67,7 +59,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     struct Round {
         uint256 totalFeesForJurors; // The total juror fees paid in this round.
         uint256 sumFeeRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
-        IERC20 feeToken; // The token used for paying fees in this round.
     }
 
     struct RulingResult {
@@ -83,14 +74,12 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
 
     address public owner; // The owner of the contract.
-    IERC20 public pinakion; // The Pinakion token contract.
+    IERC20 public pnkToken; // The Pinakion token contract.
     Court[] public courts; // The courts.
     Dispute[] public disputes; // The disputes.
     mapping(IArbitrableV2 arbitrable => address ruler) public rulers; // The ruler of each arbitrable contract.
     mapping(IArbitrableV2 arbitrable => RulerSettings) public settings; // The settings of each arbitrable contract.
     mapping(uint256 disputeID => RulingResult) public rulingResults; // The ruling results of each dispute.
-    mapping(IERC20 => bool) public acceptedFeeTokens; // True if the token is accepted.
-    IRatesConverter public ratesConverter; // Contract to convert ETH value to fee tokens.
 
     // ************************************* //
     // *              Events               * //
@@ -131,15 +120,13 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _degreeOfCoherencyPnk,
         uint256 _degreeOfCoherencyFee,
         int256 _amountPnk,
-        int256 _amountFee,
-        IERC20 _feeToken
+        int256 _amountFee
     );
     event LeftoverRewardSent(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
         uint256 _amountPnk,
-        uint256 _amountFee,
-        IERC20 _feeToken
+        uint256 _amountFee
     );
     event AutoRuled(
         IArbitrableV2 indexed _arbitrable,
@@ -156,7 +143,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(owner == msg.sender, OwnerOnly());
         _;
     }
@@ -172,27 +159,19 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _owner The owner's address.
-    /// @param _pinakion The address of the token contract.
+    /// @param _pnkToken The address of the token contract.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
-    /// @param _ratesConverter Contract to convert ETH to fee tokens.
-    function initialize(
-        address _owner,
-        IERC20 _pinakion,
-        uint256[4] memory _courtParameters,
-        IRatesConverter _ratesConverter
-    ) external initializer {
+    function initialize(address _owner, IERC20 _pnkToken, uint256[4] memory _courtParameters) external initializer {
         owner = _owner;
-        pinakion = _pinakion;
-        ratesConverter = _ratesConverter;
+        pnkToken = _pnkToken;
 
-        // FORKING_COURT
-        // TODO: Fill the properties for the Forking court, emit CourtCreated.
+        // FINAL_COURT
+        // TODO: Fill the properties for the final court, emit CourtCreated.
         courts.push();
 
         // GENERAL_COURT
         Court storage court = courts.push();
-        court.parent = FORKING_COURT;
-        court.children = new uint256[](0);
+        court.parent = FINAL_COURT;
         court.hiddenVotes = false;
         court.minStake = _courtParameters[0];
         court.alpha = _courtParameters[1];
@@ -216,38 +195,25 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // *             Governance            * //
     // ************************************* //
 
-    /* @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the owner can perform upgrades (`onlyByOwner`)
-     */
-    function _authorizeUpgrade(address) internal view override onlyByOwner {
-        // NOP
-    }
-
     /// @dev Allows the owner to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
         require(success, UnsuccessfulCall());
     }
 
     /// @dev Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
-    function changeOwner(address payable _owner) external onlyByOwner {
+    function changeOwner(address payable _owner) external onlyOwner {
         owner = _owner;
     }
 
-    /// @dev Changes the `pinakion` storage variable.
-    /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(IERC20 _pinakion) external onlyByOwner {
-        pinakion = _pinakion;
-    }
-
-    /// @notice Changes the `ratesConverter` storage variable.
-    /// @param _ratesConverter The new value for the `ratesConverter` storage variable.
-    function changeRatesConverter(IRatesConverter _ratesConverter) external onlyByOwner {
-        ratesConverter = _ratesConverter;
+    /// @dev Changes the `pnkToken` storage variable.
+    /// @param _pnkToken The new value for the `pnkToken` storage variable.
+    function changePnkToken(IERC20 _pnkToken) external onlyOwner {
+        pnkToken = _pnkToken;
     }
 
     /// @dev Creates a court under a specified parent court.
@@ -266,14 +232,11 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
-    ) external onlyByOwner {
-        require(_parent != FORKING_COURT, InvalidForkingCourtAsParent());
-
+    ) external onlyOwner {
         uint256 courtID = courts.length;
         Court storage court = courts.push();
 
         court.parent = _parent;
-        court.children = new uint256[](0);
         court.hiddenVotes = _hiddenVotes;
         court.minStake = _minStake;
         court.alpha = _alpha;
@@ -281,8 +244,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
 
-        // Update the parent.
-        courts[_parent].children.push(courtID);
         emit CourtCreated(
             courtID,
             _parent,
@@ -303,7 +264,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
-    ) external onlyByOwner {
+    ) external onlyOwner {
         Court storage court = courts[_courtID];
         court.minStake = _minStake;
         court.hiddenVotes = _hiddenVotes;
@@ -320,14 +281,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             _jurorsForCourtJump,
             _timesPerPeriod
         );
-    }
-
-    /// @dev Changes the supported fee tokens.
-    /// @param _feeToken The fee token.
-    /// @param _accepted Whether the token is supported or not as a method of fee payment.
-    function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByOwner {
-        acceptedFeeTokens[_feeToken] = _accepted;
-        emit AcceptedFeeToken(_feeToken, _accepted);
     }
 
     // ************************************* //
@@ -386,38 +339,9 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     function createDispute(
         uint256 _numberOfChoices,
         bytes memory _extraData
-    ) external payable override returns (uint256 disputeID) {
+    ) external payable returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), ArbitrationFeesNotEnough());
 
-        return _createDispute(_numberOfChoices, _extraData, NATIVE_CURRENCY, msg.value);
-    }
-
-    /// @notice Create a dispute and pay for the fees in a supported ERC20 token.
-    /// @dev Must be called by the arbitrable contract and pay at least `arbitrationCost(_extraData, _feeToken)` in the supported ERC20 token.
-    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
-    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
-    /// @param _feeToken The ERC20 token used to pay fees.
-    /// @param _feeAmount Amount of the ERC20 token used to pay fees.
-    /// @return disputeID The identifier of the dispute created.
-    function createDispute(
-        uint256 _numberOfChoices,
-        bytes calldata _extraData,
-        IERC20 _feeToken,
-        uint256 _feeAmount
-    ) external override returns (uint256 disputeID) {
-        require(acceptedFeeTokens[_feeToken], TokenNotAccepted());
-        require(_feeAmount >= arbitrationCost(_extraData, _feeToken), ArbitrationFeesNotEnough());
-
-        require(_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), TransferFailed());
-        return _createDispute(_numberOfChoices, _extraData, _feeToken, _feeAmount);
-    }
-
-    function _createDispute(
-        uint256 _numberOfChoices,
-        bytes memory _extraData,
-        IERC20 _feeToken,
-        uint256 _feeAmount
-    ) internal returns (uint256 disputeID) {
         (uint96 courtID, , ) = _unpackExtraData(_extraData);
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
@@ -425,8 +349,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         dispute.arbitrated = IArbitrableV2(msg.sender);
 
         Round storage round = dispute.rounds.push();
-        round.totalFeesForJurors = _feeAmount;
-        round.feeToken = IERC20(_feeToken);
+        round.totalFeesForJurors = msg.value;
 
         _autoRule(disputeID, _numberOfChoices);
 
@@ -523,13 +446,8 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         Round storage round = dispute.rounds[_round];
         uint256 feeReward = round.totalFeesForJurors;
         round.sumFeeRewardPaid += feeReward;
-        if (round.feeToken == NATIVE_CURRENCY) {
-            // The dispute fees were paid in ETH
-            payable(account).send(feeReward);
-        } else {
-            // The dispute fees were paid in ERC20
-            round.feeToken.safeTransfer(account, feeReward);
-        }
+        payable(account).send(feeReward);
+
         emit JurorRewardPenalty(
             account,
             _disputeID,
@@ -537,8 +455,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
             ONE_BASIS_POINT,
             ONE_BASIS_POINT,
             int256(0),
-            int256(feeReward),
-            round.feeToken
+            int256(feeReward)
         );
     }
 
@@ -560,22 +477,13 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Compute the cost of arbitration denominated in ETH.
+    /// @dev Compute the cost of arbitration.
     ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
     /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
     /// @return cost The arbitration cost in ETH.
-    function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
+    function arbitrationCost(bytes memory _extraData) public view returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors, ) = _unpackExtraData(_extraData);
         cost = courts[courtID].feeForJuror * minJurors;
-    }
-
-    /// @dev Compute the cost of arbitration denominated in `_feeToken`.
-    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
-    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
-    /// @param _feeToken The ERC20 token used to pay fees.
-    /// @return cost The arbitration cost in `_feeToken`.
-    function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) public view override returns (uint256 cost) {
-        cost = convertEthToTokenAmount(_feeToken, arbitrationCost(_extraData));
     }
 
     /// @dev Gets the cost of appealing a specified dispute.
@@ -590,7 +498,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         if (_jump) {
             // Jump to parent court.
             if (dispute.courtID == GENERAL_COURT) {
-                // TODO: Handle the forking when appealed in General court.
+                // TODO: Handle the final court appeal when appealed in General court.
                 cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent court.
             } else {
                 cost = courts[court.parent].feeForJuror * ((nbVotes * 2) + 1);
@@ -639,10 +547,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         return dispute.rounds[dispute.rounds.length - 1].totalFeesForJurors / court.feeForJuror;
     }
 
-    function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
-        return ratesConverter.convert(_toToken, _amountInEth);
-    }
-
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
@@ -664,13 +568,13 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
                 minJurors := mload(add(_extraData, 0x40))
                 disputeKitID := mload(add(_extraData, 0x60))
             }
-            if (courtID == FORKING_COURT || courtID >= courts.length) {
+            if (courtID == FINAL_COURT || courtID >= courts.length) {
                 courtID = GENERAL_COURT;
             }
             if (minJurors == 0) {
                 minJurors = DEFAULT_NB_OF_JURORS;
             }
-            if (disputeKitID == NULL_DISPUTE_KIT) {
+            if (disputeKitID == FINAL_DISPUTE_KIT) {
                 disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
             }
         } else {
@@ -689,11 +593,9 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     error NoRulerSet();
     error RulingModeNotSet();
     error UnsuccessfulCall();
-    error InvalidForkingCourtAsParent();
     error ArbitrationFeesNotEnough();
     error TokenNotAccepted();
     error AppealFeesNotEnough();
     error DisputeNotAppealable();
     error RulingAlreadyExecuted();
-    error TransferFailed();
 }

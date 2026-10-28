@@ -6,30 +6,21 @@ import {
   ProxyOptions,
 } from "hardhat-deploy/types";
 
-// Rationale: https://github.com/kleros/kleros-v2/pull/1214#issue-1879116629
-function proxyOptions(proxyContract: string): ProxyOptions {
+// Rationale: https://github.com/kleros/kleros-v2/pull/1214#issue-1879116629 DEPRECATED
+function proxyOptions(owner: string): ProxyOptions {
   return {
-    proxyContract,
-    proxyArgs: ["{implementation}", "{data}"],
-    checkProxyAdmin: false, // Not relevant for UUPSProxy
-    checkABIConflict: false, // Not relevant for UUPSProxy
-    upgradeFunction: {
-      methodName: "upgradeToAndCall",
-      upgradeArgs: ["{implementation}", "{data}"],
-    },
+    proxyContract: "OpenZeppelinTransparentProxy",
+    owner,
   };
 }
 
 export type DeployUpgradableOptions = {
   newImplementation?: string;
-  initializer?: string;
-  proxyAlias?: string;
+  initializer?: string | false;
 } & DeployOptionsBase;
 
 /**
  * Deploy a contract with an upgradable proxy
- * NOTE: This function assumes the existence of a proxy contract with the name `${proxy}Proxy`,
- * if there is none add the option `proxyAlias: "UUPSProxy"`
  * @param deployments - The deployments extension
  * @param proxy - The name of the proxy contract
  * @param options - The options for the deployment
@@ -41,14 +32,7 @@ export const deployUpgradable = async (
   options: DeployUpgradableOptions
 ): Promise<DeployResult> => {
   const { deploy } = deployments;
-  const {
-    newImplementation,
-    initializer,
-    args: initializerArgs,
-    proxy: proxyOverrides,
-    proxyAlias,
-    ...otherOptions
-  } = options;
+  const { newImplementation, initializer, args: initializerArgs, proxy: proxyOverrides, ...otherOptions } = options;
 
   const methodName = initializer ?? "initialize";
   const args = initializerArgs ?? [];
@@ -69,19 +53,21 @@ export const deployUpgradable = async (
     ...otherOptions,
     ...contract,
     proxy: {
-      ...proxyOptions(proxyAlias ?? `${proxy}Proxy`),
+      ...proxyOptions(otherOptions.from!),
       ...implementationName,
       ...((proxyOverrides as ProxyOptions) ?? {}),
-      execute: {
-        init: {
-          methodName,
-          args,
+      ...(initializer !== false && {
+        execute: {
+          init: {
+            methodName,
+            args,
+          },
+          onUpgrade: {
+            methodName,
+            args,
+          },
         },
-        onUpgrade: {
-          methodName,
-          args,
-        },
-      },
+      }),
     },
   };
 

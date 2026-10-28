@@ -35,7 +35,6 @@ describe("Staking", async () => {
 
   let deployer: string;
   let juror: HardhatEthersSigner;
-  let guardian: HardhatEthersSigner;
   let pnk: PNK;
   let core: KlerosCore;
   let sortition: SortitionModule;
@@ -65,12 +64,6 @@ describe("Staking", async () => {
     juror = await ethers.getSigner(firstWallet);
     await pnk.transfer(juror.address, PNK(100_000));
     await ethers.getSigner(deployer).then((signer) => signer.sendTransaction({ to: juror.address, value: ETH(1) }));
-
-    // Set new guardian
-    const { secondWallet } = await getNamedAccounts();
-    guardian = await ethers.getSigner(secondWallet);
-    await ethers.getSigner(deployer).then((signer) => signer.sendTransaction({ to: guardian.address, value: ETH(1) }));
-    await core.changeGuardian(guardian.address);
   };
 
   const deploy = async () => {
@@ -400,51 +393,6 @@ describe("Staking", async () => {
   /************************************************************************************************
     SHOULD BEHAVE LIKE A REGULAR ARBITRATOR
   ************************************************************************************************/
-
-  describe("When not paused", () => {
-    beforeEach("Setup", async () => {
-      await deploy();
-    });
-
-    it("Should not allow anyone except the guardian or the owner to pause", async () => {
-      await expect(core.connect(juror).pause()).to.be.revertedWithCustomError(core, "GuardianOrOwnerOnly");
-    });
-
-    it("Should allow the guardian to pause", async () => {
-      expect(await core.connect(guardian).pause()).to.emit(core, "Paused");
-      expect(await core.paused()).to.equal(true);
-    });
-
-    it("Should allow the owner to pause", async () => {
-      expect(await core.pause()).to.emit(core, "Paused");
-      expect(await core.paused()).to.equal(true);
-    });
-  });
-
-  describe("When paused", () => {
-    beforeEach("Setup", async () => {
-      await deploy();
-
-      await pnk.approve(core.target, PNK(2000));
-      await core.setStake(1, PNK(500));
-
-      await core.connect(guardian).pause();
-    });
-
-    it("Should allow only the owner to unpause", async () => {
-      await expect(core.connect(guardian).unpause()).to.be.revertedWithCustomError(core, "OwnerOnly");
-      expect(await core.unpause()).to.emit(core, "Unpaused");
-      expect(await core.paused()).to.equal(false);
-    });
-
-    it("Should prevent stake increases", async () => {
-      await expect(core.setStake(1, PNK(1000))).to.be.revertedWithCustomError(core, "WhenNotPausedOnly");
-    });
-
-    it("Should prevent stake decreases", async () => {
-      await expect(core.setStake(1, PNK(0))).to.be.revertedWithCustomError(core, "WhenNotPausedOnly");
-    });
-  });
 
   describe("When outside the Staking phase", async () => {
     const createSubcourtStakeAndCreateDispute = async () => {

@@ -2,11 +2,10 @@
 
 pragma solidity ^0.8.28;
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {KlerosCore} from "../arbitration/KlerosCore.sol";
 import {IDisputeKit} from "../arbitration//interfaces/IDisputeKit.sol";
 import {ISortitionModule} from "../arbitration//interfaces/ISortitionModule.sol";
-import {Initializable} from "../proxy/Initializable.sol";
-import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../libraries/SafeSend.sol";
 import {ONE_BASIS_POINT} from "../libraries/Constants.sol";
 
@@ -18,9 +17,7 @@ import {ONE_BASIS_POINT} from "../libraries/Constants.sol";
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 /// Note that if coherence is not specified it defaults to standard values: 1 for winning choices and 0 for losing choices.
-contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxiable {
-    string public constant override version = "2.0.0";
-
+contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable {
     using SafeSend for address payable;
 
     // ************************************* //
@@ -31,7 +28,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         Round[] rounds; // Rounds of the dispute. 0 is the default round, and [1, ..n] are the appeal rounds.
         uint256 numberOfChoices; // The number of choices jurors have when voting. This does not include choice `0` which is reserved for "refuse to arbitrate".
         mapping(uint256 => uint256) coreRoundIDToLocal; // Maps id of the round in the core contract to the index of the round of related local dispute.
-        bytes extraData; // Extradata for the dispute.
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
@@ -47,7 +43,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         mapping(address account => mapping(uint256 choiceId => uint256)) contributions; // Maps contributors to their contributions for each choice.
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
-        mapping(address drawnAddress => bool) alreadyDrawn; // True if the address has already been drawn, false by default.
         uint256[10] __gap; // Reserved slots for future upgrades.
     }
 
@@ -64,14 +59,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         bool currentRound; // True if the dispute's current round is active on this Dispute Kit. False if the dispute has jumped to another Dispute Kit.
     }
 
-    struct NextRoundSettings {
-        bool enabled; // True if the settings are enabled, false otherwise.
-        uint96 jumpCourtID; // A non-zero value makes the next round use this court ID. Zero is considered as undefined.
-        uint256 jumpDisputeKitID; // A non-zero value makes the next round use this dispute kit ID. Zero is considered as undefined.
-        uint256 jumpDisputeKitIDOnCourtJump; // A non-zero value makes the next round use this dispute kit ID ONLY IF the court jumps and `jumpDisputeKitID` is undefined. Zero is considered as undefined.
-        uint256 nbVotes; // A non-zero value makes the next round use this number of votes. Zero is considered as undefined.
-    }
-
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -81,14 +68,14 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
 
     address public owner; // The owner of the contract.
-    KlerosCore public core; // The Kleros Core arbitrator
+    KlerosCore public core; // The Kleros Core arbitrator.
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 coreDisputeID => uint256 localDisputeID) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
     mapping(uint256 coreDisputeID => Active) public coreDisputeIDToActive; // Active status of the dispute and the current round.
-    mapping(uint96 currentCourtID => NextRoundSettings) public courtIDToNextRoundSettings; // The settings for the next round.
     mapping(uint256 choice => uint256 winningCoherence) public winningCoherences; // Specifies different coherence for certain winning choices (affects rewards). If not specified coherence will default to 1.
     mapping(uint256 choice => uint256 losingCoherence) public losingCoherences; // Specifies different coherence for certain losing choices (affects penalties). If not specified coherence will default to 0.
     address public wNative; // The wrapped native token for safeSend().
+    uint256 jumpDisputeKitID; // ID of the dispute kit to switch on after jump.
 
     uint256[50] private __gap; // Reserved slots for future upgrades.
 
@@ -99,8 +86,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     /// @notice To be emitted when a dispute is created.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _numberOfChoices The number of choices available in the dispute.
-    /// @param _extraData The extra data for the dispute.
-    event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices, bytes _extraData);
+    event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices);
 
     /// @notice To be emitted when a vote commitment is cast.
     /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
@@ -136,21 +122,16 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     /// @param _choice The choice that is being funded.
     event ChoiceFunded(uint256 indexed _coreDisputeID, uint256 indexed _coreRoundID, uint256 indexed _choice);
 
-    /// @notice To be emitted when the next round settings are changed.
-    /// @param _courtID The ID of the court that the settings are changed for.
-    /// @param _nextRoundSettings The settings for the next round.
-    event NextRoundSettingsChanged(uint96 indexed _courtID, NextRoundSettings _nextRoundSettings);
-
     // ************************************* //
     // *              Modifiers            * //
     // ************************************* //
 
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(owner == msg.sender, OwnerOnly());
         _;
     }
 
-    modifier onlyByCore() {
+    modifier onlyCore() {
         require(address(core) == msg.sender, KlerosCoreOnly());
         _;
     }
@@ -158,11 +139,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     modifier isActive(uint256 _coreDisputeID) {
         require(coreDisputeIDToActive[_coreDisputeID].dispute, DisputeUnknownInThisDisputeKit());
         require(coreDisputeIDToActive[_coreDisputeID].currentRound, DisputeJumpedToAnotherDisputeKit());
-        _;
-    }
-
-    modifier whenArbitrationNotPaused() {
-        require(!core.arbitrationPaused(), WhenArbitrationNotPausedOnly());
         _;
     }
 
@@ -179,6 +155,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     /// @param _owner The owner's address.
     /// @param _core The KlerosCore arbitrator.
     /// @param _wNative The wrapped native token address, typically wETH.
+    /// @param _jumpDisputeKitID ID of the dispute kit to jump on.
     /// @param _asymmetricalWinningChoices Array of choices that will have their winning coherence specified.
     /// @param _winningCoherences Array of respective coherence values for winning choices.
     /// @param _asymmetricalLosingChoices Array of choices that will have their losing coherence specified
@@ -187,6 +164,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         address _owner,
         KlerosCore _core,
         address _wNative,
+        uint256 _jumpDisputeKitID,
         uint256[] memory _asymmetricalWinningChoices,
         uint256[] memory _winningCoherences,
         uint256[] memory _asymmetricalLosingChoices,
@@ -195,6 +173,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         owner = _owner;
         core = _core;
         wNative = _wNative;
+        jumpDisputeKitID = _jumpDisputeKitID;
 
         require(_asymmetricalWinningChoices.length == _winningCoherences.length, CoherenceArrayLengthMismatch());
         require(_asymmetricalLosingChoices.length == _losingCoherences.length, CoherenceArrayLengthMismatch());
@@ -214,42 +193,10 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     // *      Governance      * //
     // ************************ //
 
-    /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-    ///      Only the owner can perform upgrades (`onlyByOwner`)
-    function _authorizeUpgrade(address) internal view override onlyByOwner {
-        // NOP
-    }
-
-    /// @notice Allows the owner to call anything on behalf of the contract.
-    /// @param _destination The destination of the call.
-    /// @param _amount The value sent with the call.
-    /// @param _data The data sent with the call.
-    function executeOwnerProposal(address _destination, uint256 _amount, bytes calldata _data) external onlyByOwner {
-        (bool success, ) = _destination.call{value: _amount}(_data);
-        require(success, UnsuccessfulCall());
-    }
-
     /// @notice Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
-    function changeOwner(address _owner) external onlyByOwner {
+    function changeOwner(address _owner) external onlyOwner {
         owner = _owner;
-    }
-
-    /// @notice Changes the `core` storage variable.
-    /// @param _core The new value for the `core` storage variable.
-    function changeCore(address _core) external onlyByOwner {
-        core = KlerosCore(_core);
-    }
-
-    /// @notice Changes the settings for the next round.
-    /// @param _courtID The ID of the court that the settings are changed for.
-    /// @param _nextRoundSettings The settings for the next round.
-    function changeNextRoundSettings(
-        uint96 _courtID,
-        NextRoundSettings memory _nextRoundSettings
-    ) external onlyByOwner {
-        courtIDToNextRoundSettings[_courtID] = _nextRoundSettings;
-        emit NextRoundSettingsChanged(_courtID, _nextRoundSettings);
     }
 
     /// @notice Changes winning coherences of specified choices.
@@ -258,7 +205,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     function changeWinningCoherences(
         uint256[] memory _asymmetricalWinningChoices,
         uint256[] memory _winningCoherences
-    ) external onlyByOwner {
+    ) external onlyOwner {
         require(_asymmetricalWinningChoices.length == _winningCoherences.length, CoherenceArrayLengthMismatch());
 
         for (uint256 i = 0; i < _asymmetricalWinningChoices.length; i++) {
@@ -273,7 +220,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     function changeLosingCoherences(
         uint256[] memory _asymmetricalLosingChoices,
         uint256[] memory _losingCoherences
-    ) external onlyByOwner {
+    ) external onlyOwner {
         require(_asymmetricalLosingChoices.length == _losingCoherences.length, CoherenceArrayLengthMismatch());
 
         for (uint256 i = 0; i < _asymmetricalLosingChoices.length; i++) {
@@ -289,18 +236,10 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     /// @notice Creates a local dispute and maps it to the dispute ID in the Core contract.
     /// @dev Access restricted to Kleros Core only.
     /// @dev The new `KlerosCore.Round` must be created before calling this function.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
-    /// @param _numberOfChoices Number of choices of the dispute
-    /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.
-    /// @param - nbVotes Maximal number of votes this dispute can get. Added for future-proofing.
-    function createDispute(
-        uint256 _coreDisputeID,
-        uint256 _coreRoundID,
-        uint256 _numberOfChoices,
-        bytes calldata _extraData,
-        uint256 /*_nbVotes*/
-    ) public override onlyByCore {
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
+    /// @param _numberOfChoices Number of choices of the dispute.
+    function createDispute(uint256 _coreDisputeID, uint256 _coreRoundID, uint256 _numberOfChoices) public onlyCore {
         uint256 localDisputeID;
         Dispute storage dispute;
         Active storage active = coreDisputeIDToActive[_coreDisputeID];
@@ -318,19 +257,18 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
 
         active.currentRound = true;
         dispute.numberOfChoices = _numberOfChoices;
-        dispute.extraData = _extraData;
 
         // KlerosCore.Round must have been already created.
         dispute.coreRoundIDToLocal[_coreRoundID] = dispute.rounds.length;
         dispute.rounds.push().tied = true;
 
-        emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
+        emit DisputeCreation(_coreDisputeID, _numberOfChoices);
     }
 
     /// @notice Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
     /// @dev Access restricted to Kleros Core only.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _nonce Nonce.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _nonce Nonce that represents the current drawing iteration in this round.
     /// @param - The number of votes in the round (unused, required by interface).
     /// @return drawnAddress The drawn address.
     /// @return fromSubcourtID The subcourt ID from which the juror was drawn.
@@ -338,7 +276,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         uint256 _coreDisputeID,
         uint256 _nonce,
         uint256 /*_roundNbVotes*/
-    ) public override onlyByCore isActive(_coreDisputeID) returns (address drawnAddress, uint96 fromSubcourtID) {
+    ) public onlyCore isActive(_coreDisputeID) returns (address drawnAddress, uint96 fromSubcourtID) {
         uint256 localDisputeID = coreDisputeIDToLocal[_coreDisputeID];
         Dispute storage dispute = disputes[localDisputeID];
         uint256 localRoundID = dispute.rounds.length - 1;
@@ -351,10 +289,8 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
             // Sortition can return 0 address if no one has staked yet.
             return (drawnAddress, fromSubcourtID);
         }
-
         Vote storage vote = round.votes.push();
         vote.account = drawnAddress;
-        round.alreadyDrawn[drawnAddress] = true;
     }
 
     /// @notice Sets the caller's commit for the specified votes.
@@ -369,7 +305,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit
-    ) external whenArbitrationNotPaused isActive(_coreDisputeID) {
+    ) external isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCore.Period.commit, NotCommitPeriod());
         require(_voteIDs.length > 0, EmptyVoteIDs());
@@ -405,7 +341,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         uint256 _choice,
         uint256 _salt,
         string memory _justification
-    ) external whenArbitrationNotPaused isActive(_coreDisputeID) {
+    ) external isActive(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCore.Period.vote, NotVotePeriod());
         require(_voteIDs.length > 0, EmptyVoteIDs());
@@ -414,28 +350,34 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         Dispute storage dispute = disputes[localDisputeID];
         require(_choice <= dispute.numberOfChoices, ChoiceOutOfBounds());
 
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        uint256 courtParamsIndex = core.getCourtParametersIndex(
+            _coreDisputeID,
+            core.getNumberOfRounds(_coreDisputeID) - 1
+        );
+        bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
+
         uint256 localRoundID = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[localRoundID];
-        {
-            uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
-            (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-            uint256 courtParamsIndex = core.getCourtParametersIndex(_coreDisputeID, coreRoundID);
-            bool hiddenVotes = core.getAdditionalCourtParams(courtID, courtParamsIndex).hiddenVotes;
+
+        bytes32 actualVoteHash = keccak256(abi.encodePacked(_choice, msg.sender, _salt));
+
+        for (uint256 i = 0; i < _voteIDs.length; i++) {
+            Vote storage vote = round.votes[_voteIDs[i]];
+
+            // Verify commitments.
             if (hiddenVotes) {
-                _verifyHiddenVoteCommitments(localDisputeID, localRoundID, _voteIDs, _choice, _salt);
+                require(vote.commit == actualVoteHash, ChoiceCommitmentMismatch());
             }
 
-            //  Save the votes.
-            for (uint256 i = 0; i < _voteIDs.length; i++) {
-                require(round.votes[_voteIDs[i]].account == msg.sender, JurorHasToOwnTheVote());
-                require(!round.votes[_voteIDs[i]].voted, VoteAlreadyCast());
-                round.votes[_voteIDs[i]].choice = _choice;
-                round.votes[_voteIDs[i]].voted = true;
-            }
-        } // Workaround stack too deep
+            // Save the votes.
+            require(vote.account == msg.sender, JurorHasToOwnTheVote());
+            require(!vote.voted, VoteAlreadyCast());
+            vote.choice = _choice;
+            vote.voted = true;
+        }
 
         round.totalVoted += _voteIDs.length;
-
         round.counts[_choice] += _voteIDs.length;
 
         if (_choice == round.winningChoice) {
@@ -458,10 +400,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     /// Note that the surplus deposit will be reimbursed.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
     /// @param _choice A choice that receives funding.
-    function fundAppeal(
-        uint256 _coreDisputeID,
-        uint256 _choice
-    ) external payable whenArbitrationNotPaused isActive(_coreDisputeID) {
+    function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable isActive(_coreDisputeID) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         require(_choice <= dispute.numberOfChoices, ChoiceOutOfBounds());
 
@@ -469,8 +408,11 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, NotAppealPeriod());
 
         uint256 multiplier;
-        (uint256 ruling, , ) = currentRuling(_coreDisputeID);
-        if (ruling == _choice) {
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        // In case of a tie give all rulings the winner treatment.
+        // Note that since all parties have the full appeal period to fund, one party may fund at the last second and become the only fully funded choice.
+        // This is intentional: in case of a tie parties are expected to fund the rulings they want to preserve.
+        if (round.tied || round.winningChoice == _choice) {
             multiplier = WINNER_STAKE_MULTIPLIER;
         } else {
             require(
@@ -481,7 +423,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
             multiplier = LOSER_STAKE_MULTIPLIER;
         }
 
-        Round storage round = dispute.rounds[dispute.rounds.length - 1];
         uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
 
         require(!round.hasPaid[_choice], AppealFeeIsAlreadyPaid());
@@ -491,7 +432,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         // Take up to the amount necessary to fund the current round at the current costs.
         uint256 contribution;
         if (totalCost > round.paidFees[_choice]) {
-            contribution = totalCost - round.paidFees[_choice] > msg.value // Overflows and underflows will be managed on the compiler level.
+            contribution = totalCost - round.paidFees[_choice] > msg.value
                 ? msg.value
                 : totalCost - round.paidFees[_choice];
             emit Contribution(_coreDisputeID, coreRoundID, _choice, msg.sender, contribution);
@@ -510,8 +451,9 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
             // At least two sides are fully funded.
             round.feeRewards = round.feeRewards - appealCost;
 
-            (, , , , bool isDisputeKitJumping) = core.getCourtAndDisputeKitJumps(_coreDisputeID);
-            if (isDisputeKitJumping) {
+            uint256 currentDisputeKitID = core.getDisputeKitID(_coreDisputeID, coreRoundID);
+            (, uint256 newDisputeKitID, ) = getNextRoundSettings(_coreDisputeID);
+            if (currentDisputeKitID != newDisputeKitID) {
                 // Don't create a new round in case of a jump, and remove local dispute from the flow.
                 coreDisputeIDToActive[_coreDisputeID].currentRound = false;
             } else {
@@ -520,15 +462,17 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
                 Round storage newRound = dispute.rounds.push();
                 newRound.tied = true;
             }
-            core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices, dispute.extraData);
+            core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices);
         }
 
         if (msg.value > contribution) payable(msg.sender).safeSend(msg.value - contribution, wNative);
     }
 
     /// @notice Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
-    /// @dev Withdrawals are not possible if the core contract is paused.
     /// @dev It can be called after the dispute has jumped to another dispute kit.
+    /// @dev `O(r)` where `r` is the number of rounds of the dispute in this DisputeKit.
+    /// The number of rounds is bounded by the appeal mechanism: the number of jurors increases on each appeal,
+    /// eventually triggering court jumps up the hierarchy and ultimately reaching the Final Court.
     /// @param _coreDisputeID Index of the dispute in Kleros Core contract.
     /// @param _beneficiary The address whose rewards to withdraw.
     /// @param _choice The ruling option that the caller wants to withdraw from.
@@ -540,7 +484,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     ) external returns (uint256 amount) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         require(period == KlerosCore.Period.execution, DisputeNotResolved());
-        require(!core.paused(), CoreIsPaused());
         require(coreDisputeIDToActive[_coreDisputeID].dispute, DisputeUnknownInThisDisputeKit());
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -579,15 +522,8 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     // *           Public Views            * //
     // ************************************* //
 
-    /// @notice Computes the hash of a vote using ABI encoding
-    /// @param _choice The choice being voted for
-    /// @param _salt A random salt for commitment
-    /// @return bytes32 The hash of the encoded vote parameters
-    function hashVote(uint256 _choice, uint256 _salt) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(_choice, _salt));
-    }
-
     /// @notice Returns the rulings that were fully funded in the latest appeal round.
+    /// @notice Does not validate that coreDisputeID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID 0.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @return fundedChoices Fully funded rulings.
     function getFundedChoices(uint256 _coreDisputeID) public view returns (uint256[] memory fundedChoices) {
@@ -597,13 +533,12 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     }
 
     /// @notice Gets the current ruling of a specified dispute.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @notice Does not validate that coreDisputeID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID 0.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @return ruling The current ruling.
     /// @return tied Whether it's a tie or not.
     /// @return overridden Whether the ruling was overridden by appeal funding or not.
-    function currentRuling(
-        uint256 _coreDisputeID
-    ) public view override returns (uint256 ruling, bool tied, bool overridden) {
+    function currentRuling(uint256 _coreDisputeID) public view returns (uint256 ruling, bool tied, bool overridden) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         tied = round.tied;
@@ -620,129 +555,98 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         }
     }
 
-    /// @notice Gets the degree of coherence of a particular voter.
+    /// @notice Gets the rewards for PNK and fees.
     /// @notice Intended to be called by KlerosCore. External callers must validate inputs beforehand.
-    /// @dev This function is called by Kleros Core in order to determine the amount of the reward.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @notice Does not validate that coreDisputeID/coreRoundID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID/localRoundID 0.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
     /// @param _voteID The ID of the vote.
-    /// @param - feePerJuror The fee per juror. Unused, required by interface.
-    /// @param - pnkAtStakePerJuror The PNK at stake per juror. Unused, required by interface.
-    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
-    /// @return feeCoherence The degree of coherence in basis points for the dispute fee reward.
-    function getDegreeOfCoherenceReward(
-        uint256 _coreDisputeID,
-        uint256 _coreRoundID,
-        uint256 _voteID,
-        uint256 /* _feePerJuror */,
-        uint256 /* _pnkAtStakePerJuror */
-    ) external view override returns (uint256 pnkCoherence, uint256 feeCoherence) {
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
-        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
-        uint256 coherence;
-        if (vote.voted) {
-            if (vote.choice == winningChoice) {
-                coherence = winningCoherences[vote.choice] != 0 ? winningCoherences[vote.choice] : ONE_BASIS_POINT;
-            } else if (tied) {
-                coherence = ONE_BASIS_POINT;
-            }
-        }
-        return (coherence, coherence);
-    }
-
-    /// @notice Gets the degree of coherence of a particular voter.
-    /// @notice Intended to be called by KlerosCore. External callers must validate inputs beforehand.
-    /// @dev This function is called by Kleros Core in order to determine the amount of the penalty.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
-    /// @param _voteID The ID of the vote.
-    /// @param - feePerJuror The fee per juror. Unused, required by interface.
-    /// @param - pnkAtStakePerJuror The PNK at stake per juror. Unused, required by interface.
-    /// @return pnkCoherence The degree of coherence in basis points for the dispute PNK penalty.
-    function getDegreeOfCoherencePenalty(
-        uint256 _coreDisputeID,
-        uint256 _coreRoundID,
-        uint256 _voteID,
-        uint256 /* _feePerJuror */,
-        uint256 /* _pnkAtStakePerJuror */
-    ) external view override returns (uint256 pnkCoherence) {
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
-        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
-
-        if (vote.voted) {
-            if (vote.choice == winningChoice || tied) {
-                pnkCoherence = ONE_BASIS_POINT;
-            } else {
-                // 0 is a default return value for losing choice, so it's fine if nothing is stored in the mapping.
-                pnkCoherence = losingCoherences[vote.choice];
-            }
-        }
-    }
-
-    /// @notice Gets the number of jurors who are eligible to a reward in this round.
-    /// @notice Intended to be called by KlerosCore. External callers must validate inputs beforehand.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
-    /// @return The number of coherent jurors.
-    function getCoherentCount(uint256 _coreDisputeID, uint256 _coreRoundID) external view override returns (uint256) {
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Round storage currentRound = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
-        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
-
-        if (currentRound.totalVoted == 0 || (!tied && currentRound.counts[winningChoice] == 0)) {
-            return 0;
-        } else if (tied) {
-            return currentRound.totalVoted;
-        } else {
-            return currentRound.counts[winningChoice];
-        }
-    }
-
-    /// @notice Gets the rewards for PNK and fees based on coherence and total reward pool.
-    /// @notice Intended to be called by KlerosCore. External callers must validate inputs beforehand.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
-    /// @param - voteID The ID of the vote. Unused, required by interface.
-    /// @param _coherentCount The number of jurors eligible for reward.
+    /// @param _feeRewardPool Total amount of fees available for rewards to all coherent jurors.
     /// @param _pnkRewardPool Total amount of PNK available for rewards to all coherent jurors.
-    /// @param _pnkCoherence The degree of coherence in basis points for the dispute PNK reward.
-    /// @param _feeCoherence The degree of coherence in basis points for the dispute fee reward.
-    /// @return pnkReward The pnk reward the juror is eligible to.
     /// @return feeReward The fee reward the juror is eligible to.
+    /// @return pnkReward The pnk reward the juror is eligible to.
     function getRewards(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
-        uint256 /*_voteID*/,
-        uint256 _coherentCount,
-        uint256 _pnkRewardPool,
-        uint256 _pnkCoherence,
-        uint256 _feeCoherence
-    ) external view virtual override returns (uint256 pnkReward, uint256 feeReward) {
-        uint256 feeRewardPool = core.getTotalFeesForJurors(_coreDisputeID, _coreRoundID);
+        uint256 _voteID,
+        uint256 _feeRewardPool,
+        uint256 _pnkRewardPool
+    ) external view returns (uint256 feeReward, uint256 pnkReward) {
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        Round storage currentRound = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
+        Vote storage vote = currentRound.votes[_voteID];
 
-        uint256 availablePnkAmount = _pnkRewardPool / _coherentCount;
-        pnkReward = (availablePnkAmount * _pnkCoherence) / ONE_BASIS_POINT;
+        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
+        uint256 coherentCount = tied ? currentRound.totalVoted : currentRound.counts[winningChoice];
 
-        uint256 availableFeeAmount = feeRewardPool / _coherentCount;
-        feeReward = (availableFeeAmount * _feeCoherence) / ONE_BASIS_POINT;
+        if (coherentCount == 0 || !vote.voted) {
+            return (0, 0);
+        }
+
+        uint256 coherence;
+        if (vote.choice == winningChoice) {
+            coherence = winningCoherences[vote.choice] != 0 ? winningCoherences[vote.choice] : ONE_BASIS_POINT;
+        } else if (tied) {
+            coherence = ONE_BASIS_POINT;
+        } else {
+            return (0, 0);
+        }
+
+        uint256 availableFeeAmount = _feeRewardPool / coherentCount;
+        feeReward = (availableFeeAmount * coherence) / ONE_BASIS_POINT;
+
+        uint256 availablePnkAmount = _pnkRewardPool / coherentCount;
+        pnkReward = (availablePnkAmount * coherence) / ONE_BASIS_POINT;
+    }
+
+    /// @notice Gets the pnk penalty for incoherent juror.
+    /// @notice Intended to be called by KlerosCore. External callers must validate inputs beforehand.
+    /// @notice Does not validate that coreDisputeID/coreRoundID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID/localRoundID 0.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
+    /// @param _voteID The ID of the vote.
+    /// @param _pnkAtStake Pnk amount subjected to penalty.
+    /// @return penalty Juror's penalty.
+    function getPenalty(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID,
+        uint256 _voteID,
+        uint256 _pnkAtStake
+    ) external view returns (uint256 penalty) {
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
+
+        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
+
+        uint256 coherence;
+        if (vote.voted) {
+            if (vote.choice == winningChoice || tied) {
+                coherence = ONE_BASIS_POINT;
+            } else {
+                // 0 is a default return value for losing choice, so it's fine if nothing is stored in the mapping.
+                coherence = losingCoherences[vote.choice];
+            }
+        }
+
+        penalty = (_pnkAtStake * (ONE_BASIS_POINT - coherence)) / ONE_BASIS_POINT;
     }
 
     /// @notice Returns true if all of the jurors have cast their commits for the last round.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @notice Does not validate that coreDisputeID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID 0.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @return Whether all of the jurors have cast their commits for the last round.
-    function areCommitsAllCast(uint256 _coreDisputeID) external view override returns (bool) {
+    function areCommitsAllCast(uint256 _coreDisputeID) external view returns (bool) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         return round.totalCommitted == round.votes.length;
     }
 
     /// @notice Returns true if all of the jurors have cast their votes for the last round.
+    /// @notice Does not validate that coreDisputeID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID 0.
     /// @dev This function is to be called directly by the core contract and is not for off-chain usage.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @return Whether all of the jurors have cast their votes for the last round.
-    function areVotesAllCast(uint256 _coreDisputeID) external view override returns (bool) {
+    function areVotesAllCast(uint256 _coreDisputeID) external view returns (bool) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
@@ -757,85 +661,69 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         return round.totalVoted == expectedTotalVoted;
     }
 
-    /// @notice Returns true if the appeal funding is finished prematurely (e.g. when losing side didn't fund).
+    /// @notice Returns true if the appeal time is finished prematurely (e.g. when losing side didn't fund).
+    /// @notice Does not validate that coreDisputeID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID 0.
     /// @dev This function is to be called directly by the core contract and is not for off-chain usage.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @return Whether the appeal funding is finished.
-    function isAppealFunded(uint256 _coreDisputeID) external view override returns (bool) {
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @return Whether the appeal time is finished.
+    function isAppealTimeFinished(uint256 _coreDisputeID) external view returns (bool) {
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_coreDisputeID);
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        // In case of a tie all rulings have the full appeal period.
+        if (round.tied) return false;
 
         uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
-        // Uses block.timestamp from the current tx when called by the core contract.
-        return (fundedChoices.length == 0 &&
+        bool loserNotFunded = fundedChoices.length == 0 ||
+            (fundedChoices.length == 1 && fundedChoices[0] == round.winningChoice);
+        // Loser didn't fund in the first half, so appeal period can be ended prematurely.
+        return (loserNotFunded &&
             block.timestamp - appealPeriodStart >=
             ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT);
     }
 
     /// @notice Returns the next round settings for a given dispute.
-    /// @dev This function does not check for compatibility between `newDisputeKitID` and `newCourtID`, this is the Core's responsibility.
-    /// @param - coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit. Unused, required by interface.
-    /// @param _currentCourtID The ID of the current court.
-    /// @param _parentCourtID The ID of the parent court.
-    /// @param _currentCourtJurorsForJump The court jump threshold defined by the current court.
-    /// @param _currentDisputeKitID The ID of the current dispute kit.
-    /// @param _currentRoundNbVotes The number of votes in the current round.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @return newCourtID Court ID after jump.
     /// @return newDisputeKitID Dispute kit ID after jump.
     /// @return newRoundNbVotes The number of votes in the new round.
     function getNextRoundSettings(
-        uint256 /* _coreDisputeID */,
-        uint96 _currentCourtID,
-        uint96 _parentCourtID,
-        uint256 _currentCourtJurorsForJump,
-        uint256 _currentDisputeKitID,
-        uint256 _currentRoundNbVotes
-    ) public view virtual override returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes) {
-        NextRoundSettings storage nextRoundSettings = courtIDToNextRoundSettings[_currentCourtID];
-        uint256 jumpDisputeKitIDOnCourtJump;
-        if (nextRoundSettings.enabled) {
-            newRoundNbVotes = nextRoundSettings.nbVotes;
-            newCourtID = nextRoundSettings.jumpCourtID;
-            newDisputeKitID = nextRoundSettings.jumpDisputeKitID; // Takes precedence over jumpDisputeKitIDOnCourtJump
-            jumpDisputeKitIDOnCourtJump = nextRoundSettings.jumpDisputeKitIDOnCourtJump;
-        }
-        if (newCourtID == 0) {
-            // Default court jump logic, unaffected by the newRoundNbVotes override
-            newCourtID = _currentRoundNbVotes >= _currentCourtJurorsForJump ? _parentCourtID : _currentCourtID;
-        }
-        if (newDisputeKitID == 0) {
-            // jumpDisputeKitID is undefined for next round
-            if (newCourtID != _currentCourtID && jumpDisputeKitIDOnCourtJump != 0) {
-                // Override on court jump
-                newDisputeKitID = jumpDisputeKitIDOnCourtJump;
-            } else {
-                // Default dispute kit jump logic
-                newDisputeKitID = _currentDisputeKitID;
-            }
-        }
-        if (newRoundNbVotes == 0) {
-            // Default nbVotes logic
-            newRoundNbVotes = (_currentRoundNbVotes * 2) + 1;
-        }
+        uint256 _coreDisputeID
+    ) public view returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes) {
+        (uint96 currentCourtID, , , , ) = core.disputes(_coreDisputeID);
+        (uint96 parentCourtID, , , , ) = core.courts(currentCourtID);
+
+        uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
+
+        uint256 courtParamsIndex = core.getCourtParametersIndex(_coreDisputeID, coreRoundID);
+        uint256 currentCourtJurorsForJump = core
+            .getAdditionalCourtParams(currentCourtID, courtParamsIndex)
+            .jurorsForCourtJump;
+
+        uint256 currentDisputeKitID = core.getDisputeKitID(_coreDisputeID, coreRoundID);
+        uint256 currentRoundNbVotes = core.getNumberOfVotes(_coreDisputeID, coreRoundID);
+
+        newCourtID = currentRoundNbVotes >= currentCourtJurorsForJump ? parentCourtID : currentCourtID;
+        newDisputeKitID = !core.isSupported(newCourtID, currentDisputeKitID) ? jumpDisputeKitID : currentDisputeKitID;
+        newRoundNbVotes = (currentRoundNbVotes * 2) + 1;
     }
 
     /// @notice Returns true if the specified voter was active in this round.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @notice Does not validate that coreDisputeID/coreRoundID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID/localRoundID 0.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
     /// @param _voteID The ID of the voter.
     /// @return Whether the voter was active or not.
-    function isVoteActive(
-        uint256 _coreDisputeID,
-        uint256 _coreRoundID,
-        uint256 _voteID
-    ) external view override returns (bool) {
+    function isVoteActive(uint256 _coreDisputeID, uint256 _coreRoundID, uint256 _voteID) external view returns (bool) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
         return vote.voted;
     }
 
     /// @notice Returns the info of the specified round in the Dispute kit.
-    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
+    /// @notice Does not validate that coreDisputeID/coreRoundID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID/localRoundID 0.
+    /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _coreRoundID The ID of the round in Kleros Core.
     /// @param _choice The choice to query.
     /// @return winningChoice The winning choice of this round.
     /// @return tied Whether it's a tie or not.
@@ -850,7 +738,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     )
         external
         view
-        override
         returns (
             uint256 winningChoice,
             bool tied,
@@ -872,14 +759,14 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         );
     }
 
-    /// @notice Returns the number of rounds in a dispute.
+    /// @notice Returns the number of rounds created in this dispute kit for the dispute.
     /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
     /// @return The number of rounds in the dispute.
     function getNumberOfRounds(uint256 _localDisputeID) external view returns (uint256) {
         return disputes[_localDisputeID].rounds.length;
     }
 
-    /// @notice Returns the local dispute ID and round ID for a given core dispute ID and core round ID.
+    /// @notice Returns the local dispute ID and round ID for a given core dispute ID and core round ID. Will return 0 if coreDisputeID/coreRoundID is not known in this dispute kit.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _coreRoundID The ID of the round in Kleros Core.
     /// @return localDisputeID The ID of the dispute in the Dispute Kit.
@@ -893,6 +780,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     }
 
     /// @notice Returns the vote information for a given vote ID.
+    /// @notice Does not validate that coreDisputeID/coreRoundID is known in this dispute kit. Passing unknown IDs may return data for localDisputeID/localRoundID 0.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _coreRoundID The ID of the round in Kleros Core.
     /// @param _voteID The ID of the vote.
@@ -904,36 +792,10 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
         uint256 _voteID
-    ) external view override returns (address account, bytes32 commit, uint256 choice, bool voted) {
+    ) external view returns (address account, bytes32 commit, uint256 choice, bool voted) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
         return (vote.account, vote.commit, vote.choice, vote.voted);
-    }
-
-    // ************************************* //
-    // *            Internal               * //
-    // ************************************* //
-
-    /// @notice Verifies that revealed choice matches the hidden vote commitments.
-    /// @param _localDisputeID The ID of the dispute in the Dispute Kit.
-    /// @param _localRoundID The ID of the round in the Dispute Kit.
-    /// @param _voteIDs The IDs of the votes.
-    /// @param _choice The choice.
-    /// @param _salt The salt.
-    function _verifyHiddenVoteCommitments(
-        uint256 _localDisputeID,
-        uint256 _localRoundID,
-        uint256[] calldata _voteIDs,
-        uint256 _choice,
-        uint256 _salt
-    ) internal view {
-        bytes32 actualVoteHash = hashVote(_choice, _salt);
-        for (uint256 i = 0; i < _voteIDs.length; i++) {
-            require(
-                disputes[_localDisputeID].rounds[_localRoundID].votes[_voteIDs[i]].commit == actualVoteHash,
-                ChoiceCommitmentMismatch()
-            );
-        }
     }
 
     // ************************************* //
@@ -944,7 +806,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     error KlerosCoreOnly();
     error DisputeJumpedToAnotherDisputeKit();
     error DisputeUnknownInThisDisputeKit();
-    error UnsuccessfulCall();
     error NotCommitPeriod();
     error EmptyCommit();
     error JurorHasToOwnTheVote();
@@ -957,8 +818,6 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable, UUPSProxia
     error NotAppealPeriodForLoser();
     error AppealFeeIsAlreadyPaid();
     error DisputeNotResolved();
-    error CoreIsPaused();
-    error WhenArbitrationNotPausedOnly();
     error CoherenceArrayLengthMismatch();
     error CoherenceOutOfScope();
 }

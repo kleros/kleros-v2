@@ -1,0 +1,39 @@
+src/
+├── arbitration
+│   ├── arbitrables
+│   │   └── DisputeResolver.sol
+│   ├── dispute-kits
+│   │   ├── DisputeKitClassic.sol
+│   │   ├── DisputeKitClassicBase.sol
+│   │   ├── DisputeKitGated.sol
+│   │   ├── DisputeKitGatedArgentinaConsumerProtection.sol
+│   │   ├── DisputeKitGatedShutter.sol
+│   │   ├── DisputeKitShutter.sol
+│   │   └── DisputeKitSybilResistant.sol
+│   ├── evidence
+│   │   ├── EvidenceModule.sol
+│   ├── interfaces
+│   │   ├── IArbitrableV2.sol
+│   │   ├── IArbitratorV2.sol
+│   │   ├── IDisputeKit.sol
+│   │   ├── IDisputeTemplateRegistry.sol
+│   │   ├── IEvidence.sol
+│   │   └── ISortitionModule.sol
+│   ├── DisputeTemplateRegistry.sol
+│   ├── KlerosCore.sol
+│   ├── PolicyRegistry.sol
+│   ├── SortitionModule.sol
+├── libraries
+│   ├── Constants.sol
+│   ├── SafeERC20.sol
+│   ├── SafeSend.sol
+│   └── SortitionTrees.sol
+├── proxy
+│   ├── Initializable.sol  (from OZ with minor changes)
+│   ├── UUPSProxiable.sol  (from OZ with minor changes)
+│   └── UUPSProxy.sol  (from OZ with minor changes)
+└── rng
+    ├── ChainlinkRNG.sol
+    ├── ChainlinkConsumerBaseV2Plus.sol (from Chainlink with minor changes)
+    ├── IRNG.sol
+    └── RNGWithFallback.sol

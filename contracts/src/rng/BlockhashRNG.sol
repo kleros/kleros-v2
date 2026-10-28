@@ -25,12 +25,12 @@ contract BlockHashRNG is IRNG {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(owner == msg.sender, OwnerOnly());
         _;
     }
 
-    modifier onlyByConsumer() {
+    modifier onlyConsumer() {
         require(consumer == msg.sender, ConsumerOnly());
         _;
     }
@@ -55,13 +55,13 @@ contract BlockHashRNG is IRNG {
 
     /// @notice Changes the owner of the contract.
     /// @param _owner The new owner.
-    function changeOwner(address _owner) external onlyByOwner {
+    function changeOwner(address _owner) external onlyOwner {
         owner = _owner;
     }
 
     /// @notice Changes the consumer of the RNG.
     /// @param _consumer The new consumer.
-    function changeConsumer(address _consumer) external onlyByOwner {
+    function changeConsumer(address _consumer) external onlyOwner {
         consumer = _consumer;
     }
 
@@ -70,14 +70,14 @@ contract BlockHashRNG is IRNG {
     // ************************************* //
 
     /// @notice Request a random number.
-    function requestRandomness() external override onlyByConsumer {
+    function requestRandomness() external onlyConsumer {
         requestTimestamp = block.timestamp;
     }
 
     /// @notice Return the random number.
     /// @dev If it has not been saved and is still computable compute it.
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
-    function receiveRandomness() external override onlyByConsumer returns (uint256 randomNumber) {
+    function receiveRandomness() external onlyConsumer returns (uint256 randomNumber) {
         if (requestTimestamp == 0) return 0; // No requests were made yet.
 
         uint256 expectedTimestamp = requestTimestamp + lookaheadTime;
@@ -118,4 +118,11 @@ contract BlockHashRNG is IRNG {
         if (requestTimestamp == 0) return 0; // No requests were made yet.
         return requestTimestamp + lookaheadTime;
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error OwnerOnly();
+    error ConsumerOnly();
 }

@@ -44,15 +44,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deployUpgradable(deployments, "HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
-    args: [
-      deployer,
-      klerosCore.address,
-      vea.address,
-      HardhatChain.HARDHAT,
-      foreignGateway.address,
-      ethers.ZeroAddress, // feeToken
-      // Confirm that using ZeroAddress here is intentional and safe for the intended use case.
-    ],
+    args: [deployer, klerosCore.address, vea.address, HardhatChain.HARDHAT, foreignGateway.address],
     gasLimit: 4000000,
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
@@ -74,8 +66,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistry", {
     from: deployer,
-    args: [deployer],
+    args: [],
     log: true,
+    initializer: false,
   });
 
   // TODO: debug why this extraData fails but "0x00" works
@@ -91,7 +84,6 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       "disputeTemplateMapping: TODO",
       extraData,
       disputeTemplateRegistry.address,
-      ethers.ZeroAddress,
     ],
     log: true,
   });

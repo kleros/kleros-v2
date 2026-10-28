@@ -55,14 +55,6 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
     /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable;
 
-    /// @notice Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
-    ///
-    /// @dev Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-    /// This function accepts the fees payment in the ERC20 `acceptedFeeToken()`.
-    ///
-    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
-    function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external;
-
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
@@ -79,8 +71,4 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
     /// @notice Foreign gateway address.
     /// @return The address of the corresponding foreign gateway.
     function foreignGateway() external view returns (address);
-
-    /// @notice Fee token.
-    /// @return The fee token.
-    function feeToken() external view returns (IERC20);
 }

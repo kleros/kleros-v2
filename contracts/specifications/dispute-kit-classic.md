@@ -13,7 +13,6 @@ Other dispute kits may implement these features differently to support various d
      - [Mechanism](#mechanism)
      - [Implementation Notes](#implementation-notes)
      - [Drawing Flow](#drawing-flow)
-     - [Post-Draw Validation](#post-draw-validation)
    - [Vote Aggregation: Plurality Voting](#2-vote-aggregation-plurality-voting)
      - [Mechanism](#mechanism-1)
      - [Vote Weight](#vote-weight)
@@ -81,7 +80,7 @@ The drawing system determines how jurors are selected for a dispute.
 1. `KlerosCore` initiates the drawing process
 2. For each draw:
    - DisputeKit calls `SortitionModule.draw()` with:
-     - `key`: Court ID as bytes32
+     - `courtID`: Court ID as uint96
      - `coreDisputeID`: Dispute identifier
      - `nonce`: Current draw iteration
    - SortitionModule:
@@ -92,13 +91,6 @@ The drawing system determines how jurors are selected for a dispute.
      - Creates a new vote instance if valid
      - Requests a redraw if invalid
 
-#### Post-Draw Validation
-
-- DisputeKit performs additional checks after each draw:
-  - Verifies juror has sufficient stake (`totalStaked >= totalLocked + lockedAmountPerJuror`)
-  - Ensures juror hasn't been drawn before if `singleDrawPerJuror` is enabled
-  - Skips and redraws if validation fails
-
 ### 2. Vote Aggregation: Plurality Voting
 
 The vote aggregation system determines how individual votes are combined into a final ruling.
@@ -107,9 +99,7 @@ The vote aggregation system determines how individual votes are combined into a 
 
 - Each juror gets one vote per draw
 - The choice with the most votes wins
-- In case of a tie:
-  - If it's the first round: refuse to arbitrate (choice 0)
-  - If it's an appeal round: maintain the previous round's winning choice
+- In case of a tie: refuse to arbitrate (choice 0)
 
 #### Vote Weight
 
@@ -131,19 +121,19 @@ The incentive system determines how rewards (both fees and PNK) are distributed.
 - Only coherent jurors receive rewards
 - Equal split among all coherent votes
 - Two types of rewards:
-  1. Arbitration Fees (ETH/ERC20)
+  1. Arbitration Fees
      - Split proportionally to coherence
-     - `jurorReward = (totalFees / numberOfCoherentVotes) * degreeOfCoherence`
+     - `jurorReward = (availableFeeAmount * coherence) / ONE_BASIS_POINT;`
   2. PNK Redistribution
      - Penalties from incoherent votes are redistributed
-     - `pnkReward = (totalPenalties / numberOfCoherentVotes) * degreeOfCoherence`
+     - `pnkReward = (availablePnkAmount * coherence) / ONE_BASIS_POINT`
 
 #### Coherence Calculation
 
 - Full coherence (100%): Voted for winning choice
 - Partial coherence: Based on vote's relationship to final outcome
 - Zero coherence: Voted for losing choice or didn't vote
-- `degreeOfCoherence` ranges from 0 to 10000 (basis points)
+- `coherence` ranges from 0 to 10000 (basis points)
 
 ### 4. Appeal System: Binary Funding with Free Choice
 
@@ -157,22 +147,19 @@ The appeal system determines how disputes can be appealed and funded.
 
 #### Appeal Funding
 
-- Requires funding for:
+- Requires full funding of two distinct choices, typically:
   1. The losing choice
   2. The winning choice (counter-funding)
 - Funding must cover fees for next round:
-  - Number of jurors doubles in each appeal
-  - Fee per juror remains constant
+  - Number of jurors normally increases to 2n + 1 jurors
+  - Fee per juror depends on the destination court
 - Both sides must be fully funded for appeal to proceed
 
 #### Appeal Outcomes
 
-- If both sides fully funded:
-  - Appeal proceeds
-  - New round starts with double the jurors
-- If funding incomplete:
-  - Current round's outcome becomes final
-  - Partial funding is refunded
+- Two distinct choices fully funded: the appeal proceeds.
+- Exactly one choice fully funded: that choice wins, even if it lost the vote.
+- No choices fully funded: the voting result stands.
 
 ## 📢 Events
 
@@ -213,14 +200,13 @@ Events specific to the Classic implementation, supporting its unique features:
 Emitted when a new dispute is created in the dispute kit.
 
 ```solidity
-event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices, bytes _extraData);
+event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices);
 ```
 
 Parameters:
 
 - `_coreDisputeID`: Dispute identifier in the Arbitrator contract
 - `_numberOfChoices`: Number of available ruling choices
-- `_extraData`: Additional dispute configuration data
 
 ##### `CommitCast`
 
@@ -235,7 +221,7 @@ Parameters:
 - `_coreDisputeID`: Dispute identifier
 - `_juror`: Address of the committing juror
 - `_voteIDs`: Array of vote IDs being committed
-- `_commit`: Hash of the committed vote (choice + salt)
+- `_commit`: Hash of the committed vote `keccak256(abi.encodePacked(_choice, _jurorAddress, _salt))`
 
 #### 2. Appeal Funding Events
 
@@ -282,7 +268,6 @@ Emitted when a contributor withdraws their appeal funding contribution.
 ```solidity
 event Withdrawal(
   uint256 indexed _coreDisputeID,
-  uint256 indexed _coreRoundID,
   uint256 _choice,
   address indexed _contributor,
   uint256 _amount
@@ -292,7 +277,6 @@ event Withdrawal(
 Parameters:
 
 - `_coreDisputeID`: Dispute identifier
-- `_coreRoundID`: Round number in the dispute
 - `_choice`: Choice the contribution was made for
 - `_contributor`: Address receiving the withdrawal
 - `_amount`: Amount of ETH withdrawn
@@ -337,7 +321,7 @@ function castCommit(
 - Parameters:
   - `_coreDisputeID`: Dispute identifier
   - `_voteIDs`: Array of vote IDs to commit for
-  - `_commit`: Hash of the vote choice and salt
+  - `_commit`: Hash of the vote choice, juror address and salt
 - Requirements:
   - Must be in commit period
   - Caller must own the votes
@@ -384,8 +368,8 @@ function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable
   - `_coreDisputeID`: Dispute identifier
   - `_choice`: Ruling option to fund
 - Key features:
-  - Winners pay 1x appeal cost
-  - Losers pay 2x appeal cost
+  - Winners pay 2x appeal cost, including the deposit
+  - Losers pay 3x appeal cost, including the deposit
   - Losers have half the funding period
   - Appeal proceeds when two choices are funded
   - Excess contributions are reimbursed
@@ -398,7 +382,6 @@ function fundAppeal(uint256 _coreDisputeID, uint256 _choice) external payable
 function withdrawFeesAndRewards(
     uint256 _coreDisputeID,
     address payable _beneficiary,
-    uint256 _coreRoundID,
     uint256 _choice
 ) external returns (uint256 amount)
 ```
@@ -408,7 +391,6 @@ function withdrawFeesAndRewards(
 - Parameters:
   - `_coreDisputeID`: Dispute identifier
   - `_beneficiary`: Address to receive the withdrawal
-  - `_coreRoundID`: Round to withdraw from
   - `_choice`: Ruling option funded
 - Returns amount withdrawn
 - Handles various scenarios:
@@ -425,9 +407,8 @@ These functions are restricted to core arbitrator components.
 ```solidity
 function createDispute(
     uint256 _coreDisputeID,
-    uint256 _numberOfChoices,
-    bytes calldata _extraData,
-    uint256 _nbVotes
+    uint256 _coreRoundID,
+    uint256 _numberOfChoices
 ) external
 ```
 
@@ -436,17 +417,17 @@ function createDispute(
 - Sets up initial round
 - Parameters:
   - `_coreDisputeID`: Dispute identifier
+  - `_coreRoundID`: Round identifier
   - `_numberOfChoices`: Available ruling options
-  - `_extraData`: Additional configuration
-  - `_nbVotes`: Number of votes for first round
 
 #### draw
 
 ```solidity
 function draw(
     uint256 _coreDisputeID,
-    uint256 _nonce
-) external returns (address drawnAddress)
+    uint256 _nonce,
+    uint256 _roundNbVotes
+) external returns (address drawnAddress, uint96 fromSubcourtID)
 ```
 
 - Called only by KlerosCore
@@ -454,9 +435,11 @@ function draw(
 - Parameters:
   - `_coreDisputeID`: Dispute identifier
   - `_nonce`: Drawing iteration
+  - `_roundNbVotes`: Number of votes in this round.
 - Returns drawn juror's address
+- Returns the subcourt ID from which the juror was drawn
 - Validates juror eligibility:
-  - Sufficient stake
+  - Juror actually staked in the drawn court
   - Not already drawn (if enabled)
   - Active status
 
@@ -470,12 +453,11 @@ function draw(
 
 2. **Upgradeability**
 
-   - Follows UUPS proxy pattern
+   - Follows Transparent proxy pattern
    - Maintains clean upgrade path
    - Preserves dispute state across upgrades
 
 3. **Integration**
-   - Works with any ERC20 token for fees
    - Compatible with all court configurations
    - Supports both commit-reveal and direct voting
 
