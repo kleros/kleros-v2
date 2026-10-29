@@ -106,6 +106,7 @@
       "you_need_non_zero_pnk": "Necesitas un saldo de PNK mayor a cero para depositar",
       "min_stake_in_court": "El depósito mínimo en la corte es: {{amount}} PNK",
       "invalid_dispute": "Disputa inválida",
+      "token_id_must_be_whole_number": "El ID del token debe ser un número entero",
       "allowed_file_types": "Tipos de archivo permitidos: [{{types}}], Tamaño máximo permitido: {{maxSize}} MB."
     }
   },
