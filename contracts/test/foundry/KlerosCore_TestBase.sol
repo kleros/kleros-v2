@@ -8,6 +8,7 @@ import {KlerosCore, IERC721} from "../../src/arbitration/KlerosCore.sol";
 import {IArbitratorV2} from "../../src/arbitration/interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
 import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
+import {CentralizedKit} from "../../src/arbitration/dispute-kits/CentralizedKit.sol";
 import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/DisputeKitSybilResistant.sol";
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {SortitionModuleMock, SortitionModule} from "../../src/test/SortitionModuleMock.sol";
@@ -35,6 +36,7 @@ abstract contract KlerosCore_TestBase is Test {
 
     KlerosCoreMock core;
     DisputeKitClassic disputeKit;
+    CentralizedKit centralizedKit;
     SortitionModuleMock sortitionModule;
     BlockHashRNG rng;
     PNK pinakion;
@@ -55,8 +57,8 @@ abstract contract KlerosCore_TestBase is Test {
     address disputer;
     address crowdfunder1;
     address crowdfunder2;
+    address ruler;
     address other;
-    address jurorProsecutionModule;
 
     // ************************************* //
     // *         Test Parameters           * //
@@ -69,6 +71,7 @@ abstract contract KlerosCore_TestBase is Test {
     bytes sortitionExtraData;
     bytes arbitratorExtraData;
     uint256[4] timesPerPeriod;
+    uint256[4] forkingTimesPerPeriod;
     bool hiddenVotes;
     uint256 totalSupply = 1000000 ether;
     uint256 minStakingTime;
@@ -81,6 +84,7 @@ abstract contract KlerosCore_TestBase is Test {
         KlerosCoreMock coreLogic = new KlerosCoreMock();
         SortitionModuleMock smLogic = new SortitionModuleMock();
         DisputeKitClassic dkLogic = new DisputeKitClassic();
+        CentralizedKit centralDkLogic = new CentralizedKit();
         DisputeTemplateRegistry registryLogic = new DisputeTemplateRegistry();
         pinakion = new PNK();
         feeToken = new TestERC20("Test", "TST");
@@ -93,16 +97,17 @@ abstract contract KlerosCore_TestBase is Test {
         disputer = vm.addr(4);
         crowdfunder1 = vm.addr(5);
         crowdfunder2 = vm.addr(6);
+        ruler = vm.addr(7);
         vm.deal(disputer, 10 ether);
         vm.deal(crowdfunder1, 10 ether);
         vm.deal(crowdfunder2, 10 ether);
-        jurorProsecutionModule = vm.addr(8);
         other = vm.addr(9);
         minStake = 1000;
         alpha = 10000;
         feeForJuror = 0.03 ether;
         jurorsForCourtJump = 511;
         timesPerPeriod = [60, 120, 180, 240];
+        forkingTimesPerPeriod = [0, 0, 0, 0];
 
         pinakion.transfer(msg.sender, totalSupply - 2 ether);
         pinakion.transfer(staker1, 1 ether);
@@ -117,6 +122,16 @@ abstract contract KlerosCore_TestBase is Test {
         rng = new BlockHashRNG(msg.sender, address(sortitionModule), rngLookahead);
 
         UUPSProxy proxyCore = new UUPSProxy(address(coreLogic), "");
+
+        bytes memory initDataCentralDk = abi.encodeWithSignature(
+            "initialize(address,address,address)",
+            owner,
+            address(proxyCore),
+            ruler
+        );
+
+        UUPSProxy proxyCentralDk = new UUPSProxy(address(centralDkLogic), initDataCentralDk);
+        centralizedKit = CentralizedKit(address(proxyCentralDk));
 
         bytes memory initDataDk = abi.encodeWithSignature(
             "initialize(address,address,address)",
@@ -151,11 +166,12 @@ abstract contract KlerosCore_TestBase is Test {
             payable(owner),
             guardian,
             pinakion,
-            jurorProsecutionModule,
             disputeKit,
+            centralizedKit,
             hiddenVotes,
             [minStake, alpha, feeForJuror, jurorsForCourtJump],
             timesPerPeriod,
+            forkingTimesPerPeriod,
             sortitionExtraData,
             sortitionModule,
             address(wNative),
