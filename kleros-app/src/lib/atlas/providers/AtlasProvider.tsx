@@ -1,4 +1,4 @@
-import React, { useMemo, createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { useMemo, createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
 import { decodeJwt } from "jose";
@@ -108,6 +108,9 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const queryClient = useQueryClient();
 
   const [authToken, setAuthToken] = useSessionStorage<string | undefined>("authToken", undefined);
+  // Mirrors authToken so chained mutations see a token minted in the same tick,
+  // before React re-renders with the new isVerified state.
+  const authTokenRef = useRef<string | undefined>(authToken);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
@@ -125,6 +128,36 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
       : undefined;
     return new GraphQLClient(`${config.uri}/graphql`, { headers });
   }, [authToken, config.uri]);
+
+  /** Client built from the token currently in the ref, not the memoised one. */
+  const createAuthedClient = useCallback(() => {
+    const token = authTokenRef.current;
+    return new GraphQLClient(`${config.uri}/graphql`, {
+      headers: token ? { authorization: `Bearer ${token}` } : undefined,
+    });
+  }, [config.uri]);
+
+  /** Throws if the caller is not authenticated; returns a client with the latest token. */
+  const requireAuth = useCallback((): GraphQLClient => {
+    const token = authTokenRef.current;
+    if (!address || !token) {
+      throw new AuthorizationError("Not authenticated");
+    }
+    const payload = decodeJwt(token);
+    if ((payload?.sub as string)?.toLowerCase() !== address.toLowerCase()) {
+      throw new AuthorizationError("Token does not match connected address");
+    }
+    if (payload.exp && payload.exp < Date.now() / 1000) {
+      throw new AuthorizationError("Token expired");
+    }
+    return createAuthedClient();
+  }, [address, createAuthedClient]);
+
+  // Keep the ref in sync when authToken changes outside authoriseUser
+  // (storage restore, expiry, address switch).
+  useEffect(() => {
+    authTokenRef.current = authToken;
+  }, [authToken]);
 
   /**
    * @description verifies user authorisation
@@ -251,6 +284,9 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         const signature = await signMessageAsync({ message });
 
         const token = await loginUser(atlasGqlClient, { message, signature });
+        // Update the ref before setState so a chained mutation in the same
+        // handler sees the fresh token without waiting for a re-render.
+        authTokenRef.current = token;
         setAuthToken(token);
       } catch (err: unknown) {
         throw err;
@@ -264,11 +300,11 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
   const addUser = useCallback(
     async (userSettings: Omit<AddUserData, "product">) => {
       try {
-        if (!address || !isVerified) return false;
+        const client = requireAuth();
         setIsAddingUser(true);
 
         const userAdded = await fetchWithAuthErrorHandling(() =>
-          addUserToAtlas(atlasGqlClient, { ...userSettings, product: config.signupProduct })
+          addUserToAtlas(client, { ...userSettings, product: config.signupProduct })
         );
         refetchUser();
 
@@ -279,17 +315,17 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsAddingUser(false);
       }
     },
-    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser, config.signupProduct]
+    [requireAuth, setIsAddingUser, refetchUser, config.signupProduct]
   );
 
   const updateEmail = useCallback(
     async (userSettings: Omit<UpdateEmailData, "product">) => {
       try {
-        if (!address || !isVerified) return false;
+        const client = requireAuth();
         setIsUpdatingUser(true);
 
         const emailUpdated = await fetchWithAuthErrorHandling(() =>
-          updateEmailInAtlas(atlasGqlClient, { ...userSettings, product: config.signupProduct })
+          updateEmailInAtlas(client, { ...userSettings, product: config.signupProduct })
         );
         refetchUser();
 
@@ -300,22 +336,22 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsUpdatingUser(false);
       }
     },
-    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser, config.signupProduct]
+    [requireAuth, setIsUpdatingUser, refetchUser, config.signupProduct]
   );
 
   const deleteUser = useCallback(async () => {
     try {
-      if (!address || !isVerified) return false;
+      const client = requireAuth();
       setIsDeletingUser(true);
 
-      const userDeleted = await fetchWithAuthErrorHandling(() => deleteUserFromAtlas(atlasGqlClient));
+      const userDeleted = await fetchWithAuthErrorHandling(() => deleteUserFromAtlas(client));
       refetchUser();
 
       return userDeleted;
     } finally {
       setIsDeletingUser(false);
     }
-  }, [address, isVerified, setIsDeletingUser, atlasGqlClient, refetchUser]);
+  }, [requireAuth, setIsDeletingUser, refetchUser]);
 
   const uploadFile = useCallback(
     async (file: File, role: Roles) => {
@@ -326,12 +362,15 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
       }
 
       try {
-        if (!address || !isVerified || !config.uri || !authToken) return null;
+        if (!address || !config.uri) return null;
+        const client = requireAuth();
+        const token = authTokenRef.current;
+        if (!token) return null;
         let resolvedRestrictions = roleRestrictions;
 
         // Try to fetch restrictions again if first background try failed
         if (isUndefined(resolvedRestrictions)) {
-          resolvedRestrictions = await fetchRestrictions(atlasGqlClient, product);
+          resolvedRestrictions = await fetchRestrictions(client, product);
         }
 
         if (isUndefined(resolvedRestrictions)) {
@@ -359,23 +398,14 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsUploadingFile(true);
 
         const hash = await fetchWithAuthErrorHandling(() =>
-          uploadToIpfs({ baseUrl: config.uri, authToken }, { file, name: file.name, role, product: product })
+          uploadToIpfs({ baseUrl: config.uri, authToken: token }, { file, name: file.name, role, product: product })
         );
         return hash ? `/ipfs/${hash}` : null;
       } finally {
         setIsUploadingFile(false);
       }
     },
-    [
-      address,
-      isVerified,
-      setIsUploadingFile,
-      authToken,
-      config.uri,
-      config.ipfsProduct,
-      roleRestrictions,
-      atlasGqlClient,
-    ]
+    [address, setIsUploadingFile, config.uri, config.ipfsProduct, roleRestrictions, requireAuth]
   );
 
   const confirmEmail = useCallback(
