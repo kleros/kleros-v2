@@ -29,13 +29,26 @@ const disputeTemplateQuery = graphql(`
 
 export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: Address) => {
   const { data: disputeData } = useDisputeDetailsQuery(disputeID);
+  return useDisputeTemplateData(
+    disputeID,
+    arbitrableAddress,
+    disputeData?.dispute?.templateId,
+    disputeData?.dispute?.arbitrableChainId
+  );
+};
+
+/**
+ * The dispute's populated template, for callers that already know its template ID and arbitrable chain.
+ * Unlike `usePopulatedDisputeData`, it doesn't subscribe to the dispute details, which refetch every few seconds.
+ */
+export const useDisputeTemplateData = (
+  disputeID?: string,
+  arbitrableAddress?: Address,
+  templateId?: string | null,
+  arbitrableChainId?: string | null
+) => {
   const { graphqlBatcher } = useGraphqlBatcher();
-  const isEnabled =
-    !isUndefined(disputeID) &&
-    !isUndefined(disputeData) &&
-    !isUndefined(disputeData?.dispute) &&
-    !isUndefined(disputeData.dispute?.arbitrableChainId) &&
-    !isUndefined(disputeData.dispute?.templateId);
+  const isEnabled = !isUndefined(disputeID) && !isUndefined(arbitrableChainId) && !isUndefined(templateId);
 
   return useQuery<DisputeDetails>({
     queryKey: [`DisputeTemplate`, disputeID],
@@ -47,7 +60,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const { disputeTemplate } = await graphqlBatcher.fetch({
             id: crypto.randomUUID(),
             document: disputeTemplateQuery,
-            variables: { id: disputeData.dispute!.templateId!.toString() },
+            variables: { id: templateId.toString() },
             isDisputeTemplate: true,
             chainId: DEFAULT_CHAIN.id,
           });
@@ -62,7 +75,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
             arbitrator: klerosCoreAddress[DEFAULT_CHAIN.id],
             arbitratorDisputeID: disputeID,
             arbitrableAddress: arbitrableAddress,
-            arbitrableChainID: disputeData.dispute?.arbitrableChainId,
+            arbitrableChainID: arbitrableChainId,
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
           };

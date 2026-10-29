@@ -14,6 +14,7 @@ import { useDisputeKitInfo } from "hooks/useDisputeKitInfo";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { useVotingContext } from "hooks/useVotingContext";
 import { formatDate } from "utils/date";
+import { getPeriodDeadline } from "utils/getPeriodDeadline";
 import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
 
@@ -23,7 +24,6 @@ import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeD
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
 import Popup, { PopupType } from "components/Popup";
 
@@ -44,13 +44,6 @@ const InfoCardContainer = styled.div`
   margin-bottom: ${responsiveSize(16, 24)};
 `;
 
-const useFinalDate = (lastPeriodChange?: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
-  useMemo(() => {
-    if (!isUndefined(lastPeriodChange) && !isUndefined(currentPeriodIndex) && !isUndefined(timesPerPeriod))
-      return getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
-    else return undefined;
-  }, [lastPeriodChange, currentPeriodIndex, timesPerPeriod]);
-
 interface IVoting {
   arbitrable?: Address;
   currentPeriodIndex: number;
@@ -68,7 +61,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, dispute }) 
   useLockOverlayScroll(isPopupOpen);
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.currentRound.timesPerPeriod;
-  const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+  const finalDate = getPeriodDeadline(currentPeriodIndex, lastPeriodChange, timesPerPeriod);
 
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
