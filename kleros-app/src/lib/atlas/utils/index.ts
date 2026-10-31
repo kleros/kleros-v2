@@ -8,12 +8,13 @@ export enum SignupProduct {
   Foresight = "Foresight",
 }
 
-// https://github.com/kleros/atlas/blob/2272ebb53aecc4fecb69294a4162184cea17a5a1/packages/api/src/ipfs/datatypes.ts#L8
+// https://github.com/kleros/atlas/blob/0f1f7a93910bcc698830c67a178e2936c748578a/packages/api/src/ipfs/datatypes.ts#L8
 export enum IpfsProduct {
   CourtV1 = "CourtV1",
   CourtV2 = "CourtV2",
   Curate = "Curate",
   Escrow = "Escrow",
+  Foresight = "Foresight",
   Governor = "Governor",
   ProofOfHumanity = "ProofOfHumanity",
   Reality = "Reality",
@@ -21,13 +22,15 @@ export enum IpfsProduct {
   TokenList = "TokenList",
 }
 
-// https://github.com/kleros/atlas/blob/2272ebb53aecc4fecb69294a4162184cea17a5a1/packages/api/src/ipfs/datatypes.ts#L20
+// https://github.com/kleros/atlas/blob/0f1f7a93910bcc698830c67a178e2936c748578a/packages/api/src/ipfs/datatypes.ts#L21
 export enum Roles {
   Evidence = "evidence",
   Generic = "generic",
   IdentificationVideo = "identification-video",
   CurateItemImage = "curate-item-image",
   CurateItemFile = "curate-item-file",
+  ForesightImage = "foresight-image",
+  ForesightMetadata = "foresight-metadata",
   Logo = "logo",
   MetaEvidence = "meta-evidence",
   Photo = "photo",

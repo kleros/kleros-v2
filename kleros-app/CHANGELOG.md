@@ -6,6 +6,10 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `IpfsProduct.Foresight` and the `Roles.ForesightImage` / `Roles.ForesightMetadata` upload roles, matching Atlas.
+
 ## [3.1.0] - 2026-07-27
 
 ### Added
