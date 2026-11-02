@@ -1,44 +1,34 @@
 import {
   setupTokenGatedTest,
-  testTokenWhitelistManagement,
-  testAccessControl,
-  testUnsupportedTokenErrors,
+  testFixedTokenGateConfiguration,
   testERC20Gating,
   testERC721Gating,
   testERC1155Gating,
-  testWhitelistIntegration,
-  testTokenGateRequired,
-  testCourtEligibilityMisconfiguration,
   TokenGatedTestContext,
 } from "./helpers/dispute-kit-gated-common";
 
 /**
- * Test suite for DisputeKitGated - a dispute kit that requires jurors to hold
- * specific tokens (ERC20, ERC721, or ERC1155) to participate in disputes.
+ * Test suite for DisputeKitGated instances configured with fixed ERC20, ERC721,
+ * or ERC1155 token gates.
  *
  * Tests cover:
- * - Token whitelist management and access control
- * - Error handling for unsupported tokens
- * - Token gating functionality for different token types
- * - Integration between whitelist and dispute creation
+ * - Eligibility based on the configured token and ERC1155 token ID
+ * - Fixed configuration across disputes and rejected reinitialization
+ * - ERC20, ERC721, and ERC1155 drawing filters
+ * - Filtering cutoff and fallback drawing after the attempt limit
  */
 describe("DisputeKitGated", async () => {
   let context: TokenGatedTestContext;
 
   beforeEach("Setup", async () => {
     context = await setupTokenGatedTest({
-      contractName: "DisputeKitGatedMock",
+      contractName: "DisputeKitGated",
     });
   });
 
   // Run all shared tests with the context
-  testTokenWhitelistManagement(() => context);
-  testAccessControl(() => context);
-  testUnsupportedTokenErrors(() => context);
+  testFixedTokenGateConfiguration(() => context);
   testERC20Gating(() => context);
   testERC721Gating(() => context);
   testERC1155Gating(() => context);
-  testWhitelistIntegration(() => context);
-  testTokenGateRequired(() => context);
-  testCourtEligibilityMisconfiguration(() => context);
 });

@@ -31,7 +31,7 @@ describe("KlerosCoreRuler", async () => {
 
     // Create dummy disputes to distinguish between arbitrable-level and arbitrator-level disputeIDs
     await core.changeRulingModeToManual(deployer.address);
-    await core["createDispute(uint256,bytes)"](2, extraData, {
+    await core.createDispute(2, extraData, {
       value: parseEther("0.3"),
     });
   });

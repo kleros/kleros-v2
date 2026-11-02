@@ -1,4 +1,4 @@
-import { deployments, ethers, getNamedAccounts, network } from "hardhat";
+import hre, { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { toBigInt, BigNumberish } from "ethers";
 import {
   PNK,
@@ -6,17 +6,17 @@ import {
   SortitionModule,
   IncrementalNG,
   DisputeKitShutter,
-  DisputeKitGatedShutterMock,
+  DisputeKitGatedShutter,
   TestERC20,
 } from "../../../typechain-types";
 import { expect } from "chai";
 import { Courts, NULL_ELIGIBILITY_REQUIREMENT } from "../../../deploy/utils";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { deployUpgradable } from "../../../deploy/utils/deployUpgradable";
-import { encodeExtraData as encodeGatedExtraData } from "./dispute-kit-gated-common";
+import { deployERC20 } from "../../../deploy/utils/deployTokens";
 
 // Type for the dispute kit (either DisputeKitShutter or DisputeKitGatedShutter)
-export type DisputeKitShutterType = DisputeKitShutter | DisputeKitGatedShutterMock;
+export type DisputeKitShutterType = DisputeKitShutter | DisputeKitGatedShutter;
 
 // Test context interface that holds all the test state
 export interface ShutterTestContext {
@@ -69,17 +69,15 @@ export const encodeExtraData = (courtId: BigNumberish, minJurors: BigNumberish, 
   ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256", "uint256"], [courtId, minJurors, disputeKitId]);
 
 // Helper function to generate choice and justification commitments
-export const generateCommitments = (choice: bigint, salt: bigint, justification: string) => {
-  // Choice commitment: hash(choice, salt)
+export const generateCommitments = (choice: bigint, juror: string, salt: bigint, justification: string) => {
+  // Choice commitment: hash(choice, juror, salt)
   const justificationHash = ethers.keccak256(ethers.toUtf8Bytes(justification));
   // Justification commitment: hash(salt, justificationHash)
   const justificationCommit = ethers.keccak256(
     ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "bytes32"], [salt, justificationHash])
   );
 
-  const choiceCommit = ethers.keccak256(
-    ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [choice, salt])
-  );
+  const choiceCommit = ethers.solidityPackedKeccak256(["uint256", "address", "uint256"], [choice, juror, salt]);
 
   return { choiceCommit, justificationCommit };
 };
@@ -105,17 +103,19 @@ export const createDisputeAndDraw = async (
 
     await context.core
       .connect(juror)
+      .depositTokens(context.thousandPNK(10))
+      .then((tx) => tx.wait());
+
+    await context.core
+      .connect(juror)
       .setStake(context.shutterCourtID, context.thousandPNK(10), {
         gasLimit: 500000,
       })
       .then((tx) => tx.wait());
 
-    expect(await context.sortitionModule.getJurorBalance(juror.address, context.shutterCourtID)).to.deep.equal([
-      context.thousandPNK(10), // totalStaked
-      0, // totalLocked
-      context.thousandPNK(10), // stakedInCourt
-      1, // nbOfCourts
-    ]);
+    const delayedStake = await context.sortitionModule.delayedStakes(juror.address, context.shutterCourtID);
+    expect(delayedStake.stake).to.equal(context.thousandPNK(10));
+    expect(delayedStake.pending).to.equal(true);
 
     // If gated, give tokens to jurors
     if (context.isGated && context.dai) {
@@ -123,20 +123,25 @@ export const createDisputeAndDraw = async (
     }
   }
 
-  // Use gated extra data if this is a gated dispute kit with DAI token
-  let extraData: string;
-  if (context.isGated && context.dai) {
-    extraData = encodeGatedExtraData(courtId, minJurors, disputeKitId, context.dai.target, false, 0);
-  } else {
-    extraData = encodeExtraData(courtId, minJurors, disputeKitId);
-  }
+  await network.provider.send("evm_increaseTime", [Number(await context.sortitionModule.stakingDelay())]);
+  await network.provider.send("evm_mine");
+  await context.sortitionModule
+    .executeDelayedStakes(
+      [context.juror1.address, context.juror2.address],
+      [context.shutterCourtID, context.shutterCourtID]
+    )
+    .then((tx) => tx.wait());
 
-  const arbitrationCost = await context.core["arbitrationCost(bytes)"](extraData);
+  const extraData = encodeExtraData(courtId, minJurors, disputeKitId);
+
+  const arbitrationCost = await context.core.arbitrationCost(extraData);
 
   // Create dispute via core contract
-  await context.core["createDispute(uint256,bytes)"](2, extraData, {
-    value: arbitrationCost,
-  }).then((tx) => tx.wait());
+  await context.core
+    .createDispute(2, extraData, {
+      value: arbitrationCost,
+    })
+    .then((tx) => tx.wait());
   const disputeId = 0;
 
   await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
@@ -238,18 +243,18 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
       ethers.parseEther("0.1"), // feeForJuror
       16, // jurorsForCourtJump
       [300, 300, 300, 300], // timesPerPeriod for evidence, commit, vote, appeal
-      ethers.toBeHex(5), // sortitionExtraData
       [1, shutterDKID], // supportedDisputeKits - must include Classic (1) and Shutter (2)
       NULL_ELIGIBILITY_REQUIREMENT
     );
   } else if (config.contractName === "DisputeKitGatedShutter") {
     // For gated shutter, we need to deploy it if not already deployed
     const weth = await ethers.getContract<TestERC20>("WETH");
+    await deployERC20(hre, deployer, "DAI");
     dai = await ethers.getContract<TestERC20>("DAI");
 
-    const deploymentResult = await deployUpgradable(deployments, "DisputeKitGatedShutterMock", {
+    const deploymentResult = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
       from: deployer,
-      args: [deployer, core.target, weth.target],
+      args: [core.target, weth.target, 1, 70, dai.target, false, 0],
       log: true,
     });
     await core.addNewDisputeKit(deploymentResult.address);
@@ -272,13 +277,7 @@ export async function setupShutterTest(config: ShutterTestConfig): Promise<Shutt
 
     await core.enableDisputeKits(Courts.GENERAL, [shutterDKID], true);
 
-    disputeKit = await ethers.getContract<DisputeKitGatedShutterMock>("DisputeKitGatedShutterMock");
-
-    // If gated, whitelist DAI token
-    if (config.isGated) {
-      const gatedKit = disputeKit as DisputeKitGatedShutterMock;
-      await gatedKit.changeSupportedErc721Tokens(Courts.GENERAL, [dai.target], true);
-    }
+    disputeKit = await ethers.getContract<DisputeKitGatedShutter>("DisputeKitGatedShutter");
   } else {
     throw new Error(`Unknown contract name: ${config.contractName}`);
   }
@@ -341,7 +340,12 @@ export function testCommitPhase(context: () => ShutterTestContext) {
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
         expect(voteIDs.length).to.be.greaterThan(0);
 
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await expect(
           ctx.disputeKit
@@ -367,6 +371,7 @@ export function testCommitPhase(context: () => ShutterTestContext) {
         // First commitment
         const { choiceCommit: commit1, justificationCommit: justification1 } = generateCommitments(
           1n,
+          ctx.juror1.address,
           111n,
           "First justification"
         );
@@ -377,6 +382,7 @@ export function testCommitPhase(context: () => ShutterTestContext) {
         // Second commitment (overwrites first)
         const { choiceCommit: commit2, justificationCommit: justification2 } = generateCommitments(
           2n,
+          ctx.juror1.address,
           222n,
           "Second justification"
         );
@@ -398,7 +404,7 @@ export function testCommitPhase(context: () => ShutterTestContext) {
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit } = generateCommitments(ctx.choice, ctx.juror1.address, ctx.salt, ctx.justification);
 
         await expect(
           ctx.disputeKit.connect(ctx.juror1).castCommitShutter(
@@ -418,7 +424,12 @@ export function testCommitPhase(context: () => ShutterTestContext) {
         // Still in evidence period
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await expect(
           ctx.disputeKit
@@ -433,7 +444,12 @@ export function testCommitPhase(context: () => ShutterTestContext) {
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await expect(
           ctx.disputeKit.connect(ctx.juror2).castCommitShutter(
@@ -459,7 +475,12 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         // Juror commits
         await ctx.disputeKit
@@ -489,7 +510,12 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -515,7 +541,12 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -541,7 +572,12 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -567,7 +603,12 @@ export function testNormalFlowBotReveals(context: () => ShutterTestContext) {
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -598,7 +639,12 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         // Juror commits
         await ctx.disputeKit
@@ -633,7 +679,12 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -662,7 +713,12 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -688,7 +744,12 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -714,7 +775,12 @@ export function testRecoveryFlowJurorReveals(context: () => ShutterTestContext) 
         await advanceToCommitPeriod(ctx, disputeId);
 
         const voteIDs = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-        const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+        const { choiceCommit, justificationCommit } = generateCommitments(
+          ctx.choice,
+          ctx.juror1.address,
+          ctx.salt,
+          ctx.justification
+        );
 
         await ctx.disputeKit
           .connect(ctx.juror1)
@@ -749,11 +815,13 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
 
       const { choiceCommit: commit1, justificationCommit: justification1 } = generateCommitments(
         1n,
+        ctx.juror1.address,
         111n,
         "Juror 1 justification"
       );
       const { choiceCommit: commit2, justificationCommit: justification2 } = generateCommitments(
         2n,
+        ctx.juror2.address,
         222n,
         "Juror 2 justification"
       );
@@ -803,7 +871,12 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
       await advanceToCommitPeriod(ctx, disputeId);
 
       const voteIDsJuror1 = await getVoteIDsForJuror(ctx, disputeId, ctx.juror1);
-      const { choiceCommit, justificationCommit } = generateCommitments(ctx.choice, ctx.salt, ctx.justification);
+      const { choiceCommit, justificationCommit } = generateCommitments(
+        ctx.choice,
+        ctx.juror1.address,
+        ctx.salt,
+        ctx.justification
+      );
 
       await ctx.disputeKit
         .connect(ctx.juror1)
@@ -821,6 +894,7 @@ export function testEdgeCasesAndSecurity(context: () => ShutterTestContext) {
       const voteIDsJuror2 = await getVoteIDsForJuror(ctx, disputeId, ctx.juror2);
       const { choiceCommit: commit2, justificationCommit: justification2 } = generateCommitments(
         differentChoice,
+        ctx.juror2.address,
         ctx.salt,
         ctx.justification
       );

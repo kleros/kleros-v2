@@ -65,38 +65,56 @@ describe("Integration tests", async () => {
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
     const arbitrationCost = ONE_TENTH_ETH * 3n;
+    const stakingDelay = Number(await sortitionModule.stakingDelay());
     const [, , relayer] = await ethers.getSigners();
 
     await pnk.approve(core.target, ONE_THOUSAND_PNK * 100n);
+    await core.depositTokens(ONE_THOUSAND_PNK * 4n);
 
     await core.setStake(1, ONE_THOUSAND_PNK);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStakedPnk).to.equal(ONE_THOUSAND_PNK);
-      expect(result.totalLocked).to.equal(0);
+    await network.provider.send("evm_increaseTime", [stakingDelay]); // Wait for stakingDelay.
+    await network.provider.send("evm_mine");
+    await sortitionModule.executeDelayedStakes([deployer], [1]);
+    expect(await sortitionModule.stakeOf(deployer, 1)).to.equal(ONE_THOUSAND_PNK);
+    await sortitionModule.getJurorBalance(deployer).then((result) => {
+      expect(result.stakedPnk).to.equal(ONE_THOUSAND_PNK);
+      expect(result.lockedPnk).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_HUNDRED_PNK * 5n);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStakedPnk).to.equal(ONE_HUNDRED_PNK * 5n);
-      expect(result.totalLocked).to.equal(0);
+    await network.provider.send("evm_increaseTime", [stakingDelay]); // Wait for stakingDelay.
+    await network.provider.send("evm_mine");
+    await sortitionModule.executeDelayedStakes([deployer], [1]);
+    expect(await sortitionModule.stakeOf(deployer, 1)).to.equal(ONE_HUNDRED_PNK * 5n);
+    await sortitionModule.getJurorBalance(deployer).then((result) => {
+      expect(result.stakedPnk).to.equal(ONE_HUNDRED_PNK * 5n);
+      expect(result.lockedPnk).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, 0);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStakedPnk).to.equal(0);
-      expect(result.totalLocked).to.equal(0);
+    await network.provider.send("evm_increaseTime", [stakingDelay]); // Wait for stakingDelay.
+    await network.provider.send("evm_mine");
+    await sortitionModule.executeDelayedStakes([deployer], [1]);
+    expect(await sortitionModule.stakeOf(deployer, 1)).to.equal(0);
+    await sortitionModule.getJurorBalance(deployer).then((result) => {
+      expect(result.stakedPnk).to.equal(0);
+      expect(result.lockedPnk).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_THOUSAND_PNK * 4n);
-    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStakedPnk).to.equal(ONE_THOUSAND_PNK * 4n);
-      expect(result.totalLocked).to.equal(0);
+    await network.provider.send("evm_increaseTime", [stakingDelay]); // Wait for stakingDelay.
+    await network.provider.send("evm_mine");
+    await sortitionModule.executeDelayedStakes([deployer], [1]);
+    expect(await sortitionModule.stakeOf(deployer, 1)).to.equal(ONE_THOUSAND_PNK * 4n);
+    await sortitionModule.getJurorBalance(deployer).then((result) => {
+      expect(result.stakedPnk).to.equal(ONE_THOUSAND_PNK * 4n);
+      expect(result.lockedPnk).to.equal(0);
       logJurorBalance(result);
     });
-    const tx = await arbitrable["createDispute(string)"]("future of france", {
+    const tx = await arbitrable.createDispute("future of france", {
       value: arbitrationCost,
     });
 
@@ -121,7 +139,7 @@ describe("Integration tests", async () => {
     }
     // Relayer tx
     await expect(
-      homeGateway.connect(relayer)["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"](
+      homeGateway.connect(relayer).relayCreateDispute(
         {
           foreignBlockHash: ethers.toBeHex(lastBlock.hash),
           foreignChainID: 31337,
@@ -173,7 +191,7 @@ describe("Integration tests", async () => {
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     await expect(core.execute(0, 0, 1000))
       .to.emit(core, "JurorRewardPenalty")
-      .withArgs(deployer, 0, 0, 10000, 10000, 0, arbitrationCost / 3n);
+      .withArgs(deployer, 0, 0, 0, arbitrationCost / 3n);
 
     await expect(core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 }))
       .to.emit(core, "RulingExecuted")
@@ -184,10 +202,6 @@ describe("Integration tests", async () => {
   });
 });
 
-const logJurorBalance = async (result: { totalStakedPnk: bigint; totalLocked: bigint }) => {
-  console.log(
-    "staked=%s, locked=%s",
-    ethers.formatUnits(result.totalStakedPnk),
-    ethers.formatUnits(result.totalLocked)
-  );
+const logJurorBalance = async (result: { stakedPnk: bigint; lockedPnk: bigint }) => {
+  console.log("staked=%s, locked=%s", ethers.formatUnits(result.stakedPnk), ethers.formatUnits(result.lockedPnk));
 };

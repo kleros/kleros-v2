@@ -11,6 +11,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { ZeroAddress } = hre.ethers;
 
+  const devnetOrLocalhost = isDevnet(hre.network) || isLocalhost(hre.network);
+  // TODO: Determine production staking delay.
+  const stakingDelay = devnetOrLocalhost ? 330 : undefined;
+  if (stakingDelay === undefined) throw new Error("Production staking delay not configured");
+
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
@@ -50,25 +55,16 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, weth.target],
+    args: [klerosCoreAddress, weth.target, 0],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
-  const devnetOrLocalhost = isDevnet(hre.network) || isLocalhost(hre.network);
   const minStakingTime = devnetOrLocalhost ? 3 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
   const maxFreezingTime = devnetOrLocalhost ? 10 * ONE_MINUTE_IN_SECONDS : 30 * ONE_MINUTE_IN_SECONDS;
   const rngWithFallback = await ethers.getContract<RNGWithFallback>("RNGWithFallback");
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [
-      deployer,
-      klerosCoreAddress,
-      minStakingTime,
-      maxFreezingTime,
-      rngWithFallback.target,
-      ethers.MaxUint256, // maxStakePerJuror
-      ethers.MaxUint256, // maxTotalStaked
-    ],
+    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rngWithFallback.target, stakingDelay],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
@@ -86,10 +82,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
+      [0, 0, 0, 0], // Final court: evidence, commit, vote, appeal
       sortitionModule.address,
       weth.target,
-      ZeroAddress, // jurorNft
     ],
     log: true,
   }); // nonce+4 (implementation), nonce+5 (proxy)
@@ -106,7 +101,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // Extra dispute kits
   const disputeKitShutter = await deployUpgradable(deployments, "DisputeKitShutter", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [core.target, weth.target, 1], // Jump to Classic dispute kit.
     log: true,
   });
   await core.addNewDisputeKit(disputeKitShutter.address);
@@ -114,29 +109,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // enable disputeKitShutter on the General Court
   await core.enableDisputeKits(Courts.GENERAL, [disputeKitShutterID], true);
 
-  const disputeKitGated = await deployUpgradable(deployments, "DisputeKitGated", {
-    from: deployer,
-    args: [deployer, core.target, weth.target],
-    log: true,
-  });
-  await core.addNewDisputeKit(disputeKitGated.address);
-  const disputeKitGatedID = (await core.getDisputeKitsLength()) - 1n;
-  // enable disputeKitGated on the General Court
-  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedID], true);
-
-  const disputeKitGatedShutter = await deployUpgradable(deployments, "DisputeKitGatedShutter", {
-    from: deployer,
-    args: [deployer, core.target, weth.target], // TODO: jump to a Shutter DK instead of a Classic one?
-    log: true,
-  });
-  await core.addNewDisputeKit(disputeKitGatedShutter.address);
-  const disputeKitGatedShutterID = (await core.getDisputeKitsLength()) - 1n;
-  // enable disputeKitGatedShutter on the General Court
-  await core.enableDisputeKits(Courts.GENERAL, [disputeKitGatedShutterID], true);
-
   const disputeKitClassicUniversity = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
-    args: [deployer, core.target, weth.target],
+    args: [deployer, core.target, weth.target, 1, 5],
     log: true,
   });
   await core.addNewDisputeKit(disputeKitClassicUniversity.address);

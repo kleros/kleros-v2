@@ -7,8 +7,7 @@ async function main() {
     hre.config.networks.chiado as HttpNetworkConfig,
     hre.companionNetworks.foreignChiado.deployments,
     "ForeignGatewayOnGnosis",
-    "HomeGatewayToGnosis",
-    "DAI"
+    "HomeGatewayToGnosis"
   );
 }
 
