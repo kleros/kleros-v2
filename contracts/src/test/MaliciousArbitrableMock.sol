@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.28;
 
-import {IArbitratorV2, IDisputeTemplateRegistry, IERC20, ArbitrableExample} from "../arbitration/arbitrables/ArbitrableExample.sol";
+import {IArbitratorV2, IDisputeTemplateRegistry, ArbitrableExample} from "../arbitration/arbitrables/ArbitrableExample.sol";
 
 /// @title MaliciousArbitrableMock
 /// A mock contract to check intentional rule() revert.
@@ -18,18 +18,8 @@ contract MaliciousArbitrableMock is ArbitrableExample {
         string memory _templateData,
         string memory _templateDataMappings,
         bytes memory _arbitratorExtraData,
-        IDisputeTemplateRegistry _templateRegistry,
-        IERC20 _weth
-    )
-        ArbitrableExample(
-            _arbitrator,
-            _templateData,
-            _templateDataMappings,
-            _arbitratorExtraData,
-            _templateRegistry,
-            _weth
-        )
-    {
+        IDisputeTemplateRegistry _templateRegistry
+    ) ArbitrableExample(_arbitrator, _templateData, _templateDataMappings, _arbitratorExtraData, _templateRegistry) {
         doRevert = true;
     }
 

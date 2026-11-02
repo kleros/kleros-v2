@@ -22,7 +22,7 @@ export const getContractOrDeploy = async <C extends BaseContract = BaseContract>
 export const getContractOrDeployUpgradable = async <C extends BaseContract = BaseContract>(
   hre: HardhatRuntimeEnvironment,
   contractName: string,
-  options: DeployOptions
+  options: DeployOptions & { initializer?: string | false }
 ): Promise<C> => {
   let contract = await hre.ethers.getContractOrNull<C>(contractName);
   if (!contract) {

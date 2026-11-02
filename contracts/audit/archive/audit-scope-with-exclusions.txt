@@ -1,0 +1,58 @@
+src/
+├── arbitration
+│   ├── arbitrables
+│   │   ├── ArbitrableExample.sol ❌
+│   │   └── DisputeResolver.sol
+│   ├── devtools ❌
+│   ├── dispute-kits
+│   │   ├── DisputeKitClassic.sol
+│   │   ├── DisputeKitClassicBase.sol
+│   │   ├── DisputeKitGated.sol
+│   │   ├── DisputeKitGatedArgentinaConsumerProtection.sol
+│   │   ├── DisputeKitGatedShutter.sol
+│   │   ├── DisputeKitShutter.sol
+│   │   └── DisputeKitSybilResistant.sol
+│   ├── evidence
+│   │   ├── EvidenceModule.sol
+│   │   └── ModeratedEvidenceModule.sol ❌
+│   ├── interfaces
+│   │   ├── IArbitrableV2.sol
+│   │   ├── IArbitratorV2.sol
+│   │   ├── IDisputeKit.sol
+│   │   ├── IDisputeTemplateRegistry.sol
+│   │   ├── IEvidence.sol
+│   │   └── ISortitionModule.sol
+│   ├── DisputeTemplateRegistry.sol
+│   ├── KlerosCore.sol
+│   ├── PolicyRegistry.sol
+│   ├── SortitionModule.sol
+│   ├── university ❌
+│   └── view
+│       └── KlerosCoreSnapshotProxy.sol ❌
+├── gateway  ❌
+├── kleros-v1 ❌
+├── libraries
+│   ├── Constants.sol
+│   ├── SafeERC20.sol
+│   ├── SafeSend.sol
+│   └── SortitionTrees.sol
+├── proxy
+│   ├── Initializable.sol
+│   ├── KlerosProxies.sol ❌
+│   ├── mock  ❌
+│   ├── UUPSProxiable.sol
+│   └── UUPSProxy.sol
+├── rng
+│   ├── BlockHashRNG.sol ❌
+│   ├── ChainlinkConsumerBaseV2Plus.sol
+│   ├── ChainlinkRNG.sol
+│   ├── IncrementalNG.sol ❌
+│   ├── IRandomizer.sol ❌
+│   ├── IRNG.sol
+│   ├── mock ❌
+│   ├── RandomizerRNG.sol ❌
+│   └── RNGWithFallback.sol
+├── test ❌
+├── token ❌
+└── utils
+    └── TransactionBatcher.sol ❌

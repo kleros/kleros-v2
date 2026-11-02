@@ -34,7 +34,6 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
             newFee, // fee for juror
             50, // jurors for jump
             newTimesPerPeriod,
-            abi.encode(uint256(4)), // Sortition extra data
             supportedDK,
             NULL_ELIGIBILITY_REQUIREMENT
         );
@@ -45,10 +44,6 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         vm.prank(disputer);
         arbitrable.createDispute{value: newFee * newNbJurors - 1}("Action");
 
-        vm.expectRevert(KlerosCore.DisputeKitNotSupportedByCourt.selector);
-        vm.prank(disputer);
-        arbitrable.createDispute{value: 0.04 ether}("Action");
-
         vm.prank(owner);
         supportedDK = new uint256[](1);
         supportedDK[0] = newDkID;
@@ -58,7 +53,7 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         uint256 nbChoices = 2;
         vm.prank(disputer);
         vm.expectEmit(true, true, true, true);
-        emit DisputeKitClassic.DisputeCreation(disputeID, nbChoices, newExtraData);
+        emit DisputeKitClassic.DisputeCreation(disputeID, nbChoices);
         vm.expectEmit(true, true, true, true);
         emit IArbitratorV2.DisputeCreation(disputeID, arbitrable);
         arbitrable.createDispute{value: 0.04 ether}("Action");
@@ -87,7 +82,6 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(round.pnkPenalties, 0, "pnkPenalties should be 0");
         assertEq(round.sumFeeRewardPaid, 0, "sumFeeRewardPaid should be 0");
         assertEq(round.sumPnkRewardPaid, 0, "sumPnkRewardPaid should be 0");
-        assertEq(address(round.feeToken), address(0), "feeToken should be 0");
         assertEq(round.drawIterations, 0, "drawIterations should be 0");
 
         uint256 defaultCourtParamsIndex = 0;
@@ -99,9 +93,8 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
             assertEq(courtParams.timesPerPeriod[i], newTimesPerPeriod[i], "Wrong times per period");
         }
 
-        (uint256 numberOfChoices, bytes memory extraData) = disputeKit.disputes(disputeID);
+        uint256 numberOfChoices = disputeKit.disputes(disputeID);
         assertEq(numberOfChoices, 2, "Wrong numberOfChoices");
-        assertEq(extraData, newExtraData, "Wrong extra data");
 
         (bool dispute, bool currentRound) = disputeKit.coreDisputeIDToActive(0);
         assertEq(dispute, true, "Dispute should be active in this DK");
@@ -125,39 +118,21 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
         assertEq(choiceCount, 0, "choiceCount should be 0");
     }
 
-    function test_createDispute_tokens() public {
-        feeToken.transfer(disputer, 1 ether);
+    function test_createDispute_changeUnsupportedDK() public {
+        uint256 newDkID = 2;
+        bytes memory newExtraData = abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, newDkID);
+
+        arbitrable.changeArbitratorExtraData(newExtraData);
+
+        uint256 disputeID = 0;
+        uint256 nbChoices = 2;
         vm.prank(disputer);
-        feeToken.approve(address(arbitrable), 1 ether);
+        vm.expectEmit(true, true, true, true);
+        emit DisputeKitClassic.DisputeCreation(disputeID, nbChoices);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
 
-        vm.expectRevert(KlerosCore.TokenNotAccepted.selector);
-        vm.prank(disputer);
-        arbitrable.createDispute("Action", 0.18 ether);
-
-        vm.prank(owner);
-        core.changeAcceptedFeeTokens(feeToken, true);
-        vm.prank(owner);
-        ratesConverter.changeCurrencyRates(feeToken, 500, 3);
-
-        vm.expectRevert(KlerosCore.ArbitrationFeesNotEnough.selector);
-        vm.prank(disputer);
-        arbitrable.createDispute("Action", 0.18 ether - 1);
-
-        vm.expectRevert(KlerosCore.TransferFailed.selector);
-        vm.prank(address(arbitrable)); // Bypass createDispute in arbitrable to avoid transfer checks there and make the arbitrable call KC directly
-        core.createDispute(2, arbitratorExtraData, feeToken, 0.18 ether);
-
-        assertEq(core.arbitrationCost(arbitratorExtraData, feeToken), 0.18 ether, "Wrong token cost");
-        vm.prank(disputer);
-        arbitrable.createDispute("Action", 0.18 ether);
-
-        KlerosCore.Round memory round = core.getRoundInfo(0, 0);
-        assertEq(round.totalFeesForJurors, 0.18 ether, "Wrong totalFeesForJurors");
-        assertEq(round.nbVotes, 3, "Wrong nbVotes");
-        assertEq(address(round.feeToken), address(feeToken), "Wrong feeToken");
-
-        assertEq(feeToken.balanceOf(address(core)), 0.18 ether, "Wrong token balance of the core");
-        assertEq(feeToken.balanceOf(disputer), 0.82 ether, "Wrong token balance of the disputer");
+        KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
+        assertEq(round.disputeKitID, DISPUTE_KIT_CLASSIC, "Dispute kit should switch to classic");
     }
 
     function testFuzz_createDispute_msgValue(uint256 disputeValue) public {
@@ -170,6 +145,16 @@ contract KlerosCore_DisputesTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 2000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: disputeValue}("Action");
 

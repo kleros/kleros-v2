@@ -36,12 +36,12 @@ contract RandomizerRNG is IRNG {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(owner == msg.sender, OwnerOnly());
         _;
     }
 
-    modifier onlyByConsumer() {
+    modifier onlyConsumer() {
         require(consumer == msg.sender, ConsumerOnly());
         _;
     }
@@ -67,31 +67,31 @@ contract RandomizerRNG is IRNG {
 
     /// @notice Changes the owner of the contract.
     /// @param _owner The new owner.
-    function changeOwner(address _owner) external onlyByOwner {
+    function changeOwner(address _owner) external onlyOwner {
         owner = _owner;
     }
 
     /// @notice Changes the consumer of the RNG.
     /// @param _consumer The new consumer.
-    function changeConsumer(address _consumer) external onlyByOwner {
+    function changeConsumer(address _consumer) external onlyOwner {
         consumer = _consumer;
     }
 
     /// @notice Change the Randomizer callback gas limit.
     /// @param _callbackGasLimit the new limit.
-    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByOwner {
+    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyOwner {
         callbackGasLimit = _callbackGasLimit;
     }
 
     /// @notice Change the Randomizer address.
     /// @param _randomizer the new Randomizer address.
-    function setRandomizer(address _randomizer) external onlyByOwner {
+    function setRandomizer(address _randomizer) external onlyOwner {
         randomizer = IRandomizer(_randomizer);
     }
 
     /// @notice Allows the owner to withdraw randomizer funds.
     /// @param _amount Amount to withdraw in wei.
-    function randomizerWithdraw(uint256 _amount) external onlyByOwner {
+    function randomizerWithdraw(uint256 _amount) external onlyOwner {
         randomizer.clientWithdrawTo(msg.sender, _amount);
     }
 
@@ -101,7 +101,7 @@ contract RandomizerRNG is IRNG {
 
     /// @notice Request a random number.
     /// @dev Consumer only.
-    function requestRandomness() external override onlyByConsumer {
+    function requestRandomness() external onlyConsumer {
         uint256 requestId = randomizer.request(callbackGasLimit);
         lastRequestId = requestId;
         emit RequestSent(requestId);
@@ -122,7 +122,7 @@ contract RandomizerRNG is IRNG {
 
     /// @notice Return the random number.
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
-    function receiveRandomness() external view override returns (uint256 randomNumber) {
+    function receiveRandomness() external view returns (uint256 randomNumber) {
         randomNumber = randomNumbers[lastRequestId];
     }
 
@@ -130,5 +130,7 @@ contract RandomizerRNG is IRNG {
     // *              Errors               * //
     // ************************************* //
 
+    error OwnerOnly();
+    error ConsumerOnly();
     error RandomizerOnly();
 }

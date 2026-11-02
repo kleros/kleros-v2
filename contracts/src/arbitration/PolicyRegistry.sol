@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {Initializable} from "../proxy/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /// @title PolicyRegistry
 /// @notice A contract to maintain a policy for each court.
-contract PolicyRegistry is UUPSProxiable, Initializable {
-    string public constant override version = "2.0.0";
-
+contract PolicyRegistry is Initializable {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -31,7 +28,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     // ************************************* //
 
     /// @notice Requires that the sender is the owner.
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(owner == msg.sender, OwnerOnly());
         _;
     }
@@ -55,17 +52,9 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     // *            Governance             * //
     // ************************************* //
 
-    /**
-     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the owner can perform upgrades (`onlyByOwner`)
-     */
-    function _authorizeUpgrade(address) internal view override onlyByOwner {
-        // NOP
-    }
-
     /// @notice Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
-    function changeOwner(address _owner) external onlyByOwner {
+    function changeOwner(address _owner) external onlyOwner {
         owner = _owner;
     }
 
@@ -77,7 +66,7 @@ contract PolicyRegistry is UUPSProxiable, Initializable {
     /// @param _courtID The ID of the specified court.
     /// @param _courtName The name of the specified court.
     /// @param _policy The URI of the policy JSON.
-    function setPolicy(uint256 _courtID, string calldata _courtName, string calldata _policy) external onlyByOwner {
+    function setPolicy(uint256 _courtID, string calldata _courtName, string calldata _policy) external onlyOwner {
         policies[_courtID] = _policy;
         emit PolicyUpdate(_courtID, _courtName, policies[_courtID]);
     }

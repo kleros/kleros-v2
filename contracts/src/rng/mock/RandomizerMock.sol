@@ -7,11 +7,11 @@ import "../RandomizerRNG.sol";
 contract RandomizerMock is IRandomizer {
     uint256 private id = 1;
 
-    function request(uint256 callbackGasLimit) external override returns (uint256) {
+    function request(uint256 callbackGasLimit) external returns (uint256) {
         return id++;
     }
 
-    function clientWithdrawTo(address _to, uint256 _amount) external override {
+    function clientWithdrawTo(address _to, uint256 _amount) external {
         revert("Not Implemented");
     }
 
