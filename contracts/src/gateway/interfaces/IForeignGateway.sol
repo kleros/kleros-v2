@@ -107,6 +107,13 @@ interface IForeignGateway is IArbitratorV2 {
         string calldata _templateUri
     ) external returns (uint256 messageId);
 
+    /// @dev Gives the arbitrable what the home chain sent for a dispute: calls `rule` with the ruling, or
+    /// `IForeignGatewayArbitrable.onDisputeCreationFailed` if the home chain could not create the dispute, which makes
+    /// its juror fees claimable. Anyone can call it, once the ruling or the failure is received, and only once. The
+    /// arbitrable is called with no try, so a revert reverts it, and it can be called again.
+    /// @param _disputeID The local dispute ID.
+    function executeRuling(uint256 _disputeID) external;
+
     /// @dev Looks up the local foreign disputeID for a disputeHash
     /// @param _disputeHash dispute hash
     function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256);

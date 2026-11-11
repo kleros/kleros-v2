@@ -5,7 +5,7 @@ pragma solidity >=0.8.0 <0.9.0;
 import "../../arbitration/interfaces/IArbitrableV2.sol";
 
 interface IHomeGateway is IArbitrableV2 {
-    /// @dev To be emitted when a dispute is received from the IForeignGateway.
+    /// @dev To be emitted when a dispute received from the IForeignGateway is created on the arbitrator.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitrableChainId The chain identifier where the Arbitrable contract is deployed.
     /// @param _arbitrable The address of the Arbitrable contract.

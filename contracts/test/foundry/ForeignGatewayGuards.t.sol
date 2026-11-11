@@ -303,9 +303,10 @@ contract ForeignGatewaySelectionTest is GatewayHarness {
         homeGateway.changeMinThreshold(2);
         vm.stopPrank();
 
-        (, uint256 homeDisputeID, ) = _disputeOnHome(extraData, _ids(0, 1), 2);
+        (uint256 foreignDisputeID, uint256 homeDisputeID, ) = _disputeOnHome(extraData, _ids(0, 1), 2);
         (uint256 messageId, Message memory message) = _ruleOnHome(homeDisputeID, 1);
         _deliver(foreignYaru, homeYaho, messageId, message);
+        _executeRuling(foreignDisputeID);
         assertEq(rulingCount, 1, "ruled");
     }
 
@@ -521,11 +522,12 @@ contract ForeignGatewayFeeGuardsTest is GatewayHarness {
         assertEq(foreignYaho.currentNonce(), 1, "the longest is dispatched");
     }
 
-    /// @dev Relays the dispute and delivers its creation failure, over oracle 0 alone.
+    /// @dev Relays the dispute, delivers its creation failure, over oracle 0 alone, and gives it to the arbitrable.
     function _failed(uint256 _id) internal returns (bytes32 hash) {
         hash = _relayed(_id);
         vm.prank(foreignYaru);
         foreignGateway.onMessage(0, block.chainid, address(homeGateway), 1, _oneAdapter(), abi.encode(hash));
+        _executeRuling(_id);
     }
 
     function test_relayDispute_twice_reverts() public {
@@ -591,7 +593,7 @@ contract ForeignGatewayFeeGuardsTest is GatewayHarness {
         foreignGateway.createDispute(CHOICES, tooLong, _ids(0), 1, token, JUROR_COST);
 
         (, , bytes32 disputeHash) = _disputeOnHome(longest, _ids(0), 1);
-        assertTrue(homeGateway.getReceivedDispute(disputeHash).received, "the longest is created on the home chain");
+        assertTrue(homeGateway.getReceivedDispute(disputeHash).created, "the longest is created on the home chain");
     }
 
     function _oneAdapter() internal view returns (IAdapter[] memory adapters) {

@@ -5,6 +5,7 @@ import {
   PNK,
   KlerosCore,
   ForeignGateway,
+  HomeGateway,
   GatewayLightbulb,
   DisputeKitClassic,
   SortitionModule,
@@ -14,7 +15,7 @@ import {
 } from "../../typechain-types";
 import { expect } from "chai";
 import { Courts } from "../../deploy/utils";
-import { relayMessages } from "../utils/veashi";
+import { createReceivedDispute, relayMessages } from "../utils/veashi";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -47,6 +48,7 @@ describe("Draw Benchmark", async () => {
   let pnk: PNK;
   let core: KlerosCore;
   let foreignGateway: ForeignGateway;
+  let homeGateway: HomeGateway;
   let foreignYaho: YahoMock;
   let homeYaru: YaruMock;
   let lightbulbs: Record<number, GatewayLightbulb>; // Opens disputes in its court, by court ID.
@@ -70,6 +72,7 @@ describe("Draw Benchmark", async () => {
     pnk = await ethers.getContract<PNK>("PNK");
     core = await ethers.getContract<KlerosCore>("KlerosCore");
     foreignGateway = await ethers.getContract<ForeignGateway>("VeashiForeignGateway");
+    homeGateway = await ethers.getContract<HomeGateway>("VeashiHomeGateway");
     foreignYaho = await ethers.getContract<YahoMock>("ForeignYaho");
     homeYaru = await ethers.getContract<YaruMock>("HomeYaru");
     sortitionModule = await ethers.getContract<SortitionModule>("SortitionModule");
@@ -160,7 +163,8 @@ describe("Draw Benchmark", async () => {
 
     // Create a dispute in the court through the gateways
     const requestTx = await lightbulbs[createDisputeCourtId]["requestSwitch()"]({ value: arbitrationCost });
-    await relayMessages(requestTx, foreignYaho, homeYaru).then((tx) => tx.wait());
+    const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
+    await createReceivedDispute(deliveryTx, homeGateway).then((tx) => tx.wait());
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");

@@ -724,9 +724,9 @@ contract ForeignGatewaySettersTest is GatewayHarness {
         (uint256 messageId, Message memory message) = _relay(disputeID, extraData);
         _assertReported(foreignReporters[0], foreignYaho, messageId, message);
         _assertReported(foreignReporters[1], foreignYaho, messageId, message);
-        uint256 homeDisputeID = ruler.getNextDisputeID();
         _deliver(homeYaru, foreignYaho, messageId, message);
-        assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "received on the home chain");
+        uint256 homeDisputeID = _createOnHome(message);
+        assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "created on the home chain");
     }
 
     // setOracleBridgingCost
@@ -892,9 +892,9 @@ contract ForeignGatewayReporterTest is GatewayHarness {
         _assertReported(foreignReporters[1], foreignYaho, messageId, message);
 
         bytes32 disputeHash = _disputeHash(disputeID, extraData);
-        uint256 homeDisputeID = ruler.getNextDisputeID();
         _deliver(homeYaru, foreignYaho, messageId, message);
-        assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "received on the home chain");
+        uint256 homeDisputeID = _createOnHome(message);
+        assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "created on the home chain");
     }
 
     function test_replacedReporter_isUsed() public {
@@ -928,9 +928,79 @@ contract RejectsNative {}
 // *     Dispute creation failure      * //
 // ************************************* //
 
-/// @dev A creation failure from the HomeGateway, `abi.encode(disputeHash)`: it closes the dispute with the
-/// checks of a ruling, calls the arbitrable back (required, no try), and lets it claim the juror fees, paid from the
-/// juror fees not withdrawn yet. Delivered as Yaru would, see `GatewayHarness._deliver`.
+/// @dev An arbitrable whose `rule` reverts until it accepts rulings.
+contract RejectingArbitrable {
+    ForeignGateway internal immutable gateway;
+    bool internal accepting;
+    uint256 public ruling;
+
+    constructor(ForeignGateway _gateway) {
+        gateway = _gateway;
+    }
+
+    function createAndRelay(
+        bytes calldata _extraData,
+        uint256[] calldata _oracleIDs
+    ) external payable returns (uint256 id) {
+        id = gateway.createDispute{value: msg.value}(2, _extraData, _oracleIDs, 1);
+        gateway.relayDispute(id, 2, _extraData, 0, 0, "");
+    }
+
+    function accept() external {
+        accepting = true;
+    }
+
+    function rule(uint256, uint256 _ruling) external {
+        require(accepting, "Ruling rejected");
+        ruling = _ruling;
+    }
+}
+
+/// @dev An arbitrable that calls `executeRuling` back once from `rule` or `onDisputeCreationFailed`, after claiming its
+/// refund in the latter, and records whether that call went through.
+contract ReenteringArbitrable {
+    ForeignGateway internal immutable gateway;
+    uint256 public ruleCount;
+    uint256 public failureCount;
+    bool public reentrySucceeded;
+    bytes public reentryResult;
+
+    constructor(ForeignGateway _gateway) {
+        gateway = _gateway;
+    }
+
+    receive() external payable {}
+
+    function createAndRelay(
+        bytes calldata _extraData,
+        uint256[] calldata _oracleIDs
+    ) external payable returns (uint256 id) {
+        id = gateway.createDispute{value: msg.value}(2, _extraData, _oracleIDs, 1);
+        gateway.relayDispute(id, 2, _extraData, 0, 0, "");
+    }
+
+    function rule(uint256 _disputeID, uint256) external {
+        ruleCount++;
+        _reenter(_disputeID);
+    }
+
+    function onDisputeCreationFailed(uint256 _disputeID) external {
+        failureCount++;
+        gateway.claimRefund(_disputeID, address(this));
+        _reenter(_disputeID);
+    }
+
+    function _reenter(uint256 _disputeID) internal {
+        if (ruleCount + failureCount > 1) return;
+        (reentrySucceeded, reentryResult) = address(gateway).call(
+            abi.encodeCall(ForeignGateway.executeRuling, (_disputeID))
+        );
+    }
+}
+
+/// @dev A creation failure from the HomeGateway, `abi.encode(disputeHash)`: its delivery closes the dispute with the
+/// checks of a ruling, and `executeRuling` then calls the arbitrable back (required, no try) and lets it claim the
+/// juror fees, paid from the juror fees not withdrawn yet. Delivered as Yaru would, see `GatewayHarness._deliver`.
 contract ForeignGatewayCreationFailureTest is GatewayHarness {
     uint256 internal constant BRIDGING_COST_0 = 0.001 ether;
     uint256 internal constant BRIDGING_COST_1 = 0.002 ether;
@@ -956,8 +1026,15 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
         foreignGateway.onMessage(0, block.chainid, address(homeGateway), _threshold, _inboundAdapters, _data);
     }
 
-    function _fail(bytes32 _hash) internal {
+    /// @dev Delivers the creation failure of a dispute over oracle 0.
+    function _receiveFailure(bytes32 _hash) internal {
         _receive(abi.encode(_hash), 1, _oneAdapter(foreignAdapters[0]));
+    }
+
+    /// @dev Delivers the creation failure of a dispute over oracle 0 and gives it to the arbitrable.
+    function _fail(bytes32 _hash) internal {
+        _receiveFailure(_hash);
+        _executeRuling(foreignGateway.disputeHashToForeignID(_hash));
     }
 
     function _oneAdapter(IAdapter _adapter) internal pure returns (IAdapter[] memory adapters) {
@@ -973,20 +1050,36 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
         (, jurorFees, bridgingFees) = foreignGateway.availableFees(_feeToken);
     }
 
+    function _ruled(bytes32 _hash) internal view returns (bool ruled) {
+        (, ruled, , , , , ) = foreignGateway.disputeHashtoDisputeData(_hash);
+    }
+
     // ************************************* //
     // *          Receive path             * //
     // ************************************* //
 
-    function test_failure_closesTheDispute_recordsTheRefund_callsBack() public {
+    /// @dev The delivery closes the dispute and records the failure, without calling the arbitrable. `executeRuling`
+    /// records the refund and calls it back.
+    function test_failure_closesTheDispute_thenExecuteRecordsTheRefundAndCallsBack() public {
         (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
         (, uint256 refund, ) = _fees(hash);
 
         vm.expectEmit(true, true, true, true, address(foreignGateway));
-        emit ForeignGateway.DisputeCreationFailed(IArbitrableV2(address(this)), id, hash, NATIVE_CURRENCY, refund);
-        _fail(hash);
+        emit ForeignGateway.CreationFailureReceived(id, hash);
+        _receiveFailure(hash);
+        assertTrue(_ruled(hash), "closed");
+        (uint256 ruling, bool creationFailed, bool executed) = foreignGateway.receivedRulings(id);
+        assertEq(ruling, 0, "no ruling");
+        assertTrue(creationFailed, "failure recorded");
+        assertFalse(executed, "not executed");
+        assertEq(foreignGateway.pendingRefunds(id), bytes32(0), "no refund before the execution");
+        assertEq(creationFailureCount, 0, "not called back on delivery");
 
-        (, bool ruled, , , , , ) = foreignGateway.disputeHashtoDisputeData(hash);
-        assertTrue(ruled, "closed");
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit ForeignGateway.DisputeCreationFailed(IArbitrableV2(address(this)), id, hash, NATIVE_CURRENCY, refund);
+        _executeRuling(id);
+        (, , executed) = foreignGateway.receivedRulings(id);
+        assertTrue(executed, "executed");
         assertEq(foreignGateway.pendingRefunds(id), hash, "refund pending");
         assertEq(creationFailureCount, 1, "called back");
         assertEq(lastFailedDisputeID, id, "local dispute ID");
@@ -995,30 +1088,31 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
 
     function test_failure_thenRuling_reverts() public {
         (, bytes32 hash) = _relayed(_ids(0), 1);
-        _fail(hash);
+        _receiveFailure(hash);
         vm.expectRevert(ForeignGateway.CannotRuleTwice.selector);
         _receive(abi.encode(hash, uint256(1)), 1, _oneAdapter(foreignAdapters[0]));
     }
 
     function test_ruling_thenFailure_reverts() public {
-        (, bytes32 hash) = _relayed(_ids(0), 1);
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
         _receive(abi.encode(hash, uint256(1)), 1, _oneAdapter(foreignAdapters[0]));
-        assertEq(rulingCount, 1, "ruled");
         vm.expectRevert(ForeignGateway.CannotRuleTwice.selector);
-        _fail(hash);
+        _receiveFailure(hash);
+        _executeRuling(id);
+        assertEq(rulingCount, 1, "ruled");
         assertEq(creationFailureCount, 0, "not called back");
     }
 
     function test_failure_twice_reverts() public {
         (, bytes32 hash) = _relayed(_ids(0), 1);
-        _fail(hash);
+        _receiveFailure(hash);
         vm.expectRevert(ForeignGateway.CannotRuleTwice.selector);
-        _fail(hash);
+        _receiveFailure(hash);
     }
 
     function test_failure_unknownDispute_reverts() public {
         vm.expectRevert(ForeignGateway.DisputeDoesNotExist.selector);
-        _fail(keccak256("unknown"));
+        _receiveFailure(keccak256("unknown"));
     }
 
     function test_failure_wrongAdaptersOrThreshold_reverts() public {
@@ -1030,9 +1124,10 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
         _receive(abi.encode(hash), 2, _adapters(foreignAdapters[1], foreignAdapters[0]));
         vm.expectRevert(ForeignGateway.UnexpectedAdapters.selector);
         _receive(abi.encode(hash), 1, _oneAdapter(foreignAdapters[0]));
+        assertFalse(_ruled(hash), "still open");
 
         _receive(abi.encode(hash), 2, adapters);
-        assertEq(creationFailureCount, 1, "accepted with the dispute's oracles");
+        assertTrue(_ruled(hash), "accepted with the dispute's oracles");
     }
 
     function test_failure_wrongSender_reverts() public {
@@ -1042,25 +1137,26 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
         foreignGateway.onMessage(0, block.chainid, other, 1, _oneAdapter(foreignAdapters[0]), abi.encode(hash));
     }
 
-    /// @dev Required callback: a revert reverts the whole delivery, which Yaru then keeps executable.
-    function test_failure_revertingCallback_revertsEverything() public {
+    /// @dev Required callback: a revert reverts `executeRuling`, with no refund recorded, and it can be called again.
+    function test_failure_revertingCallback_revertsTheExecution() public {
         (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        _receiveFailure(hash);
         rejectCreationFailure = true;
         vm.expectRevert("Creation failure rejected");
-        _fail(hash);
-
-        (, bool ruled, , , , , ) = foreignGateway.disputeHashtoDisputeData(hash);
-        assertFalse(ruled, "still open");
+        foreignGateway.executeRuling(id);
+        (, , bool executed) = foreignGateway.receivedRulings(id);
+        assertFalse(executed, "not executed");
         assertEq(foreignGateway.pendingRefunds(id), bytes32(0), "no refund");
 
         rejectCreationFailure = false;
-        _fail(hash);
-        assertEq(creationFailureCount, 1, "delivered once accepted");
+        _executeRuling(id);
+        assertEq(creationFailureCount, 1, "called back once accepted");
+        assertEq(foreignGateway.pendingRefunds(id), hash, "refund pending");
     }
 
     /// @dev An arbitrable without the callback, like one deployed before it, cannot receive a failure, as an EOA
-    /// cannot receive a ruling today.
-    function test_failure_arbitrableWithoutTheCallback_reverts() public {
+    /// cannot receive a ruling today: the delivery is accepted, its execution reverts.
+    function test_failure_arbitrableWithoutTheCallback_executionReverts() public {
         address noCallback = address(new RejectsNative());
         vm.deal(noCallback, 1 ether);
         uint256 cost = foreignGateway.arbitrationCost(extraData, _ids(0));
@@ -1068,20 +1164,113 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
         uint256 id = foreignGateway.createDispute{value: cost}(CHOICES, extraData, _ids(0), 1);
         foreignGateway.relayDispute(id, CHOICES, extraData, 0, 0, "");
         vm.stopPrank();
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                "createDispute",
-                block.chainid,
-                address(foreignGateway),
-                noCallback,
-                id,
-                CHOICES,
-                extraData
-            )
-        );
+        bytes32 hash = foreignGateway.disputeIDtoHash(id);
 
+        _receiveFailure(hash);
         vm.expectRevert();
-        _fail(hash);
+        foreignGateway.executeRuling(id);
+        assertEq(foreignGateway.pendingRefunds(id), bytes32(0), "no refund");
+    }
+
+    // ************************************* //
+    // *          Ruling execution         * //
+    // ************************************* //
+
+    /// @dev The delivery records the ruling, without calling the arbitrable. Anyone then has it ruled, once.
+    function test_ruling_recordedThenExecutedOnce() public {
+        (uint256 id, bytes32 hash) = _relayed(_ids(0), 1);
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit ForeignGateway.RulingReceived(id, hash, 2);
+        _receive(abi.encode(hash, uint256(2)), 1, _oneAdapter(foreignAdapters[0]));
+        (uint256 ruling, bool creationFailed, bool executed) = foreignGateway.receivedRulings(id);
+        assertEq(ruling, 2, "ruling recorded");
+        assertFalse(creationFailed, "no failure");
+        assertFalse(executed, "not executed");
+        assertEq(rulingCount, 0, "not ruled on delivery");
+
+        vm.expectEmit(true, true, true, true, address(foreignGateway));
+        emit IArbitratorV2.Ruling(IArbitrableV2(address(this)), id, 2);
+        _executeRuling(id);
+        assertEq(rulingCount, 1, "ruled");
+        assertEq(lastRuledDisputeID, id, "local dispute ID");
+        assertEq(lastRuling, 2, "ruling");
+
+        vm.expectRevert(ForeignGateway.RulingAlreadyExecuted.selector);
+        foreignGateway.executeRuling(id);
+        assertEq(rulingCount, 1, "ruled once");
+    }
+
+    function test_executeRuling_beforeTheRulingOrUnknown_reverts() public {
+        (uint256 id, ) = _relayed(_ids(0), 1);
+        vm.expectRevert(ForeignGateway.RulingNotReceived.selector);
+        foreignGateway.executeRuling(id);
+        vm.expectRevert(ForeignGateway.RulingNotReceived.selector);
+        foreignGateway.executeRuling(id + 1);
+        vm.expectRevert(ForeignGateway.RulingNotReceived.selector);
+        foreignGateway.executeRuling(0);
+    }
+
+    function _reenteringDispute() internal returns (ReenteringArbitrable arbitrable, uint256 id, bytes32 hash) {
+        arbitrable = new ReenteringArbitrable(foreignGateway);
+        uint256 cost = foreignGateway.arbitrationCost(extraData, _ids(0));
+        id = arbitrable.createAndRelay{value: cost}(extraData, _ids(0));
+        hash = foreignGateway.disputeIDtoHash(id);
+    }
+
+    /// @dev `executed` is set before the arbitrable is called, so one calling `executeRuling` back from `rule` is ruled
+    /// once.
+    function test_executeRuling_reentrantRule_rulesOnce() public {
+        (ReenteringArbitrable arbitrable, uint256 id, bytes32 hash) = _reenteringDispute();
+        _receive(abi.encode(hash, uint256(1)), 1, _oneAdapter(foreignAdapters[0]));
+
+        _executeRuling(id);
+        assertEq(arbitrable.ruleCount(), 1, "ruled once");
+        assertFalse(arbitrable.reentrySucceeded(), "reentry rejected");
+        assertEq(
+            arbitrable.reentryResult(),
+            abi.encodeWithSelector(ForeignGateway.RulingAlreadyExecuted.selector),
+            "reentry reason"
+        );
+    }
+
+    /// @dev The refund is recorded and `executed` set before the call back, so an arbitrable that claims from its
+    /// callback and calls `executeRuling` again is refunded once, while another dispute's juror fees are in the pool.
+    function test_executeRuling_reentrantFailureCallback_refundsOnce() public {
+        (ReenteringArbitrable arbitrable, uint256 id, bytes32 hash) = _reenteringDispute();
+        (, bytes32 otherHash) = _relayed(_ids(0), 1);
+        (, uint256 refund, ) = _fees(hash);
+        (, uint256 otherJurorFees, ) = _fees(otherHash);
+        _receiveFailure(hash);
+
+        _executeRuling(id);
+        assertEq(arbitrable.failureCount(), 1, "called back once");
+        assertEq(address(arbitrable).balance, refund, "refunded once");
+        assertFalse(arbitrable.reentrySucceeded(), "reentry rejected");
+        assertEq(
+            arbitrable.reentryResult(),
+            abi.encodeWithSelector(ForeignGateway.RulingAlreadyExecuted.selector),
+            "reentry reason"
+        );
+        (uint256 jurorFees, ) = _available(NATIVE_CURRENCY);
+        assertEq(jurorFees, otherJurorFees, "the other dispute's juror fees untouched");
+    }
+
+    /// @dev `rule` is called with no try: a revert reverts `executeRuling`, which can be called again.
+    function test_executeRuling_revertingArbitrable_canBeCalledAgain() public {
+        RejectingArbitrable arbitrable = new RejectingArbitrable(foreignGateway);
+        uint256 cost = foreignGateway.arbitrationCost(extraData, _ids(0));
+        uint256 id = arbitrable.createAndRelay{value: cost}(extraData, _ids(0));
+        bytes32 hash = foreignGateway.disputeIDtoHash(id);
+        _receive(abi.encode(hash, uint256(1)), 1, _oneAdapter(foreignAdapters[0]));
+
+        vm.expectRevert("Ruling rejected");
+        foreignGateway.executeRuling(id);
+        (, , bool executed) = foreignGateway.receivedRulings(id);
+        assertFalse(executed, "not executed");
+
+        arbitrable.accept();
+        _executeRuling(id);
+        assertEq(arbitrable.ruling(), 1, "ruled once accepted");
     }
 
     // ************************************* //
@@ -1127,9 +1316,10 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
         bytes32 hash = _disputeHash(id, extraData);
         uint256 refund = cost + 1 ether - BRIDGING_COST_0;
 
+        _receiveFailure(hash);
         vm.expectEmit(true, true, true, true, address(foreignGateway));
         emit ForeignGateway.DisputeCreationFailed(IArbitrableV2(address(this)), id, hash, NATIVE_CURRENCY, refund);
-        _fail(hash);
+        _executeRuling(id);
         foreignGateway.claimRefund(id, beneficiary);
 
         assertEq(beneficiary.balance, refund, "juror fees and overpayment refunded");
@@ -1153,9 +1343,10 @@ contract ForeignGatewayCreationFailureTest is GatewayHarness {
         (IERC20 feeToken, uint256 refund, uint256 bridgingFees) = _fees(hash);
         assertEq(address(feeToken), address(token), "fee token");
 
+        _receiveFailure(hash);
         vm.expectEmit(true, true, true, true, address(foreignGateway));
         emit ForeignGateway.DisputeCreationFailed(IArbitrableV2(address(this)), id, hash, token, refund);
-        _fail(hash);
+        _executeRuling(id);
         vm.expectEmit(true, true, true, true, address(foreignGateway));
         emit ForeignGateway.RefundClaimed(id, beneficiary, token, refund);
         foreignGateway.claimRefund(id, beneficiary);

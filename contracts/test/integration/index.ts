@@ -15,15 +15,16 @@ import {
   YahoMock,
   YaruMock,
 } from "../../typechain-types";
-import { relayMessages } from "../utils/veashi";
+import { createReceivedDispute, relayMessages } from "../utils/veashi";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
 // A dispute and its ruling through both Veashi gateways (deploy/03-veashi-mock.ts):
 // GatewayLightbulb → ForeignGateway createDispute + relayDispute → ForeignYaho → reporters → home adapters →
-// HomeYaru → HomeGateway → KlerosCore, then KlerosCore executeRuling → HomeGateway rule → HomeYaho → reporters →
-// foreign adapters → ForeignYaru → ForeignGateway → GatewayLightbulb.
+// HomeYaru → HomeGateway, then HomeGateway createReceivedDispute → KlerosCore, then KlerosCore executeRuling →
+// HomeGateway rule → HomeYaho → reporters → foreign adapters → ForeignYaru → ForeignGateway, then ForeignGateway
+// executeRuling → GatewayLightbulb.
 describe("Integration tests", async () => {
   const ONE_THOUSAND_PNK = 10n ** 21n;
   const ONE_HUNDRED_PNK = 10n ** 20n;
@@ -101,17 +102,22 @@ describe("Integration tests", async () => {
     expect(oracleIDs).to.deep.equal([0n, 1n]);
     expect(threshold).to.equal(2);
 
-    // Home chain: Yaru executes the dispute message, the HomeGateway pays KlerosCore and records the dispute.
+    // Home chain: Yaru executes the dispute message and the HomeGateway records it, then anyone has it created:
+    // the HomeGateway pays KlerosCore.
     const homeBalance = await ethers.provider.getBalance(homeGateway.target);
     const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
-    await expect(deliveryTx).to.emit(core, "DisputeCreation").withArgs(0, homeGateway.target);
-    await expect(deliveryTx)
+    await expect(deliveryTx).to.emit(homeGateway, "DisputeReceived").withArgs(disputeHash, anyValue);
+    await expect(deliveryTx).to.not.emit(core, "DisputeCreation");
+    expect(await ethers.provider.getBalance(homeGateway.target)).to.equal(homeBalance);
+    const creationTx = await createReceivedDispute(deliveryTx, homeGateway);
+    await expect(creationTx).to.emit(core, "DisputeCreation").withArgs(0, homeGateway.target);
+    await expect(creationTx)
       .to.emit(homeGateway, "CrossChainDisputeIncoming")
       .withArgs(core.target, CHAIN_ID, lightbulb.target, foreignDisputeID, 0, foreignDisputeID, 0, "");
     expect(await ethers.provider.getBalance(homeGateway.target)).to.equal(homeBalance - arbitrationCost);
     expect(await homeGateway.disputeIDtoHash(0)).to.equal(disputeHash);
     const received = await homeGateway.getReceivedDispute(disputeHash);
-    expect(received.received).to.be.true;
+    expect(received.created).to.be.true;
     expect(received.oracleIDs).to.deep.equal(oracleIDs);
     expect(received.threshold).to.equal(threshold);
 
@@ -127,12 +133,16 @@ describe("Integration tests", async () => {
     await expect(rulingTx).to.emit(core, "Ruling").withArgs(homeGateway.target, 0, RULING_ON);
     await expect(rulingTx).to.emit(homeGateway, "RulingDispatched");
 
-    // Foreign chain: Yaru executes the ruling message, the ForeignGateway rules the lightbulb.
+    // Foreign chain: Yaru executes the ruling message and the ForeignGateway records it, then anyone has it rule the
+    // lightbulb.
     const rulingDeliveryTx = await relayMessages(rulingTx, homeYaho, foreignYaru);
     await expect(rulingDeliveryTx)
-      .to.emit(foreignGateway, "Ruling")
-      .withArgs(lightbulb.target, foreignDisputeID, RULING_ON);
-    await expect(rulingDeliveryTx).to.emit(lightbulb, "LightbulbSwitched").withArgs(deployer, foreignDisputeID, true);
+      .to.emit(foreignGateway, "RulingReceived")
+      .withArgs(foreignDisputeID, disputeHash, RULING_ON);
+    await expect(rulingDeliveryTx).to.not.emit(lightbulb, "LightbulbSwitched");
+    const executionTx = await foreignGateway.executeRuling(foreignDisputeID);
+    await expect(executionTx).to.emit(foreignGateway, "Ruling").withArgs(lightbulb.target, foreignDisputeID, RULING_ON);
+    await expect(executionTx).to.emit(lightbulb, "LightbulbSwitched").withArgs(deployer, foreignDisputeID, true);
     expect(await lightbulb.lightbulbIsOn(deployer)).to.be.true;
     expect((await foreignGateway.disputeHashtoDisputeData(disputeHash)).ruled).to.be.true;
   });
@@ -156,7 +166,7 @@ describe("Integration tests", async () => {
     // Only oracle 1 reported the dispute, and its threshold of 1 is met.
     const homeAdapter0 = await ethers.getContract<AdapterMock>("HomeAdapter0");
     const homeAdapter1 = await ethers.getContract<AdapterMock>("HomeAdapter1");
-    await relayMessages(requestTx, foreignYaho, homeYaru);
+    await createReceivedDispute(await relayMessages(requestTx, foreignYaho, homeYaru), homeGateway);
     expect(await homeGateway.disputeHashToHomeID(disputeHash)).to.equal(0);
     expect((await homeGateway.getReceivedDispute(disputeHash)).oracleIDs).to.deep.equal([1n]);
     const messageId = (await requestTx.wait())!.logs
@@ -168,9 +178,8 @@ describe("Integration tests", async () => {
 
     await resolveOnCore(0, RULING_ON);
     const rulingTx = await core.executeRuling(0);
-    await expect(relayMessages(rulingTx, homeYaho, foreignYaru))
-      .to.emit(lightbulb, "LightbulbSwitched")
-      .withArgs(deployer, 1, true);
+    await relayMessages(rulingTx, homeYaho, foreignYaru);
+    await expect(foreignGateway.executeRuling(1)).to.emit(lightbulb, "LightbulbSwitched").withArgs(deployer, 1, true);
   });
 
   it("Executes a dispute only once enough of its oracles reported it", async () => {
@@ -198,24 +207,27 @@ describe("Integration tests", async () => {
     );
   });
 
-  it("Retries a delivery once the HomeGateway is funded", async () => {
+  it("Creates a received dispute once the HomeGateway is funded", async () => {
     const extraData = await lightbulb.arbitratorExtraData();
     const requestTx = await lightbulb["requestSwitch()"]({
       value: await foreignGateway["arbitrationCost(bytes)"](extraData),
     });
     const disputeHash = await computeDisputeHash(1n, extraData);
 
-    // Home chain: the HomeGateway cannot pay KlerosCore, so the delivery reverts and the message stays executable.
+    // Home chain: the delivery does not depend on the balance, but the creation reverts until the HomeGateway can
+    // pay KlerosCore.
     const balance = await ethers.provider.getBalance(homeGateway.target);
     await homeGateway.withdraw(deployer, balance);
-    await expect(relayMessages(requestTx, foreignYaho, homeYaru)).to.be.revertedWithCustomError(homeYaru, "CallFailed");
+    const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
+    await expect(createReceivedDispute(deliveryTx, homeGateway)).to.be.revertedWithCustomError(
+      homeGateway,
+      "InsufficientFunds"
+    );
 
     const signer = await ethers.getSigner(deployer);
     await signer.sendTransaction({ to: homeGateway.target, value: balance });
-    const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
-    await expect(deliveryTx).to.emit(core, "DisputeCreation");
-    await expect(deliveryTx).to.not.emit(homeGateway, "DisputeCreationFailed");
-    expect((await homeGateway.getReceivedDispute(disputeHash)).received).to.be.true;
+    await expect(createReceivedDispute(deliveryTx, homeGateway)).to.emit(core, "DisputeCreation");
+    expect((await homeGateway.getReceivedDispute(disputeHash)).created).to.be.true;
   });
 
   it("Sends back a dispute the home chain cannot create and refunds its juror fees", async () => {
@@ -231,25 +243,37 @@ describe("Integration tests", async () => {
     const foreignDisputeID = 1n;
     const disputeHash = await computeDisputeHash(foreignDisputeID, extraData, shutterLightbulb.target);
 
-    // Home chain: KlerosCore reverts, and the HomeGateway dispatches the failure in the same delivery.
+    // Home chain: the dispute is received, but KlerosCore rejects it, so it is never created. Once the creation
+    // timeout has passed, anyone sends the failure back.
     const homeBalance = await ethers.provider.getBalance(homeGateway.target);
     const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
-    await expect(deliveryTx)
-      .to.emit(homeGateway, "DisputeCreationFailed")
-      .withArgs(disputeHash, core.interface.encodeErrorResult("DisputeKitNotSupportedByCourt"), anyValue);
-    await expect(deliveryTx).to.not.emit(core, "DisputeCreation");
+    await expect(createReceivedDispute(deliveryTx, homeGateway)).to.be.revertedWithCustomError(
+      core,
+      "DisputeKitNotSupportedByCourt"
+    );
+    await expect(homeGateway.sendCreationFailure(disputeHash)).to.be.revertedWithCustomError(
+      homeGateway,
+      "CreationTimeoutNotPassed"
+    );
+    await network.provider.send("evm_increaseTime", [Number(await homeGateway.creationTimeout())]);
+    await network.provider.send("evm_mine");
+    const failureTx = await homeGateway.sendCreationFailure(disputeHash);
+    await expect(failureTx).to.emit(homeGateway, "DisputeCreationFailed").withArgs(disputeHash, anyValue);
     expect((await homeGateway.getReceivedDispute(disputeHash)).creationFailed).to.be.true;
     expect(await ethers.provider.getBalance(homeGateway.target)).to.equal(homeBalance);
 
-    // Foreign chain: Yaru executes the failure, the ForeignGateway closes the dispute and calls the lightbulb back.
+    // Foreign chain: Yaru executes the failure and the ForeignGateway closes the dispute, then anyone has it call
+    // the lightbulb back.
     const { feesForJurors } = await foreignGateway.disputeHashtoDisputeData(disputeHash);
-    const failureDeliveryTx = await relayMessages(deliveryTx, homeYaho, foreignYaru);
+    const failureDeliveryTx = await relayMessages(failureTx, homeYaho, foreignYaru);
     await expect(failureDeliveryTx)
+      .to.emit(foreignGateway, "CreationFailureReceived")
+      .withArgs(foreignDisputeID, disputeHash);
+    const executionTx = await foreignGateway.executeRuling(foreignDisputeID);
+    await expect(executionTx)
       .to.emit(foreignGateway, "DisputeCreationFailed")
       .withArgs(shutterLightbulb.target, foreignDisputeID, disputeHash, ethers.ZeroAddress, feesForJurors);
-    await expect(failureDeliveryTx)
-      .to.emit(shutterLightbulb, "LightbulbRequestFailed")
-      .withArgs(deployer, foreignDisputeID);
+    await expect(executionTx).to.emit(shutterLightbulb, "LightbulbRequestFailed").withArgs(deployer, foreignDisputeID);
     expect(await shutterLightbulb.lightbulbIsOn(deployer)).to.be.false;
 
     // The owner gets the juror fees back.
