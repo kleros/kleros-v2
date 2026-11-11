@@ -195,7 +195,7 @@ yarn hardhat node --tags nothing
 **Shell 2: the deploy script**
 
 ```bash
-yarn deploy --network localhost --tags <Arbitration|VeaMock|ForeignGatewayOnEthereum|HomeGateway>
+yarn deploy --network localhost --tags <Arbitration|VeashiMock>
 ```
 
 #### 3. Deploy to Public Testnets
@@ -204,15 +204,7 @@ yarn deploy --network localhost --tags <Arbitration|VeaMock|ForeignGatewayOnEthe
 # ArbitrumSepolia to Chiado
 yarn deploy --network arbitrumSepolia --tags Arbitration
 yarn deploy --network arbitrumSepolia --tags Resolver
-yarn deploy --network chiado --tags ForeignGatewayOnGnosis
 yarn deploy --network chiado --tags KlerosLiquidOnGnosis
-yarn deploy --network chiado --tags ForeignArbitrable
-yarn deploy --network arbitrumSepolia --tags HomeGatewayToGnosis
-
-# Sepolia
-yarn deploy --network sepolia --tags ForeignGatewayOnEthereum
-yarn deploy --network sepolia --tags ForeignArbitrable
-yarn deploy --network arbitrumSepolia --tags HomeGatewayToEthereum
 ```
 
 The deployed addresses should be displayed to the screen after the deployment is complete. If you missed them, you can always go to the `deployments/<network>` directory and look for the respective file.
@@ -226,7 +218,7 @@ Same steps as above but append `Devnet` to the `--network` parameter.
 **Shell 1: the node**
 
 ```bash
-yarn hardhat node --tags Arbitration,VeaMock
+yarn hardhat node --tags Arbitration,VeashiMock
 ```
 
 **Shell 2: the test scripts**

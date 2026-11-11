@@ -11,7 +11,7 @@ import {DisputeKitSybilResistant} from "../../src/arbitration/dispute-kits/Dispu
 import {ISortitionModule} from "../../src/arbitration/interfaces/ISortitionModule.sol";
 import {SortitionModuleMock, SortitionModuleBase} from "../../src/test/SortitionModuleMock.sol";
 import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
-import {BlockHashRNG} from "../../src/rng/BlockHashRNG.sol";
+import {BlockHashRNG} from "../../src/rng/BlockhashRNG.sol";
 import {RNGWithFallback, IRNG} from "../../src/rng/RNGWithFallback.sol";
 import {RNGMock} from "../../src/test/RNGMock.sol";
 import {PNK} from "../../src/token/PNK.sol";

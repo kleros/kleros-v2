@@ -45,7 +45,7 @@ describe("DisputeKitGated", async () => {
     ({ deployer } = await getNamedAccounts());
     [, juror1, juror2] = await ethers.getSigners();
 
-    await deployments.fixture(["Arbitration", "VeaMock"], {
+    await deployments.fixture(["Arbitration"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });

@@ -46,7 +46,7 @@ describe("Home Evidence contract", async () => {
   beforeEach("Setup contracts", async () => {
     [deployer, user1, user2, user3, user4] = await ethers.getSigners();
 
-    await deployments.fixture(["Arbitration", "VeaMock"], {
+    await deployments.fixture(["Arbitration"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
@@ -267,7 +267,8 @@ describe("Home Evidence contract", async () => {
       ).args;
       expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
       expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
-      expect(_templateId).to.equal(1, "Wrong template ID.");
+      const { disputeTemplateId } = await evidenceModule.arbitratorDataList(0);
+      expect(_templateId).to.equal(disputeTemplateId, "Wrong template ID.");
       expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
 
       await expect(
