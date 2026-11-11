@@ -94,7 +94,7 @@
     "@braintree/sanitize-url": "^7.1.2",
     "@coinbase/wallet-sdk": "^4.3.2",
     "@graphql-tools/batch-execute": "^9.0.11",
-    "@graphql-tools/utils": "^10.7.2",
+    "@graphql-tools/utils": "^12.0.0",
     "@kleros/kleros-app": "workspace:^",
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/kleros-v2-contracts": "workspace:^",

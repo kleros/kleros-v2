@@ -6233,7 +6233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/utils@npm:^10.7.0, @graphql-tools/utils@npm:^10.7.2":
+"@graphql-tools/utils@npm:^10.7.0":
   version: 10.7.2
   resolution: "@graphql-tools/utils@npm:10.7.2"
   dependencies:
@@ -6244,6 +6244,20 @@ __metadata:
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
   checksum: 10/b4725b081e5ff5c1441036db76ce907a6fe9b4c94aa9ceb070f75541b2297c3cccaa182f91d214f9abe6d89df33d8df51e055afbc4e382b01e8d8fb7c2f6edf6
+  languageName: node
+  linkType: hard
+
+"@graphql-tools/utils@npm:^12.0.0":
+  version: 12.1.0
+  resolution: "@graphql-tools/utils@npm:12.1.0"
+  dependencies:
+    "@graphql-typed-document-node/core": "npm:^3.1.1"
+    "@whatwg-node/promise-helpers": "npm:^2.0.0"
+    cross-inspect: "npm:1.0.1"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: 10/337225844f139312e364cef441372503ba0b6240d1a266873852daed83b11d721a809f0ac3b221e645ae67e22e9a8fdbec43a4b02aa8c141608770ba65913c82
   languageName: node
   linkType: hard
 
@@ -7260,7 +7274,7 @@ __metadata:
     "@graphql-codegen/cli": "npm:^5.0.3"
     "@graphql-codegen/client-preset": "npm:^4.5.1"
     "@graphql-tools/batch-execute": "npm:^9.0.11"
-    "@graphql-tools/utils": "npm:^10.7.2"
+    "@graphql-tools/utils": "npm:^12.0.0"
     "@kleros/kleros-app": "workspace:^"
     "@kleros/kleros-sdk": "workspace:^"
     "@kleros/kleros-v2-contracts": "workspace:^"
@@ -14611,6 +14625,15 @@ __metadata:
     busboy: "npm:^1.6.0"
     tslib: "npm:^2.6.3"
   checksum: 10/fe88c2766fc6cbe33c5bf58fb1ce5230f499d083a154643f0c46edfa3db679e173ae13ceb20cb89087252176c42b5e9ad7b540c6979f407b0c2444cf488121d1
+  languageName: node
+  linkType: hard
+
+"@whatwg-node/promise-helpers@npm:^2.0.0":
+  version: 2.0.2
+  resolution: "@whatwg-node/promise-helpers@npm:2.0.2"
+  dependencies:
+    tslib: "npm:^2.9.1"
+  checksum: 10/37584aa989e9a42de755e00a793fc88941a03f22bd290f821dd938f133268f60bfcc596524f9190bbd199533aec4a2d1d3e40ed5e47e63d018d428fdba56e841
   languageName: node
   linkType: hard
 
@@ -37988,6 +38011,13 @@ __metadata:
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10/3e2e043d5c2316461cb54e5c7fe02c30ef6dccb3384717ca22ae5c6b5bc95232a6241df19c622d9c73b809bea33b187f6dbc73030963e29950c2141bc32a79f7
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.9.1":
+  version: 2.9.1
+  resolution: "tslib@npm:2.9.1"
+  checksum: 10/20aa8c3282c88f8dd1bf0a62c5b1aa03b35998cbc6db4780f6e84d593ba4ffe232bd967916c6e0f96b9e5d719dade9e329d1b2cfede31043481d8fd13f10ca5f
   languageName: node
   linkType: hard
 
