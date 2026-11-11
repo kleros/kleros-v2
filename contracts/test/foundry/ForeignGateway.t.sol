@@ -122,9 +122,9 @@ contract ForeignGatewayFeesTest is Test {
         _assertDisputeFees(disputeID, NATIVE_CURRENCY, JUROR_COST, BRIDGING_COST_0 + BRIDGING_COST_1);
     }
 
-    function test_tokenDispute_roundingDustGoesToJurorFees() public {
+    function test_tokenDispute_splitsJurorAndBridgingFees() public {
         uint256 cost = gateway.arbitrationCost(extraData, IERC20(feeToken));
-        uint256 bridgingShare = BRIDGING_COST_0 / 3; // Rounded down.
+        uint256 bridgingShare = BRIDGING_COST_0 / 3; // No remainder at this rate.
         assertEq(cost, (JUROR_COST + BRIDGING_COST_0) / 3, "cost");
 
         uint256 disputeID = gateway.createDispute(2, extraData, feeToken, cost);
@@ -132,6 +132,33 @@ contract ForeignGatewayFeesTest is Test {
         _assertDisputeFees(disputeID, feeToken, cost - bridgingShare, bridgingShare);
         _assertAvailable(feeToken, cost - bridgingShare, bridgingShare);
         assertEq(feeToken.balanceOf(address(gateway)), cost, "token balance");
+    }
+
+    /// @dev The bridging share rounds up, as the cost does, so rounding never moves bridging cost into the juror fees
+    /// a creation failure refunds.
+    function test_tokenDispute_bridgingShareRoundsUp() public {
+        vm.prank(governor);
+        gateway.changeCurrencyRates(feeToken, 7, 0);
+        assertTrue(BRIDGING_COST_0 % 7 != 0, "has a remainder");
+        uint256 cost = gateway.arbitrationCost(extraData, IERC20(feeToken));
+        uint256 bridgingShare = BRIDGING_COST_0 / 7 + 1;
+
+        uint256 disputeID = gateway.createDispute(2, extraData, feeToken, cost);
+
+        _assertDisputeFees(disputeID, feeToken, cost - bridgingShare, bridgingShare);
+        _assertAvailable(feeToken, cost - bridgingShare, bridgingShare);
+    }
+
+    /// @dev A token unit worth more than the whole cost: the one unit paid is the bridging share, so a creation failure
+    /// refunds nothing while the reporters paid for the round trip.
+    function test_tokenDispute_unitAboveTheCost_isTheBridgingShare() public {
+        vm.prank(governor);
+        gateway.changeCurrencyRates(feeToken, 1e18, 0); // 1 token unit = 1 native.
+        assertEq(gateway.arbitrationCost(extraData, IERC20(feeToken)), 1, "cost");
+
+        uint256 disputeID = gateway.createDispute(2, extraData, feeToken, 1);
+
+        _assertDisputeFees(disputeID, feeToken, 0, 1);
     }
 
     function test_feeTokensAreAccountedSeparately() public {
@@ -259,19 +286,8 @@ contract ForeignGatewayFeesTest is Test {
         uint256 _feesForJurors,
         uint256 _feesForBridging
     ) internal view {
-        bytes32 disputeHash = keccak256(
-            abi.encodePacked(
-                "createDispute",
-                block.chainid,
-                address(gateway),
-                address(this),
-                _disputeID,
-                uint256(2),
-                extraData
-            )
-        );
         (, , , , IERC20 storedToken, uint256 feesForJurors, uint256 feesForBridging) = gateway.disputeHashtoDisputeData(
-            disputeHash
+            gateway.disputeIDtoHash(_disputeID)
         );
         assertEq(address(storedToken), address(_feeToken), "dispute fee token");
         assertEq(feesForJurors, _feesForJurors, "dispute juror fees");

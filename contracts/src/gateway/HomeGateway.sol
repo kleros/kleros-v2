@@ -56,6 +56,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         IAdapter _inboundAdapter
     );
     event OracleReporterSet(uint256 indexed _oracleID, IReporter _reporter);
+    event MinThresholdChanged(uint256 _minThreshold);
     event Funded(address indexed _from, uint256 _amount);
     event Withdrawn(address indexed _to, uint256 _amount);
     event DisputeCreationFailed(bytes32 indexed _disputeHash, bytes _reason, uint256 _messageId);
@@ -79,6 +80,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     mapping(IAdapter => bool) public isOutboundAdapter; // Prevents counting one adapter twice towards a threshold.
     mapping(IAdapter => bool) public isInboundAdapter; // Idem.
     mapping(bytes32 disputeHash => ReceivedDispute) internal receivedDisputes;
+    uint256 public minThreshold; // Lowest threshold a dispute message may carry, see `changeMinThreshold`.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -206,6 +208,16 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         emit OracleReporterSet(_oracleID, _reporter);
     }
 
+    /// @dev Changes the lowest threshold a dispute message may carry. `onMessage` checks a message against the oracle
+    /// selection it carries, so with `_minThreshold` at 2 or more one compromised oracle cannot forge a dispute.
+    /// Keep it at most the ForeignGateway's `minThreshold`, and raise it only once every dispute relayed with a lower
+    /// threshold is delivered (not enforced on-chain): such a delivery reverts until it is lowered again.
+    /// @param _minThreshold The lowest threshold, 0 or 1 for none.
+    function changeMinThreshold(uint256 _minThreshold) external onlyByGovernor {
+        minThreshold = _minThreshold;
+        emit MinThresholdChanged(_minThreshold);
+    }
+
     /// @dev Withdraws native currency held by the gateway.
     /// @param _to The recipient.
     /// @param _amount The amount to withdraw.
@@ -226,10 +238,12 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
 
     /// @inheritdoc IJushin
     /// @dev Receives a dispute from the ForeignGateway, `_data = abi.encode(IForeignGateway.DisputeMessage)`, and
-    /// creates it on the arbitrator, paying the arbitration cost from the gateway's balance. A balance below the cost,
-    /// or a revert of `createDispute`, is a creation failure, sent back to the ForeignGateway (`_sendCreationFailure`).
+    /// creates it on the arbitrator, paying the arbitration cost from the gateway's balance. A balance below the cost
+    /// reverts, so Yaru can retry once the gateway is funded. A revert of `createDispute` is a creation failure, sent
+    /// back to the ForeignGateway (`_sendCreationFailure`).
     /// Yaru does not validate the adapter set of a message, so the message must have been verified by exactly the
-    /// dispute-leg adapters of the oracles it selects, in order, with the threshold it carries.
+    /// dispute-leg adapters of the oracles it selects, in order, with the threshold it carries, which must be at least
+    /// `minThreshold`, with no oracle selected twice.
     function onMessage(
         uint256 /*_messageId*/,
         uint256 _sourceChainId,
@@ -245,29 +259,14 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         IForeignGateway.DisputeMessage memory message = abi.decode(_data, (IForeignGateway.DisputeMessage));
         _checkInboundAdapters(message.oracleIDs, message.threshold, _threshold, _adapters);
 
-        // The chain ID and the ForeignGateway address come from Yaru, never from the payload.
-        bytes32 disputeHash = keccak256(
-            abi.encodePacked(
-                "createDispute",
-                _sourceChainId,
-                _sender,
-                message.foreignArbitrable,
-                message.foreignDisputeID,
-                message.choices,
-                message.extraData
-            )
-        );
+        bytes32 disputeHash = _computeDisputeHash(message, _sourceChainId, _sender);
         ReceivedDispute storage receivedDispute = receivedDisputes[disputeHash];
         if (receivedDispute.received || receivedDispute.creationFailed) revert DisputeAlreadyReceived();
         receivedDispute.threshold = message.threshold;
         receivedDispute.oracleIDs = message.oracleIDs;
 
         uint256 cost = arbitrator.arbitrationCost(message.extraData);
-        if (address(this).balance < cost) {
-            bytes memory reason = abi.encodeWithSelector(InsufficientFunds.selector, cost, address(this).balance);
-            _sendCreationFailure(disputeHash, reason);
-            return "";
-        }
+        if (address(this).balance < cost) revert InsufficientFunds(cost, address(this).balance);
 
         uint256 gasBefore = gasleft();
         try arbitrator.createDispute{value: cost}(message.choices, message.extraData) returns (uint256 disputeID) {
@@ -330,7 +329,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     /// `abi.encode(disputeHash)` (32 bytes, a ruling is 64), as `rule` sends a ruling. A dispatch revert reverts the
     /// delivery, which Yaru can retry.
     /// @param _disputeHash The hash of the dispute.
-    /// @param _reason The revert data of `createDispute`, or `InsufficientFunds` for a balance below the cost.
+    /// @param _reason The revert data of `createDispute`.
     function _sendCreationFailure(bytes32 _disputeHash, bytes memory _reason) internal {
         ReceivedDispute storage receivedDispute = receivedDisputes[_disputeHash];
         receivedDispute.creationFailed = true;
@@ -364,6 +363,34 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
             reporters,
             adapters
         );
+    }
+
+    /// @dev Computes the dispute hash as `ForeignGateway._computeDisputeHash` does. The chain ID and the ForeignGateway
+    /// address come from Yaru, never from the payload. The oracle selection is part of it, since `onMessage` checks a
+    /// message only against the selection it carries: a copy of a dispute verified by other oracles is another dispute
+    /// here, and the ForeignGateway rejects its ruling, so it cannot take the place of the dispute that was relayed.
+    /// @param _message The dispute message.
+    /// @param _sourceChainId The foreign chain ID.
+    /// @param _sender The ForeignGateway.
+    /// @return The dispute hash.
+    function _computeDisputeHash(
+        IForeignGateway.DisputeMessage memory _message,
+        uint256 _sourceChainId,
+        address _sender
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(
+                    "createDispute",
+                    _sourceChainId,
+                    _sender,
+                    _message.foreignArbitrable,
+                    _message.foreignDisputeID,
+                    _message.choices,
+                    _message.extraData,
+                    keccak256(abi.encode(_message.oracleIDs, _message.threshold))
+                )
+            );
     }
 
     /// @dev Emits the events of a dispute received from the ForeignGateway and created on the arbitrator. A separate
@@ -419,9 +446,10 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         emit OracleAdded(oracleID, _outboundReporter, _outboundAdapter, _inboundAdapter);
     }
 
-    /// @dev Reverts unless `_adapters` are exactly the dispute-leg adapters of `_oracleIDs`, in order, and the
-    /// message threshold equals the selected one. An ID not registered here has a zero adapter and never matches,
-    /// so the message stays executable until the governor registers it.
+    /// @dev Reverts unless `_adapters` are exactly the dispute-leg adapters of `_oracleIDs`, in order, the message
+    /// threshold equals the selected one, the selected one is at least `minThreshold` and no ID is selected twice
+    /// (Hashi would count its adapter twice). An ID not registered here has a zero adapter and never matches, so the
+    /// message stays executable until the governor registers it.
     /// @param _oracleIDs The oracles selected on the foreign chain.
     /// @param _selectedThreshold The threshold selected on the foreign chain.
     /// @param _threshold The threshold of the incoming message.
@@ -436,9 +464,13 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         if (_threshold != _selectedThreshold || _adapters.length != length) {
             revert UnexpectedAdapters();
         }
+        if (_selectedThreshold == 0 || _selectedThreshold < minThreshold) revert ThresholdBelowMinimum(minThreshold);
         for (uint256 i = 0; i < length; i++) {
             if (_oracleIDs[i] >= oracleCount || _adapters[i] != oracles[_oracleIDs[i]].inboundAdapter) {
                 revert UnexpectedAdapters();
+            }
+            for (uint256 j = 0; j < i; j++) {
+                if (_oracleIDs[i] == _oracleIDs[j]) revert DuplicateOracle(_oracleIDs[i]);
             }
         }
     }
@@ -461,4 +493,6 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     error TransferFailed();
     error UnknownOracle(uint256 _oracleID);
     error InsufficientGas();
+    error ThresholdBelowMinimum(uint256 _minThreshold);
+    error DuplicateOracle(uint256 _oracleID);
 }

@@ -23,6 +23,12 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
 
     string public constant override version = "0.9.0";
     uint256 public constant RATE_PRECISION = 1e18; // Precision of `homeNativeRate`.
+    // The dispute kit stores extraData on the home chain at ~22k gas per word, so a much longer one could not be
+    // created there within a block, and its delivery would revert forever.
+    uint256 public constant MAX_EXTRA_DATA_LENGTH = 1024;
+    // The template URI goes into the dispute message and two HomeGateway events, while the bridging fee is flat, so a
+    // much longer one could make the delivery too big for the home chain. A URI needs far less.
+    uint256 public constant MAX_TEMPLATE_URI_LENGTH = 1024;
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -83,6 +89,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     event OracleEnabled(uint256 indexed _oracleID, bool _enabled);
     event OracleReporterSet(uint256 indexed _oracleID, IReporter _reporter);
     event DefaultOraclesSet(uint256[] _oracleIDs, uint256 _threshold);
+    event MinThresholdChanged(uint256 _minThreshold);
     event HomeNativeRateChanged(uint256 _homeNativeRate);
     event KeeperGuardrailsChanged(uint256 _maxChangeBps, uint256 _cooldown);
     event OracleBridgingCostSet(uint256 indexed _oracleID, uint256 _bridgingCost);
@@ -127,6 +134,8 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     mapping(uint256 oracleID => uint256) public oracleBridgingCost; // Round trip (dispute + ruling leg) through this oracle, in native currency.
     mapping(IERC20 feeToken => FeeBalance) public feeBalances; // Fees collected and withdrawn per fee token, NATIVE_CURRENCY for native.
     mapping(uint256 disputeID => bytes32 disputeHash) public pendingRefunds; // Set when the home chain could not create the dispute, cleared by `claimRefund`.
+    uint256 public minThreshold; // Lowest threshold an oracle selection may have, see `changeMinThreshold`.
+    mapping(uint256 disputeID => bytes32 disputeHash) public disputeIDtoHash; // Set at creation, read by `relayDispute`.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -329,6 +338,7 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
 
     /// @dev Changes the supported fee tokens.
     /// An accepted token must be a contract: NATIVE_CURRENCY and addresses without code revert. Disabling always works.
+    /// Fee-on-transfer and rebasing tokens are not supported: a transfer that delivers less reverts `createDispute`.
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
     function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByGovernor {
@@ -359,6 +369,16 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     /// @param _threshold The number of oracles that must agree, on both legs.
     function setDefaultOracles(uint256[] calldata _oracleIDs, uint256 _threshold) external onlyByGovernor {
         _setDefaultOracles(_oracleIDs, _threshold);
+    }
+
+    /// @dev Changes the lowest threshold an oracle selection may have, on both legs. The HomeGateway checks a dispute
+    /// against the selection its message carries, so its own `minThreshold` must not exceed this one, or a dispute
+    /// relayed with a threshold in between is never created. Existing disputes keep their selection.
+    /// @param _minThreshold The lowest threshold, 0 or 1 for none. The default selection must meet it.
+    function changeMinThreshold(uint256 _minThreshold) external onlyByGovernor {
+        if (defaultOracles.threshold < _minThreshold) revert ThresholdBelowMinimum(_minThreshold);
+        minThreshold = _minThreshold;
+        emit MinThresholdChanged(_minThreshold);
     }
 
     // ************************************* //
@@ -400,14 +420,23 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         uint256 _templateId,
         string calldata _templateUri
     ) external override returns (uint256 messageId) {
-        // msg.sender is part of the hash: only the arbitrable that created the dispute can find it.
-        bytes32 disputeHash = _computeDisputeHash(msg.sender, _foreignDisputeID, _choices, _extraData);
+        if (bytes(_templateUri).length > MAX_TEMPLATE_URI_LENGTH) revert TemplateUriTooLong();
+        // msg.sender is part of the hash: only the arbitrable that created the dispute, with its inputs, can find it.
+        bytes32 disputeHash = disputeIDtoHash[_foreignDisputeID];
+        OracleSelection storage selection = disputeOracles[disputeHash];
+        bytes32 expectedHash = _computeDisputeHash(
+            msg.sender,
+            _foreignDisputeID,
+            _choices,
+            _extraData,
+            selection.oracleIDs,
+            selection.threshold
+        );
+        if (disputeHash != expectedHash) revert DisputeDoesNotExist();
         DisputeData storage dispute = disputeHashtoDisputeData[disputeHash];
-        if (dispute.id == 0) revert DisputeDoesNotExist();
         if (dispute.relayed) revert AlreadyRelayed();
         dispute.relayed = true;
 
-        OracleSelection storage selection = disputeOracles[disputeHash];
         bytes memory data = abi.encode(
             DisputeMessage({
                 foreignArbitrable: msg.sender,
@@ -632,11 +661,13 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Checks that every ID is whitelisted, enabled and unique, and that 1 <= _threshold <= _oracleIDs.length.
+    /// @dev Checks that every ID is whitelisted, enabled and unique, that 1 <= _threshold <= _oracleIDs.length, and
+    /// that `_threshold` is at least `minThreshold`.
     /// @param _oracleIDs The IDs of the oracles.
     /// @param _threshold The threshold.
     function _validateSelection(uint256[] memory _oracleIDs, uint256 _threshold) internal view {
         if (_threshold == 0 || _threshold > _oracleIDs.length) revert InvalidThreshold();
+        if (_threshold < minThreshold) revert ThresholdBelowMinimum(minThreshold);
         for (uint256 i = 0; i < _oracleIDs.length; i++) {
             if (_oracleIDs[i] >= oracleCount || !oracles[_oracleIDs[i]].enabled) revert OracleNotEnabled(_oracleIDs[i]);
             for (uint256 j = 0; j < i; j++) {
@@ -713,7 +744,8 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         cost = (feeForJuror[courtID] * minJurors * homeNativeRate) / RATE_PRECISION + bridgingCost(_oracleIDs);
     }
 
-    /// @dev Arbitration cost converted into an accepted fee token.
+    /// @dev Arbitration cost converted into an accepted fee token, rounded up: the HomeGateway pays the full native
+    /// cost, so a token unit worth more than the cost must not make the dispute free.
     /// @param _extraData The extra data for the arbitrator.
     /// @param _oracleIDs The IDs of the oracles.
     /// @param _feeToken The fee token.
@@ -724,7 +756,21 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         IERC20 _feeToken
     ) internal view returns (uint256 cost) {
         if (!currencyRates[_feeToken].feePaymentAccepted) revert TokenNotAccepted();
-        cost = convertEthToTokenAmount(_feeToken, _arbitrationCost(_extraData, _oracleIDs));
+        cost = _convertEthToTokenAmountRoundedUp(_feeToken, _arbitrationCost(_extraData, _oracleIDs));
+    }
+
+    /// @dev `convertEthToTokenAmount`, rounded up.
+    /// @param _toToken The fee token.
+    /// @param _amountInEth The amount in native currency.
+    /// @return amount The amount in `_toToken`.
+    function _convertEthToTokenAmountRoundedUp(
+        IERC20 _toToken,
+        uint256 _amountInEth
+    ) internal view returns (uint256 amount) {
+        CurrencyRate storage rate = currencyRates[_toToken];
+        uint256 scaled = _amountInEth * 10 ** rate.rateDecimals;
+        amount = scaled / rate.rateInEth;
+        if (scaled % rate.rateInEth != 0) amount++;
     }
 
     /// @dev Reverts unless `msg.value` covers the native arbitration cost.
@@ -734,7 +780,8 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         if (msg.value < _arbitrationCost(_extraData, _oracleIDs)) revert ArbitrationFeesNotEnough();
     }
 
-    /// @dev Checks that `_feeAmount` covers the cost in `_feeToken` and pulls it from the caller.
+    /// @dev Checks that `_feeAmount` covers the cost in `_feeToken` and pulls it from the caller. The ledger credits
+    /// `_feeAmount`, so the transfer must deliver all of it.
     /// @param _extraData The extra data for the arbitrator.
     /// @param _oracleIDs The IDs of the oracles.
     /// @param _feeToken The fee token.
@@ -746,11 +793,14 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         uint256 _feeAmount
     ) internal {
         if (_feeAmount < _arbitrationCostInToken(_extraData, _oracleIDs, _feeToken)) revert ArbitrationFeesNotEnough();
+        uint256 balanceBefore = _feeToken.balanceOf(address(this));
         if (!_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
+        if (_feeToken.balanceOf(address(this)) < balanceBefore + _feeAmount) revert FeeOnTransferNotSupported();
     }
 
     /// @dev Creates a dispute and snapshots its oracle selection. Fees must already be checked or collected.
-    /// The selection is validated on every call. The default one never holds a disabled oracle (`setOracleEnabled`).
+    /// The selection is validated on every call. The default one never holds a disabled oracle (`setOracleEnabled`)
+    /// and always meets `minThreshold` (`changeMinThreshold`).
     /// @param _choices The number of choices.
     /// @param _extraData The extra data for the arbitrator.
     /// @param _oracleIDs The IDs of the oracles used on both legs.
@@ -766,19 +816,22 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
         IERC20 _feeToken,
         uint256 _paid
     ) internal returns (uint256 disputeID) {
+        if (_extraData.length > MAX_EXTRA_DATA_LENGTH) revert ExtraDataTooLong();
         _validateSelection(_oracleIDs, _threshold);
 
-        // `_paid` covers juror fees plus bridging cost, and the conversion rounds down, so this never exceeds `_paid`.
+        // `_paid` covers juror fees plus bridging cost, and both conversions round up, so this never exceeds `_paid`.
+        // Rounding up keeps a bridging cost below one token unit out of the juror fees refunded on a failure.
         uint256 feesForBridging = _feeToken == NATIVE_CURRENCY
             ? bridgingCost(_oracleIDs)
-            : convertEthToTokenAmount(_feeToken, bridgingCost(_oracleIDs));
+            : _convertEthToTokenAmountRoundedUp(_feeToken, bridgingCost(_oracleIDs));
         uint256 feesForJurors = _paid - feesForBridging;
         FeeBalance storage balance = feeBalances[_feeToken];
         balance.totalFeesForJurors += feesForJurors;
         balance.totalFeesForBridging += feesForBridging;
 
         disputeID = localDisputeID++;
-        bytes32 disputeHash = _computeDisputeHash(msg.sender, disputeID, _choices, _extraData);
+        bytes32 disputeHash = _computeDisputeHash(msg.sender, disputeID, _choices, _extraData, _oracleIDs, _threshold);
+        disputeIDtoHash[disputeID] = disputeHash;
 
         disputeHashtoDisputeData[disputeHash] = DisputeData({
             id: uint248(disputeID),
@@ -843,16 +896,22 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
 
     /// @dev Computes the dispute hash, the identifier shared by both gateways. The gateway address and the local
     /// dispute ID make it unique, including across redeployments; the other fields let `relayDispute` check its inputs.
+    /// The oracle selection is part of it: the HomeGateway checks a dispute message only against the selection it
+    /// carries, so a copy verified by other oracles is another dispute there, whose ruling this gateway rejects.
     /// @param _arbitrable The arbitrable that created the dispute.
     /// @param _foreignDisputeID The local dispute ID.
     /// @param _choices The number of choices.
     /// @param _extraData The extra data for the arbitrator.
+    /// @param _oracleIDs The IDs of the oracles selected for the dispute.
+    /// @param _threshold The threshold selected for the dispute.
     /// @return The dispute hash.
     function _computeDisputeHash(
         address _arbitrable,
         uint256 _foreignDisputeID,
         uint256 _choices,
-        bytes calldata _extraData
+        bytes calldata _extraData,
+        uint256[] memory _oracleIDs,
+        uint256 _threshold
     ) internal view returns (bytes32) {
         return
             keccak256(
@@ -863,7 +922,8 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
                     _arbitrable,
                     _foreignDisputeID,
                     _choices,
-                    _extraData
+                    _extraData,
+                    keccak256(abi.encode(_oracleIDs, _threshold))
                 )
             );
     }
@@ -937,4 +997,8 @@ contract ForeignGateway is IForeignGateway, IJushin, UUPSProxiable, Initializabl
     error InvalidFeeToken();
     error NoRefundPending();
     error ArbitrableOnly();
+    error ThresholdBelowMinimum(uint256 _minThreshold);
+    error ExtraDataTooLong();
+    error FeeOnTransferNotSupported();
+    error TemplateUriTooLong();
 }

@@ -89,7 +89,7 @@ describe("Integration tests", async () => {
     // Foreign chain: the lightbulb opens the dispute and relays it over the default oracles.
     const requestTx = await lightbulb["requestSwitch()"]({ value: arbitrationCost });
     const foreignDisputeID = 1n; // The ForeignGateway counts from 1.
-    const disputeHash = computeDisputeHash(foreignDisputeID, extraData);
+    const disputeHash = await computeDisputeHash(foreignDisputeID, extraData);
     await expect(requestTx)
       .to.emit(foreignGateway, "CrossChainDisputeOutgoing")
       .withArgs(lightbulb.target, foreignDisputeID, 2, extraData);
@@ -147,7 +147,7 @@ describe("Integration tests", async () => {
     await stake(ONE_THOUSAND_PNK * 4n);
 
     const requestTx = await lightbulb["requestSwitch(uint256[],uint256)"]([1], 1, { value: cost });
-    const disputeHash = computeDisputeHash(1n, extraData);
+    const disputeHash = await computeDisputeHash(1n, extraData);
     const dispute = await foreignGateway.disputeHashtoDisputeData(disputeHash);
     expect(dispute.feesForJurors).to.equal(jurorFees);
     expect(dispute.feesForBridging).to.equal(bridgingCost);
@@ -198,48 +198,80 @@ describe("Integration tests", async () => {
     );
   });
 
-  it("Sends back a dispute the home chain cannot create and refunds its juror fees", async () => {
+  it("Retries a delivery once the HomeGateway is funded", async () => {
     const extraData = await lightbulb.arbitratorExtraData();
     const requestTx = await lightbulb["requestSwitch()"]({
       value: await foreignGateway["arbitrationCost(bytes)"](extraData),
     });
-    const foreignDisputeID = 1n;
-    const disputeHash = computeDisputeHash(foreignDisputeID, extraData);
+    const disputeHash = await computeDisputeHash(1n, extraData);
 
-    // Home chain: the HomeGateway cannot pay KlerosCore and dispatches the failure in the same delivery.
-    await homeGateway.withdraw(deployer, await ethers.provider.getBalance(homeGateway.target));
+    // Home chain: the HomeGateway cannot pay KlerosCore, so the delivery reverts and the message stays executable.
+    const balance = await ethers.provider.getBalance(homeGateway.target);
+    await homeGateway.withdraw(deployer, balance);
+    await expect(relayMessages(requestTx, foreignYaho, homeYaru)).to.be.revertedWithCustomError(homeYaru, "CallFailed");
+
+    const signer = await ethers.getSigner(deployer);
+    await signer.sendTransaction({ to: homeGateway.target, value: balance });
     const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
-    const insufficientFunds = homeGateway.interface.encodeErrorResult("InsufficientFunds", [
-      await core["arbitrationCost(bytes)"](extraData),
-      0,
-    ]);
+    await expect(deliveryTx).to.emit(core, "DisputeCreation");
+    await expect(deliveryTx).to.not.emit(homeGateway, "DisputeCreationFailed");
+    expect((await homeGateway.getReceivedDispute(disputeHash)).received).to.be.true;
+  });
+
+  it("Sends back a dispute the home chain cannot create and refunds its juror fees", async () => {
+    // The ForeignGateway does not check the dispute kit; KlerosCore rejects one its court does not support.
+    await core.enableDisputeKits(1, [2], false); // DisputeKitShutter off the General Court
+    const extraData = ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256", "uint256"], [1, 3, 2]);
+    const shutterLightbulb = await (
+      await ethers.getContractFactory("GatewayLightbulb")
+    ).deploy(foreignGateway.target, extraData, 0, "");
+    const requestTx = await shutterLightbulb["requestSwitch()"]({
+      value: await foreignGateway["arbitrationCost(bytes)"](extraData),
+    });
+    const foreignDisputeID = 1n;
+    const disputeHash = await computeDisputeHash(foreignDisputeID, extraData, shutterLightbulb.target);
+
+    // Home chain: KlerosCore reverts, and the HomeGateway dispatches the failure in the same delivery.
+    const homeBalance = await ethers.provider.getBalance(homeGateway.target);
+    const deliveryTx = await relayMessages(requestTx, foreignYaho, homeYaru);
     await expect(deliveryTx)
       .to.emit(homeGateway, "DisputeCreationFailed")
-      .withArgs(disputeHash, insufficientFunds, anyValue);
+      .withArgs(disputeHash, core.interface.encodeErrorResult("DisputeKitNotSupportedByCourt"), anyValue);
     await expect(deliveryTx).to.not.emit(core, "DisputeCreation");
     expect((await homeGateway.getReceivedDispute(disputeHash)).creationFailed).to.be.true;
+    expect(await ethers.provider.getBalance(homeGateway.target)).to.equal(homeBalance);
 
     // Foreign chain: Yaru executes the failure, the ForeignGateway closes the dispute and calls the lightbulb back.
     const { feesForJurors } = await foreignGateway.disputeHashtoDisputeData(disputeHash);
     const failureDeliveryTx = await relayMessages(deliveryTx, homeYaho, foreignYaru);
     await expect(failureDeliveryTx)
       .to.emit(foreignGateway, "DisputeCreationFailed")
-      .withArgs(lightbulb.target, foreignDisputeID, disputeHash, ethers.ZeroAddress, feesForJurors);
-    await expect(failureDeliveryTx).to.emit(lightbulb, "LightbulbRequestFailed").withArgs(deployer, foreignDisputeID);
-    expect(await lightbulb.lightbulbIsOn(deployer)).to.be.false;
+      .withArgs(shutterLightbulb.target, foreignDisputeID, disputeHash, ethers.ZeroAddress, feesForJurors);
+    await expect(failureDeliveryTx)
+      .to.emit(shutterLightbulb, "LightbulbRequestFailed")
+      .withArgs(deployer, foreignDisputeID);
+    expect(await shutterLightbulb.lightbulbIsOn(deployer)).to.be.false;
 
     // The owner gets the juror fees back.
-    await expect(lightbulb.claimRefund(foreignDisputeID)).to.changeEtherBalances(
+    await expect(shutterLightbulb.claimRefund(foreignDisputeID)).to.changeEtherBalances(
       [deployer, foreignGateway],
       [feesForJurors, -feesForJurors]
     );
   });
 
-  const computeDisputeHash = (foreignDisputeID: bigint, extraData: string) =>
-    ethers.solidityPackedKeccak256(
-      ["string", "uint256", "address", "address", "uint256", "uint256", "bytes"],
-      ["createDispute", CHAIN_ID, foreignGateway.target, lightbulb.target, foreignDisputeID, 2, extraData]
+  // Over the oracle selection the ForeignGateway stored for the dispute: a stored hash off the formula finds none.
+  const computeDisputeHash = async (foreignDisputeID: bigint, extraData: string, arbitrable = lightbulb.target) => {
+    const { oracleIDs, threshold } = await foreignGateway.getDisputeOracles(
+      await foreignGateway.disputeIDtoHash(foreignDisputeID)
     );
+    const selectionHash = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(["uint256[]", "uint256"], [oracleIDs, threshold])
+    );
+    return ethers.solidityPackedKeccak256(
+      ["string", "uint256", "address", "address", "uint256", "uint256", "bytes", "bytes32"],
+      ["createDispute", CHAIN_ID, foreignGateway.target, arbitrable, foreignDisputeID, 2, extraData, selectionHash]
+    );
+  };
 
   const stake = async (amount: bigint) => {
     await pnk.approve(core.target, amount);

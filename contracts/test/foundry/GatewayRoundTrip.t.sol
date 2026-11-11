@@ -83,17 +83,7 @@ contract GatewayRoundTripTest is GatewayHarness {
         assertEq(ruling, 0, "no ruling");
         assertFalse(lightbulb.lightbulbIsOn(owner), "bulb not switched");
 
-        bytes32 disputeHash = keccak256(
-            abi.encodePacked(
-                "createDispute",
-                block.chainid,
-                address(foreignGateway),
-                address(lightbulb),
-                disputeID,
-                lightbulb.NUMBER_OF_CHOICES(),
-                extraData
-            )
-        );
+        bytes32 disputeHash = foreignGateway.disputeIDtoHash(disputeID);
         (, , , , , uint256 feesForJurors, ) = foreignGateway.disputeHashtoDisputeData(disputeHash);
         uint256 ownerBalance = owner.balance;
         vm.prank(other);
