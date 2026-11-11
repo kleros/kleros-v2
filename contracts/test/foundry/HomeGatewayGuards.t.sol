@@ -69,7 +69,7 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
     }
 
     function _received(bytes32 _disputeHash) internal view returns (bool) {
-        return homeGateway.getReceivedDispute(_disputeHash).received;
+        return homeGateway.getReceivedDispute(_disputeHash).receivedAt != 0;
     }
 
     /// @dev The dispute hash covers the oracle selection, so a copy of a relayed dispute verified by other oracles
@@ -80,14 +80,14 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
         IForeignGateway.DisputeMessage memory copy = abi.decode(message.data, (IForeignGateway.DisputeMessage));
         copy.oracleIDs = _ids(1);
         copy.threshold = 1;
-        uint256 copyHomeID = ruler.getNextDisputeID();
         _onMessage(1, _oneAdapter(homeAdapters[1]), abi.encode(copy));
+        uint256 copyHomeID = homeGateway.createReceivedDispute(copy);
         bytes32 copyHash = homeGateway.disputeIDtoHash(copyHomeID);
-        assertTrue(_received(copyHash), "the copy is created");
+        assertTrue(homeGateway.getReceivedDispute(copyHash).created, "the copy is created");
         assertTrue(copyHash != disputeHash, "under another hash");
 
-        uint256 homeDisputeID = ruler.getNextDisputeID();
         _deliver(homeYaru, foreignYaho, messageId, message);
+        uint256 homeDisputeID = _createOnHome(message);
         assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "the relayed dispute is created");
 
         (uint256 copyRulingId, Message memory copyRuling) = _ruleOnHome(copyHomeID, 1);
@@ -103,6 +103,7 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
         );
         (uint256 rulingId, Message memory ruling) = _ruleOnHome(homeDisputeID, 2);
         _deliver(foreignYaru, homeYaho, rulingId, ruling);
+        _executeRuling(foreignGateway.disputeHashToForeignID(disputeHash));
         assertEq(rulingCount, 1, "ruled once");
         assertEq(lastRuling, 2, "by the relayed dispute");
     }
@@ -112,7 +113,7 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
         vm.prank(other);
         vm.expectRevert(HomeGateway.YaruOnly.selector);
         homeGateway.onMessage(messageId, block.chainid, message.sender, 1, message.adapters, message.data);
-        assertFalse(_received(disputeHash), "not created");
+        assertFalse(_received(disputeHash), "not received");
     }
 
     function test_onMessage_wrongSourceChain_reverts() public {
@@ -120,7 +121,7 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
         vm.prank(homeYaru);
         vm.expectRevert(HomeGateway.WrongSourceChain.selector);
         homeGateway.onMessage(messageId, block.chainid + 1, message.sender, 1, message.adapters, message.data);
-        assertFalse(_received(disputeHash), "not created");
+        assertFalse(_received(disputeHash), "not received");
     }
 
     function test_onMessage_wrongSender_reverts() public {
@@ -128,14 +129,14 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
         vm.prank(homeYaru);
         vm.expectRevert(HomeGateway.ForeignGatewayMessageSenderOnly.selector);
         homeGateway.onMessage(messageId, block.chainid, other, 1, message.adapters, message.data);
-        assertFalse(_received(disputeHash), "not created");
+        assertFalse(_received(disputeHash), "not received");
     }
 
     function test_onMessage_thresholdOtherThanTheSelectedOne_reverts() public {
         (bytes32 disputeHash, , Message memory message) = _relayed(_ids(0, 1), 2);
         vm.expectRevert(HomeGateway.UnexpectedAdapters.selector);
         _onMessage(1, message.adapters, message.data);
-        assertFalse(_received(disputeHash), "not created");
+        assertFalse(_received(disputeHash), "not received");
     }
 
     /// @dev One more adapter than the selection, with the selected threshold: Hashi would count the threshold over
@@ -144,17 +145,17 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
         (bytes32 disputeHash, , Message memory message) = _relayed(_ids(0), 1);
         vm.expectRevert(HomeGateway.UnexpectedAdapters.selector);
         _onMessage(1, _adapters(homeAdapters[0], homeAdapters[1]), message.data);
-        assertFalse(_received(disputeHash), "not created");
+        assertFalse(_received(disputeHash), "not received");
     }
 
     function test_onMessage_adaptersOutOfOrder_reverts() public {
         (bytes32 disputeHash, uint256 messageId, Message memory message) = _relayed(_ids(0, 1), 2);
         vm.expectRevert(HomeGateway.UnexpectedAdapters.selector);
         _onMessage(2, _adapters(homeAdapters[1], homeAdapters[0]), message.data);
-        assertFalse(_received(disputeHash), "not created");
+        assertFalse(_received(disputeHash), "not received");
 
         _deliver(homeYaru, foreignYaho, messageId, message);
-        assertTrue(_received(disputeHash), "created with the selected adapters");
+        assertTrue(_received(disputeHash), "received with the selected adapters");
     }
 
     function test_onMessage_unregisteredOracle_reverts() public {
@@ -178,27 +179,30 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
     /// ForeignGateway never relayed, at a threshold of 1 over itself. With `minThreshold` at 2 it cannot.
     function test_minThreshold_stopsAForgedSingleOracleDispute() public {
         uint256 nextHomeDisputeID = ruler.getNextDisputeID();
-        _onMessage(1, _oneAdapter(homeAdapters[1]), _forged(1, _ids(1), 1));
+        bytes memory forged = _forged(1, _ids(1), 1);
+        _onMessage(1, _oneAdapter(homeAdapters[1]), forged);
+        homeGateway.createReceivedDispute(abi.decode(forged, (IForeignGateway.DisputeMessage)));
         assertEq(ruler.getNextDisputeID(), nextHomeDisputeID + 1, "forged without a minimum");
 
         vm.prank(governor);
         homeGateway.changeMinThreshold(2);
-        uint256 balance = address(homeGateway).balance;
+        forged = _forged(2, _ids(1), 1);
         vm.expectRevert(abi.encodeWithSelector(HomeGateway.ThresholdBelowMinimum.selector, 2));
-        _onMessage(1, _oneAdapter(homeAdapters[1]), _forged(2, _ids(1), 1));
+        _onMessage(1, _oneAdapter(homeAdapters[1]), forged);
+        vm.expectRevert(HomeGateway.DisputeDoesNotExist.selector);
+        homeGateway.createReceivedDispute(abi.decode(forged, (IForeignGateway.DisputeMessage)));
         assertEq(ruler.getNextDisputeID(), nextHomeDisputeID + 1, "no dispute forged");
-        assertEq(address(homeGateway).balance, balance, "nothing paid");
     }
 
-    function test_minThreshold_disputeAtTheMinimumIsCreated() public {
+    function test_minThreshold_disputeAtTheMinimumIsReceived() public {
         vm.prank(governor);
         homeGateway.changeMinThreshold(2);
         (bytes32 disputeHash, uint256 messageId, Message memory message) = _relayed(_ids(0, 1), 2);
         _deliver(homeYaru, foreignYaho, messageId, message);
-        assertTrue(_received(disputeHash), "created");
+        assertTrue(_received(disputeHash), "received");
     }
 
-    /// @dev A dispute relayed below a minimum raised afterwards stays executable, and is created once it is lowered.
+    /// @dev A dispute relayed below a minimum raised afterwards stays executable, and is received once it is lowered.
     function test_minThreshold_raisedOverAnUndeliveredDispute_revertsUntilLowered() public {
         (bytes32 disputeHash, uint256 messageId, Message memory message) = _relayed(_ids(0), 1);
         vm.prank(governor);
@@ -209,7 +213,7 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
         vm.prank(governor);
         homeGateway.changeMinThreshold(1);
         _deliver(homeYaru, foreignYaho, messageId, message);
-        assertTrue(_received(disputeHash), "created");
+        assertTrue(_received(disputeHash), "received");
     }
 
     function test_changeMinThreshold_onlyGovernor() public {
@@ -230,7 +234,7 @@ contract HomeGatewayProvenanceTest is GatewayHarness {
     function test_createdDispute_redelivery_reverts() public {
         (bytes32 disputeHash, uint256 messageId, Message memory message) = _relayed(_ids(0), 1);
         _deliver(homeYaru, foreignYaho, messageId, message);
-        uint256 homeDisputeID = homeGateway.disputeHashToHomeID(disputeHash);
+        uint256 homeDisputeID = _createOnHome(message);
         uint256 nextHomeDisputeID = ruler.getNextDisputeID();
         uint256 balance = address(homeGateway).balance;
 
@@ -272,6 +276,8 @@ contract HomeGatewayGovernanceTest is GatewayHarness {
         homeGateway.addOracle(IReporter(other), IAdapter(makeAddr("a")), IAdapter(makeAddr("b")));
         vm.expectRevert(HomeGateway.GovernorOnly.selector);
         homeGateway.withdraw(payable(other), 1);
+        vm.expectRevert(HomeGateway.GovernorOnly.selector);
+        homeGateway.changeCreationTimeout(0);
         address implementation = address(new HomeGateway());
         vm.expectRevert(HomeGateway.GovernorOnly.selector);
         homeGateway.upgradeToAndCall(implementation, "");
@@ -283,6 +289,7 @@ contract HomeGatewayGovernanceTest is GatewayHarness {
         assertEq(address(homeGateway.yaho()), address(homeYaho), "yaho");
         assertEq(homeGateway.yaru(), homeYaru, "yaru");
         assertEq(homeGateway.oracleCount(), NB_ORACLES, "oracles");
+        assertEq(homeGateway.creationTimeout(), 7 days, "creation timeout");
     }
 
     function test_governorSetters() public {

@@ -11,9 +11,9 @@ import {GatewayHarness} from "./gateway/GatewayHarness.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @dev A dispute and its ruling across both gateways: FG `createDispute` + `relayDispute` → (Yaru) HG `onMessage`
-/// creates it on KlerosCoreRuler → the ruler rules → HG `rule` → (Yaru) FG `onMessage` rules the arbitrable.
-/// Both legs are dispatched through a real SDK Yaho to vouching reporters, and delivered with the dispatched
-/// message's own sender, threshold and adapters.
+/// records it → HG `createReceivedDispute` creates it on KlerosCoreRuler → the ruler rules → HG `rule` → (Yaru) FG
+/// `onMessage` records the ruling → FG `executeRuling` rules the arbitrable. Both legs are dispatched through a real
+/// SDK Yaho to vouching reporters, and delivered with the dispatched message's own sender, threshold and adapters.
 contract GatewayRoundTripTest is GatewayHarness {
     function test_roundTrip_selectedOracles() public {
         _roundTrip(abi.encode(uint256(MIRRORED_COURT), uint256(5)), false);
@@ -23,18 +23,22 @@ contract GatewayRoundTripTest is GatewayHarness {
         _roundTrip("", true);
     }
 
-    /// @dev The ruler rejects the dispute: the failure comes back over the dispute's oracles, the arbitrable
-    /// is called back instead of ruled, and claims the juror fees it paid.
+    /// @dev The ruler rejects the dispute, so it is never created: once the creation timeout has passed, the failure
+    /// comes back over the dispute's oracles, the arbitrable is called back instead of ruled, and claims the juror fees
+    /// it paid.
     function test_roundTrip_creationFailure() public {
         bytes memory extraData = abi.encode(uint256(MIRRORED_COURT), uint256(5));
         _breakRuler();
         uint256 homeBalance = address(homeGateway).balance;
 
-        (uint256 foreignDisputeID, bytes32 disputeHash, uint256 messageId, Message memory message) = _failOnHome(
-            extraData,
-            _ids(0, 1),
-            2
-        );
+        uint256 foreignDisputeID = _createDispute(extraData, _ids(0, 1), 2);
+        (uint256 disputeMessageId, Message memory disputeMessage) = _relay(foreignDisputeID, extraData);
+        bytes32 disputeHash = _disputeHash(foreignDisputeID, extraData);
+        _deliver(homeYaru, foreignYaho, disputeMessageId, disputeMessage);
+        // The automatic ruler rules inside `createDispute`, before the HomeGateway knows the dispute ID.
+        vm.expectRevert(HomeGateway.DisputeDoesNotExist.selector);
+        homeGateway.createReceivedDispute(abi.decode(disputeMessage.data, (IForeignGateway.DisputeMessage)));
+        (uint256 messageId, Message memory message) = _sendCreationFailure(disputeHash);
         assertEq(address(homeGateway).balance, homeBalance, "nothing paid on the home chain");
         assertEq(message.sender, address(homeGateway), "failure sender");
         assertEq(message.receiver, address(foreignGateway), "failure receiver");
@@ -46,6 +50,8 @@ contract GatewayRoundTripTest is GatewayHarness {
         }
 
         _deliver(foreignYaru, homeYaho, messageId, message);
+        assertEq(creationFailureCount, 0, "not called back on delivery");
+        _executeRuling(foreignDisputeID);
         assertEq(creationFailureCount, 1, "called back");
         assertEq(lastFailedDisputeID, foreignDisputeID, "failed dispute");
         assertEq(rulingCount, 0, "not ruled");
@@ -69,13 +75,13 @@ contract GatewayRoundTripTest is GatewayHarness {
         uint256 disputeID = lightbulb.requestSwitch{value: cost}();
         (uint256 disputeMessageId, Message memory disputeMessage) = _dispatchedMessage(foreignYaho);
 
-        _breakRuler();
-        vm.recordLogs();
+        bytes32 disputeHash = foreignGateway.disputeIDtoHash(disputeID);
         _deliver(homeYaru, foreignYaho, disputeMessageId, disputeMessage);
-        (uint256 failureId, Message memory failure) = _dispatchedMessage(homeYaho);
+        (uint256 failureId, Message memory failure) = _sendCreationFailure(disputeHash);
+        _deliver(foreignYaru, homeYaho, failureId, failure);
         vm.expectEmit(true, true, true, true, address(lightbulb));
         emit GatewayLightbulb.LightbulbRequestFailed(owner, disputeID);
-        _deliver(foreignYaru, homeYaho, failureId, failure);
+        _executeRuling(disputeID);
 
         (address requestOwner, bool ruled, uint256 ruling) = lightbulb.requests(disputeID);
         assertEq(requestOwner, owner, "owner");
@@ -83,7 +89,6 @@ contract GatewayRoundTripTest is GatewayHarness {
         assertEq(ruling, 0, "no ruling");
         assertFalse(lightbulb.lightbulbIsOn(owner), "bulb not switched");
 
-        bytes32 disputeHash = foreignGateway.disputeIDtoHash(disputeID);
         (, , , , , uint256 feesForJurors, ) = foreignGateway.disputeHashtoDisputeData(disputeHash);
         uint256 ownerBalance = owner.balance;
         vm.prank(other);
@@ -116,10 +121,14 @@ contract GatewayRoundTripTest is GatewayHarness {
             _assertReported(foreignReporters[i], foreignYaho, disputeMessageId, disputeMessage);
         }
 
-        // Home chain: Yaru delivers it, the HomeGateway pays the ruler and records the dispute under the same hash.
-        uint256 homeDisputeID = ruler.getNextDisputeID();
+        // Home chain: Yaru delivers it under the same hash, then anyone has it created: the HomeGateway pays the ruler.
         uint256 homeBalance = address(homeGateway).balance;
         _deliver(homeYaru, foreignYaho, disputeMessageId, disputeMessage);
+        HomeGateway.ReceivedDispute memory delivered = homeGateway.getReceivedDispute(disputeHash);
+        assertEq(delivered.receivedAt, block.timestamp, "received");
+        assertFalse(delivered.created, "not created on delivery");
+        assertEq(address(homeGateway).balance, homeBalance, "nothing paid on delivery");
+        uint256 homeDisputeID = _createOnHome(disputeMessage);
 
         assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "home dispute ID");
         assertEq(homeGateway.disputeIDtoHash(homeDisputeID), disputeHash, "dispute hash");
@@ -129,7 +138,7 @@ contract GatewayRoundTripTest is GatewayHarness {
         assertEq(address(arbitrated), address(homeGateway), "arbitrated");
         assertFalse(ruled, "ruled on creation");
         HomeGateway.ReceivedDispute memory received = homeGateway.getReceivedDispute(disputeHash);
-        assertTrue(received.received, "received");
+        assertTrue(received.created, "created");
         assertEq(received.oracleIDs, oracleIDs, "received oracles");
         assertEq(received.threshold, threshold, "received threshold");
 
@@ -145,8 +154,10 @@ contract GatewayRoundTripTest is GatewayHarness {
             _assertReported(homeReporters[i], homeYaho, rulingMessageId, rulingMessage);
         }
 
-        // Foreign chain: Yaru delivers the ruling, the ForeignGateway rules the arbitrable.
+        // Foreign chain: Yaru delivers the ruling, then anyone has the ForeignGateway rule the arbitrable.
         _deliver(foreignYaru, homeYaho, rulingMessageId, rulingMessage);
+        assertEq(rulingCount, 0, "not ruled on delivery");
+        _executeRuling(foreignDisputeID);
         assertEq(rulingCount, 1, "rulings received");
         assertEq(lastRuledDisputeID, foreignDisputeID, "ruled dispute");
         assertEq(lastRuling, ruling, "ruling");

@@ -77,16 +77,15 @@ contract GatewayLightbulbTest is GatewayHarness {
         disputeID = lightbulb.requestSwitch{value: cost}();
     }
 
-    /// @dev Requests through `_owner`, has the home chain reject the dispute and delivers the failure back.
+    /// @dev Requests through `_owner`, has the home chain fail the dispute and gives the failure to the lightbulb.
     function _failedRequest(LightbulbOwner _owner) internal returns (uint256 disputeID) {
         vm.recordLogs();
         disputeID = _owner.requestSwitch{value: cost}();
         (uint256 disputeMessageId, Message memory disputeMessage) = _dispatchedMessage(foreignYaho);
-        _breakRuler();
-        vm.recordLogs();
         _deliver(homeYaru, foreignYaho, disputeMessageId, disputeMessage);
-        (uint256 failureId, Message memory failure) = _dispatchedMessage(homeYaho);
+        (uint256 failureId, Message memory failure) = _sendCreationFailure(foreignGateway.disputeIDtoHash(disputeID));
         _deliver(foreignYaru, homeYaho, failureId, failure);
+        _executeRuling(disputeID);
     }
 
     function test_rule_andFailure_onlyFromTheGateway() public {

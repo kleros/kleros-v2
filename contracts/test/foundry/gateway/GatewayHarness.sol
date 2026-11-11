@@ -20,7 +20,8 @@ import "../../../src/libraries/Constants.sol";
 
 /// @dev Both gateways wired to each other in one EVM, as on two chains: a real SDK Yaho per leg, vouching reporters
 /// whose dispatcher is the sending gateway, plain-address adapters, and KlerosCoreRuler (manual ruling) as the
-/// HomeGateway's arbitrator. Yaru is a pranked address: `_deliver` does what Yaru does once the adapters agree.
+/// HomeGateway's arbitrator. Yaru is a pranked address: `_deliver` does what Yaru does once the adapters agree. The
+/// steps after a delivery, `createReceivedDispute`, `sendCreationFailure` and `executeRuling`, are called by `other`.
 /// Every chain ID is `block.chainid`, so both gateways compute the same dispute hash.
 /// This contract is the arbitrable of the foreign disputes and the ruler of the HomeGateway's disputes.
 abstract contract GatewayHarness is Test {
@@ -192,7 +193,7 @@ abstract contract GatewayHarness is Test {
         assertEq(returnedId, messageId, "relayDispute returns the Yaho message ID");
     }
 
-    /// @dev Creates, relays and delivers a dispute to the HomeGateway, which creates it on the ruler.
+    /// @dev Creates, relays and delivers a dispute to the HomeGateway, and creates it on the ruler.
     function _disputeOnHome(
         bytes memory _extraData,
         uint256[] memory _oracleIDs,
@@ -200,31 +201,43 @@ abstract contract GatewayHarness is Test {
     ) internal returns (uint256 foreignDisputeID, uint256 homeDisputeID, bytes32 disputeHash) {
         foreignDisputeID = _createDispute(_extraData, _oracleIDs, _threshold);
         (uint256 messageId, Message memory message) = _relay(foreignDisputeID, _extraData);
-        homeDisputeID = ruler.getNextDisputeID();
         _deliver(homeYaru, foreignYaho, messageId, message);
+        homeDisputeID = _createOnHome(message);
         disputeHash = _disputeHash(foreignDisputeID, _extraData);
         assertEq(homeGateway.disputeHashToHomeID(disputeHash), homeDisputeID, "home dispute ID");
     }
 
-    /// @dev Makes the ruler reject the HomeGateway's disputes: in automatic mode it rules them at creation, and `rule`
-    /// reverts since the HomeGateway has not stored the dispute yet.
+    /// @dev Creates a delivered dispute on the ruler with the message Yaru delivered, as anyone can.
+    function _createOnHome(Message memory _disputeMessage) internal returns (uint256 homeDisputeID) {
+        uint256 nextHomeDisputeID = ruler.getNextDisputeID();
+        vm.prank(other);
+        homeDisputeID = homeGateway.createReceivedDispute(
+            abi.decode(_disputeMessage.data, (IForeignGateway.DisputeMessage))
+        );
+        assertEq(homeDisputeID, nextHomeDisputeID, "createReceivedDispute returns the ruler's dispute ID");
+    }
+
+    /// @dev Makes the ruler reject the HomeGateway's disputes, so `createReceivedDispute` reverts: in automatic mode it
+    /// rules them at creation, and `rule` reverts since the HomeGateway has not stored the dispute yet.
     function _breakRuler() internal {
         ruler.changeRulingModeToAutomaticPreset(IArbitrableV2(address(homeGateway)), 1, false, false);
     }
 
-    /// @dev Creates and relays a dispute, and delivers it to the HomeGateway, whose arbitrator must reject it. Returns
-    /// the creation failure Yaho dispatched.
-    function _failOnHome(
-        bytes memory _extraData,
-        uint256[] memory _oracleIDs,
-        uint256 _threshold
-    ) internal returns (uint256 foreignDisputeID, bytes32 disputeHash, uint256 messageId, Message memory message) {
-        foreignDisputeID = _createDispute(_extraData, _oracleIDs, _threshold);
-        (uint256 disputeMessageId, Message memory disputeMessage) = _relay(foreignDisputeID, _extraData);
-        disputeHash = _disputeHash(foreignDisputeID, _extraData);
+    /// @dev Waits for the creation timeout of a dispute delivered now and sends its creation failure, as anyone can.
+    /// Returns the message Yaho dispatched.
+    function _sendCreationFailure(bytes32 _disputeHash) internal returns (uint256 messageId, Message memory message) {
+        vm.warp(block.timestamp + homeGateway.creationTimeout());
         vm.recordLogs();
-        _deliver(homeYaru, foreignYaho, disputeMessageId, disputeMessage);
+        vm.prank(other);
+        uint256 returnedId = homeGateway.sendCreationFailure(_disputeHash);
         (messageId, message) = _dispatchedMessage(homeYaho);
+        assertEq(returnedId, messageId, "sendCreationFailure returns the Yaho message ID");
+    }
+
+    /// @dev Gives the arbitrable what the ForeignGateway received for a dispute, as anyone can.
+    function _executeRuling(uint256 _foreignDisputeID) internal {
+        vm.prank(other);
+        foreignGateway.executeRuling(_foreignDisputeID);
     }
 
     /// @dev Rules a HomeGateway dispute on the ruler and returns the message Yaho dispatched.

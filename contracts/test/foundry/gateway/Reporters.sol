@@ -73,6 +73,38 @@ contract RevertingReporter is IReporter {
     }
 }
 
+/// @dev A reporter that makes one armed call during a dispatch, as a reporter calling back into its gateway would, and
+/// records whether it went through.
+contract ReenteringReporter is IReporter {
+    address public target;
+    bytes public reentry;
+    bool public reentrySucceeded;
+    bytes public reentryResult;
+
+    function arm(address _target, bytes calldata _reentry) external {
+        target = _target;
+        reentry = _reentry;
+    }
+
+    function dispatchBlocks(uint256, IAdapter, uint256[] memory) external payable returns (bytes32) {
+        revert("Not supported");
+    }
+
+    function dispatchMessages(
+        uint256,
+        IAdapter,
+        uint256[] memory,
+        bytes32[] memory
+    ) external payable returns (bytes32) {
+        if (reentry.length > 0) {
+            bytes memory reentryCall = reentry;
+            delete reentry;
+            (reentrySucceeded, reentryResult) = target.call(reentryCall);
+        }
+        return bytes32(0);
+    }
+}
+
 /// @dev Another contract dispatching through the same Yaho with a gateway's reporters, vouching for its own message.
 contract SelfVouchingDispatcher is VouchedDispatcher {
     address internal immutable yaho;

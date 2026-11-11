@@ -34,13 +34,15 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     }
 
     /// @dev A dispute received from the ForeignGateway and the oracles selected for it on the foreign chain.
-    /// `received` is never reset: it rejects a duplicate delivery, and it is the only existence marker since
-    /// arbitrator dispute IDs start at 0. `creationFailed` is never reset either, and rejects a duplicate too.
+    /// `receivedAt` is never reset: it rejects a duplicate delivery, and it is the only existence marker since
+    /// arbitrator dispute IDs start at 0. `created` and `creationFailed` are never reset either, and at most one is set.
     struct ReceivedDispute {
-        bool received; // Created on the arbitrator.
+        bool created; // Created on the arbitrator by `createReceivedDispute`.
         uint256 threshold;
         uint256[] oracleIDs;
-        bool creationFailed; // Not created on the arbitrator, and the failure was sent back.
+        bool creationFailed; // Not created on the arbitrator, and the failure was sent back by `sendCreationFailure`.
+        uint64 receivedAt; // When Yaru delivered it.
+        bytes32 messageHash; // keccak256 of the delivered message: the dispute hash does not cover its template.
     }
 
     // ************************************* //
@@ -57,9 +59,11 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     );
     event OracleReporterSet(uint256 indexed _oracleID, IReporter _reporter);
     event MinThresholdChanged(uint256 _minThreshold);
+    event CreationTimeoutChanged(uint256 _creationTimeout);
     event Funded(address indexed _from, uint256 _amount);
     event Withdrawn(address indexed _to, uint256 _amount);
-    event DisputeCreationFailed(bytes32 indexed _disputeHash, bytes _reason, uint256 _messageId);
+    event DisputeReceived(bytes32 indexed _disputeHash, IForeignGateway.DisputeMessage _message);
+    event DisputeCreationFailed(bytes32 indexed _disputeHash, uint256 _messageId);
 
     // ************************************* //
     // *             Storage               * //
@@ -81,6 +85,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     mapping(IAdapter => bool) public isInboundAdapter; // Idem.
     mapping(bytes32 disputeHash => ReceivedDispute) internal receivedDisputes;
     uint256 public minThreshold; // Lowest threshold a dispute message may carry, see `changeMinThreshold`.
+    uint256 public creationTimeout; // Delay after a delivery before a dispute not created can fail, see `sendCreationFailure`.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -124,6 +129,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         foreignGateway = _foreignGateway;
         yaho = _yaho;
         yaru = _yaru;
+        creationTimeout = 7 days;
 
         for (uint256 i = 0; i < _oracles.length; i++) {
             _addOracle(_oracles[i].outboundReporter, _oracles[i].outboundAdapter, _oracles[i].inboundAdapter);
@@ -157,8 +163,10 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     }
 
     /// @dev Changes the foreign gateway.
-    /// Only call it when no dispute is open (not enforced on-chain): a dispute still sent by the old foreign gateway is
-    /// rejected, and the ruling of a received dispute is sent to the new one, which does not know it.
+    /// Only call it when no dispute is open (not enforced on-chain), including a received one neither created nor
+    /// failed: a dispute still sent by the old foreign gateway is rejected, one received from it and not created yet
+    /// is no longer found by `createReceivedDispute`, and the ruling of a created dispute, or the creation failure of a
+    /// received one, is sent to the new one, which does not know it, so the arbitrable gets neither.
     /// @param _foreignGateway The address of the new foreign gateway.
     function changeForeignGateway(address _foreignGateway) external onlyByGovernor {
         foreignGateway = _foreignGateway;
@@ -218,6 +226,16 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         emit MinThresholdChanged(_minThreshold);
     }
 
+    /// @dev Changes how long after its delivery a dispute not created yet can be closed by `sendCreationFailure`. It
+    /// applies to the disputes already received too. Keep it long enough to fix what the governor can fix (the
+    /// gateway's balance, a whitelist, a disabled dispute kit): once it has passed, anyone can close a dispute that the
+    /// arbitrator could still create.
+    /// @param _creationTimeout The delay, in seconds.
+    function changeCreationTimeout(uint256 _creationTimeout) external onlyByGovernor {
+        creationTimeout = _creationTimeout;
+        emit CreationTimeoutChanged(_creationTimeout);
+    }
+
     /// @dev Withdraws native currency held by the gateway.
     /// @param _to The recipient.
     /// @param _amount The amount to withdraw.
@@ -238,10 +256,9 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
 
     /// @inheritdoc IJushin
     /// @dev Receives a dispute from the ForeignGateway, `_data = abi.encode(IForeignGateway.DisputeMessage)`, and
-    /// creates it on the arbitrator, paying the arbitration cost from the gateway's balance. A balance below the cost
-    /// reverts, so Yaru can retry once the gateway is funded. A revert of `createDispute` is a creation failure, sent
-    /// back to the ForeignGateway (`_sendCreationFailure`).
-    /// Yaru does not validate the adapter set of a message, so the message must have been verified by exactly the
+    /// records it with its oracle selection. It does not call the arbitrator, so a delivery depends neither on the
+    /// court nor on the gateway's balance: `createReceivedDispute` creates the dispute, or `sendCreationFailure` closes
+    /// it. Yaru does not validate the adapter set of a message, so the message must have been verified by exactly the
     /// dispute-leg adapters of the oracles it selects, in order, with the threshold it carries, which must be at least
     /// `minThreshold`, with no oracle selected twice.
     function onMessage(
@@ -261,27 +278,50 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
 
         bytes32 disputeHash = _computeDisputeHash(message, _sourceChainId, _sender);
         ReceivedDispute storage receivedDispute = receivedDisputes[disputeHash];
-        if (receivedDispute.received || receivedDispute.creationFailed) revert DisputeAlreadyReceived();
+        if (receivedDispute.receivedAt != 0) revert DisputeAlreadyReceived();
+        receivedDispute.receivedAt = uint64(block.timestamp);
+        receivedDispute.messageHash = keccak256(_data);
         receivedDispute.threshold = message.threshold;
         receivedDispute.oracleIDs = message.oracleIDs;
-
-        uint256 cost = arbitrator.arbitrationCost(message.extraData);
-        if (address(this).balance < cost) revert InsufficientFunds(cost, address(this).balance);
-
-        uint256 gasBefore = gasleft();
-        try arbitrator.createDispute{value: cost}(message.choices, message.extraData) returns (uint256 disputeID) {
-            disputeIDtoHash[disputeID] = disputeHash;
-            disputeHashtoID[disputeHash] = disputeID;
-            receivedDispute.received = true;
-            _emitDisputeIncoming(message, _sourceChainId, disputeID);
-        } catch (bytes memory reason) {
-            // A frame keeps 1/64 of its gas when it calls, and `createDispute` goes 6 frames deep on KlerosCore, so
-            // 1/4 or less left means it may have run out of the gas the executor gave: revert, so no executor can
-            // turn an out-of-gas into a creation failure. Yaru can retry.
-            if (gasleft() <= gasBefore / 4) revert InsufficientGas();
-            _sendCreationFailure(disputeHash, reason);
-        }
+        emit DisputeReceived(disputeHash, message);
         return "";
+    }
+
+    /// @dev Creates a received dispute on the arbitrator, paying the arbitration cost from the gateway's balance.
+    /// Anyone can call it with the message of `DisputeReceived`, until the dispute is created or its creation failure
+    /// is sent. The whole message must be the delivered one, its template included, which the dispute hash does not
+    /// cover. The arbitrator is called with no try: any revert, a balance below the cost included, leaves the dispute
+    /// received, so it can be called again.
+    /// @param _message The dispute message.
+    /// @return disputeID The dispute ID on the arbitrator.
+    function createReceivedDispute(
+        IForeignGateway.DisputeMessage calldata _message
+    ) external returns (uint256 disputeID) {
+        bytes32 disputeHash = _computeDisputeHash(_message, foreignChainID, foreignGateway);
+        ReceivedDispute storage receivedDispute = _pendingDispute(disputeHash);
+        if (keccak256(abi.encode(_message)) != receivedDispute.messageHash) revert UnexpectedMessage();
+        receivedDispute.created = true; // Before the call, so the arbitrator cannot have it created twice.
+
+        uint256 cost = arbitrator.arbitrationCost(_message.extraData);
+        if (address(this).balance < cost) revert InsufficientFunds(cost, address(this).balance);
+        disputeID = arbitrator.createDispute{value: cost}(_message.choices, _message.extraData);
+        disputeIDtoHash[disputeID] = disputeHash;
+        disputeHashtoID[disputeHash] = disputeID;
+        _emitDisputeIncoming(_message, foreignChainID, disputeID);
+    }
+
+    /// @dev Closes a received dispute that is still not created once `creationTimeout` has passed since its delivery,
+    /// and sends the failure to the ForeignGateway, `abi.encode(disputeHash)` (32 bytes, a ruling is 64), as `rule`
+    /// sends a ruling. Once it is delivered there, the ForeignGateway's `executeRuling` makes the juror fees
+    /// claimable by the arbitrable. Anyone can call it, once. A dispatch revert reverts it, so it can be called again.
+    /// @param _disputeHash The hash of the dispute.
+    /// @return messageId The ID of the dispatched message.
+    function sendCreationFailure(bytes32 _disputeHash) external returns (uint256 messageId) {
+        ReceivedDispute storage receivedDispute = _pendingDispute(_disputeHash);
+        if (block.timestamp < receivedDispute.receivedAt + creationTimeout) revert CreationTimeoutNotPassed();
+        receivedDispute.creationFailed = true;
+        messageId = _dispatchToForeignGateway(receivedDispute, abi.encode(_disputeHash));
+        emit DisputeCreationFailed(_disputeHash, messageId);
     }
 
     /// @inheritdoc IArbitrableV2
@@ -294,7 +334,7 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
 
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         ReceivedDispute storage receivedDispute = receivedDisputes[disputeHash];
-        if (!receivedDispute.received) revert DisputeDoesNotExist();
+        if (!receivedDispute.created) revert DisputeDoesNotExist();
 
         uint256 messageId = _dispatchToForeignGateway(receivedDispute, abi.encode(disputeHash, _ruling));
         emit RulingDispatched(_disputeID, disputeHash, _ruling, messageId);
@@ -325,16 +365,14 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
         return address(yaho);
     }
 
-    /// @dev Records that the arbitrator did not create a dispute and sends the failure to the ForeignGateway,
-    /// `abi.encode(disputeHash)` (32 bytes, a ruling is 64), as `rule` sends a ruling. A dispatch revert reverts the
-    /// delivery, which Yaru can retry.
+    /// @dev Gets a received dispute that is neither created nor closed by a creation failure, or reverts.
     /// @param _disputeHash The hash of the dispute.
-    /// @param _reason The revert data of `createDispute`.
-    function _sendCreationFailure(bytes32 _disputeHash, bytes memory _reason) internal {
-        ReceivedDispute storage receivedDispute = receivedDisputes[_disputeHash];
-        receivedDispute.creationFailed = true;
-        uint256 messageId = _dispatchToForeignGateway(receivedDispute, abi.encode(_disputeHash));
-        emit DisputeCreationFailed(_disputeHash, _reason, messageId);
+    /// @return receivedDispute The received dispute.
+    function _pendingDispute(bytes32 _disputeHash) internal view returns (ReceivedDispute storage receivedDispute) {
+        receivedDispute = receivedDisputes[_disputeHash];
+        if (receivedDispute.receivedAt == 0) revert DisputeDoesNotExist();
+        if (receivedDispute.created) revert DisputeAlreadyCreated();
+        if (receivedDispute.creationFailed) revert CreationFailureAlreadySent();
     }
 
     /// @dev Dispatches `_data` to the ForeignGateway through `_dispatchVouched`, over the oracles selected for the
@@ -394,7 +432,8 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     }
 
     /// @dev Emits the events of a dispute received from the ForeignGateway and created on the arbitrator. A separate
-    /// function keeps `onMessage` within the stack limit when compiled without via-IR, as the coverage build is.
+    /// function keeps `createReceivedDispute` within the stack limit when compiled without via-IR, as the coverage
+    /// build is.
     /// @param _message The dispute message.
     /// @param _sourceChainId The foreign chain ID.
     /// @param _disputeID The dispute ID on the arbitrator.
@@ -492,7 +531,10 @@ contract HomeGateway is IHomeGateway, IJushin, UUPSProxiable, Initializable, Vou
     error AdapterAlreadyUsed();
     error TransferFailed();
     error UnknownOracle(uint256 _oracleID);
-    error InsufficientGas();
+    error UnexpectedMessage();
+    error DisputeAlreadyCreated();
+    error CreationFailureAlreadySent();
+    error CreationTimeoutNotPassed();
     error ThresholdBelowMinimum(uint256 _minThreshold);
     error DuplicateOracle(uint256 _oracleID);
 }

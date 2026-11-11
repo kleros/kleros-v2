@@ -11,8 +11,9 @@ import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
 /// @title GatewayLightbulb
 /// @dev Test arbitrable for the full cross-chain flow through the gateways. Asking to switch a lightbulb opens a
 /// dispute through the ForeignGateway and relays it to the home chain in the same transaction. The ruling given
-/// on the home chain comes back through the HomeGateway and switches the bulb on (ruling 1) or off (ruling 2).
-/// If the home chain cannot create the dispute, the request is closed and its owner's juror fees can be claimed.
+/// on the home chain comes back through the HomeGateway, and `ForeignGateway.executeRuling`, which anyone can call,
+/// then switches the bulb on (ruling 1) or off (ruling 2). If the home chain cannot create the dispute,
+/// `executeRuling` closes the request instead, and its owner's juror fees can be claimed.
 /// On a testnet, pair it with a KlerosCoreRuler in manual mode as the HomeGateway's arbitrator.
 contract GatewayLightbulb is IForeignGatewayArbitrable {
     using SafeERC20 for IERC20;
