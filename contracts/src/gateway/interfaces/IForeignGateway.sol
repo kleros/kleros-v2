@@ -6,8 +6,8 @@ import "../../arbitration/interfaces/IArbitratorV2.sol";
 
 interface IForeignGateway is IArbitratorV2 {
     /// @dev Payload of the dispute message sent to the HomeGateway through Yaho, as `abi.encode(DisputeMessage)`.
-    /// The HomeGateway recomputes the dispute hash from the first four fields, plus the source chain ID and sender
-    /// (the ForeignGateway) delivered by Yaru.
+    /// The HomeGateway recomputes the dispute hash from the first four fields and the oracle selection, plus the source
+    /// chain ID and sender (the ForeignGateway) delivered by Yaru.
     struct DisputeMessage {
         address foreignArbitrable;
         uint256 foreignDisputeID;
@@ -96,7 +96,7 @@ interface IForeignGateway is IArbitratorV2 {
     /// @param _extraData The extra data passed to `createDispute`.
     /// @param _externalDisputeID The external dispute ID of the arbitrable's `DisputeRequest`.
     /// @param _templateId The template ID of the arbitrable's `DisputeRequest`.
-    /// @param _templateUri The template URI of the arbitrable's `DisputeRequest`.
+    /// @param _templateUri The template URI of the arbitrable's `DisputeRequest`, at most 1024 bytes.
     /// @return messageId The Yaho message ID.
     function relayDispute(
         uint256 _foreignDisputeID,

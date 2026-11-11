@@ -178,6 +178,15 @@ contract GatewayLightbulb is IForeignGatewayArbitrable {
         ForeignGateway(address(gateway)).claimRefund(_disputeID, requests[_disputeID].owner);
     }
 
+    /// @dev Claims the juror fees of a request the home chain could not create, to an address of its owner's choice,
+    /// for an owner that cannot receive them itself.
+    /// @param _disputeID The dispute ID on the ForeignGateway.
+    /// @param _beneficiary The recipient of the refund.
+    function claimRefundTo(uint256 _disputeID, address _beneficiary) external {
+        if (msg.sender != requests[_disputeID].owner) revert OwnerOnly();
+        ForeignGateway(address(gateway)).claimRefund(_disputeID, _beneficiary);
+    }
+
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
@@ -221,4 +230,5 @@ contract GatewayLightbulb is IForeignGatewayArbitrable {
     error RefundFailed();
     error TransferFailed();
     error AllowanceIncreaseFailed();
+    error OwnerOnly();
 }

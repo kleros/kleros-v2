@@ -288,7 +288,21 @@ abstract contract GatewayHarness is Test {
         assertFalse(_reporter.otherHashVouched(), "vouched for another hash");
     }
 
+    /// @dev The dispute hash of a dispute this contract created, over the selection the ForeignGateway stored for it.
+    /// A stored hash that does not follow the formula finds no selection, so the result differs from it.
     function _disputeHash(uint256 _foreignDisputeID, bytes memory _extraData) internal view returns (bytes32) {
+        ForeignGateway.OracleSelection memory selection = foreignGateway.getDisputeOracles(
+            foreignGateway.disputeIDtoHash(_foreignDisputeID)
+        );
+        return _disputeHash(_foreignDisputeID, _extraData, selection.oracleIDs, selection.threshold);
+    }
+
+    function _disputeHash(
+        uint256 _foreignDisputeID,
+        bytes memory _extraData,
+        uint256[] memory _oracleIDs,
+        uint256 _threshold
+    ) internal view returns (bytes32) {
         return
             keccak256(
                 abi.encodePacked(
@@ -298,7 +312,8 @@ abstract contract GatewayHarness is Test {
                     address(this),
                     _foreignDisputeID,
                     CHOICES,
-                    _extraData
+                    _extraData,
+                    keccak256(abi.encode(_oracleIDs, _threshold))
                 )
             );
     }
