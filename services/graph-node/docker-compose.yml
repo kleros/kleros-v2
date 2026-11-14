@@ -28,7 +28,7 @@ services:
       GRAPH_ALLOW_NON_DETERMINISTIC_FULLTEXT_SEARCH: "true"
     stop_grace_period: 5s
   ipfs:
-    image: ipfs/go-ipfs:v0.33.2
+    image: ipfs/go-ipfs:v0.39.0
     ports:
       - "5001:5001"
     volumes:
