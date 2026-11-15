@@ -75,7 +75,7 @@ contract DisputeKitAsymmetricPlurality is IDisputeKit, Initializable {
     mapping(uint256 choice => uint256 winningCoherence) public winningCoherences; // Specifies different coherence for certain winning choices (affects rewards). If not specified coherence will default to 1.
     mapping(uint256 choice => uint256 losingCoherence) public losingCoherences; // Specifies different coherence for certain losing choices (affects penalties). If not specified coherence will default to 0.
     address public wNative; // The wrapped native token for safeSend().
-    uint256 jumpDisputeKitID; // ID of the dispute kit to switch on after jump.
+    uint256 public jumpDisputeKitID; // ID of the dispute kit to switch on after jump.
 
     uint256[50] private __gap; // Reserved slots for future upgrades.
 

@@ -39,7 +39,7 @@ The Sortition Module uses a phase system (Staking → Generating → Drawing) to
 
 1. **Preventing RNG Gaming**: During the Generating phase, the random number that will be used for juror selection becomes visible on-chain before it is used. Without the phase system, jurors could observe this number and adjust their stakes to manipulate their chances of being selected.
 
-2. **Deterministic Selection**: The phase system ensures that all drawings in a round use the same stake distribution and random number, making the selection process deterministic and fair. This is essential for the protocol's integrity.
+2. **Deterministic Selection**: The phase system ensures that all drawings within a session use the same stake distribution and random number, making the selection process deterministic and fair. This is essential for the protocol's integrity.
 
 3. **Anti-Gaming Mechanism**: By freezing stake changes during the Generating and Drawing phases, the system prevents "last-minute" stake adjustments that could unfairly influence juror selection.
 
@@ -150,7 +150,7 @@ Each stake path identifies a juror and the court where they directly staked. Its
   - Key is derived from court ID
   - K value determines tree branching factor
 
-- **Value Updates**: Internal `_set` function
+- **Value Updates**: Internal `set` function
   - Updates node values
   - Maintains tree balance
   - Updates parent nodes recursively
@@ -252,7 +252,7 @@ function createTree(uint96 _courtID)
 ### Stake Management
 
 ```solidity
-function setStake(address _account, uint96 _courtID, uint256 _newStake, bool forced)
+function setStake(address _account, uint96 _courtID, uint256 _newStake, bool forced) returns (bool)
 ```
 
 - Sets juror's stake in a court

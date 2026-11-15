@@ -49,23 +49,22 @@ interface ISortitionModule {
     /// @dev `O(n + p * log_k(j))` where
     /// `n` is the number of courts the juror has staked in,
     /// `p` is the depth of the court tree,
-    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// `k` is the maximum number of children per node of one of these courts' sortition sum tree,
     /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
     ///
     /// @param _account The address of the juror.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     /// @param _forced Whether the stake is forced (e.g forcedUnstake) or not.
-    /// @return Whether all requirements for staking bypassed or not.
+    /// @return Whether the stake request was successfully queued or applied.
     function setStake(address _account, uint96 _courtID, uint256 _newStake, bool _forced) external returns (bool);
 
     /// @notice Unstakes the inactive juror from all courts.
     ///
     /// @dev `O(n * (p * log_k(j)) )` where
-    /// `O(n * (p * log_k(j)) )` where
     /// `n` is the number of courts the juror has staked in,
     /// `p` is the depth of the court tree,
-    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// `k` is the maximum number of children per node of one of these courts' sortition sum tree,
     /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
     ///
     /// @param _account The juror to unstake.
@@ -132,4 +131,12 @@ interface ISortitionModule {
     /// @param _juror The address of the juror.
     /// @return Whether the juror is staked or not.
     function isJurorStaked(address _juror) external view returns (bool);
+
+    /// @notice Returns the weight of a juror's stake path in a court's draw pool.
+    /// @dev Stakes appear in their own court's tree and its ancestor trees.
+    /// @param _treeCourtID The court whose draw pool is being checked.
+    /// @param _juror The address of the juror.
+    /// @param _fromSubcourtID The court where the juror explicitly staked, identifying the stake path.
+    /// @return The path's stake weight, or zero if it is absent from the specified draw pool.
+    function stakeOfInTree(uint96 _treeCourtID, address _juror, uint96 _fromSubcourtID) external view returns (uint256);
 }

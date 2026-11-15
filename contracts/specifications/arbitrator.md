@@ -411,7 +411,7 @@ function appealCost(uint256 _disputeID) public view returns (uint256 cost)
   - If staying in current court: `feeForJuror * ((nbVotes * 2) + 1)`
   - If jumping to parent court: uses parent court's `feeForJuror`
   - If appealing in Final Court: returns non-payable amount
-- Cost increases exponentially with each appeal to discourage frivolous appeals
+- Appeal costs generally increase with successive rounds to discourage frivolous appeals.
 - **Important**: Appeal fees must always be paid in ETH (native currency) due to complexity of handling token conversions during court jumps
 
 ### Staking and Drawing

@@ -15,7 +15,7 @@ Each court is defined by the following properties:
   parent: number;             // ID of the parent court (can be self-referential for root court)
   hiddenVotes: boolean;       // Whether juror votes are hidden during voting period
   minStake: string;          // Minimum amount of PNK tokens required to stake (in wei)
-  feeForJuror: string;       // Fee paid to jurors per dispute (in wei)
+  feeForJuror: string;       // Arbitration fee per drawn vote (in wei)
   alpha: string;             // PNK collateral per drawn vote, expressed as a fraction of minStake (in basis points)
   jurorsForCourtJump: string; // Number of jurors for a dispute to jump to parent court
   timesPerPeriod: number[];   // Duration of each period [evidence, commit, vote, appeal] in seconds
@@ -66,7 +66,7 @@ Each court is defined by the following properties:
 - **feeForJuror** (required)
 
   - Type: `string`
-  - Description: Fee paid to jurors per dispute
+  - Description: Arbitration fee per drawn vote (in wei)
   - Format: Wei value as string
   - Example: `"5000000000000000"` (0.005 ETH)
 
@@ -119,8 +119,8 @@ Each court is defined by the following properties:
    - Disputes can be appealed to parent courts
    - Number of jurors typically increases with each appeal
    - The `jurorsForCourtJump` parameter determines when a dispute jumps to parent
-   - Currently: All appeals eventually reach the General Court
-   - Future: Protocol-level appeals may reach the Final Court
+   - Appeals can reach the Final Court through the Classic Dispute Kit
+   - The Final Court currently uses a provisional CentralizedKit; forking is planned for the future
 
 ## ⚙️ DisputeKit Compatibility
 

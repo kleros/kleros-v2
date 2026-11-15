@@ -87,7 +87,7 @@ The drawing system determines how jurors are selected for a dispute.
      - Uses RNG to select a random position in the tree
      - Returns the drawn juror's address
    - DisputeKit:
-     - Validates the drawn juror (stake, not drawn before if required)
+     - Validates the drawn juror
      - Creates a new vote instance if valid
      - Requests a redraw if invalid
 
@@ -440,8 +440,6 @@ function draw(
 - Returns the subcourt ID from which the juror was drawn
 - Validates juror eligibility:
   - Juror actually staked in the drawn court
-  - Not already drawn (if enabled)
-  - Active status
 
 ## 📝 Implementation Notes
 

@@ -71,7 +71,7 @@ contract DisputeKitShutter is IDisputeKit, Initializable {
     mapping(uint256 coreDisputeID => uint256 localDisputeID) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
     mapping(uint256 coreDisputeID => Active) public coreDisputeIDToActive; // Active status of the dispute and the current round.
     address public wNative; // The wrapped native token for safeSend().
-    uint256 jumpDisputeKitID; // ID of the dispute kit to switch on after jump.
+    uint256 public jumpDisputeKitID; // ID of the dispute kit to switch on after jump.
 
     uint256[50] private __gap; // Reserved slots for future upgrades.
 
@@ -255,8 +255,19 @@ contract DisputeKitShutter is IDisputeKit, Initializable {
         bytes32 _identity,
         bytes calldata _encryptedVote
     ) public isActive(_coreDisputeID) {
-        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(_coreDisputeID);
         require(period == KlerosCore.Period.commit, NotCommitPeriod());
+        uint256 courtParamsIndex = core.getCourtParametersIndex(
+            _coreDisputeID,
+            core.getNumberOfRounds(_coreDisputeID) - 1
+        );
+        uint256 commitTime = core.getAdditionalCourtParams(courtID, courtParamsIndex).timesPerPeriod[
+            uint256(KlerosCore.Period.commit)
+        ];
+        // Enforce the deadline even if passPeriod has not been called:
+        // time-based Shutter keys may become available while Core still reports Commit.
+        require(block.timestamp < lastPeriodChange + commitTime, CommitPeriodOver());
+
         require(_voteIDs.length > 0, EmptyVoteIDs());
         require(_choiceCommit != bytes32(0), EmptyCommit());
         require(_justificationCommit != bytes32(0), EmptyJustificationCommit());
@@ -772,6 +783,7 @@ contract DisputeKitShutter is IDisputeKit, Initializable {
     error DisputeUnknownInThisDisputeKit();
     error NotCommitPeriod();
     error EmptyCommit();
+    error CommitPeriodOver();
     error JurorHasToOwnTheVote();
     error NotVotePeriod();
     error EmptyVoteIDs();

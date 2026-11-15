@@ -214,6 +214,95 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
     }
 
+    function test_castCommitShutter_commitPeriodOver() public {
+        DisputeKitShutter dkLogic = new DisputeKitShutter();
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,uint256)",
+            address(core),
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
+        );
+        TransparentUpgradeableProxy proxyDk = new TransparentUpgradeableProxy(address(dkLogic), owner, initDataDk);
+        DisputeKitShutter newDisputeKit = DisputeKitShutter(address(proxyDk));
+
+        vm.prank(owner);
+        core.addNewDisputeKit(newDisputeKit);
+
+        uint256 newDkID = 2;
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = newDkID;
+        vm.prank(owner);
+        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
+
+        vm.prank(owner);
+        core.changeCourtParameters(
+            GENERAL_COURT,
+            true, // Hidden votes
+            minStake,
+            alpha,
+            feeForJuror,
+            jurorsForCourtJump,
+            timesPerPeriod,
+            NULL_ELIGIBILITY_REQUIREMENT
+        );
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
+        arbitrable.changeArbitratorExtraData(abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, newDkID));
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        uint256 disputeID = 0;
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Commit
+
+        (uint96 courtID, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        assertEq(uint256(period), uint256(KlerosCore.Period.commit), "Wrong period");
+        uint256 roundID = core.getNumberOfRounds(disputeID) - 1;
+        uint256 courtParamsIndex = core.getCourtParametersIndex(disputeID, roundID);
+        uint256 commitDeadline = lastPeriodChange +
+            core.getAdditionalCourtParams(courtID, courtParamsIndex).timesPerPeriod[uint256(KlerosCore.Period.commit)];
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+        uint256 salt = 123455678;
+        bytes32 commit = keccak256(abi.encodePacked(uint256(1), staker1, salt));
+        bytes32 justificationCommit = keccak256(abi.encode(salt, keccak256(bytes("XYZ"))));
+        bytes32 identity = keccak256("shutter identity");
+
+        assertLt(block.timestamp, commitDeadline, "Commit deadline should not have passed");
+        vm.prank(staker1);
+        newDisputeKit.castCommitShutter(disputeID, voteIDs, commit, justificationCommit, identity, hex"1234");
+
+        (address account, bytes32 commitStored, , ) = newDisputeKit.getVoteInfo(disputeID, roundID, 0);
+        assertEq(account, staker1, "Wrong drawn account");
+        assertEq(commitStored, commit, "Incorrect commit");
+
+        // Reach the exact deadline without advancing Core out of Commit.
+        vm.warp(commitDeadline);
+        (, , period, , ) = core.disputes(disputeID);
+        assertEq(uint256(period), uint256(KlerosCore.Period.commit), "Should still be Commit");
+
+        bytes32 newCommit = keccak256(abi.encodePacked(uint256(0), staker1, salt));
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitShutter.CommitPeriodOver.selector);
+        newDisputeKit.castCommitShutter(disputeID, voteIDs, newCommit, justificationCommit, identity, hex"5678");
+    }
+
     function test_castVote() public {
         uint256 disputeID = 0;
 

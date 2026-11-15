@@ -69,7 +69,7 @@ contract DisputeKitClassicUniversity is IDisputeKit, Initializable {
     mapping(uint256 coreDisputeID => Active) public coreDisputeIDToActive; // Active status of the dispute and the current round.
 
     address public wNative; // The wrapped native token for safeSend().
-    uint256 jumpDisputeKitID; // ID of the dispute kit to switch on after jump.
+    uint256 public jumpDisputeKitID; // ID of the dispute kit to switch on after jump.
     uint256 public maxExtraFilteringAttempts; // Maximum number of extra draw attempts before bypassing the drawing filter.
 
     uint256[50] private __gap; // Reserved slots for future upgrades.

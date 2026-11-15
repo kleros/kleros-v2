@@ -8,6 +8,8 @@ import {IRNG} from "./IRNG.sol";
 /// @dev The blockhash fallback prioritizes liveness over manipulation resistance but it should only be reached when the primary RNG is unavailable.
 /// @dev Timely advancement by honest keepers limits opportunities to select a favorable fallback seed.
 contract RNGWithFallback is IRNG {
+    bytes4 internal constant VRF_REENTRANT = 0xed3ba6a6; // SubscriptionAPI.Reentrant()
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -98,7 +100,10 @@ contract RNGWithFallback is IRNG {
         uint256 gasBefore = gasleft();
         try rng.requestRandomness{gas: MIN_GAS_CATCH}() {
             requestAccepted = true;
-        } catch {
+        } catch (bytes memory reason) {
+            // A coordinator callback lock must not force fallback randomness.
+            require(bytes4(reason) != VRF_REENTRANT, PrimaryRNGLocked());
+
             // Without this, a caller could starve the request on purpose, let the catch swallow the
             // out-of-gas, and force the manipulable blockhash fallback.
             require(gasBefore >= MIN_GAS_CATCH, InsufficientGasForRequest());
@@ -132,4 +137,5 @@ contract RNGWithFallback is IRNG {
     error OwnerOnly();
     error ConsumerOnly();
     error InsufficientGasForRequest();
+    error PrimaryRNGLocked();
 }

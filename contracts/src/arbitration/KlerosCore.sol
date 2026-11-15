@@ -702,10 +702,11 @@ contract KlerosCore is IArbitratorV2, Initializable {
                 continue;
             }
             // Perform a sanity check that the juror was in fact staked in the court he was drawn for.
-            uint256 stakedInCourt = sortitionModule.stakeOf(drawnAddress, fromSubcourtID);
-            if (stakedInCourt == 0) {
-                continue;
-            }
+            require(
+                sortitionModule.stakeOfInTree(dispute.courtID, drawnAddress, fromSubcourtID) != 0,
+                InvalidDrawnJuror()
+            );
+
             sortitionModule.lockStake(drawnAddress, round.pnkAtStakePerJuror);
             emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
             round.drawnJurors.push(drawnAddress);
@@ -1108,9 +1109,10 @@ contract KlerosCore is IArbitratorV2, Initializable {
         // Note that if the _extraData doesn't contain at least 64 bytes, default values are used.
         // Also note that we check 64 length instead of 96 to ensure backward compatibility with V1 arbitrables.
         if (_extraData.length >= 64) {
+            uint256 rawCourtID;
             assembly {
                 // solium-disable-line security/no-inline-assembly
-                courtID := mload(add(_extraData, 0x20))
+                rawCourtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
 
@@ -1124,8 +1126,11 @@ contract KlerosCore is IArbitratorV2, Initializable {
                 disputeKitID = DISPUTE_KIT_CLASSIC;
             }
 
-            if (courtID == FINAL_COURT || courtID >= courts.length) {
+            // Validate the full encoded value before narrowing to uint96.
+            if (rawCourtID == FINAL_COURT || rawCourtID >= courts.length) {
                 courtID = GENERAL_COURT;
+            } else {
+                courtID = uint96(rawCourtID);
             }
             if (minJurors == 0) {
                 minJurors = DEFAULT_NB_OF_JURORS;
@@ -1171,4 +1176,5 @@ contract KlerosCore is IArbitratorV2, Initializable {
     error StakingFailed();
     error AmountExceedsBalance();
     error CannotWithdrawActiveTokens();
+    error InvalidDrawnJuror();
 }

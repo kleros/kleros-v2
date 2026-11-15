@@ -156,6 +156,49 @@ contract KlerosCore_DrawingTest is KlerosCore_TestBase {
         assertEq(nbVoters, 3, "nbVoters should be 3");
     }
 
+    function test_draw_revert_invalidDrawnJurorFromSiblingCourt() public {
+        uint96 courtA = _createStandardCourt(GENERAL_COURT, minStake, alpha, feeForJuror, jurorsForCourtJump);
+        uint96 courtB = _createStandardCourt(GENERAL_COURT, minStake, alpha, feeForJuror, jurorsForCourtJump);
+        uint256 disputeID = 0;
+
+        vm.prank(staker1);
+        core.setStake(courtB, 3000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+        jurors[0] = staker1;
+        courtIDs[0] = courtB;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
+        // The previous stakeOf check would accept this active stake in the sibling court.
+        assertGt(sortitionModule.stakeOf(staker1, courtB), 0, "Should be staked in court B");
+        assertEq(sortitionModule.stakeOf(staker1, courtA), 0, "Should not be staked in court A");
+        assertEq(sortitionModule.stakeOfInTree(courtA, staker1, courtB), 0, "Stake path should be absent from court A");
+
+        arbitrable.changeArbitratorExtraData(
+            abi.encodePacked(uint256(courtA), DEFAULT_NB_OF_JURORS, DISPUTE_KIT_CLASSIC)
+        );
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+
+        (uint96 courtID, , , , ) = core.disputes(disputeID);
+        assertEq(courtID, courtA, "Wrong court ID of the dispute");
+
+        vm.mockCall(
+            address(disputeKit),
+            abi.encodeCall(disputeKit.draw, (disputeID, uint256(0), DEFAULT_NB_OF_JURORS)),
+            abi.encode(staker1, courtB)
+        );
+
+        vm.expectRevert(KlerosCore.InvalidDrawnJuror.selector);
+        core.draw(disputeID, 1);
+    }
+
     function test_currentSessionDraw() public {
         // Check that can't draw a dispute if it was created in the drawing session, when the random number is known
         // Check specifically for Drawing phase
