@@ -7,58 +7,13 @@ pnk = await ethers.getContract("PNK");
 registry = await ethers.getContract("PolicyRegistry");
 rng = await ethers.getContract("RandomizerRNG");
 rng2 = await ethers.getContract("BlockHashRNG");
-gateway = await ethers.getContract("HomeGatewayToGnosis");
 resolver = await ethers.getContract("DisputeResolver");
 faucet = await ethers.getContract("PNKFaucet");
-sender = await ethers.getContract("VeaOutboxArbToGnosisDevnet");
 options = { gasLimit: 10000000, gasPrice: 5000000000 };
 var disputeID = 0;
 
 console.log("sortition phase: %s", await sortition.phase());
 console.log("freezingPhase timeout? %s", await core.freezingPhaseTimeout());
-
-const relayCreateDispute = async (blockHash, foreignDisputeID) => {
-  // const blockHash = "0xda3c4d74eeb199345b771748a930a069b172dac9f4b50697f40803581eb13990";
-  // const foreignDisputeID = 6;
-  const extraData =
-    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003";
-  const fee = await core.arbitrationCost(extraData);
-  var tx;
-  try {
-    tx = await (
-      await gateway.relayCreateDispute(
-        10200,
-        blockHash,
-        foreignDisputeID,
-        2,
-        extraData,
-        "0x34E520dc1d2Db660113b64724e14CEdCD01Ee879",
-        {
-          value: fee,
-          ...options,
-        }
-      )
-    ).wait();
-    console.log("txID: %s", tx?.transactionHash);
-
-    disputeID = (
-      await core.queryFilter(core.filters.DisputeCreation(), tx.blockNumber, tx.blockNumber)
-    )[0].args._disputeID.toNumber();
-    console.log("Using disputeID %d from now", disputeID);
-  } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
-  } finally {
-    if (tx) {
-      const filter = core.filters.DisputeCreation();
-      const logs = await core.queryFilter(filter, tx.blockNumber, tx.blockNumber);
-      console.log("DisputeID: %s", logs[0]?.args?._disputeID);
-    }
-  }
-};
 
 const createDisputeOnResolver = async () => {
   const choices = 2;
@@ -184,10 +139,6 @@ const executeRuling = async () => {
 
     const ruling = await core.currentRuling(disputeID);
     console.log("Ruling: %d, Tied? %s, Overridden? %s", ruling.ruling, ruling.tied, ruling.overridden);
-
-    var filter = sender.filters.MessageReceived();
-    var logs = await sender.queryFilter(filter, tx?.blockNumber, tx?.blockNumber);
-    console.log("MessageReceived: %O", logs[0]?.args);
   }
 };
 
@@ -206,35 +157,6 @@ const toVoting = async () => {
   }
   console.log("RNG is ready, drawing jurors.", disputeID);
   await drawJurors().then(passPhaseDk).then(passPhaseCore).then(passPeriod);
-};
-
-const epochPeriod = await sender.epochPeriod();
-
-const epochID = async () => {
-  return Math.floor((await ethers.provider.getBlock("latest")).timestamp / epochPeriod);
-};
-
-const anyBatchToSend = async () => {
-  return await sender.batchSize();
-};
-
-const sendBatch = async () => {
-  const before = await disputeKit.phase();
-  var tx;
-  try {
-    tx = await (await sender.sendBatch(options)).wait();
-    console.log("txID: %s", tx?.transactionHash);
-  } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
-  } finally {
-    const filter = sender.filters.BatchOutgoing();
-    const logs = await sender.queryFilter(filter, tx.blockNumber, tx.blockNumber);
-    console.log("BatchOutgoing: %O", logs[0]?.args);
-  }
 };
 
 console.log("disputeID not set!");
