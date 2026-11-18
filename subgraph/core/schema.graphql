@@ -329,7 +329,7 @@ type ClassicJustification @entity(immutable: false) {
   choice: BigInt!
   votes: [ClassicVote!]! @derivedFrom(field: "justification")
   reference: String!
-  transactionHash: String!
+  transactionHash: Bytes!
   timestamp: BigInt!
 }
 
