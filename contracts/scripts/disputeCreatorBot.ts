@@ -45,7 +45,7 @@ export default async function main() {
   /* eslint-enable max-len */
   const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
   const nbOfChoices = 2;
-  const cost = await core["arbitrationCost(bytes)"](extraData);
+  const cost = await core.arbitrationCost(extraData);
   const tx = await resolver.createDisputeForTemplate(
     extraData,
     randomTemplate,

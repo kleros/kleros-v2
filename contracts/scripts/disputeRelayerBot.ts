@@ -2,13 +2,7 @@ import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import hre from "hardhat";
 import { JsonRpcProvider, Log } from "ethers";
-import {
-  KlerosCore,
-  ForeignGateway__factory,
-  HomeGateway,
-  TestERC20,
-  IArbitrableV2__factory,
-} from "../typechain-types";
+import { KlerosCore, ForeignGateway__factory, HomeGateway, IArbitrableV2__factory } from "../typechain-types";
 import type { DisputeRequestEvent } from "../typechain-types/src/arbitration/interfaces/IArbitrableV2";
 import type { IHomeGateway } from "../typechain-types/src/gateway/HomeGateway";
 import { HttpNetworkConfig } from "hardhat/types";
@@ -35,12 +29,10 @@ export default async function main(
   foreignNetwork: HttpNetworkConfig,
   foreignDeployments: DeploymentsExtension,
   foreignGatewayArtifact: string,
-  homeGatewayArtifact: string,
-  feeTokenArtifact?: string
+  homeGatewayArtifact: string
 ) {
   const core = await ethers.getContract<KlerosCore>("KlerosCore");
   const homeGateway = await ethers.getContract<HomeGateway>(homeGatewayArtifact);
-  const feeToken = feeTokenArtifact ? await ethers.getContract<TestERC20>(feeTokenArtifact) : undefined;
 
   const foreignChainProvider = new JsonRpcProvider(foreignNetwork.url);
   const foreignGatewayDeployment = await foreignDeployments.get(foreignGatewayArtifact);
@@ -107,25 +99,10 @@ export default async function main(
       };
       logger.info(`Relaying dispute to home chain... ${safeJson(relayCreateDisputeParams)}`);
 
-      let tx;
-      if (feeToken === undefined) {
-        // Paying in native Arbitrum ETH
-        const cost = await core["arbitrationCost(bytes)"](extraData);
-        tx = await homeGateway["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes))"](
-          relayCreateDisputeParams,
-          { value: cost }
-        );
-      } else {
-        // Paying in ERC20
-        const cost = await core["arbitrationCost(bytes,address)"](extraData, feeToken.target);
-        await (await feeToken.approve(homeGateway.target, cost)).wait();
-        tx = await homeGateway["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,bytes),uint256)"](
-          relayCreateDisputeParams,
-          cost
-        );
-      }
-      tx = await tx.wait();
-      logger.info(`relayCreateDispute txId: ${tx?.hash}`);
+      const cost = await core.arbitrationCost(extraData);
+      const tx = await homeGateway.relayCreateDispute(relayCreateDisputeParams, { value: cost });
+      const receipt = await tx.wait();
+      logger.info(`relayCreateDispute txId: ${receipt?.hash}`);
     }
   );
 

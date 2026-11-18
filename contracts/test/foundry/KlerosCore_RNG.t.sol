@@ -27,6 +27,16 @@ contract KlerosCore_RNGTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 20000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -61,6 +71,16 @@ contract KlerosCore_RNGTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 20000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -69,6 +89,7 @@ contract KlerosCore_RNGTest is KlerosCore_TestBase {
 
         sortitionModule.passPhase(); // Generating
         assertEq(rngFallback.requestTimestamp(), block.timestamp, "Wrong request timestamp");
+        assertEq(rngFallback.requestAccepted(), true, "Request accepted");
 
         rngMock.setRN(123);
 
@@ -82,15 +103,15 @@ contract KlerosCore_RNGTest is KlerosCore_TestBase {
         RNGMock rngMock = new RNGMock();
         rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
 
-        vm.expectRevert(IRNG.ConsumerOnly.selector);
+        vm.expectRevert(RNGWithFallback.ConsumerOnly.selector);
         vm.prank(owner);
         rngFallback.requestRandomness();
 
-        vm.expectRevert(IRNG.ConsumerOnly.selector);
+        vm.expectRevert(RNGWithFallback.ConsumerOnly.selector);
         vm.prank(owner);
         rngFallback.receiveRandomness();
 
-        vm.expectRevert(IRNG.OwnerOnly.selector);
+        vm.expectRevert(RNGWithFallback.OwnerOnly.selector);
         vm.prank(other);
         rngFallback.changeOwner(other);
         vm.prank(owner);
@@ -101,14 +122,14 @@ contract KlerosCore_RNGTest is KlerosCore_TestBase {
         vm.prank(other);
         rngFallback.changeOwner(owner);
 
-        vm.expectRevert(IRNG.OwnerOnly.selector);
+        vm.expectRevert(RNGWithFallback.OwnerOnly.selector);
         vm.prank(other);
         rngFallback.changeConsumer(other);
         vm.prank(owner);
         rngFallback.changeConsumer(other);
         assertEq(rngFallback.consumer(), other, "Wrong consumer");
 
-        vm.expectRevert(IRNG.OwnerOnly.selector);
+        vm.expectRevert(RNGWithFallback.OwnerOnly.selector);
         vm.prank(other);
         rngFallback.changeFallbackTimeout(5);
 
@@ -117,5 +138,89 @@ contract KlerosCore_RNGTest is KlerosCore_TestBase {
         emit RNGWithFallback.FallbackTimeoutChanged(5);
         rngFallback.changeFallbackTimeout(5);
         assertEq(rngFallback.fallbackTimeoutSeconds(), 5, "Wrong fallback timeout");
+    }
+
+    function test_RNGFallback_insufficientGasForRequest() public {
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        RNGWithFallback rngFallback = new RNGWithFallback(
+            msg.sender,
+            address(sortitionModule),
+            fallbackTimeout,
+            rngMock
+        );
+
+        vm.prank(owner);
+        sortitionModule.changeRandomNumberGenerator(rngFallback);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+
+        vm.warp(block.timestamp + minStakingTime);
+
+        vm.mockCallRevert(address(rngMock), abi.encodeWithSelector(IRNG.requestRandomness.selector), bytes(""));
+
+        vm.expectRevert(RNGWithFallback.InsufficientGasForRequest.selector);
+        sortitionModule.passPhase{gas: 400_000}();
+    }
+
+    function test_RNGFallback_badRequest() public {
+        RNGWithFallback rngFallback;
+        uint256 fallbackTimeout = 100;
+        RNGMock rngMock = new RNGMock();
+        rngFallback = new RNGWithFallback(msg.sender, address(sortitionModule), fallbackTimeout, rngMock);
+
+        vm.prank(owner);
+        sortitionModule.changeRandomNumberGenerator(rngFallback);
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 20000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+
+        vm.mockCallRevert(address(rngMock), abi.encodeWithSelector(IRNG.requestRandomness.selector), bytes(""));
+
+        vm.expectEmit(true, true, true, true);
+        emit RNGWithFallback.RNGRequestFailed();
+        sortitionModule.passPhase{gas: 600_000}(); // Generating
+
+        assertEq(rngFallback.requestAccepted(), false, "Request not accepted");
+
+        vm.expectRevert(SortitionModule.RandomNumberNotReady.selector);
+        sortitionModule.passPhase();
+
+        vm.warp(block.timestamp + fallbackTimeout + 1);
+
+        // Pass several blocks too to see that correct block.number is still picked up.
+        vm.roll(block.number + 5);
+
+        vm.expectEmit(true, true, true, true);
+        emit RNGWithFallback.RNGFallback();
+        sortitionModule.passPhase(); // Drawing phase
+
+        assertEq(sortitionModule.randomNumber(), uint256(blockhash(block.number - 1)), "Wrong random number");
     }
 }

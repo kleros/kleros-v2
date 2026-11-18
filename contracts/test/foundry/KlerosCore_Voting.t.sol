@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore, IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {DisputeKitShutter} from "../../src/arbitration/dispute-kits/DisputeKitShutter.sol";
 import {IDisputeKit} from "../../src/arbitration/interfaces/IDisputeKit.sol";
-import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import "../../src/libraries/Constants.sol";
 
 /// @title KlerosCore_VotingTest
@@ -29,6 +29,15 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -47,7 +56,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         vm.expectRevert(DisputeKitClassic.NotCommitPeriod.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
-        vm.expectRevert(KlerosCore.EvidenceNotPassedAndNotAppeal.selector);
+        vm.expectRevert(KlerosCore.EvidencePeriodNotPassedAndNotAppeal.selector);
         core.passPeriod(disputeID);
         vm.warp(block.timestamp + timesPerPeriod[0]);
 
@@ -77,7 +86,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         vm.expectRevert(DisputeKitClassic.EmptyCommit.selector);
         disputeKit.castCommit(disputeID, voteIDs, commit);
 
-        commit = keccak256(abi.encodePacked(YES, salt));
+        commit = keccak256(abi.encodePacked(YES, staker1, salt));
 
         vm.prank(other);
         vm.expectRevert(DisputeKitClassic.JurorHasToOwnTheVote.selector);
@@ -93,17 +102,17 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         assertEq(disputeKit.areCommitsAllCast(disputeID), false, "Commits should not all be cast");
 
         (, bytes32 commitStored, , ) = disputeKit.getVoteInfo(0, 0, 0);
-        assertEq(commitStored, keccak256(abi.encodePacked(YES, salt)), "Incorrect commit");
+        assertEq(commitStored, keccak256(abi.encodePacked(YES, staker1, salt)), "Incorrect commit");
 
         // Cast again with the same voteID to check that the count doesn't increase.
-        bytes32 newCommit = keccak256(abi.encodePacked(NO, salt));
+        bytes32 newCommit = keccak256(abi.encodePacked(NO, staker1, salt));
         vm.prank(staker1);
         disputeKit.castCommit(disputeID, voteIDs, newCommit);
 
         (, , , totalCommited, , ) = disputeKit.getRoundInfo(disputeID, 0, 0);
         assertEq(totalCommited, 1, "totalCommited should still be 1");
         (, commitStored, , ) = disputeKit.getVoteInfo(0, 0, 0);
-        assertEq(commitStored, keccak256(abi.encodePacked(NO, salt)), "Incorrect commit after recommitting");
+        assertEq(commitStored, keccak256(abi.encodePacked(NO, staker1, salt)), "Incorrect commit after recommitting");
 
         voteIDs = new uint256[](2); // Create the leftover votes subset
         voteIDs[0] = 1;
@@ -113,6 +122,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         vm.expectRevert(KlerosCore.CommitPeriodNotPassed.selector);
         core.passPeriod(disputeID);
 
+        // Cast again the original commit
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
         emit DisputeKitClassic.CommitCast(disputeID, staker1, voteIDs, commit);
@@ -124,7 +134,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         for (uint256 i = 1; i < DEFAULT_NB_OF_JURORS; i++) {
             (, commitStored, , ) = disputeKit.getVoteInfo(0, 0, i);
-            assertEq(commitStored, keccak256(abi.encodePacked(YES, salt)), "Incorrect commit");
+            assertEq(commitStored, keccak256(abi.encodePacked(YES, staker1, salt)), "Incorrect commit");
         }
 
         // Check reveal in the next period
@@ -140,6 +150,11 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         vm.prank(staker1);
         vm.expectRevert(DisputeKitClassic.ChoiceCommitmentMismatch.selector);
         disputeKit.castVote(disputeID, voteIDs, YES, salt - 1, "XYZ");
+
+        // Also check that commitment is tied to the address
+        vm.prank(staker2);
+        vm.expectRevert(DisputeKitClassic.ChoiceCommitmentMismatch.selector);
+        disputeKit.castVote(disputeID, voteIDs, YES, salt, "XYZ");
 
         vm.prank(staker1);
         disputeKit.castVote(disputeID, voteIDs, YES, salt, "XYZ");
@@ -170,6 +185,15 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -190,11 +214,109 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         core.passPeriod(disputeID);
     }
 
+    function test_castCommitShutter_commitPeriodOver() public {
+        DisputeKitShutter dkLogic = new DisputeKitShutter();
+        bytes memory initDataDk = abi.encodeWithSignature(
+            "initialize(address,address,uint256)",
+            address(core),
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
+        );
+        TransparentUpgradeableProxy proxyDk = new TransparentUpgradeableProxy(address(dkLogic), owner, initDataDk);
+        DisputeKitShutter newDisputeKit = DisputeKitShutter(address(proxyDk));
+
+        vm.prank(owner);
+        core.addNewDisputeKit(newDisputeKit);
+
+        uint256 newDkID = 2;
+        uint256[] memory supportedDK = new uint256[](1);
+        supportedDK[0] = newDkID;
+        vm.prank(owner);
+        core.enableDisputeKits(GENERAL_COURT, supportedDK, true);
+
+        vm.prank(owner);
+        core.changeCourtParameters(
+            GENERAL_COURT,
+            true, // Hidden votes
+            minStake,
+            alpha,
+            feeForJuror,
+            jurorsForCourtJump,
+            timesPerPeriod,
+            NULL_ELIGIBILITY_REQUIREMENT
+        );
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
+        arbitrable.changeArbitratorExtraData(abi.encodePacked(uint256(GENERAL_COURT), DEFAULT_NB_OF_JURORS, newDkID));
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        uint256 disputeID = 0;
+
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.warp(block.timestamp + rngLookahead);
+        sortitionModule.passPhase(); // Drawing phase
+        core.draw(disputeID, DEFAULT_NB_OF_JURORS);
+
+        vm.warp(block.timestamp + timesPerPeriod[0]);
+        core.passPeriod(disputeID); // Commit
+
+        (uint96 courtID, , KlerosCore.Period period, , uint256 lastPeriodChange) = core.disputes(disputeID);
+        assertEq(uint256(period), uint256(KlerosCore.Period.commit), "Wrong period");
+        uint256 roundID = core.getNumberOfRounds(disputeID) - 1;
+        uint256 courtParamsIndex = core.getCourtParametersIndex(disputeID, roundID);
+        uint256 commitDeadline = lastPeriodChange +
+            core.getAdditionalCourtParams(courtID, courtParamsIndex).timesPerPeriod[uint256(KlerosCore.Period.commit)];
+
+        uint256[] memory voteIDs = new uint256[](1);
+        voteIDs[0] = 0;
+        uint256 salt = 123455678;
+        bytes32 commit = keccak256(abi.encodePacked(uint256(1), staker1, salt));
+        bytes32 justificationCommit = keccak256(abi.encode(salt, keccak256(bytes("XYZ"))));
+        bytes32 identity = keccak256("shutter identity");
+
+        assertLt(block.timestamp, commitDeadline, "Commit deadline should not have passed");
+        vm.prank(staker1);
+        newDisputeKit.castCommitShutter(disputeID, voteIDs, commit, justificationCommit, identity, hex"1234");
+
+        (address account, bytes32 commitStored, , ) = newDisputeKit.getVoteInfo(disputeID, roundID, 0);
+        assertEq(account, staker1, "Wrong drawn account");
+        assertEq(commitStored, commit, "Incorrect commit");
+
+        // Reach the exact deadline without advancing Core out of Commit.
+        vm.warp(commitDeadline);
+        (, , period, , ) = core.disputes(disputeID);
+        assertEq(uint256(period), uint256(KlerosCore.Period.commit), "Should still be Commit");
+
+        bytes32 newCommit = keccak256(abi.encodePacked(uint256(0), staker1, salt));
+        vm.prank(staker1);
+        vm.expectRevert(DisputeKitShutter.CommitPeriodOver.selector);
+        newDisputeKit.castCommitShutter(disputeID, voteIDs, newCommit, justificationCommit, identity, hex"5678");
+    }
+
     function test_castVote() public {
         uint256 disputeID = 0;
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -306,6 +428,15 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         uint256 disputeID = 0;
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -333,6 +464,15 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         uint256 disputeID = 0;
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -375,6 +515,15 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 10000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -392,7 +541,7 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + timesPerPeriod[0]);
         core.passPeriod(disputeID);
 
-        commit = keccak256(abi.encodePacked(YES, salt));
+        commit = keccak256(abi.encodePacked(YES, staker1, salt));
 
         vm.prank(staker1);
         disputeKit.castCommit(disputeID, voteIDs, commit);
@@ -421,13 +570,13 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         DisputeKitClassic dkLogic = new DisputeKitClassic();
         // Create a new DK to check castVote.
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
-            owner,
+            "initialize(address,address,uint256)",
             address(core),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
-        UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
+        TransparentUpgradeableProxy proxyDk = new TransparentUpgradeableProxy(address(dkLogic), owner, initDataDk);
         DisputeKitClassic newDisputeKit = DisputeKitClassic(address(proxyDk));
 
         vm.prank(owner);
@@ -446,6 +595,14 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 20000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
 
         // Create one dispute for the old DK and two disputes for the new DK.
         vm.prank(disputer);
@@ -484,9 +641,8 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         (disputeActive, ) = newDisputeKit.coreDisputeIDToActive(disputeID);
         assertEq(disputeActive, true, "Should be active for new DK");
         assertEq(newDisputeKit.coreDisputeIDToLocal(disputeID), 1, "Wrong local dispute ID for new DK");
-        (uint256 numberOfChoices, bytes memory extraData) = newDisputeKit.disputes(1);
+        uint256 numberOfChoices = newDisputeKit.disputes(1);
         assertEq(numberOfChoices, 2, "Wrong numberOfChoices in new DK");
-        assertEq(extraData, newExtraData, "Wrong extra data");
 
         uint256[] memory voteIDs = new uint256[](3);
         voteIDs[0] = 0;
@@ -521,13 +677,13 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         DisputeKitShutter dkLogic = new DisputeKitShutter();
         // Create a shutter DK to check voting without hidden votes.
         bytes memory initDataDk = abi.encodeWithSignature(
-            "initialize(address,address,address)",
-            owner,
+            "initialize(address,address,uint256)",
             address(core),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC
         );
 
-        UUPSProxy proxyDk = new UUPSProxy(address(dkLogic), initDataDk);
+        TransparentUpgradeableProxy proxyDk = new TransparentUpgradeableProxy(address(dkLogic), owner, initDataDk);
         DisputeKitShutter newDisputeKit = DisputeKitShutter(address(proxyDk));
 
         vm.prank(owner);
@@ -543,6 +699,14 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 20000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
 
         arbitrable.changeArbitratorExtraData(newExtraData);
 
@@ -601,6 +765,15 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
 
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 2000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = staker1;
+        courtIDs[0] = GENERAL_COURT;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         vm.warp(block.timestamp + minStakingTime);
@@ -615,6 +788,11 @@ contract KlerosCore_VotingTest is KlerosCore_TestBase {
         sortitionModule.passPhase(); // Staking phase to stake the 2nd voter
         vm.prank(staker2);
         core.setStake(GENERAL_COURT, 20000);
+
+        vm.warp(block.timestamp + stakingDelay);
+        jurors[0] = staker2;
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.warp(block.timestamp + minStakingTime);
         sortitionModule.passPhase(); // Generating
         vm.warp(block.timestamp + rngLookahead);

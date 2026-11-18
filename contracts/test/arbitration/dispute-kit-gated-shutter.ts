@@ -1,14 +1,9 @@
 import {
   setupTokenGatedTest,
-  testTokenWhitelistManagement,
-  testAccessControl,
-  testUnsupportedTokenErrors,
+  testFixedTokenGateConfiguration,
   testERC20Gating,
   testERC721Gating,
   testERC1155Gating,
-  testWhitelistIntegration,
-  testTokenGateRequired,
-  testCourtEligibilityMisconfiguration,
   TokenGatedTestContext,
 } from "./helpers/dispute-kit-gated-common";
 import {
@@ -37,20 +32,15 @@ describe("DisputeKitGatedShutter", async () => {
 
     beforeEach("Setup", async () => {
       tokenContext = await setupTokenGatedTest({
-        contractName: "DisputeKitGatedShutterMock",
+        contractName: "DisputeKitGatedShutter",
       });
     });
 
     // Run all shared token gating tests
-    testTokenWhitelistManagement(() => tokenContext);
-    testAccessControl(() => tokenContext);
-    testUnsupportedTokenErrors(() => tokenContext);
+    testFixedTokenGateConfiguration(() => tokenContext);
     testERC20Gating(() => tokenContext);
     testERC721Gating(() => tokenContext);
     testERC1155Gating(() => tokenContext);
-    testWhitelistIntegration(() => tokenContext);
-    testTokenGateRequired(() => tokenContext);
-    testCourtEligibilityMisconfiguration(() => tokenContext);
   });
 
   describe("Shutter Features", async () => {

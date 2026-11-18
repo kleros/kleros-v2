@@ -2,59 +2,12 @@
 
 pragma solidity ^0.8.28;
 
-import {IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IEvidence} from "../interfaces/IEvidence.sol";
-import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
-import {Initializable} from "../../proxy/Initializable.sol";
 
 /// @title Evidence Module
-contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
-    string public constant override version = "2.0.0";
-
+contract EvidenceModule is IEvidence {
     // ************************************* //
-    // *             Storage               * //
-    // ************************************* //
-
-    address public owner; // The owner of the contract.
-
-    // ************************************* //
-    // *              Modifiers            * //
-    // ************************************* //
-
-    modifier onlyByOwner() {
-        require(owner == msg.sender, OwnerOnly());
-        _;
-    }
-
-    // ************************************* //
-    // *            Constructor            * //
-    // ************************************* //
-
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
-    /// @notice Initializer.
-    /// @param _owner The owner's address.
-    function initialize(address _owner) external initializer {
-        owner = _owner;
-    }
-
-    // ************************ //
-    // *      Governance      * //
-    // ************************ //
-
-    /**
-     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the owner can perform upgrades (`onlyByOwner`)
-     */
-    function _authorizeUpgrade(address) internal view override onlyByOwner {
-        // NOP
-    }
-
-    // ************************************* //
-    // *        Function Modifiers         * //
+    // *             Functions             * //
     // ************************************* //
 
     /// @notice Submits evidence for a dispute.
@@ -63,10 +16,4 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
     function submitEvidence(uint256 _arbitratorDisputeID, string calldata _evidence) external {
         emit Evidence(_arbitratorDisputeID, msg.sender, _evidence);
     }
-
-    // ************************************* //
-    // *              Errors               * //
-    // ************************************* //
-
-    error OwnerOnly();
 }

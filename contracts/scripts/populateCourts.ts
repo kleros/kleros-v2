@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { KlerosCore } from "../typechain-types";
-import { BigNumberish, toBigInt, toNumber, ZeroAddress } from "ethers";
+import { BigNumberish, isError, toBigInt, toNumber, ZeroAddress } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
@@ -155,22 +155,33 @@ task("populate:courts", "Populates the courts and their parameters")
       if (courtPresent) {
         console.log("Court %d found: %O", court.id, courtPresent);
 
+        // The getter requires an index, so find the latest entry in the append-only parameter history.
+        let additionalCourtParams = await core.getAdditionalCourtParams(court.id, 0);
+        for (let index = 1; ; index++) {
+          try {
+            additionalCourtParams = await core.getAdditionalCourtParams(court.id, index);
+          } catch (error) {
+            if (
+              isError(error, "CALL_EXCEPTION") &&
+              error.revert?.name === "Panic" &&
+              toBigInt(error.revert.args[0]) === 0x32n // Array index out of bounds: no more entries.
+            ) {
+              break;
+            }
+            throw error;
+          }
+        }
+
         // Court.parent and sortitionSumTreeK cannot be changed.
 
         let change = false;
 
-        // @ts-expect-error populateCourts additionalCourtParams types
-        // Currently, there seems to be a misalignment between the expected way to access
-        // additional court params and the actual way to access them.
-        // This comment allows the check-types script to pass, but the script needs updating
-        // to deal with current `courts()` return type.
-        if (courtPresent.hiddenVotes !== court.hiddenVotes) {
+        if (additionalCourtParams.hiddenVotes !== court.hiddenVotes) {
           change = true;
           console.log(
             "Court %d: changing hiddenVotes from %d to %d",
             court.id,
-            // @ts-expect-error populateCourts additionalCourtParams types
-            courtPresent.hiddenVotes,
+            additionalCourtParams.hiddenVotes,
             court.hiddenVotes
           );
         }
@@ -195,21 +206,17 @@ task("populate:courts", "Populates the courts and their parameters")
           );
         }
 
-        if (
-          // @ts-expect-error populateCourts additionalCourtParams types
-          courtPresent.jurorsForCourtJump !== toBigInt(court.jurorsForCourtJump)
-        ) {
+        if (additionalCourtParams.jurorsForCourtJump !== toBigInt(court.jurorsForCourtJump)) {
           change = true;
           console.log(
             "Court %d: changing jurorsForCourtJump from %d to %d",
             court.id,
-            // @ts-expect-error populateCourts additionalCourtParams types
-            courtPresent.jurorsForCourtJump,
+            additionalCourtParams.jurorsForCourtJump,
             court.jurorsForCourtJump
           );
         }
 
-        const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => toNumber(bn));
+        const timesPerPeriodPresent = additionalCourtParams.timesPerPeriod.map((bn) => toNumber(bn));
         if (!timesPerPeriodPresent.every((val, index) => val === court.timesPerPeriod[index])) {
           change = true;
           console.log(
@@ -252,7 +259,6 @@ task("populate:courts", "Populates the courts and their parameters")
               court.feeForJuror,
               court.jurorsForCourtJump,
               [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-              ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
               [DISPUTE_KIT_CLASSIC],
               ZeroAddress
             )

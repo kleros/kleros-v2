@@ -3,13 +3,13 @@
 pragma solidity ^0.8.28;
 
 import {SortitionModule} from "../arbitration/SortitionModule.sol";
-import {SortitionTrees, TreeKey} from "../libraries/SortitionTrees.sol";
+import {SortitionTrees} from "../libraries/SortitionTrees.sol";
 
 /// @title SortitionModuleMock
 /// @dev Adds getter functions to sortition module for Foundry tests.
 contract SortitionModuleMock is SortitionModule {
     function getSortitionProperties(bytes32 _key) external view returns (uint256 K, uint256 nodeLength) {
-        SortitionTrees.Tree storage tree = sortitionSumTrees[TreeKey.wrap(_key)];
+        SortitionTrees.SortitionSumTree storage tree = sortitionSumTrees.trees[_key];
         K = tree.K;
         nodeLength = tree.nodes.length;
     }

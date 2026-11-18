@@ -198,7 +198,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     }
 
     /// @dev Requires that the sender is the owner. Note that the owner is expected to not be malicious.
-    modifier onlyByOwner() {
+    modifier onlyOwner() {
         require(owner == msg.sender);
         _;
     }
@@ -268,26 +268,26 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyByOwner {
+    function executeOwnerProposal(address _destination, uint256 _amount, bytes memory _data) external onlyOwner {
         (bool success, ) = _destination.call{value: _amount}(_data);
         require(success, "Unsuccessful call");
     }
 
     /// @dev Changes the `owner` storage variable.
     /// @param _owner The new value for the `owner` storage variable.
-    function changeOwner(address _owner) external onlyByOwner {
+    function changeOwner(address _owner) external onlyOwner {
         owner = _owner;
     }
 
     /// @dev Changes the `pinakion` storage variable.
     /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(WrappedPinakion _pinakion) external onlyByOwner {
+    function changePinakion(WrappedPinakion _pinakion) external onlyOwner {
         pinakion = _pinakion;
     }
 
     /// @dev Changes the `RNGenerator` storage variable.
     /// @param _RNGenerator The new value for the `RNGenerator` storage variable.
-    function changeRNGenerator(IRandomAuRa _RNGenerator) external onlyByOwner {
+    function changeRNGenerator(IRandomAuRa _RNGenerator) external onlyOwner {
         RNGenerator = _RNGenerator;
         if (phase == Phase.generating) {
             RNBlock = RNGenerator.nextCommitPhaseStartBlock() + RNGenerator.collectRoundLength();
@@ -296,19 +296,19 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
 
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
-    function changeMinStakingTime(uint256 _minStakingTime) external onlyByOwner {
+    function changeMinStakingTime(uint256 _minStakingTime) external onlyOwner {
         minStakingTime = _minStakingTime;
     }
 
     /// @dev Changes the `maxDrawingTime` storage variable.
     /// @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
-    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByOwner {
+    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyOwner {
         maxDrawingTime = _maxDrawingTime;
     }
 
     /// @dev Changes the `foreignGateway` storage variable.
     /// @param _foreignGateway The new value for the `foreignGateway` storage variable.
-    function changeForeignGateway(IForeignGateway _foreignGateway) external onlyByOwner {
+    function changeForeignGateway(IForeignGateway _foreignGateway) external onlyOwner {
         foreignGateway = _foreignGateway;
     }
 
@@ -330,7 +330,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod,
         uint256 _sortitionSumTreeK
-    ) external onlyByOwner {
+    ) external onlyOwner {
         require(
             courts[_parent].minStake <= _minStake,
             "A subcourt cannot be a child of a subcourt with a higher minimum stake."
@@ -356,7 +356,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @dev Changes the `minStake` property value of a specified subcourt. Don't set to a value lower than its parent's `minStake` property value.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _minStake The new value for the `minStake` property value.
-    function changeSubcourtMinStake(uint96 _subcourtID, uint256 _minStake) external onlyByOwner {
+    function changeSubcourtMinStake(uint96 _subcourtID, uint256 _minStake) external onlyOwner {
         require(_subcourtID == 0 || courts[courts[_subcourtID].parent].minStake <= _minStake);
         for (uint256 i = 0; i < courts[_subcourtID].children.length; i++) {
             require(
@@ -371,28 +371,28 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @dev Changes the `alpha` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _alpha The new value for the `alpha` property value.
-    function changeSubcourtAlpha(uint96 _subcourtID, uint256 _alpha) external onlyByOwner {
+    function changeSubcourtAlpha(uint96 _subcourtID, uint256 _alpha) external onlyOwner {
         courts[_subcourtID].alpha = _alpha;
     }
 
     /// @dev Changes the `feeForJuror` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _feeForJuror The new value for the `feeForJuror` property value.
-    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByOwner {
+    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyOwner {
         courts[_subcourtID].feeForJuror = _feeForJuror;
     }
 
     /// @dev Changes the `jurorsForCourtJump` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _jurorsForCourtJump The new value for the `jurorsForCourtJump` property value.
-    function changeSubcourtJurorsForJump(uint96 _subcourtID, uint256 _jurorsForCourtJump) external onlyByOwner {
+    function changeSubcourtJurorsForJump(uint96 _subcourtID, uint256 _jurorsForCourtJump) external onlyOwner {
         courts[_subcourtID].jurorsForCourtJump = _jurorsForCourtJump;
     }
 
     /// @dev Changes the `timesPerPeriod` property value of a specified subcourt.
     /// @param _subcourtID The ID of the subcourt.
     /// @param _timesPerPeriod The new value for the `timesPerPeriod` property value.
-    function changeSubcourtTimesPerPeriod(uint96 _subcourtID, uint256[4] memory _timesPerPeriod) external onlyByOwner {
+    function changeSubcourtTimesPerPeriod(uint96 _subcourtID, uint256[4] memory _timesPerPeriod) external onlyOwner {
         courts[_subcourtID].timesPerPeriod = _timesPerPeriod;
     }
 
@@ -451,7 +451,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     function createDispute(
         uint256 _numberOfChoices,
         bytes memory _extraData
-    ) public payable override returns (uint256 disputeID) {
+    ) public payable returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "Arbitration fees: not enough");
 
         disputeID = totalDisputes++;
@@ -466,19 +466,10 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
         emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
-    function createDispute(
-        uint256 /*_choices*/,
-        bytes calldata /*_extraData*/,
-        IERC20 /*_feeToken*/,
-        uint256 /*_feeAmount*/
-    ) external override returns (uint256) {
-        revert("Not supported");
-    }
-
     /// @dev DEPRECATED. Called when `_owner` sends ETH to the Wrapped Token contract.
     /// @param _owner The address that sent the ETH to create tokens.
     /// @return allowed Whether the operation should be allowed or not.
-    function proxyPayment(address _owner) public payable override returns (bool allowed) {
+    function proxyPayment(address _owner) public payable returns (bool allowed) {
         allowed = false;
     }
 
@@ -487,7 +478,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @param _to The destination of the transfer.
     /// @param _amount The amount of the transfer.
     /// @return allowed Whether the operation should be allowed or not.
-    function onTransfer(address _from, address _to, uint256 _amount) public override returns (bool allowed) {
+    function onTransfer(address _from, address _to, uint256 _amount) public returns (bool allowed) {
         if (lockInsolventTransfers) {
             // Never block penalties or rewards.
             uint256 newBalance = pinakion.balanceOf(_from) - _amount;
@@ -501,7 +492,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @param _spender The spender in the `approve()` call.
     /// @param _amount The amount in the `approve()` call.
     /// @return allowed Whether the operation should be allowed or not.
-    function onApprove(address _owner, address _spender, uint256 _amount) public override returns (bool allowed) {
+    function onApprove(address _owner, address _spender, uint256 _amount) public returns (bool allowed) {
         allowed = true;
     }
 
@@ -611,15 +602,8 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @dev It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
     /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
     /// @return cost The arbitration cost in ETH.
-    function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
+    function arbitrationCost(bytes memory _extraData) public view returns (uint256 cost) {
         cost = foreignGateway.arbitrationCost(_extraData);
-    }
-
-    function arbitrationCost(
-        bytes calldata /*_extraData*/,
-        IERC20 /*_feeToken*/
-    ) public pure override returns (uint256 /*cost*/) {
-        revert("Not supported");
     }
 
     /// @dev Gets the current ruling of a specified dispute.

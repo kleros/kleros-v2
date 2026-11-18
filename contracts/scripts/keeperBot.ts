@@ -1,5 +1,5 @@
 import hre from "hardhat";
-import { toBigInt, BigNumberish, getNumber, BytesLike } from "ethers";
+import { toBigInt, getNumber, BytesLike } from "ethers";
 import {
   DisputeKitClassic,
   DisputeKitGated,
@@ -17,7 +17,6 @@ const SHUTTER_AUTO_REVEAL_ONLY = env.optional("SHUTTER_AUTO_REVEAL_ONLY", "false
 const MAX_DRAW_CALLS_WITHOUT_JURORS = 10;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
-const MAX_DELAYED_STAKES_ITERATIONS = 50;
 const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
 const ITERATIONS_COOLDOWN_PERIOD = 10 * 1000; // 10 seconds
 // Local eth_call budget for the 300-iteration juror-availability probe
@@ -239,40 +238,6 @@ const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]>
   return getUniqueDisputes(disputes);
 };
 
-const getUnstakedJurors = async (disputeId: string): Promise<string[]> => {
-  const { gql, request } = await import("graphql-request"); // workaround for ESM import
-  const query = gql`
-    query UnstakedJurors($disputeId: String!) {
-      dispute(id: $disputeId) {
-        currentRound {
-          drawnJurors(where: { juror_: { totalStake: 0 } }) {
-            juror {
-              userAddress
-            }
-          }
-        }
-      }
-    }
-  `;
-  type UnstakedJurors = {
-    dispute: {
-      currentRound: {
-        drawnJurors: { juror: { userAddress: string } }[];
-      };
-    };
-  };
-  const { dispute } = await request<UnstakedJurors>(getSubgraphUrl(), query, {
-    disputeId,
-  });
-  if (!dispute || !dispute.currentRound) {
-    return [];
-  }
-  const uniqueAddresses = [
-    ...new Set(dispute.currentRound.drawnJurors.map((drawnJuror) => drawnJuror.juror.userAddress)),
-  ];
-  return uniqueAddresses;
-};
-
 const handleError = (e: unknown) => {
   logger.error(e, "Failure");
 };
@@ -476,29 +441,6 @@ const executeRuling = async (dispute: { id: string }) => {
   return success;
 };
 
-const withdrawLeftoverPNK = async (juror: string) => {
-  const { sortition } = await getContracts();
-  let success = false;
-  try {
-    await sortition.withdrawLeftoverPNK.staticCall(juror);
-  } catch (e) {
-    const error = e as CustomError;
-    const errorDescription = sortition.interface.parseError(error.data)?.signature;
-    logger.error(`WithdrawLeftoverPNK: failed for juror ${juror} because of ${errorDescription}, skipping`);
-    return success;
-  }
-  try {
-    const gas = ((await sortition.withdrawLeftoverPNK.estimateGas(juror)) * 150n) / 100n; // 50% extra gas
-    const tx = await (await sortition.withdrawLeftoverPNK(juror, { gasLimit: gas })).wait();
-    logger.info(`WithdrawLeftoverPNK txID: ${tx?.hash}`);
-  } catch (e) {
-    handleError(e);
-  } finally {
-    success = true;
-  }
-  return success;
-};
-
 export const withdrawAppealContribution = async (
   coreDisputeId: string,
   coreRoundId: string,
@@ -557,40 +499,6 @@ export const withdrawAppealContribution = async (
   return success;
 };
 
-const executeDelayedStakes = async () => {
-  const { sortition } = await getContracts();
-
-  // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
-  const delayedStakesRemaining =
-    1n + (await sortition.delayedStakeWriteIndex()) - (await sortition.delayedStakeReadIndex());
-
-  const delayedStakes =
-    delayedStakesRemaining < MAX_DELAYED_STAKES_ITERATIONS
-      ? delayedStakesRemaining
-      : toBigInt(MAX_DELAYED_STAKES_ITERATIONS);
-
-  if (delayedStakes === 0n) {
-    logger.info("No delayed stakes to execute");
-    return true;
-  }
-  logger.info(`Executing ${delayedStakes} delayed stakes, ${delayedStakesRemaining} remaining`);
-  const success = false;
-  try {
-    await sortition.executeDelayedStakes.staticCall(delayedStakes);
-  } catch (e) {
-    logger.error(`executeDelayedStakes: will fail because of ${JSON.stringify(e)}`);
-    return success;
-  }
-  try {
-    const gas = ((await sortition.executeDelayedStakes.estimateGas(delayedStakes)) * 150n) / 100n; // 50% extra gas
-    const tx = await (await sortition.executeDelayedStakes(delayedStakes, { gasLimit: gas })).wait();
-    logger.info(`executeDelayedStakes txID: ${tx?.hash}`);
-  } catch (e) {
-    handleError(e);
-  }
-  return success;
-};
-
 const getMissingJurors = async (dispute: { id: string; currentRoundIndex: string }) => {
   const { core } = await getContracts();
   const { nbVotes, drawnJurors } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
@@ -601,15 +509,12 @@ const isDisputeFullyDrawn = async (dispute: { id: string; currentRoundIndex: str
   return (await getMissingJurors(dispute)) === 0n;
 };
 
-const getNumberOfMissingRepartitions = async (
-  dispute: { id: string; currentRoundIndex: string },
-  coherentCount: BigNumberish
-) => {
+const getNumberOfMissingRepartitions = async (dispute: { id: string; currentRoundIndex: string }) => {
   const { core } = await getContracts();
   const { repartitions, drawnJurors } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
-  return coherentCount === 0n
-    ? drawnJurors.length - getNumber(repartitions)
-    : 2 * drawnJurors.length - getNumber(repartitions);
+  // KlerosCore.execute always processes two passes: penalties, then rewards, regardless of coherence.
+  // The final reward iteration also distributes leftover rewards when no juror is coherent.
+  return 2 * drawnJurors.length - getNumber(repartitions);
 };
 
 const filterDisputesToSkip = (disputes: Dispute[]) => {
@@ -874,9 +779,7 @@ async function main() {
     // ----------------------------------------------- //
     //             REPARTITIONS EXECUTION              //
     // ----------------------------------------------- //
-    const { disputeKit } = await getDisputeKit(dispute.id, dispute.currentRoundIndex);
-    const coherentCount = await disputeKit.getCoherentCount(dispute.id, dispute.currentRoundIndex);
-    let numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
+    let numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute);
     do {
       const executeIterations = Math.min(MAX_EXECUTE_ITERATIONS, numberOfMissingRepartitions);
       if (executeIterations === 0) {
@@ -890,22 +793,9 @@ async function main() {
         logger.error(`Failed to execute repartitions for dispute #${dispute.id}, skipping it`);
         break;
       }
-      numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
+      numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute);
       await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
     } while (numberOfMissingRepartitions != 0);
-
-    // ----------------------------------------------- //
-    //             WITHDRAW LEFTOVER PNK               //
-    // ----------------------------------------------- //
-    const unstakedJurors = await getUnstakedJurors(dispute.id);
-    logger.info(`Unstaked jurors: ${unstakedJurors.map((juror) => juror)}`);
-    for (const juror of unstakedJurors) {
-      const leftoverPNK = await sortition.getJurorLeftoverPNK(juror);
-      if (leftoverPNK > 0n) {
-        logger.info(`Leftover PNK for juror ${juror}: ${leftoverPNK}, withdrawing...`);
-        await withdrawLeftoverPNK(juror);
-      }
-    }
 
     // ----------------------------------------------- //
     //               RULING EXECUTION                  //
@@ -947,9 +837,10 @@ async function main() {
   //             EXECUTE DELAYED STAKES              //
   // ----------------------------------------------- //
 
-  if (await isPhaseStaking()) {
-    await executeDelayedStakes();
-  }
+  // TODO: Maintainers must provide reliable pending-stake discovery before restoring this workflow.
+  // executeDelayedStakes(address[] accounts, uint96[] courtIDs) requires corresponding account/court pairs;
+  // SortitionModule no longer exposes queue indices or enumerates pending requests.
+  logger.warn("Delayed-stake processing is disabled pending reliable account/court-pair discovery.");
 
   await sendHeartbeat();
 

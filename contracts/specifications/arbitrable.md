@@ -31,9 +31,7 @@ The interface defines two key events that enable tracking of dispute lifecycle a
 event DisputeRequest(
   IArbitratorV2 indexed _arbitrator,
   uint256 indexed _arbitratorDisputeID,
-  uint256 _externalDisputeID,
-  uint256 _templateId,
-  string _templateUri
+  uint256 _templateId
 );
 ```
 
@@ -46,11 +44,7 @@ Parameters:
 
 - `_arbitrator`: The Kleros court contract that will arbitrate the dispute
 - `_arbitratorDisputeID`: The unique identifier of the dispute in the arbitrator's contract
-- `_externalDisputeID`: A local identifier for the dispute in the arbitrable contract, allowing correlation between arbitrator and arbitrable dispute IDs
-- `_templateId`: The identifier of the dispute template in the template registry (mutually exclusive with `_templateUri`)
-- `_templateUri`: Direct URI to the dispute template, e.g., IPFS path '/ipfs/...' (mutually exclusive with `_templateId`)
-
-Note: Either `_templateId` or `_templateUri` should be used, but not both. This flexibility allows for both on-chain template registry and direct template URI references.
+- `_templateId`: The identifier of the dispute template in the template registry
 
 #### Ruling
 
@@ -72,7 +66,7 @@ Note: The ruling value's meaning is dispute-specific and should be interpreted a
 
 ### Dispute Templates
 
-The DisputeResolver uses a structured template system to provide clear information about disputes to jurors. Templates are either stored in the template registry or referenced directly via URI.
+The DisputeResolver uses a structured template system to provide clear information about disputes to jurors. Templates are stored in the template registry.
 
 #### Template Structure
 
@@ -148,9 +142,7 @@ Key aspects of templates:
 - The `answers` array corresponds to valid ruling values (1 to N)
 - Each answer must have a clear title and detailed description
 - The `question` should be specific and answerable based on the options
-- Templates can be stored:
-  1. On-chain in the template registry (referenced by `templateId`)
-  2. Off-chain (referenced by `templateUri`, typically IPFS)
+- Templates are stored in the template registry (referenced by `templateId`)
 - The number of answers must match `numberOfRulingOptions` in the dispute creation
 
 ### Core Methods
@@ -169,9 +161,7 @@ The `DisputeResolver` contract provides a reference implementation of `IArbitrab
 
 ### Dispute Creation
 
-Two methods for creating disputes:
-
-1. **Template-based Creation**:
+Method for creating disputes:
 
 ```solidity
 function createDisputeForTemplate(
@@ -181,21 +171,9 @@ function createDisputeForTemplate(
     uint256 _numberOfRulingOptions
 ) external payable returns (uint256 disputeID)
 ```
-
-2. **URI-based Creation**:
-
-```solidity
-function createDisputeForTemplateUri(
-    bytes calldata _arbitratorExtraData,
-    string calldata _disputeTemplateUri,
-    uint256 _numberOfRulingOptions
-) external payable returns (uint256 disputeID)
-```
-
 Key aspects:
 
-- Both methods require arbitration fees to be sent with the call
-- At least 2 ruling options must be specified
+- Requires arbitration fees to be sent with the call
 - Creates both local and arbitrator-side dispute records
 - Emits `DisputeRequest` with template information
 
@@ -251,83 +229,3 @@ sequenceDiagram
 
 The DisputeResolver provides a foundation for creating arbitrable contracts in the Kleros ecosystem. It handles the core functionality of dispute creation and ruling management while allowing derived contracts to add custom business logic.
 
-### Dispute Templates
-
-**:warning: TODO: add the generic specification for Dispute Templates and Mappings**
-
-#### Template Structure
-
-**:warning: THIS TEMPLATE DOES NOT LOOK COMPLIANT WITH THE SDK SCHEMA**
-
-```json
-{
-  "title": "string", // Clear, concise title of the dispute
-  "description": "string", // Detailed description of the case
-  "question": "string", // The specific question jurors must answer
-  "category": "string", // The type/category of dispute
-  "answers": [
-    // Possible rulings jurors can choose from
-    {
-      "title": "string", // Short answer (e.g., "Yes", "No")
-      "id": "string", // Unique identifier (e.g., "0x1")
-      "description": "string" // Detailed explanation of this choice
-    }
-  ],
-  "version": "string", // Template format version
-  "policyURI": "string", // Link to applicable policy document
-  "arbitratorAddress": "string", // Address of the Kleros court
-  "arbitratorChainID": "string" // Chain ID where the court exists
-}
-```
-
-#### Example Template
-
-```json
-{
-  "title": "Ms. Jamie Zachreson v. Mr. Craig Veale: Appeal of Prior Decision",
-  "description": "Appeal of a residential lease dispute regarding lease violation and rent refund...",
-  "question": "Did Mr. Craig Veale violate the terms of the lease agreement in a way that justified Ms. Jamie Zachreson terminating the tenancy and withholding the rent and deposit?",
-  "category": "Residential lease",
-  "answers": [
-    {
-      "title": "Yes",
-      "id": "0x1",
-      "description": "In favor of Ms. Jamie Zachreson: The lease included a valid and enforceable clause..."
-    },
-    {
-      "title": "No",
-      "id": "0x2",
-      "description": "In favor of Mr. Craig Veale: The lease did not include the disputed clause..."
-    },
-    {
-      "title": "Partially",
-      "id": "0x3",
-      "description": "Split Responsibility: Return partial payment..."
-    },
-    {
-      "title": "Not enough evidence",
-      "id": "0x4",
-      "description": "Insufficient evidence to determine..."
-    },
-    {
-      "title": "Refuse to arbitrate",
-      "id": "0x5",
-      "description": "Case ineligible for arbitration..."
-    }
-  ],
-  "version": "1.0",
-  "policyURI": "/ipfs/QmcDrvCaXtae4o6KgXYhi4yLKm5JYQSRQdZ9itbnASbsb9",
-  "arbitratorAddress": "0x991d2df165670b9cac3B022f4B68D65b664222ea",
-  "arbitratorChainID": "42161"
-}
-```
-
-Key aspects of templates:
-
-- The `answers` array corresponds to valid ruling values (1 to N)
-- Each answer must have a clear title and detailed description
-- The `question` should be specific and answerable based on the options
-- Templates can be stored:
-  1. On-chain in the template registry (referenced by `templateId`)
-  2. Off-chain (referenced by `templateUri`, typically IPFS)
-- The number of answers must match `numberOfRulingOptions` in the dispute creation

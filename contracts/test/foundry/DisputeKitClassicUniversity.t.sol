@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {KlerosCore_TestBase} from "./KlerosCore_TestBase.sol";
 import {KlerosCore, IArbitratorV2, IArbitrableV2} from "../../src/arbitration/KlerosCore.sol";
 import {DisputeKitClassicUniversity} from "../../src/arbitration/dispute-kits/DisputeKitClassicUniversity.sol";
 import {DisputeKitClassic} from "../../src/arbitration/dispute-kits/DisputeKitClassic.sol";
 import {ArbitrableExample} from "../../src/arbitration/arbitrables/ArbitrableExample.sol";
 import {SortitionModule} from "../../src/arbitration/SortitionModule.sol";
-import {UUPSProxy} from "../../src/proxy/UUPSProxy.sol";
 import {Vm} from "forge-std/Vm.sol";
 import "../../src/libraries/Constants.sol";
 
@@ -23,6 +23,7 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
 
     uint96 uniCourt;
     uint256 constant UNI_DK_ID = 2;
+    uint256 maxExtraFilteringAttempts = 5;
 
     function setUp() public override {
         super.setUp();
@@ -35,16 +36,15 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
 
         DisputeKitClassicUniversity dkLogic = new DisputeKitClassicUniversity();
         bytes memory initData = abi.encodeWithSignature(
-            "initialize(address,address,address)",
-            owner,
+            "initialize(address,address,address,uint256,uint256)",
+            instructorAddr,
             address(core),
-            address(wNative)
+            address(wNative),
+            DISPUTE_KIT_CLASSIC,
+            maxExtraFilteringAttempts
         );
-        UUPSProxy proxyDK = new UUPSProxy(address(dkLogic), initData);
+        TransparentUpgradeableProxy proxyDK = new TransparentUpgradeableProxy(address(dkLogic), owner, initData);
         uniDK = DisputeKitClassicUniversity(address(proxyDK));
-
-        vm.prank(owner);
-        uniDK.changeInstructor(instructorAddr);
 
         vm.prank(owner);
         core.addNewDisputeKit(uniDK);
@@ -62,34 +62,27 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
             0.03 ether,
             50,
             [uint256(10), uint256(20), uint256(30), uint256(40)],
-            sortitionExtraData,
             supportedDK,
             NULL_ELIGIBILITY_REQUIREMENT
         );
 
-        uint256[] memory children = core.getCourtChildren(GENERAL_COURT);
-        uniCourt = uint96(children[children.length - 1]);
+        uniCourt = core.getLatestCourtID();
 
         bytes memory uniExtraData = abi.encodePacked(
             uint256(uniCourt),
             uint256(DEFAULT_NB_OF_JURORS),
             uint256(UNI_DK_ID)
         );
-        uniArbitrable = new ArbitrableExample(
-            core,
-            templateData,
-            templateDataMappings,
-            uniExtraData,
-            registry,
-            feeToken
-        );
+        uniArbitrable = new ArbitrableExample(core, templateData, templateDataMappings, uniExtraData, registry);
 
         address[3] memory students = [student1, student2, student3];
         for (uint256 i = 0; i < students.length; i++) {
             vm.prank(owner);
             pinakion.transfer(students[i], 10000);
-            vm.prank(students[i]);
+            vm.startPrank(students[i]);
             pinakion.approve(address(core), 10000);
+            core.depositTokens(10000);
+            vm.stopPrank();
         }
     }
 
@@ -98,28 +91,20 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
     // =========================================================================
 
     function test_initialize() public view {
-        assertEq(uniDK.owner(), owner, "Wrong owner");
         assertEq(uniDK.instructor(), instructorAddr, "Wrong instructor");
         assertEq(address(uniDK.core()), address(core), "Wrong core");
-        assertEq(uniDK.singleDrawPerJuror(), true, "singleDrawPerJuror should be true");
     }
 
-    function test_changeInstructor_byOwner() public {
+    function test_changeInstructor() public {
         vm.expectEmit(true, false, false, false);
-        emit DisputeKitClassicUniversity.InstructorChanged(student1);
-        vm.prank(owner);
-        uniDK.changeInstructor(student1);
-        assertEq(uniDK.instructor(), student1, "Instructor not updated");
-    }
-
-    function test_changeInstructor_byInstructor() public {
+        emit DisputeKitClassicUniversity.InstructorChanged(student2);
         vm.prank(instructorAddr);
         uniDK.changeInstructor(student2);
         assertEq(uniDK.instructor(), student2, "Instructor not updated");
     }
 
     function test_changeInstructor_revertsForOther() public {
-        vm.expectRevert(DisputeKitClassicUniversity.OwnerOrInstructorOnly.selector);
+        vm.expectRevert(DisputeKitClassicUniversity.InstructorOnly.selector);
         vm.prank(outsider);
         uniDK.changeInstructor(outsider);
     }
@@ -209,14 +194,24 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.prank(student3);
         core.setStake(uniCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](3);
+        uint96[] memory courtIDs = new uint96[](3);
+
+        jurors[0] = student1;
+        jurors[1] = student2;
+        jurors[2] = student3;
+
+        courtIDs[0] = uniCourt;
+        courtIDs[1] = uniCourt;
+        courtIDs[2] = uniCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         uniArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         uint256 disputeID = 0;
 
-        address[] memory jurors = new address[](3);
-        jurors[0] = student1;
-        jurors[1] = student2;
-        jurors[2] = student3;
         vm.prank(instructorAddr);
         uniDK.setJurors(disputeID, jurors);
 
@@ -240,12 +235,19 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.prank(student1);
         core.setStake(uniCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = student1;
+        courtIDs[0] = uniCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         uniArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         uint256 disputeID = 0;
 
-        address[] memory jurors = new address[](1);
-        jurors[0] = student1;
         vm.prank(instructorAddr);
         uniDK.setJurors(disputeID, jurors);
 
@@ -265,11 +267,20 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.prank(student1);
         core.setStake(uniCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = student1;
+        courtIDs[0] = uniCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         uniArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         uint256 disputeID = 0;
 
-        address[] memory jurors = new address[](3);
+        jurors = new address[](3);
         jurors[0] = student1;
         jurors[1] = student1;
         jurors[2] = student1;
@@ -292,6 +303,15 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.prank(student1);
         core.setStake(uniCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = student1;
+        courtIDs[0] = uniCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         uniArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         uint256 disputeID = 0;
@@ -311,11 +331,20 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.prank(student1);
         core.setStake(uniCourt, 3000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](1);
+        uint96[] memory courtIDs = new uint96[](1);
+
+        jurors[0] = student1;
+        courtIDs[0] = uniCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         uniArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         uint256 disputeID = 0;
 
-        address[] memory jurors = new address[](3);
+        jurors = new address[](3);
         jurors[0] = student1;
         jurors[1] = student1;
         jurors[2] = student1;
@@ -329,7 +358,7 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
 
         core.draw(disputeID, DEFAULT_NB_OF_JURORS);
 
-        (uint256 totalStaked, uint256 totalLocked, , ) = sortitionModule.getJurorBalance(student1, uniCourt);
+        (uint256 totalStaked, uint256 totalLocked) = sortitionModule.getJurorBalance(student1);
         assertEq(totalStaked, 3000, "Wrong total staked");
         uint256 pnkAtStake = (1000 * 10000) / ONE_BASIS_POINT;
         assertEq(totalLocked, pnkAtStake, "Should lock PNK for the one successful draw");
@@ -347,14 +376,24 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.prank(student3);
         core.setStake(uniCourt, 5000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](3);
+        uint96[] memory courtIDs = new uint96[](3);
+
+        jurors[0] = student1;
+        jurors[1] = student2;
+        jurors[2] = student3;
+
+        courtIDs[0] = uniCourt;
+        courtIDs[1] = uniCourt;
+        courtIDs[2] = uniCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         uniArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         uint256 disputeID = 0;
 
-        address[] memory jurors = new address[](3);
-        jurors[0] = student1;
-        jurors[1] = student2;
-        jurors[2] = student3;
         vm.prank(instructorAddr);
         uniDK.setJurors(disputeID, jurors);
 
@@ -395,6 +434,8 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         (, , KlerosCore.Period period, , ) = core.disputes(disputeID);
         assertEq(uint256(period), uint256(KlerosCore.Period.execution), "Should be execution period");
 
+        assertEq(core.balances(student1), 10000, "Wrong internal token balance of student1");
+
         // Execute penalties + rewards
         core.execute(disputeID, 0, 6);
 
@@ -402,8 +443,7 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         assertEq(round.repartitions, 6, "All repartitions should be done");
 
         // student1 was incoherent => penalized
-        (uint256 student1Staked, , , ) = sortitionModule.getJurorBalance(student1, uniCourt);
-        assertLt(student1Staked, 5000, "Incoherent juror should be penalized");
+        assertLt(core.balances(student1), 10000, "Incoherent juror should be penalized");
 
         // Execute ruling
         vm.expectEmit(true, true, true, true);
@@ -422,14 +462,24 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.prank(student3);
         core.setStake(uniCourt, 5000);
 
+        vm.warp(block.timestamp + stakingDelay);
+        address[] memory jurors = new address[](3);
+        uint96[] memory courtIDs = new uint96[](3);
+
+        jurors[0] = student1;
+        jurors[1] = student2;
+        jurors[2] = student3;
+
+        courtIDs[0] = uniCourt;
+        courtIDs[1] = uniCourt;
+        courtIDs[2] = uniCourt;
+
+        sortitionModule.executeDelayedStakes(jurors, courtIDs);
+
         vm.prank(disputer);
         uniArbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
         uint256 disputeID = 0;
 
-        address[] memory jurors = new address[](3);
-        jurors[0] = student1;
-        jurors[1] = student2;
-        jurors[2] = student3;
         vm.prank(instructorAddr);
         uniDK.setJurors(disputeID, jurors);
 
@@ -455,8 +505,6 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
         vm.warp(block.timestamp + 40);
         core.passPeriod(disputeID); // execution
 
-        assertEq(uniDK.getCoherentCount(disputeID, 0), 3, "All jurors should be coherent");
-
         core.execute(disputeID, 0, 6);
 
         KlerosCore.Round memory round = core.getRoundInfo(disputeID, 0);
@@ -464,7 +512,7 @@ contract DisputeKitClassicUniversityTest is KlerosCore_TestBase {
 
         // All stakers should keep their full stake
         for (uint256 i = 0; i < DEFAULT_NB_OF_JURORS; i++) {
-            (uint256 totalStaked, uint256 totalLocked, , ) = sortitionModule.getJurorBalance(jurors[i], uniCourt);
+            (uint256 totalStaked, uint256 totalLocked) = sortitionModule.getJurorBalance(jurors[i]);
             assertGe(totalStaked, 5000, "Coherent juror should keep stake");
             assertEq(totalLocked, 0, "Tokens should be unlocked");
         }

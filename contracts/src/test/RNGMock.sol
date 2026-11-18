@@ -11,9 +11,9 @@ contract RNGMock is IRNG {
         randomNumber = _rn;
     }
 
-    function requestRandomness() external override {}
+    function requestRandomness() external {}
 
-    function receiveRandomness() external view override returns (uint256) {
+    function receiveRandomness() external view returns (uint256) {
         return randomNumber;
     }
 }
