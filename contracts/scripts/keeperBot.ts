@@ -51,6 +51,7 @@ const getContracts = async () => {
 };
 
 type Contribution = {
+  id: string;
   contributor: {
     id: string;
   };
@@ -152,28 +153,69 @@ export const getDisputeKit: DisputeKitResolver = async (
   return { disputeKit, localDisputeId, localRoundId };
 };
 
-const getNonFinalDisputes = async (): Promise<Dispute[]> => {
-  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+/** The Graph returns only the first 100 entities of a collection unless `first` is set, and at most 1000 even then. */
+export const SUBGRAPH_PAGE_SIZE = 1000;
+
+/** Sends a query to the subgraph. Injectable so the query helpers can be unit-tested without a subgraph. */
+export type SubgraphRequest = <T>(query: string, variables?: Record<string, unknown>) => Promise<T>;
+
+const requestSubgraph: SubgraphRequest = async <T>(query: string, variables?: Record<string, unknown>) => {
+  const { request } = await import("graphql-request"); // workaround for ESM import
+  // TODO: use a local graph node if chainId is HARDHAT
+  return request<T>(getSubgraphUrl(), query, variables);
+};
+
+/** Fetches every entity of a subgraph collection, page by page, with `id_gt` cursor pagination
+ * (the approach recommended by The Graph over `skip`). Without pagination, a collection query
+ * silently stops at 100 entities, so the bot would drop disputes and contributions past that point.
+ * See issue #2586. */
+export const fetchAllPages = async <T extends { id: string }>(
+  fetchPage: (cursor: { first: number; lastId: string }) => Promise<T[]>,
+  pageSize: number = SUBGRAPH_PAGE_SIZE
+): Promise<T[]> => {
+  const entities: T[] = [];
+  let lastId = "";
+  for (;;) {
+    const page = await fetchPage({ first: pageSize, lastId });
+    // Stop on an empty page rather than on a short one: an endpoint configured with a lower
+    // `first` cap than SUBGRAPH_PAGE_SIZE would otherwise truncate the result silently again.
+    if (page.length === 0) return entities;
+    entities.push(...page);
+    const nextLastId = page[page.length - 1].id;
+    if (nextLastId === lastId) throw new Error(`Subgraph pagination cursor did not advance past id ${lastId}`);
+    lastId = nextLastId;
+  }
+};
+
+export const getNonFinalDisputes = async (request: SubgraphRequest = requestSubgraph): Promise<Dispute[]> => {
+  const { gql } = await import("graphql-request"); // workaround for ESM import
   const query = gql`
-    query NonFinalDisputes {
-      disputes(where: { period_not: execution }) {
+    query NonFinalDisputes($first: Int!, $lastId: ID!) {
+      disputes(first: $first, orderBy: id, orderDirection: asc, where: { period_not: execution, id_gt: $lastId }) {
         period
         id
         currentRoundIndex
       }
     }
   `;
-  // TODO: use a local graph node if chainId is HARDHAT
   type Disputes = { disputes: Dispute[] };
-  const { disputes } = await request<Disputes>(getSubgraphUrl(), query);
-  return disputes;
+  return fetchAllPages(async (cursor) => (await request<Disputes>(query, cursor)).disputes);
 };
 
-const getAppealContributions = async (disputeId: string): Promise<Contribution[]> => {
-  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+export const getAppealContributions = async (
+  disputeId: string,
+  request: SubgraphRequest = requestSubgraph
+): Promise<Contribution[]> => {
+  const { gql } = await import("graphql-request"); // workaround for ESM import
   const query = gql`
-    query AppealContributions($disputeId: String!) {
-      contributions(where: { coreDispute: $disputeId }) {
+    query AppealContributions($disputeId: String!, $first: Int!, $lastId: ID!) {
+      contributions(
+        first: $first
+        orderBy: id
+        orderDirection: asc
+        where: { coreDispute: $disputeId, id_gt: $lastId }
+      ) {
+        id
         contributor {
           id
         }
@@ -187,39 +229,53 @@ const getAppealContributions = async (disputeId: string): Promise<Contribution[]
       }
     }
   `;
-  const variables = { disputeId };
   type AppealContributions = { contributions: Contribution[] };
-  // TODO: use a local graph node if chainId is HARDHAT
-  const { contributions } = await request<AppealContributions>(getSubgraphUrl(), query, variables);
-  return contributions;
+  return fetchAllPages(
+    async (cursor) => (await request<AppealContributions>(query, { disputeId, ...cursor })).contributions
+  );
 };
 
-const getDisputesWithUnexecutedRuling = async (): Promise<Dispute[]> => {
-  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+export const getDisputesWithUnexecutedRuling = async (
+  request: SubgraphRequest = requestSubgraph
+): Promise<Dispute[]> => {
+  const { gql } = await import("graphql-request"); // workaround for ESM import
   const query = gql`
-    query DisputesWithUnexecutedRuling {
-      disputes(where: { period: execution, ruled: false }) {
+    query DisputesWithUnexecutedRuling($first: Int!, $lastId: ID!) {
+      disputes(
+        first: $first
+        orderBy: id
+        orderDirection: asc
+        where: { period: execution, ruled: false, id_gt: $lastId }
+      ) {
         id
         currentRoundIndex
         period
       }
     }
   `;
-  // TODO: use a local graph node if chainId is HARDHAT
   type Disputes = { disputes: Dispute[] };
-  const { disputes } = await request<Disputes>(getSubgraphUrl(), query);
-  return disputes;
+  return fetchAllPages(async (cursor) => (await request<Disputes>(query, cursor)).disputes);
 };
 
 const getUniqueDisputes = (disputes: Dispute[]): Dispute[] => {
   return [...new Map(disputes.map((v) => [v.id, v])).values()];
 };
 
-const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]> => {
-  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+export const getDisputesWithContributionsNotYetWithdrawn = async (
+  request: SubgraphRequest = requestSubgraph
+): Promise<Dispute[]> => {
+  const { gql } = await import("graphql-request"); // workaround for ESM import
+  // The execution-period filter runs in the subgraph: filtering after the query would let
+  // contributions to disputes in other periods take up the page and push these ones out.
   const query = gql`
-    query DisputesWithContributionsNotYetWithdrawn {
-      classicContributions(where: { rewardWithdrawn: false }) {
+    query DisputesWithContributionsNotYetWithdrawn($first: Int!, $lastId: ID!) {
+      classicContributions(
+        first: $first
+        orderBy: id
+        orderDirection: asc
+        where: { rewardWithdrawn: false, coreDispute_: { period: execution }, id_gt: $lastId }
+      ) {
+        id
         coreDispute {
           id
           period
@@ -228,49 +284,41 @@ const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]>
       }
     }
   `;
-  // TODO: use a local graph node if chainId is HARDHAT
   type Contributions = {
-    classicContributions: { coreDispute: Dispute }[];
+    classicContributions: { id: string; coreDispute: Dispute }[];
   };
-  const { classicContributions } = await request<Contributions>(getSubgraphUrl(), query);
-  const disputes = classicContributions
-    .filter((contribution) => contribution.coreDispute.period === "execution")
-    .map((dispute) => dispute.coreDispute);
-  return getUniqueDisputes(disputes);
+  const classicContributions = await fetchAllPages(
+    async (cursor) => (await request<Contributions>(query, cursor)).classicContributions
+  );
+  return getUniqueDisputes(classicContributions.map((contribution) => contribution.coreDispute));
 };
 
-const getUnstakedJurors = async (disputeId: string): Promise<string[]> => {
-  const { gql, request } = await import("graphql-request"); // workaround for ESM import
+export const getUnstakedJurors = async (
+  dispute: { id: string; currentRoundIndex: string },
+  request: SubgraphRequest = requestSubgraph
+): Promise<string[]> => {
+  const { gql } = await import("graphql-request"); // workaround for ESM import
+  // A nested `currentRound { drawnJurors }` list is capped like any collection, so the draws of the
+  // current round are paginated through the top-level collection instead. Round ID: coreDisputeID-roundIndex.
   const query = gql`
-    query UnstakedJurors($disputeId: String!) {
-      dispute(id: $disputeId) {
-        currentRound {
-          drawnJurors(where: { juror_: { totalStake: 0 } }) {
-            juror {
-              userAddress
-            }
-          }
+    query UnstakedJurors($disputeId: String!, $roundId: String!, $first: Int!, $lastId: ID!) {
+      draws(
+        first: $first
+        orderBy: id
+        orderDirection: asc
+        where: { dispute: $disputeId, round: $roundId, juror_: { totalStake: 0 }, id_gt: $lastId }
+      ) {
+        id
+        juror {
+          userAddress
         }
       }
     }
   `;
-  type UnstakedJurors = {
-    dispute: {
-      currentRound: {
-        drawnJurors: { juror: { userAddress: string } }[];
-      };
-    };
-  };
-  const { dispute } = await request<UnstakedJurors>(getSubgraphUrl(), query, {
-    disputeId,
-  });
-  if (!dispute || !dispute.currentRound) {
-    return [];
-  }
-  const uniqueAddresses = [
-    ...new Set(dispute.currentRound.drawnJurors.map((drawnJuror) => drawnJuror.juror.userAddress)),
-  ];
-  return uniqueAddresses;
+  type Draws = { draws: { id: string; juror: { userAddress: string } }[] };
+  const variables = { disputeId: dispute.id, roundId: `${dispute.id}-${dispute.currentRoundIndex}` };
+  const draws = await fetchAllPages(async (cursor) => (await request<Draws>(query, { ...variables, ...cursor })).draws);
+  return [...new Set(draws.map((draw) => draw.juror.userAddress))];
 };
 
 const handleError = (e: unknown) => {
@@ -377,8 +425,8 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
       );
       return success;
     }
-  } catch {
-    logger.error(`Draw: will fail for ${dispute.id}, skipping`);
+  } catch (e) {
+    logger.error(e, `Draw: will fail for ${dispute.id}, skipping`);
     return success;
   }
   let batchIterations = iterations;
@@ -417,8 +465,8 @@ const executeRepartitions = async (dispute: { id: string; currentRoundIndex: str
   let success = false;
   try {
     await core.execute.staticCall(dispute.id, dispute.currentRoundIndex, iterations, { gasLimit: MAX_TX_GAS_LIMIT });
-  } catch {
-    logger.error(`Execute: will fail for ${dispute.id}, skipping`);
+  } catch (e) {
+    logger.error(e, `Execute: will fail for ${dispute.id}, skipping`);
     return success;
   }
   let batchIterations = iterations;
@@ -461,8 +509,8 @@ const executeRuling = async (dispute: { id: string }) => {
   let success = false;
   try {
     await core.executeRuling.staticCall(dispute.id);
-  } catch {
-    logger.error(`ExecuteRuling: will fail for ${dispute.id}, skipping`);
+  } catch (e) {
+    logger.error(e, `ExecuteRuling: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
@@ -517,8 +565,9 @@ export const withdrawAppealContribution = async (
       contribution.contributor.id,
       contribution.choice
     );
-  } catch {
+  } catch (e) {
     logger.warn(
+      e,
       `WithdrawFeesAndRewards: will fail for core dispute #${coreDisputeId}, round #${coreRoundId}, ` +
         `choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
@@ -897,7 +946,7 @@ async function main() {
     // ----------------------------------------------- //
     //             WITHDRAW LEFTOVER PNK               //
     // ----------------------------------------------- //
-    const unstakedJurors = await getUnstakedJurors(dispute.id);
+    const unstakedJurors = await getUnstakedJurors(dispute);
     logger.info(`Unstaked jurors: ${unstakedJurors.map((juror) => juror)}`);
     for (const juror of unstakedJurors) {
       const leftoverPNK = await sortition.getJurorLeftoverPNK(juror);
