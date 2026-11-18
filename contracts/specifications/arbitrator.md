@@ -1,5 +1,7 @@
 # 👨‍⚖️ Arbitrator V2
 
+> Last updated: 2026-03-14 | Based on: kleros-v2 contracts @ dev branch
+
 ## 📋 Overview
 
 The `IArbitratorV2` interface defines the standard interface for arbitration in the Kleros V2 protocol. Unlike its predecessor ERC-792, this standard is not concerned with appeals, allowing each arbitrator to implement an appeal system that best suits its needs.
@@ -20,37 +22,32 @@ The `IArbitratorV2` interface defines the standard interface for arbitration in 
    - [Payment Methods](#1-payment-methods)
    - [Exchange Rates](#2-exchange-rates)
    - [Implementation Considerations](#3-implementation-considerations)
-5. [🔄 Events](#-events)
+5. [🪙 Autostaking PNK Rewards](#-autostaking-pnk-rewards)
+   - [Mechanism](#mechanism)
+   - [Fallback Behavior](#fallback-behavior)
+   - [Benefits](#benefits)
+6. [⏸️ Arbitration Pause System](#️-arbitration-pause-system)
+   - [Grace Period Mechanism](#grace-period-mechanism)
+   - [Appeal Period Adjustments](#appeal-period-adjustments)
+7. [🛡️ Access Control Features](#️-access-control-features)
+   - [Arbitrable Whitelist](#arbitrable-whitelist)
+   - [Juror NFT Eligibility](#juror-nft-eligibility)
+8. [🔄 Events](#-events)
    - [DisputeCreation](#disputecreation)
    - [Ruling](#ruling)
    - [AcceptedFeeToken](#acceptedfeetoken)
-   - [NewCurrencyRate](#newcurrencyrate)
-6. [🔧 Core Methods](#-core-methods)
+   - [ArbitrationUnpaused](#arbitrationunpaused)
+9. [🔧 Core Methods](#-core-methods)
    - [Dispute Creation and Cost Methods](#dispute-creation-and-cost-methods)
-     - [createDispute](#createdispute)
-     - [createDispute (ERC20)](#createdispute-erc20)
-     - [arbitrationCost](#arbitrationcost)
-     - [arbitrationCost (ERC20)](#arbitrationcost-erc20)
-     - [appealCost](#appealcost)
    - [Staking and Drawing](#staking-and-drawing)
-     - [setStake](#setstake)
-     - [draw](#draw)
    - [Dispute Lifecycle Management](#dispute-lifecycle-management)
-     - [passPeriod](#passperiod)
-     - [appeal](#appeal)
-     - [execute](#execute)
-     - [executeRuling](#executeruling)
    - [Current Ruling](#current-ruling)
-     - [currentRuling](#currentruling)
-7. [🛡️ Emergency Controls](#-emergency-controls)
-   - [Roles and Permissions](#roles-and-permissions)
-   - [Pause Mechanism](#pause-mechanism)
-   - [Impact of Pausing](#impact-of-pausing)
-8. [🔗 Related Components](#-related-components)
-9. [🔒 Security Considerations](#-security-considerations)
-   - [Fee Management](#1-fee-management)
-   - [Dispute Creation](#2-dispute-creation)
-   - [Ruling Integrity](#3-ruling-integrity)
+10. [🛡️ Emergency Controls](#️-emergency-controls)
+    - [Roles and Permissions](#roles-and-permissions)
+    - [Pause Mechanism](#pause-mechanism)
+    - [Impact of Pausing](#impact-of-pausing)
+11. [🔗 Related Components](#-related-components)
+12. [🔒 Security Considerations](#-security-considerations)
 
 ## 💫 Typical Flow
 
@@ -82,6 +79,8 @@ The `IArbitratorV2` interface defines the standard interface for arbitration in 
 4. **Ruling Execution**
    - Final ruling determined through `currentRuling`
    - Ruling executed on arbitrable contract
+   - Rewards distributed to coherent jurors
+   - **New**: PNK rewards auto-staked when possible
 
 ### Dispute Lifecycle Sequence
 
@@ -148,177 +147,137 @@ sequenceDiagram
         KlerosCore-->>KlerosCore: emit NewPeriod(evidence)
         Note over Arbitrable,SortitionModule: Return to Evidence Period
     else No Appeal or Appeal Failed
-        Note over KlerosCore: Check: Appeal period deadline passed
+        Note over KlerosCore: Check: Appeal period deadline passed || grace period
         KlerosCore->>KlerosCore: passPeriod()
         KlerosCore-->>KlerosCore: emit NewPeriod(execution)
     end
 
     Note over Arbitrable,SortitionModule: 6. Execution Period
-    loop Execute Rewards
+    loop Execute Rewards (called via execute())
         KlerosCore->>DisputeKit: getCoherentCount()
         KlerosCore->>DisputeKit: getDegreeOfCoherence()
         KlerosCore->>SortitionModule: unlockStake()
-        KlerosCore-->>KlerosCore: emit TokenAndETHShift
-        opt If no coherent votes or residual rewards
-            KlerosCore-->>KlerosCore: emit LeftoverRewardSent
+        alt Auto-stake PNK reward
+            KlerosCore->>SortitionModule: setStakeReward(account, courtID, reward)
+            SortitionModule-->>KlerosCore: success/failure
+        else Direct transfer
+            KlerosCore->>KlerosCore: Transfer PNK to juror
         end
+        KlerosCore-->>KlerosCore: emit JurorRewardPenalty
     end
 
-    KlerosCore->>KlerosCore: executeRuling()
-    KlerosCore-->>KlerosCore: emit Ruling
-    KlerosCore->>Arbitrable: rule()
+    Note over KlerosCore: executeRuling() is a SEPARATE external function
+    Note over KlerosCore: Must be called manually AFTER execute() completes
+    
+    alt Manual executeRuling() call
+        Participant->>KlerosCore: executeRuling(disputeID)
+        KlerosCore-->>KlerosCore: emit Ruling
+        KlerosCore->>Arbitrable: rule()
+    end
 ```
-
-The diagram shows:
-
-1. **Dispute Creation**: Arbitrable contract initiates the dispute
-2. **Evidence Period**: Jurors are drawn through the dispute kit
-   - Requires all jurors to be drawn
-   - For first round: evidence period must also have passed
-3. **Commit Period**: Hidden votes phase (if enabled)
-   - Transitions when deadline passed or all commits cast
-4. **Vote Period**: Jurors cast their votes
-   - Transitions when deadline passed or all votes cast
-5. **Appeal Period**: Possible court/dispute kit jumps if appealed
-   - Transitions to execution if deadline passed without successful appeal
-   - Returns to evidence if appeal successful
-6. **Execution Period**: Rewards distribution and final ruling
-
-Key interactions:
-
-- KlerosCore orchestrates the overall process and emits state change events
-- DisputeKit handles voting mechanics and vote-related events
-- SortitionModule manages stake operations
-- Jurors interact directly with DisputeKit for voting
-- Arbitrable contract initiates and receives the final ruling
 
 ## 🔄 Court and Dispute Kit Jumps
 
-When a dispute is appealed, it may move to a parent court and/or switch dispute kits. The Classic Dispute Kit (ID: 1) serves as a universal fallback mechanism, being mandatorily supported by all courts to ensure disputes can always be resolved.
+When a dispute is appealed, it may move to a parent court and/or switch dispute kits. The system now uses improved logic with the `_getCompatibleNextRoundSettings()` function that delegates to each dispute kit's `getNextRoundSettings()` method for more flexible jump decisions.
 
 ### Jump Flow Diagram
 
 ```mermaid
 graph TD
-    A[Dispute in Court N<br/>with Dispute Kit X] -->|Appeal| B{Check Jurors Count}
-    B -->|nbVotes >= jurorsForCourtJump| C[Move to Parent Court]
-    B -->|nbVotes < jurorsForCourtJump| D[Stay in Current Court]
-
-    C -->|Check DK Support| E{Parent Court<br/>Supports DK X?}
-    E -->|Yes| F[Keep Dispute Kit X]
-    E -->|No| G[Switch to Classic DK]
-
-    F --> H[New Round in<br/>Parent Court<br/>with DK X]
-    G --> I[New Round in<br/>Parent Court<br/>with Classic DK]
-    D --> J[New Round in<br/>Court N with DK X]
+    A[Dispute in Court N<br/>with Dispute Kit X] -->|Appeal| B{DK getNextRoundSettings}
+    B --> C[DK Returns:<br/>newCourtID, newDisputeKitID, nbVotes]
+    C --> D{Validate Settings}
+    
+    D -->|Valid Settings| E{Court Supports<br/>New DK?}
+    D -->|Invalid Settings| F[Fallback:<br/>Current Court + Classic DK<br/>+ Default nbVotes]
+    
+    E -->|Yes| G[Use DK Recommendation]
+    E -->|No| H[Force Classic DK<br/>+ Default nbVotes]
+    
+    F --> I[New Round with<br/>Fallback Settings]
+    G --> J[New Round with<br/>DK Settings]
+    H --> K[New Round with<br/>Classic DK]
 
     style A fill:#fff,stroke:#333
     style B fill:#ff9,stroke:#333
     style C fill:#9cf,stroke:#333
-    style D fill:#9cf,stroke:#333
+    style D fill:#ff9,stroke:#333
     style E fill:#ff9,stroke:#333
-    style F fill:#9cf,stroke:#333
-    style G fill:#f99,stroke:#333
-    style H fill:#9f9,stroke:#333
+    style F fill:#f99,stroke:#333
+    style G fill:#9f9,stroke:#333
+    style H fill:#f99,stroke:#333
     style I fill:#9f9,stroke:#333
     style J fill:#9f9,stroke:#333
+    style K fill:#9f9,stroke:#333
 ```
-
-The diagram shows:
-
-1. Initial dispute state and appeal trigger
-2. Court jump decision based on juror count
-3. Dispute kit compatibility check
-4. Final state after jumps (if any)
 
 ### Court Jump Mechanism
 
-When a dispute is appealed and the number of jurors reaches or exceeds the court's `jurorsForCourtJump` threshold:
+The new court jump mechanism delegates decision-making to dispute kits:
 
-1. **Trigger Conditions**
+1. **DK-Driven Decisions**
 
    ```solidity
-   if (round.nbVotes >= courts[newCourtID].jurorsForCourtJump) {
-       newCourtID = courts[newCourtID].parent;
-   }
+   // Public interface - dispute kits implement this:
+   (newCourtID, newDisputeKitID, newRoundNbVotes) = disputeKits[disputeKitID].getNextRoundSettings(
+       _disputeID,
+       _dispute.courtID,
+       _court.parent,
+       _round.jurorsForCourtJump,
+       disputeKitID,
+       _round.nbVotes
+   );
+
+   // Internal function signature (implementation detail):
+   function _getCompatibleNextRoundSettings(
+       Dispute storage _dispute,
+       Round storage _round,
+       Court storage _court,
+       uint256 _disputeID
+   ) internal view returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes)
    ```
 
-2. **Jump Process**
+2. **Compatibility Enforcement**
 
-   - Dispute moves to parent court
-   - New round created with parent court parameters
-   - Fees and stakes recalculated based on parent court
-   - Emits `CourtJump` event with:
-     ```solidity
-     event CourtJump(
-       uint256 indexed _disputeID,
-       uint256 indexed _roundID,
-       uint96 indexed _fromCourtID,
-       uint96 _toCourtID
-     );
-     ```
+   - If DK returns invalid settings → fallback to current court + Classic DK
+   - If parent court doesn't support new DK → force Classic DK
+   - Ensures disputes always have valid resolution path
 
-3. **Special Cases**
-   - General Court appeals: Reserved for future forking mechanism
-   - Forking Court: Cannot be directly used for disputes
+3. **Validation Rules**
+   ```solidity
+   // Invalid conditions trigger fallback:
+   if (newCourtID == FORKING_COURT ||
+       newCourtID >= courts.length ||
+       newDisputeKitID == NULL_DISPUTE_KIT ||
+       newDisputeKitID >= disputeKits.length ||
+       newRoundNbVotes == 0) {
+       // Use fallback settings
+   }
+   ```
 
 ### Dispute Kit Jump Mechanism
 
-A dispute kit jump occurs only during a court jump when the parent court doesn't support the current dispute kit:
+Dispute kit jumps now occur through the same `getNextRoundSettings()` mechanism:
 
-1. **Trigger Condition**
+1. **Unified Jump Logic**
 
+   - DK can recommend both court and kit changes
+   - Classic Dispute Kit always serves as fallback
+   - Ensures compatibility across all courts
+
+2. **State Migration**
    ```solidity
-   if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
-       newDisputeKitID = DISPUTE_KIT_CLASSIC;
+   if (extraRound.disputeKitID != round.disputeKitID) {
+       emit DisputeKitJump(_disputeID, dispute.rounds.length - 1, round.disputeKitID, extraRound.disputeKitID);
+       disputeKits[extraRound.disputeKitID].createDispute(
+           _disputeID,
+           extraRoundID,
+           _numberOfChoices,
+           _extraData,
+           extraRound.nbVotes
+       );
    }
    ```
-
-   - Always defaults to Classic Dispute Kit (ID: 1)
-   - Classic Dispute Kit must be supported by all courts
-
-2. **Jump Process**
-   - New dispute created in Classic Dispute Kit
-   - State transferred to new dispute kit
-   - Emits `DisputeKitJump` event:
-     ```solidity
-     event DisputeKitJump(
-       uint256 indexed _disputeID,
-       uint256 indexed _roundID,
-       uint256 indexed _fromDisputeKitID,
-       uint256 _toDisputeKitID
-     );
-     ```
-
-### 📝 Implementation Notes
-
-1. **Jump Sequence**
-
-   - Court jump evaluated first
-   - Dispute kit jump follows if needed
-   - Both can occur in same appeal
-   - Classic Dispute Kit ensures resolution continuity
-
-2. **State Management**
-
-   - Dispute parameters updated for new court/kit
-   - Round information preserved
-   - Appeal periods reset
-   - Drawing process restarts
-
-3. **Fee Handling**
-
-   ```solidity
-   extraRound.nbVotes = msg.value / court.feeForJuror;
-   extraRound.pnkAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
-   extraRound.totalFeesForJurors = msg.value;
-   ```
-
-4. **Security Considerations**
-   - Validates court existence
-   - Ensures dispute kit compatibility
-   - Maintains coherent state during transitions
-   - Preserves appeal funding
 
 ## 📦 Extra Data Format
 
@@ -375,53 +334,162 @@ bytes extraData = abi.encode(
 
 ## 💰 Fee Token Support
 
-The arbitrator supports both native currency (ETH) and ERC20 token payments for arbitration fees.
+The arbitrator supports both native currency (ETH) and ERC20 token payments for arbitration fees through the `RatesConverter` integration.
 
 ### 1. Payment Methods
 
-- Native currency (ETH):
+- **Native currency (ETH)**:
 
   - Always supported as the default payment method
   - Direct value transfer through payable functions
   - **Required for appeal fees**: Appeals must be paid in ETH due to complexity of handling token conversions during court jumps
 
-- ERC20 tokens:
-  - Must be explicitly enabled by the governor
+- **ERC20 tokens**:
+  - Must be explicitly enabled by the governor via `changeAcceptedFeeTokens()`
   - Acceptance tracked through `AcceptedFeeToken` events
   - Requires approval before dispute creation
   - Not supported for appeal fees
 
 ### 2. Exchange Rates
 
-- Rate Management:
+- **RatesConverter Integration**:
 
-  - Maintained by the governor
-  - Defined as `(rateInEth, rateDecimals)` pairs
-  - Updates tracked through `NewCurrencyRate` events
-
-- Cost Conversion:
   ```solidity
-  tokenAmount = (ethAmount * 10^rateDecimals) / rateInEth
+  function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
+      return ratesConverter.convert(_toToken, _amountInEth);
+  }
   ```
+
+- **Rate Management**:
+  - Handled by the external `RatesConverter` contract
+  - Governor can update the converter contract via `changeRatesConverter()`
+  - Enables flexible rate management strategies
 
 ### 3. Implementation Considerations
 
-- Rate Maintenance:
+- **Token Validation**:
 
-  - Regular updates to reflect market prices
-  - Balance between accuracy and gas costs
-  - Consider price oracle integration
+  ```solidity
+  if (!acceptedFeeTokens[_feeToken]) revert TokenNotAccepted();
+  if (_feeAmount < arbitrationCost(_extraData, _feeToken)) revert ArbitrationFeesNotEnough();
+  ```
 
-- Token Integration:
+- **Safe Transfer Operations**:
+  ```solidity
+  if (!_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
+  ```
 
-  - Proper decimal handling in conversions
-  - SafeERC20 usage for transfers
-  - Clear documentation of supported tokens
+## 🪙 Autostaking PNK Rewards
 
-- Security:
-  - Rate manipulation protection
-  - Token approval safety
-  - Reentrance protection in fee payments
+A new feature that automatically stakes PNK rewards in the court where the juror was drawn, improving capital efficiency and user experience.
+
+### Mechanism
+
+During reward execution, the system attempts to auto-stake PNK rewards:
+
+```solidity
+// In _executeRewards()
+uint96 rewardedInCourtID = round.drawnJurorFromCourtIDs[repartition];
+
+// Try to stake the PNK reward automatically
+if (!sortitionModule.setStakeReward(account, rewardedInCourtID, pnkReward)) {
+    // If auto-staking fails, transfer directly to juror
+    pinakion.safeTransfer(account, pnkReward);
+}
+```
+
+### Fallback Behavior
+
+Auto-staking can fail in several scenarios, triggering direct transfer:
+
+1. **Zero Reward**: No reward to stake
+2. **Unstaked Juror**: Juror has been fully unstaked from the court
+3. **Max Stake Exceeded**: Would exceed `maxStakePerJuror` limits
+4. **Total Stake Limits**: Would exceed global staking limits
+
+### Benefits
+
+1. **Capital Efficiency**: Rewards immediately compound
+2. **User Experience**: No manual restaking required
+3. **Gas Savings**: Avoids separate staking transactions
+4. **Seamless Integration**: Transparent fallback behavior
+
+## ⏸️ Arbitration Pause System
+
+Enhanced pause system with grace periods for smoother transitions during emergency situations.
+
+### Grace Period Mechanism
+
+When arbitration is unpaused after being paused:
+
+```solidity
+function unpauseArbitration(uint256 _gracePeriod) external onlyByOwner {
+    if (!arbitrationPaused) revert WhenArbitrationPausedOnly();
+    arbitrationPaused = false;
+    arbitrationPauseGracePeriodStart = block.timestamp;
+    arbitrationPauseGracePeriodEnd = block.timestamp + _gracePeriod;
+    emit ArbitrationUnpaused(arbitrationPauseGracePeriodEnd);
+}
+```
+
+### Appeal Period Adjustments
+
+During grace periods, appeal periods are automatically adjusted:
+
+```solidity
+function appealPeriod(uint256 _disputeID) external view returns (uint256 start, uint256 end) {
+    // ... normal calculation ...
+    if (end < arbitrationPauseGracePeriodEnd) {
+        // Currently in unpause grace period, adjust the start and end times
+        start = arbitrationPauseGracePeriodStart;
+        end = arbitrationPauseGracePeriodEnd;
+    }
+}
+```
+
+**Benefits**:
+- Prevents unfair expiration of appeal periods during pauses
+- Provides time buffer for system stabilization
+- Maintains fairness for ongoing disputes
+
+## 🛡️ Access Control Features
+
+### Arbitrable Whitelist
+
+Optional whitelist system for restricting which contracts can create disputes:
+
+```solidity
+mapping(address => bool) public arbitrableWhitelist;
+bool public arbitrableWhitelistEnabled;
+
+// In dispute creation:
+if (arbitrableWhitelistEnabled && !arbitrableWhitelist[msg.sender]) {
+    revert ArbitrableNotWhitelisted();
+}
+```
+
+**Use Cases**:
+- Gradual rollout of new arbitrable contracts
+- Quality control for dispute sources
+- Emergency restriction capabilities
+
+### Juror NFT Eligibility
+
+Optional NFT requirement for juror participation:
+
+```solidity
+IERC721 public jurorNft;
+
+// In staking:
+if (address(jurorNft) != address(0) && jurorNft.balanceOf(msg.sender) == 0) {
+    revert NotEligibleForStaking();
+}
+```
+
+**Features**:
+- Can be disabled by setting to zero address
+- Checked during staking operations
+- Enables reputation-based jury systems
 
 ## 🔄 Events
 
@@ -431,22 +499,11 @@ The arbitrator supports both native currency (ETH) and ERC20 token payments for 
 event DisputeCreation(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable)
 ```
 
-- Emitted when a new dispute is created
-- Parameters:
-  - `_disputeID`: Unique identifier for the dispute
-  - `_arbitrable`: Contract which created the dispute
-
 ### Ruling
 
 ```solidity
 event Ruling(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling)
 ```
-
-- Emitted when a ruling is given
-- Parameters:
-  - `_arbitrable`: Contract receiving the ruling
-  - `_disputeID`: Identifier of the dispute
-  - `_ruling`: The ruling value
 
 ### AcceptedFeeToken
 
@@ -454,24 +511,21 @@ event Ruling(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint
 event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted)
 ```
 
-- Emitted when an ERC20 token is added/removed as a payment method
-- Parameters:
-  - `_token`: The ERC20 token
-  - `_accepted`: Whether the token is accepted
-
-### NewCurrencyRate
+### ArbitrationUnpaused
 
 ```solidity
-event NewCurrencyRate(IERC20 indexed _feeToken, uint64 _rateInEth, uint8 _rateDecimals)
+event ArbitrationUnpaused(uint256 _gracePeriodEnd)
 ```
 
-- Emitted when fee rates for an ERC20 token are updated
-- Parameters:
-  - `_feeToken`: The ERC20 token
-  - `_rateInEth`: New rate in ETH
-  - `_rateDecimals`: Decimals for the rate
+**New in V2**: Includes grace period end timestamp for tracking appeal period adjustments.
+
+**Note**: The event is defined in IArbitratorV2.sol but fee token support is KlerosCore-specific, not a universal arbitrator requirement.
 
 ## 🔧 Core Methods
+
+## Public Interface
+
+The following methods are part of the stable external API and can be safely called by arbitrable contracts and external integrators:
 
 ### Dispute Creation and Cost Methods
 
@@ -484,18 +538,6 @@ function createDispute(
 ) external payable returns (uint256 disputeID)
 ```
 
-- Creates a dispute with native currency payment (typically ETH)
-- Parameters:
-  - `_numberOfChoices`: Number of ruling options
-  - `_extraData`: Additional dispute data containing:
-    - Court ID (first 32 bytes)
-    - Minimum jurors required (next 32 bytes)
-    - Dispute kit ID (last 32 bytes)
-- Returns: Unique identifier for the created dispute
-- Requirements:
-  - Must be called by the arbitrable contract
-  - Payment must be >= `arbitrationCost(_extraData)`
-
 #### createDispute (ERC20)
 
 ```solidity
@@ -507,49 +549,12 @@ function createDispute(
 ) external returns (uint256 disputeID)
 ```
 
-- Creates a dispute with ERC20 token payment
-- Additional Parameters:
-  - `_feeToken`: ERC20 token used for payment
-  - `_feeAmount`: Amount of tokens to pay
-- Requirements:
-  - Token must be accepted for fee payment
-  - Amount must be >= `arbitrationCost(_extraData, _feeToken)`
-
 #### arbitrationCost
 
 ```solidity
 function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost)
+function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) external view returns (uint256 cost)
 ```
-
-- Computes arbitration cost in native currency
-- In KlerosCoreBase: Cost = `feeForJuror * minJurors`
-- Note: Changes should be infrequent due to gas costs for arbitrable contracts
-
-#### arbitrationCost (ERC20)
-
-```solidity
-function arbitrationCost(
-    bytes calldata _extraData,
-    IERC20 _feeToken
-) external view returns (uint256 cost)
-```
-
-- Computes arbitration cost in specified ERC20 token
-- Uses currency rates to convert from native currency cost
-
-#### appealCost
-
-```solidity
-function appealCost(uint256 _disputeID) public view returns (uint256 cost)
-```
-
-- Gets the cost of appealing a specified dispute
-- Cost calculation:
-  - If staying in current court: `feeForJuror * ((nbVotes * 2) + 1)`
-  - If jumping to parent court: uses parent court's `feeForJuror`
-  - If appealing in General Court: returns non-payable amount (reserved for future forking mechanism)
-- Cost increases exponentially with each appeal to discourage frivolous appeals
-- **Important**: Appeal fees must always be paid in ETH (native currency) due to complexity of handling token conversions during court jumps
 
 ### Staking and Drawing
 
@@ -559,30 +564,15 @@ function appealCost(uint256 _disputeID) public view returns (uint256 cost)
 function setStake(uint96 _courtID, uint256 _newStake) external whenNotPaused
 ```
 
-- Allows jurors to stake/unstake PNK in courts
-- Delegated to `SortitionModule` which:
-  - Manages the sortition trees for each court
-  - Handles stake transitions and delayed stakes
-  - Tracks total staked amounts
-  - Ensures proper stake accounting
-- Requirements:
-  - System must not be paused
-  - Stake amount must meet court's minimum requirement
-  - Court must be valid (not Forking Court)
+**New features**:
+- NFT eligibility check if `jurorNft` is configured
+- Enhanced validation through `SortitionModule`
 
 #### draw
 
 ```solidity
-function draw(uint256 _disputeID, uint256 _iterations) external
+function draw(uint256 _disputeID, uint256 _iterations) external returns (uint256 nbDrawnJurors)
 ```
-
-- Draws jurors for a dispute during evidence period
-- Delegated to the dispute kit associated with the dispute
-- Can be called in parts through `_iterations` parameter
-- For each successful draw:
-  - Locks juror's PNK stake as collateral
-  - Emits `Draw` event
-  - Updates round information
 
 ### Dispute Lifecycle Management
 
@@ -592,14 +582,9 @@ function draw(uint256 _disputeID, uint256 _iterations) external
 function passPeriod(uint256 _disputeID) external
 ```
 
-- Advances dispute to next period when conditions are met
-- Period sequence: evidence → commit → vote → appeal → execution
-- Each transition has specific requirements:
-  - Evidence: All jurors must be drawn
-  - Commit: All commits must be cast (if hidden votes)
-  - Vote: All votes must be cast
-  - Appeal: Appeal period must have passed
-  - Execution: Final state
+**Enhanced with**:
+- Grace period checks for arbitration pause
+- Improved validation logic
 
 #### appeal
 
@@ -607,13 +592,26 @@ function passPeriod(uint256 _disputeID) external
 function appeal(uint256 _disputeID, uint256 _numberOfChoices, bytes memory _extraData) external payable
 ```
 
-- Handles appeals of dispute rulings
-- Delegated to the dispute kit for appeal validation
-- Manages:
-  - Court jumps when juror count threshold is reached
-  - Dispute kit jumps when parent court compatibility requires
-  - Creation of new rounds
-  - Fee payments and stake calculations
+**New features**:
+- Improved court/DK jump logic via `_getCompatibleNextRoundSettings()`
+- Better compatibility validation
+
+## Internal Mechanics (implementation detail)
+
+The following are internal functions and implementation details that are subject to change. Do not depend on these externally:
+
+#### _getCompatibleNextRoundSettings
+
+```solidity
+function _getCompatibleNextRoundSettings(
+    Dispute storage _dispute,
+    Round storage _round,
+    Court storage _court,
+    uint256 _disputeID
+) internal view returns (uint96 newCourtID, uint256 newDisputeKitID, uint256 newRoundNbVotes)
+```
+
+**Internal function** that determines optimal settings for the next round during appeals by delegating to dispute kit implementations.
 
 #### execute
 
@@ -621,13 +619,11 @@ function appeal(uint256 _disputeID, uint256 _numberOfChoices, bytes memory _extr
 function execute(uint256 _disputeID, uint256 _round, uint256 _iterations) external whenNotPaused
 ```
 
-- Distributes PNK stakes and dispute fees to jurors
-- Can be called in parts through `_iterations`
-- Handles:
-  - PNK penalties for incoherent votes
-  - Fee distribution to coherent jurors
-  - Reward calculations based on vote coherence
-  - Leftover reward distribution
+**Enhanced with**:
+- Auto-staking PNK rewards via `setStakeReward()`
+- Improved reward distribution logic
+
+**Important**: `execute()` distributes rewards but does NOT emit rulings. After all rewards are distributed, you must call `executeRuling()` separately.
 
 #### executeRuling
 
@@ -635,12 +631,11 @@ function execute(uint256 _disputeID, uint256 _round, uint256 _iterations) extern
 function executeRuling(uint256 _disputeID) external
 ```
 
-- Finalizes dispute by executing the ruling
-- Can only be called in execution period
-- Ensures:
-  - Dispute is in execution period
-  - Ruling hasn't been executed before
-- Emits final ruling and calls arbitrable contract
+**Separate function** for emitting rulings and calling the arbitrable contract:
+- Emits the `Ruling` event
+- Calls `rule()` on the arbitrable contract with the final decision
+- Must be called manually AFTER `execute()` completes all reward distribution
+- This separation allows for proper reward processing before final ruling execution
 
 ### Current Ruling
 
@@ -652,121 +647,90 @@ function currentRuling(
 ) external view returns (uint256 ruling, bool tied, bool overridden)
 ```
 
-- Gets current ruling for a dispute
-- Returns:
-  - `ruling`: Current ruling value
-  - `tied`: Whether there's a tie
-  - `overridden`: Whether ruling was overridden by appeal funding
-
-These methods work together to enable:
-
-1. Juror selection through secure stake-weighted randomization
-2. Multi-round dispute resolution with appeals
-3. Economic incentives through coherence-based rewards
-4. Seamless transitions between courts and dispute kits
-
 ## 🛡️ Emergency Controls
-
-The Kleros V2 protocol implements an emergency control system that allows rapid response to potential security threats while maintaining a balance between security and decentralization.
 
 ### Roles and Permissions
 
 1. **Guardian**
-
-   - Focused security role with limited permissions
-   - Can pause the system in emergencies
-   - Currently set to a multisig contract for quick response
-   - Cannot unpause the system (requires governor)
-   - Cannot modify system parameters
+   - Can pause arbitration period transitions
+   - Cannot unpause (requires governor)
+   - Quick emergency response capability
 
 2. **Governor**
-   - Administrative role with broader permissions
-   - Can both pause and unpause the system
-   - Can change system parameters
-   - Can execute governance proposals
-   - Can change both guardian and governor addresses
-   - Currently set to a multisig contract distinct from the guardian
-   - Planned to transition to DAO control via the KlerosGovernor contract, following the governance model of Kleros v1
+   - Full pause/unpause capabilities
+   - Can set grace periods during unpause
+   - Manages all system parameters
+   - Plans to transition to DAO control
 
 ### Pause Mechanism
 
-The pause mechanism is implemented through two key functions:
-
 ```solidity
-function pause() external onlyByGuardianOrGovernor whenNotPaused
-function unpause() external onlyByGovernor whenPaused
+function pauseArbitration() external onlyByGuardianOrOwner
+function unpauseArbitration(uint256 _gracePeriod) external onlyByOwner
 ```
-
-Key characteristics:
-
-- Pausing can be triggered by either guardian or governor
-- Only the governor can unpause the system
-- State changes emit corresponding events:
-  ```solidity
-  event Paused();
-  event Unpaused();
-  ```
-- Prevents duplicate pause/unpause calls through state checks
 
 ### Impact of Pausing
 
-When the system is paused:
+**When arbitration is paused**:
+- Period transitions blocked (`passPeriod`)
+- Drawing operations blocked (`draw`)
+- Appeals blocked through period transition prevention
+- Dispute creation and voting continue normally
 
-1. **Blocked Operations**
-
-   - Staking operations (`setStake`)
-   - Reward execution and distribution (`execute`)
-   - Any operation marked with `whenNotPaused` modifier
-
-2. **Allowed Operations**
-   - Dispute creation remains active
-   - Voting continues to function
-   - Core dispute resolution remains operational
-   - Appeal mechanisms stay active
-
-This selective pausing ensures that while potentially vulnerable economic operations can be halted, the core arbitration functionality remains available to users.
-
-The pause mechanism serves as a critical security control that:
-
-- Provides rapid response capability to security events
-- Protects user assets during emergencies
-- Maintains essential dispute resolution services
-- Ensures controlled recovery through governor-only unpause
+**Grace period behavior**:
+- Appeal periods extended during grace window
+- Provides fair transition time
+- Prevents unfair deadline expiration
 
 ## 🔗 Related Components
 
-- `IArbitrableV2`: Interface for contracts that can be arbitrated
-- `KlerosCoreBase`: Reference implementation of the arbitrator interface
-- Dispute Kits:
-  - `DisputeKitClassic`: Default implementation with proportional drawing to staked PNK and plurality voting. Mandatorily supported by all courts as a fallback mechanism.
-  - `DisputeKitSybilResistant`: Variant requiring Proof of Humanity registration for drawing
-  - `DisputeKitGated`: Variant requiring token holdings (ERC20/721/1155) for drawing
-  - More dispute kits can be implemented to support different voting mechanisms, but courts must always support the Classic Dispute Kit
-- `EvidenceModule`: Handles submission and tracking of evidence for disputes
-- `SortitionModule`: Manages juror selection and stake tracking using sortition trees
+- **Core Contracts**:
+  - `KlerosCore`: Main arbitrator implementation
+  - `SortitionModule`: Enhanced with `setStakeReward()` for autostaking
+  - `RatesConverter`: New component for ERC20 fee conversion
+
+- **Dispute Kits**:
+  - `DisputeKitClassic`: Universal fallback with improved jump logic
+  - `DisputeKitSybilResistant`: Proof of Humanity integration
+  - `DisputeKitGated`: Token-gated jury selection
+
+- **Supporting Modules**:
+  - `EvidenceModule`: Evidence submission and tracking
+  - `DisputeTemplateRegistry`: Template management
+  - `PolicyRegistry`: Court policy management
+
+## Error Conditions
+
+| Operation | Failure condition | Result |
+|-----------|------------------|--------|
+| createDispute() | Insufficient fee | Reverts |
+| createDispute() | Invalid court ID | Defaults to General Court |
+| createDispute() | Invalid dispute kit | Defaults to Classic Dispute Kit |
+| setStake() | Arbitration paused | Reverts |
+| appeal() | Appeal period expired | Reverts |
+| appeal() | Insufficient funding | Reverts |
+| draw() | Arbitration paused | Reverts |
+| execute() | Arbitration paused | Reverts |
+| executeRuling() | Dispute not in execution | Reverts |
 
 ## 🔒 Security Considerations
 
 1. **Fee Management**
+   - ERC20 rates must be maintained carefully through `RatesConverter`
+   - Appeal fees restricted to ETH for security
+   - Proper validation of token transfers
 
-   - Arbitration costs should change infrequently:
-     - Frequent changes force arbitrable contracts to update their stored fees
-     - Each update costs significant gas for arbitrable contracts
-     - Changes can make pending transactions invalid if fees increase
-   - Cost calculation must be deterministic and consistent
-   - ERC20 rates must be carefully maintained to ensure fair fee conversion
+2. **Access Controls**
+   - NFT eligibility prevents unauthorized jury participation
+   - Arbitrable whitelist provides quality control
+   - Grace periods prevent unfair deadline exploitation
 
-2. **Dispute Creation**
+3. **Autostaking Security**
+   - Respects staking limits to prevent manipulation
+   - Graceful fallback ensures rewards are never lost
+   - No additional attack vectors introduced
 
-   - Only arbitrable contracts can create disputes
-   - Fees must be paid upfront
-   - Extra data validation is critical
-
-3. **Ruling Integrity**
-   - Rulings are final once executed
-   - Appeal system must be robust
-   - Tied votes must be handled consistently
-
-## ⚙️ Core Functions
-
-The KlerosCore contract delegates key functionality to specialized modules while maintaining the orchestration of the dispute lifecycle.
+4. **Court/DK Jumps**
+   - Validation ensures disputes always have valid resolution path
+   - Classic DK serves as universal fallback
+   - No manipulation possible through invalid settings
