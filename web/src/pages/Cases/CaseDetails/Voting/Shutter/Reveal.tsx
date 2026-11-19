@@ -16,6 +16,8 @@ import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 
+import { EnsureChain } from "components/EnsureChain";
+
 const Container = styled.div`
   width: 100%;
   height: auto;
@@ -79,12 +81,14 @@ const Reveal: React.FC<IReveal> = ({ voteIDs, setIsOpen, disputeKitId, commit, a
 
   return (
     <Container>
-      <Button
-        text={t("buttons.reveal_your_vote")}
-        onPress={handleReveal}
-        isDisabled={isPending}
-        isLoading={isPending}
-      />
+      <EnsureChain>
+        <Button
+          text={t("buttons.reveal_your_vote")}
+          onPress={handleReveal}
+          isDisabled={isPending}
+          isLoading={isPending}
+        />
+      </EnsureChain>
       {/* TODO: if justification is not stored, show input for it */}
     </Container>
   );
