@@ -6,13 +6,13 @@ import type { Address } from "viem";
 
 import { useCastCommit } from "hooks/useCastCommit";
 import { useCountdown } from "hooks/useCountdown";
+import { getPeriodDeadline } from "utils/getPeriodDeadline";
 
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { DisputeKits } from "src/dispute-kits";
 import { isUndefined } from "src/utils";
 
-import { getDeadline } from "../../Timeline";
 import OptionsContainer from "../OptionsContainer";
 
 const Container = styled.div`
@@ -39,7 +39,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
   const { data: disputeData } = useDisputeDetailsQuery(id);
 
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
-  const deadlineCommitPeriod = getDeadline(
+  const deadlineCommitPeriod = getPeriodDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
     dispute?.currentRound.timesPerPeriod
@@ -52,12 +52,14 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, dispute, cu
 
   const handleCommit = useCallback(
     async (choice: bigint) => {
-      if (isUndefined(currentRoundIndex)) {
+      // No known commit deadline (data missing, or a period too long to represent): a default delay could reveal the
+      // vote while others are still committing.
+      if (isUndefined(currentRoundIndex) || isUndefined(countdownToVotingPeriod)) {
         return;
       }
       /* an extra 300 seconds (5 minutes) of decryptionDelay is enforced after Commit period is over
       to avoid premature decryption and voting attacks if no one passes the Commit period quickly */
-      const decryptionDelay = (countdownToVotingPeriod ?? 0) + 300;
+      const decryptionDelay = countdownToVotingPeriod + 300;
 
       await castCommit({
         disputeKitId,

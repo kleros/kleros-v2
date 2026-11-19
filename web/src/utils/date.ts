@@ -15,6 +15,39 @@ export function secondsToDayHourMinute(seconds: number): string {
   return d > 0 ? `${d}d ${h}h ${m}m` : `${h}h ${m}m ${s}s`;
 }
 
+type TimeUnit = "day" | "hour" | "minute" | "second";
+
+const formatUnit = (value: number, unit: TimeUnit, locale: string) =>
+  new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "narrow" }).format(value);
+
+/** Remaining time as its two largest units, localized: "2d 5h", "5h 12m", "12m 30s" or "30s". */
+export function formatTimeLeft(seconds: number, locale = "en-US"): string {
+  const s = Math.max(Math.floor(seconds), 0);
+  const parts: [number, TimeUnit][] = [
+    [Math.floor(s / 86400), "day"],
+    [Math.floor((s % 86400) / 3600), "hour"],
+    [Math.floor((s % 3600) / 60), "minute"],
+    [s % 60, "second"],
+  ];
+  const largest = parts.findIndex(([value]) => value > 0);
+  const start = largest === -1 ? parts.length - 1 : largest;
+  return parts
+    .slice(start, start + 2)
+    .map(([value, unit]) => formatUnit(value, unit, locale))
+    .join(" ");
+}
+
+/** Weekday, date and time in the user's time zone, e.g. "Thu, Oct 8, 7:12 PM": for deadlines days away at most. */
+export function formatLocalDateTime(unixTimestamp: number, locale = "en-US"): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(unixTimestamp * 1000);
+}
+
 export function getOneYearAgoTimestamp(): number {
   const currentTime = new Date().getTime() / 1000;
   return currentTime - 31536000; // One year in seconds

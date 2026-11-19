@@ -13,6 +13,7 @@ import ScrollTop from "components/ScrollTop";
 
 import Community from "./Community";
 import CourtOverview from "./CourtOverview";
+import JurorActions from "./JurorActions";
 import TopJurors from "./TopJurors";
 
 const Wrapper = styled.div`
@@ -38,6 +39,7 @@ const Home: React.FC = () => (
     <Wrapper>
       <HeroImage />
       <Container>
+        <JurorActions />
         <CourtOverview />
         <LatestCases />
         <TopJurors />

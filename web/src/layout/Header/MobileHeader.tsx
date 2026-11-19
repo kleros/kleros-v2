@@ -9,6 +9,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import LightButton from "components/LightButton";
 
+import JurorActionsIndicator from "./JurorActionsIndicator";
 import Logo from "./Logo";
 import NavBar from "./navbar";
 
@@ -24,6 +25,12 @@ const Container = styled.div`
       display: none;
     `
   )}
+`;
+
+const RightSide = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 const StyledLightButton = styled(LightButton)`
@@ -55,7 +62,10 @@ const MobileHeader = () => {
       <OpenContext.Provider value={memoizedContext}>
         <Logo />
         <NavBar />
-        <StyledLightButton text="" Icon={HamburgerIcon} onPress={toggleIsOpen} />
+        <RightSide>
+          <JurorActionsIndicator onOpen={() => toggleIsOpen(false)} />
+          <StyledLightButton text="" Icon={HamburgerIcon} onPress={toggleIsOpen} />
+        </RightSide>
       </OpenContext.Provider>
     </Container>
   );

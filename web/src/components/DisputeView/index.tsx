@@ -6,21 +6,13 @@ import { Address, formatEther } from "viem";
 import { Periods } from "consts/periods";
 import { useIsList } from "context/IsListProvider";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import { getPeriodDeadline } from "utils/getPeriodDeadline";
 
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
 import DisputeCardView from "./DisputeCardView";
 import DisputeListView from "./DisputeListView";
-
-export const getPeriodEndTimestamp = (
-  lastPeriodChange: string,
-  currentPeriodIndex: number,
-  timesPerPeriod: string[]
-) => {
-  const durationCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex]);
-  return parseInt(lastPeriodChange) + durationCurrentPeriod;
-};
 
 interface IDisputeView extends DisputeDetailsFragment {
   overrideIsList?: boolean;
@@ -41,9 +33,9 @@ const DisputeView: React.FC<IDisputeView> = ({
   const currentPeriodIndex = Periods[period];
   const rewards = `≥ ${formatEther(BigInt(court.feeForJuror))} ETH`;
   const date =
-    currentPeriodIndex === 4
+    currentPeriodIndex === Periods.execution
       ? parseInt(lastPeriodChange, 10)
-      : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, currentRound.timesPerPeriod);
+      : getPeriodDeadline(currentPeriodIndex, lastPeriodChange, currentRound.timesPerPeriod);
   const {
     data: populatedDisputeDetails,
     isError,
