@@ -16,7 +16,7 @@ import { parseWagmiError } from "utils/parseWagmiError";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { DisputeKits } from "src/dispute-kits";
-import { prepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
+import { tryPrepareArbitratorExtradata } from "src/dispute-kits/prepareArbitratorExtradata";
 
 import { EnsureChain } from "components/EnsureChain";
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
@@ -42,6 +42,13 @@ const SubmitBatchDisputesButton: React.FC = () => {
   }, [userBalance, disputeData, batchSize]);
 
   const chainKey = (chainId ?? DEFAULT_CHAIN.id) as keyof typeof disputeResolverAddress;
+  // undefined for a draft whose dispute kit data can't be encoded, which disables the button
+  const extraData = tryPrepareArbitratorExtradata(
+    disputeData.courtId ?? "1",
+    disputeData.numberOfJurors ?? 3,
+    disputeData.disputeKitId ?? DisputeKits.Classic,
+    disputeData.disputeKitData
+  );
   const {
     executeBatch,
     batchConfig,
@@ -53,21 +60,11 @@ const SubmitBatchDisputesButton: React.FC = () => {
       abi: disputeResolverAbi,
       address: disputeResolverAddress[chainKey],
       functionName: "createDisputeForTemplate",
-      args: [
-        prepareArbitratorExtradata(
-          disputeData.courtId ?? "1",
-          disputeData.numberOfJurors ?? 3,
-          disputeData.disputeKitId ?? DisputeKits.Classic,
-          disputeData.disputeKitData
-        ),
-        JSON.stringify(disputeTemplate),
-        "",
-        BigInt(disputeTemplate.answers.length),
-      ],
+      args: [extraData ?? "0x", JSON.stringify(disputeTemplate), "", BigInt(disputeTemplate.answers.length)],
       value: BigInt(disputeData.arbitrationCost ?? 0),
     })),
     {
-      enabled: !insufficientBalance && isTemplateValid(disputeTemplate),
+      enabled: !insufficientBalance && isTemplateValid(disputeTemplate) && !isUndefined(extraData),
     }
   );
 
@@ -76,10 +73,11 @@ const SubmitBatchDisputesButton: React.FC = () => {
       isError ||
       isSubmittingCase ||
       !isTemplateValid(disputeTemplate) ||
+      isUndefined(extraData) ||
       isBalanceLoading ||
       insufficientBalance ||
       isLoadingConfig,
-    [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate, isLoadingConfig, isError]
+    [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate, extraData, isLoadingConfig, isError]
   );
 
   const errorMsg = useMemo(() => {

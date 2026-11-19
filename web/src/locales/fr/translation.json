@@ -106,6 +106,7 @@
       "you_need_non_zero_pnk": "Vous avez besoin d'un solde PNK non nul pour déposer",
       "min_stake_in_court": "Dépôt minimum dans la cour est : {{amount}} PNK",
       "invalid_dispute": "Litige invalide",
+      "token_id_must_be_whole_number": "L'ID du jeton doit être un nombre entier",
       "allowed_file_types": "Types de fichiers autorisés : [{{types}}], Taille maximale autorisée : {{maxSize}} Mo."
     }
   },

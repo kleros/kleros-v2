@@ -12,7 +12,6 @@ import DocIcon from "svgs/icons/doc.svg";
 import PnkIcon from "svgs/icons/pnk.svg";
 import VotedIcon from "svgs/icons/voted-ballot.svg";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
 import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -40,7 +39,6 @@ const Container = styled.div`
 `;
 
 const StyledTabs = styled(TabsComponent)`
-  ${tabsSelectedUnderline}
   width: 100%;
   margin-top: ${responsiveSize(16, 32)};
   > * {

@@ -7,7 +7,6 @@ import { useDebounce } from "react-use";
 
 import { BigNumberField } from "@kleros/ui-components-library";
 
-import { useBigNumberFieldReset } from "hooks/useBigNumberFieldReset";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePnkData } from "hooks/usePNKData";
 import { uncommify } from "utils/commify";
@@ -83,7 +82,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
   const [debouncedAmount, setDebouncedAmount] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { key: fieldKey, inputRef } = useBigNumberFieldReset(amount);
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
 
@@ -133,13 +131,10 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       <InputArea>
         <InputFieldAndButton>
           <StyledField
-            key={fieldKey}
-            inputRef={inputRef}
-            // `amount` is the decimal string viem's parseUnits consumes.
-            // TODO(ui-components-library): drop the `isZero` mapping and `|| undefined` once the
-            // field reports an emptied input as empty (same issue as useBigNumberFieldReset).
-            value={amount || undefined}
-            onChange={(value) => setAmount(value.isZero() ? "" : value.toString())}
+            // `amount` is the decimal string viem's parseUnits consumes, or "" while the field
+            // holds no number.
+            value={amount}
+            onValueChange={(value) => setAmount(value?.toString() ?? "")}
             minValue="0"
             isWheelDisabled
             inputProps={{ "aria-label": placeholder }}

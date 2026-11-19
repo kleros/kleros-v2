@@ -19,11 +19,9 @@ import { isLastRound } from "utils/isLastRound";
 
 import { useAppealCost } from "queries/useAppealCost";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 const StyledTabs = styled(TabsComponent)`
-  ${tabsSelectedUnderline}
   width: 100%;
   margin-top: ${responsiveSize(10, 28)};
   > * {

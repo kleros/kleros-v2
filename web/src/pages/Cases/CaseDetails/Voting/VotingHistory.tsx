@@ -16,7 +16,6 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
 import { useVotingHistory } from "queries/useVotingHistory";
 
-import { tabsSelectedUnderline } from "styles/commonStyles";
 import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
@@ -33,7 +32,6 @@ const Container = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  ${tabsSelectedUnderline}
   width: 100%;
 `;
 

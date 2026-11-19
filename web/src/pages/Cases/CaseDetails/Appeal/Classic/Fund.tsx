@@ -9,7 +9,6 @@ import { useAccount, useBalance } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 
 import { REFETCH_INTERVAL } from "consts/index";
-import { useBigNumberFieldReset } from "hooks/useBigNumberFieldReset";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useFundAppeal } from "hooks/useFundAppeal";
 import { useParsedAmount } from "hooks/useParsedAmount";
@@ -65,7 +64,6 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
   const { address, isDisconnected } = useAccount();
   const { t } = useTranslation();
   const labelId = useId();
-  const { key: fieldKey, inputRef } = useBigNumberFieldReset(amount);
 
   const { selectedOption } = useSelectedOptionContext();
   const needFund = useNeedFund();
@@ -115,13 +113,10 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen, disputeKitId }) =
     <Container>
       <StyledLabel id={labelId}>{t("appeal.how_much_eth_contribute")}</StyledLabel>
       <EthAmountField
-        key={fieldKey}
-        inputRef={inputRef}
-        // `amount` is the decimal string viem's parseUnits consumes.
-        // TODO(ui-components-library): drop the `isZero` mapping and `|| undefined` once the field
-        // reports an emptied input as empty (same issue as useBigNumberFieldReset).
-        value={amount || undefined}
-        onChange={(value) => setAmount(value.isZero() ? "" : value.toString())}
+        // `amount` is the decimal string viem's parseUnits consumes, or "" while the field
+        // holds no number.
+        value={amount}
+        onValueChange={(value) => setAmount(value?.toString() ?? "")}
         minValue="0"
         isWheelDisabled
         inputProps={{ "aria-labelledby": labelId }}
