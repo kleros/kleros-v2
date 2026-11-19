@@ -8,7 +8,7 @@ import {ISortitionModule} from "../interfaces/ISortitionModule.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {SafeSend} from "../../libraries/SafeSend.sol";
-import {ONE_BASIS_POINT} from "../../libraries/Constants.sol";
+import {ONE_BASIS_POINT, FORKING_COURT, FORKING_DISPUTE_KIT} from "../../libraries/Constants.sol";
 
 /// @title DisputeKitClassic
 /// @notice Dispute kit implementation of the Kleros v1 features including:
@@ -739,6 +739,11 @@ contract DisputeKitClassic is IDisputeKit, Initializable, UUPSProxiable {
         if (newCourtID == 0) {
             // Default court jump logic, unaffected by the newRoundNbVotes override
             newCourtID = _currentRoundNbVotes >= _currentCourtJurorsForJump ? _parentCourtID : _currentCourtID;
+        }
+
+        // Temporary special case for the Forking Court.
+        if (newCourtID == FORKING_COURT) {
+            return (FORKING_COURT, FORKING_DISPUTE_KIT, 0);
         }
         if (newDisputeKitID == 0) {
             // jumpDisputeKitID is undefined for next round
